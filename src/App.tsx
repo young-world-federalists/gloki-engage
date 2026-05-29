@@ -6,6 +6,25 @@ import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FROZEN ROUTE MAP — the Voices-for-the-Climate journey.
+//
+// Phase 0 pre-registers every top-level route a lane needs, each pointing at a
+// lane-owned component. Every area uses a `/*` wildcard so a lane adds its own
+// sub-routes INSIDE its owned component. THEREFORE: lanes must NOT edit App.tsx.
+// Need a new top-level route? Record it in MASTER_TODO §10 for the next
+// Foundation pass — do not add it here from a lane branch.
+//
+//   /                                         → redirect to /stage/problem
+//   /welcome/*                                → Lane A   onboarding journey
+//   /stage/:stageId                           → (shell)  stage feed mini-apps
+//   /identity/*                               → Lane A   identity / profile / about
+//   /create-community                         → (shell)  create-community onboarding
+//   /community/:communityId/*                 → Lane G   community home + currency
+//   /initiative/:host/:agent/:cid/:iid/*      → Lanes B/C/D/E via stage components
+//   /mandate/:communityId/:mandateId/*        → Lane E   published mandate + adoption
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Get the base path from Vite's import.meta.env.BASE_URL
 const getBasename = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -17,11 +36,11 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const StageFeedView = lazy(() => import('./pages/StageFeedView'));
 const IdentityView = lazy(() => import('./pages/IdentityView'));
 const CommunityView = lazy(() => import('./pages/CommunityView'));
-const IssueView = lazy(() => import('./pages/IssueView'));
 const InitiativeView = lazy(() => import('./pages/collaboration/InitiativeView'));
-const WishView = lazy(() => import('./pages/collaboration/WishView'));
-const AgreementView = lazy(() => import('./pages/collaboration/AgreementView'));
 const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
+// Lane placeholder areas — owning lane replaces the stub component (not this file).
+const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow'));
+const MandatePage = lazy(() => import('./components/mandate/MandatePage'));
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -56,14 +75,16 @@ function AppContent() {
         <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
           <Routes>
             <Route path="/" element={<Navigate to="/stage/problem" replace />} />
+            <Route path="/welcome/*" element={<OnboardingFlow />} />
             <Route path="/stage/:stageId" element={<StageFeedView />} />
             <Route path="/identity/*" element={<IdentityView />} />
             <Route path="/create-community" element={<CreateCommunityPage />} />
             <Route path="/community/:communityId/*" element={<CommunityView />} />
-            <Route path="/issue/:issueHostServer/:issueHostAgent/:communityId/:issueId/*" element={<IssueView />} />
-            <Route path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*" element={<InitiativeView />} />
-            <Route path="/wish/:communityId/:wishId/*" element={<WishView />} />
-            <Route path="/agreement/:communityId/:agreementId" element={<AgreementView />} />
+            <Route
+              path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
+              element={<InitiativeView />}
+            />
+            <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
           </Routes>
           <StageFooter />
         </Suspense>

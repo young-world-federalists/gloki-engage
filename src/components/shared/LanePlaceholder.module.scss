@@ -1,0 +1,9 @@
+@use '../../styles/variables' as *;
+
+.wrap {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl $spacing-lg calc(#{$footer-height} + #{$spacing-xl});
+}
