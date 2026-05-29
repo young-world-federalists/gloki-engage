@@ -36,3 +36,5 @@ export { default as EarthFlag } from './EarthFlag';
 export { default as SearchableSelect } from './SearchableSelect';
 export { default as StageFooter } from './StageFooter';
 export { default as PageHeader } from '../PageHeader';
+export { default as LanguageSwitcher } from './LanguageSwitcher';
+export type { LanguageSwitcherProps } from './LanguageSwitcher';

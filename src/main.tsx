@@ -4,11 +4,14 @@ import { Provider } from 'react-redux'
 import './styles/index.scss'
 import App from './App.tsx'
 import { store } from './store'
+import { I18nProvider } from './i18n'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <App />
+      <I18nProvider>
+        <App />
+      </I18nProvider>
     </Provider>
   </StrictMode>,
 )
