@@ -11,11 +11,11 @@ import type { PipelineStage } from '../types/initiative';
 import PageHeader from '../components/PageHeader';
 import HomepageMenu from '../components/identity/HomepageMenu';
 import StageFooter from '../components/shared/StageFooter';
-import ProblemVoteFlow from '../components/collaboration/flows/voting/ProblemVoteFlow';
-import ApprovalFlow from '../components/collaboration/flows/voting/ApprovalFlow';
-import QVFlow from '../components/collaboration/flows/voting/QVFlow';
-import ConvictionStaking from '../components/collaboration/flows/voting/ConvictionStaking';
-import ErrorBoundary from '../components/shared/ErrorBoundary';
+import ProblemStage from '../components/stages/ProblemStage';
+import DiscussionStage from '../components/stages/DiscussionStage';
+import ProposalsStage from '../components/stages/ProposalsStage';
+import VoteStage from '../components/stages/VoteStage';
+import MandateStage from '../components/stages/MandateStage';
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
@@ -298,68 +298,46 @@ const StageFeedView: React.FC = () => {
                 <p className={styles.cardDescription}>{item.description}</p>
               )}
 
-              {/* Stage-specific inline content */}
+              {/* Stage-specific participation UI — lane-owned stage components */}
               {stage === 'problem' && (
                 <div className={styles.inlineFlow}>
-                  <ErrorBoundary fallbackMessage="Voting encountered an error.">
-                    <ProblemVoteFlow
-                      instanceId={`${item.id}_problem_vote`}
-                      description=""
-                      evidenceLinks={[]}
-                      countries={[]}
-                      communityMemberCount={activeMemberCount}
-                      parentContractId={item.id}
-                      stageKey="problemVoteContractId"
-                    />
-                  </ErrorBoundary>
+                  <ProblemStage initiativeId={item.id} communityMemberCount={activeMemberCount} />
                 </div>
               )}
 
               {stage === 'discussion' && (
-                <div className={styles.stageInfo}>
-                  <MessageCircle size={14} />
-                  <span>Tap to join the discussion</span>
-                </div>
+                <DiscussionStage
+                  variant="feed"
+                  initiativeId={item.id}
+                  communityId={item.communityId}
+                  title={item.title || ''}
+                  hostServer=""
+                  hostAgent=""
+                />
               )}
 
               {stage === 'proposals' && (
                 <div className={styles.inlineFlow}>
-                  <ErrorBoundary fallbackMessage="Proposals encountered an error.">
-                    <ApprovalFlow
-                      instanceId={`${item.id}_proposals`}
-                      collaborationId={item.id}
-                      collaborationType="initiative"
-                      parentContractId={item.id}
-                      stageKey="proposalsContractId"
-                    />
-                  </ErrorBoundary>
+                  <ProposalsStage
+                    variant="feed"
+                    initiativeId={item.id}
+                    communityId={item.communityId}
+                    title={item.title || ''}
+                    hostServer=""
+                    hostAgent=""
+                  />
                 </div>
               )}
 
               {stage === 'vote' && (
                 <div className={styles.inlineFlow}>
-                  <ErrorBoundary fallbackMessage="Voting encountered an error.">
-                    <QVFlow
-                      instanceId={`${item.id}_vote`}
-                      collaborationId={item.id}
-                      collaborationType="initiative"
-                      parentContractId={item.id}
-                      stageKey="voteContractId"
-                    />
-                  </ErrorBoundary>
+                  <VoteStage initiativeId={item.id} />
                 </div>
               )}
 
               {stage === 'mandate' && (
                 <div className={styles.inlineFlow}>
-                  <ErrorBoundary fallbackMessage="Conviction staking encountered an error.">
-                    <ConvictionStaking
-                      instanceId={`${item.id}_conviction`}
-                      parentContractId={item.id}
-                      stageKey="convictionContractId"
-                      compact
-                    />
-                  </ErrorBoundary>
+                  <MandateStage variant="feed" initiativeId={item.id} />
                 </div>
               )}
             </div>

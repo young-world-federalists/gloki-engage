@@ -295,43 +295,8 @@ $initiative-color: #ea580c;
 
 // ─── Discussion Summary ──────────────────────────────────────────────────────
 
-.discussionSummary {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  margin-top: $spacing-sm;
-}
-
-.discussionHint {
-  font-size: $text-sm;
-  color: $gray-600;
-  line-height: 1.6;
-  margin: 0;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.joinBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm $spacing-lg;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: background $transition-base;
-
-  &:hover {
-    background: $primary-dark;
-  }
-}
+// Discussion summary/hint/join-button styles moved to
+// stages/DiscussionStage.module.scss (owned by Lane C).
 
 // ─── Advance Bar ─────────────────────────────────────────────────────────────
 

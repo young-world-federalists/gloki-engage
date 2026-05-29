@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CollaborationPanel from './CollaborationPanel';
 import RoleDisplay from '../shared/RoleDisplay';
 import { getInitiativeRoles, type InitiativeRoles } from '../../services/initiativeRoles';
-import { CheckCircle2, Circle, Lock, AlertTriangle, MessageCircle } from 'lucide-react';
+import { CheckCircle2, Circle, Lock, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers, setInitiativeStage } from '../../store/slices/communitiesSlice';
 import { contractRead, contractWrite } from '../../services/api';
@@ -18,12 +17,12 @@ import {
 } from './flows/shared/stageMetrics';
 import type { IMethod } from '../../services/interfaces';
 import type { PipelineStage } from '../../types/initiative';
-import ProblemVoteFlow from './flows/voting/ProblemVoteFlow';
-import ApprovalFlow from './flows/voting/ApprovalFlow';
-import QVFlow from './flows/voting/QVFlow';
-import ConvictionStaking from './flows/voting/ConvictionStaking';
+import ProblemStage from '../stages/ProblemStage';
+import DiscussionStage from '../stages/DiscussionStage';
+import ProposalsStage from '../stages/ProposalsStage';
+import VoteStage from '../stages/VoteStage';
+import MandateStage from '../stages/MandateStage';
 import PageHeader from '../PageHeader';
-import ErrorBoundary from '../shared/ErrorBoundary';
 import cs from '../../pages/Container.module.scss';
 import styles from './InitiativeDashboard.module.scss';
 
@@ -326,86 +325,45 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                     </div>
                   )}
 
-                  {/* ACTIVE: inline flows */}
+                  {/* ACTIVE: lane-owned stage participation UI */}
                   {status === 'active' && s.id === 'problem' && (
-                    <ErrorBoundary fallbackMessage="Voting encountered an error.">
-                      <ProblemVoteFlow
-                        instanceId={`${collaborationId}_problem_vote`}
-                        description=""
-                        evidenceLinks={evidenceLinks}
-                        countries={countries}
-                        communityMemberCount={activeMemberCount}
-                        parentContractId={collaborationId}
-                        stageKey="problemVoteContractId"
-                      />
-                    </ErrorBoundary>
+                    <ProblemStage
+                      initiativeId={collaborationId}
+                      communityMemberCount={activeMemberCount}
+                      evidenceLinks={evidenceLinks}
+                      countries={countries}
+                    />
                   )}
 
                   {status === 'active' && s.id === 'discussion' && (
-                    <>
-                      <CollaborationPanel
-                        initiativeId={collaborationId}
-                        communityId={communityId}
-                        initiativeTitle={title}
-                        initiativeHostServer={params.initiativeHostServer || ''}
-                        initiativeHostAgent={params.initiativeHostAgent || ''}
-                        defaultTab="suggestions"
-                      />
-                      <div className={styles.discussionSummary}>
-                        <p className={styles.discussionHint}>
-                          Share perspectives on how this problem affects your country.
-                          At least {Math.ceil(memberCount * 0.33)} members (33%) must contribute.
-                        </p>
-                        <button
-                          className={styles.joinBtn}
-                          onClick={() => navigate(`/initiative/${encodeURIComponent(serverUrl || '')}/${encodeURIComponent(publicKey || '')}/${communityId}/${collaborationId}/discussion`)}
-                        >
-                          <MessageCircle size={16} /> Join Discussion
-                        </button>
-                      </div>
-                    </>
+                    <DiscussionStage
+                      variant="dashboard"
+                      initiativeId={collaborationId}
+                      communityId={communityId}
+                      title={title}
+                      hostServer={params.initiativeHostServer || ''}
+                      hostAgent={params.initiativeHostAgent || ''}
+                      memberCount={memberCount}
+                    />
                   )}
 
                   {status === 'active' && s.id === 'proposals' && (
-                    <ErrorBoundary fallbackMessage="Proposals encountered an error.">
-                      <CollaborationPanel
-                        initiativeId={collaborationId}
-                        communityId={communityId}
-                        initiativeTitle={title}
-                        initiativeHostServer={params.initiativeHostServer || ''}
-                        initiativeHostAgent={params.initiativeHostAgent || ''}
-                        defaultTab="merges"
-                      />
-                      <ApprovalFlow
-                        instanceId={`${collaborationId}_proposals`}
-                        collaborationId={collaborationId}
-                        collaborationType="initiative"
-                        parentContractId={collaborationId}
-                        stageKey="proposalsContractId"
-                      />
-                    </ErrorBoundary>
+                    <ProposalsStage
+                      variant="dashboard"
+                      initiativeId={collaborationId}
+                      communityId={communityId}
+                      title={title}
+                      hostServer={params.initiativeHostServer || ''}
+                      hostAgent={params.initiativeHostAgent || ''}
+                    />
                   )}
 
                   {status === 'active' && s.id === 'vote' && (
-                    <ErrorBoundary fallbackMessage="Voting encountered an error.">
-                      <QVFlow
-                        instanceId={`${collaborationId}_vote`}
-                        collaborationId={collaborationId}
-                        collaborationType="initiative"
-                        parentContractId={collaborationId}
-                        stageKey="voteContractId"
-                      />
-                    </ErrorBoundary>
+                    <VoteStage initiativeId={collaborationId} />
                   )}
 
                   {status === 'active' && s.id === 'mandate' && (
-                    <ErrorBoundary fallbackMessage="Conviction staking encountered an error.">
-                      <ConvictionStaking
-                        instanceId={`${collaborationId}_conviction`}
-                        parentContractId={collaborationId}
-                        stageKey="convictionContractId"
-                      />
-                    </ErrorBoundary>
+                    <MandateStage variant="dashboard" initiativeId={collaborationId} />
                   )}
                 </div>
               );
