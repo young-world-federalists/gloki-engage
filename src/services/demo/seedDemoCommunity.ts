@@ -10,14 +10,17 @@ import { initApproval } from './demoContracts/approval';
 import { initQV } from './demoContracts/qv';
 import { initConviction } from './demoContracts/conviction';
 import { initModification } from './demoContracts/modification';
-import { PERSONAS, pick } from './fixtures/personas';
+import { PERSONAS, pick } from './fixtures/identity';
+import { INITIATIVES } from './fixtures/problems';
+import { PROPOSALS_BY_KEY } from './fixtures/deliberation';
+import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
-  DEMO_INITIATIVES,
   votePattern,
   approvalPattern,
   qvAllocationPattern,
   convictionPattern,
-} from './fixtures/seedData';
+} from './fixtures/mechanisms';
+import { VFTC_COMMUNITY } from './fixtures/community';
 import type { IMethod } from '../interfaces';
 
 const STAGE_ORDER = ['problem', 'discussion', 'proposals', 'vote', 'mandate'] as const;
@@ -67,8 +70,10 @@ export function seedDemoCommunity(communityId: string, publicKey: string): void 
     } as IMethod, publicKey);
   }
 
-  DEMO_INITIATIVES.forEach((seed, idx) => {
+  INITIATIVES.forEach((seed, idx) => {
     const seedInt = (idx + 1) * 7919;
+    const proposals = PROPOSALS_BY_KEY[seed.key] ?? [];
+    const conviction = CONVICTION_BY_KEY[seed.key] ?? { participationRate: 0.6, maxAmount: 50 };
 
     // 1. Deploy the initiative contract itself
     const { id: initiativeId } = mockDeployDirect({
@@ -110,11 +115,11 @@ export function seedDemoCommunity(communityId: string, publicKey: string): void 
     } as IMethod, publicKey);
 
     // Proposals (approval voting)
-    const propProposals = seed.proposals.map((text, i) => ({
+    const propProposals = proposals.map((text, i) => ({
       id: 'p' + i,
       text,
       author: voters[i % voters.length].publicKey,
-      timestamp: Date.now() - (seed.proposals.length - i) * 3_600_000,
+      timestamp: Date.now() - (proposals.length - i) * 3_600_000,
     }));
     const propId = deployStageContract('approval_contract.py', initiativeId, seed.title);
     initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2));
@@ -150,7 +155,7 @@ export function seedDemoCommunity(communityId: string, publicKey: string): void 
     const convId = deployStageContract('conviction_contract.py', initiativeId, seed.title);
     initConviction(
       convId,
-      convictionPattern(voters, seed.conviction.participationRate, seed.conviction.maxAmount, seedInt + 4),
+      convictionPattern(voters, conviction.participationRate, conviction.maxAmount, seedInt + 4),
     );
     initiativeWrite(initiativeId, {
       name: 'register_stage_contract',
@@ -200,11 +205,14 @@ export function resetDemoCommunity(communityId: string, publicKey: string): void
   // Re-register + re-init the community so its ID remains valid in Redux.
   registerDemoContract({
     id: communityId,
-    name: 'Demo Community',
+    name: VFTC_COMMUNITY.name,
     contract: 'community_contract.py',
     createdAt: Date.now(),
   });
-  initCommunity(communityId, publicKey);
+  initCommunity(communityId, publicKey, {
+    name: VFTC_COMMUNITY.name,
+    description: VFTC_COMMUNITY.description,
+  });
   unmarkSeeded(communityId);
   seedDemoCommunity(communityId, publicKey);
 }

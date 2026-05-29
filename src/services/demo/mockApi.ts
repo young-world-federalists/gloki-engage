@@ -13,6 +13,7 @@ import {
 import { routeRead, routeWrite } from './demoRouter';
 import { initCommunity } from './demoContracts/community';
 import { seedDemoCommunity } from './seedDemoCommunity';
+import { VFTC_COMMUNITY } from './fixtures/community';
 
 const DEFAULT_COMMUNITY_FLAG = 'gloki_default_demo_community_seeded';
 
@@ -127,8 +128,8 @@ export function mergeDemoContracts(realContracts: IContract[]): IContract[] {
 }
 
 // First-load auto-seed: if no demo community has been created yet for this
-// browser, deploy "Demo Community" and populate it with 5 initiatives — one at
-// each pipeline stage — so reviewers see every flow's UI immediately.
+// browser, deploy the "Voices for the Climate" flagship and populate it with a
+// climate initiative at each pipeline stage so every stage feed opens populated.
 export function ensureDefaultDemoCommunity(publicKey: string): void {
   const seeded = localStorage.getItem(DEFAULT_COMMUNITY_FLAG);
   if (seeded === 'true') return;
@@ -137,13 +138,13 @@ export function ensureDefaultDemoCommunity(publicKey: string): void {
     return;
   }
   const { id } = mockDeployDirect({
-    name: 'Demo Community',
+    name: VFTC_COMMUNITY.name,
     contract: 'community_contract.py',
     kind: 'comm',
     publicKey,
     properties: {
-      name: 'Demo Community',
-      description: 'Sample community used for UI review. Sample initiatives, votes, and discussions are populated automatically.',
+      name: VFTC_COMMUNITY.name,
+      description: VFTC_COMMUNITY.description,
     },
   });
   seedDemoCommunity(id, publicKey);
