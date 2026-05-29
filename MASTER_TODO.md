@@ -155,33 +155,33 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 **Owner:** the first session (prompt: `docs/session-prompts/00-foundation.md`). **Goal:** make the
 board safe for parallel play.
 
-- [ ] **F1 — Design-system hardening.** Audit `DESIGN_SYSTEM.md` vs reality; finalize tokens
+- [x] **F1 — Design-system hardening.** Audit `DESIGN_SYSTEM.md` vs reality; finalize tokens
   (color incl. full dark mode, spacing, type, radius, shadow) in `src/styles/`; document the rule
   "no ad-hoc values." Files: `src/styles/**`, `DESIGN_SYSTEM.md`.
-- [ ] **F2 — Shared component kit.** Consolidate the reusable primitives every lane needs:
+- [x] **F2 — Shared component kit.** Consolidate the reusable primitives every lane needs:
   `Card`, `Button`, `Stepper`, `Modal`, `EmptyState`, `Banner`, `CountryFlag/Badge`,
   `CountryPresence` (who's here, from where), `PageHeader`, `StageFooter`. Files: `src/components/shared/**`.
-- [ ] **F3 — i18n scaffold.** Lightweight translation layer (`t('key')` + an English dictionary +
+- [x] **F3 — i18n scaffold.** Lightweight translation layer (`t('key')` + an English dictionary +
   a visible language switcher stub for EN/FR/SW). Every lane writes strings through it. Files:
   new `src/i18n/**`, `src/components/shared/LanguageSwitcher.tsx`.
-- [ ] **F4 — Information architecture + route pre-registration.** Define the VftC journey route map;
+- [x] **F4 — Information architecture + route pre-registration.** Define the VftC journey route map;
   in `src/App.tsx` register **all** lane routes pointing at lazy placeholder components (one stub
   file per lane, each in that lane's owned folder). After this, **no lane edits `App.tsx`.**
-- [ ] **F4b — Decompose the shared stage hosts (critical for conflict-free lanes).** `StageFeedView`
+- [x] **F4b — Decompose the shared stage hosts (critical for conflict-free lanes).** `StageFeedView`
   and `InitiativeDashboard` are single files that render all five stages inline — a guaranteed merge
   hotspot. Extract each stage's content into its own component under `src/components/stages/`
   (`ProblemStage`, `DiscussionStage`, `ProposalsStage`, `VoteStage`, `MandateStage`), and make
   `StageFeedView`/`InitiativeDashboard` thin shells that just compose them. Lanes then own their stage
   component; **no lane edits `StageFeedView` or `InitiativeDashboard` after Phase 0.**
-- [ ] **F5 — Sample-data partition + VftC seed.** Split `src/services/demo/fixtures/` into one file
+- [x] **F5 — Sample-data partition + VftC seed.** Split `src/services/demo/fixtures/` into one file
   per lane. Seed the flagship: a "Voices for the Climate" community, the 4 countries, ~12 youth
   personas with photos/countries/languages, and a climate initiative mid-deliberation so every
   lane opens onto realistic, populated, *collaborative-feeling* content. Files: `src/services/demo/fixtures/**`.
-- [ ] **F6 — Legacy cleanup.** The `ui` branch still carries pre-pipeline cruft (`IssueView`,
+- [x] **F6 — Legacy cleanup.** The `ui` branch still carries pre-pipeline cruft (`IssueView`,
   `WishView`, `AgreementView`, `src/components/issue/**`, old flows: budget/qa/document/
   fundraising/scheduling/taskboard/ranking/scoring). Decide keep-vs-remove and delete the dead
   ones so lanes aren't confused. Files: those paths.
-- [ ] **F7 — Lane map + contribution protocol** committed as `docs/LANES.md` (owned-paths table from
+- [x] **F7 — Lane map + contribution protocol** committed as `docs/LANES.md` (owned-paths table from
   §9 + the §4 rules), so every session has the boundaries in-repo.
 - [ ] **Gate:** `tsc` + `build` clean; preview boots to a populated VftC community; merge to `ui`.
 
