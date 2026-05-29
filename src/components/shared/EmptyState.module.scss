@@ -1,0 +1,55 @@
+@use '../../styles/variables' as *;
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: $spacing-sm;
+  padding: $spacing-3xl $spacing-lg;
+}
+
+.compact {
+  padding: $spacing-xl $spacing-lg;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gray-300;
+  margin-bottom: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  color: $gray-700;
+}
+
+.message {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-400;
+  max-width: 36ch;
+}
+
+.action {
+  margin-top: $spacing-md;
+}
+
+@media (prefers-color-scheme: dark) {
+  .icon {
+    color: $dark-border;
+  }
+
+  .title {
+    color: $dark-text;
+  }
+
+  .message {
+    color: $dark-text-secondary;
+  }
+}

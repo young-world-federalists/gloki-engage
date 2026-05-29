@@ -1,0 +1,86 @@
+@use '../../styles/variables' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  border-radius: $radius-full;
+  font-weight: $font-medium;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.sm {
+  padding: 2px $spacing-sm;
+  font-size: $text-xs;
+}
+
+.md {
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-xs;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: $radius-full;
+  background: currentColor;
+}
+
+.neutral {
+  background: $gray-100;
+  color: $gray-600;
+}
+
+.primary {
+  background: $info-surface;
+  color: $info-on-surface;
+}
+
+.info {
+  background: $info-surface;
+  color: $info-on-surface;
+}
+
+.success {
+  background: $success-surface;
+  color: $success-on-surface;
+}
+
+.warning {
+  background: $warning-surface;
+  color: $warning-on-surface;
+}
+
+.error {
+  background: $error-surface;
+  color: $error-on-surface;
+}
+
+@media (prefers-color-scheme: dark) {
+  .neutral {
+    background: rgba(255, 255, 255, 0.08);
+    color: $dark-text-secondary;
+  }
+
+  .primary,
+  .info {
+    background: $info-surface-dark;
+    color: $dark-text;
+  }
+
+  .success {
+    background: $success-surface-dark;
+    color: $dark-text;
+  }
+
+  .warning {
+    background: $warning-surface-dark;
+    color: $dark-text;
+  }
+
+  .error {
+    background: $error-surface-dark;
+    color: $dark-text;
+  }
+}

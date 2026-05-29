@@ -1,0 +1,34 @@
+@use '../../styles/variables' as *;
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.emoji {
+  line-height: 1;
+}
+
+.name {
+  font-size: $text-sm;
+  color: $gray-700;
+}
+
+.sm .emoji {
+  font-size: $text-sm;
+}
+
+.md .emoji {
+  font-size: $text-base;
+}
+
+.lg .emoji {
+  font-size: $text-xl;
+}
+
+@media (prefers-color-scheme: dark) {
+  .name {
+    color: $dark-text;
+  }
+}

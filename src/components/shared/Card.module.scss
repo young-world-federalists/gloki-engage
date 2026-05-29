@@ -1,0 +1,38 @@
+@use '../../styles/variables' as *;
+
+.card {
+  background-color: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-base;
+}
+
+.padded {
+  padding: $spacing-lg;
+}
+
+.interactive {
+  cursor: pointer;
+  transition: box-shadow $transition-base, transform $transition-fast, border-color $transition-base;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: $dark-bg;
+    border-color: $dark-border;
+  }
+}

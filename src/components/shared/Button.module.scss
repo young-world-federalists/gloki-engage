@@ -1,0 +1,125 @@
+@use '../../styles/variables' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  font-weight: $font-medium;
+  font-family: inherit;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color $transition-base, border-color $transition-base,
+    color $transition-base, transform $transition-fast;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+/* Sizes — md/lg clear the 44px touch target with vertical padding in context. */
+.sm {
+  height: 32px;
+  padding: 0 $spacing-md;
+  font-size: $text-sm;
+}
+
+.md {
+  height: 40px;
+  padding: 0 $spacing-lg;
+  font-size: $text-sm;
+}
+
+.lg {
+  height: 48px;
+  padding: 0 $spacing-xl;
+  font-size: $text-base;
+}
+
+/* Variants */
+.primary {
+  background-color: $primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-dark;
+  }
+}
+
+.secondary {
+  background-color: transparent;
+  color: $primary;
+  border-color: $primary;
+
+  &:hover:not(:disabled) {
+    background-color: rgba($primary, 0.08);
+  }
+}
+
+.destructive {
+  background-color: $error;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $error-dark;
+  }
+}
+
+.ghost {
+  background-color: transparent;
+  color: $gray-600;
+
+  &:hover:not(:disabled) {
+    background-color: $gray-100;
+    color: $gray-800;
+  }
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.icon,
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .secondary:hover:not(:disabled) {
+    background-color: rgba($primary, 0.16);
+  }
+
+  .ghost {
+    color: $dark-text-secondary;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: $dark-text;
+    }
+  }
+}

@@ -1,0 +1,166 @@
+@use '../../styles/variables' as *;
+
+.stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+/* Marker — shared by horizontal & vertical */
+.marker {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  background: $gray-100;
+  border: 2px solid $gray-200;
+  color: $gray-500;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  z-index: 1;
+}
+
+button.marker {
+  cursor: pointer;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+}
+
+.description {
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+/* States */
+.complete .marker {
+  background: $primary;
+  border-color: $primary;
+  color: white;
+}
+
+.active .marker {
+  background: white;
+  border-color: $primary;
+  color: $primary;
+}
+
+.active .label {
+  color: $gray-900;
+}
+
+.upcoming .label {
+  color: $gray-400;
+}
+
+.connector {
+  background: $gray-200;
+}
+
+.complete .connector {
+  background: $primary;
+}
+
+/* Horizontal */
+.horizontal {
+  flex-direction: row;
+}
+
+.horizontal .step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-sm;
+}
+
+.horizontal .markerRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.horizontal .connector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+/* Vertical */
+.vertical {
+  flex-direction: column;
+}
+
+.vertical .step {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-md;
+  align-items: stretch;
+}
+
+.vertical .markerRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vertical .connector {
+  width: 2px;
+  flex: 1;
+  min-height: $spacing-lg;
+  margin: $spacing-xs 0;
+}
+
+.vertical .text {
+  padding-bottom: $spacing-lg;
+}
+
+@media (prefers-color-scheme: dark) {
+  .marker {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+
+  .active .marker {
+    background: $dark-surface;
+    border-color: $primary;
+    color: $primary;
+  }
+
+  .label {
+    color: $dark-text;
+  }
+
+  .active .label {
+    color: $dark-text;
+  }
+
+  .upcoming .label {
+    color: $dark-text-secondary;
+  }
+
+  .connector {
+    background: $dark-border;
+  }
+}

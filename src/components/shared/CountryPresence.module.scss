@@ -1,0 +1,72 @@
+@use '../../styles/variables' as *;
+
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.cluster {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: white;
+  border: 2px solid white;
+  box-shadow: $shadow-sm;
+  margin-left: -8px;
+  font-size: $text-sm;
+  line-height: 1;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.more {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-600;
+  background: $gray-100;
+}
+
+.label {
+  font-size: $text-sm;
+  color: $gray-600;
+}
+
+.sm {
+  .chip {
+    width: 22px;
+    height: 22px;
+    margin-left: -6px;
+    font-size: $text-xs;
+  }
+
+  .label {
+    font-size: $text-xs;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .chip {
+    background: $dark-bg;
+    border-color: $dark-bg;
+  }
+
+  .more {
+    background: $dark-border;
+    color: $dark-text;
+  }
+
+  .label {
+    color: $dark-text-secondary;
+  }
+}

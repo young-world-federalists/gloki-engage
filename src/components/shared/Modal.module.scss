@@ -1,0 +1,128 @@
+@use '../../styles/variables' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: $overlay-bg;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  z-index: 1000;
+  animation: fade $transition-base ease;
+}
+
+.modal {
+  background: white;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-height: calc(100vh - #{$spacing-2xl});
+  display: flex;
+  flex-direction: column;
+  animation: pop $transition-base ease;
+}
+
+.sm {
+  max-width: 360px;
+}
+
+.md {
+  max-width: 480px;
+}
+
+.lg {
+  max-width: 640px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-xl $spacing-xl $spacing-md;
+}
+
+.title {
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  margin: 0;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $gray-500;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-700;
+  }
+}
+
+.body {
+  padding: 0 $spacing-xl;
+  overflow-y: auto;
+  color: $gray-700;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-xl $spacing-xl;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: $dark-surface;
+  }
+
+  .title {
+    color: $dark-text;
+  }
+
+  .body {
+    color: $dark-text-secondary;
+  }
+
+  .close {
+    color: $dark-text-secondary;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: $dark-text;
+    }
+  }
+}
