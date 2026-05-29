@@ -40,6 +40,12 @@ layer in `src/services/demo/`. Do **not** add real network calls or reintroduce 
    `src/App.tsx` register **every** lane's routes pointing at **lazy placeholder components**, one
    stub file living in each lane's owned folder (see §9 owned-paths). Goal: after you merge, **no lane
    ever edits `App.tsx`.**
+   - **F4b (critical):** `StageFeedView` and `InitiativeDashboard` currently render all five stages
+     inline in one file each — a guaranteed merge hotspot. **Decompose them:** extract each stage into
+     `src/components/stages/{ProblemStage,DiscussionStage,ProposalsStage,VoteStage,MandateStage}.tsx`
+     and leave `StageFeedView`/`InitiativeDashboard` as thin shells that compose those. Wire each new
+     stage component to render the existing flow it already used (import the voting flows; don't move
+     them). This is what lets Lanes B/C/D/E work without colliding.
 5. **F5 Sample-data partition + VftC seed** — split `src/services/demo/fixtures/` into **one file per
    lane** (identity, problems, deliberation, mechanisms, mandate, community, presence). Seed the
    flagship: a "Voices for the Climate" community, the 4 countries, ~12 youth personas

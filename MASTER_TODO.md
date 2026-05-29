@@ -167,6 +167,12 @@ board safe for parallel play.
 - [ ] **F4 — Information architecture + route pre-registration.** Define the VftC journey route map;
   in `src/App.tsx` register **all** lane routes pointing at lazy placeholder components (one stub
   file per lane, each in that lane's owned folder). After this, **no lane edits `App.tsx`.**
+- [ ] **F4b — Decompose the shared stage hosts (critical for conflict-free lanes).** `StageFeedView`
+  and `InitiativeDashboard` are single files that render all five stages inline — a guaranteed merge
+  hotspot. Extract each stage's content into its own component under `src/components/stages/`
+  (`ProblemStage`, `DiscussionStage`, `ProposalsStage`, `VoteStage`, `MandateStage`), and make
+  `StageFeedView`/`InitiativeDashboard` thin shells that just compose them. Lanes then own their stage
+  component; **no lane edits `StageFeedView` or `InitiativeDashboard` after Phase 0.**
 - [ ] **F5 — Sample-data partition + VftC seed.** Split `src/services/demo/fixtures/` into one file
   per lane. Seed the flagship: a "Voices for the Climate" community, the 4 countries, ~12 youth
   personas with photos/countries/languages, and a climate initiative mid-deliberation so every
@@ -196,28 +202,28 @@ language. Lightweight trust, not biometrics.
 
 ### Lane B — Issue Selection & Problem framing *(VftC Phase 1→2)*
 **Goal:** The *participatory* choice of what to deliberate — the moment a crowd becomes a "we" with a shared subject. Then frame the chosen problem.
-**Owned paths:** problem-stage views in `src/pages/StageFeedView.*` (problem section only — coordinate), `src/components/collaboration/flows/voting/ProblemVoteFlow.*`, fixture `problems.ts`.
+**Owned paths:** `src/components/stages/ProblemStage.*` (created in Phase 0), fixture `problems.ts`. *(The `ProblemVoteFlow` mechanism lives in Lane D — you import it, you don't edit it.)*
 - [ ] B1 Issue-selection surface: propose/second/discuss candidate issues; show momentum; "this is what we chose together" payoff. Climate pre-seeded but not imposed.
 - [ ] B2 Problem framing: plain-language template, required sources (gentle), country relevance, SDG tag *(optional, light)*.
 - [ ] B3 Simplify ProblemVoteFlow copy ("Is this a shared problem?") + thresholds legible.
 
 ### Lane C — Deliberation & Co-authoring *(VftC Phase 2 · collaboration heart)*
 **Goal:** Where transnational collaboration is *felt* — co-writing across borders and languages.
-**Owned paths:** `src/components/collaboration/flows/discussion/**`, `flows/modifications/**`, `flows/merge/**`, `src/components/collaboration/DiscussionStageView.*`, fixture `deliberation.ts`.
+**Owned paths:** `src/components/stages/DiscussionStage.*` + `src/components/stages/ProposalsStage.*` (created in Phase 0), `src/components/collaboration/flows/discussion/**`, `flows/modifications/**`, `flows/merge/**`, `src/components/collaboration/DiscussionStageView.*`, fixture `deliberation.ts`. *(Approval/QV mechanisms live in Lane D — import, don't edit.)*
 - [ ] C1 Threaded discussion with country presence, "hearts," categories; live-feeling co-presence ("3 people from 2 countries are here").
 - [ ] C2 Track-changes co-authoring: suggest edit → author accept/reject → co-author credit shown.
 - [ ] C3 Merge similar proposals (visible "your idea joined another") + expert-review affordance.
 
 ### Lane D — The three mechanisms *(VftC Phase 2–3 · DAO research)*
 **Goal:** QV, conviction, and (new) liquid delegation — each explained in one plain sentence, each usable without a tutorial.
-**Owned paths:** `src/components/collaboration/flows/voting/QVFlow.*`, `ConvictionStaking.*`, new `flows/voting/Delegation*`, fixture `mechanisms.ts`.
+**Owned paths:** ALL of `src/components/collaboration/flows/voting/**` (`ProblemVoteFlow`, `ApprovalFlow`, `QVFlow`, `ConvictionStaking`, + new `Delegation*`), fixture `mechanisms.ts`. *(Stage shells in Lanes B/C/E import these components.)*
 - [ ] D1 QV refine: frame as "spread your support — care a lot about one thing? spend more on it." Minority-empowerment, not math homework.
 - [ ] D2 Conviction refine: "support that grows the longer you back it." Show accrual simply.
 - [ ] D3 **Liquid delegation (new):** per-topic "vote yourself or delegate to someone you trust," revocable anytime, **capped + expiring**, transparent "here's how your delegate voted." This is the headline new build.
 
 ### Lane E — Mandate & Impact *(VftC Phase 3–4 · the payoff)*
 **Goal:** The collective output you can point to, and the bridge to real-world adoption.
-**Owned paths:** mandate-stage views, `src/components/collaboration/InitiativeDashboard.*` (completed-state summaries), new `src/components/mandate/**`, fixture `mandate.ts`.
+**Owned paths:** `src/components/stages/VoteStage.*` + `src/components/stages/MandateStage.*` (created in Phase 0), `src/components/collaboration/InitiativeDashboard.*` (thin shell + completed-state summaries), new `src/components/mandate/**`, fixture `mandate.ts`. *(QV/conviction mechanisms live in Lane D — import, don't edit.)*
 - [ ] E1 Consolidation → a readable published **Mandate** artifact (plain-language + "machine-readable spec" view).
 - [ ] E2 Adoption framework: orgs "endorse / subscribe / report progress"; show who's adopted it.
 - [ ] E3 Completed-stage summaries on the dashboard (participants, top proposal, winner) so the journey reads as a story.
