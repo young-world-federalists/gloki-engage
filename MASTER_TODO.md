@@ -183,7 +183,7 @@ board safe for parallel play.
   ones so lanes aren't confused. Files: those paths.
 - [x] **F7 — Lane map + contribution protocol** committed as `docs/LANES.md` (owned-paths table from
   §9 + the §4 rules), so every session has the boundaries in-repo.
-- [ ] **Gate:** `tsc` + `build` clean; preview boots to a populated VftC community; merge to `ui`.
+- [x] **Gate:** `tsc` + `build` clean; preview boots to a populated VftC community; merge to `ui`.
 
 ---
 
