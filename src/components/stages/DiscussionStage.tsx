@@ -2,7 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
-import CollaborationPanel from '../collaboration/CollaborationPanel';
+import { Button } from '../shared';
+import { useT } from '../../i18n';
+import CoPresenceBar from '../collaboration/flows/discussion/CoPresenceBar';
+import {
+  DELIBERATION_PARTICIPANTS,
+  PRESENCE_NOW,
+  PRESENCE_TICKER,
+} from '../../services/demo/fixtures/deliberation';
 import type { StageVariant } from '../../types/initiative';
 import styles from './DiscussionStage.module.scss';
 
@@ -19,28 +26,29 @@ export interface DiscussionStageProps {
 
 /**
  * Stage 2 — Discussion. Owned by Lane C (`src/components/stages/DiscussionStage.*`).
- * Feed: a compact "tap to join" hint (the card itself navigates). Dashboard: the
- * modification/suggestion collaboration panel plus a link into the full
- * threaded discussion view.
+ * Feed: a live co-presence teaser + a "tap to join" hint (the card itself
+ * navigates). Dashboard: the live co-presence bar, a contribution hint, and a
+ * button into the full threaded discussion + co-authoring view.
  */
 const DiscussionStage: React.FC<DiscussionStageProps> = ({
   initiativeId,
   communityId,
-  title,
-  hostServer,
-  hostAgent,
   memberCount = 0,
   variant,
 }) => {
   const navigate = useNavigate();
+  const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
 
   if (variant === 'feed') {
     return (
-      <div className={styles.hint}>
-        <MessageCircle size={14} />
-        <span>Tap to join the discussion</span>
+      <div className={styles.feed}>
+        <CoPresenceBar compact participants={DELIBERATION_PARTICIPANTS} hereNow={PRESENCE_NOW} />
+        <div className={styles.hint}>
+          <MessageCircle size={14} aria-hidden />
+          <span>{t('deliberation.discussion.tapToJoin', 'Tap to join the discussion')}</span>
+        </div>
       </div>
     );
   }
@@ -52,26 +60,22 @@ const DiscussionStage: React.FC<DiscussionStageProps> = ({
       )}/${communityId}/${initiativeId}/discussion`,
     );
 
+  const contributors = Math.ceil(memberCount * 0.33);
+
   return (
-    <>
-      <CollaborationPanel
-        initiativeId={initiativeId}
-        communityId={communityId}
-        initiativeTitle={title}
-        initiativeHostServer={hostServer}
-        initiativeHostAgent={hostAgent}
-        defaultTab="suggestions"
-      />
-      <div className={styles.summary}>
-        <p className={styles.summaryHint}>
-          Share perspectives on how this problem affects your country. At least{' '}
-          {Math.ceil(memberCount * 0.33)} members (33%) must contribute.
-        </p>
-        <button className={styles.joinBtn} onClick={openDiscussion}>
-          <MessageCircle size={16} /> Join Discussion
-        </button>
-      </div>
-    </>
+    <div className={styles.dashboard}>
+      <CoPresenceBar participants={DELIBERATION_PARTICIPANTS} hereNow={PRESENCE_NOW} ticker={PRESENCE_TICKER} />
+      <p className={styles.summaryHint}>
+        {t(
+          'deliberation.discussion.summary',
+          'Share how this problem affects your country. At least {n} members (33%) contribute before this stage advances.',
+          { n: contributors },
+        )}
+      </p>
+      <Button variant="primary" leftIcon={<MessageCircle size={16} />} onClick={openDiscussion}>
+        {t('deliberation.discussion.join', 'Join the discussion')}
+      </Button>
+    </div>
   );
 };
 
