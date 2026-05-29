@@ -76,3 +76,30 @@ $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
+// ---------------------------------------------------------------------------
+// Semantic surfaces — tinted backgrounds + readable text for badges, banners,
+// and inline messages. Always use these instead of hardcoding tinted hex.
+// Each pair is a tinted surface (background) and an on-surface (text) colour.
+// ---------------------------------------------------------------------------
+$success-surface: #d1fae5;
+$success-on-surface: #065f46;
+$warning-surface: #fef3c7;
+$warning-on-surface: #92400e;
+$error-surface: #fee2e2;
+$error-on-surface: $error;
+$info-surface: #dbeafe;
+$info-on-surface: #1e40af;
+
+// Dark-mode tinted surfaces (lower chroma, raised against $dark-bg/$dark-surface).
+$success-surface-dark: #064e3b;
+$warning-surface-dark: #78350f;
+$error-surface-dark: #7f1d1d;
+$info-surface-dark: #1e3a8a;
+
+// Overlays / scrims (modal backdrops, sheet dimmers).
+$overlay-bg: rgba(15, 23, 42, 0.55);
+
+// Layout
+$footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
+$content-max-width: 640px; // single-column mobile-first content column
+

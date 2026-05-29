@@ -49,7 +49,7 @@
   &:focus {
     outline: none;
     border-color: $primary;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
   }
 
   &:disabled {
@@ -178,18 +178,18 @@
   text-transform: uppercase;
 
   &.open {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: $warning-surface;
+    color: $warning-on-surface;
   }
 
   &.voting {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: $info-surface;
+    color: $info-on-surface;
   }
 
   &.closed {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: $success-surface;
+    color: $success-on-surface;
   }
 }
 
@@ -247,8 +247,8 @@
   align-items: center;
   gap: $spacing-lg;
   padding: $spacing-lg;
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: $success-surface;
+  color: $success-on-surface;
   border-radius: $radius-md;
   margin: $spacing-lg 0;
 
@@ -262,8 +262,8 @@
   align-items: center;
   gap: $spacing-lg;
   padding: $spacing-lg;
-  background-color: #fee2e2;
-  color: $error;
+  background-color: $error-surface;
+  color: $error-on-surface;
   border-radius: $radius-md;
   margin: $spacing-lg 0;
 
@@ -328,7 +328,7 @@
 
     &:focus {
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 0 3px rgba($primary, 0.2);
     }
 
     &:disabled {

@@ -2,18 +2,16 @@
 // Entry point for all styles
 
 // Import variables and globals
-@use './variables';
+@use './variables' as *;
 @use './globals';
 
 // Root styles
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 400;
+  font-weight: $font-normal;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -40,8 +38,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: $gray-50;
+  color: $gray-800;
   line-height: 1.6;
   margin: 0;
   display: flex;
@@ -54,57 +52,42 @@ body {
   height: 100%;
 }
 
-// Base typography
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
+// Links use the interactive colour token (never the Vite scaffold purple).
 a {
-  font-weight: 500;
-  color: #646cff;
+  font-weight: $font-medium;
+  color: $primary;
   text-decoration: inherit;
 
   &:hover {
-    color: #535bf2;
+    color: $primary-dark;
   }
 }
 
-// Base button styles (can be overridden by global classes)
+// Native <button> reset. Components set their own surface via tokens; the bare
+// element is transparent so unstyled buttons never render as a dark blob.
 button {
-  border-radius: 8px;
+  border-radius: $radius-md;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  font-size: $text-base;
+  font-weight: $font-medium;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: transparent;
+  color: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color $transition-base, background-color $transition-base;
 
-  &:hover {
-    border-color: #646cff;
-  }
-
-  &:focus,
   &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+    outline: 2px solid $primary;
+    outline-offset: 2px;
   }
 }
 
-// Light mode overrides
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
+// Dark mode: theme the app shell so every page inherits a dark surface.
+// Component modules layer their own dark treatments on top of this.
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: $dark-surface;
+    color: $dark-text;
   }
 }
-
