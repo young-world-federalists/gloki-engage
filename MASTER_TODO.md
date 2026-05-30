@@ -196,9 +196,9 @@ board safe for parallel play.
 **Goal:** A newcomer with an invite gets from "link" to "ready to participate" unaided, in their
 language. Lightweight trust, not biometrics.
 **Owned paths:** `src/pages/IdentityView.*`, `src/components/identity/**`, new `src/components/onboarding/**`, fixture `identity.ts`.
-- [ ] A1 Guided first-run: invite → vouch (Web-of-Trust *lite*: "a friend vouched for you") → create Digital Agent (name, photo, country, languages) → consent to deliberation rules. Stepper, plain language, skippable-but-nudged.
-- [ ] A2 Profile = "Digital Agent" card: country flag, languages, participation history, trust ("vouched by N"). Defer badges/Council.
-- [ ] A3 Empty/again states + dark mode + 360px + screen-reader pass.
+- [x] A1 Guided first-run: invite → vouch (Web-of-Trust *lite*: "a friend vouched for you") → create Digital Agent (name, photo, country, languages) → consent to deliberation rules. Stepper, plain language, skippable-but-nudged.
+- [x] A2 Profile = "Digital Agent" card: country flag, languages, participation history, trust ("vouched by N"). Defer badges/Council.
+- [x] A3 Empty/again states + dark mode + 360px + screen-reader pass.
 
 ### Lane B — Issue Selection & Problem framing *(VftC Phase 1→2)*
 **Goal:** The *participatory* choice of what to deliberate — the moment a crowd becomes a "we" with a shared subject. Then frame the chosen problem.
