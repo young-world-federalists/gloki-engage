@@ -37,6 +37,12 @@ you must change a component's public props.
 - **D3** **Liquid delegation (NEW — the headline build):** per topic, "vote yourself, or delegate to
   someone you trust." Revocable anytime, **capped and expiring**, with a transparent "here's how your
   delegate voted." Keep it legible to a first-time user.
+- **D0 (pickup from MASTER_TODO §10, [B → Lane D])** Fold the `ProblemVoteFlow` copy simplification
+  into D1's pass: heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`;
+  buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. Lane B's
+  `ProblemStage` already wraps the flow with shared-problem framing and passes empty
+  `evidenceLinks`/`countries` on purpose, so leave those untouched — your flow keeps owning the tally
+  + progress bar.
 
 **Done when (verify):** `tsc` clean · `build` clean · preview walk of each mechanism (no console
 errors, dark mode, 360px, keyboard/SR basics) · §9 Lane D boxes ticked · commit, push `lane/lane-d`,
