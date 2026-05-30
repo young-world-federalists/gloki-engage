@@ -203,9 +203,9 @@ language. Lightweight trust, not biometrics.
 ### Lane B — Issue Selection & Problem framing *(VftC Phase 1→2)*
 **Goal:** The *participatory* choice of what to deliberate — the moment a crowd becomes a "we" with a shared subject. Then frame the chosen problem.
 **Owned paths:** `src/components/stages/ProblemStage.*` (created in Phase 0), fixture `problems.ts`. *(The `ProblemVoteFlow` mechanism lives in Lane D — you import it, you don't edit it.)*
-- [ ] B1 Issue-selection surface: propose/second/discuss candidate issues; show momentum; "this is what we chose together" payoff. Climate pre-seeded but not imposed.
-- [ ] B2 Problem framing: plain-language template, required sources (gentle), country relevance, SDG tag *(optional, light)*.
-- [ ] B3 Simplify ProblemVoteFlow copy ("Is this a shared problem?") + thresholds legible.
+- [x] B1 Issue-selection surface: propose/second/discuss candidate issues; show momentum; "this is what we chose together" payoff. Climate pre-seeded but not imposed.
+- [x] B2 Problem framing: plain-language template, required sources (gentle), country relevance, SDG tag *(optional, light)*.
+- [x] B3 Simplify ProblemVoteFlow copy ("Is this a shared problem?") + thresholds legible. *(ProblemStage frames the wrapped flow + a legible threshold line; in-flow copy change requested in §10 for Lane D.)*
 
 ### Lane C — Deliberation & Co-authoring *(VftC Phase 2 · collaboration heart)*
 **Goal:** Where transnational collaboration is *felt* — co-writing across borders and languages.
@@ -250,7 +250,7 @@ language. Lightweight trust, not biometrics.
 ### Wave 1 batch 1 *(from open PRs #3, #4, #5, #6 — apply after they merge)*
 - **[A → Foundation]** Post-login first-run redirect to `/welcome` (App.tsx-owned); hide the global `StageFooter` on `/welcome/*`.
 - **[A → Lane F]** Promote `onboarding.*` and `agent.*` inline strings into `src/i18n/en.ts` + FR + SW dictionaries.
-- **[B → Lane D]** Simplify in-flow copy inside `ProblemVoteFlow` to a "Is this a shared problem?" framing (Lane B already wraps the flow with its own framing and passes empty `evidenceLinks`/`countries`).
+- **[B → Lane D]** In `ProblemVoteFlow.tsx`, simplify copy: heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`; buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. `ProblemStage` (Lane B) wraps the flow with its own framing and passes empty `evidenceLinks`/`countries` on purpose so the flow stays focused on tally + progress bar.
 - **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` so the cross-cutting primitives have a permanent verification page (currently only verified via a temporary mount that was reverted).
 
 ## 11. Refactor changelog *(review-wave outputs)*

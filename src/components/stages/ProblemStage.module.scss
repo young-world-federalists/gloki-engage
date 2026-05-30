@@ -1,0 +1,390 @@
+@use '../../styles/variables' as *;
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.payoff {
+  margin-bottom: $spacing-xs;
+}
+
+/* Framing strip: country presence + optional SDG tag */
+.framing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm $spacing-md;
+}
+
+.whoWhy {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* Sources — gently surfaced, not shouted */
+.sources {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $text-xs;
+    color: $primary;
+    text-decoration: none;
+    word-break: break-word;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+}
+
+.sourcesLabel {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $gray-400;
+}
+
+/* Plain-language threshold legibility (B3) */
+.thresholdHint {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* "Why this matters" reveal — a light pre-deliberation gut-check */
+.voices {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.voicesToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  margin-left: -#{$spacing-sm};
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-600;
+  cursor: pointer;
+
+  svg {
+    transition: transform $transition-base;
+  }
+
+  &:hover {
+    color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+}
+
+.voiceList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.voice {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
+  border: 1px solid $gray-100;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.voiceFlag {
+  font-size: $text-lg;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.voiceText {
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-700;
+
+  strong {
+    color: $gray-900;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    strong {
+      color: $dark-text;
+    }
+  }
+}
+
+/* Propose a different problem — a quiet, universal invitation */
+.proposeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  margin-left: -#{$spacing-sm};
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+/* ----- Propose modal: the plain-language framing template ----- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.formIntro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.formLabel {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.optional {
+  font-weight: $font-normal;
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $gray-400;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 1px;
+    border-color: $primary;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+.formInput {
+  height: 40px;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.5;
+}
+
+.sourceNudge {
+  font-size: $text-xs;
+  color: $warning-on-surface;
+
+  @media (prefers-color-scheme: dark) {
+    color: $warning-surface;
+  }
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 40px;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: background $transition-base, border-color $transition-base, color $transition-base;
+
+  &:hover {
+    border-color: $gray-300;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.chipSelected {
+  color: $primary-dark;
+  background: rgba($primary, 0.1);
+  border-color: $primary;
+
+  &:hover {
+    border-color: $primary;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+    border-color: $primary;
+  }
+}
+
+.formError {
+  margin-top: 0;
+}
+
+/* Success state after posting an issue */
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+}
+
+.successIcon {
+  color: $success;
+}
+
+.successTitle {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.successBody {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
