@@ -246,7 +246,16 @@ language. Lightweight trust, not biometrics.
 
 ## 10. Coordination log *(cross-lane requests for the Foundation owner)*
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
-- _(empty)_
+- **[Lane A] Post-login first-run routing.** `/welcome/*` is built and reachable via the invite
+  deep-link (`/welcome?invite=CODE`) and a HomepageMenu entry, but nothing auto-routes a brand-new
+  authenticated user there (`App.tsx` redirects `/` → `/stage/problem`). Request: in `src/App.tsx`,
+  send first-run users (no `gloki.digitalAgent` in localStorage, or `gloki.onboarding.completed`
+  false) to `/welcome` instead of `/stage/problem`. Lane A cannot edit `App.tsx`.
+- **[Lane A, minor] Hide StageFooter on `/welcome/*`.** The global 5-stage footer frames the
+  first-run flow oddly for a newcomer. Optional: skip rendering `StageFooter` on `/welcome` routes.
+- **[Lane A, i18n] Promote onboarding/agent strings.** Inline English defaults under the
+  `onboarding.*` and `agent.*` namespaces are ready to promote into `src/i18n/en.ts` + fr/sw
+  overlays (Lane F owns `src/i18n/`).
 
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes.
