@@ -1,0 +1,136 @@
+@use '../../../../styles/variables' as *;
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  background: $info-surface;
+  border: 1px solid $primary;
+  border-radius: $radius-lg;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    background: $info-surface-dark;
+    border-color: $primary;
+    color: $dark-text;
+  }
+}
+
+.compact {
+  padding: $spacing-sm $spacing-md;
+  gap: $spacing-xs;
+}
+
+.liveRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  background: $success;
+  flex-shrink: 0;
+  animation: pulse 1.8s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba($success, 0.5);
+  }
+  50% {
+    opacity: 0.65;
+    box-shadow: 0 0 0 5px rgba($success, 0);
+  }
+}
+
+.liveCount {
+  white-space: nowrap;
+}
+
+.hereAvatars {
+  display: inline-flex;
+  align-items: center;
+  margin-left: $spacing-xs;
+}
+
+.hereAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  background: $primary;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: $font-semibold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid $info-surface;
+  margin-left: -$spacing-sm;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $info-surface-dark;
+  }
+}
+
+.ticker {
+  margin: 0;
+  font-size: $text-xs;
+  color: $gray-600;
+  min-height: 1.1rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.tickerItem {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  animation: fadeIn $transition-slow ease;
+
+  strong {
+    color: $gray-800;
+    font-weight: $font-semibold;
+
+    @media (prefers-color-scheme: dark) {
+      color: $dark-text;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -210,9 +210,9 @@ language. Lightweight trust, not biometrics.
 ### Lane C — Deliberation & Co-authoring *(VftC Phase 2 · collaboration heart)*
 **Goal:** Where transnational collaboration is *felt* — co-writing across borders and languages.
 **Owned paths:** `src/components/stages/DiscussionStage.*` + `src/components/stages/ProposalsStage.*` (created in Phase 0), `src/components/collaboration/flows/discussion/**`, `flows/modifications/**`, `flows/merge/**`, `src/components/collaboration/DiscussionStageView.*`, fixture `deliberation.ts`. *(Approval/QV mechanisms live in Lane D — import, don't edit.)*
-- [ ] C1 Threaded discussion with country presence, "hearts," categories; live-feeling co-presence ("3 people from 2 countries are here").
-- [ ] C2 Track-changes co-authoring: suggest edit → author accept/reject → co-author credit shown.
-- [ ] C3 Merge similar proposals (visible "your idea joined another") + expert-review affordance.
+- [x] C1 Threaded discussion with country presence, "hearts," categories; live-feeling co-presence ("3 people from 2 countries are here").
+- [x] C2 Track-changes co-authoring: suggest edit → author accept/reject → co-author credit shown.
+- [x] C3 Merge similar proposals (visible "your idea joined another") + expert-review affordance.
 
 ### Lane D — The three mechanisms *(VftC Phase 2–3 · DAO research)*
 **Goal:** QV, conviction, and (new) liquid delegation — each explained in one plain sentence, each usable without a tutorial.

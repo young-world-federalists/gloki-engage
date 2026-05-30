@@ -1,0 +1,300 @@
+@use '../../../../styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.lede {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.55;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.sectionHint {
+  margin: $spacing-sm 0 0;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── Merge suggestions ───────────────────────────────────────────────── */
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.pair {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $info-surface;
+  border: 1px solid $primary;
+  border-radius: $radius-lg;
+
+  @media (prefers-color-scheme: dark) {
+    background: $info-surface-dark;
+  }
+}
+
+.similarityRow {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.pairProposal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: white;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+  }
+}
+
+.pairText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.pairConnector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $primary;
+}
+
+/* ── Author tag ──────────────────────────────────────────────────────── */
+.authorTag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: $radius-full;
+  background: $gray-200;
+  color: $gray-700;
+  font-size: 0.625rem;
+  font-weight: $font-semibold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+    color: $dark-text;
+  }
+}
+
+/* ── Proposal list ───────────────────────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.proposal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.proposalText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.55;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.absorbed {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $success-on-surface;
+
+  @media (prefers-color-scheme: dark) {
+    color: $success;
+  }
+}
+
+.absorbedAuthor {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.proposalFooter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.linkBtn,
+.requestBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  min-height: 32px;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $primary;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: color $transition-base, background $transition-base;
+
+  &:hover {
+    color: $primary-dark;
+    background: rgba($primary, 0.08);
+  }
+}
+
+.requestBtn {
+  border: 1px solid $gray-200;
+  color: $gray-600;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+    background: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+}
+
+/* ── Expert review note ──────────────────────────────────────────────── */
+.reviewNote {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  background: $success-surface;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $success-surface-dark;
+  }
+}
+
+.reviewExpert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  color: $success-on-surface;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.reviewField {
+  font-size: $text-xs;
+  font-weight: $font-normal;
+  opacity: 0.85;
+}
+
+.reviewText {
+  margin: 0;
+  font-size: $text-sm;
+  font-style: italic;
+  line-height: 1.55;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.reviewMeta {
+  font-size: $text-xs;
+  color: $success-on-surface;
+  opacity: 0.8;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
