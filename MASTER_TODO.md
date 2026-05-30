@@ -203,9 +203,9 @@ language. Lightweight trust, not biometrics.
 ### Lane B — Issue Selection & Problem framing *(VftC Phase 1→2)*
 **Goal:** The *participatory* choice of what to deliberate — the moment a crowd becomes a "we" with a shared subject. Then frame the chosen problem.
 **Owned paths:** `src/components/stages/ProblemStage.*` (created in Phase 0), fixture `problems.ts`. *(The `ProblemVoteFlow` mechanism lives in Lane D — you import it, you don't edit it.)*
-- [ ] B1 Issue-selection surface: propose/second/discuss candidate issues; show momentum; "this is what we chose together" payoff. Climate pre-seeded but not imposed.
-- [ ] B2 Problem framing: plain-language template, required sources (gentle), country relevance, SDG tag *(optional, light)*.
-- [ ] B3 Simplify ProblemVoteFlow copy ("Is this a shared problem?") + thresholds legible.
+- [x] B1 Issue-selection surface: propose/second/discuss candidate issues; show momentum; "this is what we chose together" payoff. Climate pre-seeded but not imposed.
+- [x] B2 Problem framing: plain-language template, required sources (gentle), country relevance, SDG tag *(optional, light)*.
+- [x] B3 Simplify ProblemVoteFlow copy ("Is this a shared problem?") + thresholds legible. *(ProblemStage frames the wrapped flow + a legible threshold line; in-flow copy change requested in §10 for Lane D.)*
 
 ### Lane C — Deliberation & Co-authoring *(VftC Phase 2 · collaboration heart)*
 **Goal:** Where transnational collaboration is *felt* — co-writing across borders and languages.
@@ -246,7 +246,7 @@ language. Lightweight trust, not biometrics.
 
 ## 10. Coordination log *(cross-lane requests for the Foundation owner)*
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
-- _(empty)_
+- **Lane B → Lane D (`ProblemVoteFlow` copy, B3).** `ProblemStage` now wraps `ProblemVoteFlow` with shared-problem framing, so the in-flow copy should match. In `ProblemVoteFlow.tsx`, please simplify: vote heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`; buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. No other change needed — `ProblemStage` passes empty `evidenceLinks`/`countries` to the flow on purpose (it renders sources + country relevance itself) and surfaces a plain-language threshold line, so the flow keeps owning the tally + progress bar.
 
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes.
