@@ -47,3 +47,66 @@ export function pick<T>(arr: T[], n: number, seed = 0): T[] {
   }
   return result;
 }
+
+// ── Onboarding / lightweight trust (Lane A) ──────────────────────────────────
+// A friend's invite resolves to the voucher who brought the newcomer in.
+// UI-only — no backend, no contract writes.
+
+const personaByKey: Record<string, Persona> = Object.fromEntries(
+  PERSONAS.map((p): [string, Persona] => [p.publicKey, p]),
+);
+
+/** Look up a seeded persona by public key (used to render vouchers). */
+export function getPersona(publicKey: string): Persona | undefined {
+  return personaByKey[publicKey];
+}
+
+/** Invite code → voucher publicKey. Unknown/missing codes fall back to the default. */
+export const INVITE_CODES: Record<string, string> = {
+  CLIMATE24: 'demo-user-ke-amani',
+  NAIROBI: 'demo-user-ke-wanjiru',
+  LAGOS: 'demo-user-ng-chiamaka',
+  GOMA: 'demo-user-cd-esperance',
+};
+
+export const DEFAULT_INVITE_VOUCHER = 'demo-user-ke-amani';
+
+/** Resolve an invite code to the voucher persona (defaults to a friendly persona). */
+export function getVoucher(code?: string | null): Persona {
+  const key = (code && INVITE_CODES[code.toUpperCase()]) || DEFAULT_INVITE_VOUCHER;
+  return personaByKey[key] ?? PERSONAS[0];
+}
+
+/** Seed "vouched by N": the inviter plus a couple of other community members. */
+export function defaultVouchers(inviterKey: string): string[] {
+  const others = PERSONAS.filter((p) => p.publicKey !== inviterKey).slice(0, 2);
+  return [inviterKey, ...others.map((p) => p.publicKey)];
+}
+
+/** A short, curated language set for the onboarding picker (NOT the full 197). */
+export interface OnboardingLanguage {
+  code: string;
+  defaultLabel: string;
+}
+export const ONBOARDING_LANGUAGES: OnboardingLanguage[] = [
+  { code: 'en', defaultLabel: 'English' },
+  { code: 'fr', defaultLabel: 'Français' },
+  { code: 'sw', defaultLabel: 'Kiswahili' },
+  { code: 'ny', defaultLabel: 'Chichewa' },
+  { code: 'ln', defaultLabel: 'Lingala' },
+  { code: 'ha', defaultLabel: 'Hausa' },
+];
+
+/** Demo participation rows for the Digital Agent card (real activity isn't tracked). */
+export interface ParticipationEntry {
+  titleKey: string;
+  defaultTitle: string;
+  stageKey: string;
+  defaultStage: string;
+  when: string;
+}
+export const DEMO_PARTICIPATION: ParticipationEntry[] = [
+  { titleKey: 'agent.activity.plasticFree', defaultTitle: 'Plastic-free lakes', stageKey: 'nav.problem', defaultStage: 'Problem', when: '2d ago' },
+  { titleKey: 'agent.activity.flooding', defaultTitle: 'Flood early-warning network', stageKey: 'nav.discussion', defaultStage: 'Discuss', when: '5d ago' },
+  { titleKey: 'agent.activity.solar', defaultTitle: 'Solar for rural schools', stageKey: 'nav.vote', defaultStage: 'Vote', when: '1w ago' },
+];

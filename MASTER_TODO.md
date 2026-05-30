@@ -196,9 +196,9 @@ board safe for parallel play.
 **Goal:** A newcomer with an invite gets from "link" to "ready to participate" unaided, in their
 language. Lightweight trust, not biometrics.
 **Owned paths:** `src/pages/IdentityView.*`, `src/components/identity/**`, new `src/components/onboarding/**`, fixture `identity.ts`.
-- [ ] A1 Guided first-run: invite → vouch (Web-of-Trust *lite*: "a friend vouched for you") → create Digital Agent (name, photo, country, languages) → consent to deliberation rules. Stepper, plain language, skippable-but-nudged.
-- [ ] A2 Profile = "Digital Agent" card: country flag, languages, participation history, trust ("vouched by N"). Defer badges/Council.
-- [ ] A3 Empty/again states + dark mode + 360px + screen-reader pass.
+- [x] A1 Guided first-run: invite → vouch (Web-of-Trust *lite*: "a friend vouched for you") → create Digital Agent (name, photo, country, languages) → consent to deliberation rules. Stepper, plain language, skippable-but-nudged.
+- [x] A2 Profile = "Digital Agent" card: country flag, languages, participation history, trust ("vouched by N"). Defer badges/Council.
+- [x] A3 Empty/again states + dark mode + 360px + screen-reader pass.
 
 ### Lane B — Issue Selection & Problem framing *(VftC Phase 1→2)*
 **Goal:** The *participatory* choice of what to deliberate — the moment a crowd becomes a "we" with a shared subject. Then frame the chosen problem.
@@ -248,8 +248,9 @@ language. Lightweight trust, not biometrics.
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
 
 ### Wave 1 batch 1 *(from open PRs #3, #4, #5, #6 — apply after they merge)*
-- **[A → Foundation]** Post-login first-run redirect to `/welcome` (App.tsx-owned); hide the global `StageFooter` on `/welcome/*`.
-- **[A → Lane F]** Promote `onboarding.*` and `agent.*` inline strings into `src/i18n/en.ts` + FR + SW dictionaries.
+- **[A → Foundation]** Post-login first-run routing. `/welcome/*` is built and reachable via the invite deep-link (`/welcome?invite=CODE`, e.g. `CLIMATE24`→Amani/KE) and a HomepageMenu entry, but `App.tsx` still redirects `/` → `/stage/problem`. Send first-run users (no `gloki.digitalAgent` in localStorage, or `gloki.onboarding.completed` false) to `/welcome` instead. Lane A cannot edit `App.tsx`.
+- **[A → Foundation, minor]** Hide global `StageFooter` on `/welcome/*` — the 5-stage footer frames the first-run flow oddly for a newcomer.
+- **[A → Lane F]** Promote inline `onboarding.*` and `agent.*` English defaults into `src/i18n/en.ts` + FR + SW overlays (Lane F owns `src/i18n/`).
 - **[B → Lane D]** In `ProblemVoteFlow.tsx`, simplify copy: heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`; buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. `ProblemStage` (Lane B) wraps the flow with its own framing and passes empty `evidenceLinks`/`countries` on purpose so the flow stays focused on tally + progress bar.
 - **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting primitives stay viewable after merge. Lane F verified via a temporary, reverted mount; no `App.tsx` change is on the Lane F branch.
 - **[F → all lanes, FYI / non-blocking]** Reusable primitives ready to import: `ShowInMyLanguage` (`shared/AITools`); `LanguageBar`, `ParticipationSummary`, `WorldMapLite` (`shared/presence`); `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` (`shared/connectivity`). Sample data: `services/demo/fixtures/presence.ts`.
