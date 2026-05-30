@@ -246,8 +246,41 @@ language. Lightweight trust, not biometrics.
 
 ## 10. Coordination log *(cross-lane requests for the Foundation owner)*
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
-- _(empty)_
+
+### Wave 1 batch 1 *(from open PRs #3, #4, #5, #6 — apply after they merge)*
+- **[A → Foundation]** Post-login first-run redirect to `/welcome` (App.tsx-owned); hide the global `StageFooter` on `/welcome/*`.
+- **[A → Lane F]** Promote `onboarding.*` and `agent.*` inline strings into `src/i18n/en.ts` + FR + SW dictionaries.
+- **[B → Lane D]** Simplify in-flow copy inside `ProblemVoteFlow` to a "Is this a shared problem?" framing (Lane B already wraps the flow with its own framing and passes empty `evidenceLinks`/`countries`).
+- **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` so the cross-cutting primitives have a permanent verification page (currently only verified via a temporary mount that was reverted).
 
 ## 11. Refactor changelog *(review-wave outputs)*
-> Appended after each review wave: top findings + resulting task changes.
-- _(empty — first entry after Wave 1 review)_
+> Appended after each review wave: top findings + resulting task changes. Lane self-reports
+> (pre-review-wave) also go here for traceability, clearly labeled.
+
+### Wave 1 batch 1 — lane self-reports *(pre-review-wave)*
+**Status (as of this entry):** Foundation (F1–F7) merged to `ui` ✅ at `fb64534`. Lane PRs **#3 Lane C**, **#4 Lane B**, **#5 Lane F**, **#6 Lane A** are **OPEN against `ui`** — merge them (in any order; files disjoint) to roll up into the next Pages deploy. Lanes **D, E, G not yet run.**
+
+**What shipped (highlights — full detail in each PR body):**
+- **Foundation** — semantic tokens incl. full dark mode; shared kit (`Button`/`Card`/`Modal`/`Stepper`/`EmptyState`/`Banner`/`Badge`/`CountryFlag`/`CountryPresence`); i18n scaffold + `LanguageSwitcher` (EN/FR/SW); `App.tsx` frozen with VftC route map; all 5 stages decomposed under `src/components/stages/*` (F4b); per-lane fixtures; Voices-for-the-Climate seed (12 personas across KE/NG/MW/CD, 5 initiatives one per stage); ~60 legacy files removed.
+- **Lane A — Onboarding & Identity (PR #6)** — `/welcome/*` 5-step first-run (invite → vouch → Digital Agent → consent → ready); Digital Agent profile card with edit modal; invite deep-links (e.g. `CLIMATE24`→Amani/KE); agent persisted in localStorage.
+- **Lane B — Issue Selection & Problem (PR #4)** — slate of candidate problems on `/stage/problem`; "We chose this together" payoff at ≥50%; "Propose a different problem" template (plain language, gently-required source, country chips, optional SDG); legible "X of Y agree — N more to go" threshold framing.
+- **Lane C — Deliberation & Co-authoring (PR #3)** — `DeliberationThread` with hearts + category filters; `CoPresenceBar` ("12 from 4 countries", live ticker gated by `prefers-reduced-motion`); `CoAuthoringPanel` with track-changes + co-author credit; `ProposalMergePanel` with merge celebration + expert-review badge.
+- **Lane F — Presence, Multilingual & Low-tech (PR #5)** — `ShowInMyLanguage` (fixture-driven, offline); `LanguageBar`; `ParticipationSummary`; `WorldMapLite`; `useDataSaver` + `DataSaverToggle` + `SmartImage`; `SyncBadge`; `ChannelBadge` (WhatsApp/SMS/USSD); full FR + SW dictionaries with parity to EN.
+
+**Reusable primitives now available to all lanes (use, don't rebuild):**
+| From | Components |
+|---|---|
+| `shared/AITools` | `ShowInMyLanguage` |
+| `shared/presence` | `LanguageBar`, `ParticipationSummary`, `WorldMapLite` |
+| `shared/connectivity` | `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` |
+
+**Known limitations / carry-forward to backlog:**
+- **[C]** On the Initiative Dashboard, `ProposalMergePanel`'s optimistic state resets once if you act within ~1s of load (Lane E's dashboard remounts the active stage subtree when contract data resolves). Stable thereafter. A shared module-level store would harden it — defer until reviewers flag it as a real issue.
+- **[A]** Created Digital Agent is **not yet injected into community member lists** (community-contract writes are out-of-lane) — Wave 2 task.
+- **[B]** "Propose a different problem" deploys via the demo mock layer with the proposer's own second seeded — works, but no test of large slates yet.
+- **[F]** `PresenceShowcase` verification page lives only in the Lane F worktree; needs `/lab/presence` route (see §10).
+
+**Next step:** merge the four open PRs into `ui`, then either run lanes D/E/G **or** run the formal **`REVIEW-WAVE.md`** persona panel against the merged build now and let findings shape the rest of Wave 1.
+
+### Wave 1 — formal review-wave findings *(pending)*
+- _(empty — run `docs/session-prompts/REVIEW-WAVE.md` against the merged build)_
