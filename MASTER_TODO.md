@@ -231,9 +231,9 @@ language. Lightweight trust, not biometrics.
 ### Lane F — Transnational presence, multilingual & low-tech *(cross-cutting · both principles)*
 **Goal:** Make "across borders, across languages, on any connection" felt everywhere.
 **Owned paths:** `src/components/shared/AITools.*`, new `src/components/shared/presence/**`, new `src/components/shared/connectivity/**`, i18n dictionaries `src/i18n/**` (content only).
-- [ ] F1 Live-translation affordance on posts (toggle "show in my language"); language switcher real.
-- [ ] F2 Transnational presence motifs: country-flag clusters, "participants from N countries," world-map-lite.
-- [ ] F3 Low-bandwidth + offline UX: data-saver mode, "works offline / syncs later" indicators, WhatsApp/SMS-bridge *representation* (how a low-tech participant appears).
+- [x] F1 Live-translation affordance on posts (toggle "show in my language"); language switcher real. → `ShowInMyLanguage` (`shared/AITools`) + `LanguageBar` (`shared/presence`).
+- [x] F2 Transnational presence motifs: country-flag clusters, "participants from N countries," world-map-lite. → `ParticipationSummary` + `WorldMapLite` (`shared/presence`).
+- [x] F3 Low-bandwidth + offline UX: data-saver mode, "works offline / syncs later" indicators, WhatsApp/SMS-bridge *representation* (how a low-tech participant appears). → `useDataSaver`/`DataSaverToggle`/`SmartImage`/`SyncBadge`/`ChannelBadge` (`shared/connectivity`).
 
 ### Lane G — Community home & Currency *(lighter · collaboration)*
 **Goal:** The community as a welcoming transnational "town square." Defer points economy.
@@ -246,7 +246,8 @@ language. Lightweight trust, not biometrics.
 
 ## 10. Coordination log *(cross-lane requests for the Foundation owner)*
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
-- _(empty)_
+- **Lane F → Foundation:** add a durable dev route `/lab/presence` rendering `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting presence/connectivity/translation components stay viewable after merge. Lane F verified it via a temporary, reverted mount; **no `App.tsx` change is on the Lane F branch.**
+- **Lane F → all lanes (FYI, non-blocking):** reusable components are ready to import — `ShowInMyLanguage` (`shared/AITools`); `LanguageBar`, `ParticipationSummary`, `WorldMapLite` (`shared/presence`); `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` (`shared/connectivity`). Presence/translation sample data lives in `services/demo/fixtures/presence.ts`.
 
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes.
