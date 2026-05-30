@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, QrCode, Plus, LogOut, EyeOff, Info, Mail, X, LayoutGrid } from 'lucide-react';
+import { User, QrCode, Plus, LogOut, EyeOff, Info, Mail, X, LayoutGrid, Sparkles } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
+import { useT } from '../../i18n';
 import styles from './HomepageMenu.module.scss';
 
 interface HomepageMenuProps {
@@ -17,6 +18,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({
   onNavigate,
   onLogout,
 }) => {
+  const t = useT();
   const navigate = useNavigate();
   const hiddenCount = useAppSelector((s) => s.preferences.hidden.length);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,10 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({
         </div>
 
         <div className={styles.menuItems}>
+          <button className={styles.menuItem} onClick={() => { navigate('/welcome'); onClose(); }}>
+            <Sparkles size={20} />
+            <span>{t('onboarding.menuEntry', 'Welcome guide')}</span>
+          </button>
           <button className={styles.menuItem} onClick={() => { onNavigate('profile'); onClose(); }}>
             <User size={20} />
             <span>Profile</span>
