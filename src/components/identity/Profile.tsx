@@ -1,311 +1,178 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { readProfile } from '../../store/slices/userSlice';
-import { useEventStream, useEventStreamConnection } from '../../hooks/useEventStream';
-import { User, Camera, Save, Key, Server, ChevronDown, ChevronUp } from 'lucide-react';
-import styles from './Profile.module.scss';
-import { setValues } from '../../services/contracts/gloki';
-import SearchableSelect from '../shared/SearchableSelect';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
+import { useAppSelector } from '../../store/hooks';
+import { Key, Server, ChevronDown, ChevronUp, UserPlus } from 'lucide-react';
+import { Button, Card, Modal, EmptyState, Banner, SearchableSelect } from '../shared';
+import { useT } from '../../i18n';
+import DigitalAgentCard from './DigitalAgentCard';
+import PhotoPicker from './PhotoPicker';
+import { useDigitalAgent } from './agent/useDigitalAgent';
+import { getInitials } from './agent/digitalAgentStore';
+import { ONBOARDING_LANGUAGES } from '../../services/demo/fixtures/identity';
 import { COUNTRIES, OTHER_COUNTRY } from '../../utils/countries';
-import { setLocalOpenAIApiKey } from '../../utils/localSecrets';
+import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
+import styles from './Profile.module.scss';
 
 const Profile: React.FC = () => {
-  const user = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
-  const { isConnected } = useEventStreamConnection();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [openaiApiKey, setOpenaiApiKey] = useState('');
-  const [country, setCountry] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-  const [imageData, setImageData] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const t = useT();
+  const navigate = useNavigate();
+  const user = useAppSelector((s) => s.user);
+  const { agent, hasAgent, isOnboarded, saveAgent } = useDigitalAgent();
+
+  const [editing, setEditing] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Use the profile contract ID from the slice
-  const profileContractId = user.profileContractId;
+  // Edit-form local state (seeded from the stored agent on open).
+  const [displayName, setDisplayName] = useState('');
+  const [photo, setPhoto] = useState('');
+  const [country, setCountry] = useState('');
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [apiKey, setApiKey] = useState('');
 
-  // Update local state when profile is loaded
-  useEffect(() => {
-    if (user.profile) {
-      setFirstName(user.profile.firstName || '');
-      setLastName(user.profile.lastName || '');
-      setImageData(user.profile.userPhoto || null);
-      setOpenaiApiKey(user.profile.openaiApiKey || '');
-      setCountry(user.profile.country || '');
-      setImageUploadError(null); // Clear any previous image upload errors
-    }
-  }, [user.profile]);
-
-  // Listen for profile contract write events
-  useEventStream('contract_write', (event) => {
-    if (user && profileContractId && event.contract === profileContractId) {
-      // Dispatch profile read to get updated profile from server
-      dispatch(readProfile());
-    }
-  });
-
-  // Helper function to resize image
-  const resizeImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
-      
-      img.onload = () => {
-        // Set maximum dimensions for profile picture
-        const maxSize = 200;
-        let { width, height } = img;
-        
-        // Calculate new dimensions maintaining aspect ratio
-        if (width > height) {
-          if (width > maxSize) {
-            height = (height * maxSize) / width;
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width = (width * maxSize) / height;
-            height = maxSize;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        // Draw resized image
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Convert to data URL with reduced quality
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        resolve(dataUrl);
-      };
-      
-      img.src = URL.createObjectURL(file);
-    });
+  const openEdit = () => {
+    setDisplayName(agent?.displayName ?? '');
+    setPhoto(agent?.photo ?? '');
+    setCountry(agent?.country ?? '');
+    setLanguages(agent?.languages ?? []);
+    setApiKey(getLocalOpenAIApiKey(user.serverUrl, user.publicKey));
+    setEditing(true);
   };
 
-  const handleSave = async () => {
-    if (user.serverUrl && user.publicKey && profileContractId) {
-      try {
-        setIsSaving(true);
-        setSaveError(null);
-
-        setLocalOpenAIApiKey(user.serverUrl, user.publicKey, openaiApiKey);
-        
-        await setValues(
-          user.serverUrl,
-          user.publicKey,
-          profileContractId,
-          firstName,
-          lastName,
-          imageData,
-          openaiApiKey,
-          country,
-        );
-        
-        // Profile data will be refreshed automatically via SSE event
-        setIsEditing(false);
-      } catch (error: unknown) {
-        console.error('Failed to save profile:', error);
-        setSaveError('Failed to save profile. Please check your connection and try again.');
-      } finally {
-        setIsSaving(false);
-      }
-    } else {
-      setSaveError('Missing user credentials or profile contract. Please try logging in again.');
-    }
+  const saveEdit = () => {
+    saveAgent({ displayName: displayName.trim(), photo, country, languages });
+    if (user.serverUrl && user.publicKey) setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
+    setEditing(false);
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        setImageUploadError(null);
-        
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          setImageUploadError('Please select a valid image file.');
-          return;
-        }
-        
-        // Validate file size (max 5MB before processing)
-        if (file.size > 5 * 1024 * 1024) {
-          setImageUploadError('Image file is too large. Please select a smaller image.');
-          return;
-        }
-        
-        // Resize and compress the image
-        const resizedImageData = await resizeImage(file);
-        
-        // Store the processed image data
-        setImageData(resizedImageData);
-        
-      } catch (error: unknown) {
-        // console.error('Failed to process image:', error);
-        setImageUploadError('Failed to process image. Please try again.');
-      }
-    }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
-  if (user.loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingMessage}>Loading profile...</div>
-      </div>
-    );
-  }
-
-  if (user.error) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.errorMessage}>
-          <div className={styles.errorIcon}>⚠️</div>
-          <div className={styles.errorContent}>
-            <div className={styles.errorTitle}>Connection Error</div>
-            <div className={styles.errorDescription}>{user.error}</div>
-            <div className={styles.errorHelp}>
-              Please make sure the server is running and try refreshing the page.
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const toggleLang = (code: string) =>
+    setLanguages((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
 
   return (
     <div className={styles.container}>
-      <div className={styles.profileCard}>
-        {/* Photo + name row */}
-        <div className={styles.profileTop}>
-          <div className={styles.profilePicture}>
-            {imageData ? (
-              <img src={imageData} alt="Profile" />
-            ) : (
-              <div className={styles.profilePicturePlaceholder}>
-                <User size={32} />
-              </div>
-            )}
-            {isEditing && (
-              <button onClick={triggerFileInput} className={styles.uploadButton} title="Upload photo">
-                <Camera size={14} />
-              </button>
-            )}
-          </div>
-          <div className={styles.profileSummary}>
-            {user.profile && (
-              <div className={styles.profileName}>
-                {user.profile.firstName} {user.profile.lastName}
-              </div>
-            )}
-            <span className={`${styles.statusDot} ${isConnected ? styles.connected : styles.disconnected}`} />
-          </div>
-          {!isEditing && (
-            <button onClick={() => { setIsEditing(true); setImageUploadError(null); }} className={styles.editBtn}>
-              Edit
-            </button>
-          )}
-        </div>
-        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+      {!isOnboarded && hasAgent && (
+        <Banner
+          tone="info"
+          action={
+            <Button size="sm" variant="secondary" onClick={() => navigate('/welcome')}>
+              {t('common.continue', 'Continue')}
+            </Button>
+          }
+        >
+          {t('agent.finishNudge', 'Finish setting up your Digital Agent')}
+        </Banner>
+      )}
 
-        {imageUploadError && (
-          <div className={styles.inlineError}>{imageUploadError}</div>
-        )}
+      {hasAgent && agent ? (
+        <DigitalAgentCard agent={agent} onEdit={openEdit} />
+      ) : (
+        <EmptyState
+          icon={<UserPlus size={48} />}
+          title={t('agent.empty.title', 'Set up your Digital Agent')}
+          message={t('agent.empty.message', 'Create the identity that represents you in deliberations — it only takes a minute.')}
+          action={<Button onClick={() => navigate('/welcome')}>{t('agent.empty.cta', 'Get started')}</Button>}
+        />
+      )}
 
-        {/* Form fields */}
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
-            <label htmlFor="firstName">First Name</label>
-            <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={!isEditing} />
-          </div>
-          <div className={styles.formField}>
-            <label htmlFor="lastName">Last Name</label>
-            <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={!isEditing} />
-          </div>
-        </div>
-
-        <div className={styles.formField}>
-          <label htmlFor="country">Country</label>
-          <SearchableSelect
-            options={[
-              ...COUNTRIES.map((c) => ({ value: c.code, label: c.name, icon: c.flag })),
-              { value: OTHER_COUNTRY.code, label: OTHER_COUNTRY.name, icon: OTHER_COUNTRY.flag },
-            ]}
-            value={country}
-            onChange={(val) => setCountry(val)}
-            placeholder="Select your country"
-            disabled={!isEditing}
-          />
-        </div>
-
-        <div className={styles.formField}>
-          <label htmlFor="openaiApiKey">AI API Key (stored locally)</label>
-          <input id="openaiApiKey" type="password" value={openaiApiKey} onChange={(e) => setOpenaiApiKey(e.target.value)} disabled={!isEditing} placeholder="Optional" />
-        </div>
-
-        {saveError && <div className={styles.inlineError}>{saveError}</div>}
-
-        {isEditing && (
-          <div className={styles.actionRow}>
-            <button onClick={handleSave} className={styles.saveBtn} disabled={isSaving}>
-              <Save size={14} /> {isSaving ? 'Saving...' : 'Save'}
-            </button>
-            <button
-              onClick={() => {
-                setIsEditing(false);
-                setFirstName(user.profile?.firstName || '');
-                setLastName(user.profile?.lastName || '');
-                setImageData(user.profile?.userPhoto || null);
-                setOpenaiApiKey(user.profile?.openaiApiKey || '');
-                setCountry(user.profile?.country || '');
-                setSaveError(null);
-              }}
-              className={styles.cancelBtn}
-            >
-              Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Collapsible identity section */}
-      <button className={styles.identityToggle} onClick={() => setShowIdentity(!showIdentity)}>
-        <span>Network Identity</span>
+      {/* Network identity (read-only, informative) */}
+      <button
+        className={styles.identityToggle}
+        onClick={() => setShowIdentity((v) => !v)}
+        aria-expanded={showIdentity}
+      >
+        <span>{t('agent.networkIdentity', 'Network identity')}</span>
         {showIdentity ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
       {showIdentity && (
-        <div className={styles.identitySection}>
+        <Card className={styles.identityCard}>
           <div className={styles.infoItem}>
-            <div className={styles.infoLabel}>
-              <Key size={14} />
-              <span>Public Key</span>
-              <span className={styles.infoHint}>— your unique identity on the network</span>
-            </div>
-            <div className={styles.infoValue}>
-              <code>{user?.publicKey}</code>
-              <button onClick={() => navigator.clipboard.writeText(user?.publicKey || '')} className={styles.copyButton}>Copy</button>
-            </div>
+            <span className={styles.infoLabel}>
+              <Key size={14} /> {t('agent.publicKey', 'Public key')}
+            </span>
+            <code className={styles.infoValue}>{user.publicKey || '—'}</code>
           </div>
           <div className={styles.infoItem}>
-            <div className={styles.infoLabel}>
-              <Server size={14} />
-              <span>Server URL</span>
-              <span className={styles.infoHint}>— the server hosting your data</span>
+            <span className={styles.infoLabel}>
+              <Server size={14} /> {t('agent.serverUrl', 'Server')}
+            </span>
+            <code className={styles.infoValue}>{user.serverUrl || '—'}</code>
+          </div>
+        </Card>
+      )}
+
+      {/* Edit modal */}
+      <Modal
+        isOpen={editing}
+        onClose={() => setEditing(false)}
+        title={t('agent.edit.title', 'Edit your Digital Agent')}
+        closeLabel={t('common.close', 'Close')}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setEditing(false)}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button onClick={saveEdit}>{t('common.save', 'Save')}</Button>
+          </>
+        }
+      >
+        <div className={styles.editForm}>
+          <div className={styles.photoRow}>
+            <PhotoPicker value={photo} onChange={setPhoto} initials={getInitials(displayName)} label={t('onboarding.agent.photo', 'Add a photo (optional)')} />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="edit-name">
+              {t('onboarding.agent.name', 'Your name')}
+            </label>
+            <input id="edit-name" className={styles.input} type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="edit-country">
+              {t('onboarding.agent.country', 'Your country')}
+            </label>
+            <SearchableSelect
+              options={[
+                ...COUNTRIES.map((c) => ({ value: c.code, label: c.name, icon: c.flag })),
+                { value: OTHER_COUNTRY.code, label: OTHER_COUNTRY.name, icon: OTHER_COUNTRY.flag },
+              ]}
+              value={country}
+              onChange={setCountry}
+              placeholder={t('onboarding.agent.countryPlaceholder', 'Select your country')}
+            />
+          </div>
+          <div className={styles.field}>
+            <span className={styles.fieldLabel}>{t('onboarding.agent.languages', 'Languages you speak')}</span>
+            <div className={styles.chips} role="group" aria-label={t('onboarding.agent.languages', 'Languages you speak')}>
+              {ONBOARDING_LANGUAGES.map((lang) => {
+                const active = languages.includes(lang.code);
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    className={clsx(styles.chip, active && styles.chipActive)}
+                    aria-pressed={active}
+                    onClick={() => toggleLang(lang.code)}
+                  >
+                    {t(`lang.${lang.code}`, lang.defaultLabel)}
+                  </button>
+                );
+              })}
             </div>
-            <div className={styles.infoValue}>
-              <code>{user?.serverUrl}</code>
-              <button onClick={() => navigator.clipboard.writeText(user?.serverUrl || '')} className={styles.copyButton}>Copy</button>
-            </div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="edit-key">
+              {t('agent.aiKey', 'AI API key (stored on this device)')}
+            </label>
+            <input
+              id="edit-key"
+              className={styles.input}
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={t('common.optional', 'Optional')}
+            />
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };
