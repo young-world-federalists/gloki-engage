@@ -1,0 +1,82 @@
+@use '../../styles/variables' as *;
+
+.picker {
+  display: inline-block;
+}
+
+.avatar {
+  position: relative;
+  border-radius: $radius-full;
+  border: 2px dashed $gray-300;
+  background: $gray-50;
+  color: $gray-400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.md .avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.lg .avatar {
+  width: 96px;
+  height: 96px;
+}
+
+.initials {
+  font-size: $text-2xl;
+  font-weight: $font-semibold;
+  color: $gray-500;
+}
+
+.camera {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: $primary;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+  .camera {
+    border-color: $dark-bg;
+  }
+  .initials {
+    color: $dark-text-secondary;
+  }
+}
