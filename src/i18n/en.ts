@@ -32,11 +32,50 @@ const en: Dictionary = {
   'nav.vote': 'Vote',
   'nav.mandate': 'Mandate',
 
-  // Language switcher
+  // Language switcher (language names stay as endonyms across all locales)
   'lang.switch': 'Language',
   'lang.en': 'English',
   'lang.fr': 'Français',
   'lang.sw': 'Kiswahili',
+
+  // Translation affordances (Lane F · AITools)
+  'translate.translate': 'Translate',
+  'translate.showInMyLanguage': 'Show in {language}',
+  'translate.showOriginal': 'Show original',
+  'translate.translatedAuto': 'Translated',
+  'translate.translatingTo': 'Translating to {lang}…',
+  'translate.failed': 'Translation failed. Please try again.',
+  'translate.keyHintTitle': 'Add an API key in your profile to enable translation',
+  'translate.aiSummary': 'AI Summary',
+  'translate.hideSummary': 'Hide Summary',
+  'translate.generatingSummary': 'Generating summary…',
+  'translate.summaryFailed': 'Summary generation failed. Please try again.',
+
+  // Connectivity — low-bandwidth & offline (Lane F)
+  'connectivity.dataSaver': 'Data saver',
+  'connectivity.dataSaverHint': 'Use less data — hide heavy images',
+  'connectivity.synced': 'Synced',
+  'connectivity.pending': 'Saved · syncs later',
+  'connectivity.offline': 'Offline',
+  'connectivity.viaApp': 'In app',
+  'connectivity.viaWhatsapp': 'via WhatsApp',
+  'connectivity.viaSms': 'via SMS',
+  'connectivity.viaUssd': 'via USSD',
+
+  // Transnational presence motifs (Lane F)
+  'presence.participantsFrom': '{people} participants from {countries} countries',
+  'presence.whereWeAreFrom': 'Where we’re from',
+  'presence.mapAria': '{total} participants across {countries} countries',
+  'presence.spokenHere': 'Spoken here',
+  'presence.minutesAgo': '{n}m ago',
+  'presence.hoursAgo': '{n}h ago',
+  'presence.showcaseTitle': 'Presence & connectivity',
+  'presence.showcaseSubtitle': 'Across borders, across languages, on any connection.',
+  'presence.sectionLanguage': 'Language',
+  'presence.sectionPresence': 'Who’s here',
+  'presence.sectionPosts': 'Live translation & bridges',
+  'presence.sectionConnectivity': 'Low-bandwidth & offline',
+  'presence.dataSaverNote': 'Turn it on — the avatars above become light placeholders.',
 };
 
 export default en;
