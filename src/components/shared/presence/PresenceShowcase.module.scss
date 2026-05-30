@@ -1,0 +1,114 @@
+@use '../../../styles/variables' as *;
+
+.page {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-lg;
+  padding-bottom: $spacing-3xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.title {
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: $gray-900;
+  margin: 0 0 $spacing-xs;
+}
+
+.subtitle {
+  font-size: $text-sm;
+  color: $gray-500;
+  margin: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.sectionTitle {
+  font-size: $text-lg;
+  font-weight: $font-medium;
+  color: $gray-800;
+  margin: 0;
+}
+
+.spacer {
+  height: $spacing-lg;
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.postHead {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.postMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-800;
+}
+
+.time {
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+.postTags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.note {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-sm 0;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: $dark-text;
+  }
+
+  .subtitle,
+  .time,
+  .note {
+    color: $dark-text-secondary;
+  }
+
+  .sectionTitle,
+  .author {
+    color: $dark-text;
+  }
+}

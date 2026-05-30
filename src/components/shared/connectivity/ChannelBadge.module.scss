@@ -1,0 +1,28 @@
+@use '../../../styles/variables' as *;
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 2px $spacing-sm;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $gray-600;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chip {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+}

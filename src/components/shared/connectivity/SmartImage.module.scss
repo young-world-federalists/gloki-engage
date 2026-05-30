@@ -1,0 +1,39 @@
+@use '../../../styles/variables' as *;
+
+.img {
+  display: block;
+  object-fit: cover;
+  background: $gray-100;
+}
+
+.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: $gray-100;
+  color: $gray-400;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  overflow: hidden;
+}
+
+.initials {
+  line-height: 1;
+}
+
+.rounded {
+  border-radius: $radius-full;
+}
+
+@media (prefers-color-scheme: dark) {
+  .img {
+    background: $dark-border;
+  }
+
+  .placeholder {
+    background: $dark-border;
+    color: $dark-text-secondary;
+  }
+}

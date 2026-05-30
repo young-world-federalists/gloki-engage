@@ -133,6 +133,46 @@
   font-style: italic;
 }
 
+// ── Show in my language ───────────────────────────────────────────────────────
+
+.postBody {
+  font-size: $text-sm;
+  color: $gray-700;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.translateToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-top: $spacing-xs;
+  padding: 0;
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+.translatedNote {
+  margin-left: $spacing-sm;
+  font-size: $text-xs;
+  font-style: italic;
+  color: $gray-400;
+}
+
 // ── Dark mode ───────────────────────────────────────────────────────────────
 
 @media (prefers-color-scheme: dark) {
@@ -160,6 +200,14 @@
   }
 
   .aiResultText {
+    color: $dark-text-secondary;
+  }
+
+  .postBody {
+    color: $dark-text-secondary;
+  }
+
+  .translatedNote {
     color: $dark-text-secondary;
   }
 

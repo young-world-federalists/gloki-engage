@@ -1,0 +1,48 @@
+@use '../../../styles/variables' as *;
+
+.bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.label {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lang {
+  font-size: $text-xs;
+  padding: 2px $spacing-sm;
+  background: $gray-100;
+  color: $gray-700;
+  border-radius: $radius-full;
+}
+
+.switcher {
+  margin-left: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .label {
+    color: $dark-text-secondary;
+  }
+
+  .lang {
+    background: $dark-border;
+    color: $dark-text;
+  }
+}

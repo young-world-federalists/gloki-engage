@@ -231,9 +231,9 @@ language. Lightweight trust, not biometrics.
 ### Lane F — Transnational presence, multilingual & low-tech *(cross-cutting · both principles)*
 **Goal:** Make "across borders, across languages, on any connection" felt everywhere.
 **Owned paths:** `src/components/shared/AITools.*`, new `src/components/shared/presence/**`, new `src/components/shared/connectivity/**`, i18n dictionaries `src/i18n/**` (content only).
-- [ ] F1 Live-translation affordance on posts (toggle "show in my language"); language switcher real.
-- [ ] F2 Transnational presence motifs: country-flag clusters, "participants from N countries," world-map-lite.
-- [ ] F3 Low-bandwidth + offline UX: data-saver mode, "works offline / syncs later" indicators, WhatsApp/SMS-bridge *representation* (how a low-tech participant appears).
+- [x] F1 Live-translation affordance on posts (toggle "show in my language"); language switcher real. → `ShowInMyLanguage` (`shared/AITools`) + `LanguageBar` (`shared/presence`).
+- [x] F2 Transnational presence motifs: country-flag clusters, "participants from N countries," world-map-lite. → `ParticipationSummary` + `WorldMapLite` (`shared/presence`).
+- [x] F3 Low-bandwidth + offline UX: data-saver mode, "works offline / syncs later" indicators, WhatsApp/SMS-bridge *representation* (how a low-tech participant appears). → `useDataSaver`/`DataSaverToggle`/`SmartImage`/`SyncBadge`/`ChannelBadge` (`shared/connectivity`).
 
 ### Lane G — Community home & Currency *(lighter · collaboration)*
 **Goal:** The community as a welcoming transnational "town square." Defer points economy.
@@ -251,7 +251,8 @@ language. Lightweight trust, not biometrics.
 - **[A → Foundation]** Post-login first-run redirect to `/welcome` (App.tsx-owned); hide the global `StageFooter` on `/welcome/*`.
 - **[A → Lane F]** Promote `onboarding.*` and `agent.*` inline strings into `src/i18n/en.ts` + FR + SW dictionaries.
 - **[B → Lane D]** In `ProblemVoteFlow.tsx`, simplify copy: heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`; buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. `ProblemStage` (Lane B) wraps the flow with its own framing and passes empty `evidenceLinks`/`countries` on purpose so the flow stays focused on tally + progress bar.
-- **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` so the cross-cutting primitives have a permanent verification page (currently only verified via a temporary mount that was reverted).
+- **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting primitives stay viewable after merge. Lane F verified via a temporary, reverted mount; no `App.tsx` change is on the Lane F branch.
+- **[F → all lanes, FYI / non-blocking]** Reusable primitives ready to import: `ShowInMyLanguage` (`shared/AITools`); `LanguageBar`, `ParticipationSummary`, `WorldMapLite` (`shared/presence`); `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` (`shared/connectivity`). Sample data: `services/demo/fixtures/presence.ts`.
 
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes. Lane self-reports

@@ -1,0 +1,91 @@
+@use '../../../styles/variables' as *;
+
+.map {
+  margin: 0;
+}
+
+.title {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  margin-bottom: $spacing-sm;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.link {
+  stroke: $gray-200;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.flag {
+  font-size: $text-2xl;
+  line-height: 1;
+}
+
+.count {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  background: white;
+  padding: 0 $spacing-xs;
+  border-radius: $radius-full;
+  box-shadow: $shadow-sm;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: $dark-text;
+  }
+
+  .canvas {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+
+  .link {
+    stroke: $dark-border;
+  }
+
+  .count {
+    background: $dark-bg;
+    color: $dark-text;
+  }
+}
