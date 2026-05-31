@@ -208,107 +208,6 @@
   padding: $spacing-lg;
 }
 
-// ─── Activity feed ───────────────────────────
-.feed {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.feedHeader {
-  margin-bottom: $spacing-md;
-}
-
-.feedTitle {
-  font-size: $text-lg;
-  font-weight: $font-semibold;
-  color: $gray-800;
-  margin: 0 0 $spacing-xs 0;
-}
-
-.feedDescription {
-  font-size: $text-sm;
-  color: $gray-500;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.feedCard {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-  padding: $spacing-lg;
-  background: white;
-  border: 1px solid $gray-100;
-  border-radius: $radius-lg;
-  cursor: pointer;
-  transition: box-shadow $transition-base;
-
-  &:hover {
-    box-shadow: $shadow-md;
-  }
-}
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.stageBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: $text-xs;
-  font-weight: $font-semibold;
-  padding: 2px $spacing-sm;
-  border-radius: $radius-full;
-}
-
-.time {
-  font-size: $text-xs;
-  color: $gray-400;
-}
-
-.cardTitle {
-  font-size: $text-lg;
-  font-weight: $font-semibold;
-  color: $gray-800;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.cardDesc {
-  font-size: $text-sm;
-  color: $gray-600;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.author {
-  font-size: $text-xs;
-  color: $gray-400;
-}
-
-// ─── Sample data ─────────────────────────────
-.sampleBanner {
-  font-size: $text-xs;
-  color: $gray-400;
-  text-align: center;
-  padding: $spacing-sm;
-  font-style: italic;
-}
-
-.sampleCard {
-  opacity: 0.85;
-  border-style: dashed;
-  border-color: rgba($primary, 0.25);
-}
-
 // ─── Options popup ───────────────────────────
 .optionsOverlay {
   position: fixed;
@@ -415,32 +314,6 @@
     background: $dark-bg;
   }
 
-  .feedTitle {
-    color: $dark-text;
-  }
-
-  .feedDescription {
-    color: $dark-text-secondary;
-  }
-
-  .feedCard {
-    background: $dark-bg;
-    border-color: $dark-border;
-  }
-
-  .cardTitle {
-    color: $dark-text;
-  }
-
-  .cardDesc {
-    color: $dark-text-secondary;
-  }
-
-  .author,
-  .time {
-    color: $dark-text-secondary;
-  }
-
   .optionsPanel {
     background: $dark-bg;
 
@@ -515,10 +388,6 @@
   }
 
   .body {
-    padding: $spacing-md;
-  }
-
-  .feedCard {
     padding: $spacing-md;
   }
 }
