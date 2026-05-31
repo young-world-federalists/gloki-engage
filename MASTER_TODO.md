@@ -255,6 +255,10 @@ language. Lightweight trust, not biometrics.
 - **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting primitives stay viewable after merge. Lane F verified via a temporary, reverted mount; no `App.tsx` change is on the Lane F branch.
 - **[F → all lanes, FYI / non-blocking]** Reusable primitives ready to import: `ShowInMyLanguage` (`shared/AITools`); `LanguageBar`, `ParticipationSummary`, `WorldMapLite` (`shared/presence`); `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` (`shared/connectivity`). Sample data: `services/demo/fixtures/presence.ts`.
 
+### Wave 1 batch 2 additions
+- **[D → Lane F]** New `mechanisms.*` i18n keys (`mechanisms.problem.*`, `mechanisms.qv.*`, `mechanisms.conviction.*`) ship with inline English defaults — please add FR/SW overlays in `src/i18n/{fr,sw}.ts`.
+- **[G → Lane F]** New `community.*` / `stage.*` / `journey.*` / `currency.*` keys also need FR/SW backfill — folds into the existing onboarding i18n promotion above.
+
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes. Lane self-reports
 > (pre-review-wave) also go here for traceability, clearly labeled.
@@ -291,6 +295,23 @@ language. Lightweight trust, not biometrics.
 - **E3** `JourneyRecap` on the dashboard at the mandate stage: a "story so far" timeline built from the already-fetched problem/discussion/proposals/vote summaries (live data where present, plain narration otherwise), plus a prominent **"View the published mandate"** CTA — mirrored as a compact link in the feed's `MandateStage` (derives `communityId` from the store; no shell change).
 - **Verify:** `tsc -b` + `npm run build` clean; preview-walked dashboard recap → mandate artifact → plain/spec toggle → optimistic endorse (dark + light + 360px; no console errors).
 - **Owned paths only:** `stages/VoteStage.*` (unchanged), `stages/MandateStage.*`, `collaboration/InitiativeDashboard.*` (recap + CTA), new `components/mandate/**`, fixture `mandate.ts`. **No `App.tsx` change** — the `/mandate/*` route was pre-registered by Foundation, so no §10 coordination entry is needed.
+
+### Wave 1 batch 2 — lane self-reports *(pre-review-wave)*
+**Status:** Lanes **D, E, G** merged into `ui`; DRAFT PRs **#16 E**, **#17 D**, **#18 G** opened against `main` alongside the earlier #9–#12 (A/B/C/F) and Foundation #8.
+
+**What shipped:**
+- **Lane D — Voting mechanisms (PR #17)** — *Usable without a tutorial.* **D0** ProblemVoteFlow copy ("Is this a shared problem?" / "Second it" / "Not for me", per [B→D] §10 item). **D1** QVFlow with tactile ♥ hearts; quadratic cost *felt, not shown* (draining support meter, hidden sqrt math, whole-vote results). **D2** ConvictionStaking: removed the free Amount field — duration is the sole lever, strength-fill meter ("How long will you back this?"). Prop shapes unchanged. **D3 (liquid delegation) intentionally deferred** to a later session.
+- **Lane E — Mandate & Impact (PR #16)** — `/mandate/:communityId/:mandateId` with `MandateDocument` (masthead, provenance strip, plain-language ↔ machine-readable JSON spec toggle + Copy JSON), `AdoptionFramework` (seeded adopters with progress, optimistic Endorse/Subscribe), `JourneyRecap` timeline on the dashboard mandate stage with "View the published mandate" CTA.
+- **Lane G — Community home & Currency (PR #18)** — Extracted `CommunityHome` + `MissionBanner` out of the 554-line `CommunityView`; 3 stacked bands (mission → country-presence via Lane F's `ParticipationSummary` → activity feed). Currency reframed as "Community Support Points"; mint/burn governance card removed (deferred §7). Removed redundant inline tab bar; backlog logged.
+
+**New §10 coordination items added by this batch:**
+- **[D → Lane F]** New `mechanisms.*` i18n keys (`mechanisms.problem.*`, `mechanisms.qv.*`, `mechanisms.conviction.*`) ship with inline English defaults — please add FR/SW overlays.
+- **[G → Lane F]** New `community.*` / `stage.*` / `journey.*` / `currency.*` keys also need FR/SW backfill (folds into the existing onboarding i18n promotion).
+
+**Carry-forward / backlog:**
+- **[D]** Liquid delegation (D3, the headline new mechanism) was deferred — Wave 1.5 or 2 priority.
+- **[G]** 5 orphaned components + dialog dark-mode gaps logged in Lane G's spec §9 (community-surface backlog).
+- **[E]** No new coordination requests.
 
 ### Wave 1 — formal review-wave findings *(pending)*
 - _(empty — run `docs/session-prompts/REVIEW-WAVE.md` against the merged build)_
