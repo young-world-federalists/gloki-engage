@@ -70,12 +70,16 @@ export function qvAllocationPattern(
 
 const DURATIONS: Array<'1w' | '1m' | '3m' | '6m' | '1y'> = ['1w', '1m', '3m', '6m', '1y'];
 
+// Conviction is time-only: everyone backs equally (amount = 1) and the duration
+// is the sole lever, so seeded support is never wealth-weighted. `maxAmount` is
+// accepted for call-site compatibility but intentionally unused.
 export function convictionPattern(
   personas: Persona[],
   participationRate: number,
-  maxAmount: number,
+  _maxAmount: number,
   seed: number,
 ): Array<{ voter: string; amount: number; duration: '1w' | '1m' | '3m' | '6m' | '1y'; country: string; timestamp: number }> {
+  void _maxAmount;
   const stakes: Array<{ voter: string; amount: number; duration: '1w' | '1m' | '3m' | '6m' | '1y'; country: string; timestamp: number }> = [];
   let s = seed || 1;
   const now = Date.now();
@@ -83,12 +87,10 @@ export function convictionPattern(
     s = (s * 1103515245 + 12345) & 0x7fffffff;
     if ((s % 100) / 100 >= participationRate) continue;
     s = (s * 1103515245 + 12345) & 0x7fffffff;
-    const amount = Math.max(1, Math.floor(((s % 100) / 100) * maxAmount));
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
     const duration = DURATIONS[s % DURATIONS.length];
     stakes.push({
       voter: p.publicKey,
-      amount,
+      amount: 1,
       duration,
       country: p.country,
       timestamp: now - (s % (7 * 24 * 3600 * 1000)),

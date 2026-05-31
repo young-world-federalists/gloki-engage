@@ -5,6 +5,7 @@ import * as api from './problemVoteApi';
 import { useAppSelector } from '../../../../store/hooks';
 const problemVoteCode = '';import { sanitizeExternalUrl } from '../../../../utils/urlSafety';
 import { getCountryByCode } from '../../../../utils/countries';
+import { useT } from '../../../../i18n';
 import styles from './ProblemVoteFlow.module.scss';
 
 interface ProblemVoteFlowProps {
@@ -32,6 +33,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   parentContractId,
   stageKey,
 }) => {
+  const t = useT();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId, 'problem_vote', 'problem_vote_contract.py', problemVoteCode, parentContractId, stageKey,
   );
@@ -117,14 +119,14 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
 
   if (hasError) return (
     <div className={styles.loading}>
-      <p>{errorMessage || 'Failed to set up voting.'}</p>
-      <button onClick={retry} className={styles.retryBtn}>Retry</button>
+      <p>{errorMessage || t('mechanisms.problem.setupError', 'Failed to set up voting.')}</p>
+      <button onClick={retry} className={styles.retryBtn}>{t('common.retry', 'Try again')}</button>
     </div>
   );
   if (isDeploying || !isReady) return (
     <div className={styles.loading}>
       <div className={styles.spinner} />
-      <p>{statusMessage || 'Setting up voting...'}</p>
+      <p>{statusMessage || t('mechanisms.problem.settingUp', 'Setting up voting…')}</p>
     </div>
   );
 
@@ -134,7 +136,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
       {description && <p className={styles.description}>{description}</p>}
       {safeEvidenceLinks.length > 0 && (
         <div className={styles.evidence}>
-          <h4>Evidence</h4>
+          <h4>{t('mechanisms.problem.evidence', 'Evidence')}</h4>
           <ul>
             {safeEvidenceLinks.map((link, i) => (
               <li key={i}>
@@ -159,7 +161,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
 
       {/* Voting */}
       <div className={styles.votingSection}>
-        <h4>Does this problem truly cross borders?</h4>
+        <h4>{t('mechanisms.problem.heading', 'Is this a shared problem?')}</h4>
         <div className={styles.voteButtons}>
           <button
             className={`${styles.voteBtn} ${styles.upBtn} ${myVote === 'up' ? styles.active : ''}`}
@@ -167,7 +169,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             disabled={voting}
           >
             <ThumbsUp size={20} />
-            <span>Problem for me</span>
+            <span>{t('mechanisms.problem.second', 'Second it')}</span>
             <span className={styles.voteCount}>{tally.up}</span>
           </button>
           <button
@@ -176,7 +178,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             disabled={voting}
           >
             <ThumbsDown size={20} />
-            <span>Not a problem for me</span>
+            <span>{t('mechanisms.problem.notForMe', 'Not for me')}</span>
             <span className={styles.voteCount}>{tally.down}</span>
           </button>
         </div>
@@ -191,16 +193,23 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             <div className={styles.thresholdMarker} style={{ left: '100%' }} />
           </div>
           <div className={styles.thresholdLabels}>
-            <span>{tally.up} upvote{tally.up !== 1 ? 's' : ''}</span>
+            <span>{t('mechanisms.problem.secondedCount', '{n} seconded', { n: tally.up })}</span>
             <span className={styles.thresholdTarget}>
-              {thresholdMet ? 'Threshold met!' : `${Math.max(Math.ceil(communityMemberCount * 0.50) - tally.up, 0)} more needed`}
+              {thresholdMet
+                ? t('mechanisms.problem.thresholdMet', 'Enough agree!')
+                : t('mechanisms.problem.moreNeeded', '{n} more to go', {
+                    n: Math.max(Math.ceil(communityMemberCount * 0.50) - tally.up, 0),
+                  })}
             </span>
           </div>
         </div>
 
         {myVote && (
           <p className={styles.yourVote}>
-            You voted: <strong>{myVote === 'up' ? 'Yes' : 'No'}</strong> (tap again to remove)
+            {myVote === 'up'
+              ? t('mechanisms.problem.youSeconded', 'You seconded this')
+              : t('mechanisms.problem.youDeclined', 'You marked this “not for me”')}{' '}
+            <span className={styles.undoHint}>{t('mechanisms.problem.tapToUndo', '(tap again to undo)')}</span>
           </p>
         )}
       </div>

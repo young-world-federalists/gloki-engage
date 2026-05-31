@@ -231,6 +231,11 @@ $initiative-color: #ea580c;
   color: $gray-400;
 }
 
+.undoHint {
+  color: $gray-400;
+  opacity: 0.8;
+}
+
 // Dark mode
 @media (prefers-color-scheme: dark) {
   .description {

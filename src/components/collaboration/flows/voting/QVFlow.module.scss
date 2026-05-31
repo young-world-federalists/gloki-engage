@@ -14,7 +14,8 @@
 }
 
 .tab {
-  padding: $spacing-sm $spacing-lg;
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -30,6 +31,15 @@
 .tabActive {
   color: $primary;
   border-bottom-color: $primary;
+  font-weight: $font-semibold;
+}
+
+// ─── Plain-language intro (the one sentence, no math) ──────────────────
+.intro {
+  font-size: $text-sm;
+  color: $gray-600;
+  line-height: 1.5;
+  margin: 0;
 }
 
 // ─── Add proposal ──────────────────────────────────────────────────────
@@ -40,6 +50,7 @@
 
 .addInput {
   flex: 1;
+  min-width: 0;
   padding: $spacing-sm $spacing-md;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
@@ -68,6 +79,14 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
+.noData {
+  font-size: $text-sm;
+  color: $gray-400;
+  font-style: italic;
+  text-align: center;
+  padding: $spacing-lg 0;
+}
+
 // ─── Proposal list ─────────────────────────────────────────────────────
 .proposalList {
   display: flex;
@@ -87,6 +106,9 @@
 }
 
 .proposalBody {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
   flex: 1;
   min-width: 0;
 }
@@ -96,6 +118,7 @@
   font-weight: $font-medium;
   color: $gray-800;
   word-break: break-word;
+  flex: 1;
 }
 
 .proposalMeta {
@@ -104,7 +127,126 @@
   gap: $spacing-sm;
   font-size: $text-xs;
   color: $gray-400;
-  margin-top: 2px;
+}
+
+// ─── Support meter — the felt cost. Stacking hearts on one proposal fills
+//     it fast (quadratic), spreading fills it slowly. No numbers shown. ────
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.meterTrack {
+  height: 10px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.meterFill {
+  height: 100%;
+  background: $primary;
+  border-radius: $radius-full;
+  transition: width $transition-base;
+}
+
+.meterFill.meterFull {
+  background: $warning;
+}
+
+.meterHint {
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+// ─── Allocate (tap hearts) ─────────────────────────────────────────────
+.allocateList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.allocateRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+}
+
+.allocateLabel {
+  font-size: $text-sm;
+  color: $gray-800;
+  word-break: break-word;
+}
+
+.allocateControls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.stepperBtn {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gray-100;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  color: $gray-700;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover:not(:disabled) {
+    background: $gray-200;
+    color: $gray-900;
+  }
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.hearts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-xs;
+  flex: 1;
+  min-height: 24px;
+}
+
+.heartFilled {
+  color: $primary;
+}
+
+.heartEmpty {
+  color: $gray-400;
+  opacity: 0.5;
+}
+
+.submitRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submitBtn {
+  padding: $spacing-sm $spacing-xl;
+  background: $success;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover:not(:disabled) { opacity: 0.9; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ─── Results ───────────────────────────────────────────────────────────
@@ -127,10 +269,10 @@
 }
 
 .resultBar {
+  display: flex;
   height: 24px;
   border-radius: $radius-sm;
   overflow: hidden;
-  display: flex;
   background: $gray-100;
 }
 
@@ -142,181 +284,74 @@
 .resultCount {
   font-size: $text-xs;
   color: $gray-500;
-  margin-top: 2px;
+  margin-left: auto;
+}
+
+.participation {
+  font-size: $text-xs;
+  color: $gray-400;
+  margin-left: auto;
+  margin-top: $spacing-xs;
 }
 
 // ─── States ────────────────────────────────────────────────────────────
 .loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: $spacing-md;
   padding: $spacing-xl;
   color: $gray-400;
   font-size: $text-sm;
 }
 
-.noData {
-  font-size: $text-sm;
-  color: $gray-400;
-  font-style: italic;
-  padding: $spacing-lg 0;
-}
-
-.error {
-  font-size: $text-sm;
-  color: $error;
-  padding: $spacing-md;
-}
-
-// ─── QV-specific: Budget ───────────────────────────────────────────────
-.budget {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: $spacing-sm;
-  background: $gray-50;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  padding: $spacing-sm $spacing-md;
-  font-size: $text-sm;
-  color: $gray-600;
-}
-
-.budgetLabel {
-  font-weight: $font-semibold;
-  color: $gray-700;
-}
-
-.budgetRemaining {
-  font-weight: $font-bold;
-  color: $primary;
-}
-
-// ─── QV-specific: Allocate ─────────────────────────────────────────────
-.allocateList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.allocateRow {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  border: 1.5px solid $gray-200;
-  border-radius: $radius-md;
-  background: white;
-}
-
-.allocateLabel {
-  flex: 1;
-  font-size: $text-sm;
-  color: $gray-800;
-  word-break: break-word;
-}
-
-.allocateControls {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: $spacing-sm;
-  flex-shrink: 0;
-}
-
-.stepperBtn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: $gray-100;
-  border: 1px solid $gray-200;
-  border-radius: $radius-sm;
-  font-size: $text-base;
-  font-weight: $font-bold;
-  color: $gray-700;
-  cursor: pointer;
-  line-height: 1;
-  transition: all $transition-base;
-
-  &:hover:not(:disabled) {
-    background: $gray-200;
-    color: $gray-900;
-  }
-
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
-}
-
-.creditDisplay {
-  min-width: 2rem;
-  text-align: center;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  color: $gray-800;
-}
-
-.voteDisplay {
-  font-size: $text-xs;
-  color: $gray-400;
-  min-width: 4rem;
-}
-
-.submitRow {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.submitBtn {
-  padding: $spacing-sm $spacing-xl;
+.retryBtn {
+  padding: $spacing-sm $spacing-lg;
   background: $primary;
   color: white;
   border: none;
   border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
   cursor: pointer;
-  transition: background $transition-base;
 
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover { background: $primary-dark; }
 }
 
-// ─── QV-specific: Participation ────────────────────────────────────────
-.participation {
-  font-size: $text-xs;
-  color: $gray-400;
-  margin-top: $spacing-xs;
-}
+// ─── Dark mode ─────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .tabs { border-bottom-color: $dark-border; }
+  .tab { color: $dark-text-secondary; &:hover { color: $dark-text; } }
+  .intro { color: $dark-text-secondary; }
 
-// ─── Help section ──────────────────────────────────────────────────────
-.helpSection {
-  margin-bottom: $spacing-lg;
-}
-
-.helpToggle {
-  background: none;
-  border: none;
-  color: $primary;
-  font-size: $text-sm;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: $spacing-xs 0;
-  &:hover { color: $primary-dark; }
-}
-
-.helpBox {
-  margin-top: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
-  background: rgba($primary, 0.05);
-  border-left: 3px solid $primary;
-  border-radius: 0 $radius-md $radius-md 0;
-  p {
-    font-size: $text-sm;
-    color: $gray-600;
-    line-height: 1.5;
-    margin-bottom: $spacing-sm;
-    &:last-child { margin-bottom: 0; }
+  .addInput {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
   }
+
+  .proposalCard,
+  .allocateRow {
+    background: $dark-bg;
+    border-color: $dark-border;
+    box-shadow: none;
+  }
+  .proposalText,
+  .allocateLabel { color: $dark-text; }
+  .proposalMeta,
+  .meterHint,
+  .participation { color: $dark-text-secondary; }
+
+  .meterTrack,
+  .resultBar { background: $dark-border; }
+
+  .stepperBtn {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+    &:hover:not(:disabled) { background: $dark-border; color: $dark-text; }
+  }
+
+  .resultLabel { color: $dark-text; }
+  .resultCount { color: $dark-text-secondary; }
+  .loading { color: $dark-text-secondary; }
 }

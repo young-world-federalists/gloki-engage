@@ -1,23 +1,36 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Heart, Plus, Minus } from 'lucide-react';
 import type { FlowProps } from '../types';
 import { useFlowContract } from '../shared/useFlowContract';
 import CountryBadge from '../shared/CountryBadge';
 import * as api from './qvApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor, getCountryName } from '../../../../utils/countries';
-const qvContractCode = '';import styles from './QVFlow.module.scss';
+import { useT } from '../../../../i18n';
+import styles from './QVFlow.module.scss';
+
+const qvContractCode = '';
 
 interface Proposal { id: string; text: string; author: string; timestamp: string; }
 interface Config { credits_per_voter: number; status: string; }
 
+// The mechanism is quadratic voting, but the voter never sees the math. They tap
+// "hearts" (= whole votes) onto proposals; the *cost* of those hearts is
+// quadratic (h hearts cost h² from a shared support pool), so piling onto one
+// proposal drains the pool fast while spreading is cheap. We store hearts in the
+// draft and only convert hearts → credits (h²) when submitting to the contract,
+// which keeps the existing sqrt-based results untouched (sqrt(h²) = h).
+const heartCost = (hearts: number): number => hearts * hearts;
+const heartsFromCredits = (credits: number): number => Math.max(0, Math.round(Math.sqrt(credits)));
+
 const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey }) => {
+  const t = useT();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(instanceId, 'quadratic_vote', 'qv_contract.py', qvContractCode, parentContractId, stageKey);
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = useAppSelector((s) => s.communities.profiles);
 
   const [activeTab, setActiveTab] = useState<'proposals' | 'allocate' | 'results'>('proposals');
-  const [showHelp, setShowHelp] = useState(false);
   const [proposals, setProposals] = useState<Record<string, Proposal>>({});
   const [config, setConfig] = useState<Config>({ credits_per_voter: 100, status: 'open' });
   const draftInitialized = useRef(false);
@@ -26,6 +39,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
   const [newText, setNewText] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // draft maps proposalId -> hearts (whole votes). Quadratic cost applied on top.
   const [draft, setDraft] = useState<Record<string, number>>({});
 
   const fetchData = useCallback(async () => {
@@ -48,7 +62,13 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
       setConfig((c as Config) || { credits_per_voter: 100, status: 'open' });
       const myAlloc = (ma as Record<string, number>) || {};
       if (!draftInitialized.current) {
-        setDraft(myAlloc);
+        // Contract stores credits (h²); rehydrate the draft back into hearts.
+        const hearts: Record<string, number> = {};
+        for (const [pid, credits] of Object.entries(myAlloc)) {
+          const h = heartsFromCredits(credits);
+          if (h > 0) hearts[pid] = h;
+        }
+        setDraft(hearts);
         draftInitialized.current = true;
       }
       setAllAllocations(showDetailedResults ? ((aa as Record<string, Record<string, number>>) || {}) : {});
@@ -71,21 +91,29 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
     finally { setSubmitting(false); }
   };
 
-  const totalDraftCredits = Object.values(draft).reduce((sum, c) => sum + c, 0);
-  const remaining = config.credits_per_voter - totalDraftCredits;
+  const pool = config.credits_per_voter;
+  const spent = Object.values(draft).reduce((sum, h) => sum + heartCost(h), 0);
+  const poolUsedPct = pool > 0 ? Math.min((spent / pool) * 100, 100) : 0;
 
-  const adjustCredit = (proposalId: string, delta: number) => {
+  // Adding heart (h+1) to a proposal already holding h costs (h+1)² − h² = 2h+1.
+  const canAddHeart = (proposalId: string): boolean => {
+    const h = draft[proposalId] || 0;
+    return spent + (2 * h + 1) <= pool;
+  };
+
+  const addHeart = (proposalId: string) => {
+    if (!canAddHeart(proposalId)) return;
+    setDraft((prev) => ({ ...prev, [proposalId]: (prev[proposalId] || 0) + 1 }));
+  };
+
+  const removeHeart = (proposalId: string) => {
     setDraft((prev) => {
-      const current = prev[proposalId] || 0;
-      const next = Math.max(0, current + delta);
-      if (next === 0) {
-        const { [proposalId]: _, ...rest } = prev;
+      const h = prev[proposalId] || 0;
+      if (h <= 1) {
+        const { [proposalId]: _omit, ...rest } = prev;
         return rest;
       }
-      const prevTotal = Object.values(prev).reduce((sum, c) => sum + c, 0);
-      const otherTotal = prevTotal - current;
-      if (otherTotal + next > config.credits_per_voter) return prev;
-      return { ...prev, [proposalId]: next };
+      return { ...prev, [proposalId]: h - 1 };
     });
   };
 
@@ -93,27 +121,34 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
     if (!serverUrl || !publicKey || !contractId) return;
     setSubmitting(true);
     try {
-      await api.allocate(serverUrl, publicKey, contractId, draft);
-      await fetchData();
+      // hearts → credits (h²) so the contract's sqrt results read back as whole votes.
+      const credits: Record<string, number> = {};
+      for (const [pid, h] of Object.entries(draft)) {
+        if (h > 0) credits[pid] = heartCost(h);
+      }
+      await api.allocate(serverUrl, publicKey, contractId, credits);
+      setActiveTab('results');
     } catch (err) { console.error('Failed to submit allocation:', err); }
     finally { setSubmitting(false); }
   };
 
   if (hasError) return (
     <div className={styles.loading}>
-      <p>{errorMessage || 'Failed to set up voting.'}</p>
-      <button onClick={retry} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>Retry</button>
+      <p>{errorMessage || t('mechanisms.qv.setupError', 'Failed to set up voting.')}</p>
+      <button onClick={retry} className={styles.retryBtn}>{t('common.retry', 'Try again')}</button>
     </div>
   );
   if (isDeploying || !isReady) return (
-    <div className={styles.loading}>{statusMessage || 'Setting up voting...'}</div>
+    <div className={styles.loading}>{statusMessage || t('mechanisms.qv.settingUp', 'Setting up voting…')}</div>
   );
-  if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>Loading...</div>;
+  if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
   const proposalList = Object.values(proposals).sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
 
+  // Country breakdown of votes for a proposal. Credits stored as h², so each
+  // voter's contribution is sqrt(credits) = their heart count (whole votes).
   const getCountryQVBreakdown = (proposalId: string): Record<string, number> => {
     const breakdown: Record<string, number> = {};
     for (const [voter, voterAlloc] of Object.entries(allAllocations)) {
@@ -129,41 +164,34 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
   return (
     <div className={styles.container}>
       <div className={styles.tabs}>
-        {(['proposals', 'allocate', 'results'] as const).map((t) => (
-          <button key={t} className={`${styles.tab} ${activeTab === t ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(t)}>
-            {t === 'proposals' ? 'Proposals' : t === 'allocate' ? 'Vote' : 'Results'}
+        {(['proposals', 'allocate', 'results'] as const).map((tab) => (
+          <button key={tab} className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab(tab)}>
+            {tab === 'proposals'
+              ? t('mechanisms.qv.tabProposals', 'Proposals')
+              : tab === 'allocate'
+                ? t('mechanisms.qv.tabVote', 'Vote')
+                : t('mechanisms.qv.tabResults', 'Results')}
           </button>
         ))}
-      </div>
-
-      <div className={styles.helpSection}>
-        <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
-          {showHelp ? 'Hide explanation' : 'How does weighted voting work?'}
-        </button>
-        {showHelp && (
-          <div className={styles.helpBox}>
-            <p><strong>Weighted voting</strong> lets you spread your influence across multiple proposals instead of picking just one.</p>
-            <p>You get <strong>{config.credits_per_voter} credits</strong> to distribute. The more credits you put on one proposal, the stronger your support — but with diminishing returns. Putting 4 credits on a proposal gives ~2 votes; 9 credits gives ~3 votes. This encourages spreading support rather than going all-in on one option.</p>
-          </div>
-        )}
       </div>
 
       {activeTab === 'proposals' && (
         <>
           <div className={styles.addForm}>
-            <input className={styles.addInput} type="text" placeholder="Add a proposal..."
+            <input className={styles.addInput} type="text"
+              placeholder={t('mechanisms.qv.addPlaceholder', 'Add a proposal…')}
               value={newText} onChange={(e) => setNewText(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddProposal(); }}
               maxLength={500}
               disabled={submitting} />
             <button className={styles.addBtn} onClick={handleAddProposal}
               disabled={submitting || !newText.trim()}>
-              {submitting ? 'Adding...' : 'Add'}
+              {submitting ? t('mechanisms.qv.adding', 'Adding…') : t('mechanisms.qv.add', 'Add')}
             </button>
           </div>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>No proposals yet. Add one above.</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noProposals', 'No proposals yet. Add one above.')}</p>
           ) : (
             <div className={styles.proposalList}>
               {proposalList.map((p) => (
@@ -171,7 +199,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
                   <div className={styles.proposalBody}>
                     <div className={styles.proposalText}>{p.text}</div>
                     <div className={styles.proposalMeta}>
-                      <span>{p.author.slice(0, 8)}...</span>
+                      <span>{p.author.slice(0, 8)}…</span>
                       <CountryBadge countryCode={profiles[p.author]?.country} />
                     </div>
                   </div>
@@ -184,27 +212,72 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
 
       {activeTab === 'allocate' && (
         <>
-          <div className={styles.budget}>
-            <span className={styles.budgetLabel}>Your Voting Budget:</span>
-            <span className={styles.budgetRemaining}>{remaining}</span>
-            <span>/ {config.credits_per_voter} remaining</span>
-          </div>
+          <p className={styles.intro}>
+            {t(
+              'mechanisms.qv.intro',
+              'Tap ♥ to back what you care about. Piling onto one costs more than spreading out — so even a few people who care deeply get heard.',
+            )}
+          </p>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>No proposals to allocate credits to.</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noneToBack', 'No proposals to back yet.')}</p>
           ) : (
             <>
+              <div
+                className={styles.meter}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(poolUsedPct)}
+                aria-label={t('mechanisms.qv.supportUsed', 'Support used')}
+              >
+                <div className={styles.meterTrack}>
+                  <div
+                    className={`${styles.meterFill} ${poolUsedPct >= 100 ? styles.meterFull : ''}`}
+                    style={{ width: `${poolUsedPct}%` }}
+                  />
+                </div>
+                <span className={styles.meterHint}>
+                  {poolUsedPct >= 100
+                    ? t('mechanisms.qv.poolFull', 'All your support is in — remove a ♥ to back something else.')
+                    : t('mechanisms.qv.poolHint', 'Your support')}
+                </span>
+              </div>
               <div className={styles.allocateList}>
                 {proposalList.map((p) => {
-                  const credits = draft[p.id] || 0;
-                  const votes = Math.sqrt(credits);
+                  const hearts = draft[p.id] || 0;
                   return (
                     <div key={p.id} className={styles.allocateRow}>
                       <div className={styles.allocateLabel}>{p.text}</div>
                       <div className={styles.allocateControls}>
-                        <button className={styles.stepperBtn} onClick={() => adjustCredit(p.id, -1)} disabled={credits === 0}>-</button>
-                        <span className={styles.creditDisplay}>{credits}</span>
-                        <button className={styles.stepperBtn} onClick={() => adjustCredit(p.id, 1)} disabled={remaining <= 0}>+</button>
-                        <span className={styles.voteDisplay}>{votes.toFixed(1)} influence</span>
+                        <button
+                          className={styles.stepperBtn}
+                          onClick={() => removeHeart(p.id)}
+                          disabled={hearts === 0}
+                          aria-label={t('mechanisms.qv.removeHeart', 'Remove support from this proposal')}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <div
+                          className={styles.hearts}
+                          role="img"
+                          aria-label={t('mechanisms.qv.heartsAria', '{n} hearts of support', { n: hearts })}
+                        >
+                          {hearts === 0 ? (
+                            <Heart size={18} className={styles.heartEmpty} aria-hidden="true" />
+                          ) : (
+                            Array.from({ length: hearts }).map((_, i) => (
+                              <Heart key={i} size={18} className={styles.heartFilled} fill="currentColor" aria-hidden="true" />
+                            ))
+                          )}
+                        </div>
+                        <button
+                          className={styles.stepperBtn}
+                          onClick={() => addHeart(p.id)}
+                          disabled={!canAddHeart(p.id)}
+                          aria-label={t('mechanisms.qv.addHeart', 'Back this proposal')}
+                        >
+                          <Plus size={16} />
+                        </button>
                       </div>
                     </div>
                   );
@@ -212,7 +285,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
               </div>
               <div className={styles.submitRow}>
                 <button className={styles.submitBtn} onClick={handleSubmitAllocation} disabled={submitting}>
-                  {submitting ? 'Submitting...' : 'Submit Allocation'}
+                  {submitting ? t('mechanisms.qv.casting', 'Casting…') : t('mechanisms.qv.cast', 'Cast my votes')}
                 </button>
               </div>
             </>
@@ -223,7 +296,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
       {activeTab === 'results' && (
         <>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>No proposals to show results for.</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noResults', 'No proposals to show results for.')}</p>
           ) : (
             <div className={styles.resultsList}>
               {[...proposalList]
@@ -239,15 +312,17 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
                         {Object.entries(breakdown).map(([country, votes]) => (
                           <div key={country} className={styles.resultSegment}
                             style={{ width: `${(votes / maxVotes) * 100}%`, backgroundColor: getCountryColor(country) }}
-                            title={`${getCountryName(country)}: ${votes.toFixed(1)} votes`} />
+                            title={`${getCountryName(country)}: ${Math.round(votes)}`} />
                         ))}
                       </div>
-                      <div className={styles.resultCount}>{totalVotes.toFixed(1)} weighted votes</div>
+                      <div className={styles.resultCount}>
+                        {t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(totalVotes) })}
+                      </div>
                     </div>
                   );
                 })}
               <div className={styles.participation}>
-                {Object.keys(allAllocations).length} voter{Object.keys(allAllocations).length !== 1 ? 's' : ''} participated
+                {t('mechanisms.qv.participants', '{n} took part', { n: Object.keys(allAllocations).length })}
               </div>
             </div>
           )}
