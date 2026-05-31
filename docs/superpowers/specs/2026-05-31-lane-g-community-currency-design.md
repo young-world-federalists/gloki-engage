@@ -207,6 +207,68 @@ strings via `t('currency.…','English default')`.
 - **Other community surfaces:** any dark-mode/mobile/a11y gaps found while auditing `Members` /
   `Share` / `CollabList` / `IdentityTrust` / `dialogs/**` are recorded here during implementation.
 
+### Implementation audit (Task 7 — 2026-05-31)
+
+Static-only audit (no browser). Touched surfaces reviewed for tokens/dark-mode/a11y/mobile;
+remaining `community/**` surfaces skimmed for backlog.
+
+**Touched surfaces (G1/G2 + shell) — polish status: PASS, no code changes made.**
+- `MissionBanner.module.scss` + `CommunityHome.module.scss` (NEW): **tokens-only confirmed** — no
+  raw hex / raw px / literal `rgba`; only allowed `rgba($primary, 0.25)` alpha. Both carry complete
+  `@media (prefers-color-scheme: dark)` blocks covering every text class
+  (name/mission/description/feedTitle/feedDescription/cardTitle/cardDesc/author/time). No fixes needed.
+- a11y — `CommunityHome` feed cards: `role="button"` + `tabIndex={0}` + `onKeyDown` (Enter/Space,
+  with `preventDefault`) — sound. Verified the shared `Card` spreads `...rest` (extends
+  `HTMLAttributes`) so these attrs reach the DOM. `MissionBanner` journey strip has `aria-label`.
+- `MissionBanner.tsx` / `CommunityHome.tsx`: all user-facing copy goes through `t(key, default)`.
+  Exception: the `SAMPLE_FEED` demo titles/descriptions and `formatTimeAgo` strings
+  ("just now"/"{n}m ago"/…) are hardcoded English — acceptable for demo fallback; see i18n note below.
+- `CommunityView.module.scss` (pre-existing, NOT introduced by Lane G — log only, out of scope to
+  fix): raw hex `#f59e0b`/`#1f1f1f` (demo pill), `#dc2626`/`#b91c1c`/`#fef2f2`/`#f87171`
+  (danger menu item), literal `rgba(0,0,0,…)` overlays, raw `0.7rem` / `3px 8px` / `4px`. Dark-mode
+  and `@media (max-width: $breakpoint-sm)` blocks are present and thorough.
+- `Currency.module.scss` (pre-existing — log only): raw `box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1)`
+  and `rgba(0,0,0,0.5)` overlay; raw `3rem`/`2.5rem`/`2px`. `max-width: 800px` is centered via
+  `margin: 0 auto` and all inner widths are `%`/`max-width`, so it is **not** a 360px hazard.
+  Dark-mode + `@media (max-width: $breakpoint-md)` present.
+- `Currency.tsx` a11y — the send `<button>` has a discernible label via `t('currency.sendButton',
+  'Send Support')`; the member `<select>` and amount `<input>` both have `<label htmlFor>`. No gaps.
+  All copy is via `t()` (Lane G reframed it to "Community Support Points").
+
+**Remaining `community/**` surfaces — backlog (NOT fixed this lane):**
+- `Members` (`.tsx` + `.scss`) — dark-mode + responsive blocks present and complete; tokens-clean
+  SCSS (only `transition: all 0.2s ease` literals). **Gap: all strings hardcoded English** (no
+  `useT`): "Members", "Approve/Approved", "Join Community", "Joining...", the too-many-nominates
+  message, and `alert('Failed to join community…')`. Native `alert()` used for errors.
+- `Share` (`.tsx` + `.scss`) — dark-mode + responsive present; SCSS tokens-clean. **Gaps:** all
+  strings hardcoded English ("Share Community", "Copy Credentials", "Download QR Code", etc.); the
+  canvas PNG export hardcodes hex colors (`#ffffff`/`#1f2937`/`#e5e7eb`/`#6b7280`) and English
+  label text inside `handleDownloadQR` — those are drawn to canvas (not themable via CSS), so they
+  won't follow dark mode and aren't `t()`-wrapped.
+- `CollabList` (`.tsx` + `.scss`) — dark-mode present; responsive fine (single column). SCSS uses a
+  local `$collab-color: #0d9488` var + repeated `rgba(13, 148, 136, 0.x)` **literals** (should be
+  `rgba($collab-color, …)` or a token). **Gap: strings hardcoded English** ("Collabs", "Start
+  Collab", "Loading...", empty-state copy).
+- `IdentityTrust` (`.tsx` + `.scss`) — dark-mode present; SCSS tokens-clean; buttons have text
+  labels (good a11y). **Gap: strings hardcoded English** (heading, the web-of-trust paragraph,
+  "My ID Card"/"Scan Member"/"Share").
+- `ActivityHub` / `InitiativeList` — **orphaned (0 imports**, confirmed via grep across `src`).
+  Both still carry full dark-mode SCSS and a few raw hex (ActivityHub 3, InitiativeList 1).
+  Decide repurpose-or-remove (already flagged above; reconfirmed).
+- `dialogs/**` — **none use `useT`** (all 9 dialog `.tsx` hardcode English). Dark-mode coverage is
+  mixed: `CreateFlowDialog.module.scss` and `CreateIssueDialog.module.scss` have **no dark-mode
+  block** and the heaviest raw-hex load (~24 literal hex each); the other six dialogs do have
+  dark-mode blocks. Also orphaned (0 imports, consistent with the dialog→full-page migration noted
+  in CLAUDE.md): `CreateInitiativeDialog`, `CreateIssueDialog`, `CreateFlowDialog` — candidates for
+  removal alongside the live ones (`ApprovalDialog`, `CreateCollabDialog`, `MessageDialog`,
+  `IdentityCardDialog`, `QRScannerDialog` remain in use).
+
+**i18n coordination note:** the new `community.*`, `stage.*`, `journey.*`, and `currency.*` keys use
+inline English defaults — correct for Lane G, which does not own `src/i18n/`. They render in English
+via the `t(key, default)` fallback but are not yet in the `en`/`fr`/`sw` dictionaries; backfilling
+them (plus the hardcoded strings in the backlog surfaces above) is a Lane F / coordination
+follow-up (cf. the existing "[A → Lane F]" item in MASTER_TODO §10).
+
 ## 10. Open questions
 
 None outstanding — G1/G2/G3 scope, the currency read-only-rates decision, i18n approach, and nav
