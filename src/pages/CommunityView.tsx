@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
-import { Routes, Route, useParams, useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { Home, Menu, X, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, MoreHorizontal } from 'lucide-react';
+import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
+import { Home, Menu, X, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw } from 'lucide-react';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { buildDemoShareLink } from '../services/demo/demoUrlShare';
@@ -68,7 +68,6 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
 const CommunityView: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { contracts, publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityProperties = {}, communityMembers = {} } = useAppSelector((state) => state.communities);
   const [fetching, setFetching] = useState(false);
@@ -295,53 +294,6 @@ const CommunityView: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Inline community nav tab bar */}
-      <nav className={styles.tabBar} aria-label="Community navigation">
-        <button
-          className={`${styles.tabItem} ${!location.pathname.match(/\/(collab|chat|currency|members|identity|create-initiative)/) ? styles.tabItemActive : ''}`}
-          onClick={() => navigate(`/community/${communityId}`)}
-        >
-          <Home size={18} />
-          <span>Home</span>
-        </button>
-        <button
-          className={`${styles.tabItem} ${location.pathname.includes('/collab') ? styles.tabItemActive : ''}`}
-          onClick={() => navigate(`/community/${communityId}/collab`)}
-        >
-          <Users2 size={18} />
-          <span>Collab</span>
-        </button>
-        <button
-          className={`${styles.tabItem} ${location.pathname.includes('/chat') ? styles.tabItemActive : ''}`}
-          onClick={() => navigate(`/community/${communityId}/chat`)}
-        >
-          <MessageSquare size={18} />
-          <span>Chat</span>
-        </button>
-        <button
-          className={`${styles.tabItem} ${location.pathname.includes('/currency') ? styles.tabItemActive : ''}`}
-          onClick={() => navigate(`/community/${communityId}/currency`)}
-        >
-          <Coins size={18} />
-          <span>Currency</span>
-        </button>
-        <button
-          className={`${styles.tabItem} ${location.pathname.includes('/members') ? styles.tabItemActive : ''}`}
-          onClick={() => navigate(`/community/${communityId}/members`)}
-        >
-          <Users size={18} />
-          <span>Members</span>
-        </button>
-        <button
-          className={styles.tabItem}
-          onClick={() => setShowMenu(true)}
-          aria-label="More options"
-        >
-          <MoreHorizontal size={18} />
-          <span>More</span>
-        </button>
-      </nav>
 
       {/* Main content */}
       <div className={styles.body}>

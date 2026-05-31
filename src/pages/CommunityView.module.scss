@@ -202,68 +202,6 @@
   color: rgba(white, 0.4);
 }
 
-// ─── Inline community tab bar ─────────────────
-.tabBar {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  background: $gray-800;
-  border-top: 1px solid rgba(white, 0.08);
-  border-bottom: 1px solid rgba(white, 0.08);
-  overflow-x: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.tabItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  flex: 1;
-  min-width: 60px;
-  min-height: 56px;
-  padding: $spacing-sm $spacing-xs;
-  background: transparent;
-  border: none;
-  color: rgba(white, 0.55);
-  font-size: $text-xs;
-  font-weight: $font-medium;
-  cursor: pointer;
-  transition: color $transition-base, background $transition-base;
-  white-space: nowrap;
-
-  svg {
-    flex-shrink: 0;
-  }
-
-  &:hover {
-    color: rgba(white, 0.85);
-    background: rgba(white, 0.06);
-  }
-}
-
-.tabItemActive {
-  color: white;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 28px;
-    height: 2px;
-    background: $primary;
-    border-radius: $radius-full;
-  }
-}
-
 // ─── Body ────────────────────────────────────
 .body {
   flex: 1;
@@ -475,24 +413,6 @@
 
   .header {
     background: $dark-bg;
-  }
-
-  .tabBar {
-    background: $dark-bg;
-    border-color: $dark-border;
-  }
-
-  .tabItem {
-    color: $dark-text-secondary;
-
-    &:hover {
-      color: $dark-text;
-      background: rgba(white, 0.04);
-    }
-  }
-
-  .tabItemActive {
-    color: $dark-text;
   }
 
   .feedTitle {
