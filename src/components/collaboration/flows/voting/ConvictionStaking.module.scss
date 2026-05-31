@@ -71,7 +71,7 @@
   }
 }
 
-// ─── Stake form ────────────────────────────────────────────────────────────
+// ─── Back-this form (time-only) ────────────────────────────────────────────
 .stakeForm {
   background: $gray-50;
   border: 1px solid $gray-200;
@@ -84,75 +84,92 @@
   }
 }
 
-.inputRow {
-  display: flex;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-md;
-
-  @media (max-width: $breakpoint-sm) {
-    flex-direction: column;
-  }
-}
-
-.amountInput {
-  flex: 1;
-  min-width: 0;
-  padding: $spacing-sm $spacing-md;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  color: $gray-800;
-  background: white;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color $transition-base;
-
-  &:focus { border-color: $primary; }
-  &::placeholder { color: $gray-400; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-surface;
-    border-color: $dark-border;
-    color: $dark-text;
-
-    &::placeholder { color: $dark-text-secondary; }
-    &:focus { border-color: $primary; }
-  }
-}
-
-.durationSelect {
-  flex: 1;
-  min-width: 0;
-  padding: $spacing-sm $spacing-md;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  color: $gray-800;
-  background: white;
-  outline: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: border-color $transition-base;
-
-  &:focus { border-color: $primary; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-surface;
-    border-color: $dark-border;
-    color: $dark-text;
-
-    &:focus { border-color: $primary; }
-  }
-}
-
-.preview {
+.intro {
   font-size: $text-sm;
   color: $gray-600;
-  margin-bottom: $spacing-md;
+  line-height: 1.5;
+  margin: 0 0 $spacing-lg 0;
 
-  strong { color: $primary; }
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+// ─── Duration picker (the only lever) ──────────────────────────────────────
+.durationPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.durationOption {
+  flex: 1 1 auto;
+  min-width: 72px;
+  padding: $spacing-sm $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  transition: all $transition-base;
+  text-align: center;
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.durationActive {
+  border-color: $primary;
+  background: rgba($primary, 0.08);
+  color: $primary;
+  font-weight: $font-semibold;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.18);
+    color: $dark-text;
+  }
+}
+
+// ─── Strength meter — felt multiplier, no raw "12x" ────────────────────────
+.strengthMeter {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-lg;
+}
+
+.strengthTrack {
+  height: 10px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+  }
+}
+
+.strengthFill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary, $success);
+  border-radius: $radius-full;
+  transition: width $transition-slow ease;
+  min-width: 6px;
+}
+
+.strengthLabel {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-600;
 
   @media (prefers-color-scheme: dark) {
     color: $dark-text-secondary;
@@ -175,8 +192,8 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-// ─── My active stake ───────────────────────────────────────────────────────
-.myStake {
+// ─── Your commitment (post-back summary) ───────────────────────────────────
+.commitment {
   background: rgba($success, 0.05);
   border: 1px solid rgba($success, 0.25);
   border-left: 3px solid $success;
@@ -190,19 +207,23 @@
   }
 }
 
-.stakeDetails {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-md $spacing-xl;
+.commitmentLine {
   font-size: $text-sm;
-  color: $gray-600;
+  color: $gray-700;
+  margin: 0 0 $spacing-md 0;
 
-  strong { color: $gray-800; }
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.shareLine {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-sm 0 0 0;
 
   @media (prefers-color-scheme: dark) {
     color: $dark-text-secondary;
-
-    strong { color: $dark-text; }
   }
 }
 
