@@ -42,7 +42,6 @@ const InitiativeView: React.FC = () => {
     return (
       <DiscussionStageView
         title={title}
-        collaborationId={initiativeId!}
         communityId={communityId!}
       />
     );

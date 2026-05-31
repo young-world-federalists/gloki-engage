@@ -31,6 +31,10 @@ export interface PageHeaderProps {
 
   // Homepage layout extras
   onMenuClick?: () => void;
+  /** Whether the slide-out menu is currently open — drives the menu button's
+   *  `aria-expanded`. Optional: callers that track menu state pass it through
+   *  (see MASTER_TODO §10 for the IdentityView / StageFeedView wiring request). */
+  menuOpen?: boolean;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -44,6 +48,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   rightLabel,
   layout = 'two-row',
   onMenuClick,
+  menuOpen,
 }) => {
   const navigate = useNavigate();
 
@@ -58,7 +63,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           <div className={styles.homepageActions}>
             <NotificationsBell />
             {onMenuClick && (
-              <button className={styles.menuButton} onClick={onMenuClick}>
+              <button
+                className={styles.menuButton}
+                onClick={onMenuClick}
+                aria-label="Open menu"
+                aria-expanded={!!menuOpen}
+              >
                 Menu
               </button>
             )}

@@ -101,7 +101,7 @@ export const INITIATIVES: SeedInitiative[] = [
       'Deforestation drives floods, drought, and lost livelihoods. A cross-border youth reforestation corps could restore degraded land while creating green jobs. Propose how it should work.',
     stage: 'proposals',
     countries: ['KE', 'NG', 'MW', 'CD'],
-    evidence: [],
+    evidence: ['https://www.ipcc.ch/srccl/'],
   },
   {
     key: 'floods',
@@ -110,7 +110,7 @@ export const INITIATIVES: SeedInitiative[] = [
       'Flash floods devastate riverside communities with little warning. A shared, low-bandwidth early-warning network — SMS and radio — could save lives across borders. Vote on the proposals that should lead.',
     stage: 'vote',
     countries: ['NG', 'CD', 'MW'],
-    evidence: [],
+    evidence: ['https://www.who.int/health-topics/floods'],
   },
   {
     key: 'water',
@@ -119,7 +119,7 @@ export const INITIATIVES: SeedInitiative[] = [
       'After deliberation across four countries, this initiative reached a mandate: bring resilient clean-water infrastructure to climate-stressed schools, governed and maintained by local youth committees.',
     stage: 'mandate',
     countries: ['KE', 'MW', 'CD'],
-    evidence: [],
+    evidence: ['https://www.who.int/health-topics/water-sanitation-and-hygiene-wash'],
   },
 
   // --- Additional candidate issues at the `problem` stage, so issue selection
