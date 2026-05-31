@@ -178,103 +178,8 @@
           }
         }
 
-        .preferences {
-          display: flex;
-          flex-direction: column;
-          gap: $spacing-lg;
-
-          .preferenceItem {
-            display: flex;
-            align-items: center;
-            gap: $spacing-lg;
-
-            label {
-              flex: 1;
-              font-weight: $font-medium;
-              color: $gray-700;
-              font-size: $text-sm;
-            }
-
-            .inputField {
-              width: 120px;
-              text-align: center;
-            }
-          }
-        }
-
-        .preferenceActions {
-          display: flex;
-          gap: $spacing-md;
-          margin-top: $spacing-lg;
-          padding-top: $spacing-lg;
-          border-top: 1px solid $gray-200;
-
-          .updateButton {
-            flex: 1;
-            padding: $spacing-sm $spacing-lg;
-            background-color: $primary;
-            color: white;
-            border: none;
-            border-radius: $radius-md;
-            font-size: $text-sm;
-            font-weight: $font-medium;
-            cursor: pointer;
-            transition: all $transition-base;
-
-            &:hover:not(.disabled) {
-              background-color: $primary-dark;
-              transform: translateY(-1px);
-            }
-
-            &:active:not(.disabled) {
-              transform: translateY(0);
-            }
-
-            &.disabled {
-              background-color: $gray-300;
-              color: $gray-500;
-              cursor: not-allowed;
-              opacity: 0.6;
-            }
-          }
-
-          .revertButton {
-            flex: 1;
-            padding: $spacing-sm $spacing-lg;
-            background-color: transparent;
-            color: $gray-600;
-            border: 1px solid $gray-300;
-            border-radius: $radius-md;
-            font-size: $text-sm;
-            font-weight: $font-medium;
-            cursor: pointer;
-            transition: all $transition-base;
-
-            &:hover:not(.disabled) {
-              background-color: $gray-100;
-              color: $gray-800;
-              border-color: $gray-400;
-            }
-
-            &.disabled {
-              background-color: $gray-100;
-              color: $gray-400;
-              border-color: $gray-200;
-              cursor: not-allowed;
-              opacity: 0.6;
-            }
-          }
-        }
       }
     }
-  }
-
-  .mintIcon {
-    color: $success;
-  }
-
-  .burnIcon {
-    color: $error;
   }
 
   .paymentFormOverlay {
@@ -334,16 +239,6 @@
           gap: $spacing-lg;
         }
       }
-
-      .actionsSection .actionCard .preferences .preferenceItem {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: $spacing-sm;
-
-        .inputField {
-          width: 100%;
-        }
-      }
     }
   }
 }
@@ -388,10 +283,6 @@
           .value {
             color: $dark-text;
           }
-        }
-
-        .preferences .preferenceItem label {
-          color: $dark-text;
         }
       }
     }
