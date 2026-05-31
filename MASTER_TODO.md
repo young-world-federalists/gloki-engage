@@ -224,9 +224,9 @@ language. Lightweight trust, not biometrics.
 ### Lane E — Mandate & Impact *(VftC Phase 3–4 · the payoff)*
 **Goal:** The collective output you can point to, and the bridge to real-world adoption.
 **Owned paths:** `src/components/stages/VoteStage.*` + `src/components/stages/MandateStage.*` (created in Phase 0), `src/components/collaboration/InitiativeDashboard.*` (thin shell + completed-state summaries), new `src/components/mandate/**`, fixture `mandate.ts`. *(QV/conviction mechanisms live in Lane D — import, don't edit.)*
-- [ ] E1 Consolidation → a readable published **Mandate** artifact (plain-language + "machine-readable spec" view).
-- [ ] E2 Adoption framework: orgs "endorse / subscribe / report progress"; show who's adopted it.
-- [ ] E3 Completed-stage summaries on the dashboard (participants, top proposal, winner) so the journey reads as a story.
+- [x] E1 Consolidation → a readable published **Mandate** artifact (plain-language + "machine-readable spec" view). *(`MandatePage` at `/mandate/:communityId/:mandateId`; `MandateDocument` with plain/spec toggle + Copy JSON; provenance/legitimacy strip from the vote + conviction backing.)*
+- [x] E2 Adoption framework: orgs "endorse / subscribe / report progress"; show who's adopted it. *(`AdoptionFramework`: seeded adopters with progress bars + notes; viewer can endorse/subscribe optimistically.)*
+- [x] E3 Completed-stage summaries on the dashboard (participants, top proposal, winner) so the journey reads as a story. *(`JourneyRecap` "story so far" band stitches the existing stage summaries + a "View the published mandate" CTA.)*
 
 ### Lane F — Transnational presence, multilingual & low-tech *(cross-cutting · both principles)*
 **Goal:** Make "across borders, across languages, on any connection" felt everywhere.
@@ -283,6 +283,14 @@ language. Lightweight trust, not biometrics.
 - **[F]** `PresenceShowcase` verification page lives only in the Lane F worktree; needs `/lab/presence` route (see §10).
 
 **Next step:** merge the four open PRs into `ui`, then either run lanes D/E/G **or** run the formal **`REVIEW-WAVE.md`** persona panel against the merged build now and let findings shape the rest of Wave 1.
+
+### Wave 1 — Lane E self-report *(pre-review-wave)*
+**Lane E — Mandate & Impact** shipped E1–E3 (`lane/lane-e` → `ui`). UI-only, hardcoded via `mandate.ts`; QV/conviction mechanisms imported from Lane D, not edited.
+- **E1** `MandatePage` (`/mandate/:communityId/:mandateId`) renders the published **Mandate artifact** (`MandateDocument`): masthead (ratified badge, date, jurisdictions), provenance/legitimacy strip (participants · countries · conviction backers), and a **plain-language ↔ machine-readable spec** toggle with **Copy JSON**. Resolves the mandate from the initiative title, falling back to the flagship water mandate so the page always renders a credible artifact.
+- **E2** `AdoptionFramework`: seeded adopters (youth network, ministries, NGOs, university, intergov) with adoption level, reported-progress bars + notes, an aggregate summary, and a viewer **Endorse / Subscribe** action that adds optimistically (session-local store).
+- **E3** `JourneyRecap` on the dashboard at the mandate stage: a "story so far" timeline built from the already-fetched problem/discussion/proposals/vote summaries (live data where present, plain narration otherwise), plus a prominent **"View the published mandate"** CTA — mirrored as a compact link in the feed's `MandateStage` (derives `communityId` from the store; no shell change).
+- **Verify:** `tsc -b` + `npm run build` clean; preview-walked dashboard recap → mandate artifact → plain/spec toggle → optimistic endorse (dark + light + 360px; no console errors).
+- **Owned paths only:** `stages/VoteStage.*` (unchanged), `stages/MandateStage.*`, `collaboration/InitiativeDashboard.*` (recap + CTA), new `components/mandate/**`, fixture `mandate.ts`. **No `App.tsx` change** — the `/mandate/*` route was pre-registered by Foundation, so no §10 coordination entry is needed.
 
 ### Wave 1 — formal review-wave findings *(pending)*
 - _(empty — run `docs/session-prompts/REVIEW-WAVE.md` against the merged build)_

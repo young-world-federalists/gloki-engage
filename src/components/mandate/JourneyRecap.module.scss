@@ -1,0 +1,106 @@
+@use '../../styles/variables' as *;
+
+.recap {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-bold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: $spacing-md;
+
+  &:last-child .body {
+    padding-bottom: 0;
+  }
+}
+
+.marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: $radius-full;
+  background: rgba($primary, 0.1);
+  color: $primary-dark;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.25);
+    color: $dark-text;
+  }
+}
+
+.line {
+  flex: 1;
+  width: 2px;
+  min-height: $spacing-md;
+  margin: 2px 0;
+  background: $gray-200;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: $spacing-md;
+}
+
+.stepLabel {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.stepText {
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
