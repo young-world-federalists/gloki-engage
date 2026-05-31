@@ -1,0 +1,445 @@
+@use '../../styles/variables' as *;
+
+/* The published artifact reads as a real document: a clean "paper" surface. */
+.document {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  padding: $spacing-xl;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+/* ----- Masthead ----- */
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $primary;
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  line-height: 1.2;
+  color: $gray-900;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $text-3xl;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.ratified {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.provenanceLine {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- Legitimacy strip: how the mandate was earned ----- */
+.legitimacy {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.stat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.statIcon {
+  color: $primary;
+}
+
+.statValue {
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  line-height: 1.1;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.statLabel {
+  font-size: $text-xs;
+  line-height: 1.2;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- View toggle (plain / spec) — full-width segmented control ----- */
+.toggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+  }
+}
+
+.toggleBtn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  min-height: 40px;
+  padding: $spacing-xs $spacing-sm;
+  border: none;
+  border-radius: calc(#{$radius-md} - 2px);
+  background: none;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  line-height: 1.2;
+  text-align: center;
+  color: $gray-600;
+  cursor: pointer;
+  transition: background $transition-base, color $transition-base;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.toggleBtnActive {
+  background: white;
+  color: $gray-900;
+  font-weight: $font-semibold;
+  box-shadow: $shadow-sm;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    color: $dark-text;
+  }
+}
+
+/* ----- Plain-language view ----- */
+.plain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.preamble {
+  margin: 0;
+  padding-left: $spacing-md;
+  border-left: 3px solid $primary;
+  font-size: $text-base;
+  line-height: 1.6;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.articles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: article;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.article {
+  position: relative;
+  counter-increment: article;
+  padding-left: $spacing-2xl;
+
+  &::before {
+    content: counter(article);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: $radius-full;
+    background: rgba($primary, 0.1);
+    color: $primary-dark;
+    font-size: $text-sm;
+    font-weight: $font-bold;
+
+    @media (prefers-color-scheme: dark) {
+      background: rgba($primary, 0.25);
+      color: $dark-text;
+    }
+  }
+}
+
+.articleTitle {
+  margin: 0 0 $spacing-xs;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.35;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.articleBody {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.6;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.indicators {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $spacing-xs $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.indicatorLabel {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.indicatorTarget {
+  margin: 0 0 0 auto;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  text-align: right;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+/* ----- Machine-readable spec view ----- */
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.specBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.specName {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 36px;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  background: rgba($primary, 0.08);
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.16);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+  }
+}
+
+/* Code is conventionally dark in both themes — reads as genuine machine output. */
+.specCode {
+  margin: 0;
+  max-height: 380px;
+  overflow: auto;
+  padding: $spacing-md;
+  background: $gray-900;
+  border: 1px solid $gray-800;
+  border-radius: $radius-md;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: $text-xs;
+  line-height: 1.6;
+  color: $gray-100;
+  white-space: pre;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+  }
+}
+
+.specNote {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.srStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -22,6 +22,7 @@ import DiscussionStage from '../stages/DiscussionStage';
 import ProposalsStage from '../stages/ProposalsStage';
 import VoteStage from '../stages/VoteStage';
 import MandateStage from '../stages/MandateStage';
+import JourneyRecap from '../mandate/JourneyRecap';
 import PageHeader from '../PageHeader';
 import cs from '../../pages/Container.module.scss';
 import styles from './InitiativeDashboard.module.scss';
@@ -273,6 +274,17 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
               );
             })}
           </div>
+
+          {/* E3 — journey recap: the whole arc, culminating in the published mandate */}
+          {stage === 'mandate' && (
+            <JourneyRecap
+              problemUp={problemTally.up}
+              discussion={discussionSummary}
+              proposals={proposalsSummary}
+              vote={voteSummary}
+              onViewMandate={() => navigate(`/mandate/${communityId}/${collaborationId}`)}
+            />
+          )}
 
           {/* Stage Cards */}
           <div className={styles.stageCards}>
