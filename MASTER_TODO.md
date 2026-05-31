@@ -313,5 +313,62 @@ language. Lightweight trust, not biometrics.
 - **[G]** 5 orphaned components + dialog dark-mode gaps logged in Lane G's spec §9 (community-surface backlog).
 - **[E]** No new coordination requests.
 
-### Wave 1 — formal review-wave findings *(pending)*
-- _(empty — run `docs/session-prompts/REVIEW-WAVE.md` against the merged build)_
+### Wave 1 — formal review-wave findings *(2026-05-31 · 22-agent workflow)*
+
+Source: `wave-1-review-and-refactor` Workflow (8 dimension audits × 7 per-lane code reviews × 1 synthesis × 5 prompt generators). Read the workflow at `docs/session-prompts/REVIEW-AND-REFACTOR-WORKFLOW.md`; the generated Wave 1.5 lane prompts live in `docs/session-prompts/wave-1.5/`.
+
+**Top 10 issues** (ranked by impact on usability × collaboration × Ouri-reviewability):
+1. **Nine dialogs hand-roll modal/button/error markup** instead of using the shared `Modal` + `Button` + `Banner` — blocks reviewing dialog logic separately from chrome.
+2. **Liquid delegation (D3) is still entirely missing** — the third transferable DAO mechanism, deferred during Lane D.
+3. **Color tokens violated everywhere** — hardcoded pink-hex logout buttons, `rgba(0,0,0,0.5)` backdrops, locally-redefined `$initiative/$collab/$chat` colors across 6+ files.
+4. **Modal lacks aria-labelledby + focus trap** — WCAG blocker inherited by every dialog.
+5. **Time formatters + tree-builders duplicated across 5+ files** — silent maintenance tax.
+6. **Country flags rendered three different ways** (`getCountryFlag()` string, inline emoji, `<CountryFlag>`) — breaks the felt-collaboration principle by making cross-border cues inconsistent.
+7. **Mega-components** (ProblemStage 512, IdentityCardSVG 455, DeliberationThread 385, AdoptionFramework 359, CoAuthoringPanel 326) bundle orchestration + helpers + state.
+8. **Voting flows duplicate pool-meter / country-breakdown / tap-submit loops** with zero structural sharing — blocks D3 from slotting in elegantly.
+9. **i18n fragmented**: dialogs/onboarding/login hardcode English; fr.ts and sw.ts (~70 lines each) starved of parity vs en.ts.
+10. **MandatePage mixes real `getInitiative` call with demo fixtures** — contradicts the UI-only contract.
+
+**Themes:**
+- Every lane reinvented its own dialog, button, empty state, and error banner instead of importing from `src/components/shared`.
+- Tokens defined but not enforced — local hex/rgba literals proliferate.
+- "Presentational" components absorbed orchestration + fixture-shaping + modal state, ballooning past 300 lines.
+- Utility logic (time, tree, initials, author-name, country-flag) lives in 3–5 copies.
+- i18n promotion on perpetual back-burner — every lane drops inline defaults.
+- Accessibility an afterthought across lanes (missing aria-labels, no focus trap in Modal, `role='button'` on divs without keyboard handlers).
+
+**Refactor plan → Wave 1.5 (5 lanes, fully written under `docs/session-prompts/wave-1.5/`):**
+
+| # | Lane | Size | Depends on | Headline |
+|---|---|---|---|---|
+| 1 | `design-system-canonicalization` | medium | none | Make `variables.scss` the single source of truth; delete every local hex/rgba override. |
+| 2 | `utils-and-types-consolidation` | medium | none (parallel to #1) | Move dup'd formatters/builders/types into `src/utils` + `src/types`. |
+| 3 | `shared-affordances-extraction` | large | #1 | Canonicalize `Modal` (add focus trap + aria-labelledby), `Button`, `EmptyState`, `Banner`, `CountryFlag`, new `AuthorCard`; refactor 9 dialogs onto them. |
+| 4 | `voting-flow-consolidation-and-D3-liquid-delegation` | large | #3 | Extract `VotingFlowShell` + `PoolMeter` + `CountryBreakdownChart`; **build the missing D3 liquid delegation** on top of them; split ProblemStage. |
+| 5 | `i18n-promotion-and-multilingual-parity` | medium | #3 | Promote every inline default into `en.ts`; backfill `fr.ts` + `sw.ts` to parity; add missing-key dev warning. |
+
+**Wave 1.5 run order:**
+- **Batch 1 (parallel):** lanes #1 + #2.
+- **Batch 2 (alone):** lane #3 (it's the largest; touches 25+ files).
+- **Batch 3 (parallel):** lanes #4 + #5.
+
+**Wave 1.5 quick wins** (no lane needed — Foundation batch-2 absorbs all 10 in one session):
+1. `aria-label="Send message"` on ChatTopic send button.
+2. `aria-label="Back to chat topics"` on ChatTopic back button.
+3. `aria-label="Open menu"` + `aria-expanded` on PageHeader menu button.
+4. Remove unused `collaborationId` prop from `DiscussionStageView`.
+5. Document or delete unused `$secondary` token.
+6. Wire `MandatePage` to read initiative title from `mandate.ts` fixture instead of `getInitiative`.
+7. Add section-header comments every ~80 lines in DeliberationThread, CoAuthoringPanel, AdoptionFramework.
+8. Add ≥1 evidence URL per non-problem-stage initiative in `problems.ts`.
+9. Add `aria-busy="true"` on dialog submit buttons during submission.
+10. Add CSR-only / module-level-listener comments to AITools.tsx + useDataSaver.ts.
+
+**Explicitly deferred (don't address now):**
+- Backend persistence for Collab Document/Taskboard/Q&A/Roles/Scheduling — Ouri's track.
+- Top-3 carry-over from Proposals → Vote — feature work, not refactor.
+- Active-member tracking for quorum refinement — backend signal needed.
+- Heavy `react-focus-lock` dependency — write a tiny in-house focus trap in lane #3.
+- `useReducer` rewrite of CoAuthoringPanel's 6 `useState` hooks — premature.
+- JourneyRecap data-driven refactor — defer until 2nd journey type exists.
+- Canvas color tokens in `Share.tsx` — canvas API doesn't consume SCSS; documentation comment only.
