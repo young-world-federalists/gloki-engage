@@ -1,17 +1,14 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, useParams, useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { Home, Menu, X, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, PlusCircle, Shield, Link2, RotateCcw, MoreHorizontal } from 'lucide-react';
+import { Home, Menu, X, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, MoreHorizontal } from 'lucide-react';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { buildDemoShareLink } from '../services/demo/demoUrlShare';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
 import { fetchCommunityProperties, fetchCommunityMembers, fetchCollaborations, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
-import { contractRead } from '../services/api';
 import { recordActivity } from '../services/contracts/community';
-import type { IMethod } from '../services/interfaces';
 import { seedTestDataIfNeeded } from '../utils/seedTestData';
-import type { Collaboration } from '../services/contracts/community';
 import { eventStreamService } from '../services/eventStream';
 import type { BlockchainEvent } from '../services/eventStream';
 import styles from './CommunityView.module.scss';
@@ -24,36 +21,7 @@ const ChatTopic = lazy(() => import('../components/community/chat/ChatTopic'));
 const CollaborationPage = lazy(() => import('./collaboration/CollaborationPage'));
 const IdentityTrust = lazy(() => import('../components/community/IdentityTrust'));
 const CreateInitiativePage = lazy(() => import('./CreateInitiativePage'));
-
-// ─── Stage metadata ──────────────────────────
-const STAGE_META: Record<string, { icon: React.ComponentType<{ size?: number }>; color: string; label: string }> = {
-  problem:    { icon: AlertCircle,   color: '#ef4444', label: 'Problem' },
-  discussion: { icon: MessageCircle, color: '#f59e0b', label: 'Discussion' },
-  proposals:  { icon: Lightbulb,     color: '#8b5cf6', label: 'Proposals' },
-  vote:       { icon: Vote,          color: '#3b82f6', label: 'Vote' },
-  mandate:    { icon: ScrollText,    color: '#10b981', label: 'Mandate' },
-};
-
-// Sample data for empty communities
-const SAMPLE_FEED = [
-  { id: 's1', title: 'Access to Clean Drinking Water', description: 'Over 2 billion people lack safe drinking water globally.', stage: 'problem', authorName: 'Maria S.', createdAt: Date.now() - 3600000 },
-  { id: 's2', title: 'Ocean Plastic Pollution', description: '8 million tons of plastic enter our oceans annually.', stage: 'discussion', authorName: 'Lin W.', createdAt: Date.now() - 7200000 },
-  { id: 's3', title: 'Antibiotic Resistance', description: 'Drug-resistant infections threaten global health security.', stage: 'proposals', authorName: 'Dr. Chen L.', createdAt: Date.now() - 86400000 },
-  { id: 's4', title: 'Digital Privacy Standards', description: 'Personal data harvested at unprecedented scale.', stage: 'vote', authorName: 'Sam R.', createdAt: Date.now() - 172800000 },
-  { id: 's5', title: 'Universal Climate Fund', description: 'Decentralized climate adaptation resources for communities.', stage: 'mandate', authorName: 'Elena V.', createdAt: Date.now() - 259200000 },
-];
-
-function formatTimeAgo(timestamp: number): string {
-  if (!timestamp) return '';
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 60) return 'just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
+import CommunityHome from '../components/community/CommunityHome';
 
 // ─── Collab page wrapper ────────────────────
 const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
@@ -93,133 +61,6 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
         communityId={communityId}
       />
     </Suspense>
-  );
-};
-
-// ─── Community activity feed ─────────────────
-const CommunityFeed: React.FC<{ communityId: string }> = ({ communityId }) => {
-  const navigate = useNavigate();
-  const { serverUrl, publicKey } = useAppSelector((s) => s.user);
-  const { communityCollaborations } = useAppSelector((s) => s.communities);
-  const profiles = useAppSelector((s) => s.communities.profiles);
-  const dispatch = useAppDispatch();
-
-  const [stages, setStages] = useState<Record<string, string>>({});
-
-  // Fetch collaborations if needed
-  useEffect(() => {
-    if (!serverUrl || !publicKey || communityCollaborations[communityId]) return;
-    dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
-  }, [serverUrl, publicKey, communityId, communityCollaborations, dispatch]);
-
-  const initiatives = useMemo(() => {
-    const collabs = communityCollaborations[communityId] ?? [];
-    return collabs
-      .filter((c) => c.type === 'initiative')
-      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  }, [communityCollaborations, communityId]);
-
-  // Fetch stages for all initiatives
-  useEffect(() => {
-    if (!serverUrl || !publicKey || initiatives.length === 0) return;
-    initiatives.forEach((item) => {
-      if (stages[item.id]) return;
-      contractRead({
-        serverUrl,
-        publicKey,
-        contractId: item.id,
-        method: { name: 'get_stage', values: {} } as IMethod,
-      })
-        .then((result: unknown) => {
-          if (typeof result === 'string') {
-            setStages((prev) => ({ ...prev, [item.id]: result }));
-          } else {
-            setStages((prev) => ({ ...prev, [item.id]: 'problem' }));
-          }
-        })
-        .catch(() => {
-          setStages((prev) => ({ ...prev, [item.id]: 'problem' }));
-        });
-    });
-  }, [serverUrl, publicKey, initiatives]);
-
-  const handleCardClick = (item: Collaboration) => {
-    const hostServer = item.hostServer || serverUrl || 'local';
-    const hostAgent = item.hostAgent || publicKey || 'local';
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${item.id}/roadmap`,
-    );
-  };
-
-  const usingSampleData = initiatives.length === 0;
-
-  return (
-    <div className={styles.feed}>
-      <div className={styles.feedHeader}>
-        <h2 className={styles.feedTitle}>Community Activity</h2>
-        <p className={styles.feedDescription}>
-          Recent initiatives and updates from this community. Tap an initiative to see its
-          progress through the governance pipeline.
-        </p>
-      </div>
-
-      {/* Real initiatives */}
-      {initiatives.map((item) => {
-        const itemStage = stages[item.id] || 'problem';
-        const meta = STAGE_META[itemStage] || STAGE_META.problem;
-        const StageIcon = meta.icon;
-        const authorProfile = item.author && profiles ? profiles[item.author] : undefined;
-        const authorName = authorProfile
-          ? `${authorProfile.firstName} ${authorProfile.lastName}`.trim()
-          : item.author ? item.author.slice(0, 8) + '...' : '';
-
-        return (
-          <div key={item.id} className={styles.feedCard} onClick={() => handleCardClick(item)}>
-            <div className={styles.cardHeader}>
-              <span
-                className={styles.stageBadge}
-                style={{ background: `${meta.color}20`, color: meta.color }}
-              >
-                <StageIcon size={12} />
-                {meta.label}
-              </span>
-              {item.createdAt > 0 && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
-            </div>
-            <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
-            {item.description && <p className={styles.cardDesc}>{item.description}</p>}
-            {authorName && <span className={styles.author}>{authorName}</span>}
-          </div>
-        );
-      })}
-
-      {/* Sample data when empty */}
-      {usingSampleData && (
-        <>
-          <div className={styles.sampleBanner}>Example initiatives — start an initiative to participate</div>
-          {SAMPLE_FEED.map((sample) => {
-            const meta = STAGE_META[sample.stage] || STAGE_META.problem;
-            const StageIcon = meta.icon;
-            return (
-              <div key={sample.id} className={`${styles.feedCard} ${styles.sampleCard}`}>
-                <div className={styles.cardHeader}>
-                  <span
-                    className={styles.stageBadge}
-                    style={{ background: `${meta.color}20`, color: meta.color }}
-                  >
-                    <StageIcon size={12} />
-                    {meta.label}
-                  </span>
-                  <span className={styles.time}>{formatTimeAgo(sample.createdAt)}</span>
-                </div>
-                <h3 className={styles.cardTitle}>{sample.title}</h3>
-                <p className={styles.cardDesc}>{sample.description}</p>
-                <span className={styles.author}>{sample.authorName}</span>
-              </div>
-            );
-          })}
-        </>
-      )}
-    </div>
   );
 };
 
@@ -541,7 +382,7 @@ const CommunityView: React.FC = () => {
               <Route path="currency" element={<Currency communityId={communityId!} />} />
               <Route path="identity" element={<IdentityTrust communityId={communityId!} />} />
               <Route path="create-initiative" element={<CreateInitiativePage />} />
-              <Route path="*" element={<CommunityFeed communityId={communityId!} />} />
+              <Route path="*" element={<CommunityHome communityId={communityId!} />} />
             </Routes>
           </ErrorBoundary>
         </Suspense>
