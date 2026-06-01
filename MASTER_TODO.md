@@ -248,16 +248,33 @@ language. Lightweight trust, not biometrics.
 > Lanes append here instead of editing shared files. Foundation owner applies between waves.
 
 ### Wave 1 batch 1 *(from open PRs #3, #4, #5, #6 — apply after they merge)*
-- **[A → Foundation]** Post-login first-run routing. `/welcome/*` is built and reachable via the invite deep-link (`/welcome?invite=CODE`, e.g. `CLIMATE24`→Amani/KE) and a HomepageMenu entry, but `App.tsx` still redirects `/` → `/stage/problem`. Send first-run users (no `gloki.digitalAgent` in localStorage, or `gloki.onboarding.completed` false) to `/welcome` instead. Lane A cannot edit `App.tsx`.
-- **[A → Foundation, minor]** Hide global `StageFooter` on `/welcome/*` — the 5-stage footer frames the first-run flow oddly for a newcomer.
+- ✅ **[A → Foundation] — DONE (foundation/batch-2).** Post-login first-run routing. `/welcome/*` is built and reachable via the invite deep-link (`/welcome?invite=CODE`, e.g. `CLIMATE24`→Amani/KE) and a HomepageMenu entry, but `App.tsx` still redirects `/` → `/stage/problem`. Send first-run users (no `gloki.digitalAgent` in localStorage, or `gloki.onboarding.completed` false) to `/welcome` instead. Lane A cannot edit `App.tsx`.
+- ✅ **[A → Foundation, minor] — DONE (foundation/batch-2).** Hide global `StageFooter` on `/welcome/*` — the 5-stage footer frames the first-run flow oddly for a newcomer.
 - **[A → Lane F]** Promote inline `onboarding.*` and `agent.*` English defaults into `src/i18n/en.ts` + FR + SW overlays (Lane F owns `src/i18n/`).
 - **[B → Lane D]** In `ProblemVoteFlow.tsx`, simplify copy: heading `"Does this problem truly cross borders?"` → `"Is this a shared problem?"`; buttons `"Problem for me"` / `"Not a problem for me"` → `"Second it"` / `"Not for me"`. `ProblemStage` (Lane B) wraps the flow with its own framing and passes empty `evidenceLinks`/`countries` on purpose so the flow stays focused on tally + progress bar.
-- **[F → Foundation]** Add a durable dev route `/lab/presence` → `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting primitives stay viewable after merge. Lane F verified via a temporary, reverted mount; no `App.tsx` change is on the Lane F branch.
+- ✅ **[F → Foundation] — DONE (foundation/batch-2).** Add a durable dev route `/lab/presence` → `PresenceShowcase` (`src/components/shared/presence/PresenceShowcase.tsx`) so the cross-cutting primitives stay viewable after merge. Lane F verified via a temporary, reverted mount; no `App.tsx` change is on the Lane F branch.
 - **[F → all lanes, FYI / non-blocking]** Reusable primitives ready to import: `ShowInMyLanguage` (`shared/AITools`); `LanguageBar`, `ParticipationSummary`, `WorldMapLite` (`shared/presence`); `DataSaverToggle`, `SmartImage`, `SyncBadge`, `ChannelBadge`, `useDataSaver` (`shared/connectivity`). Sample data: `services/demo/fixtures/presence.ts`.
 
 ### Wave 1 batch 2 additions
 - **[D → Lane F]** New `mechanisms.*` i18n keys (`mechanisms.problem.*`, `mechanisms.qv.*`, `mechanisms.conviction.*`) ship with inline English defaults — please add FR/SW overlays in `src/i18n/{fr,sw}.ts`.
 - **[G → Lane F]** New `community.*` / `stage.*` / `journey.*` / `currency.*` keys also need FR/SW backfill — folds into the existing onboarding i18n promotion above.
+
+### Foundation batch-2 outputs *(applied 2026-05-31 on `foundation/batch-2`)*
+Applied the 3 Wave 1 Foundation items above (first-run `/welcome` redirect, hide `StageFooter` on
+`/welcome/*`, `/lab/presence` dev route) plus 6 §11 quick wins (#1–4, #6, #8). New cross-lane
+requests this batch generated:
+- **[Foundation batch-2 → Wave 1.5 lanes owning `src/pages/IdentityView.tsx` + `src/pages/StageFeedView.tsx`]**
+  `PageHeader` now accepts an optional `menuOpen?: boolean` and renders `aria-expanded={!!menuOpen}` on
+  the homepage menu button (the `aria-label="Open menu"` is already live). Pass `menuOpen={menuOpen}`
+  from the two homepage `PageHeader` call sites — both already hold the `menuOpen` state that drives
+  `onMenuClick` — so `aria-expanded` tracks the real open/closed state. Those page files are outside
+  batch-2's owned paths, so this is deferred here rather than edited (per house rules).
+- **[Foundation batch-2 → FYI]** Quick win #4 (remove unused `collaborationId` from
+  `DiscussionStageView`) required a **1-line touch to the non-owned** `src/pages/collaboration/InitiativeView.tsx`:
+  dropped `collaborationId={initiativeId!}` from the `<DiscussionStageView>` invocation only (the
+  `CollaborationFullView` + `InitiativeDashboard` invocations keep it — they use it). The §11 prompt
+  predicted "likely none" callers; there was exactly one, and no Wave 1.5 lane references
+  `InitiativeView.tsx`, so the touch is collision-safe.
 
 ## 11. Refactor changelog *(review-wave outputs)*
 > Appended after each review wave: top findings + resulting task changes. Lane self-reports
@@ -352,17 +369,19 @@ Source: `wave-1-review-and-refactor` Workflow (8 dimension audits × 7 per-lane 
 - **Batch 2 (alone):** lane #3 (it's the largest; touches 25+ files).
 - **Batch 3 (parallel):** lanes #4 + #5.
 
-**Wave 1.5 quick wins** (no lane needed — Foundation batch-2 absorbs all 10 in one session):
-1. `aria-label="Send message"` on ChatTopic send button.
-2. `aria-label="Back to chat topics"` on ChatTopic back button.
-3. `aria-label="Open menu"` + `aria-expanded` on PageHeader menu button.
-4. Remove unused `collaborationId` prop from `DiscussionStageView`.
-5. Document or delete unused `$secondary` token.
-6. Wire `MandatePage` to read initiative title from `mandate.ts` fixture instead of `getInitiative`.
-7. Add section-header comments every ~80 lines in DeliberationThread, CoAuthoringPanel, AdoptionFramework.
-8. Add ≥1 evidence URL per non-problem-stage initiative in `problems.ts`.
-9. Add `aria-busy="true"` on dialog submit buttons during submission.
-10. Add CSR-only / module-level-listener comments to AITools.tsx + useDataSaver.ts.
+**Wave 1.5 quick wins** — Foundation batch-2 applied #1–4, #6, #8 (✅ below). #5, #7, #9, #10 are
+deferred to the Wave 1.5 lane that owns each file (#5→lane 1 design-system, #7→lanes 3/4, #9→lane 3,
+#10→lane 5):
+1. ✅ `aria-label="Send message"` on ChatTopic send button. *(done — foundation/batch-2)*
+2. ✅ `aria-label="Back to chat topics"` on ChatTopic back button. *(done — foundation/batch-2)*
+3. ✅ `aria-label="Open menu"` + `aria-expanded` on PageHeader menu button. *(done — foundation/batch-2; live `aria-label` + `aria-expanded={!!menuOpen}`; parent `menuOpen` wiring requested in §10)*
+4. ✅ Remove unused `collaborationId` prop from `DiscussionStageView`. *(done — foundation/batch-2; required a 1-line touch to non-owned InitiativeView, logged in §10)*
+5. Document or delete unused `$secondary` token. *(deferred → Wave 1.5 lane 1)*
+6. ✅ Wire `MandatePage` to read initiative title from `mandate.ts` fixture instead of `getInitiative`. *(done — foundation/batch-2; now reads the Redux store title — verified 0 backend calls on the mandate page)*
+7. Add section-header comments every ~80 lines in DeliberationThread, CoAuthoringPanel, AdoptionFramework. *(deferred → Wave 1.5 lanes 3/4)*
+8. ✅ Add ≥1 evidence URL per non-problem-stage initiative in `problems.ts`. *(done — foundation/batch-2; reforestation→IPCC, floods→WHO, water→WHO WASH)*
+9. Add `aria-busy="true"` on dialog submit buttons during submission. *(deferred → Wave 1.5 lane 3)*
+10. Add CSR-only / module-level-listener comments to AITools.tsx + useDataSaver.ts. *(deferred → Wave 1.5 lane 5)*
 
 **Explicitly deferred (don't address now):**
 - Backend persistence for Collab Document/Taskboard/Q&A/Roles/Scheduling — Ouri's track.

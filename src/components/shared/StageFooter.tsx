@@ -17,6 +17,8 @@ const StageFooter: React.FC = () => {
   const location = useLocation();
   const t = useT();
 
+  // Hide on the first-run onboarding flow — its stepper frames the journey on its own.
+  if (location.pathname.startsWith('/welcome')) return null;
   // Hide on community pages (they have their own footer)
   if (location.pathname.startsWith('/community/')) return null;
 

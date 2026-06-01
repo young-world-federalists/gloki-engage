@@ -175,6 +175,7 @@ const ChatTopic: React.FC = () => {
           className={styles.backBtn}
           onClick={() => navigate(`/community/${communityId}/chat`)}
           title="Back to Chat"
+          aria-label="Back to chat topics"
         >
           <ArrowLeft size={18} />
         </button>
@@ -237,6 +238,7 @@ const ChatTopic: React.FC = () => {
           onClick={handleSend}
           disabled={!inputText.trim() || !publicKey || sending}
           title="Send"
+          aria-label="Send message"
         >
           <Send size={18} />
         </button>

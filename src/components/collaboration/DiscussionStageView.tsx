@@ -11,7 +11,6 @@ import styles from './DiscussionStageView.module.scss';
 
 interface DiscussionStageViewProps {
   title: string;
-  collaborationId: string;
   communityId: string;
 }
 

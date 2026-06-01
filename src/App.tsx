@@ -15,7 +15,7 @@ import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 // Need a new top-level route? Record it in MASTER_TODO §10 for the next
 // Foundation pass — do not add it here from a lane branch.
 //
-//   /                                         → redirect to /stage/problem
+//   /                                         → first-run → /welcome, else /stage/problem
 //   /welcome/*                                → Lane A   onboarding journey
 //   /stage/:stageId                           → (shell)  stage feed mini-apps
 //   /identity/*                               → Lane A   identity / profile / about
@@ -23,6 +23,7 @@ import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 //   /community/:communityId/*                 → Lane G   community home + currency
 //   /initiative/:host/:agent/:cid/:iid/*      → Lanes B/C/D/E via stage components
 //   /mandate/:communityId/:mandateId/*        → Lane E   published mandate + adoption
+//   /lab/presence                             → dev verification page for presence primitives
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Get the base path from Vite's import.meta.env.BASE_URL
@@ -41,6 +42,27 @@ const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
 // Lane placeholder areas — owning lane replaces the stub component (not this file).
 const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow'));
 const MandatePage = lazy(() => import('./components/mandate/MandatePage'));
+// Dev/lab route — durable verification page for the cross-cutting presence primitives (§10 [F→Foundation]).
+const PresenceLabRoute = lazy(() => import('./components/shared/presence/PresenceLabRoute'));
+
+// First-run heuristic: a newcomer hasn't created a Digital Agent or finished onboarding yet.
+// Such users land on the guided /welcome flow; everyone else goes straight to the stage feed.
+const isFirstRun = (): boolean => {
+  try {
+    return (
+      !localStorage.getItem('gloki.digitalAgent') ||
+      localStorage.getItem('gloki.onboarding.completed') !== 'true'
+    );
+  } catch {
+    // localStorage blocked (private mode) — fall back to the returning-user path.
+    return false;
+  }
+};
+
+// Entry redirect for `/` and the post-login landing.
+function RootRedirect() {
+  return <Navigate to={isFirstRun() ? '/welcome' : '/stage/problem'} replace />;
+}
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -74,7 +96,7 @@ function AppContent() {
       <Router basename={getBasename()}>
         <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
           <Routes>
-            <Route path="/" element={<Navigate to="/stage/problem" replace />} />
+            <Route path="/" element={<RootRedirect />} />
             <Route path="/welcome/*" element={<OnboardingFlow />} />
             <Route path="/stage/:stageId" element={<StageFeedView />} />
             <Route path="/identity/*" element={<IdentityView />} />
@@ -85,6 +107,7 @@ function AppContent() {
               element={<InitiativeView />}
             />
             <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
+            <Route path="/lab/presence" element={<PresenceLabRoute />} />
           </Routes>
           <StageFooter />
         </Suspense>

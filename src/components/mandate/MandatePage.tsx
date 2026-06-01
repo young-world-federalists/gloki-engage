@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../PageHeader';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
-import { getInitiative } from '../../services/contracts/initiative';
 import { getPublishedMandate } from './MandatePage.demo';
 import MandateDocument from './MandateDocument';
 import AdoptionFramework from './AdoptionFramework';
 import cs from '../../pages/Container.module.scss';
 import styles from './MandatePage.module.scss';
-
-interface InitiativeDetails {
-  title?: string;
-}
 
 /**
  * Lane E — Mandate & Impact. Routed at `/mandate/:communityId/:mandateId/*`.
@@ -26,27 +21,14 @@ const MandatePage: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
   const { mandateId } = useParams<{ communityId: string; mandateId: string }>();
-  const serverUrl = useAppSelector((s) => s.user.serverUrl);
-  const publicKey = useAppSelector((s) => s.user.publicKey);
-  const [title, setTitle] = useState<string | undefined>(undefined);
 
-  // Read the initiative title (read-only) to resolve which mandate to show.
-  useEffect(() => {
-    if (!serverUrl || !publicKey || !mandateId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const det = await getInitiative(serverUrl, publicKey, mandateId);
-        const detTitle = (det as InitiativeDetails | null)?.title;
-        if (!cancelled && typeof detTitle === 'string') setTitle(detTitle);
-      } catch {
-        /* fall back to the flagship mandate */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [serverUrl, publicKey, mandateId]);
+  // UI-only mockup: resolve the initiative title from the demo store (populated
+  // when the user reached this mandate via its dashboard) — never a backend read.
+  // When absent, getPublishedMandate falls back to the flagship water mandate so
+  // the page always renders a credible artifact.
+  const title = useAppSelector((s) =>
+    mandateId ? s.initiative.initiativeDetails[mandateId]?.title : undefined,
+  );
 
   const mandate = getPublishedMandate(title);
 
