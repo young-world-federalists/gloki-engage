@@ -6,40 +6,17 @@
   gap: $spacing-lg;
 }
 
-.tabs {
-  display: flex;
-  gap: $spacing-xs;
-  border-bottom: 1.5px solid $gray-200;
-  padding-bottom: $spacing-xs;
-}
-
-.tab {
-  padding: $spacing-sm $spacing-lg;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-500;
-  cursor: pointer;
-  transition: all $transition-base;
-
-  &:hover { color: $gray-700; }
-}
-
-.tabActive {
-  color: $primary;
-  border-bottom-color: $primary;
-}
-
 // ─── Add proposal ──────────────────────────────────────────────────────
 .addForm {
   display: flex;
+  align-items: center;
   gap: $spacing-sm;
 }
 
 .addInput {
   flex: 1;
+  min-width: 0;
+  height: 40px;
   padding: $spacing-sm $spacing-md;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
@@ -50,22 +27,6 @@
 
   &:focus { border-color: $primary; }
   &::placeholder { color: $gray-400; }
-}
-
-.addBtn {
-  padding: $spacing-sm $spacing-lg;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background $transition-base;
-
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ─── Proposal list ─────────────────────────────────────────────────────
@@ -128,6 +89,11 @@
     background: rgba($primary, 0.05);
   }
 
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
@@ -170,7 +136,7 @@
 .resultLabel {
   font-size: $text-sm;
   font-weight: $font-medium;
-  color: $gray-700;
+  color: $gray-800;
 }
 
 .resultBar {
@@ -195,8 +161,10 @@
 // ─── States ────────────────────────────────────────────────────────────
 .loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: $spacing-md;
   padding: $spacing-xl;
   color: $gray-400;
   font-size: $text-sm;
@@ -228,7 +196,13 @@
   cursor: pointer;
   text-decoration: underline;
   padding: $spacing-xs 0;
+
   &:hover { color: $primary-dark; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .helpBox {
@@ -244,4 +218,37 @@
     margin-bottom: $spacing-sm;
     &:last-child { margin-bottom: 0; }
   }
+}
+
+// ─── Dark mode ─────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .addInput {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+
+  .proposalCard {
+    background: $dark-bg;
+    border-color: $dark-border;
+    box-shadow: none;
+  }
+  .proposalText { color: $dark-text; }
+  .proposalMeta { color: $dark-text-secondary; }
+
+  .approveBtn {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+  .approvalCount { background: $dark-surface; }
+
+  .resultLabel { color: $dark-text; }
+  .resultCount { color: $dark-text-secondary; }
+  .resultBar { background: $dark-border; }
+
+  .loading,
+  .noData { color: $dark-text-secondary; }
+
+  .helpBox p { color: $dark-text-secondary; }
 }

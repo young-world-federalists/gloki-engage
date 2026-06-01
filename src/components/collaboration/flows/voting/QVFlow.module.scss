@@ -6,34 +6,6 @@
   gap: $spacing-lg;
 }
 
-.tabs {
-  display: flex;
-  gap: $spacing-xs;
-  border-bottom: 1.5px solid $gray-200;
-  padding-bottom: $spacing-xs;
-}
-
-.tab {
-  flex: 1;
-  padding: $spacing-sm $spacing-md;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-500;
-  cursor: pointer;
-  transition: all $transition-base;
-
-  &:hover { color: $gray-700; }
-}
-
-.tabActive {
-  color: $primary;
-  border-bottom-color: $primary;
-  font-weight: $font-semibold;
-}
-
 // ─── Plain-language intro (the one sentence, no math) ──────────────────
 .intro {
   font-size: $text-sm;
@@ -51,6 +23,7 @@
 .addInput {
   flex: 1;
   min-width: 0;
+  height: 40px;
   padding: $spacing-sm $spacing-md;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
@@ -61,22 +34,6 @@
 
   &:focus { border-color: $primary; }
   &::placeholder { color: $gray-400; }
-}
-
-.addBtn {
-  padding: $spacing-sm $spacing-lg;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background $transition-base;
-
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .noData {
@@ -190,8 +147,8 @@
 }
 
 .stepperBtn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -201,11 +158,20 @@
   border-radius: $radius-md;
   color: $gray-700;
   cursor: pointer;
-  transition: all $transition-base;
+  transition: background-color $transition-base, color $transition-base, transform $transition-fast;
 
   &:hover:not(:disabled) {
     background: $gray-200;
     color: $gray-900;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -232,21 +198,6 @@
 .submitRow {
   display: flex;
   justify-content: flex-end;
-}
-
-.submitBtn {
-  padding: $spacing-sm $spacing-xl;
-  background: $success;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  transition: background $transition-base;
-
-  &:hover:not(:disabled) { opacity: 0.9; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ─── Results ───────────────────────────────────────────────────────────
@@ -305,21 +256,8 @@
   font-size: $text-sm;
 }
 
-.retryBtn {
-  padding: $spacing-sm $spacing-lg;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  cursor: pointer;
-
-  &:hover { background: $primary-dark; }
-}
-
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
-  .tabs { border-bottom-color: $dark-border; }
-  .tab { color: $dark-text-secondary; &:hover { color: $dark-text; } }
   .intro { color: $dark-text-secondary; }
 
   .addInput {

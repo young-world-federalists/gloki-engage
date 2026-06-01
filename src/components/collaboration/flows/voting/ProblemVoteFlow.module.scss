@@ -123,14 +123,15 @@ $initiative-color: #ea580c;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  padding: $spacing-md $spacing-xl;
-  border: 2px solid $gray-300;
-  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+  border: 1.5px solid $gray-300;
+  border-radius: $radius-md;
   background: white;
-  font-size: $text-lg;
+  font-size: $text-base;
   font-weight: $font-semibold;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: border-color $transition-base, background-color $transition-base,
+    transform $transition-fast;
   min-width: 80px;
   justify-content: center;
 
@@ -139,8 +140,13 @@ $initiative-color: #ea580c;
     cursor: not-allowed;
   }
 
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
   &:active:not(:disabled) {
-    transform: scale(0.93);
+    transform: scale(0.97);
   }
 }
 
@@ -173,7 +179,7 @@ $initiative-color: #ea580c;
 }
 
 .voteCount {
-  font-size: $text-lg;
+  font-size: $text-base;
   font-weight: $font-semibold;
 }
 

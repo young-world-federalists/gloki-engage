@@ -7,6 +7,7 @@ import * as api from './qvApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor, getCountryName } from '../../../../utils/countries';
 import { useT } from '../../../../i18n';
+import { SegmentedControl, Button } from '../../../shared';
 import styles from './QVFlow.module.scss';
 
 const qvContractCode = '';
@@ -135,7 +136,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
   if (hasError) return (
     <div className={styles.loading}>
       <p>{errorMessage || t('mechanisms.qv.setupError', 'Failed to set up voting.')}</p>
-      <button onClick={retry} className={styles.retryBtn}>{t('common.retry', 'Try again')}</button>
+      <Button variant="secondary" size="sm" onClick={retry}>{t('common.retry', 'Try again')}</Button>
     </div>
   );
   if (isDeploying || !isReady) return (
@@ -163,18 +164,17 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
 
   return (
     <div className={styles.container}>
-      <div className={styles.tabs}>
-        {(['proposals', 'allocate', 'results'] as const).map((tab) => (
-          <button key={tab} className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(tab)}>
-            {tab === 'proposals'
-              ? t('mechanisms.qv.tabProposals', 'Proposals')
-              : tab === 'allocate'
-                ? t('mechanisms.qv.tabVote', 'Vote')
-                : t('mechanisms.qv.tabResults', 'Results')}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        fullWidth
+        ariaLabel={t('mechanisms.qv.viewToggle', 'Proposals, vote, or results')}
+        value={activeTab}
+        onChange={setActiveTab}
+        options={[
+          { value: 'proposals', label: t('mechanisms.qv.tabProposals', 'Proposals') },
+          { value: 'allocate', label: t('mechanisms.qv.tabVote', 'Vote') },
+          { value: 'results', label: t('mechanisms.qv.tabResults', 'Results') },
+        ]}
+      />
 
       {activeTab === 'proposals' && (
         <>
@@ -185,10 +185,10 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddProposal(); }}
               maxLength={500}
               disabled={submitting} />
-            <button className={styles.addBtn} onClick={handleAddProposal}
-              disabled={submitting || !newText.trim()}>
-              {submitting ? t('mechanisms.qv.adding', 'Adding…') : t('mechanisms.qv.add', 'Add')}
-            </button>
+            <Button variant="primary" onClick={handleAddProposal}
+              loading={submitting} disabled={!newText.trim()}>
+              {t('mechanisms.qv.add', 'Add')}
+            </Button>
           </div>
           {proposalList.length === 0 ? (
             <p className={styles.noData}>{t('mechanisms.qv.noProposals', 'No proposals yet. Add one above.')}</p>
@@ -284,9 +284,15 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
                 })}
               </div>
               <div className={styles.submitRow}>
-                <button className={styles.submitBtn} onClick={handleSubmitAllocation} disabled={submitting}>
-                  {submitting ? t('mechanisms.qv.casting', 'Casting…') : t('mechanisms.qv.cast', 'Cast my votes')}
-                </button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  onClick={handleSubmitAllocation}
+                  loading={submitting}
+                >
+                  {t('mechanisms.qv.cast', 'Cast my votes')}
+                </Button>
               </div>
             </>
           )}

@@ -9,6 +9,8 @@ import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor, getCountryName } from '../../../../utils/countries';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../../services/initiativeRoles';
 import ExpertEndorseButton from '../../../shared/ExpertEndorseButton';
+import { SegmentedControl, Button } from '../../../shared';
+import { useT } from '../../../../i18n';
 const approvalContractCode = '';import styles from './ApprovalFlow.module.scss';
 
 interface Proposal {
@@ -19,6 +21,7 @@ interface Proposal {
 }
 
 const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parentContractId, stageKey }) => {
+  const t = useT();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId,
     'approval_voting',
@@ -161,8 +164,10 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
   if (hasError) return (
     <div className={styles.loading}>
-      <p>{errorMessage || 'Failed to set up proposals.'}</p>
-      <button onClick={retry} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>Retry</button>
+      <p>{errorMessage || t('mechanisms.approval.setupError', 'Failed to set up proposals.')}</p>
+      <Button variant="secondary" size="sm" onClick={retry}>
+        {t('common.retry', 'Try again')}
+      </Button>
     </div>
   );
   if (isDeploying || !isReady) return (
@@ -193,21 +198,17 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
   return (
     <div className={styles.container}>
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'proposals' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('proposals')}
-        >
-          Proposals
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'results' ? styles.tabActive : ''}`}
-          onClick={() => setActiveTab('results')}
-        >
-          Results
-        </button>
-      </div>
+      {/* View toggle */}
+      <SegmentedControl
+        fullWidth
+        ariaLabel={t('mechanisms.approval.viewToggle', 'Proposals or results')}
+        value={activeTab}
+        onChange={setActiveTab}
+        options={[
+          { value: 'proposals', label: t('mechanisms.approval.tabProposals', 'Proposals') },
+          { value: 'results', label: t('mechanisms.approval.tabResults', 'Results') },
+        ]}
+      />
 
       <div className={styles.helpSection}>
         <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
@@ -234,13 +235,14 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
               maxLength={500}
               disabled={submitting}
             />
-            <button
-              className={styles.addBtn}
+            <Button
+              variant="primary"
               onClick={handleAdd}
-              disabled={submitting || !newText.trim()}
+              loading={submitting}
+              disabled={!newText.trim()}
             >
-              {submitting ? 'Adding...' : 'Add'}
-            </button>
+              {t('mechanisms.approval.add', 'Add')}
+            </Button>
           </div>
 
           {/* Proposal list */}

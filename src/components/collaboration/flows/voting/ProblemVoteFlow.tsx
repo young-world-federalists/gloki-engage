@@ -168,7 +168,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             onClick={() => handleVote('up')}
             disabled={voting}
           >
-            <ThumbsUp size={20} />
+            <ThumbsUp size={18} />
             <span>{t('mechanisms.problem.second', 'Second it')}</span>
             <span className={styles.voteCount}>{tally.up}</span>
           </button>
@@ -177,7 +177,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             onClick={() => handleVote('down')}
             disabled={voting}
           >
-            <ThumbsDown size={20} />
+            <ThumbsDown size={18} />
             <span>{t('mechanisms.problem.notForMe', 'Not for me')}</span>
             <span className={styles.voteCount}>{tally.down}</span>
           </button>

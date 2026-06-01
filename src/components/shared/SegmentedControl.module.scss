@@ -1,0 +1,101 @@
+@use '../../styles/variables' as *;
+
+// A pill track holding the segments. Inline by default; `fullWidth` stretches it.
+.root {
+  display: inline-flex;
+  align-items: stretch;
+  gap: $spacing-xs;
+  padding: $spacing-xs;
+  background: $gray-100;
+  border-radius: $radius-md;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  font-family: inherit;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color $transition-base, color $transition-base,
+    box-shadow $transition-base, transform $transition-fast;
+  -webkit-tap-highlight-color: transparent;
+
+  // Hover only on inactive segments — keep text readable (no light-on-light).
+  &:hover:not(.segmentActive) {
+    color: $gray-900;
+    background: rgba($gray-900, 0.04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active:not(.segmentActive) {
+    transform: translateY(1px);
+  }
+}
+
+// Equal-width segments when the track stretches.
+.fullWidth .segment {
+  flex: 1 1 0;
+}
+
+// Touch-target sizing.
+.md .segment {
+  min-height: 44px;
+}
+
+.sm .segment {
+  min-height: 36px;
+}
+
+// Selected segment reads like a primary button — clearly distinct from hover.
+.segmentActive {
+  background: $primary;
+  color: white;
+  font-weight: $font-semibold;
+  box-shadow: $shadow-sm;
+}
+
+.icon,
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .root {
+    background: $dark-surface;
+  }
+
+  .segment {
+    color: $dark-text-secondary;
+
+    &:hover:not(.segmentActive) {
+      color: $dark-text;
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .segmentActive {
+    background: $primary;
+    color: white;
+  }
+}
