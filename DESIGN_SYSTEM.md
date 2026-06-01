@@ -203,6 +203,7 @@ scratch** — they already encode the tokens above.
 | Component | Use |
 |-----------|-----|
 | `Button` | The canonical button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Never hand-roll a button. |
+| `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. |
 | `Card` | Content container (padding, radius, shadow per the Cards spec). |
 | `Modal` | Centered overlay dialog (header → body → footer). |
 | `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). |
