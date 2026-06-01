@@ -194,3 +194,55 @@ Mobile-first. The flagship target is a **360px-wide** Android; every layout must
 |-------|-------|-----|
 | `$footer-height` | 64px | Global `StageFooter`; pad the bottom of scroll regions by this so content clears the bar |
 | `$content-max-width` | 640px | Single-column content column, centred on wider screens |
+
+## Shared component inventory
+
+Import from `src/components/shared` (barrel `index.ts`). **Prefer these over re-styling from
+scratch** — they already encode the tokens above.
+
+| Component | Use |
+|-----------|-----|
+| `Button` | The canonical button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Never hand-roll a button. |
+| `Card` | Content container (padding, radius, shadow per the Cards spec). |
+| `Modal` | Centered overlay dialog (header → body → footer). |
+| `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). |
+| `Badge` | Small status or count label. |
+| `EmptyState` | Centered icon + message + CTA for empty lists/feeds. |
+| `ErrorBoundary` | Wraps a subtree to catch render errors. |
+| `SearchableSelect` | Searchable dropdown. |
+| `Stepper` | Multi-step progress indicator — **onboarding / create-initiative only**, not stage views. |
+| `StageFooter` | Global fixed 5-stage bottom nav. |
+| `LanguageSwitcher` | i18n language picker. |
+| `NotificationsBell` | Notifications indicator. |
+| `CountryFlag` / `CountryParticipation` / `CountryPresence` | Country flag glyph / top-countries-with-counts / presence display. |
+| `EarthFlag` | International Flag of Planet Earth (logo, used in `PageHeader`). |
+| `RoleChip` / `RoleDisplay` | Role label chip / role display. |
+| `ExpertEndorseButton` | Expert endorsement action. |
+| `AITools` | `TranslateButton`, `SummaryButton`, `AIToolbar` (need OpenAI key). |
+| `LanePlaceholder` | Dev placeholder for unbuilt areas. |
+
+Subfolders: `connectivity/`, `presence/`.
+
+## Component states
+
+Every interactive component must define all of these (don't ship hover-only or focus-less controls):
+
+| State | Treatment |
+|-------|-----------|
+| Default | Resting token styles (see Components). |
+| Hover | Subtle shift via `$transition-base` — darken/raise; **must keep text readable** (no light-on-light). |
+| Active / pressed | Brief depress via `$transition-fast` (e.g. slight scale or darker fill). |
+| Focus-visible | 2px `$primary` ring, 2px offset — on **every** focusable element. Never remove the outline without replacing it. |
+| Disabled | Reduced contrast (`$gray-*`), `cursor: not-allowed`, no hover/active response. |
+| Loading | Spinner or skeleton; disable interaction; keep layout stable (no content jump). |
+| Selected / active-tab | Distinct from hover — use fill or weight change, not just an underline that can be missed. |
+
+## Accessibility
+
+Target **WCAG 2.1 AA**:
+
+- **Contrast:** body text ≥ **4.5:1** against its background; large text (≥ 24px, or ≥ 18.66px bold) and UI components / focus indicators ≥ **3:1**. This is why low-contrast gray text on tinted tabs (e.g. the Proposals/Results toggles) fails — fix with a token pair that meets the ratio.
+- **Don't rely on colour alone** — pair status colour with an icon or text label.
+- **Focus:** visible focus ring on all interactive elements (see Component states).
+- **Touch targets:** ≥ 44×44px (see Mobile Patterns).
+- **Labels:** every icon-only control needs an `aria-label`; inputs need associated labels.

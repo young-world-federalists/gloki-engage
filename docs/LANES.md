@@ -1,20 +1,16 @@
-# Lanes — boundaries & contribution protocol
+# Codebase map & conventions
 
-This is the in-repo contract for the parallel UI-reform sessions. Phase 0 (Foundation) has merged;
-**Wave 1 lanes run in parallel and must not collide.** Read this before starting any lane.
-
-> ## The one rule: **stay in your lane**
-> A lane may edit **only the files it owns** (table below). Foundation pre-partitioned the
-> conflict-prone central files (`src/App.tsx`, `src/services/demo/fixtures/`, the stage hosts) so you
-> never need to touch them. If you genuinely need a change in a shared file, **append a request to
-> MASTER_TODO §10** — do not edit the shared file from a lane branch.
+> **The parallel-lane execution model this file once enforced is retired** (history:
+> [archive/WAVE_1_HISTORY.md](archive/WAVE_1_HISTORY.md)). It now serves as a quick **map of where
+> features live** plus the conventions that still apply. The current working model + branch/seam
+> rules are in [CLAUDE.md](../CLAUDE.md) and [MASTER_TODO.md](../MASTER_TODO.md) §4.
 
 ---
 
-## Owned paths
+## Feature → files map
 
-| Lane | Focus | Owned paths (edit only these) | Owned fixture |
-|------|-------|-------------------------------|---------------|
+| Area | Focus | Primary files | Fixture |
+|------|-------|---------------|---------|
 | **A** | Onboarding & Identity | `src/pages/IdentityView.*`, `src/components/identity/**`, new `src/components/onboarding/**` (stub at `OnboardingFlow.tsx`) | `src/services/demo/fixtures/identity.ts` |
 | **B** | Issue selection & Problem framing | `src/components/stages/ProblemStage.*` | `src/services/demo/fixtures/problems.ts` |
 | **C** | Deliberation & Co-authoring | `src/components/stages/DiscussionStage.*`, `src/components/stages/ProposalsStage.*`, `src/components/collaboration/flows/discussion/**`, `flows/modifications/**`, `flows/merge/**`, `src/components/collaboration/DiscussionStageView.*` | `src/services/demo/fixtures/deliberation.ts` |
@@ -47,7 +43,7 @@ that import them. You import a flow, you don't edit it (and vice-versa).
 - **Per-lane fixtures** — `src/services/demo/fixtures/*.ts`, joined by the seed orchestrator
   (`seedDemoCommunity.ts`). Add your lane's sample data to your fixture file only.
 
-## Frozen route map (`src/App.tsx` — do not edit)
+## Route map (`src/App.tsx`)
 
 ```
 /                                     → redirect to /stage/problem
@@ -60,31 +56,16 @@ that import them. You import a flow, you don't edit it (and vice-versa).
 /mandate/:communityId/:mandateId/*    → Lane E   published mandate + adoption
 ```
 
-Every area uses a `/*` wildcard — add your internal sub-routes **inside your owned component**.
+Every area uses a `/*` wildcard — add internal sub-routes inside the area's component where possible.
 
 ---
 
-## Workflow (one worktree + branch per session)
+## Conventions that still apply
 
-```bash
-git worktree add .worktrees/<lane> -b lane/<lane> ui
-# work in your owned paths only; commit
-# verify (see below); open PR lane/<lane> → ui; rebase on ui before merge
-```
-
-Because owned paths are disjoint and the central files are pre-partitioned, merges are conflict-free.
-
-## Guardrails every session obeys
-
-- **Hardcoded UI only.** No real backend. New data → your lane's fixture file, read through the
-  existing `src/services/demo/` mock layer. Never reintroduce `?raw` Python imports.
+- **Hardcoded UI only.** New data → a `src/services/demo/fixtures/*` file, read through the
+  `src/services/demo/` mock layer (the seam rule, [CLAUDE.md](../CLAUDE.md)). Never reintroduce `?raw` Python imports.
 - **Every user-facing string** goes through `t()` (English default inline is fine).
-- **Design system is law.** Tokens + shared components; no ad-hoc colours/spacing.
-- **Verify before "done":** `npx tsc -b --noEmit` clean, `npm run build` clean, walk your routes in
-  the preview, confirm dark mode + 360px-wide mobile + keyboard/screen-reader basics.
-- **Stay in your lane.** Touching another lane's files is how we get conflicts — don't.
-
-## Coordination
-
-Need something in a shared/foundation file (App.tsx, a shared component, another lane's file)? **Append
-a request to MASTER_TODO §10 (Coordination log)** for the Foundation owner to apply between waves.
+- **Design system is law.** Tokens + shared components; no ad-hoc colours/spacing ([DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md)).
+- **Verify before "done":** `npx tsc -b` clean, `npm run build` clean, walk the routes in the
+  preview; confirm dark mode + 360px mobile + keyboard/screen-reader basics.
+- **Ship small, self-contained chunks** that leave `ui` runnable.
