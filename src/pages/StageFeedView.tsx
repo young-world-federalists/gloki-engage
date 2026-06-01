@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { fetchCollaborations, fetchCommunityProperties, fetchCommunityMembers, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
-import { contractRead } from '../services/api';
-import type { IMethod } from '../services/interfaces';
-import type { Collaboration } from '../services/contracts/community';
+import { useAppSelector } from '../store/hooks';
+import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
 import type { PipelineStage } from '../types/initiative';
 import PageHeader from '../components/PageHeader';
 import HomepageMenu from '../components/identity/HomepageMenu';
-import StageFooter from '../components/shared/StageFooter';
 import ProblemStage from '../components/stages/ProblemStage';
 import DiscussionStage from '../components/stages/DiscussionStage';
 import ProposalsStage from '../components/stages/ProposalsStage';
@@ -19,14 +15,9 @@ import MandateStage from '../components/stages/MandateStage';
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
-interface InitiativeWithMeta extends Collaboration {
-  communityId: string;
-  communityName: string;
-  authorName?: string;
-}
-
-// Sample data for development — shown when no real initiatives exist at a stage
-const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: string; description: string; communityName: string; authorName: string; stage: string; tally?: { up: number; down: number; total: number } }>> = {
+// Sample data for development — shown when no real initiatives exist at a stage.
+// Exported so the cross-community Home (HomeView) reuses the same fallback set.
+export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: string; description: string; communityName: string; authorName: string; stage: string; tally?: { up: number; down: number; total: number } }>> = {
   problem: [
     { id: 'sample-1', title: 'Access to Clean Drinking Water', description: 'Over 2 billion people worldwide lack access to safely managed drinking water. This affects health, education, and economic development across multiple countries.', communityName: 'Global Health Network', authorName: 'Maria S.', stage: 'problem', tally: { up: 42, down: 5, total: 47 } },
     { id: 'sample-2', title: 'Misinformation and Democratic Erosion', description: 'AI-generated misinformation is undermining democratic processes globally. Voters are being manipulated and public trust in institutions is declining.', communityName: 'Democracy Watch', authorName: 'James T.', stage: 'problem', tally: { up: 28, down: 12, total: 40 } },
@@ -83,89 +74,22 @@ const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ 
 const StageFeedView: React.FC = () => {
   const { stageId } = useParams<{ stageId: string }>();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { contracts, serverUrl, publicKey } = useAppSelector((s) => s.user);
-  const { communityCollaborations, communityProperties, communityMembers, communityActiveMembers } = useAppSelector((s) => s.communities);
-  const profiles = useAppSelector((s) => s.communities.profiles);
-  const { hidden } = useAppSelector((s) => s.preferences);
+  const { serverUrl, publicKey } = useAppSelector((s) => s.user);
+  const { communityMembers, communityActiveMembers } = useAppSelector((s) => s.communities);
 
   const stage = (stageId || 'problem') as PipelineStage;
   const config = STAGE_CONFIG[stage] || STAGE_CONFIG.problem;
 
-  const communityContracts = useMemo(
-    () => contracts.filter((c) => c.contract === 'community_contract.py' && !hidden.includes(c.id)),
-    [contracts, hidden],
-  );
+  // Cross-community aggregation + per-initiative stage resolution lives in one
+  // shared hook (also powers the cross-community Home).
+  const { initiatives, isLoading } = useAllInitiatives();
 
-  // Fetch collaborations, properties, members for all visible communities
-  useEffect(() => {
-    if (!serverUrl || !publicKey) return;
-    communityContracts.forEach((c) => {
-      if (!communityCollaborations[c.id]) {
-        dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: c.id }));
-      }
-      if (!communityProperties[c.id]) {
-        dispatch(fetchCommunityProperties({ serverUrl, publicKey, contractId: c.id }));
-      }
-      if (!communityMembers[c.id]) {
-        dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: c.id }));
-      }
-      if (communityActiveMembers[c.id] === undefined) {
-        dispatch(fetchCommunityActiveMembers({ serverUrl, publicKey, contractId: c.id }));
-      }
-    });
-  }, [serverUrl, publicKey, communityContracts, communityCollaborations, communityProperties, communityMembers, communityActiveMembers, dispatch]);
-
-  // Collect all initiatives across communities
-  const allInitiatives: InitiativeWithMeta[] = useMemo(() => {
-    const result: InitiativeWithMeta[] = [];
-    for (const c of communityContracts) {
-      const collabs = communityCollaborations[c.id] ?? [];
-      const name = communityProperties[c.id]?.name || c.name || c.id.slice(0, 8);
-      for (const collab of collabs) {
-        if (collab.type === 'initiative') {
-          const authorProfile = collab.author && profiles ? profiles[collab.author] : undefined;
-          const profileName = authorProfile ? `${authorProfile.firstName} ${authorProfile.lastName}`.trim() : '';
-          const authorName = profileName || (collab.author ? collab.author.slice(0, 8) + '...' : undefined);
-          result.push({ ...collab, communityId: c.id, communityName: name, authorName });
-        }
-      }
-    }
-    return result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  }, [communityContracts, communityCollaborations, communityProperties, profiles]);
-
-  // Fetch stages for all initiatives
-  const [stages, setStages] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (!serverUrl || !publicKey || allInitiatives.length === 0) return;
-    allInitiatives.forEach((item) => {
-      if (stages[item.id]) return;
-      contractRead({
-        serverUrl,
-        publicKey,
-        contractId: item.id,
-        method: { name: 'get_stage', values: {} } as IMethod,
-      })
-        .then((result: unknown) => {
-          if (typeof result === 'string') {
-            setStages((prev) => ({ ...prev, [item.id]: result }));
-          } else {
-            setStages((prev) => ({ ...prev, [item.id]: '_unknown' }));
-          }
-        })
-        .catch(() => {
-          setStages((prev) => ({ ...prev, [item.id]: '_unknown' }));
-        });
-    });
-  }, [serverUrl, publicKey, allInitiatives]);
-
-  // Filter initiatives to current stage (excludes _unknown)
+  // Filter initiatives to the current stage (excludes unresolved / _unknown).
   const stageInitiatives = useMemo(
-    () => allInitiatives.filter((item) => stages[item.id] === stage),
-    [allInitiatives, stages, stage],
+    () => initiatives.filter((item) => item.stage === stage),
+    [initiatives, stage],
   );
 
   const handleCardClick = (item: InitiativeWithMeta) => {
@@ -192,9 +116,6 @@ const StageFeedView: React.FC = () => {
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
   };
-
-  // Loading: stages not yet fetched for any initiative
-  const isLoading = allInitiatives.length > 0 && Object.keys(stages).length < allInitiatives.length;
 
   // Show sample data when no real initiatives exist at this stage
   const usingSampleData = stageInitiatives.length === 0 && !isLoading;
@@ -395,8 +316,6 @@ const StageFeedView: React.FC = () => {
           </div>
         ))}
       </div>
-
-      <StageFooter />
     </div>
   );
 };

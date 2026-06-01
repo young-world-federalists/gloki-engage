@@ -15,7 +15,7 @@ import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 // Need a new top-level route? Record it in MASTER_TODO §10 for the next
 // Foundation pass — do not add it here from a lane branch.
 //
-//   /                                         → first-run → /welcome, else /stage/problem
+//   /                                         → first-run → /welcome, else cross-community Home
 //   /welcome/*                                → Lane A   onboarding journey
 //   /stage/:stageId                           → (shell)  stage feed mini-apps
 //   /identity/*                               → Lane A   identity / profile / about
@@ -34,6 +34,7 @@ const getBasename = () => {
 };
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const HomeView = lazy(() => import('./pages/HomeView'));
 const StageFeedView = lazy(() => import('./pages/StageFeedView'));
 const IdentityView = lazy(() => import('./pages/IdentityView'));
 const CommunityView = lazy(() => import('./pages/CommunityView'));
@@ -59,9 +60,11 @@ const isFirstRun = (): boolean => {
   }
 };
 
-// Entry redirect for `/` and the post-login landing.
-function RootRedirect() {
-  return <Navigate to={isFirstRun() ? '/welcome' : '/stage/problem'} replace />;
+// Entry point for `/`: first-run users are guided to the /welcome journey;
+// everyone else lands on the cross-community Home overview.
+function RootRoute() {
+  if (isFirstRun()) return <Navigate to="/welcome" replace />;
+  return <HomeView />;
 }
 
 function AppContent() {
@@ -96,7 +99,7 @@ function AppContent() {
       <Router basename={getBasename()}>
         <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
           <Routes>
-            <Route path="/" element={<RootRedirect />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/welcome/*" element={<OnboardingFlow />} />
             <Route path="/stage/:stageId" element={<StageFeedView />} />
             <Route path="/identity/*" element={<IdentityView />} />

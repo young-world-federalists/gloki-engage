@@ -1,0 +1,302 @@
+@use '../styles/variables' as *;
+
+.home {
+  padding: $spacing-lg;
+  padding-bottom: 80px; // clear the fixed global StageFooter
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+// ─── Intro ──────────────────────────────────────────────────────────────
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.introTitle {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  line-height: 1.2;
+}
+
+.introSubtitle {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-500;
+  line-height: 1.45;
+}
+
+.notice {
+  font-size: $text-xs;
+  color: $gray-400;
+  text-align: center;
+  padding: $spacing-sm;
+  font-style: italic;
+}
+
+// ─── Sections ───────────────────────────────────────────────────────────
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.sectionTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  svg {
+    color: $primary;
+    flex-shrink: 0;
+  }
+}
+
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: none;
+  border: none;
+  padding: $spacing-xs $spacing-sm;
+  margin-right: -#{$spacing-sm};
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $primary;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+// ─── Cards ──────────────────────────────────────────────────────────────
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: box-shadow $transition-base, border-color $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.cardStatic {
+  cursor: default;
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.communityBadge {
+  background: rgba($primary, 0.1);
+  color: $primary;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  padding: 2px $spacing-sm;
+  border-radius: $radius-full;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.communityBadgeStatic {
+  cursor: default;
+
+  &:hover {
+    background: rgba($primary, 0.1);
+  }
+}
+
+.author {
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardDesc {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-600;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Mandates — a slim, de-emphasised horizontal strip ──────────────────
+.mandateStrip {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  padding-bottom: $spacing-xs;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mandateCard {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: box-shadow $transition-base, border-color $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-sm;
+    border-color: $gray-200;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.mandateCommunity {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $primary;
+}
+
+.mandateTitle {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-800;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Dark mode ──────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .introTitle,
+  .sectionTitle,
+  .cardTitle,
+  .mandateTitle {
+    color: $dark-text;
+  }
+
+  .introSubtitle {
+    color: $dark-text-secondary;
+  }
+
+  .notice,
+  .author {
+    color: $dark-text-secondary;
+  }
+
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .cardDesc {
+    color: $dark-text-secondary;
+  }
+
+  .communityBadge {
+    background: rgba($primary, 0.2);
+  }
+
+  .mandateCard {
+    background: $dark-surface;
+    border-color: $dark-border;
+
+    &:hover {
+      border-color: $dark-border;
+    }
+  }
+}
+
+// ─── Responsive — the 360px flagship must hold ──────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .home {
+    padding: $spacing-md;
+    padding-bottom: 80px;
+  }
+
+  .card {
+    padding: $spacing-md;
+  }
+}

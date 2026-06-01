@@ -41,8 +41,8 @@ Three-branch flow: **`main`** (live / upstream) → **`new-features`** (Ouri's l
 ## Routing
 
 ```
-/ → /stage/problem (redirect)
-/stage/:stageId → StageFeedView
+/ → HomeView (cross-community overview; first-run users redirect to /welcome)
+/stage/:stageId → StageFeedView (per-stage browse, driven by the global StageFooter)
 /identity/* → IdentityView (communities, profile, join, about, contact)
 /create-community → CreateCommunityPage (full onboarding page)
 /community/:communityId/* → CommunityView (feed, collab, collab/:collabId, chat, chat/:topicId, currency, members, identity, create-initiative)
