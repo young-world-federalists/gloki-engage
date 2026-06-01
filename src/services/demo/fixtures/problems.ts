@@ -1,14 +1,14 @@
-// Lane B — issue-selection & problem-framing fixtures.
+// Issue-selection & problem-framing fixtures.
 //
-// The climate issues the flagship community is weighing. Several sit at the
-// `problem` stage so /stage/problem opens as a real *slate of candidate issues*
-// to choose among — the moment a crowd becomes a "we" with a shared subject.
-// One issue is frozen at each later stage so every stage feed opens populated.
-// The discussion-stage initiative ('solar') is the mid-deliberation hero.
+// The initiatives that populate the demo communities, spread so that every
+// pipeline stage opens populated and several sit at `problem` (so /stage/problem
+// reads as a real slate of candidate issues — the moment a crowd becomes a "we").
+// Each initiative is tagged with its `community` key (see community.ts); the seed
+// orchestrator groups by it. Per-initiative proposals live in deliberation.ts and
+// conviction config in mandate.ts, joined by `key`.
 //
-// The framing extras (`whoWhy`, `sdg`, `voices`) are Lane B's and are read by
-// ProblemStage; the seed orchestrator ignores them. Per-initiative proposals
-// live in deliberation.ts and conviction config in mandate.ts, joined by `key`.
+// The framing extras (`whoWhy`, `sdg`, `voices`) are read by ProblemStage; the
+// seed orchestrator ignores them.
 
 import type { PipelineStage } from '../../../types/initiative';
 
@@ -27,12 +27,14 @@ export interface SeedVoice {
 
 export interface SeedInitiative {
   key: string;
+  /** Community this initiative belongs to (see community.ts `key`). */
+  community: string;
   title: string;
   description: string;
   stage: PipelineStage;
   countries: string[];
   evidence: string[];
-  // --- Lane B framing extras (optional; ignored by seedDemoCommunity) ---
+  // --- Framing extras (optional; ignored by seedDemoCommunity) ---
   /** Plain-language "who it affects and why now" — one sentence. */
   whoWhy?: string;
   /** Optional light SDG tag. */
@@ -54,124 +56,127 @@ export interface ProblemFraming {
 
 /**
  * A curated short list of SDGs offered when proposing an issue. Kept light and
- * relevant to youth climate work rather than the full set of 17.
+ * broadly relevant rather than the full set of 17.
  */
 export const SDG_OPTIONS: SdgTag[] = [
-  { id: 2, label: 'Zero Hunger' },
+  { id: 1, label: 'No Poverty' },
   { id: 3, label: 'Good Health & Well-being' },
   { id: 4, label: 'Quality Education' },
   { id: 6, label: 'Clean Water & Sanitation' },
-  { id: 7, label: 'Affordable & Clean Energy' },
+  { id: 8, label: 'Decent Work & Economic Growth' },
   { id: 11, label: 'Sustainable Cities & Communities' },
   { id: 13, label: 'Climate Action' },
   { id: 14, label: 'Life Below Water' },
-  { id: 15, label: 'Life on Land' },
+  { id: 16, label: 'Peace, Justice & Strong Institutions' },
 ];
 
 export const INITIATIVES: SeedInitiative[] = [
-  {
-    key: 'plastic',
-    title: 'Single-Use Plastics around Our Lakes',
-    description:
-      'Plastic waste is choking Lake Victoria and Lake Malawi shorelines, harming fisheries that young people depend on. Is a coordinated ban on single-use plastics in lake communities a problem worth taking up together?',
-    stage: 'problem',
-    countries: ['KE', 'MW'],
-    evidence: ['https://www.unep.org/interactives/beat-plastic-pollution/'],
-    whoWhy:
-      'It hits the fishing families and lakeside youth who depend on these waters — and the plastic tide grows every season.',
-    sdg: { id: 14, label: 'Life Below Water' },
-    voices: [
-      { country: 'MW', name: 'Thoko', text: 'Our nets come up full of plastic, not fish.' },
-      { country: 'KE', name: 'Amani', text: 'Walk the Kisumu shoreline — it is buried in bottles and bags.' },
-    ],
-  },
-  {
-    key: 'solar',
-    title: 'Solar Microgrids for Off-Grid Schools',
-    description:
-      'Across our four countries, millions of students study without reliable electricity. Community-owned solar microgrids could power schools and clinics — but who builds, owns, and maintains them? Share how this looks in your community.',
-    stage: 'discussion',
-    countries: ['KE', 'NG', 'MW', 'CD'],
-    evidence: ['https://www.irena.org/'],
-  },
-  {
-    key: 'reforestation',
-    title: 'A Youth Reforestation Corps',
-    description:
-      'Deforestation drives floods, drought, and lost livelihoods. A cross-border youth reforestation corps could restore degraded land while creating green jobs. Propose how it should work.',
-    stage: 'proposals',
-    countries: ['KE', 'NG', 'MW', 'CD'],
-    evidence: ['https://www.ipcc.ch/srccl/'],
-  },
-  {
-    key: 'floods',
-    title: 'A Shared Early Flood-Warning Network',
-    description:
-      'Flash floods devastate riverside communities with little warning. A shared, low-bandwidth early-warning network — SMS and radio — could save lives across borders. Vote on the proposals that should lead.',
-    stage: 'vote',
-    countries: ['NG', 'CD', 'MW'],
-    evidence: ['https://www.who.int/health-topics/floods'],
-  },
+  // ── Global Health Network ────────────────────────────────────────────────
   {
     key: 'water',
-    title: 'Clean Water for Climate-Stressed Schools',
+    community: 'health',
+    title: 'Universal Access to Clean Drinking Water',
     description:
-      'After deliberation across four countries, this initiative reached a mandate: bring resilient clean-water infrastructure to climate-stressed schools, governed and maintained by local youth committees.',
-    stage: 'mandate',
-    countries: ['KE', 'MW', 'CD'],
+      'Two billion people still lack safely managed drinking water. Should a coordinated push for universal clean-water access be a problem we take up together?',
+    stage: 'problem',
+    countries: ['IN', 'NG', 'BD', 'BR'],
     evidence: ['https://www.who.int/health-topics/water-sanitation-and-hygiene-wash'],
+    whoWhy:
+      'It falls hardest on rural families and the women and children who walk hours for water that still makes them sick.',
+    sdg: { id: 6, label: 'Clean Water & Sanitation' },
+    voices: [
+      { country: 'IN', name: 'Priya', text: 'In too many villages the nearest safe tap is still a half-day away.' },
+      { country: 'NG', name: 'Amina', text: 'Half the cases at our clinic trace back to dirty water. It is preventable.' },
+    ],
+  },
+  {
+    key: 'amr',
+    community: 'health',
+    title: 'Coordinated Action on Antibiotic Resistance',
+    description:
+      'Drug-resistant infections already kill over a million people a year. Without coordinated action, routine surgery and minor infections grow deadly again. Propose how communities and clinics should respond.',
+    stage: 'proposals',
+    countries: ['IN', 'US', 'BR', 'ZA'],
+    evidence: ['https://www.who.int/health-topics/antimicrobial-resistance'],
   },
 
-  // --- Additional candidate issues at the `problem` stage, so issue selection
-  //     reads as a real shared choice (climate/plastics above is the seeded
-  //     leader, not the only option). Appended last so the deterministic seed
-  //     indices of the entries above stay unchanged. ---
+  // ── Digital Rights Coalition ──────────────────────────────────────────────
   {
-    key: 'heat',
-    title: 'Extreme Heat Is Closing Our Schools',
+    key: 'misinfo',
+    community: 'digital',
+    title: 'Algorithmic Misinformation & Election Integrity',
     description:
-      'Classrooms without ventilation now reach unbearable temperatures, and schools shut for days during heatwaves — costing students weeks of learning each year. Is rising classroom heat a problem we should take up together?',
+      'AI-generated misinformation is spreading faster than anyone can fact-check, and trust in shared facts is eroding. How should communities and platforms respond without harming free expression? Share how this looks where you are.',
+    stage: 'discussion',
+    countries: ['US', 'BR', 'PH', 'NG', 'DE'],
+    evidence: ['https://www.un.org/en/countering-disinformation'],
+  },
+  {
+    key: 'privacy',
+    community: 'digital',
+    title: 'A Global Baseline for Digital Privacy',
+    description:
+      'Personal data is harvested at vast scale with little protection in most countries. A shared baseline of digital rights is overdue. Vote on the proposals that should lead.',
+    stage: 'vote',
+    countries: ['DE', 'FR', 'US', 'JP', 'BR', 'IN'],
+    evidence: ['https://www.ohchr.org/en/topic/digital-space-and-human-rights'],
+  },
+
+  // ── Climate Resilience Assembly ───────────────────────────────────────────
+  {
+    key: 'ocean',
+    community: 'climate',
+    title: 'Ocean Plastic Pollution',
+    description:
+      'Over eight million tonnes of plastic enter the ocean every year, breaking into microplastics that reach our food and water. Is coordinated action on ocean plastic a problem worth taking up together?',
     stage: 'problem',
-    countries: ['NG', 'CD'],
-    evidence: ['https://www.who.int/health-topics/heatwaves'],
+    countries: ['ID', 'PH', 'JP', 'NL'],
+    evidence: ['https://www.unep.org/interactives/beat-plastic-pollution/'],
     whoWhy:
-      'Students in poorly ventilated schools lose days of learning every heatwave — and the hot season keeps getting longer.',
-    sdg: { id: 13, label: 'Climate Action' },
+      'It hits coastal and fishing communities first — their catch, their beaches, and the water they depend on.',
+    sdg: { id: 14, label: 'Life Below Water' },
     voices: [
-      { country: 'NG', name: 'Chiamaka', text: 'By midday the classroom is an oven. We cannot think.' },
-      { country: 'CD', name: 'Joseph', text: 'Last term we lost a full week to the heat.' },
+      { country: 'ID', name: 'Putri', text: 'Our cleanup crews fill a truck a day and the tide brings more by morning.' },
+      { country: 'PH', name: 'Maria', text: 'The fishers pull up more plastic than fish some weeks.' },
     ],
   },
   {
-    key: 'air',
-    title: 'Charcoal Smoke Is Making Us Sick',
+    key: 'adaptation',
+    community: 'climate',
+    title: 'A Universal Climate Adaptation Fund',
     description:
-      'Most homes still cook over charcoal and wood, filling kitchens with smoke that harms women and children most. Is indoor cooking smoke a shared problem worth tackling across our communities?',
-    stage: 'problem',
-    countries: ['MW', 'CD'],
-    evidence: ['https://www.who.int/health-topics/air-pollution'],
-    whoWhy:
-      'The women and young children who spend hours by the cooking fire breathe the worst of it, every single day.',
-    sdg: { id: 7, label: 'Affordable & Clean Energy' },
-    voices: [
-      { country: 'MW', name: 'Chisomo', text: 'My little sister coughs every evening from the kitchen smoke.' },
-      { country: 'CD', name: 'Espérance', text: 'Clean cookstoves exist — we just cannot reach them yet.' },
-    ],
+      'After a year of cross-border deliberation, this initiative reached a mandate: a community-governed adaptation fund that frontline towns and islands can apply to directly for resilience infrastructure.',
+    stage: 'mandate',
+    countries: ['BD', 'PH', 'MX', 'KE', 'FJ'],
+    evidence: ['https://www.adaptation-fund.org/'],
+  },
+
+  // ── Fair Futures Forum ────────────────────────────────────────────────────
+  {
+    key: 'jobs',
+    community: 'economy',
+    title: 'Youth Employment & the Skills Gap',
+    description:
+      'Youth unemployment tops 30% in many countries even as employers say they cannot find the skills they need. Propose how communities can close the gap between school and decent work.',
+    stage: 'proposals',
+    countries: ['ES', 'ZA', 'EG', 'GR', 'IN'],
+    evidence: ['https://www.ilo.org/topics/youth-employment'],
   },
   {
-    key: 'soil',
-    title: 'Our Farmland Is Washing Away',
+    key: 'housing',
+    community: 'economy',
+    title: 'Affordable Housing in Growing Cities',
     description:
-      'Heavier rains are stripping topsoil from the slopes our families farm, cutting harvests and pushing youth off the land. Is soil erosion a problem we should take on together?',
+      'Rents are rising far faster than wages, pushing young people and key workers out of the cities they keep running. Is the affordability crisis a problem we should take on together?',
     stage: 'problem',
-    countries: ['KE', 'NG'],
-    evidence: ['https://www.fao.org/soils-portal/en/'],
+    countries: ['BR', 'ZA', 'MX', 'DE'],
+    evidence: ['https://unhabitat.org/topics/housing'],
     whoWhy:
-      'Smallholder youth watch each storm carry off the soil their harvests — and their futures — depend on.',
-    sdg: { id: 15, label: 'Life on Land' },
+      'Young people, renters, and essential workers are being priced out of the neighbourhoods they grew up in.',
+    sdg: { id: 11, label: 'Sustainable Cities & Communities' },
     voices: [
-      { country: 'KE', name: 'Brian', text: 'After every big rain the gullies are deeper and the maize is thinner.' },
-      { country: 'NG', name: 'Fatima', text: 'Our tree-nursery seedlings could hold the soil — if we scale them up.' },
+      { country: 'MX', name: 'Diego', text: 'Three families now share what used to be one apartment near the centre.' },
+      { country: 'ZA', name: 'Thabo', text: 'Nurses and teachers commute two hours because nothing near work is affordable.' },
     ],
   },
 ];

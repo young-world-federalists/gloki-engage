@@ -1,52 +1,65 @@
-// Lane C — deliberation fixtures.
+// Deliberation fixtures.
 //
-// UI-only sample data for the deliberation heart of the flagship "Voices for the
-// Climate" community: the threaded discussion + live co-presence (C1), the
-// track-changes co-authoring of the problem statement (C2), and the
-// merge-similar-proposals + expert-review surface (C3).
+// UI-only sample data for the deliberation heart of the demo: the threaded
+// discussion + live co-presence (C1), the track-changes co-authoring of a
+// problem statement (C2), and the merge-similar-proposals + expert-review
+// surface (C3).
 //
 // Pure data + pure helpers only — no React, no i18n, no backend. The flow
 // components import these and hold local optimistic state. Personas come from
-// Lane A's identity fixture (read-only import); display copy is themed to the
-// "Solar Microgrids for Off-Grid Schools" hero initiative (discussion stage) and
-// the "Youth Reforestation Corps" initiative (proposals stage).
+// the identity fixture (read-only import). Display copy is themed to the
+// "Algorithmic Misinformation & Election Integrity" hero (discussion stage) and
+// the "Youth Employment & the Skills Gap" initiative (proposals stage).
 
 import { PERSONAS, type Persona } from './identity';
 
 // ---------------------------------------------------------------------------
-// Proposals per flagship initiative (consumed by the seed orchestrator).
+// Proposals per initiative (consumed by the seed orchestrator).
 // Keyed by initiative `key` (see problems.ts).
 // ---------------------------------------------------------------------------
 export const PROPOSALS_BY_KEY: Record<string, string[]> = {
-  plastic: [
-    'Phase out single-use plastic bags at lakeside markets, with refillable alternatives subsidised locally.',
-    'Fund youth-run collection points that pay per kilo of recovered lake plastic.',
-    'Require beverage producers to fund shoreline clean-up in proportion to packaging sold.',
-    'Run school programmes that turn recovered plastic into school furniture.',
-  ],
-  solar: [
-    'Community-owned microgrids: each school co-op owns the panels and sells surplus to neighbours.',
-    'A shared maintenance-technician training programme so young people keep the grids running.',
-    'Pay-as-you-go metering kept deliberately low-tech for areas with weak connectivity.',
-    'A cross-border parts-and-spares pool so a fault in one village is fixed within days.',
-  ],
-  reforestation: [
-    'A paid corps for under-25s: plant, monitor, and protect — funded per surviving tree at year three.',
-    'Indigenous-species nurseries co-designed with local elders and farmers.',
-    'Satellite + on-the-ground monitoring so restoration claims are independently verifiable.',
-    'Agroforestry plots that combine restoration with food crops for participating families.',
-    'A diaspora matching fund: every hour volunteered is matched by a sponsoring professional.',
-  ],
-  floods: [
-    'A low-bandwidth SMS + community-radio alert chain triggered by upstream river sensors.',
-    'Open river-gauge data shared across borders so downstream towns get earlier warning.',
-    'Trained youth "first-alert" volunteers in each riverside ward, with charged power banks.',
-    'Pre-agreed evacuation routes and safe-shelter mapping co-produced with residents.',
-  ],
   water: [
-    'Resilient rainwater-harvesting and filtration at every climate-stressed school.',
-    'Local youth water committees trained to govern, monitor, and maintain the systems.',
-    'A simple public dashboard tracking water quality and uptime, community-reported.',
+    'Fund community-managed water points with local committees accountable for upkeep.',
+    'Low-cost household filtration distributed through schools and clinics.',
+    'Open, community-reported water-quality monitoring so problems surface fast.',
+  ],
+  amr: [
+    'Make antibiotics prescription-only everywhere, with trained pharmacist gatekeeping.',
+    'Fund rapid point-of-care tests so clinicians stop prescribing antibiotics "just in case".',
+    'A public stewardship dashboard tracking prescribing rates by region.',
+    'Invest in clean water and vaccination — the cheapest way to cut infections that drive resistance.',
+  ],
+  misinfo: [
+    'Require platforms to label disputed content within minutes, with an independent appeals path.',
+    'Mandate "why am I seeing this?" transparency on every recommended post.',
+    'Fund media-literacy "pre-bunking" in schools and over messaging apps.',
+  ],
+  privacy: [
+    'A baseline right to know what data is collected and to delete it, enforceable anywhere.',
+    'Privacy by default: opt-in, not opt-out, for any non-essential data use.',
+    'Ban the sale of precise location data outright.',
+    'Independent audits of high-risk algorithms, with public summaries.',
+  ],
+  ocean: [
+    'Hold producers responsible for packaging through fees that fund cleanup.',
+    'Fund youth-run collection points paid per kilo of recovered coastal plastic.',
+    'Phase out the worst single-use items where refillable alternatives exist.',
+  ],
+  adaptation: [
+    'A community-governed adaptation fund frontline towns can apply to directly.',
+    'Prioritise low-cost, locally-maintainable resilience: drainage, mangroves, early warning.',
+    'Open, community-reported tracking of every funded project.',
+  ],
+  jobs: [
+    'Paid apprenticeships placing young people with local employers, with a stipend so the poorest can take part.',
+    'Rebuild vocational training around the skills employers in each region actually list as missing.',
+    'A public, real-time dashboard matching training to the jobs being posted locally.',
+    'Wage subsidies for small businesses that hire and mentor a first-time worker.',
+  ],
+  housing: [
+    'Protect renters with transparent rent caps tied to local incomes.',
+    'Unlock idle public land for non-profit, permanently-affordable housing.',
+    'Fund community land trusts that keep homes affordable for good.',
   ],
 };
 
@@ -118,52 +131,48 @@ export interface ExpertReview {
 
 // ---------------------------------------------------------------------------
 // C1 — Threaded discussion + live co-presence
-// (themed to the "Solar Microgrids for Off-Grid Schools" hero initiative)
+// (themed to the "Algorithmic Misinformation & Election Integrity" hero)
 // ---------------------------------------------------------------------------
 export const DISCUSSION_COMMENTS: DeliberationComment[] = [
   {
-    id: 'c1', author: 'demo-user-ke-amani', category: 'impact', parentId: null, hearts: 14, minutesAgo: 320,
-    text: 'In Kisumu our school runs on a diesel generator that fails most afternoons. Lessons just stop when the power does. A community-owned microgrid would change everything for us.',
+    id: 'c1', author: 'demo-user-br-lucas', category: 'impact', parentId: null, hearts: 14, minutesAgo: 320,
+    text: 'In São Paulo a deepfake of a candidate reached millions before anyone could debunk it. By the time the correction came, the vote was days away.',
   },
   {
-    id: 'c1a', author: 'demo-user-ke-wanjiru', category: 'solutions', parentId: 'c1', hearts: 6, minutesAgo: 295,
-    text: 'If the school co-op owns the panels, who trains the people who fix them? That is the part that always breaks where I work.',
+    id: 'c1a', author: 'demo-user-kr-jiwoo', category: 'solutions', parentId: 'c1', hearts: 6, minutesAgo: 295,
+    text: 'Speed is everything. Even a neutral "being checked" tag within minutes slows the spread far more than a takedown days later.',
   },
   {
-    id: 'c1b', author: 'demo-user-cd-pascal', category: 'solutions', parentId: 'c1a', hearts: 9, minutesAgo: 240,
-    text: 'We could share one cross-border technician course — Lubumbashi and Nairobi hit the same faults. No reason to train in isolation.',
+    id: 'c1b', author: 'demo-user-it-sofia', category: 'concerns', parentId: 'c1a', hearts: 9, minutesAgo: 240,
+    text: 'Careful who holds that power, though. A state-run "disputed" flag is a censorship tool waiting to happen — we need independent oversight.',
   },
   {
-    id: 'c2', author: 'demo-user-ke-brian', category: 'evidence', parentId: null, hearts: 11, minutesAgo: 280,
-    text: 'IRENA data shows community-owned grids in East Africa stay running far longer than donor-installed ones. Ownership matters more than the hardware.',
+    id: 'c2', author: 'demo-user-pl-marta', category: 'evidence', parentId: null, hearts: 11, minutesAgo: 280,
+    text: 'Our newsroom data is stark: a false post gets roughly six times the shares of its correction. The asymmetry is the whole problem.',
   },
   {
-    id: 'c3', author: 'demo-user-mw-chisomo', category: 'concerns', parentId: null, hearts: 8, minutesAgo: 210,
-    text: 'My worry is the metering. If it is too complicated, families in Mzuzu simply will not use it. Please keep it low-tech.',
+    id: 'c3', author: 'demo-user-de-anika', category: 'solutions', parentId: null, hearts: 12, minutesAgo: 210,
+    text: 'Make platforms show *why* you were shown a post. Transparency on the recommendation does more than any single takedown.',
   },
   {
-    id: 'c3a', author: 'demo-user-mw-thoko', category: 'solutions', parentId: 'c3', hearts: 7, minutesAgo: 180,
-    text: 'Agreed — pay-as-you-go with a simple SMS top-up. No smartphone required, works on the cheapest phone.',
+    id: 'c3a', author: 'demo-user-cn-mei', category: 'solutions', parentId: 'c3', hearts: 7, minutesAgo: 180,
+    text: 'And let people see a post’s origin and edit history with one tap before they share it.',
   },
   {
-    id: 'c4', author: 'demo-user-cd-joseph', category: 'solutions', parentId: null, hearts: 10, minutesAgo: 160,
-    text: 'A shared parts-and-spares pool across our four countries, so one broken inverter does not shut a school for months.',
+    id: 'c4', author: 'demo-user-ph-maria', category: 'impact', parentId: null, hearts: 10, minutesAgo: 160,
+    text: 'During typhoon season here, false "safe zone" maps circulated. Misinformation is not abstract — it puts people directly in harm’s way.',
   },
   {
-    id: 'c5', author: 'demo-user-ng-fatima', category: 'impact', parentId: null, hearts: 12, minutesAgo: 120,
-    text: 'In Kano the bigger gap is clinics, not only schools. The same grid could keep vaccines cold overnight. Can we widen the framing?',
+    id: 'c5', author: 'demo-user-ng-amina', category: 'concerns', parentId: null, hearts: 12, minutesAgo: 120,
+    text: 'Whatever we build has to work on a basic phone over WhatsApp. That is where most of this actually spreads in my community.',
   },
   {
-    id: 'c5a', author: 'demo-user-ng-emeka', category: 'impact', parentId: 'c5', hearts: 5, minutesAgo: 95,
-    text: 'Yes — if we say schools AND clinics, far more communities will back it. Power for learning and for health.',
+    id: 'c5a', author: 'demo-user-br-lucas', category: 'solutions', parentId: 'c5', hearts: 5, minutesAgo: 95,
+    text: 'Agreed — a forward-this-to-check number that replies with context, no app required.',
   },
   {
-    id: 'c6', author: 'demo-user-cd-esperance', category: 'concerns', parentId: null, hearts: 6, minutesAgo: 70,
-    text: 'Who covers the lean months when there is no surplus to sell? We need a plan for that, or trust in the co-op collapses.',
-  },
-  {
-    id: 'c7', author: 'demo-user-mw-limbani', category: 'evidence', parentId: null, hearts: 9, minutesAgo: 40,
-    text: 'We piloted a two-panel setup at a farm co-op in Zomba last year. Happy to share what worked — and honestly what failed.',
+    id: 'c6', author: 'demo-user-kr-jiwoo', category: 'evidence', parentId: null, hearts: 9, minutesAgo: 40,
+    text: 'Pre-bunking works: short clips that teach the manipulation tactic beat after-the-fact fact-checks in every trial we ran.',
   },
 ];
 
@@ -172,80 +181,80 @@ export const DELIBERATION_PARTICIPANTS: string[] = PERSONAS.map((p) => p.publicK
 
 /** A small subset shown as "here now" for the live co-presence pulse. */
 export const PRESENCE_NOW: string[] = [
-  'demo-user-cd-esperance',
-  'demo-user-ke-brian',
-  'demo-user-ng-fatima',
+  'demo-user-ph-maria',
+  'demo-user-pl-marta',
+  'demo-user-de-anika',
 ];
 
 /** Rotates through the live ticker (gated behind prefers-reduced-motion). */
 export const PRESENCE_TICKER: PresenceEvent[] = [
-  { author: 'demo-user-cd-esperance', kind: 'joined' },
-  { author: 'demo-user-ke-brian', kind: 'viewing' },
-  { author: 'demo-user-mw-thoko', kind: 'typing' },
-  { author: 'demo-user-cd-joseph', kind: 'joined' },
-  { author: 'demo-user-ng-fatima', kind: 'viewing' },
+  { author: 'demo-user-ph-maria', kind: 'joined' },
+  { author: 'demo-user-pl-marta', kind: 'viewing' },
+  { author: 'demo-user-br-lucas', kind: 'typing' },
+  { author: 'demo-user-kr-jiwoo', kind: 'joined' },
+  { author: 'demo-user-de-anika', kind: 'viewing' },
 ];
 
 // ---------------------------------------------------------------------------
 // C2 — Track-changes co-authoring of the problem statement
 // ---------------------------------------------------------------------------
 export const PROBLEM_STATEMENT: { title: string; description: string } = {
-  title: 'Solar Microgrids for Off-Grid Schools',
+  title: 'Algorithmic Misinformation & Election Integrity',
   description:
-    'Community-owned solar microgrids could power schools across our four countries. Who builds, owns, and maintains them?',
+    'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts. How should communities and platforms respond?',
 };
 
 export const EDIT_SUGGESTIONS: EditSuggestion[] = [
   {
     id: 's1',
     field: 'description',
-    author: 'demo-user-ng-fatima',
+    author: 'demo-user-it-sofia',
     baseText: PROBLEM_STATEMENT.description,
     suggestedText:
-      'Community-owned solar microgrids could power schools and clinics across our four countries. Who builds, owns, and maintains them?',
-    rationale: 'Clinics need overnight power for vaccines too — widening this brings more communities in.',
-    hearts: 9,
+      'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts. How should communities and platforms respond — without harming free expression?',
+    rationale: 'Any response has to name the free-expression safeguard up front, or we invite censorship.',
+    hearts: 11,
     status: 'open',
     minutesAgo: 110,
   },
   {
     id: 's2',
     field: 'title',
-    author: 'demo-user-cd-pascal',
+    author: 'demo-user-de-anika',
     baseText: PROBLEM_STATEMENT.title,
-    suggestedText: 'Community-Owned Solar Microgrids for Off-Grid Schools',
-    rationale: 'Ownership is the whole point of our discussion — it belongs in the title.',
-    hearts: 7,
+    suggestedText: 'Algorithmic Misinformation & Democratic Integrity',
+    rationale: 'This goes beyond elections — it is about trust in shared facts year-round.',
+    hearts: 8,
     status: 'open',
     minutesAgo: 65,
   },
   {
     id: 's3',
     field: 'description',
-    author: 'demo-user-mw-chisomo',
+    author: 'demo-user-ng-amina',
     baseText: PROBLEM_STATEMENT.description,
     suggestedText:
-      'Community-owned solar microgrids could power schools across our four countries. Who builds, owns, and maintains them — and how do we keep it low-tech enough for everyone?',
-    rationale: 'If it is not low-tech, rural families are left out. Make that an explicit question.',
-    hearts: 5,
+      'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts — especially over messaging apps on basic phones. How should communities and platforms respond?',
+    rationale: 'If the answer ignores WhatsApp on a basic phone, it ignores where most people actually are.',
+    hearts: 6,
     status: 'open',
     minutesAgo: 30,
   },
 ];
 
 /** Co-authors already credited on the statement (a prior accepted edit). */
-export const CO_AUTHORS: string[] = ['demo-user-ke-wanjiru'];
+export const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
 
 // ---------------------------------------------------------------------------
 // C3 — Merge similar proposals + expert review
-// (themed to the "Youth Reforestation Corps" proposals stage)
+// (themed to the "Youth Employment & the Skills Gap" proposals stage)
 // ---------------------------------------------------------------------------
 export const MERGEABLE_PROPOSALS: MergeableProposal[] = [
-  { id: 'm1', author: 'demo-user-ng-fatima', text: 'Pay the youth corps per surviving tree at year three, so the reward is on survival — not just on how many seedlings go in the ground.' },
-  { id: 'm2', author: 'demo-user-cd-joseph', text: 'Reward young planters for trees still alive after three years, rather than for the number they originally planted.' },
-  { id: 'm3', author: 'demo-user-ke-amani', text: 'Indigenous-species nurseries co-designed with local elders and farmers.' },
-  { id: 'm4', author: 'demo-user-ke-brian', text: 'Satellite plus on-the-ground monitoring so restoration claims are independently verifiable.' },
-  { id: 'm5', author: 'demo-user-mw-limbani', text: 'Use elders’ knowledge to choose the right native species for each local nursery.' },
+  { id: 'm1', author: 'demo-user-eg-fatima', text: 'Fund paid apprenticeships that place young people directly with local employers, with a stipend so the poorest can take part.' },
+  { id: 'm2', author: 'demo-user-za-thabo', text: 'Subsidise on-the-job apprenticeships at small businesses, paid so that low-income youth are not priced out of taking them.' },
+  { id: 'm3', author: 'demo-user-pk-aisha', text: 'Rebuild vocational training around the skills employers in each region actually list as missing.' },
+  { id: 'm4', author: 'demo-user-in-priya', text: 'A public, real-time skills dashboard matching training to the jobs actually being posted locally.' },
+  { id: 'm5', author: 'demo-user-mx-diego', text: 'Align technical courses to the gaps employers report each quarter, region by region.' },
 ];
 
 export const MERGE_SUGGESTIONS: MergeSuggestion[] = [
@@ -254,15 +263,15 @@ export const MERGE_SUGGESTIONS: MergeSuggestion[] = [
 ];
 
 export const EXPERTS: ExpertProfile[] = [
-  { key: 'demo-expert-marie', name: 'Marie Laurent', field: 'Marine biology · EU NGO', country: 'FR' },
-  { key: 'demo-expert-koffi', name: 'Dr. Koffi Mensah', field: 'Forestry & land restoration', country: 'GH' },
+  { key: 'demo-expert-renata', name: 'Renata Costa', field: 'Labour economics · ILO', country: 'BR' },
+  { key: 'demo-expert-lena', name: 'Dr. Lena Fischer', field: 'Vocational education & skills', country: 'DE' },
 ];
 
 export const EXPERT_REVIEWS: ExpertReview[] = [
   {
-    proposalId: 'm4',
-    expertKey: 'demo-expert-koffi',
-    note: 'Satellite verification is sound, but pair it with community ground-truthing — canopy imagery alone over-counts survival in dryland mosaics.',
+    proposalId: 'm3',
+    expertKey: 'demo-expert-lena',
+    note: 'Demand-led training works, but the skills lists go stale fast — pair this with the live dashboard idea so curricula update quarterly, not once a decade.',
   },
 ];
 

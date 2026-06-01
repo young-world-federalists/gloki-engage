@@ -6,7 +6,7 @@ import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
 import type { IMethod } from '../../services/interfaces';
 import type { Collaboration } from '../../services/contracts/community';
-import { VFTC_COMMUNITY } from '../../services/demo/fixtures/community';
+import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
 import { Card, Badge } from '../shared';
 import type { BadgeTone } from '../shared';
@@ -106,7 +106,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
   }, [serverUrl, publicKey, initiatives]);
 
   const props = communityProperties[communityId] || {};
-  const isFlagship = props.name === VFTC_COMMUNITY.name;
+  const fixture = DEMO_COMMUNITIES.find((c) => c.name === props.name);
   const members: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const memberCount = members.length;
 
@@ -119,12 +119,12 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
       if (c) counts[c] = (counts[c] ?? 0) + 1;
     }
     let list = Object.entries(counts).map(([code, participants]) => ({ code, participants }));
-    if (list.length === 0 && isFlagship) {
-      const per = Math.max(1, Math.round(memberCount / VFTC_COMMUNITY.countries.length) || 1);
-      list = VFTC_COMMUNITY.countries.map((code) => ({ code, participants: per }));
+    if (list.length === 0 && fixture) {
+      const per = Math.max(1, Math.round(memberCount / fixture.countries.length) || 1);
+      list = fixture.countries.map((code) => ({ code, participants: per }));
     }
     return list;
-  }, [members, profiles, isFlagship, memberCount]);
+  }, [members, profiles, fixture, memberCount]);
 
   const handleCardClick = (item: Collaboration) => {
     const hostServer = item.hostServer || serverUrl || 'local';
@@ -141,8 +141,8 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
       <MissionBanner
         name={props.name || t('community.fallbackName', 'Community')}
         description={props.description}
-        mission={isFlagship ? VFTC_COMMUNITY.mission : undefined}
-        journey={isFlagship ? VFTC_COMMUNITY.journey : undefined}
+        mission={fixture?.mission}
+        journey={fixture?.journey}
       />
 
       {participation.length > 0 && <ParticipationSummary participation={participation} />}

@@ -1,8 +1,8 @@
-// Lane A — Identity fixtures.
+// Identity fixtures.
 //
-// The youth personas who populate the flagship "Voices for the Climate"
-// deliberation, across Kenya, Nigeria, Malawi and DR Congo. Names, countries,
-// and the languages each person speaks (used by presence + multilingual UI).
+// A globally diverse set of personas who populate the demo communities — across
+// six continents, many languages. Names, countries, and the languages each
+// person speaks (used by presence + multilingual UI).
 
 export interface Persona {
   publicKey: string;
@@ -15,22 +15,22 @@ export interface Persona {
 }
 
 export const PERSONAS: Persona[] = [
-  // Kenya
-  { publicKey: 'demo-user-ke-amani', firstName: 'Amani', lastName: 'Otieno', country: 'KE', languages: ['en', 'sw'], userBio: 'Climate club organiser, Kisumu', userPhoto: '' },
-  { publicKey: 'demo-user-ke-wanjiru', firstName: 'Wanjiru', lastName: 'Kamau', country: 'KE', languages: ['en', 'sw'], userBio: 'Solar technician apprentice, Nairobi', userPhoto: '' },
-  { publicKey: 'demo-user-ke-brian', firstName: 'Brian', lastName: 'Mwangi', country: 'KE', languages: ['en', 'sw'], userBio: 'Geography student & community mapper, Nakuru', userPhoto: '' },
-  // Nigeria
-  { publicKey: 'demo-user-ng-chiamaka', firstName: 'Chiamaka', lastName: 'Okeke', country: 'NG', languages: ['en'], userBio: 'Youth climate advocate, Enugu', userPhoto: '' },
-  { publicKey: 'demo-user-ng-emeka', firstName: 'Emeka', lastName: 'Eze', country: 'NG', languages: ['en'], userBio: 'Flood-response volunteer, Lokoja', userPhoto: '' },
-  { publicKey: 'demo-user-ng-fatima', firstName: 'Fatima', lastName: 'Bello', country: 'NG', languages: ['en'], userBio: 'Tree-nursery cooperative lead, Kano', userPhoto: '' },
-  // Malawi
-  { publicKey: 'demo-user-mw-thoko', firstName: 'Thoko', lastName: 'Banda', country: 'MW', languages: ['en', 'ny'], userBio: 'Lake conservation volunteer, Mangochi', userPhoto: '' },
-  { publicKey: 'demo-user-mw-limbani', firstName: 'Limbani', lastName: 'Phiri', country: 'MW', languages: ['en', 'ny'], userBio: 'Smallholder farming youth lead, Zomba', userPhoto: '' },
-  { publicKey: 'demo-user-mw-chisomo', firstName: 'Chisomo', lastName: 'Gondwe', country: 'MW', languages: ['en', 'ny'], userBio: 'Clean-water campaigner, Mzuzu', userPhoto: '' },
-  // DR Congo
-  { publicKey: 'demo-user-cd-pascal', firstName: 'Pascal', lastName: 'Mbuyi', country: 'CD', languages: ['fr', 'sw', 'ln'], userBio: 'Renewable energy student, Lubumbashi', userPhoto: '' },
-  { publicKey: 'demo-user-cd-esperance', firstName: 'Espérance', lastName: 'Kahindo', country: 'CD', languages: ['fr', 'sw'], userBio: 'Community radio host, Goma', userPhoto: '' },
-  { publicKey: 'demo-user-cd-joseph', firstName: 'Joseph', lastName: 'Ilunga', country: 'CD', languages: ['fr', 'ln'], userBio: 'Reforestation organiser, Kinshasa', userPhoto: '' },
+  { publicKey: 'demo-user-in-priya', firstName: 'Priya', lastName: 'Nair', country: 'IN', languages: ['en', 'hi'], userBio: 'Public-health researcher, Bengaluru', userPhoto: '' },
+  { publicKey: 'demo-user-br-lucas', firstName: 'Lucas', lastName: 'Oliveira', country: 'BR', languages: ['pt', 'en'], userBio: 'Civic-tech organiser, São Paulo', userPhoto: '' },
+  { publicKey: 'demo-user-ng-amina', firstName: 'Amina', lastName: 'Suleiman', country: 'NG', languages: ['en', 'ha'], userBio: 'Community health worker, Kano', userPhoto: '' },
+  { publicKey: 'demo-user-cn-mei', firstName: 'Mei', lastName: 'Chen', country: 'CN', languages: ['zh', 'en'], userBio: 'Urban planner, Chengdu', userPhoto: '' },
+  { publicKey: 'demo-user-it-sofia', firstName: 'Sofia', lastName: 'Rossi', country: 'IT', languages: ['it', 'en'], userBio: 'Digital-rights lawyer, Bologna', userPhoto: '' },
+  { publicKey: 'demo-user-gh-kwame', firstName: 'Kwame', lastName: 'Mensah', country: 'GH', languages: ['en', 'tw'], userBio: 'Renewable-energy engineer, Accra', userPhoto: '' },
+  { publicKey: 'demo-user-jp-yuki', firstName: 'Yuki', lastName: 'Tanaka', country: 'JP', languages: ['ja', 'en'], userBio: 'Ocean-conservation volunteer, Fukuoka', userPhoto: '' },
+  { publicKey: 'demo-user-de-anika', firstName: 'Anika', lastName: 'Bauer', country: 'DE', languages: ['de', 'en'], userBio: 'Privacy advocate, Leipzig', userPhoto: '' },
+  { publicKey: 'demo-user-mx-diego', firstName: 'Diego', lastName: 'Hernández', country: 'MX', languages: ['es', 'en'], userBio: 'Housing-cooperative organiser, Guadalajara', userPhoto: '' },
+  { publicKey: 'demo-user-eg-fatima', firstName: 'Fatima', lastName: 'Hassan', country: 'EG', languages: ['ar', 'en'], userBio: 'Youth-employment trainer, Cairo', userPhoto: '' },
+  { publicKey: 'demo-user-kr-jiwoo', firstName: 'Ji-woo', lastName: 'Park', country: 'KR', languages: ['ko', 'en'], userBio: 'Misinformation researcher, Seoul', userPhoto: '' },
+  { publicKey: 'demo-user-pk-aisha', firstName: 'Aisha', lastName: 'Khan', country: 'PK', languages: ['ur', 'en'], userBio: 'Teacher & union rep, Lahore', userPhoto: '' },
+  { publicKey: 'demo-user-za-thabo', firstName: 'Thabo', lastName: 'Nkosi', country: 'ZA', languages: ['en', 'zu'], userBio: 'Small-business mentor, Johannesburg', userPhoto: '' },
+  { publicKey: 'demo-user-pl-marta', firstName: 'Marta', lastName: 'Nowak', country: 'PL', languages: ['pl', 'en'], userBio: 'Open-data journalist, Kraków', userPhoto: '' },
+  { publicKey: 'demo-user-id-putri', firstName: 'Putri', lastName: 'Wijaya', country: 'ID', languages: ['id', 'en'], userBio: 'Coastal-cleanup coordinator, Surabaya', userPhoto: '' },
+  { publicKey: 'demo-user-ph-maria', firstName: 'Maria', lastName: 'Santos', country: 'PH', languages: ['en', 'tl'], userBio: 'Disaster-resilience organiser, Cebu', userPhoto: '' },
 ];
 
 export function pick<T>(arr: T[], n: number, seed = 0): T[] {
@@ -48,7 +48,7 @@ export function pick<T>(arr: T[], n: number, seed = 0): T[] {
   return result;
 }
 
-// ── Onboarding / lightweight trust (Lane A) ──────────────────────────────────
+// ── Onboarding / lightweight trust ───────────────────────────────────────────
 // A friend's invite resolves to the voucher who brought the newcomer in.
 // UI-only — no backend, no contract writes.
 
@@ -63,13 +63,13 @@ export function getPersona(publicKey: string): Persona | undefined {
 
 /** Invite code → voucher publicKey. Unknown/missing codes fall back to the default. */
 export const INVITE_CODES: Record<string, string> = {
-  CLIMATE24: 'demo-user-ke-amani',
-  NAIROBI: 'demo-user-ke-wanjiru',
-  LAGOS: 'demo-user-ng-chiamaka',
-  GOMA: 'demo-user-cd-esperance',
+  GLOKI: 'demo-user-in-priya',
+  WELCOME: 'demo-user-br-lucas',
+  JOIN: 'demo-user-de-anika',
+  FRIEND: 'demo-user-ph-maria',
 };
 
-export const DEFAULT_INVITE_VOUCHER = 'demo-user-ke-amani';
+export const DEFAULT_INVITE_VOUCHER = 'demo-user-in-priya';
 
 /** Resolve an invite code to the voucher persona (defaults to a friendly persona). */
 export function getVoucher(code?: string | null): Persona {
@@ -90,11 +90,12 @@ export interface OnboardingLanguage {
 }
 export const ONBOARDING_LANGUAGES: OnboardingLanguage[] = [
   { code: 'en', defaultLabel: 'English' },
+  { code: 'es', defaultLabel: 'Español' },
   { code: 'fr', defaultLabel: 'Français' },
-  { code: 'sw', defaultLabel: 'Kiswahili' },
-  { code: 'ny', defaultLabel: 'Chichewa' },
-  { code: 'ln', defaultLabel: 'Lingala' },
-  { code: 'ha', defaultLabel: 'Hausa' },
+  { code: 'pt', defaultLabel: 'Português' },
+  { code: 'ar', defaultLabel: 'العربية' },
+  { code: 'hi', defaultLabel: 'हिन्दी' },
+  { code: 'zh', defaultLabel: '中文' },
 ];
 
 /** Demo participation rows for the Digital Agent card (real activity isn't tracked). */
@@ -106,7 +107,7 @@ export interface ParticipationEntry {
   when: string;
 }
 export const DEMO_PARTICIPATION: ParticipationEntry[] = [
-  { titleKey: 'agent.activity.plasticFree', defaultTitle: 'Plastic-free lakes', stageKey: 'nav.problem', defaultStage: 'Problem', when: '2d ago' },
-  { titleKey: 'agent.activity.flooding', defaultTitle: 'Flood early-warning network', stageKey: 'nav.discussion', defaultStage: 'Discuss', when: '5d ago' },
-  { titleKey: 'agent.activity.solar', defaultTitle: 'Solar for rural schools', stageKey: 'nav.vote', defaultStage: 'Vote', when: '1w ago' },
+  { titleKey: 'agent.activity.water', defaultTitle: 'Clean drinking water for all', stageKey: 'nav.problem', defaultStage: 'Problem', when: '2d ago' },
+  { titleKey: 'agent.activity.privacy', defaultTitle: 'A global baseline for digital privacy', stageKey: 'nav.vote', defaultStage: 'Vote', when: '5d ago' },
+  { titleKey: 'agent.activity.housing', defaultTitle: 'Affordable housing in growing cities', stageKey: 'nav.discussion', defaultStage: 'Discuss', when: '1w ago' },
 ];

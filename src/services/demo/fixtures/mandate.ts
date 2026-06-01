@@ -1,7 +1,6 @@
-// Lane E — mandate fixtures.
+// Mandate fixtures.
 //
-// Two kinds of data live here, joined to the flagship initiatives by `key`
-// (see problems.ts):
+// Two kinds of data live here, joined to the initiatives by `key` (problems.ts):
 //   1. CONVICTION_BY_KEY — conviction-staking configuration for the mandate
 //      stage (fraction of members who stake, max per staker).
 //   2. MANDATES_BY_KEY — the *published* Mandate artifact + its adoption
@@ -16,11 +15,14 @@ export interface ConvictionConfig {
 }
 
 export const CONVICTION_BY_KEY: Record<string, ConvictionConfig> = {
-  plastic: { participationRate: 0.5, maxAmount: 40 },
-  solar: { participationRate: 0.7, maxAmount: 60 },
-  reforestation: { participationRate: 0.6, maxAmount: 50 },
-  floods: { participationRate: 0.75, maxAmount: 70 },
-  water: { participationRate: 0.9, maxAmount: 100 },
+  water: { participationRate: 0.5, maxAmount: 40 },
+  amr: { participationRate: 0.6, maxAmount: 50 },
+  misinfo: { participationRate: 0.55, maxAmount: 45 },
+  privacy: { participationRate: 0.7, maxAmount: 60 },
+  ocean: { participationRate: 0.5, maxAmount: 40 },
+  adaptation: { participationRate: 0.9, maxAmount: 100 },
+  jobs: { participationRate: 0.6, maxAmount: 50 },
+  housing: { participationRate: 0.55, maxAmount: 45 },
 };
 
 // ---------------------------------------------------------------------------
@@ -97,110 +99,108 @@ export interface PublishedMandate {
 }
 
 /**
- * The deeply-authored flagship mandate: the youth deliberation on clean water
- * for climate-stressed schools, ratified after the cross-border vote. Its three
- * articles are the three winning proposals (see deliberation.ts `water`).
+ * The deeply-authored flagship mandate: a global deliberation on a community
+ * climate-adaptation fund, ratified after the cross-border vote. Its three
+ * articles are the three winning proposals (see deliberation.ts `adaptation`).
  */
-const WATER_MANDATE: PublishedMandate = {
-  id: 'water',
-  title: 'Clean Water for Climate-Stressed Schools',
-  subtitle: 'A Young Africa Climate Mandate',
+const ADAPTATION_MANDATE: PublishedMandate = {
+  id: 'adaptation',
+  title: 'A Universal Climate Adaptation Fund',
+  subtitle: 'A global community mandate',
   status: 'ratified',
   ratifiedOn: '2026-04-18',
-  countries: ['KE', 'MW', 'CD'],
+  countries: ['BD', 'PH', 'MX', 'KE', 'FJ'],
   preamble:
-    'We, more than five hundred young people deliberating across Kenya, Nigeria, Malawi and the ' +
-    'Democratic Republic of the Congo, having chosen this problem together and refined it over a ' +
-    'year of open deliberation, adopt this mandate so that no school in our communities is forced ' +
-    'to send its children home for want of safe water as the climate grows harsher.',
+    'We, communities on the front line of a changing climate — across river deltas, low-lying ' +
+    'coasts and island nations — having chosen this problem together and refined it over a year ' +
+    'of open deliberation, adopt this mandate so that no community is left to face the climate ' +
+    'alone for want of the resources to adapt.',
   articles: [
     {
       id: 'art-1',
-      title: 'Rainwater harvesting and filtration at every climate-stressed school',
+      title: 'A community-governed adaptation fund, reachable directly',
       body:
-        'Each participating school shall be fitted with resilient rainwater-harvesting and ' +
-        'point-of-use filtration sized to its enrolment, prioritising schools that lost reliable ' +
-        'water during the last two dry seasons.',
+        'A standing adaptation fund shall accept applications directly from frontline towns, ' +
+        'islands and neighbourhoods — not only national governments — with a simple application ' +
+        'and a community-majority voice on the allocation board.',
     },
     {
       id: 'art-2',
-      title: 'Youth-led water committees govern and maintain the systems',
+      title: 'Fund what communities can build and maintain',
       body:
-        'A trained local youth water committee shall govern, monitor and maintain each system, ' +
-        'with at least half of its seats held by young women, supported by a small maintenance ' +
-        'stipend drawn from adopting partners.',
+        'Priority goes to low-cost, locally-maintainable resilience — drainage, mangrove and ' +
+        'wetland restoration, water storage, and early-warning systems — over large contracts ' +
+        'that leave nothing local behind.',
     },
     {
       id: 'art-3',
       title: 'Open, community-reported monitoring',
       body:
-        'A simple public dashboard shall track water quality and system uptime at every site, ' +
-        'updated by the committees over SMS or web, so progress stays visible across borders.',
+        'Every funded project shall publish progress on a simple public dashboard, updated by the ' +
+        'community over SMS or web, so the money is seen to reach the ground.',
     },
   ],
   indicators: [
-    { label: 'Schools with safe water on-site', target: '250 schools by end of 2027' },
-    { label: 'System uptime', target: '≥ 90% monthly, community-reported' },
-    { label: 'Youth committee members trained', target: '1,500 (≥ 50% young women)' },
-    { label: 'Installed cost per school', target: 'Under US$3,500' },
+    { label: 'Frontline communities funded', target: '500 by end of 2028' },
+    { label: 'Funds reaching local control', target: '≥ 70% of every grant' },
+    { label: 'Projects with open progress reporting', target: '100%' },
+    { label: 'Application to first disbursement', target: 'Under 90 days' },
   ],
   provenance: {
-    participants: 512,
-    countries: 4,
+    participants: 1240,
+    countries: 18,
     deliberationMonths: 12,
-    voteWinner: 'Resilient rainwater-harvesting and filtration at every climate-stressed school',
-    convictionBackers: 318,
+    voteWinner: 'A community-governed adaptation fund frontline towns can apply to directly',
+    convictionBackers: 760,
   },
   adopters: [
     {
-      id: 'adopt-paycn',
-      name: 'Pan-African Youth Climate Network',
+      id: 'adopt-gra',
+      name: 'Global Resilience Alliance',
       type: 'youth-network',
       level: 'subscribed',
-      progress: 0.34,
-      progressNote: 'First 12 schools in Kisumu and Mzuzu fitted with harvesting tanks.',
+      progress: 0.32,
+      progressNote: 'First 40 community projects funded across 9 countries.',
       since: 'Apr 2026',
     },
     {
-      id: 'adopt-mw-moe',
-      name: 'Malawi Ministry of Education',
+      id: 'adopt-bd-dm',
+      name: 'Bangladesh Ministry of Disaster Management',
       type: 'government',
-      country: 'MW',
+      country: 'BD',
       level: 'subscribed',
-      progress: 0.18,
-      progressNote: 'Site surveys completed at 40 lakeshore schools.',
+      progress: 0.21,
+      progressNote: 'Co-funding drainage and shelters in 25 delta wards.',
       since: 'Apr 2026',
     },
     {
-      id: 'adopt-wateraid',
-      name: 'WaterAid International',
+      id: 'adopt-pif',
+      name: 'Pacific Islands Forum',
+      type: 'intergov',
+      level: 'subscribed',
+      progress: 0.44,
+      progressNote: 'Channeling direct grants to 12 island communities.',
+      since: 'May 2026',
+    },
+    {
+      id: 'adopt-mercycorps',
+      name: 'Mercy Corps',
       type: 'ngo',
       level: 'subscribed',
       progress: 0.5,
-      progressNote: 'Co-funding filtration units for 60 schools across three countries.',
+      progressNote: 'Mangrove restoration and early-warning pilots in three regions.',
       since: 'May 2026',
     },
     {
-      id: 'adopt-cd-wash',
-      name: 'DR Congo Schools WASH Coalition',
+      id: 'adopt-c40',
+      name: 'C40 Cities',
       type: 'ngo',
-      country: 'CD',
-      level: 'subscribed',
-      progress: 0.12,
-      progressNote: 'Committee training curriculum localised to French and Swahili.',
-      since: 'May 2026',
-    },
-    {
-      id: 'adopt-uon',
-      name: 'University of Nairobi — Water & Climate Lab',
-      type: 'academic',
-      country: 'KE',
       level: 'endorsed',
       since: 'Apr 2026',
     },
     {
-      id: 'adopt-unicef',
-      name: 'UNICEF Eastern & Southern Africa',
+      id: 'adopt-undrr',
+      name: 'UN Office for Disaster Risk Reduction (UNDRR)',
       type: 'intergov',
       level: 'endorsed',
       since: 'May 2026',
@@ -210,8 +210,8 @@ const WATER_MANDATE: PublishedMandate = {
 };
 
 export const MANDATES_BY_KEY: Record<string, PublishedMandate> = {
-  water: WATER_MANDATE,
+  adaptation: ADAPTATION_MANDATE,
 };
 
 /** The flagship mandate used as a graceful fallback for any initiative. */
-export const DEFAULT_MANDATE_KEY = 'water';
+export const DEFAULT_MANDATE_KEY = 'adaptation';

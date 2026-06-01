@@ -2,7 +2,7 @@
 // populates every stage sub-contract across them so reviewers can inspect every
 // flow's UI immediately.
 import { mockDeployDirect } from './mockApi';
-import { registerDemoContract, removeDemoSubtree } from './demoRegistry';
+import { registerDemoContract, removeDemoSubtree, getDemoContract } from './demoRegistry';
 import { initCommunity, communityWrite } from './demoContracts/community';
 import { initInitiative, initiativeWrite } from './demoContracts/initiative';
 import { initProblemVote } from './demoContracts/problemVote';
@@ -11,7 +11,7 @@ import { initQV } from './demoContracts/qv';
 import { initConviction } from './demoContracts/conviction';
 import { initModification } from './demoContracts/modification';
 import { PERSONAS, pick } from './fixtures/identity';
-import { INITIATIVES } from './fixtures/problems';
+import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
 import { PROPOSALS_BY_KEY } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
@@ -20,7 +20,7 @@ import {
   qvAllocationPattern,
   convictionPattern,
 } from './fixtures/mechanisms';
-import { VFTC_COMMUNITY } from './fixtures/community';
+import { DEMO_COMMUNITIES, DEFAULT_COMMUNITY } from './fixtures/community';
 import type { IMethod } from '../interfaces';
 
 const STAGE_ORDER = ['problem', 'discussion', 'proposals', 'vote', 'mandate'] as const;
@@ -54,7 +54,11 @@ function deployStageContract(
   return id;
 }
 
-export function seedDemoCommunity(communityId: string, publicKey: string): void {
+export function seedDemoCommunity(
+  communityId: string,
+  publicKey: string,
+  initiatives: SeedInitiative[] = INITIATIVES,
+): void {
   if (isAlreadySeeded(communityId)) {
     console.log(`[DemoSeed] Community ${communityId} already seeded, skipping`);
     return;
@@ -70,7 +74,7 @@ export function seedDemoCommunity(communityId: string, publicKey: string): void 
     } as IMethod, publicKey);
   }
 
-  INITIATIVES.forEach((seed, idx) => {
+  initiatives.forEach((seed, idx) => {
     const seedInt = (idx + 1) * 7919;
     const proposals = PROPOSALS_BY_KEY[seed.key] ?? [];
     const conviction = CONVICTION_BY_KEY[seed.key] ?? { participationRate: 0.6, maxAmount: 50 };
@@ -196,23 +200,42 @@ export function seedDemoCommunity(communityId: string, publicKey: string): void 
   console.log('[DemoSeed] Done');
 }
 
-// Reset — wipes a demo community + all its child contracts, then re-seeds.
+// Seed every demo community (deploy + populate), each with its own initiatives.
+export function seedAllDemoCommunities(publicKey: string): void {
+  for (const community of DEMO_COMMUNITIES) {
+    const { id } = mockDeployDirect({
+      name: community.name,
+      contract: 'community_contract.py',
+      kind: 'comm',
+      publicKey,
+      properties: { name: community.name, description: community.description },
+    });
+    const initiatives = INITIATIVES.filter((i) => i.community === community.key);
+    seedDemoCommunity(id, publicKey, initiatives);
+  }
+}
+
+// Reset — wipes a demo community + all its child contracts, then re-seeds it
+// with its own initiatives (matched by registered name; falls back to default).
 export function resetDemoCommunity(communityId: string, publicKey: string): void {
   const statePrefix = 'gloki_demo_state_';
   const subtree = removeDemoSubtree(communityId);
   for (const id of subtree) localStorage.removeItem(statePrefix + id);
 
+  const existing = getDemoContract(communityId);
+  const fixture = DEMO_COMMUNITIES.find((c) => c.name === existing?.name) ?? DEFAULT_COMMUNITY;
+
   // Re-register + re-init the community so its ID remains valid in Redux.
   registerDemoContract({
     id: communityId,
-    name: VFTC_COMMUNITY.name,
+    name: fixture.name,
     contract: 'community_contract.py',
     createdAt: Date.now(),
   });
   initCommunity(communityId, publicKey, {
-    name: VFTC_COMMUNITY.name,
-    description: VFTC_COMMUNITY.description,
+    name: fixture.name,
+    description: fixture.description,
   });
   unmarkSeeded(communityId);
-  seedDemoCommunity(communityId, publicKey);
+  seedDemoCommunity(communityId, publicKey, INITIATIVES.filter((i) => i.community === fixture.key));
 }

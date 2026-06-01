@@ -12,10 +12,21 @@ import {
 } from './demoRegistry';
 import { routeRead, routeWrite } from './demoRouter';
 import { initCommunity } from './demoContracts/community';
-import { seedDemoCommunity } from './seedDemoCommunity';
-import { VFTC_COMMUNITY } from './fixtures/community';
+import { seedAllDemoCommunities } from './seedDemoCommunity';
 
-const DEFAULT_COMMUNITY_FLAG = 'gloki_default_demo_community_seeded';
+const DEMO_VERSION = 'global-v1';
+const DEMO_VERSION_KEY = 'gloki_demo_version';
+
+// Remove all demo-owned localStorage (registry, per-contract state, seed flags)
+// so a changed demo-data shape re-seeds cleanly on the next load.
+function clearAllDemoState(): void {
+  const keys: string[] = [];
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('gloki_demo') || k.startsWith('gloki_default_demo'))) keys.push(k);
+  }
+  for (const k of keys) localStorage.removeItem(k);
+}
 
 export async function mockContractRead({
   contractId,
@@ -127,26 +138,18 @@ export function mergeDemoContracts(realContracts: IContract[]): IContract[] {
   return [...realContracts, ...synthetic];
 }
 
-// First-load auto-seed: if no demo community has been created yet for this
-// browser, deploy the "Voices for the Climate" flagship and populate it with a
-// climate initiative at each pipeline stage so every stage feed opens populated.
+// First-load auto-seed: deploy the globally diverse demo communities and
+// populate each with initiatives across the pipeline so every feed opens full.
+// A version gate wipes stale demo data from older builds so the demo refreshes.
 export function ensureDefaultDemoCommunity(publicKey: string): void {
-  const seeded = localStorage.getItem(DEFAULT_COMMUNITY_FLAG);
-  if (seeded === 'true') return;
-  if (listDemoContracts().some((m) => m.contract === 'community_contract.py')) {
-    localStorage.setItem(DEFAULT_COMMUNITY_FLAG, 'true');
+  const version = localStorage.getItem(DEMO_VERSION_KEY);
+  if (version !== DEMO_VERSION) {
+    clearAllDemoState();
+    seedAllDemoCommunities(publicKey);
+    localStorage.setItem(DEMO_VERSION_KEY, DEMO_VERSION);
     return;
   }
-  const { id } = mockDeployDirect({
-    name: VFTC_COMMUNITY.name,
-    contract: 'community_contract.py',
-    kind: 'comm',
-    publicKey,
-    properties: {
-      name: VFTC_COMMUNITY.name,
-      description: VFTC_COMMUNITY.description,
-    },
-  });
-  seedDemoCommunity(id, publicKey);
-  localStorage.setItem(DEFAULT_COMMUNITY_FLAG, 'true');
+  if (listDemoContracts().some((m) => m.contract === 'community_contract.py')) return;
+  seedAllDemoCommunities(publicKey);
+  localStorage.setItem(DEMO_VERSION_KEY, DEMO_VERSION);
 }
