@@ -32,3 +32,6 @@ dist-ssr
 # macOS resource forks
 ._*
 .AppleDouble
+
+# Claude Code local tooling (per-developer preview config; not shared)
+.claude/launch.json
