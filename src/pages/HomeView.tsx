@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight } from 'lucide-react';
+import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives } from '../hooks/useAllInitiatives';
+import { formatTimeAgo } from '../utils/formatTimeAgo';
 import { SAMPLE_INITIATIVES } from './StageFeedView';
 import PageHeader from '../components/PageHeader';
 import HomepageMenu from '../components/identity/HomepageMenu';
@@ -23,6 +24,7 @@ interface HomeCard {
   authorName?: string;
   hostServer?: string;
   hostAgent?: string;
+  createdAt?: number;
 }
 
 type ActiveStage = 'problem' | 'discussion' | 'proposals' | 'vote';
@@ -54,9 +56,19 @@ const HomeView: React.FC = () => {
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
+  const { starred } = useAppSelector((s) => s.preferences);
   const { initiatives, isLoading } = useAllInitiatives();
 
-  // Group real initiatives by their resolved stage (unresolved ones excluded).
+  const isStarred = useCallback(
+    (communityId?: string) => !!communityId && starred.includes(communityId),
+    [starred],
+  );
+
+  // Group real initiatives by their resolved stage (unresolved ones excluded),
+  // then float initiatives from starred communities to the top of each section.
+  // `initiatives` is already newest-first and Array.sort is stable, so within
+  // both the starred and non-starred groups the newest-first order is preserved.
+  // (Hidden communities never reach us — useAllInitiatives filters them out.)
   const realByStage = useMemo(() => {
     const map: Record<string, HomeCard[]> = {};
     for (const i of initiatives) {
@@ -70,11 +82,24 @@ const HomeView: React.FC = () => {
         authorName: i.authorName,
         hostServer: i.hostServer,
         hostAgent: i.hostAgent,
+        createdAt: i.createdAt,
       });
     }
+    for (const stage of Object.keys(map)) {
+      map[stage].sort(
+        (a, b) => Number(isStarred(b.communityId)) - Number(isStarred(a.communityId)),
+      );
+    }
     return map;
-  }, [initiatives]);
+  }, [initiatives, isStarred]);
 
+  // Empty-section handling: when the user has ANY real initiative we show only
+  // real data and hide the sections that happen to be empty (via the per-section
+  // `cards.length === 0` guard below). We deliberately do NOT backfill empty
+  // sections with samples — mixing real and example items in one view erodes
+  // trust ("are these votes real?"). The full immersive sample set appears only
+  // when the user has NO real initiatives anywhere (a brand-new account), as a
+  // preview of what Gloki looks like in use.
   const hasReal = Object.keys(realByStage).length > 0;
   const useSamples = !isLoading && !hasReal;
 
@@ -140,6 +165,9 @@ const HomeView: React.FC = () => {
         {...cardInteractionProps(card)}
       >
         <div className={styles.cardMeta}>
+          {isStarred(card.communityId) && (
+            <Star size={12} className={styles.starIcon} aria-label={t('home.starred', 'Starred community')} />
+          )}
           {clickable ? (
             <button
               type="button"
@@ -152,6 +180,7 @@ const HomeView: React.FC = () => {
             <span className={`${styles.communityBadge} ${styles.communityBadgeStatic}`}>{card.communityName}</span>
           )}
           {card.authorName && <span className={styles.author}>{card.authorName}</span>}
+          {card.createdAt ? <span className={styles.time}>{formatTimeAgo(card.createdAt)}</span> : null}
         </div>
         <h3 className={styles.cardTitle}>{card.title}</h3>
         {card.description && <p className={styles.cardDesc}>{card.description}</p>}

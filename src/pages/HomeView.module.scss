@@ -2,7 +2,7 @@
 
 .home {
   padding: $spacing-lg;
-  padding-bottom: 80px; // clear the fixed global StageFooter
+  padding-bottom: calc(#{$footer-height} + #{$spacing-lg}); // clear the fixed global StageFooter
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
@@ -170,6 +170,18 @@
   color: $gray-400;
 }
 
+.time {
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+// Small star marker on cards from starred communities (they sort to the top).
+.starIcon {
+  color: $primary;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
 .cardTitle {
   margin: 0;
   font-size: $text-base;
@@ -262,7 +274,8 @@
   }
 
   .notice,
-  .author {
+  .author,
+  .time {
     color: $dark-text-secondary;
   }
 
@@ -293,7 +306,7 @@
 @media (max-width: $breakpoint-sm) {
   .home {
     padding: $spacing-md;
-    padding-bottom: 80px;
+    padding-bottom: calc(#{$footer-height} + #{$spacing-lg});
   }
 
   .card {
