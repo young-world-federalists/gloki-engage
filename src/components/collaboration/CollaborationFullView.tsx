@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FilePen, GitMerge, ArrowRight } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { getInitiativeRoles, isAuthorOrCoAuthor, type InitiativeRoles } from '../../services/initiativeRoles';
@@ -7,6 +8,8 @@ import ModificationSuggestions from './flows/modifications/ModificationSuggestio
 import MergeProposalsList from './flows/merge/MergeProposalsList';
 import PageHeader from '../PageHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
+import { Button, SegmentedControl } from '../shared';
+import { useT } from '../../i18n';
 import cs from '../../pages/Container.module.scss';
 import styles from './CollaborationFullView.module.scss';
 
@@ -24,6 +27,7 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const communityProps = useAppSelector((s) => s.communities.communityProperties[communityId]);
@@ -72,11 +76,19 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
         <div className={cs.content}>
           <div className={cs.main}>
             <div className={styles.mergedBanner}>
-              <strong>This initiative merged into another one.</strong>
-              <p>Continue the conversation on the surviving initiative.</p>
-              <button onClick={() => navigate(`/initiative/${encodeURIComponent(initiativeHostServer)}/${encodeURIComponent(initiativeHostAgent)}/${communityId}/${mergedInto}`)}>
-                Go to merged initiative →
-              </button>
+              <strong className={styles.mergedTitle}>
+                {t('collab.mergedTitle', 'This initiative merged into another one.')}
+              </strong>
+              <p className={styles.mergedBody}>
+                {t('collab.mergedBody', 'Continue the conversation on the surviving initiative.')}
+              </p>
+              <Button
+                variant="primary"
+                rightIcon={<ArrowRight size={16} />}
+                onClick={() => navigate(`/initiative/${encodeURIComponent(initiativeHostServer)}/${encodeURIComponent(initiativeHostAgent)}/${communityId}/${mergedInto}`)}
+              >
+                {t('collab.mergedCta', 'Go to merged initiative')}
+              </Button>
             </div>
           </div>
         </div>
@@ -89,20 +101,25 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
       <PageHeader showBackButton backButtonText="Back" onBackClick={() => navigate(-1)} title={`${title} — Collaboration`} subtitle={communityName} layout="two-row" />
       <div className={cs.content}>
         <div className={cs.main}>
-          <div className={styles.tabs}>
-            <button
-              className={`${styles.tab} ${tab === 'suggestions' ? styles.active : ''}`}
-              onClick={() => setTab('suggestions')}
-            >
-              Edit Suggestions
-            </button>
-            <button
-              className={`${styles.tab} ${tab === 'merges' ? styles.active : ''}`}
-              onClick={() => setTab('merges')}
-            >
-              Merge Proposals · {mergeCount}
-            </button>
-          </div>
+          <SegmentedControl<Tab>
+            className={styles.viewToggle}
+            ariaLabel={t('collab.viewToggle', 'Collaboration view')}
+            fullWidth
+            value={tab}
+            onChange={setTab}
+            options={[
+              {
+                value: 'suggestions',
+                label: t('collab.tabSuggestions', 'Edit Suggestions'),
+                icon: <FilePen size={16} />,
+              },
+              {
+                value: 'merges',
+                label: t('collab.tabMerges', 'Merge Proposals · {n}', { n: mergeCount }),
+                icon: <GitMerge size={16} />,
+              },
+            ]}
+          />
 
           {tab === 'suggestions' && (
             <ErrorBoundary fallbackMessage="Edit suggestions encountered an error.">

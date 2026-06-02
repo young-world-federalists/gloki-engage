@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, PackageOpen, AlertTriangle } from 'lucide-react';
 import PageHeader from '../../components/PageHeader';
 import ErrorBoundary from '../../components/shared/ErrorBoundary';
+import { Button } from '../../components/shared';
 import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaboration/flows/registry';
 import { removeContract } from '../../components/collaboration/flows/shared/flowContractsSlice';
 import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
@@ -239,13 +240,9 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                 <code>{activeTab.flowId}</code> — your saved view may be stale.
                 Choose another tab, or add a new flow.
               </p>
-              <button
-                type="button"
-                className={styles.emptyStateButton}
-                onClick={() => removeTab(activeTab.instanceId)}
-              >
+              <Button variant="primary" onClick={() => removeTab(activeTab.instanceId)}>
                 Remove this tab
-              </button>
+              </Button>
             </div>
           ) : (
             <div className={styles.emptyState}>
@@ -255,14 +252,9 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                 Add a flow like Discussion, Task Board, or Shared Document to start
                 collaborating.
               </p>
-              <button
-                type="button"
-                className={styles.emptyStateButton}
-                onClick={() => setShowAddMenu(true)}
-              >
-                <Plus size={16} />
+              <Button variant="primary" leftIcon={<Plus size={16} />} onClick={() => setShowAddMenu(true)}>
                 Add your first flow
-              </button>
+              </Button>
             </div>
           )}
         </div>

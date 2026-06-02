@@ -1,19 +1,19 @@
 @use '../../styles/variables' as *;
 
-// Tab item: wraps navItem to position the remove button
+// Tab item: wraps the shared navItem to position the remove (×) button.
 .tabItem {
   padding-right: $spacing-lg !important; // make room for × button
 
   .removeBtn {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 16px;
-    height: 16px;
+    top: $spacing-xs;
+    right: $spacing-xs;
+    width: $spacing-lg;
+    height: $spacing-lg;
     border-radius: $radius-full;
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba($gray-900, 0.2);
     color: white;
-    font-size: 11px;
+    font-size: $text-xs;
     line-height: 1;
     display: flex;
     align-items: center;
@@ -22,19 +22,24 @@
     transition: background $transition-base;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba($gray-900, 0.45);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
     }
   }
 }
 
-// Container for the + button and its dropdown menu
+// Container for the + button and its dropdown menu.
 .addTabWrapper {
   position: relative;
   display: flex;
   align-items: stretch;
 }
 
-// The + Add button — styled like a navItem but dashed/muted
+// The + Add button — styled like a navItem but dashed/muted.
 .addTabBtn {
   color: $gray-400 !important;
   border: 2px dashed $gray-300 !important;
@@ -46,9 +51,19 @@
     background: transparent !important;
     transform: none !important;
   }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary !important;
+    border-color: $dark-border !important;
+  }
 }
 
-// Dropdown menu for picking a flow
+// Dropdown menu for picking a flow.
 .addTabMenu {
   position: absolute;
   top: calc(100% + $spacing-xs);
@@ -60,6 +75,11 @@
   box-shadow: $shadow-md;
   z-index: 100;
   overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
 }
 
 .addTabMenuItem {
@@ -80,6 +100,20 @@
     background: $gray-50;
     color: $primary;
   }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+
+    &:hover {
+      background: $dark-border;
+      color: $primary;
+    }
+  }
 }
 
 .addTabMenuGroupHeader {
@@ -92,6 +126,11 @@
   border-top: 1px solid $gray-100;
   pointer-events: none;
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+    border-top-color: $dark-border;
+  }
 }
 
 .addTabMenuGroupHeaderFirst {
@@ -106,9 +145,15 @@
     background: none;
     color: $gray-700;
   }
+
+  @media (prefers-color-scheme: dark) {
+    &:hover {
+      color: $dark-text;
+    }
+  }
 }
 
-// Empty state shown when no tabs have been added
+// Empty state shown when no tabs have been added.
 .emptyState,
 .unknownFlowCard {
   display: flex;
@@ -135,6 +180,15 @@
     padding: 0 $spacing-xs;
     border-radius: $radius-sm;
   }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    code {
+      color: $dark-text;
+      background: $dark-border;
+    }
+  }
 }
 
 .emptyStateIcon {
@@ -150,29 +204,8 @@
   font-size: $text-lg;
   font-weight: $font-medium;
   color: $gray-700;
-}
 
-.emptyStateButton {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  min-height: 44px; // touch target
-  padding: 0 $spacing-lg;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  transition: background $transition-base;
-
-  &:hover {
-    background: $primary-dark;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
   }
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { FileText, Code2, Copy, Check, Globe, Users, TrendingUp, CalendarCheck } from 'lucide-react';
-import { Badge, CountryPresence } from '../shared';
+import { Badge, CountryPresence, SegmentedControl } from '../shared';
 import { useT } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateDocument.module.scss';
@@ -118,26 +118,24 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
         </li>
       </ul>
 
-      <div className={styles.toggle} role="group" aria-label={t('mandate.viewToggle', 'Mandate view')}>
-        <button
-          type="button"
-          className={view === 'plain' ? `${styles.toggleBtn} ${styles.toggleBtnActive}` : styles.toggleBtn}
-          aria-pressed={view === 'plain'}
-          onClick={() => setView('plain')}
-        >
-          <FileText size={15} aria-hidden />
-          {t('mandate.viewPlain', 'Plain language')}
-        </button>
-        <button
-          type="button"
-          className={view === 'spec' ? `${styles.toggleBtn} ${styles.toggleBtnActive}` : styles.toggleBtn}
-          aria-pressed={view === 'spec'}
-          onClick={() => setView('spec')}
-        >
-          <Code2 size={15} aria-hidden />
-          {t('mandate.viewSpec', 'Machine-readable spec')}
-        </button>
-      </div>
+      <SegmentedControl<MandateView>
+        ariaLabel={t('mandate.viewToggle', 'Mandate view')}
+        fullWidth
+        value={view}
+        onChange={setView}
+        options={[
+          {
+            value: 'plain',
+            label: t('mandate.viewPlain', 'Plain language'),
+            icon: <FileText size={15} />,
+          },
+          {
+            value: 'spec',
+            label: t('mandate.viewSpec', 'Machine-readable spec'),
+            icon: <Code2 size={15} />,
+          },
+        ]}
+      />
 
       {view === 'plain' && (
         <div className={styles.plain}>

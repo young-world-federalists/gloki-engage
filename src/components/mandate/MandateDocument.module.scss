@@ -136,63 +136,7 @@
   }
 }
 
-/* ----- View toggle (plain / spec) — full-width segmented control ----- */
-.toggle {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-  background: $gray-100;
-  border-radius: $radius-md;
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-surface;
-  }
-}
-
-.toggleBtn {
-  flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  min-height: 40px;
-  padding: $spacing-xs $spacing-sm;
-  border: none;
-  border-radius: calc(#{$radius-md} - 2px);
-  background: none;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  line-height: 1.2;
-  text-align: center;
-  color: $gray-600;
-  cursor: pointer;
-  transition: background $transition-base, color $transition-base;
-
-  svg {
-    flex-shrink: 0;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.toggleBtnActive {
-  background: white;
-  color: $gray-900;
-  font-weight: $font-semibold;
-  box-shadow: $shadow-sm;
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-bg;
-    color: $dark-text;
-  }
-}
+/* View toggle (plain / spec) uses the shared SegmentedControl. */
 
 /* ----- Plain-language view ----- */
 .plain {

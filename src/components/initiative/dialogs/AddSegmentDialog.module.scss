@@ -3,7 +3,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: $overlay-bg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,6 +16,10 @@
   box-shadow: $shadow-lg;
   max-width: 480px;
   width: 90%;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+  }
 }
 
 .header {
@@ -38,9 +42,31 @@
     cursor: pointer;
     color: $gray-500;
     padding: $spacing-xs;
+    border-radius: $radius-sm;
 
     &:hover {
       color: $gray-800;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: $dark-border;
+
+    h3 {
+      color: $dark-text;
+    }
+
+    .closeBtn {
+      color: $dark-text-secondary;
+
+      &:hover {
+        color: $dark-text;
+      }
     }
   }
 }
@@ -81,6 +107,23 @@
     font-size: $text-sm;
     color: $error;
   }
+
+  @media (prefers-color-scheme: dark) {
+    label {
+      color: $dark-text;
+    }
+
+    input,
+    textarea {
+      background: $dark-surface;
+      border-color: $dark-border;
+      color: $dark-text;
+
+      &::placeholder {
+        color: $dark-text-secondary;
+      }
+    }
+  }
 }
 
 .actions {
@@ -103,6 +146,11 @@
       background: $primary-dark;
     }
 
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
+    }
+
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
@@ -119,6 +167,24 @@
 
     &:hover:not(:disabled) {
       background: $gray-200;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: $dark-border;
+
+    .cancelBtn {
+      background: $dark-border;
+      color: $dark-text;
+
+      &:hover:not(:disabled) {
+        background: $dark-surface;
+      }
     }
   }
 }

@@ -1,45 +1,43 @@
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-  overflow-x: auto;
+@use '../../styles/variables' as *;
+
+// View toggle (Edit Suggestions / Merge Proposals) is the shared
+// SegmentedControl — it carries its own light/dark/focus treatment. This just
+// spaces it from the content below.
+.viewToggle {
+  margin-bottom: $spacing-md;
 }
 
-.tab {
-  padding: 8px 14px;
-  background: #22304c;
-  color: #c8d2e0;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
+// Shown when this initiative has merged into another — a cautionary,
+// action-oriented notice on the warning semantic surface (tokens only).
+.mergedBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  background: $warning-surface;
+  border: 1px solid $warning-on-surface;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  color: $warning-on-surface;
+  text-align: center;
 
-  &.active {
-    background: #2a5bd7;
-    color: #fff;
+  @media (prefers-color-scheme: dark) {
+    background: $warning-surface-dark;
+    border-color: $warning;
+    color: $dark-text;
   }
 }
 
-.mergedBanner {
-  background: rgba(217, 167, 59, 0.12);
-  border: 1px solid rgba(217, 167, 59, 0.4);
-  border-radius: 12px;
-  padding: 18px;
-  color: #f0c65b;
-  text-align: center;
+.mergedTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+}
 
-  strong { font-size: 15px; display: block; margin-bottom: 6px; }
-  p { font-size: 13px; color: #c8d2e0; margin: 0 0 12px 0; }
+.mergedBody {
+  margin: 0 0 $spacing-xs;
+  font-size: $text-sm;
 
-  button {
-    background: #2a5bd7;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
   }
 }

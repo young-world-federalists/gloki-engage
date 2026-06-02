@@ -52,9 +52,19 @@
   }
 }
 
-// Equal-width segments when the track stretches.
+// Equal-width segments when the track stretches. `min-width: 0` plus a wrapping
+// label let a long label (e.g. "Machine-readable spec") share its half of the
+// track and wrap instead of overflowing it on narrow (360px) screens.
 .fullWidth .segment {
   flex: 1 1 0;
+  min-width: 0;
+}
+
+.fullWidth .label {
+  display: inline-block;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
 }
 
 // Touch-target sizing.
