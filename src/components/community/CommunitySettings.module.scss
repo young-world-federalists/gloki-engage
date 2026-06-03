@@ -1,0 +1,57 @@
+@use '../../styles/variables' as *;
+
+.container {
+  padding: $spacing-lg;
+  padding-bottom: $footer-height;
+  max-width: $content-max-width;
+  margin: 0 auto;
+}
+
+.header {
+  h2 {
+    font-size: $text-xl;
+    font-weight: $font-semibold;
+  }
+
+  p {
+    margin-top: $spacing-xs;
+    color: $gray-500;
+    font-size: $text-sm;
+  }
+}
+
+.adminBanner {
+  margin-top: $spacing-lg;
+}
+
+.stageRow {
+  margin-top: $spacing-lg;
+}
+
+.stageLabel {
+  margin-bottom: $spacing-sm;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+}
+
+.saved {
+  margin-top: $spacing-md;
+  color: $success;
+  font-size: $text-xs;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    h2 {
+      color: $dark-text;
+    }
+
+    p {
+      color: $dark-text-secondary;
+    }
+  }
+
+  .stageLabel {
+    color: $dark-text;
+  }
+}

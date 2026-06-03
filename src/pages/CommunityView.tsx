@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Home, Menu, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw } from 'lucide-react';
+import { Home, Menu, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings } from 'lucide-react';
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
 import { useT } from '../i18n';
 import { isDemoContract } from '../services/demo/demoRegistry';
@@ -23,6 +23,7 @@ const ChatTopic = lazy(() => import('../components/community/chat/ChatTopic'));
 const CollaborationPage = lazy(() => import('./collaboration/CollaborationPage'));
 const IdentityTrust = lazy(() => import('../components/community/IdentityTrust'));
 const CreateInitiativePage = lazy(() => import('./CreateInitiativePage'));
+const CommunitySettings = lazy(() => import('../components/community/CommunitySettings'));
 import CommunityHome from '../components/community/CommunityHome';
 
 // ─── Collab page wrapper ────────────────────
@@ -213,6 +214,7 @@ const CommunityView: React.FC = () => {
     { key: 'currency', icon: Coins, label: t('community.menu.currency', 'Currency'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
     { key: 'members', icon: Users, label: t('community.menu.members', 'Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
     { key: 'identity', icon: Shield, label: t('community.menu.identity', 'Identity & Trust'), onClick: closeAfter(() => navigate(`/community/${communityId}/identity`)) },
+    { key: 'settings', icon: Settings, label: t('community.menu.settings', 'Settings'), onClick: closeAfter(() => navigate(`/community/${communityId}/settings`)) },
     { key: 'share', icon: Share2, label: t('community.menu.share', 'Share Community Link'), onClick: closeAfter(() => { navigator.clipboard.writeText(window.location.href); }), dividerBefore: true },
     { key: 'invite', icon: UserPlus, label: t('community.menu.invite', 'Invite Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
     ...(isDemo
@@ -292,6 +294,7 @@ const CommunityView: React.FC = () => {
               <Route path="members" element={<Members communityId={communityId!} />} />
               <Route path="currency" element={<Currency communityId={communityId!} />} />
               <Route path="identity" element={<IdentityTrust communityId={communityId!} />} />
+              <Route path="settings" element={<CommunitySettings communityId={communityId!} />} />
               <Route path="create-initiative" element={<CreateInitiativePage />} />
               <Route path="*" element={<CommunityHome communityId={communityId!} />} />
             </Routes>
