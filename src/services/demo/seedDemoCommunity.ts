@@ -66,8 +66,18 @@ export function seedDemoCommunity(
   console.log(`[DemoSeed] Seeding demo community ${communityId}`);
 
   // Add fake personas as members of the community so country participation
-  // calculations and member lists look populated.
+  // calculations and member lists look populated. Each persona is also
+  // registered as a profile contract (id = their public key) so the real
+  // member-profile flow can resolve their names — see demoContracts/profile.ts.
   for (const p of PERSONAS) {
+    if (!getDemoContract(p.publicKey)) {
+      registerDemoContract({
+        id: p.publicKey,
+        name: `${p.firstName} ${p.lastName}`,
+        contract: 'gloki_contract.py',
+        createdAt: Date.now(),
+      });
+    }
     communityWrite(communityId, {
       name: 'become_member',
       values: { key: p.publicKey, value: [] },
@@ -78,6 +88,13 @@ export function seedDemoCommunity(
     const seedInt = (idx + 1) * 7919;
     const proposals = PROPOSALS_BY_KEY[seed.key] ?? [];
     const conviction = CONVICTION_BY_KEY[seed.key] ?? { participationRate: 0.6, maxAmount: 50 };
+    // Author each initiative as a diverse persona so cards show a real name
+    // instead of the demo user's truncated key. Index by the initiative's stable
+    // position in INITIATIVES with a step coprime to the persona count, which
+    // spreads authors across distinct personas (vs. pick()'s LCG, whose low bits
+    // collide badly for a small modulus).
+    const globalIdx = INITIATIVES.findIndex((i) => i.key === seed.key);
+    const author = PERSONAS[((globalIdx >= 0 ? globalIdx : idx) * 5) % PERSONAS.length];
 
     // 1. Deploy the initiative contract itself
     const { id: initiativeId } = mockDeployDirect({
@@ -92,7 +109,7 @@ export function seedDemoCommunity(
       description: seed.description,
       countries: seed.countries,
       evidence: seed.evidence,
-      author: publicKey,
+      author: author.publicKey,
       createdAt: Date.now(),
       currencyGoal: 100,
       currencyGathered: 0,
@@ -184,7 +201,7 @@ export function seedDemoCommunity(
           type: 'initiative',
           title: seed.title,
           description: seed.description,
-          author: publicKey,
+          author: author.publicKey,
           createdAt: Date.now(),
           currencyGathered: 0,
           currencyGoal: 100,
