@@ -127,6 +127,7 @@ const StageFeedView: React.FC = () => {
         title="Gloki"
         layout="homepage"
         onMenuClick={() => setMenuOpen(true)}
+        menuOpen={menuOpen}
       />
 
       <HomepageMenu

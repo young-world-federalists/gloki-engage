@@ -97,6 +97,10 @@ $warning-surface-dark: #78350f;
 $error-surface-dark: #7f1d1d;
 $info-surface-dark: #1e3a8a;
 
+// Destructive / danger TEXT on dark surfaces — a lighter red than $error so it
+// keeps AA contrast against $dark-bg / $dark-surface (e.g. Leave/Logout items).
+$error-on-dark: #f87171;
+
 // Overlays / scrims (modal backdrops, sheet dimmers).
 $overlay-bg: rgba(15, 23, 42, 0.55);
 

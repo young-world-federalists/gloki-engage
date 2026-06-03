@@ -21,6 +21,9 @@ export type { SegmentedControlProps, SegmentOption } from './SegmentedControl';
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
+export { default as SlideOutMenu } from './SlideOutMenu';
+export type { SlideOutMenuProps, SlideOutMenuItem } from './SlideOutMenu';
+
 export { default as Banner } from './Banner';
 export type { BannerProps, BannerTone } from './Banner';
 

@@ -306,19 +306,30 @@
 .menuButton {
   display: flex;
   align-items: center;
-  padding: $spacing-sm $spacing-lg;
-  background-color: transparent;
-  color: rgba(white, 0.8);
-  border: 1px solid rgba(white, 0.2);
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background-color: rgba(white, 0.18);
+  color: white;
+  border: 1px solid rgba(white, 0.35);
   border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
   cursor: pointer;
-  transition: all $transition-base;
+  flex-shrink: 0;
+  transition: background-color $transition-base, color $transition-base;
 
   &:hover {
-    background-color: rgba(white, 0.1);
+    background-color: rgba(white, 0.3);
     color: white;
+  }
+
+  &:active {
+    background-color: rgba(white, 0.4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
   }
 }
 
@@ -448,16 +459,6 @@
 
     .wordmark {
       color: white;
-    }
-
-    .menuButton {
-      color: rgba(white, 0.8);
-      border-color: rgba(white, 0.2);
-
-      &:hover {
-        background-color: rgba(white, 0.1);
-        color: white;
-      }
     }
   }
 }

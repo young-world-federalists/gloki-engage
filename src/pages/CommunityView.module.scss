@@ -28,8 +28,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: rgba(white, 0.18);
   border: 1px solid rgba(white, 0.35);
@@ -37,11 +37,20 @@
   color: white;
   cursor: pointer;
   flex-shrink: 0;
-  transition: all $transition-base;
+  transition: background $transition-base, color $transition-base;
 
   &:hover {
     background: rgba(white, 0.3);
     color: white;
+  }
+
+  &:active {
+    background: rgba(white, 0.4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
   }
 }
 
@@ -55,131 +64,6 @@
   color: #1f1f1f;
   margin-left: auto;
   flex-shrink: 0;
-}
-
-// ─── Community slide-out menu ───────────────
-.menuOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 100;
-  animation: menuFadeIn $transition-base ease-out;
-}
-
-.menuPanel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 280px;
-  max-width: 85vw;
-  background: white;
-  box-shadow: $shadow-lg;
-  display: flex;
-  flex-direction: column;
-  animation: menuSlideIn $transition-slow ease-out;
-  z-index: 101;
-}
-
-.menuHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: $spacing-xl;
-  border-bottom: 1px solid $gray-200;
-}
-
-.menuTitle {
-  font-size: $text-lg;
-  font-weight: $font-semibold;
-  color: $gray-800;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.menuClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border: none;
-  border-radius: $radius-full;
-  color: $gray-500;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all $transition-base;
-
-  &:hover {
-    background: $gray-100;
-    color: $gray-800;
-  }
-}
-
-.menuList {
-  flex: 1;
-  padding: $spacing-md 0;
-  overflow-y: auto;
-}
-
-.menuItem {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  width: 100%;
-  padding: $spacing-md $spacing-xl;
-  background: transparent;
-  border: none;
-  color: $gray-700;
-  font-size: $text-base;
-  font-weight: $font-medium;
-  cursor: pointer;
-  text-align: left;
-  min-height: 48px;
-  transition: all $transition-base;
-
-  svg {
-    flex-shrink: 0;
-    color: $gray-500;
-  }
-
-  &:hover {
-    background: $gray-50;
-    color: $gray-900;
-
-    svg { color: $gray-700; }
-  }
-}
-
-.menuItemDanger {
-  color: #dc2626;
-
-  svg { color: #dc2626; }
-
-  &:hover {
-    background: #fef2f2;
-    color: #b91c1c;
-
-    svg { color: #b91c1c; }
-  }
-}
-
-.menuDivider {
-  height: 1px;
-  background: $gray-200;
-  margin: $spacing-md $spacing-xl;
-}
-
-@keyframes menuFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes menuSlideIn {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
 }
 
 .communityName {
@@ -324,54 +208,6 @@
         background: $dark-surface;
       }
     }
-  }
-
-  .menuPanel {
-    background: $dark-bg;
-  }
-
-  .menuHeader {
-    border-color: $dark-border;
-  }
-
-  .menuTitle {
-    color: $dark-text;
-  }
-
-  .menuClose {
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
-  }
-
-  .menuItem {
-    color: $dark-text-secondary;
-
-    svg { color: $dark-text-secondary; }
-
-    &:hover {
-      background: $dark-surface;
-      color: $dark-text;
-
-      svg { color: $dark-text; }
-    }
-  }
-
-  .menuItemDanger {
-    color: #f87171;
-
-    svg { color: #f87171; }
-
-    &:hover {
-      background: rgba(220, 38, 38, 0.1);
-    }
-  }
-
-  .menuDivider {
-    background: $dark-border;
   }
 
   .loadingState,

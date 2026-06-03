@@ -1,6 +1,8 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Home, Menu, X, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw } from 'lucide-react';
+import { Home, Menu, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw } from 'lucide-react';
+import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
+import { useT } from '../i18n';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { buildDemoShareLink } from '../services/demo/demoUrlShare';
@@ -68,6 +70,7 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
 const CommunityView: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
   const navigate = useNavigate();
+  const t = useT();
   const { contracts, publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityProperties = {}, communityMembers = {} } = useAppSelector((state) => state.communities);
   const [fetching, setFetching] = useState(false);
@@ -196,6 +199,31 @@ const CommunityView: React.FC = () => {
     window.location.reload();
   };
 
+  // Run an action, then close the menu. (The demo handlers close themselves.)
+  const closeAfter = (fn: () => void) => () => {
+    fn();
+    setShowMenu(false);
+  };
+
+  const menuItems: SlideOutMenuItem[] = [
+    { key: 'home', icon: Home, label: t('community.menu.home', 'Home'), onClick: closeAfter(() => navigate('/stage/problem')) },
+    { key: 'create-initiative', icon: PlusCircle, label: t('community.menu.createInitiative', 'Create Initiative'), onClick: closeAfter(() => navigate(`/community/${communityId}/create-initiative`)) },
+    { key: 'collab', icon: Users2, label: t('community.menu.collab', 'Collab'), onClick: closeAfter(() => navigate(`/community/${communityId}/collab`)), dividerBefore: true },
+    { key: 'chat', icon: MessageSquare, label: t('community.menu.chat', 'Chat'), onClick: closeAfter(() => navigate(`/community/${communityId}/chat`)) },
+    { key: 'currency', icon: Coins, label: t('community.menu.currency', 'Currency'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
+    { key: 'members', icon: Users, label: t('community.menu.members', 'Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
+    { key: 'identity', icon: Shield, label: t('community.menu.identity', 'Identity & Trust'), onClick: closeAfter(() => navigate(`/community/${communityId}/identity`)) },
+    { key: 'share', icon: Share2, label: t('community.menu.share', 'Share Community Link'), onClick: closeAfter(() => { navigator.clipboard.writeText(window.location.href); }), dividerBefore: true },
+    { key: 'invite', icon: UserPlus, label: t('community.menu.invite', 'Invite Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
+    ...(isDemo
+      ? [
+          { key: 'share-demo', icon: Link2, label: t('community.menu.shareDemo', 'Share Demo Link'), onClick: handleShareDemoLink, dividerBefore: true } as SlideOutMenuItem,
+          { key: 'reset-demo', icon: RotateCcw, label: t('community.menu.resetDemo', 'Reset Demo'), onClick: handleResetDemo } as SlideOutMenuItem,
+        ]
+      : []),
+    { key: 'leave', icon: LogOut, label: t('community.menu.leave', 'Leave Community'), onClick: closeAfter(() => navigate('/identity/communities')), variant: 'danger' },
+  ];
+
   return (
     <div className={styles.page}>
       {/* Dark header */}
@@ -205,6 +233,7 @@ const CommunityView: React.FC = () => {
             className={styles.menuButton}
             onClick={() => setShowMenu(true)}
             aria-label="Open community menu"
+            aria-expanded={showMenu}
           >
             <Menu size={22} strokeWidth={2.5} />
           </button>
@@ -215,85 +244,15 @@ const CommunityView: React.FC = () => {
         <span className={styles.memberCount}>{memberCount} member{memberCount !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Slide-out community menu */}
-      {showMenu && (
-        <div className={styles.menuOverlay} onClick={() => setShowMenu(false)}>
-          <div className={styles.menuPanel} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.menuHeader}>
-              <span className={styles.menuTitle}>{props.name}</span>
-              <button className={styles.menuClose} onClick={() => setShowMenu(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className={styles.menuList}>
-              <button className={styles.menuItem} onClick={() => { navigate('/stage/problem'); setShowMenu(false); }}>
-                <Home size={20} />
-                <span>Home</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/create-initiative`); setShowMenu(false); }}>
-                <PlusCircle size={20} />
-                <span>Create Initiative</span>
-              </button>
-
-              <div className={styles.menuDivider} />
-
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/collab`); setShowMenu(false); }}>
-                <Users2 size={20} />
-                <span>Collab</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/chat`); setShowMenu(false); }}>
-                <MessageSquare size={20} />
-                <span>Chat</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/currency`); setShowMenu(false); }}>
-                <Coins size={20} />
-                <span>Currency</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/members`); setShowMenu(false); }}>
-                <Users size={20} />
-                <span>Members</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/identity`); setShowMenu(false); }}>
-                <Shield size={20} />
-                <span>Identity & Trust</span>
-              </button>
-
-              <div className={styles.menuDivider} />
-
-              <button className={styles.menuItem} onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                setShowMenu(false);
-              }}>
-                <Share2 size={20} />
-                <span>Share Community Link</span>
-              </button>
-              <button className={styles.menuItem} onClick={() => { navigate(`/community/${communityId}/members`); setShowMenu(false); }}>
-                <UserPlus size={20} />
-                <span>Invite Members</span>
-              </button>
-
-              {isDemo && (
-                <>
-                  <div className={styles.menuDivider} />
-                  <button className={styles.menuItem} onClick={handleShareDemoLink}>
-                    <Link2 size={20} />
-                    <span>Share Demo Link</span>
-                  </button>
-                  <button className={styles.menuItem} onClick={handleResetDemo}>
-                    <RotateCcw size={20} />
-                    <span>Reset Demo</span>
-                  </button>
-                </>
-              )}
-
-              <button className={`${styles.menuItem} ${styles.menuItemDanger}`} onClick={() => { navigate('/identity/communities'); setShowMenu(false); }}>
-                <LogOut size={20} />
-                <span>Leave Community</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Slide-out community menu (shared pattern — see SlideOutMenu) */}
+      <SlideOutMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        title={props.name}
+        items={menuItems}
+        side="left"
+        closeLabel={t('community.menu.close', 'Close menu')}
+      />
 
       {/* Main content */}
       <div className={styles.body}>

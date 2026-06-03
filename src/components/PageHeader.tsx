@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
 import EarthFlag from './shared/EarthFlag';
 import NotificationsBell from './shared/NotificationsBell';
 import styles from './PageHeader.module.scss';
@@ -69,7 +69,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 aria-label="Open menu"
                 aria-expanded={!!menuOpen}
               >
-                Menu
+                <Menu size={22} strokeWidth={2.5} />
               </button>
             )}
           </div>

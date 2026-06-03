@@ -1,0 +1,264 @@
+@use '../../styles/variables' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: $overlay-bg;
+  z-index: 100;
+  animation: slideOutMenuFade $transition-base ease-out;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background-color: white;
+  box-shadow: $shadow-lg;
+  display: flex;
+  flex-direction: column;
+  z-index: 101;
+  outline: none;
+}
+
+.panelRight {
+  right: 0;
+  animation: slideOutMenuInRight $transition-slow ease-out;
+}
+
+.panelLeft {
+  left: 0;
+  animation: slideOutMenuInLeft $transition-slow ease-out;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  border-bottom: 1px solid $gray-200;
+}
+
+.panelTitle {
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  color: $gray-500;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base;
+
+  &:hover {
+    background-color: $gray-100;
+    color: $gray-800;
+  }
+
+  &:active {
+    background-color: $gray-200;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.menuItems {
+  flex: 1;
+  padding: $spacing-md 0;
+  overflow-y: auto;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-md $spacing-xl;
+  background: transparent;
+  border: none;
+  color: $gray-700;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base;
+
+  svg {
+    flex-shrink: 0;
+    color: $gray-500;
+  }
+
+  .menuItemLabel {
+    flex: 1;
+  }
+
+  &:hover {
+    background-color: $gray-50;
+    color: $gray-900;
+
+    svg {
+      color: $gray-700;
+    }
+  }
+
+  &:active {
+    background-color: $gray-100;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+}
+
+.menuItemDanger {
+  color: $error;
+
+  svg {
+    color: $error;
+  }
+
+  &:hover {
+    background-color: $error-surface;
+    color: $error-dark;
+
+    svg {
+      color: $error-dark;
+    }
+  }
+
+  &:active {
+    background-color: $error-surface;
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: $gray-200;
+  margin: $spacing-md $spacing-xl;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 $spacing-sm;
+  background-color: $gray-200;
+  color: $gray-600;
+  border-radius: $radius-full;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+}
+
+@keyframes slideOutMenuFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideOutMenuInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideOutMenuInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .panel {
+    background-color: $dark-bg;
+  }
+
+  .panelHeader {
+    border-color: $dark-border;
+  }
+
+  .panelTitle {
+    color: $dark-text;
+  }
+
+  .closeButton {
+    color: $dark-text-secondary;
+
+    &:hover {
+      background-color: $dark-border;
+      color: $dark-text;
+    }
+
+    &:active {
+      background-color: $dark-surface;
+    }
+  }
+
+  .menuItem {
+    color: $dark-text-secondary;
+
+    svg {
+      color: $dark-text-secondary;
+    }
+
+    &:hover {
+      background-color: $dark-surface;
+      color: $dark-text;
+
+      svg {
+        color: $dark-text;
+      }
+    }
+
+    &:active {
+      background-color: $dark-surface;
+    }
+  }
+
+  .menuItemDanger {
+    color: $error-on-dark;
+
+    svg {
+      color: $error-on-dark;
+    }
+
+    &:hover {
+      background-color: rgba($error, 0.15);
+      color: $error-on-dark;
+
+      svg {
+        color: $error-on-dark;
+      }
+    }
+
+    &:active {
+      background-color: rgba($error, 0.22);
+    }
+  }
+
+  .divider {
+    background-color: $dark-border;
+  }
+
+  .badge {
+    background-color: $dark-border;
+    color: $dark-text;
+  }
+}
