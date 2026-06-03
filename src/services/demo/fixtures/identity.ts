@@ -77,10 +77,45 @@ export function getVoucher(code?: string | null): Persona {
   return personaByKey[key] ?? PERSONAS[0];
 }
 
-/** Seed "vouched by N": the inviter plus a couple of other community members. */
+// ── Web-of-trust vouch graph (demo) ──────────────────────────────────────────
+// Maps a member to the members who vouch for them. Hand-tuned counts so the
+// Members list shows all three trust states on first load: most Verified (>=4),
+// a few Vouched (1-3), one Unverified (0). Deterministic (uses `pick`).
+const VOUCH_COUNTS: Record<string, number> = {
+  'demo-user-in-priya': 6, 'demo-user-br-lucas': 5, 'demo-user-ng-amina': 4,
+  'demo-user-cn-mei': 5, 'demo-user-it-sofia': 4, 'demo-user-gh-kwame': 4,
+  'demo-user-jp-yuki': 7, 'demo-user-de-anika': 5, 'demo-user-mx-diego': 4,
+  'demo-user-eg-fatima': 3, 'demo-user-kr-jiwoo': 2, 'demo-user-pk-aisha': 4,
+  'demo-user-za-thabo': 4, 'demo-user-pl-marta': 1, 'demo-user-id-putri': 5,
+  'demo-user-ph-maria': 0,
+};
+
+function seedFromKey(key: string): number {
+  let h = 0;
+  for (let i = 0; i < key.length; i += 1) h = (h * 31 + key.charCodeAt(i)) & 0x7fffffff;
+  return h || 1;
+}
+
+/**
+ * Build the vouch graph for a given member set (members vouch for members).
+ * Caller passes the community's member keys so vouchers are always members.
+ */
+export function getVouchGraph(memberKeys: string[]): Record<string, string[]> {
+  const memberSet = new Set(memberKeys);
+  const graph: Record<string, string[]> = {};
+  for (const p of PERSONAS) {
+    if (!memberSet.has(p.publicKey)) continue;
+    const count = VOUCH_COUNTS[p.publicKey] ?? 0;
+    const others = PERSONAS.filter((o) => o.publicKey !== p.publicKey && memberSet.has(o.publicKey));
+    graph[p.publicKey] = pick(others, count, seedFromKey(p.publicKey)).map((o) => o.publicKey);
+  }
+  return graph;
+}
+
+/** Seed "vouched by 2": the inviter plus one other community member (pending). */
 export function defaultVouchers(inviterKey: string): string[] {
-  const others = PERSONAS.filter((p) => p.publicKey !== inviterKey).slice(0, 2);
-  return [inviterKey, ...others.map((p) => p.publicKey)];
+  const other = PERSONAS.find((p) => p.publicKey !== inviterKey);
+  return other ? [inviterKey, other.publicKey] : [inviterKey];
 }
 
 /** A short, curated language set for the onboarding picker (NOT the full 197). */

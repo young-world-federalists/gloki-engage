@@ -1,6 +1,10 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { IdCard, QrCode, Share2 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
+import { Card, TrustBadge } from '../shared';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { VERIFIED_THRESHOLD } from '../../services/trust';
+import { useT } from '../../i18n';
 import styles from './IdentityTrust.module.scss';
 
 const IdentityCardDialog = lazy(() => import('./dialogs/IdentityCardDialog'));
@@ -14,6 +18,8 @@ interface IdentityTrustProps {
 const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   const { communityMembers, communityProperties } = useAppSelector((s) => s.communities);
   const { publicKey } = useAppSelector((s) => s.user);
+  const t = useT();
+  const trust = useCommunityTrust(communityId);
 
   const [showIdentityCard, setShowIdentityCard] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -44,6 +50,33 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
           The more verified connections you have, the stronger your community's democratic foundation.
         </p>
       </div>
+
+      <Card className={styles.verifyCard}>
+        <div className={styles.verifyHeader}>
+          <span className={styles.verifyTitle}>{t('trust.your.title', 'Your verification')}</span>
+          <TrustBadge state={trust.currentUserTrust} vouchCount={trust.currentUserVouchCount} size="md" />
+        </div>
+        <div
+          className={styles.verifyBar}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={VERIFIED_THRESHOLD}
+          aria-valuenow={Math.min(trust.currentUserVouchCount, VERIFIED_THRESHOLD)}
+        >
+          <div
+            className={`${styles.verifyFill} ${trust.currentUserTrust === 'verified' ? styles.verifyFillDone : ''}`}
+            style={{ width: `${Math.min(100, (trust.currentUserVouchCount / VERIFIED_THRESHOLD) * 100)}%` }}
+          />
+        </div>
+        <p className={styles.verifyStatus}>
+          {trust.currentUserTrust === 'verified'
+            ? t('trust.your.verified', "You're a verified member of this community.")
+            : t('trust.your.progress', 'Vouched by {count} of {threshold} needed to verify. Meet more members to build trust.', {
+                count: trust.currentUserVouchCount,
+                threshold: VERIFIED_THRESHOLD,
+              })}
+        </p>
+      </Card>
 
       <div className={styles.trustSection}>
         <div className={styles.trustActions}>

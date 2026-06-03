@@ -8,6 +8,8 @@ import { formatTimeAgo } from '../utils/formatTimeAgo';
 import { SAMPLE_INITIATIVES } from './StageFeedView';
 import PageHeader from '../components/PageHeader';
 import HomepageMenu from '../components/identity/HomepageMenu';
+import { TrustBadge } from '../components/shared';
+import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import styles from './HomeView.module.scss';
 import cs from './Container.module.scss';
@@ -22,10 +24,49 @@ interface HomeCard {
   communityName: string;
   communityId?: string;
   authorName?: string;
+  /** Author public key — present for real items only, used to resolve trust. */
+  author?: string;
   hostServer?: string;
   hostAgent?: string;
   createdAt?: number;
 }
+
+// One Home initiative card. Its own component so it can resolve the author's
+// trust in that card's community. Sample cards (no communityId) show no badge —
+// we never present sample data as real trust.
+const HomeInitiativeCard: React.FC<{
+  card: HomeCard;
+  starred: boolean;
+  interactionProps: Record<string, unknown>;
+  onCommunityClick: (e: React.MouseEvent, communityId?: string) => void;
+}> = ({ card, starred, interactionProps, onCommunityClick }) => {
+  const t = useT();
+  const trust = useCommunityTrust(card.communityId);
+  const clickable = Boolean(card.communityId);
+  return (
+    <div className={`${styles.card} ${clickable ? '' : styles.cardStatic}`} {...interactionProps}>
+      <div className={styles.cardMeta}>
+        {starred && (
+          <Star size={12} className={styles.starIcon} aria-label={t('home.starred', 'Starred community')} />
+        )}
+        {clickable ? (
+          <button type="button" className={styles.communityBadge} onClick={(e) => onCommunityClick(e, card.communityId)}>
+            {card.communityName}
+          </button>
+        ) : (
+          <span className={`${styles.communityBadge} ${styles.communityBadgeStatic}`}>{card.communityName}</span>
+        )}
+        {card.authorName && <span className={styles.author}>{card.authorName}</span>}
+        {card.communityId && card.author && (
+          <TrustBadge state={trust.trustOf(card.author)} vouchCount={trust.vouchCountOf(card.author)} size="sm" />
+        )}
+        {card.createdAt ? <span className={styles.time}>{formatTimeAgo(card.createdAt)}</span> : null}
+      </div>
+      <h3 className={styles.cardTitle}>{card.title}</h3>
+      {card.description && <p className={styles.cardDesc}>{card.description}</p>}
+    </div>
+  );
+};
 
 type ActiveStage = 'problem' | 'discussion' | 'proposals' | 'vote';
 
@@ -80,6 +121,7 @@ const HomeView: React.FC = () => {
         communityName: i.communityName,
         communityId: i.communityId,
         authorName: i.authorName,
+        author: i.author,
         hostServer: i.hostServer,
         hostAgent: i.hostAgent,
         createdAt: i.createdAt,
@@ -156,37 +198,15 @@ const HomeView: React.FC = () => {
     };
   };
 
-  const renderCard = (card: HomeCard) => {
-    const clickable = Boolean(card.communityId);
-    return (
-      <div
-        key={card.id}
-        className={`${styles.card} ${clickable ? '' : styles.cardStatic}`}
-        {...cardInteractionProps(card)}
-      >
-        <div className={styles.cardMeta}>
-          {isStarred(card.communityId) && (
-            <Star size={12} className={styles.starIcon} aria-label={t('home.starred', 'Starred community')} />
-          )}
-          {clickable ? (
-            <button
-              type="button"
-              className={styles.communityBadge}
-              onClick={(e) => handleCommunityClick(e, card.communityId)}
-            >
-              {card.communityName}
-            </button>
-          ) : (
-            <span className={`${styles.communityBadge} ${styles.communityBadgeStatic}`}>{card.communityName}</span>
-          )}
-          {card.authorName && <span className={styles.author}>{card.authorName}</span>}
-          {card.createdAt ? <span className={styles.time}>{formatTimeAgo(card.createdAt)}</span> : null}
-        </div>
-        <h3 className={styles.cardTitle}>{card.title}</h3>
-        {card.description && <p className={styles.cardDesc}>{card.description}</p>}
-      </div>
-    );
-  };
+  const renderCard = (card: HomeCard) => (
+    <HomeInitiativeCard
+      key={card.id}
+      card={card}
+      starred={isStarred(card.communityId)}
+      interactionProps={cardInteractionProps(card)}
+      onCommunityClick={handleCommunityClick}
+    />
+  );
 
   return (
     <div className={cs.container}>

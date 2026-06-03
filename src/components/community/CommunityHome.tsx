@@ -8,8 +8,9 @@ import type { IMethod } from '../../services/interfaces';
 import type { Collaboration } from '../../services/contracts/community';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
-import { Card, Badge, Button } from '../shared';
+import { Card, Badge, Button, TrustBadge } from '../shared';
 import type { BadgeTone } from '../shared';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import { ParticipationSummary } from '../shared/presence';
 import MissionBanner from './MissionBanner';
 import styles from './CommunityHome.module.scss';
@@ -70,6 +71,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
   const { communityCollaborations, communityMembers, communityProperties, profiles } = useAppSelector(
     (s) => s.communities,
   );
+  const trust = useCommunityTrust(communityId);
   const [stages, setStages] = useState<Record<string, string>>({});
 
   // Fetch collaborations if not already loaded.
@@ -208,7 +210,12 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
               </div>
               <h4 className={styles.cardTitle}>{item.title || t('community.untitled', 'Untitled Initiative')}</h4>
               {item.description && <p className={styles.cardDesc}>{item.description}</p>}
-              {authorName && <span className={styles.author}>{authorName}</span>}
+              <div className={styles.authorRow}>
+                {authorName && <span className={styles.author}>{authorName}</span>}
+                {item.author && (
+                  <TrustBadge state={trust.trustOf(item.author)} vouchCount={trust.vouchCountOf(item.author)} size="sm" />
+                )}
+              </div>
             </Card>
           );
         })}

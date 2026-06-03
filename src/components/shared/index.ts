@@ -30,6 +30,9 @@ export type { BannerProps, BannerTone } from './Banner';
 export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeTone } from './Badge';
 
+export { default as TrustBadge } from './TrustBadge';
+export type { TrustBadgeProps } from './TrustBadge';
+
 export { default as CountryFlag } from './CountryFlag';
 export type { CountryFlagProps } from './CountryFlag';
 

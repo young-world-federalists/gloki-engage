@@ -5,6 +5,9 @@ import ApprovalDialog from './dialogs/ApprovalDialog';
 import MessageDialog from './dialogs/MessageDialog';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { TrustBadge } from '../shared';
+import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
 
@@ -14,6 +17,8 @@ interface MemberItemProps {
   showApproveButton?: boolean;
   isApproved?: boolean;
   onApprove?: () => void;
+  trustState?: TrustState;
+  vouchCount?: number;
 }
 
 const MemberItem: React.FC<MemberItemProps> = ({
@@ -21,7 +26,9 @@ const MemberItem: React.FC<MemberItemProps> = ({
   profile,
   showApproveButton = false,
   isApproved = false,
-  onApprove
+  onApprove,
+  trustState,
+  vouchCount
 }) => {
   const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
   const displayName = fullName || 'Unknown Member';
@@ -57,6 +64,7 @@ const MemberItem: React.FC<MemberItemProps> = ({
             </button>
           )}
         </div>
+        {trustState && <TrustBadge state={trustState} vouchCount={vouchCount} size="sm" className={styles.memberTrust} />}
         <div className={styles.publicKey}>{publicKey}</div>
       </div>
     </div>
@@ -70,6 +78,7 @@ interface MembersProps {
 const Members: React.FC<MembersProps> = ({ communityId }) => {
   const { communityMembers, communityTasks, communityNominates, profiles } = useAppSelector((state) => state.communities);
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
+  const trust = useCommunityTrust(communityId);
   const allMembers: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const tasks: Record<string, boolean> = communityTasks[communityId] || {};
   const taskAgents: string[] = Object.keys(tasks);
@@ -126,14 +135,18 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
       profile: profiles[agentId],
       showApproveButton: true,
       isApproved: tasks[agentId],
-      onApprove: () => handleApproveClick(agentId)
+      onApprove: () => handleApproveClick(agentId),
+      trustState: trust.trustOf(agentId),
+      vouchCount: trust.vouchCountOf(agentId)
     })),
     ...members.map(pk => ({
       publicKey: pk,
       profile: profiles[pk],
       showApproveButton: false,
       isApproved: false,
-      onApprove: undefined
+      onApprove: undefined,
+      trustState: trust.trustOf(pk),
+      vouchCount: trust.vouchCountOf(pk)
     }))
   ];
 
@@ -227,6 +240,8 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
                 showApproveButton={person.showApproveButton}
                 isApproved={person.isApproved}
                 onApprove={person.onApprove}
+                trustState={person.trustState}
+                vouchCount={person.vouchCount}
               />
             ))
           )}

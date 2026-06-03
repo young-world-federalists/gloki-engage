@@ -72,7 +72,59 @@
   border-top: 1px solid $gray-200;
 }
 
+.verifyCard {
+  margin-bottom: $spacing-xl;
+}
+
+.verifyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-md;
+}
+
+.verifyTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+}
+
+.verifyBar {
+  height: 8px;
+  border-radius: $radius-full;
+  background: $gray-100;
+  overflow: hidden;
+}
+
+.verifyFill {
+  height: 100%;
+  border-radius: $radius-full;
+  background: $primary;
+  transition: width $transition-base;
+}
+
+.verifyFillDone {
+  background: $success;
+}
+
+.verifyStatus {
+  margin-top: $spacing-sm;
+  font-size: $text-sm;
+  color: $gray-600;
+  line-height: 1.5;
+}
+
+.verifyActions {
+  margin-top: $spacing-md;
+}
+
 @media (prefers-color-scheme: dark) {
+  .verifyTitle { color: $dark-text; }
+  .verifyStatus { color: $dark-text-secondary; }
+  .verifyBar { background: rgba(255, 255, 255, 0.1); }
+
   .pageHeader {
     h2 { color: $dark-text; }
     p { color: $dark-text-secondary; }

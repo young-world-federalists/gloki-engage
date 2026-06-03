@@ -72,6 +72,13 @@
   overflow: hidden;
 }
 
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
 .author {
   font-size: $text-xs;
   color: $gray-400;

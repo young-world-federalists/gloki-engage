@@ -1,7 +1,8 @@
 // Mock community_contract.py — backs a demo community's members, collaborations, properties.
 import type { IMethod } from '../../interfaces';
 import { readState, writeState, updateState } from '../demoState';
-import { getPersona } from '../fixtures/identity';
+import { getPersona, getVouchGraph } from '../fixtures/identity';
+import { DEFAULT_STAGE_PERMISSIONS, type StageRule } from '../../trustModel';
 
 interface Collaboration {
   id: string;
@@ -19,10 +20,11 @@ interface CommunityState {
   collaborations: Collaboration[];
   accounts: Record<string, { balanceOf: number; creationTime: number; elapsedDays: number }>;
   stage_contracts: Record<string, { contractId: string; address: string; agent: string }>;
+  stage_permissions: Record<string, StageRule>;
 }
 
 function defaultState(): CommunityState {
-  return { members: {}, properties: {}, collaborations: [], accounts: {}, stage_contracts: {} };
+  return { members: {}, properties: {}, collaborations: [], accounts: {}, stage_contracts: {}, stage_permissions: {} };
 }
 
 function load(contractId: string): CommunityState {
@@ -104,6 +106,13 @@ export function communityRead(contractId: string, method: IMethod, caller: strin
     }
     case 'get_active_members':
       return Object.keys(state.members);
+    case 'get_vouches':
+      // Web-of-trust graph: member -> members who vouch for them. Computed from
+      // fixtures at read time, intersected with current membership.
+      return getVouchGraph(Object.keys(state.members));
+    case 'get_stage_permissions':
+      // Default-merged so un-configured communities return sane defaults.
+      return { ...DEFAULT_STAGE_PERMISSIONS, ...state.stage_permissions };
     default:
       return null;
   }
@@ -226,6 +235,16 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
         return next;
       });
       return ok;
+    }
+    case 'set_stage_permissions': {
+      const permissions = method.values?.permissions as Record<string, StageRule> | undefined;
+      if (!permissions) return null;
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        next.stage_permissions = { ...next.stage_permissions, ...permissions };
+        return next;
+      });
+      return true;
     }
     default:
       return null;

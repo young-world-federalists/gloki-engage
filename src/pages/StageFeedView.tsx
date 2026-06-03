@@ -13,6 +13,8 @@ import DiscussionStage from '../components/stages/DiscussionStage';
 import ProposalsStage from '../components/stages/ProposalsStage';
 import VoteStage from '../components/stages/VoteStage';
 import MandateStage from '../components/stages/MandateStage';
+import { TrustBadge } from '../components/shared';
+import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
@@ -74,6 +76,81 @@ const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ 
     description: 'Completed mandates — decisions the community has committed to.',
     emptyHint: 'No mandates yet. A mandate is created when an initiative completes the full pipeline.',
   },
+};
+
+// One real-initiative card in the feed. Extracted so each card can resolve its
+// own community's trust (author badge) and, per-stage, gate participation.
+const StageFeedCard: React.FC<{
+  item: InitiativeWithMeta;
+  stage: PipelineStage;
+  activeMemberCount: number;
+  onCardClick: (item: InitiativeWithMeta) => void;
+  onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
+}> = ({ item, stage, activeMemberCount, onCardClick, onCommunityClick }) => {
+  const trust = useCommunityTrust(item.communityId);
+  return (
+    <div
+      className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`}
+      onClick={stage === 'discussion' ? () => onCardClick(item) : undefined}
+    >
+      <div className={styles.cardMeta}>
+        <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
+          {item.communityName}
+        </button>
+        {item.authorName && <span className={styles.author}>{item.authorName}</span>}
+        {item.author && (
+          <TrustBadge state={trust.trustOf(item.author)} vouchCount={trust.vouchCountOf(item.author)} size="sm" />
+        )}
+        {item.createdAt && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
+      </div>
+
+      <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
+      {item.description && <p className={styles.cardDescription}>{item.description}</p>}
+
+      {/* Stage-specific participation UI — lane-owned stage components */}
+      {stage === 'problem' && (
+        <div className={styles.inlineFlow}>
+          <ProblemStage initiativeId={item.id} communityMemberCount={activeMemberCount} />
+        </div>
+      )}
+
+      {stage === 'discussion' && (
+        <DiscussionStage
+          variant="feed"
+          initiativeId={item.id}
+          communityId={item.communityId}
+          title={item.title || ''}
+          hostServer=""
+          hostAgent=""
+        />
+      )}
+
+      {stage === 'proposals' && (
+        <div className={styles.inlineFlow}>
+          <ProposalsStage
+            variant="feed"
+            initiativeId={item.id}
+            communityId={item.communityId}
+            title={item.title || ''}
+            hostServer=""
+            hostAgent=""
+          />
+        </div>
+      )}
+
+      {stage === 'vote' && (
+        <div className={styles.inlineFlow}>
+          <VoteStage initiativeId={item.id} />
+        </div>
+      )}
+
+      {stage === 'mandate' && (
+        <div className={styles.inlineFlow}>
+          <MandateStage variant="feed" initiativeId={item.id} />
+        </div>
+      )}
+    </div>
+  );
 };
 
 const StageFeedView: React.FC = () => {
@@ -192,70 +269,14 @@ const StageFeedView: React.FC = () => {
           const activeMemberCount = communityActiveMembers[item.communityId] ?? memberCount;
 
           return (
-            <div key={item.id} className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`} onClick={stage === 'discussion' ? () => handleCardClick(item) : undefined}>
-              <div className={styles.cardMeta}>
-                <button
-                  className={styles.communityBadge}
-                  onClick={(e) => handleCommunityClick(e, item.communityId)}
-                >
-                  {item.communityName}
-                </button>
-                {item.authorName && (
-                  <span className={styles.author}>{item.authorName}</span>
-                )}
-                {item.createdAt && (
-                  <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>
-                )}
-              </div>
-
-              <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
-              {item.description && (
-                <p className={styles.cardDescription}>{item.description}</p>
-              )}
-
-              {/* Stage-specific participation UI — lane-owned stage components */}
-              {stage === 'problem' && (
-                <div className={styles.inlineFlow}>
-                  <ProblemStage initiativeId={item.id} communityMemberCount={activeMemberCount} />
-                </div>
-              )}
-
-              {stage === 'discussion' && (
-                <DiscussionStage
-                  variant="feed"
-                  initiativeId={item.id}
-                  communityId={item.communityId}
-                  title={item.title || ''}
-                  hostServer=""
-                  hostAgent=""
-                />
-              )}
-
-              {stage === 'proposals' && (
-                <div className={styles.inlineFlow}>
-                  <ProposalsStage
-                    variant="feed"
-                    initiativeId={item.id}
-                    communityId={item.communityId}
-                    title={item.title || ''}
-                    hostServer=""
-                    hostAgent=""
-                  />
-                </div>
-              )}
-
-              {stage === 'vote' && (
-                <div className={styles.inlineFlow}>
-                  <VoteStage initiativeId={item.id} />
-                </div>
-              )}
-
-              {stage === 'mandate' && (
-                <div className={styles.inlineFlow}>
-                  <MandateStage variant="feed" initiativeId={item.id} />
-                </div>
-              )}
-            </div>
+            <StageFeedCard
+              key={item.id}
+              item={item}
+              stage={stage}
+              activeMemberCount={activeMemberCount}
+              onCardClick={handleCardClick}
+              onCommunityClick={handleCommunityClick}
+            />
           );
         })}
 
