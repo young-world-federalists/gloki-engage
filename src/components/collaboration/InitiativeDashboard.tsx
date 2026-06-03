@@ -22,6 +22,7 @@ import DiscussionStage from '../stages/DiscussionStage';
 import ProposalsStage from '../stages/ProposalsStage';
 import VoteStage from '../stages/VoteStage';
 import MandateStage from '../stages/MandateStage';
+import StageGate from '../community/StageGate';
 import JourneyRecap from '../mandate/JourneyRecap';
 import PageHeader from '../PageHeader';
 import cs from '../../pages/Container.module.scss';
@@ -337,45 +338,51 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                     </div>
                   )}
 
-                  {/* ACTIVE: lane-owned stage participation UI */}
-                  {status === 'active' && s.id === 'problem' && (
-                    <ProblemStage
-                      initiativeId={collaborationId}
-                      communityMemberCount={activeMemberCount}
-                      evidenceLinks={evidenceLinks}
-                      countries={countries}
-                    />
-                  )}
+                  {/* ACTIVE: lane-owned stage participation UI, gated by the
+                      community's per-stage rule. Completed/locked rendering above
+                      stays untouched; read-only summaries are never blocked. */}
+                  {status === 'active' && (
+                    <StageGate communityId={communityId} stage={s.id}>
+                      {s.id === 'problem' && (
+                        <ProblemStage
+                          initiativeId={collaborationId}
+                          communityMemberCount={activeMemberCount}
+                          evidenceLinks={evidenceLinks}
+                          countries={countries}
+                        />
+                      )}
 
-                  {status === 'active' && s.id === 'discussion' && (
-                    <DiscussionStage
-                      variant="dashboard"
-                      initiativeId={collaborationId}
-                      communityId={communityId}
-                      title={title}
-                      hostServer={params.initiativeHostServer || ''}
-                      hostAgent={params.initiativeHostAgent || ''}
-                      memberCount={memberCount}
-                    />
-                  )}
+                      {s.id === 'discussion' && (
+                        <DiscussionStage
+                          variant="dashboard"
+                          initiativeId={collaborationId}
+                          communityId={communityId}
+                          title={title}
+                          hostServer={params.initiativeHostServer || ''}
+                          hostAgent={params.initiativeHostAgent || ''}
+                          memberCount={memberCount}
+                        />
+                      )}
 
-                  {status === 'active' && s.id === 'proposals' && (
-                    <ProposalsStage
-                      variant="dashboard"
-                      initiativeId={collaborationId}
-                      communityId={communityId}
-                      title={title}
-                      hostServer={params.initiativeHostServer || ''}
-                      hostAgent={params.initiativeHostAgent || ''}
-                    />
-                  )}
+                      {s.id === 'proposals' && (
+                        <ProposalsStage
+                          variant="dashboard"
+                          initiativeId={collaborationId}
+                          communityId={communityId}
+                          title={title}
+                          hostServer={params.initiativeHostServer || ''}
+                          hostAgent={params.initiativeHostAgent || ''}
+                        />
+                      )}
 
-                  {status === 'active' && s.id === 'vote' && (
-                    <VoteStage initiativeId={collaborationId} />
-                  )}
+                      {s.id === 'vote' && (
+                        <VoteStage initiativeId={collaborationId} />
+                      )}
 
-                  {status === 'active' && s.id === 'mandate' && (
-                    <MandateStage variant="dashboard" initiativeId={collaborationId} />
+                      {s.id === 'mandate' && (
+                        <MandateStage variant="dashboard" initiativeId={collaborationId} />
+                      )}
+                    </StageGate>
                   )}
                 </div>
               );

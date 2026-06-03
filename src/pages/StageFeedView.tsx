@@ -15,6 +15,8 @@ import VoteStage from '../components/stages/VoteStage';
 import MandateStage from '../components/stages/MandateStage';
 import { TrustBadge } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
+import StageGate from '../components/community/StageGate';
+import { useT } from '../i18n';
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
@@ -107,7 +109,10 @@ const StageFeedCard: React.FC<{
       <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
 
-      {/* Stage-specific participation UI — lane-owned stage components */}
+      {/* Stage-specific participation UI — lane-owned stage components.
+          Gated by the community's per-stage rule; the meta/title/description above
+          stay visible (read-only viewing is never blocked). */}
+      <StageGate communityId={item.communityId} stage={stage}>
       {stage === 'problem' && (
         <div className={styles.inlineFlow}>
           <ProblemStage initiativeId={item.id} communityMemberCount={activeMemberCount} />
@@ -149,6 +154,7 @@ const StageFeedCard: React.FC<{
           <MandateStage variant="feed" initiativeId={item.id} />
         </div>
       )}
+      </StageGate>
     </div>
   );
 };
@@ -156,6 +162,7 @@ const StageFeedCard: React.FC<{
 const StageFeedView: React.FC = () => {
   const { stageId } = useParams<{ stageId: string }>();
   const navigate = useNavigate();
+  const t = useT();
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
@@ -240,7 +247,7 @@ const StageFeedView: React.FC = () => {
         {stage === 'vote' && (
           <div className={styles.thresholdBanner}>
             <Vote size={16} />
-            <span>Distribute your voting credits across proposals. Requires membership in a web of trust community.</span>
+            <span>{t('stagefeed.vote.info', 'Distribute your voting credits across proposals. Each community decides who can cast a binding vote — see the rule on each card.')}</span>
           </div>
         )}
         {stage === 'mandate' && (

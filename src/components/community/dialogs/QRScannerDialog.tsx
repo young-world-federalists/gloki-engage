@@ -3,6 +3,8 @@ import { X, CheckCircle, XCircle } from 'lucide-react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { decodeCommunityInvitation } from '../../../services/encodeDecode';
 import { useAppSelector } from '../../../store/hooks';
+import { addUserVouch } from '../../../services/trust';
+import { useT } from '../../../i18n';
 import styles from './QRScannerDialog.module.scss';
 
 interface QRScannerDialogProps {
@@ -31,6 +33,7 @@ const QRScannerDialog: React.FC<QRScannerDialogProps> = ({
 }) => {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const t = useT();
 
   const { communityMembers, profiles } = useAppSelector(state => state.communities);
   const { contracts } = useAppSelector(state => state.user);
@@ -65,13 +68,21 @@ const QRScannerDialog: React.FC<QRScannerDialogProps> = ({
         // Check if the agent is a member of this community
         const communityMembersList = communityMembers[communityId] || [];
         const isMember = communityMembersList.includes(agent);
+        const isAuthenticatedMember = isMember && contractMatches;
+
+        // A confirmed scan of a real community member strengthens the web of
+        // trust — record their vouch (addUserVouch dedups, so re-scanning the
+        // same member is a no-op).
+        if (isAuthenticatedMember) {
+          addUserVouch(agent);
+        }
 
         // Get member profile if available
         const memberProfile = profiles[agent];
 
         setScanResult({
           isValid: true,
-          isMember: isMember && contractMatches,
+          isMember: isAuthenticatedMember,
           agent,
           server,
           contract,
@@ -165,6 +176,9 @@ const QRScannerDialog: React.FC<QRScannerDialogProps> = ({
                       <p className={styles.agentKey}>Agent: {scanResult.agent}</p>
                     </div>
                   </div>
+                  <p className={styles.vouchConfirm}>
+                    {t('trust.vouchAdded', 'Vouch added — you’re now vouched by more members.')}
+                  </p>
                 </div>
               ) : (
                 <div className={styles.errorResult}>

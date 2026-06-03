@@ -160,6 +160,13 @@
             }
           }
         }
+
+        .vouchConfirm {
+          margin: $spacing-sm 0 0;
+          color: $success;
+          font-size: $text-sm;
+          font-weight: $font-medium;
+        }
       }
 
       .errorResult {

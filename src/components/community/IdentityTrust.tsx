@@ -1,9 +1,10 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { IdCard, QrCode, Share2 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
-import { Card, TrustBadge } from '../shared';
+import { Card, TrustBadge, Button } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
-import { VERIFIED_THRESHOLD } from '../../services/trust';
+import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
+import { VERIFIED_THRESHOLD, addUserVouch } from '../../services/trust';
 import { useT } from '../../i18n';
 import styles from './IdentityTrust.module.scss';
 
@@ -20,6 +21,7 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   const { publicKey } = useAppSelector((s) => s.user);
   const t = useT();
   const trust = useCommunityTrust(communityId);
+  const { agent } = useDigitalAgent();
 
   const [showIdentityCard, setShowIdentityCard] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -28,6 +30,15 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   const allMembers: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const isMember = publicKey && allMembers.includes(publicKey);
   const communityName = communityProperties[communityId]?.name || 'Community';
+
+  // Demo affordance: "meet" a community member who hasn't vouched yet, adding
+  // their vouch so a pending user can cross 2 -> 4 and watch the Verified-gated
+  // stages unlock live (the QR camera isn't exercisable in the preview).
+  const handleMeetMember = () => {
+    const alreadyVouched = new Set(agent?.vouchedBy ?? []);
+    const candidate = allMembers.find((pk) => pk !== publicKey && !alreadyVouched.has(pk));
+    if (candidate) addUserVouch(candidate);
+  };
 
   if (!isMember) {
     return (
@@ -76,6 +87,13 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
                 threshold: VERIFIED_THRESHOLD,
               })}
         </p>
+        {trust.currentUserTrust !== 'verified' && (
+          <div className={styles.verifyActions}>
+            <Button size="sm" variant="secondary" onClick={handleMeetMember}>
+              {t('trust.meetMember', 'Meet a member (demo)')}
+            </Button>
+          </div>
+        )}
       </Card>
 
       <div className={styles.trustSection}>
