@@ -39,36 +39,40 @@ export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: strin
   ],
 };
 
+// Vocabulary: an *initiative* is the effort that travels the pipeline; a
+// *problem* is its Stage-1 founding statement (see CreateInitiativePage for the
+// full decision). Copy below keeps "initiative" as the object and "problem" for
+// Stage 1 only.
 const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }>; description: string; emptyHint: string }> = {
   problem: {
     label: 'Problem',
     icon: AlertCircle,
-    description: 'Problems being identified. Vote to advance them.',
-    emptyHint: 'No problems at this stage yet. Start an initiative from a community to propose a global problem.',
+    description: 'Initiatives start here — vote on whether each problem is worth solving.',
+    emptyHint: 'No initiatives at the problem stage yet. Start an initiative from a community to raise a problem.',
   },
   discussion: {
     label: 'Discussion',
     icon: MessageCircle,
-    description: 'Problems under community discussion.',
-    emptyHint: 'No problems in discussion. Problems advance here after reaching 50% community approval.',
+    description: 'Initiatives whose problem cleared the vote, now under community discussion.',
+    emptyHint: 'No initiatives in discussion yet. They advance here once their problem reaches 50% community approval.',
   },
   proposals: {
     label: 'Proposals',
     icon: Lightbulb,
-    description: 'Problems ready for solution proposals.',
-    emptyHint: 'No problems at the proposals stage. Problems advance here after community discussion.',
+    description: 'Initiatives gathering concrete solution proposals.',
+    emptyHint: 'No initiatives at the proposals stage yet. They advance here after community discussion.',
   },
   vote: {
     label: 'Vote',
     icon: Vote,
-    description: 'Formal voting on proposed solutions.',
-    emptyHint: 'No problems in formal voting. Problems advance here after proposals reach approval.',
+    description: 'Initiatives in formal voting on proposed solutions.',
+    emptyHint: 'No initiatives in formal voting yet. They advance here after proposals reach approval.',
   },
   mandate: {
     label: 'Mandate',
     icon: ScrollText,
-    description: 'Completed mandates — democratic decisions made.',
-    emptyHint: 'No mandates yet. Mandates are created when a problem completes the full governance pipeline.',
+    description: 'Completed mandates — decisions the community has committed to.',
+    emptyHint: 'No mandates yet. A mandate is created when an initiative completes the full pipeline.',
   },
 };
 
@@ -147,7 +151,7 @@ const StageFeedView: React.FC = () => {
         {stage === 'discussion' && (
           <div className={styles.thresholdBanner}>
             <MessageCircle size={16} />
-            <span>33% of community members must contribute perspectives before a problem advances to proposals.</span>
+            <span>33% of community members must contribute perspectives before the initiative advances to proposals.</span>
           </div>
         )}
         {stage === 'proposals' && (

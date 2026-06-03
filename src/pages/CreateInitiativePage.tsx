@@ -5,7 +5,17 @@ import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
 import { sanitizeExternalUrl } from '../utils/urlSafety';
+import { useT } from '../i18n';
 import styles from './CreateInitiativePage.module.scss';
+
+// ─── Vocabulary decision (Gloki product voice, confirmed with Eston, Batch 3 C7)
+// An *initiative* is the whole effort that travels the 5-stage pipeline
+// (Problem → Discussion → Proposals → Vote → Mandate). A *problem* is its
+// starting point: the founding statement you name at Stage 1, which the
+// community validates. So the object is ALWAYS an "initiative"; "problem" is
+// reserved for Stage 1 and the founding statement. The single create verb is
+// "Start" ("Start an initiative"), never "Create". Keep copy consistent with
+// this across Home, the stage feed, the menus, and this page.
 
 const COUNTRY_OPTIONS = [
   { code: 'KE', label: 'Kenya' },
@@ -52,6 +62,7 @@ const CreateInitiativePage: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const t = useT();
   const { publicKey, serverUrl } = useAppSelector((s) => s.user);
 
   const [title, setTitle] = useState('');
@@ -132,20 +143,24 @@ const CreateInitiativePage: React.FC = () => {
         <button className={styles.backButton} onClick={() => navigate(`/community/${communityId}`)}>
           <ArrowLeft size={20} />
         </button>
-        <h1>Start an Initiative</h1>
+        <h1>{t('initiative.start', 'Start an initiative')}</h1>
       </div>
 
-      {/* What is an Initiative? */}
+      {/* What is an initiative? */}
       <div className={styles.card}>
-        <h2>What is an Initiative?</h2>
+        <h2>{t('initiative.whatTitle', 'What is an initiative?')}</h2>
         <p>
-          An initiative is a problem you want your community to solve together. When you start an initiative,
-          you're asking your community to recognize a problem, discuss solutions, propose actions, and vote
-          on how to move forward.
+          {t(
+            'initiative.whatBody',
+            "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
+          )}
         </p>
         <br />
         <p>
-          Think of it as a formal request for collective action — backed by a transparent, democratic process.
+          {t(
+            'initiative.whatBody2',
+            'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
+          )}
         </p>
       </div>
 
@@ -275,7 +290,7 @@ const CreateInitiativePage: React.FC = () => {
           onClick={handleSubmit}
           disabled={isSubmitting || !title.trim() || !description.trim()}
         >
-          {isSubmitting ? 'Submitting...' : 'Start Initiative'}
+          {isSubmitting ? t('initiative.submitting', 'Submitting…') : t('initiative.start', 'Start an initiative')}
         </button>
       </div>
     </div>

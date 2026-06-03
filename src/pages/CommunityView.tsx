@@ -207,7 +207,7 @@ const CommunityView: React.FC = () => {
 
   const menuItems: SlideOutMenuItem[] = [
     { key: 'home', icon: Home, label: t('community.menu.home', 'Home'), onClick: closeAfter(() => navigate('/stage/problem')) },
-    { key: 'create-initiative', icon: PlusCircle, label: t('community.menu.createInitiative', 'Create Initiative'), onClick: closeAfter(() => navigate(`/community/${communityId}/create-initiative`)) },
+    { key: 'create-initiative', icon: PlusCircle, label: t('initiative.start', 'Start an initiative'), onClick: closeAfter(() => navigate(`/community/${communityId}/create-initiative`)) },
     { key: 'collab', icon: Users2, label: t('community.menu.collab', 'Collab'), onClick: closeAfter(() => navigate(`/community/${communityId}/collab`)), dividerBefore: true },
     { key: 'chat', icon: MessageSquare, label: t('community.menu.chat', 'Chat'), onClick: closeAfter(() => navigate(`/community/${communityId}/chat`)) },
     { key: 'currency', icon: Coins, label: t('community.menu.currency', 'Currency'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
