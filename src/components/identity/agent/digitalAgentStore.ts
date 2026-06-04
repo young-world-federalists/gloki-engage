@@ -24,7 +24,7 @@ export interface OnboardingProgress {
   completed: boolean;
 }
 
-export const ONBOARDING_STEP_COUNT = 5;
+export const ONBOARDING_STEP_COUNT = 6;
 
 const DEFAULT_PROGRESS: OnboardingProgress = { step: 0, completed: false };
 

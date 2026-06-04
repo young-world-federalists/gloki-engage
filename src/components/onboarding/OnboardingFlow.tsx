@@ -4,8 +4,10 @@ import { Stepper, Button, Card } from '../shared';
 import { useT } from '../../i18n';
 import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
 import { getVoucher, defaultVouchers } from '../../services/demo/fixtures/identity';
+import { ONBOARDING_SEED } from '../../services/trustModel';
 import InviteStep from './steps/InviteStep';
 import VouchStep from './steps/VouchStep';
+import HowItWorksStep from './steps/HowItWorksStep';
 import AgentStep from './steps/AgentStep';
 import RulesStep from './steps/RulesStep';
 import ReadyStep from './steps/ReadyStep';
@@ -68,6 +70,7 @@ const OnboardingFlow: React.FC = () => {
   const steps = [
     { label: t('onboarding.step.invite', 'Invite') },
     { label: t('onboarding.step.vouch', 'Trust') },
+    { label: t('onboarding.step.how', 'How') },
     { label: t('onboarding.step.agent', 'You') },
     { label: t('onboarding.step.rules', 'Rules') },
     { label: t('onboarding.step.ready', 'Ready') },
@@ -90,29 +93,37 @@ const OnboardingFlow: React.FC = () => {
           <VouchStep headingRef={headingRef} voucher={voucher} vouchCount={vouchCount} onBack={() => go(0)} onContinue={() => go(2)} />
         )}
         {step === 2 && (
+          <HowItWorksStep
+            headingRef={headingRef}
+            vouchCount={agent?.vouchedBy.length ?? ONBOARDING_SEED}
+            onBack={() => go(1)}
+            onContinue={() => go(3)}
+          />
+        )}
+        {step === 3 && (
           <AgentStep
             headingRef={headingRef}
             agent={agent}
             voucher={voucher}
-            onBack={() => go(1)}
-            onContinue={(fields) => { saveAgent(fields); go(3); }}
-            onSkip={() => go(3)}
-          />
-        )}
-        {step === 3 && (
-          <RulesStep
-            headingRef={headingRef}
             onBack={() => go(2)}
-            onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(4); }}
+            onContinue={(fields) => { saveAgent(fields); go(4); }}
             onSkip={() => go(4)}
           />
         )}
         {step === 4 && (
+          <RulesStep
+            headingRef={headingRef}
+            onBack={() => go(3)}
+            onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(5); }}
+            onSkip={() => go(5)}
+          />
+        )}
+        {step === 5 && (
           <ReadyStep
             headingRef={headingRef}
             agent={agent}
             consented={consented}
-            onConsentNudge={() => go(3)}
+            onConsentNudge={() => go(4)}
             onExplore={() => { saveProgress({ completed: true }); navigate('/stage/problem'); }}
             onViewAgent={() => { saveProgress({ completed: true }); navigate('/identity/profile'); }}
           />
