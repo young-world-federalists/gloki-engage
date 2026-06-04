@@ -8,6 +8,17 @@
   margin-top: $spacing-xs;
 }
 
+.leaning {
+  margin: 0;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
 .hint {
   display: flex;
   align-items: center;

@@ -366,6 +366,32 @@ function buildDiscussionSeed(): DiscussionSeed {
 /** The co-authoring seed — consumed by `demoContracts/discussion.ts`. */
 export const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
 
+/**
+ * A glanceable summary of the seed for the Stage 2 feed/dashboard previews.
+ * List/summary contexts read this (no contract deploy); the full co-authoring
+ * space reads the live contract. Documented simplification.
+ */
+export const DISCUSSION_SEED_SUMMARY = {
+  statementTitle: DISCUSSION_SEED.statement.title,
+  positions: DISCUSSION_SEED.positions.length,
+  openEdits: DISCUSSION_SEED.edits.filter((e) => e.status === 'open').length,
+  participants: (() => {
+    const s = new Set<string>();
+    DISCUSSION_SEED.statement.coAuthors.forEach((k) => s.add(k));
+    DISCUSSION_SEED.edits.forEach((e) => {
+      s.add(e.author);
+      e.supporters.forEach((x) => s.add(x));
+    });
+    DISCUSSION_SEED.positions.forEach((p) => {
+      s.add(p.author);
+      p.supporters.forEach((x) => s.add(x));
+    });
+    DISCUSSION_SEED.anchored.forEach((a) => s.add(a.author));
+    s.delete('');
+    return s.size;
+  })(),
+};
+
 // ---------------------------------------------------------------------------
 // C3 — Merge similar proposals + expert review
 // (themed to the "Youth Employment & the Skills Gap" proposals stage)
