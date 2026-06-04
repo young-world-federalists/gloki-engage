@@ -1,0 +1,154 @@
+@use '../../styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.full {
+  gap: $spacing-xl;
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-base;
+  line-height: 1.5;
+  color: $gray-700;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $gray-500;
+}
+
+/* Pipeline strip — ordered list reads as a journey, top → bottom */
+.pipeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.stage {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  background: white;
+  border: 1px solid $gray-100;
+}
+
+.stageIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: $radius-full;
+  background: rgba($primary, 0.1);
+  color: $primary;
+}
+
+.stageText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.stageName {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-900;
+}
+
+.stageDesc {
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-600;
+}
+
+/* Trust → what unlocks */
+.trustLine {
+  margin: 0;
+  font-size: $text-base;
+  line-height: 1.5;
+  color: $gray-800;
+}
+
+.states {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.state {
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-700;
+  padding-left: $spacing-md;
+  border-left: 2px solid $gray-200;
+}
+
+.stateVerified {
+  border-left-color: $success;
+  color: $gray-900;
+  font-weight: $font-medium;
+}
+
+.onePerson {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $primary;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .sectionTitle {
+    color: $dark-text-secondary;
+  }
+  .intro,
+  .trustLine {
+    color: $dark-text-secondary;
+  }
+  .stage {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+  .stageIcon {
+    background: rgba($primary, 0.2);
+  }
+  .stageName {
+    color: $dark-text;
+  }
+  .stageDesc {
+    color: $dark-text-secondary;
+  }
+  .state {
+    color: $dark-text-secondary;
+    border-left-color: $dark-border;
+  }
+  .stateVerified {
+    color: $dark-text;
+    border-left-color: $success;
+  }
+}
