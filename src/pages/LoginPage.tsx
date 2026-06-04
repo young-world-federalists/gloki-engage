@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
+import { useT } from '../i18n';
 import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
+  const t = useT();
   const [publicKey, setPublicKey] = useState('');
   const [serverUrl, setServerUrl] = useState('');
   const [serverUrlHistory, setServerUrlHistory] = useState<string[]>([]);
@@ -27,11 +29,11 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     // Default server URL
     const defaultServer = 'https://gdi.gloki.contact';
-    
+
     // Load server URL history from localStorage
     const history = localStorage.getItem('serverUrlHistory');
     let historyArray: string[] = [];
-    
+
     if (history) {
       try {
         historyArray = JSON.parse(history);
@@ -39,7 +41,7 @@ const LoginPage: React.FC = () => {
         historyArray = [];
       }
     }
-    
+
     // Always ensure default server is in the list
     if (!historyArray.includes(defaultServer)) {
       historyArray = [defaultServer, ...historyArray];
@@ -47,7 +49,7 @@ const LoginPage: React.FC = () => {
       // Move default server to the top if it's already in the list
       historyArray = [defaultServer, ...historyArray.filter(url => url !== defaultServer)];
     }
-    
+
     setServerUrlHistory(historyArray);
     if (!serverUrl) {
       setServerUrl(defaultServer);
@@ -57,7 +59,7 @@ const LoginPage: React.FC = () => {
   const validatePublicKey = (value: string): string | null => {
     if (value.length === 0) return null;
     if (!/^[A-Za-z0-9]{64}$/.test(value))
-      return 'Your identity key must be exactly 64 alphanumeric characters (letters and digits only).';
+      return t('login.key.error', 'Your identity key must be exactly 64 alphanumeric characters (letters and digits only).');
     return null;
   };
 
@@ -66,10 +68,10 @@ const LoginPage: React.FC = () => {
     try {
       const url = new URL(value);
       if (url.protocol !== 'http:' && url.protocol !== 'https:')
-        return 'Server URL must use http or https.';
+        return t('login.server.errorProtocol', 'Server URL must use http or https.');
       return null;
     } catch {
-      return 'Please enter a valid URL (e.g. https://your-server.com).';
+      return t('login.server.errorInvalid', 'Please enter a valid URL (e.g. https://your-server.com).');
     }
   };
 
@@ -100,12 +102,12 @@ const LoginPage: React.FC = () => {
     if (isValid) {
       try {
         setLoginError(null);
-        
+
         // Save server URL to history
         const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);
         setServerUrlHistory(newHistory);
         localStorage.setItem('serverUrlHistory', JSON.stringify(newHistory));
-        
+
         await login(publicKey, serverUrl);
       } catch (error) {
         setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
@@ -117,15 +119,15 @@ const LoginPage: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1>Welcome to Gloki</h1>
-          <p>Global direct democracy — connect to participate</p>
+          <h1>{t('login.title', 'Welcome to Gloki')}</h1>
+          <p>{t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}</p>
           <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
-            {showHelp ? 'Hide details' : 'How does this work?'}
+            {showHelp ? t('login.help.hide', 'Hide details') : t('login.help.show', 'How does this work?')}
           </button>
           {showHelp && (
             <div className={styles.helpBox}>
-              <p>Gloki uses public keys instead of passwords. Your public key is your identity across all communities. You can generate a new one with the button below, or enter an existing one to reconnect.</p>
-              <p>The server URL connects you to a Gloki network. The default server is already set for you.</p>
+              <p>{t('login.help.keys', 'Gloki uses a key instead of a password. This key is your identity across every community — generate a fresh one below, or paste an existing key to reconnect.')}</p>
+              <p>{t('login.help.server', 'The server connects you to a Gloki network. The default is already set for you.')}</p>
             </div>
           )}
         </div>
@@ -134,8 +136,8 @@ const LoginPage: React.FC = () => {
           <div className={styles.inputGroup}>
             <label htmlFor="publicKey">
               <Key size={20} />
-              Your Identity Key
-              <span className={styles.fieldHint}>A 64-character code that identifies you. New here? Click the generate button.</span>
+              {t('login.key.label', 'Your Identity Key')}
+              <span className={styles.fieldHint}>{t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}</span>
             </label>
             <div className={styles.inputWithButton}>
               <input
@@ -144,26 +146,27 @@ const LoginPage: React.FC = () => {
                 value={publicKey}
                 onChange={(e) => setPublicKey(e.target.value)}
                 onBlur={() => setPublicKeyError(validatePublicKey(publicKey))}
-                placeholder="Enter your public key"
+                placeholder={t('login.key.placeholder', 'Enter your public key')}
                 className="input-field"
               />
               <button
                 type="button"
                 onClick={generateRandomKey}
                 className={styles.generateButton}
-                title="Generate a new identity key"
+                title={t('login.generate', 'Generate a new identity key')}
+                aria-label={t('login.generate', 'Generate a new identity key')}
               >
                 <RefreshCw size={16} />
               </button>
             </div>
-            {publicKeyError && <div className={styles.fieldError}>{publicKeyError}</div>}
+            {publicKeyError && <div className={styles.fieldError} role="alert">{publicKeyError}</div>}
           </div>
 
           <div className={styles.inputGroup}>
             <label htmlFor="serverUrl">
               <Server size={20} />
-              Server URL
-              <span className={styles.fieldHint}>The default server is pre-selected. Most users won't need to change this.</span>
+              {t('login.server.label', 'Server URL')}
+              <span className={styles.fieldHint}>{t('login.server.hint', "The default network is already selected. Most people never need to change this.")}</span>
             </label>
             <div className={styles.inputWithDropdown}>
               <input
@@ -179,7 +182,7 @@ const LoginPage: React.FC = () => {
                   setShowHistory(false);
                   setServerUrlError(validateServerUrl(serverUrl));
                 }}
-                placeholder="https://your-server.com"
+                placeholder={t('login.server.placeholder', 'https://your-server.com')}
                 className="input-field"
                 autoComplete="off"
               />
@@ -197,36 +200,36 @@ const LoginPage: React.FC = () => {
                 </div>
               )}
             </div>
-            {serverUrlError && <div className={styles.fieldError}>{serverUrlError}</div>}
+            {serverUrlError && <div className={styles.fieldError} role="alert">{serverUrlError}</div>}
           </div>
 
           {loginError && (
-            <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`}>
+            <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`} role="alert">
               <div className={styles.errorIcon}>⚠️</div>
               <div className={styles.errorContent}>
                 <div className={styles.errorTitle}>
-                  {loginError.includes('connect to the server') || loginError.includes('unreachable') ? 'Connection Error' : 
-                   loginError.includes('recognize the API') || loginError.includes('incorrect') ? 'Invalid Server' : 'Login Error'}
+                  {loginError.includes('connect to the server') || loginError.includes('unreachable') ? t('login.error.connection', 'Connection Error') :
+                   loginError.includes('recognize the API') || loginError.includes('incorrect') ? t('login.error.invalidServer', 'Invalid Server') : t('login.error.generic', 'Login Error')}
                 </div>
                 <div className={styles.errorDescription}>{loginError}</div>
                 {(loginError.includes('unreachable') || loginError.includes('connection')) && (
-                  <button 
+                  <button
                     onClick={() => setLoginError(null)}
                     className={styles.retryButton}
                   >
-                    Try Again
+                    {t('common.retry', 'Try again')}
                   </button>
                 )}
               </div>
             </div>
           )}
-          
+
           <button
             onClick={handleLogin}
             disabled={!isValid || isLoading}
             className={`login-button ${styles.loginButton}`}
           >
-            <span>{isLoading ? 'Connecting...' : 'Get Started'}</span>
+            <span>{isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}</span>
             {!isLoading && <ArrowRight size={20} />}
           </button>
         </div>
@@ -235,4 +238,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;
