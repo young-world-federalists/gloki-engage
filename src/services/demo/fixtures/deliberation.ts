@@ -246,6 +246,127 @@ export const EDIT_SUGGESTIONS: EditSuggestion[] = [
 export const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
 
 // ---------------------------------------------------------------------------
+// Co-authoring seed (Redesign A — Batch 5)
+//
+// The discussion contract self-seeds from this so any discussion sub-contract
+// opens with the rich demo. RECAST — no new copy — from the data above:
+//   • statement ← PROBLEM_STATEMENT (description→body) + CO_AUTHORS
+//   • edits     ← EDIT_SUGGESTIONS (field description→body, suggestedText→text)
+//   • positions ← root DISCUSSION_COMMENTS (each top-level comment is a position)
+//   • anchored  ← reply DISCUSSION_COMMENTS, re-keyed under their root position
+//
+// 1p1v supporters are drawn ONLY from the eight people who took part in the
+// thread, so the participation snapshot stays a stable 8 and the hero edit (s1)
+// sits exactly one supporter short of the fold-in target (max(3, ceil(8/2))=4)
+// — a single live "Support" click folds it into the statement. See the Batch 5
+// plan (docs/superpowers/plans/2026-06-04-batch5-stage-ux-redesigns.md).
+
+export interface SeedStatement {
+  title: string;
+  body: string;
+  coAuthors: string[]; // persona publicKeys
+}
+export interface SeedEdit {
+  id: string;
+  field: 'title' | 'body';
+  author: string;
+  baseText: string;
+  text: string;
+  rationale: string;
+  supporters: string[]; // pks — 1p1v
+  status: 'open' | 'accepted' | 'stale';
+  createdAgo: number; // minutes (feeds relativeTimeKey); 0 = just now
+}
+export interface SeedPosition {
+  id: string;
+  type: DeliberationCategory;
+  author: string;
+  text: string;
+  supporters: string[]; // pks — 1p1v (includes the author)
+  createdAgo: number;
+}
+export interface SeedAnchored {
+  id: string;
+  anchor: string; // 'statement' | positionId
+  author: string;
+  text: string;
+  parentId: string | null;
+  createdAgo: number;
+}
+export interface DiscussionSeed {
+  statement: SeedStatement;
+  edits: SeedEdit[];
+  positions: SeedPosition[];
+  anchored: SeedAnchored[];
+}
+
+// Supporter lists — every pk is one of the eight thread participants
+// (lucas, marta, anika, maria, amina, jiwoo, sofia, mei) so the distinct
+// participation snapshot stays exactly 8.
+const POSITION_SUPPORTERS: Record<string, string[]> = {
+  'pos-c1': ['demo-user-br-lucas', 'demo-user-pl-marta', 'demo-user-de-anika', 'demo-user-ph-maria', 'demo-user-ng-amina', 'demo-user-kr-jiwoo'],
+  'pos-c5': ['demo-user-ng-amina', 'demo-user-br-lucas', 'demo-user-pl-marta', 'demo-user-it-sofia', 'demo-user-cn-mei'],
+  'pos-c3': ['demo-user-de-anika', 'demo-user-kr-jiwoo', 'demo-user-cn-mei', 'demo-user-ph-maria'],
+  'pos-c2': ['demo-user-pl-marta', 'demo-user-it-sofia', 'demo-user-de-anika'],
+  'pos-c4': ['demo-user-ph-maria', 'demo-user-ng-amina'],
+  'pos-c6': ['demo-user-kr-jiwoo', 'demo-user-it-sofia'],
+};
+const EDIT_SUPPORTERS: Record<string, string[]> = {
+  s1: ['demo-user-it-sofia', 'demo-user-pl-marta', 'demo-user-ph-maria'], // 3 = target(4) - 1 → one click folds in
+  s2: ['demo-user-de-anika', 'demo-user-kr-jiwoo'],
+  s3: ['demo-user-ng-amina', 'demo-user-br-lucas'],
+};
+// reply comment id → the root position it anchors under
+const ANCHOR_OF: Record<string, string> = { c1a: 'pos-c1', c1b: 'pos-c1', c3a: 'pos-c3', c5a: 'pos-c5' };
+
+function buildDiscussionSeed(): DiscussionSeed {
+  const roots = DISCUSSION_COMMENTS.filter((c) => c.parentId === null);
+  const replies = DISCUSSION_COMMENTS.filter((c) => c.parentId !== null);
+  const positions: SeedPosition[] = roots.map((c) => ({
+    id: `pos-${c.id}`,
+    type: c.category,
+    author: c.author,
+    text: c.text,
+    supporters: POSITION_SUPPORTERS[`pos-${c.id}`] ?? [c.author],
+    createdAgo: c.minutesAgo,
+  }));
+  const anchored: SeedAnchored[] = replies.map((c) => ({
+    id: c.id,
+    anchor: ANCHOR_OF[c.id] ?? 'statement',
+    author: c.author,
+    text: c.text,
+    // Keep the thread: a reply whose parent is itself a reply stays nested;
+    // a reply on a root comment anchors directly on that comment's position.
+    parentId: replies.some((r) => r.id === c.parentId) ? c.parentId : null,
+    createdAgo: c.minutesAgo,
+  }));
+  const edits: SeedEdit[] = EDIT_SUGGESTIONS.map((e) => ({
+    id: e.id,
+    field: e.field === 'description' ? 'body' : 'title',
+    author: e.author,
+    baseText: e.baseText,
+    text: e.suggestedText,
+    rationale: e.rationale,
+    supporters: EDIT_SUPPORTERS[e.id] ?? [e.author],
+    status: 'open',
+    createdAgo: e.minutesAgo,
+  }));
+  return {
+    statement: {
+      title: PROBLEM_STATEMENT.title,
+      body: PROBLEM_STATEMENT.description,
+      coAuthors: [...CO_AUTHORS],
+    },
+    edits,
+    positions,
+    anchored,
+  };
+}
+
+/** The co-authoring seed — consumed by `demoContracts/discussion.ts`. */
+export const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
+
+// ---------------------------------------------------------------------------
 // C3 — Merge similar proposals + expert review
 // (themed to the "Youth Employment & the Skills Gap" proposals stage)
 // ---------------------------------------------------------------------------
