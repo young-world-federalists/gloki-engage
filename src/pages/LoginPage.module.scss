@@ -241,12 +241,33 @@
         p {
           color: $dark-text-secondary;
         }
+
+        .helpBox {
+          background: $dark-surface;
+
+          p {
+            color: $dark-text-secondary;
+          }
+        }
       }
 
       .form {
         .inputGroup {
           label {
             color: $dark-text;
+          }
+
+          .inputWithButton {
+            .generateButton {
+              background-color: $dark-surface;
+              border-color: $dark-border;
+              color: $dark-text-secondary;
+
+              &:hover {
+                background-color: $dark-border;
+                color: $dark-text;
+              }
+            }
           }
 
           .inputWithDropdown {
