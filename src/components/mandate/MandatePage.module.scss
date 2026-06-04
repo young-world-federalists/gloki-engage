@@ -5,3 +5,8 @@
   flex-direction: column;
   gap: $spacing-xl;
 }
+
+/* "Read the full mandate" scroll target — clears the sticky header. */
+.docAnchor {
+  scroll-margin-top: $spacing-2xl;
+}

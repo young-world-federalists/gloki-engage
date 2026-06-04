@@ -4,6 +4,7 @@ import PageHeader from '../PageHeader';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { getPublishedMandate } from './MandatePage.demo';
+import MandateCard, { MANDATE_DOC_ANCHOR_ID } from './MandateCard';
 import MandateDocument from './MandateDocument';
 import AdoptionFramework from './AdoptionFramework';
 import cs from '../../pages/Container.module.scss';
@@ -46,7 +47,10 @@ const MandatePage: React.FC = () => {
       <div className={cs.content}>
         <div className={cs.main}>
           <div className={styles.page}>
-            <MandateDocument mandate={mandate} />
+            <MandateCard mandate={mandate} />
+            <div id={MANDATE_DOC_ANCHOR_ID} className={styles.docAnchor}>
+              <MandateDocument mandate={mandate} />
+            </div>
             <AdoptionFramework mandateId={mandate.id} />
           </div>
         </div>

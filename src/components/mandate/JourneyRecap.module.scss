@@ -104,3 +104,70 @@
     color: $dark-text-secondary;
   }
 }
+
+/* ── Compact horizontal arc (embedded in MandateCard) ────────────────── */
+.compactSteps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-xs;
+}
+
+.compactStep {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.compactDot {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: $radius-full;
+  background: rgba($primary, 0.1);
+  color: $primary-dark;
+  position: relative;
+  z-index: 1;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.25);
+    color: $dark-text;
+  }
+}
+
+.compactLabel {
+  font-size: 0.625rem;
+  font-weight: $font-medium;
+  line-height: 1.2;
+  padding: 0 2px;
+  overflow-wrap: anywhere;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* Connector from this dot's centre to the next (steps are equal-width). */
+.compactConnector {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: $gray-200;
+  z-index: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+  }
+}

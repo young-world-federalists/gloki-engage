@@ -1,0 +1,194 @@
+@use '../../styles/variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.eyebrow {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.ratifiedOn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin: calc(-1 * #{$spacing-sm}) 0 0;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  line-height: 1.25;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+/* ── What we decided — the heart of the card ─────────────────────────── */
+.decided {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md $spacing-lg;
+  background: rgba($primary, 0.06);
+  border-left: 3px solid $primary;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.16);
+  }
+}
+
+.decidedLabel {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $primary-dark;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.decidedText {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  line-height: 1.45;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+/* ── Three legitimacy signals ────────────────────────────────────────── */
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.signal {
+  flex: 1 1 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.signalIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: $spacing-xs;
+  border-radius: $radius-full;
+  background: rgba($primary, 0.1);
+  color: $primary-dark;
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.25);
+    color: $dark-text;
+  }
+}
+
+.signalLabel {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.signalValue {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.signalNote {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.signalFlags {
+  margin-top: $spacing-xs;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.srStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
