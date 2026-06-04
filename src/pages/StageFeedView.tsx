@@ -13,10 +13,11 @@ import DiscussionStage from '../components/stages/DiscussionStage';
 import ProposalsStage from '../components/stages/ProposalsStage';
 import VoteStage from '../components/stages/VoteStage';
 import MandateStage from '../components/stages/MandateStage';
-import { TrustBadge } from '../components/shared';
+import { TrustBadge, Banner } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import StageGate from '../components/community/StageGate';
 import { useT } from '../i18n';
+import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
@@ -183,6 +184,7 @@ const StageFeedView: React.FC = () => {
   const t = useT();
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showStageIntro, setShowStageIntro] = useState(() => !getHintSeen('stageFeedIntro'));
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const { communityMembers, communityActiveMembers } = useAppSelector((s) => s.communities);
 
@@ -244,6 +246,20 @@ const StageFeedView: React.FC = () => {
       />
 
       <div className={styles.feedContainer}>
+        {showStageIntro && (
+          <Banner
+            tone="info"
+            title={t('howGloki.pointer.title', 'How Gloki works')}
+            onDismiss={() => { markHintSeen('stageFeedIntro'); setShowStageIntro(false); }}
+            dismissLabel={t('common.dismiss', 'Dismiss')}
+          >
+            {t(
+              'howGloki.pointer.body',
+              'These five steps are how every idea travels — from spotting a Problem to a community Mandate. You’re on {stage}.',
+              { stage: t(`nav.${stage}`, config.label) },
+            )}
+          </Banner>
+        )}
         {stage === 'problem' && (
           <div className={styles.thresholdBanner}>
             <AlertCircle size={16} />
