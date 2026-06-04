@@ -306,7 +306,9 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
       ) : (
         <div className={styles.list}>
           <p className={styles.sectionHint}>
-            {t('deliberation.coauthor.openHint', '{n} open edits · folds in at {target} supporters', { n: open.length, target })}
+            {open.length === 1
+              ? t('deliberation.coauthor.openHintOne', '1 open edit · folds in at {target} supporters', { target })
+              : t('deliberation.coauthor.openHint', '{n} open edits · folds in at {target} supporters', { n: open.length, target })}
           </p>
           {open.map((e) => (
             <EditCard

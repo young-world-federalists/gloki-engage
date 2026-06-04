@@ -157,7 +157,14 @@ const PositionCard: React.FC<{
               <span>{count}</span>
             </button>
           ) : (
-            <span className={styles.supportStatic} aria-label={t('deliberation.positions.supporters', '{n} supporters', { n: count })}>
+            <span
+              className={styles.supportStatic}
+              aria-label={
+                count === 1
+                  ? t('deliberation.positions.supporterOne', '1 supporter')
+                  : t('deliberation.positions.supporters', '{n} supporters', { n: count })
+              }
+            >
               <ThumbsUp size={14} aria-hidden /> <span>{count}</span>
             </span>
           )}
@@ -168,7 +175,11 @@ const PositionCard: React.FC<{
             aria-expanded={expanded}
           >
             <MessageCircle size={14} aria-hidden />
-            <span>{t('deliberation.positions.replies', '{n} replies', { n: position.replyCount })}</span>
+            <span>
+              {position.replyCount === 1
+                ? t('deliberation.positions.replyOne', '1 reply')
+                : t('deliberation.positions.replies', '{n} replies', { n: position.replyCount })}
+            </span>
             {expanded ? <ChevronDown size={14} aria-hidden /> : <ChevronRight size={14} aria-hidden />}
           </button>
         </div>
