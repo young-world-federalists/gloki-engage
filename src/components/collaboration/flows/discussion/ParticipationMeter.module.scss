@@ -1,0 +1,90 @@
+@use '../../../../styles/variables' as *;
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.label {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.threshold {
+  margin-left: auto;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.thresholdMet {
+  color: $success;
+}
+
+.bar {
+  position: relative;
+  height: 8px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+  }
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: $primary;
+  border-radius: $radius-full;
+  transition: width $transition-base, background $transition-base;
+}
+
+.fillMet {
+  background: $success;
+}
+
+/* The 33% threshold marker. */
+.marker {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: $gray-400;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-text-secondary;
+  }
+}

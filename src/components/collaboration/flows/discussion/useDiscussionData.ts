@@ -1,7 +1,38 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../../../../store/hooks';
+import { deliberationParticipant } from '../../../../services/demo/fixtures/deliberation';
 import * as api from './discussionApi';
 import type { Statement, EditSuggestion, Position, AnchoredComment } from './discussionApi';
+
+export interface ResolvedAuthor {
+  isMine: boolean;
+  name: string; // persona/expert display name; caller renders "You" when isMine
+  country: string; // '' when unknown
+  initials: string;
+}
+
+/**
+ * Resolve an author pk to display info. Personas/experts come from the
+ * deliberation fixture; the current user's country overlays from their profile
+ * (country is resolved CLIENT-SIDE — the contract stores only the pk).
+ */
+export function useAuthorResolver(): (pk: string) => ResolvedAuthor {
+  const publicKey = useAppSelector((s) => s.user.publicKey) || 'me';
+  const profiles = useAppSelector((s) => s.communities.profiles) || {};
+  return useCallback(
+    (pk: string) => {
+      const base = deliberationParticipant(pk);
+      const prof = profiles[pk];
+      return {
+        isMine: pk === publicKey,
+        name: base.name,
+        country: prof?.country || base.country,
+        initials: base.initials,
+      };
+    },
+    [publicKey, profiles],
+  );
+}
 
 export interface DiscussionData {
   statement: Statement;

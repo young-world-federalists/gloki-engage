@@ -1,0 +1,460 @@
+@use '../../../../styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  min-height: 40px;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary;
+  background: transparent;
+  border: 1px solid $primary;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background $transition-base, transform $transition-fast;
+
+  &:hover {
+    background: rgba($primary, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+/* ── Position card ───────────────────────────────────────────────────── */
+.position {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.positionHead {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.timestamp {
+  margin-left: auto;
+  font-size: $text-xs;
+  color: $gray-400;
+}
+
+.positionText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.55;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.positionFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: $radius-full;
+  background: $gray-200;
+  color: $gray-700;
+  font-size: 0.5625rem;
+  font-weight: $font-semibold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.avatarMe {
+  background: $primary;
+  color: white;
+}
+
+.authorName {
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.positionActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.supportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  min-height: 36px;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-600;
+  background: transparent;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: color $transition-base, border-color $transition-base, background $transition-base, transform $transition-fast;
+
+  &:hover {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+    border-color: $dark-border;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+.supportBtnActive {
+  color: $primary;
+  border-color: $primary;
+  background: rgba($primary, 0.08);
+}
+
+.supportStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-400;
+}
+
+.replyToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  min-height: 36px;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.anchored {
+  margin-top: $spacing-xs;
+  padding-top: $spacing-md;
+  border-top: 1px dashed $gray-200;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+  }
+}
+
+/* ── Also raised ─────────────────────────────────────────────────────── */
+.alsoRaised {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.alsoToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs 0;
+  min-height: 36px;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $gray-500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $gray-700;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    &:hover {
+      color: $dark-text;
+    }
+  }
+}
+
+.viewOnly {
+  margin: 0;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ── Add-position compose ────────────────────────────────────────────── */
+.compose {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.typeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.typeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  min-height: 36px;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-600;
+  background: transparent;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: color $transition-base, border-color $transition-base, background $transition-base;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+    border-color: $dark-border;
+  }
+}
+
+.typeChipActive {
+  color: $primary;
+  border-color: $primary;
+  background: rgba($primary, 0.08);
+}
+
+.textarea {
+  width: 100%;
+  resize: vertical;
+  padding: $spacing-sm;
+  font-size: $text-sm;
+  font-family: inherit;
+  color: $gray-800;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: 2px solid $primary;
+    outline-offset: 1px;
+    border-color: $primary;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    color: $dark-text;
+    border-color: $dark-border;
+  }
+}
+
+.composeActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.btnSubmit {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  min-height: 40px;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: white;
+  background: $primary;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background $transition-base, transform $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnGhost {
+  padding: $spacing-xs $spacing-md;
+  min-height: 40px;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-500;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  &:hover {
+    color: $gray-700;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    &:hover {
+      color: $dark-text;
+    }
+  }
+}

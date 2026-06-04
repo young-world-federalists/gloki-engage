@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { PenLine, Users, Check, ThumbsUp, Eye } from 'lucide-react';
+import { PenLine, Users, Check, ThumbsUp, Eye, MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge, Banner, Button, Modal, CountryFlag, EmptyState } from '../../../shared';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
@@ -217,6 +217,7 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const currentUserKey = publicKey || 'me';
   const [showModal, setShowModal] = useState(false);
+  const [showDiscussion, setShowDiscussion] = useState(false);
 
   // Fold-in target: a majority of those who've taken part, floor 3.
   const target = Math.max(3, Math.ceil(participantCount / 2));
@@ -279,7 +280,20 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
         )}
       </div>
 
-      {discussionSlot}
+      {discussionSlot && (
+        <div className={styles.statementDiscussion}>
+          <button
+            type="button"
+            className={styles.discussToggle}
+            onClick={() => setShowDiscussion((v) => !v)}
+            aria-expanded={showDiscussion}
+          >
+            <MessageCircle size={14} aria-hidden /> {t('deliberation.coauthor.discuss', 'Discuss the statement')}
+            {showDiscussion ? <ChevronDown size={14} aria-hidden /> : <ChevronRight size={14} aria-hidden />}
+          </button>
+          {showDiscussion && <div className={styles.statementThread}>{discussionSlot}</div>}
+        </div>
+      )}
 
       {/* Open edits */}
       {open.length === 0 ? (

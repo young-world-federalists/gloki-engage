@@ -102,6 +102,53 @@
   }
 }
 
+/* ── Discuss the statement ───────────────────────────────────────────── */
+.statementDiscussion {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.discussToggle {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  min-height: 36px;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-600;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.statementThread {
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-lg;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+  }
+}
+
 /* ── Edit list ───────────────────────────────────────────────────────── */
 .sectionHint {
   margin: 0;
