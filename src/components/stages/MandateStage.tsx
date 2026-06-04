@@ -1,9 +1,6 @@
-import React, { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import React from 'react';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ConvictionStaking from '../collaboration/flows/voting/ConvictionStaking';
-import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import type { StageVariant } from '../../types/initiative';
 import styles from './MandateStage.module.scss';
@@ -18,24 +15,13 @@ export interface MandateStageProps {
 /**
  * Stage 5 — Mandate. Owned by Lane E (`src/components/stages/MandateStage.*`).
  * Renders time-weighted conviction staking (compact in the feed, full in the
- * dashboard). In the feed it also links through to the published mandate
- * artifact; the dashboard surfaces that link via the JourneyRecap instead, so
- * the two contexts never double up.
+ * dashboard) — the staking ACTION, which the per-stage gate may block. The
+ * read-only "view the published mandate" link is surfaced outside the gate by
+ * the feed shell (StageFeedView) and via the JourneyRecap on the dashboard, so
+ * a not-yet-eligible member can always reach the published artifact.
  */
 const MandateStage: React.FC<MandateStageProps> = ({ initiativeId, variant }) => {
   const t = useT();
-  const navigate = useNavigate();
-  const params = useParams<{ communityId?: string }>();
-  const communityCollaborations = useAppSelector((s) => s.communities.communityCollaborations);
-
-  // Which community hosts this initiative — needed to build the mandate route.
-  // Derived from the store so the feed shell never has to pass it down.
-  const communityId = useMemo(() => {
-    for (const [cid, collabs] of Object.entries(communityCollaborations || {})) {
-      if (Array.isArray(collabs) && collabs.some((c) => c.id === initiativeId)) return cid;
-    }
-    return params.communityId ?? null;
-  }, [communityCollaborations, initiativeId, params.communityId]);
 
   return (
     <ErrorBoundary fallbackMessage={t('mandate.stakeError', 'Conviction staking encountered an error.')}>
@@ -46,16 +32,6 @@ const MandateStage: React.FC<MandateStageProps> = ({ initiativeId, variant }) =>
           stageKey="convictionContractId"
           compact={variant === 'feed'}
         />
-        {variant === 'feed' && communityId && (
-          <button
-            type="button"
-            className={styles.viewMandate}
-            onClick={() => navigate(`/mandate/${communityId}/${initiativeId}`)}
-          >
-            <span>{t('mandate.viewPublished', 'View the published mandate')}</span>
-            <ArrowRight size={14} aria-hidden />
-          </button>
-        )}
       </div>
     </ErrorBoundary>
   );

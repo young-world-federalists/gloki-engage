@@ -1,5 +1,32 @@
 @use '../styles/variables' as *;
 
+/* Read-only link to the published mandate — sits outside the per-stage gate. */
+.viewMandateLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  margin: $spacing-xs 0 0 -#{$spacing-sm};
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
 .feedContainer {
   padding: $spacing-lg;
   padding-bottom: 80px; // room for fixed footer

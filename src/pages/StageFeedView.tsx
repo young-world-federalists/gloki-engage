@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
+import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
@@ -90,6 +90,8 @@ const StageFeedCard: React.FC<{
   onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
 }> = ({ item, stage, activeMemberCount, onCardClick, onCommunityClick }) => {
   const trust = useCommunityTrust(item.communityId);
+  const navigate = useNavigate();
+  const t = useT();
   return (
     <div
       className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`}
@@ -108,6 +110,22 @@ const StageFeedCard: React.FC<{
 
       <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
+
+      {/* The published mandate is a read-only artifact — reachable even when the
+          stage's staking action is gated, so surface its link outside the gate. */}
+      {stage === 'mandate' && (
+        <button
+          type="button"
+          className={styles.viewMandateLink}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/mandate/${item.communityId}/${item.id}`);
+          }}
+        >
+          <span>{t('mandate.viewPublished', 'View the published mandate')}</span>
+          <ArrowRight size={14} aria-hidden />
+        </button>
+      )}
 
       {/* Stage-specific participation UI — lane-owned stage components.
           Gated by the community's per-stage rule; the meta/title/description above
