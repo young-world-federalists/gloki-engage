@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $brand-gradient-start 0%, $brand-gradient-end 100%);
   padding: $spacing-lg;
 
   .card {
@@ -84,7 +84,7 @@
         .fieldHint {
           display: block;
           font-size: $text-xs;
-          color: $gray-400;
+          color: $gray-500;
           font-weight: $font-normal;
           margin-top: 2px;
         }
@@ -133,10 +133,17 @@
             overflow-y: auto;
 
             .historyItem {
+              display: block;
+              width: 100%;
+              text-align: left;
               padding: $spacing-md;
-              cursor: pointer;
+              background: none;
+              border: none;
               border-bottom: 1px solid $gray-100;
+              color: $gray-800;
+              font-family: inherit;
               font-size: $text-sm;
+              cursor: pointer;
               transition: background-color $transition-base;
 
               &:last-child {
@@ -146,6 +153,11 @@
               &:hover {
                 background-color: $gray-50;
               }
+
+              &:focus-visible {
+                outline: 2px solid $primary;
+                outline-offset: -2px;
+              }
             }
           }
         }
@@ -153,7 +165,7 @@
 
       .fieldError {
         font-size: $text-sm;
-        color: #e53e3e;
+        color: $error-dark;
         margin-top: -$spacing-xs;
       }
 
@@ -168,15 +180,15 @@
         border: 1px solid;
 
         &.generalError {
-          background-color: #fef2f2;
-          border-color: #fecaca;
-          color: $error;
+          background-color: $error-surface;
+          border-color: rgba($error, 0.4);
+          color: $error-dark;
         }
 
         &.serverError {
-          background-color: #fffbeb;
-          border-color: #fcd34d;
-          color: $warning;
+          background-color: $warning-surface;
+          border-color: rgba($warning, 0.5);
+          color: $warning-on-surface;
         }
 
         .errorIcon {
@@ -200,17 +212,17 @@
           .retryButton {
             margin-top: $spacing-md;
             padding: $spacing-sm $spacing-lg;
-            background-color: $warning;
+            background-color: $warning-on-surface;
             color: white;
             border: none;
             border-radius: $radius-sm;
             font-size: $text-sm;
             font-weight: $font-medium;
             cursor: pointer;
-            transition: background-color $transition-base;
+            transition: filter $transition-base;
 
             &:hover {
-              background-color: #d97706;
+              filter: brightness(1.12);
             }
           }
         }

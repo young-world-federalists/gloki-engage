@@ -168,7 +168,14 @@ const LoginPage: React.FC = () => {
               {t('login.server.label', 'Server URL')}
               <span className={styles.fieldHint}>{t('login.server.hint', "The default network is already selected. Most people never need to change this.")}</span>
             </label>
-            <div className={styles.inputWithDropdown}>
+            <div
+              className={styles.inputWithDropdown}
+              onBlur={(e) => {
+                // Close only when focus leaves the field + dropdown entirely, so keyboard
+                // users can Tab into the history options without the list vanishing.
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setShowHistory(false);
+              }}
+            >
               <input
                 id="serverUrl"
                 type="url"
@@ -178,10 +185,7 @@ const LoginPage: React.FC = () => {
                   setShowHistory(false);
                 }}
                 onFocus={() => setShowHistory(true)}
-                onBlur={() => {
-                  setShowHistory(false);
-                  setServerUrlError(validateServerUrl(serverUrl));
-                }}
+                onBlur={() => setServerUrlError(validateServerUrl(serverUrl))}
                 placeholder={t('login.server.placeholder', 'https://your-server.com')}
                 className="input-field"
                 autoComplete="off"
@@ -189,13 +193,17 @@ const LoginPage: React.FC = () => {
               {showHistory && serverUrlHistory.length > 0 && (
                 <div className={styles.historyDropdown}>
                   {serverUrlHistory.map((url, index) => (
-                    <div
+                    <button
                       key={index}
+                      type="button"
                       className={styles.historyItem}
-                      onMouseDown={() => handleServerUrlSelect(url)} // Use onMouseDown so it fires before blur
+                      // onMouseDown fires before the input's blur (mouse, browser-safe);
+                      // onClick covers keyboard activation (Enter/Space) once focused.
+                      onMouseDown={() => handleServerUrlSelect(url)}
+                      onClick={() => handleServerUrlSelect(url)}
                     >
                       {url}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -205,7 +213,7 @@ const LoginPage: React.FC = () => {
 
           {loginError && (
             <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`} role="alert">
-              <div className={styles.errorIcon}>⚠️</div>
+              <div className={styles.errorIcon} aria-hidden="true">⚠️</div>
               <div className={styles.errorContent}>
                 <div className={styles.errorTitle}>
                   {loginError.includes('connect to the server') || loginError.includes('unreachable') ? t('login.error.connection', 'Connection Error') :
