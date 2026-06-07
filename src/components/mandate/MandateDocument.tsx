@@ -72,7 +72,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
     <article className={styles.document} aria-label={t('mandate.docLabel', 'Published mandate')}>
       <header className={styles.masthead}>
         <p className={styles.eyebrow}>{mandate.subtitle}</p>
-        <h1 className={styles.title}>{mandate.title}</h1>
+        <h2 className={styles.title}>{mandate.title}</h2>
         <div className={styles.metaRow}>
           <Badge tone="success" size="sm">
             {t('mandate.statusRatified', 'Ratified')}
