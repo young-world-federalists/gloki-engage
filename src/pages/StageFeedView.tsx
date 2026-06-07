@@ -94,10 +94,7 @@ const StageFeedCard: React.FC<{
   const navigate = useNavigate();
   const t = useT();
   return (
-    <div
-      className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`}
-      onClick={stage === 'discussion' ? () => onCardClick(item) : undefined}
-    >
+    <div className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`}>
       <div className={styles.cardMeta}>
         <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
           {item.communityName}
@@ -109,7 +106,15 @@ const StageFeedCard: React.FC<{
         {item.createdAt && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
       </div>
 
-      <h3 className={styles.cardTitle}>{item.title || 'Untitled Initiative'}</h3>
+      <h3 className={styles.cardTitle}>
+        {stage === 'discussion' ? (
+          <button type="button" className={styles.cardTitleButton} onClick={() => onCardClick(item)}>
+            {item.title || 'Untitled Initiative'}
+          </button>
+        ) : (
+          item.title || 'Untitled Initiative'
+        )}
+      </h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
 
       {/* The published mandate is a read-only artifact — reachable even when the
@@ -246,6 +251,7 @@ const StageFeedView: React.FC = () => {
       />
 
       <div className={styles.feedContainer}>
+        <h1 className={styles.srOnly}>{t(`nav.${stage}`, config.label)}</h1>
         {showStageIntro && (
           <Banner
             tone="info"
