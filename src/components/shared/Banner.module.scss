@@ -40,6 +40,7 @@
 }
 
 .dismiss {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -56,6 +57,23 @@
 
   &:hover {
     opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  // ≥44px touch target without enlarging the visual icon (project ≥44px bar / WCAG 2.5.5).
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
   }
 }
 

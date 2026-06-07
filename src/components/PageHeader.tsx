@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu } from 'lucide-react';
 import EarthFlag from './shared/EarthFlag';
 import NotificationsBell from './shared/NotificationsBell';
+import { useT } from '../i18n';
 import styles from './PageHeader.module.scss';
 
 export interface ActionButton {
@@ -51,6 +52,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   menuOpen,
 }) => {
   const navigate = useNavigate();
+  const t = useT();
 
   if (layout === 'homepage') {
     return (
@@ -66,7 +68,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               <button
                 className={styles.menuButton}
                 onClick={onMenuClick}
-                aria-label="Open menu"
+                aria-label={t('nav.openMenu', 'Open menu')}
                 aria-expanded={!!menuOpen}
               >
                 <Menu size={22} strokeWidth={2.5} />
