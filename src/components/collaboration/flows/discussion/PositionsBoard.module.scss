@@ -89,7 +89,7 @@
 .timestamp {
   margin-left: auto;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500; // $gray-400 was 2.54:1 on white — below AA
 }
 
 .positionText {
@@ -214,7 +214,7 @@
   padding: $spacing-xs $spacing-sm;
   font-size: $text-xs;
   font-weight: $font-medium;
-  color: $gray-400;
+  color: $gray-500; // $gray-400 was 2.54:1 on white — below AA
 }
 
 .replyToggle {
