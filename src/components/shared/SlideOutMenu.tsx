@@ -45,15 +45,44 @@ const SlideOutMenu: React.FC<SlideOutMenuProps> = ({
   closeLabel = 'Close menu',
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
+  // Move focus into the dialog on open; restore it to the trigger on close.
+  useEffect(() => {
+    if (!isOpen) return;
+    triggerRef.current = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    return () => {
+      triggerRef.current?.focus?.();
+    };
+  }, [isOpen]);
+
+  // Escape closes; Tab is trapped within the panel while open (aria-modal alone
+  // scopes screen readers, not the keyboard's tab order).
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === panelRef.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', handleKey);
-    // Move focus into the dialog so keyboard / screen-reader users land here.
-    panelRef.current?.focus();
     return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen, onClose]);
 
