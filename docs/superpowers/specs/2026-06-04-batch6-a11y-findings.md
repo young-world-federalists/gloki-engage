@@ -5,8 +5,10 @@
 `design:accessibility-review` skill driven against the running preview (light + dark + 360px) across the
 seven Batch-priority flows through five personas.
 
-> **Status: audit complete → REVIEW GATE.** No fixes applied yet. §6 is the prioritized list for Eston to
-> set the appetite. Per the plan (W2.0), large-ish fixes wait for that call.
+> **Status: A+B fixes shipped (local commits) · long tail flagged.** At the review gate Eston set the
+> appetite to **A+B** (high + reasonable-effort medium) and **deferred the language switcher (#11)**.
+> 14 findings fixed across 6 small local commits — see **§1a Resolution**. The C-tranche + #11 stay
+> flagged. **Not pushed** (Eston controls the deploy).
 
 ---
 
@@ -29,6 +31,39 @@ medium**, **7 low**, plus one **systemic** contrast issue and a token-debt long-
 | **Screen-reader** | Strong semantics overall. Gaps: **stage feeds have no `<h1>`** (homepage header = wordmark button); **MandatePage emits 3 `<h1>`s**; minor H1→H3 level skips; `<ins>` lacks a non-colour cue. |
 | **Low-bandwidth / 360px** | Layout integrity is excellent (no overflow anywhere, stepper holds). Touch targets miss the project ≥44px bar in shared chrome: **Banner dismiss 24×24**, NotificationsBell 30×33, back buttons 35–38px. |
 | **Multilingual** | RTL-ready (no hardcoded `left/right`); long strings wrap cleanly; new strings `t()`-wired. One stranded literal: PageHeader menu `aria-label="Open menu"`. **No language switcher pre-auth** (product call). |
+
+---
+
+## 1a. Resolution (post review-gate — A+B shipped locally)
+
+All fixes verified live in the preview (light + 360px; dark where relevant) with real interactions and
+computed-contrast / bounding-box / focus checks — not asserted from source. `npx tsc -b` clean throughout.
+**6 local commits, not pushed:**
+
+| Commit | Findings fixed | What changed |
+|--------|----------------|--------------|
+| `86d3f54` | #6, #7, #8, #13 | Shared chrome: Banner dismiss + NotificationsBell get a ≥44px `::after` hit area (no visual change); PageHeader + InfoPage back buttons → ≥44px; homepage menu `aria-label` → `t()`. Verified: all ≥44px, dismiss still works. |
+| `a575845` | #2 (login hint), #3, #9, #14, #17 | LoginPage: hint `$gray-400`→`$gray-500` (4.83:1); error/warning surfaces → AA token pairs (`$error-dark`/`$warning-on-surface`, 5.30–7.09:1 incl. retry button); history dropdown `<div>`→`<button>` + focus-within guard; error emoji `aria-hidden`; gradient → tokens. |
+| `0a88920` | #1 (high), #2 (timestamp), #4 | Stage feed: discussion card now keyboard-accessible via a stretched-link title `<button>` (whole card stays a tap-through; community badge raised + clickable); visually-hidden `<h1>` (stage name); author/timestamp → `$gray-500`. |
+| `529fab6` | #2 (captions), #12 | Stage-2: `<ins>` gets `underline` (non-colour cue; `<del>` keeps line-through); edit/position/support captions → `$gray-500`. |
+| `df7466e` | #5 | Mandate: MandateCard + MandateDocument titles `<h1>`→`<h2>` (PageHeader's stays the single page h1). |
+| `d42b128` | #10 | SlideOutMenu: restore focus to the trigger on close + trap Tab within the panel (open-focus & Esc already worked). |
+| _(this doc)_ | #2 (DS guidance) | DESIGN_SYSTEM.md caption guidance: use `$gray-500`, not `$gray-400`, for text. |
+
+**Flagged / deferred (not fixed):**
+- **#11 language switcher** — deferred by Eston (English-now; revisit with the fr/sw parity wave).
+- **#2 full app-wide caption sweep** — only the audited-flow `$gray-400` text instances were fixed; a
+  repo-wide sweep (every `.module.scss` caption + a grep gate) is the C-tranche long tail.
+- **Newly found during fixes — `$error-on-surface` token is borderline:** `$error-on-surface` = `$error`
+  (#dc2626) is only **3.95:1 on `$error-surface`**, so the shared `Banner` error tone is sub-AA. I fixed
+  LoginPage directly (using `$error-dark`) rather than change the global token without sign-off. **A
+  one-line fix — `$error-on-surface: $error-dark` — would bring every error surface to ≥5.3:1 with no
+  downside (darker red on a light tint). Recommend doing it; left for Eston's nod since it touches the
+  Batch-5 Banner.**
+- **#15** heading-level skips (H1→H3), **#16** wordmark 40px, **#18** CommunityView duplicate heading, and
+  the **§4 token-debt long tail** — C-tranche, flagged.
+
+The Status column below reflects the **original audit**; this section is the authoritative post-fix state.
 
 ---
 

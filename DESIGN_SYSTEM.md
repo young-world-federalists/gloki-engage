@@ -67,7 +67,7 @@ Overlays/scrims (modal backdrops): `$overlay-bg`.
 | Page title | `$text-xl` (20px) | `$font-semibold` | Top-level page headings |
 | Section header | `$text-lg` (18px) | `$font-medium` | Section dividers within a page |
 | Body | `$text-sm` (14px) | `$font-normal` | Default text, form labels |
-| Caption | `$text-xs` (12px) | `$font-normal` | Metadata, timestamps, helper text. Use `$gray-400`. |
+| Caption | `$text-xs` (12px) | `$font-normal` | Metadata, timestamps, helper text. Use **`$gray-500`** (≈4.8:1 on white). **Do not use `$gray-400` for text** — it is `#9ca3af` = **2.54:1 on white**, below the AA floor; reserve it for non-text/decorative use only. |
 
 ## Spacing
 
