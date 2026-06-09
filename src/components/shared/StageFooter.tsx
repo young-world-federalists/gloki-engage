@@ -25,7 +25,7 @@ const StageFooter: React.FC = () => {
   const activeStage = STAGES.find((s) => location.pathname.startsWith(s.path))?.id ?? null;
 
   return (
-    <nav className={styles.footer}>
+    <nav className={styles.footer} aria-label={t('nav.stagesLabel', 'Pipeline stages')}>
       {STAGES.map((stage) => {
         const isActive = stage.id === activeStage;
         return (
@@ -33,6 +33,7 @@ const StageFooter: React.FC = () => {
             key={stage.id}
             className={`${styles.tab} ${isActive ? styles.active : ''}`}
             onClick={() => navigate(stage.path)}
+            aria-current={isActive ? 'page' : undefined}
           >
             <stage.icon size={22} />
             <span>{t(stage.labelKey, stage.fallback)}</span>

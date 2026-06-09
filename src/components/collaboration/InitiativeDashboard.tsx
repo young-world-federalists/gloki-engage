@@ -67,6 +67,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
   const [details, setDetails] = useState<Record<string, unknown>>({});
   const [advancing, setAdvancing] = useState(false);
   const [confirmAdvance, setConfirmAdvance] = useState(false);
+  const [advanceError, setAdvanceError] = useState<string | null>(null);
   const [problemTally, setProblemTally] = useState<{ up: number; down: number; total: number }>({ up: 0, down: 0, total: 0 });
   const [discussionSummary, setDiscussionSummary] = useState<DiscussionSummary | null>(null);
   const [proposalsSummary, setProposalsSummary] = useState<ProposalsSummary | null>(null);
@@ -217,6 +218,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
     if (!confirmAdvance) { setConfirmAdvance(true); return; }
     setAdvancing(true);
     setConfirmAdvance(false);
+    setAdvanceError(null);
     try {
       await contractWrite({
         serverUrl, publicKey, contractId: collaborationId,
@@ -225,7 +227,11 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
       setStage(nextStage.id);
       // Keep Communities mandate counts fresh in this tab without a refetch.
       dispatch(setInitiativeStage({ initiativeId: collaborationId, stage: nextStage.id }));
-    } catch { /* silently fail */ }
+    } catch (err) {
+      // Surface the failure (was silently swallowed — review §2 / Gate B minimum).
+      console.error('[Dashboard] set_stage failed:', err);
+      setAdvanceError(t('dashboard.advance.failed', "Couldn't advance the stage. Please try again."));
+    }
     finally { setAdvancing(false); }
   };
 
@@ -428,6 +434,12 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                 <div className={styles.advanceWarning}>
                   <AlertTriangle size={14} />
                   <span>{stageReadiness.reason}</span>
+                </div>
+              )}
+              {advanceError && (
+                <div className={styles.advanceWarning} role="alert">
+                  <AlertTriangle size={14} />
+                  <span>{advanceError}</span>
                 </div>
               )}
               {confirmAdvance ? (
