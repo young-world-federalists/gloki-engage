@@ -1,8 +1,7 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '../PageHeader';
 import { useT } from '../../i18n';
-import { useAppSelector } from '../../store/hooks';
 import { getPublishedMandate } from './MandatePage.demo';
 import MandateCard, { MANDATE_DOC_ANCHOR_ID } from './MandateCard';
 import MandateDocument from './MandateDocument';
@@ -21,17 +20,12 @@ import styles from './MandatePage.module.scss';
 const MandatePage: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
-  const { mandateId } = useParams<{ communityId: string; mandateId: string }>();
-
-  // UI-only mockup: resolve the initiative title from the demo store (populated
-  // when the user reached this mandate via its dashboard) — never a backend read.
-  // When absent, getPublishedMandate falls back to the flagship water mandate so
-  // the page always renders a credible artifact.
-  const title = useAppSelector((s) =>
-    mandateId ? s.initiative.initiativeDetails[mandateId]?.title : undefined,
-  );
-
-  const mandate = getPublishedMandate(title);
+  // UI-only mockup: the page renders the flagship water mandate artifact.
+  // SEAM (Ouri): resolve the real initiative title here once the backend is
+  // wired so the mandate shows its own initiative's title — see the data-layer
+  // seam in ARCHITECTURE.md. (The prior redux read never populated in the
+  // mockup, so getPublishedMandate always used the flagship fallback.)
+  const mandate = getPublishedMandate(undefined);
 
   return (
     <div className={cs.container}>
