@@ -64,7 +64,7 @@
   align-items: center;
   gap: $spacing-sm;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   margin-top: 2px;
 }
 
@@ -166,13 +166,13 @@
   justify-content: center;
   gap: $spacing-md;
   padding: $spacing-xl;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-sm;
 }
 
 .noData {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
   padding: $spacing-lg 0;
 }

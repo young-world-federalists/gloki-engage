@@ -68,7 +68,7 @@
   font-weight: $font-semibold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 /* Plain-language threshold legibility (B3) */
@@ -241,7 +241,7 @@
 .optional {
   font-weight: $font-normal;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .formInput,
@@ -257,7 +257,7 @@
   box-sizing: border-box;
 
   &::placeholder {
-    color: $gray-400;
+    color: $gray-500;
   }
 
   &:focus-visible {

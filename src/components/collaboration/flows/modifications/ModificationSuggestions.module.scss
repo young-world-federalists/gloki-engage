@@ -159,7 +159,7 @@
 
 .authorName {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .suggestionText {
@@ -282,7 +282,7 @@
 .closedTitle {
   font-size: $text-xs;
   font-weight: $font-semibold;
-  color: $gray-400;
+  color: $gray-500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 $spacing-sm;
@@ -293,13 +293,13 @@
   align-items: center;
   gap: $spacing-sm;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 // ─── States ───────────────────────────────────
 .emptyText {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   text-align: center;
   padding: $spacing-lg;
   margin: 0;
@@ -310,7 +310,7 @@
   text-align: center;
   padding: $spacing-lg;
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .retryBtn {

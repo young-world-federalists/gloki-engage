@@ -16,7 +16,7 @@
   margin: 0;
   font-size: $text-xs;
   font-style: italic;
-  color: $gray-400;
+  color: $gray-500;
 
   @media (prefers-color-scheme: dark) {
     color: $dark-text-secondary;
@@ -101,7 +101,7 @@
 .timestamp {
   margin-left: auto;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .commentText {

@@ -62,7 +62,7 @@ $initiative-color: #ea580c;
   align-items: center;
   justify-content: center;
   border: 2px solid $gray-300;
-  color: $gray-400;
+  color: $gray-500;
   background: white;
   transition: all $transition-base;
 
@@ -112,7 +112,7 @@ $initiative-color: #ea580c;
 
 .stepLabel {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   white-space: nowrap;
   font-weight: $font-medium;
 
@@ -245,7 +245,7 @@ $initiative-color: #ea580c;
 
 .badgeLocked {
   background: $gray-100;
-  color: $gray-400;
+  color: $gray-500;
 
   @media (prefers-color-scheme: dark) {
     background: $dark-border;
@@ -259,7 +259,7 @@ $initiative-color: #ea580c;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-sm;
   font-style: italic;
   margin-top: $spacing-xs;

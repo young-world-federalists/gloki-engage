@@ -26,7 +26,7 @@
 
 .notFoundHint {
   max-width: 380px;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-xs;
   line-height: 1.5;
 }
@@ -86,7 +86,7 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-3xl 0;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-sm;
 
   p {
@@ -131,7 +131,7 @@
 
 .timestamp {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   margin-left: auto;
 }
 
@@ -175,7 +175,7 @@
   }
 
   &::placeholder {
-    color: $gray-400;
+    color: $gray-500;
   }
 }
 

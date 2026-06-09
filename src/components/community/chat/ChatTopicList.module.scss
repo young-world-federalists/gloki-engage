@@ -26,7 +26,7 @@
 .caveat {
   margin-top: $spacing-xs !important;
   font-size: $text-xs !important;
-  color: $gray-400 !important;
+  color: $gray-500 !important;
   max-width: 380px;
   line-height: 1.5;
 }
@@ -55,7 +55,7 @@
   }
 
   &::placeholder {
-    color: $gray-400;
+    color: $gray-500;
   }
 }
 
@@ -88,7 +88,7 @@
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-3xl 0;
-  color: $gray-400;
+  color: $gray-500;
 
   p {
     margin: 0;
@@ -155,7 +155,7 @@
 }
 
 .timeAgo {
-  color: $gray-400;
+  color: $gray-500;
 }
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────

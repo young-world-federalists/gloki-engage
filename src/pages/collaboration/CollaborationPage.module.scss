@@ -41,7 +41,7 @@
 
 // The + Add button — styled like a navItem but dashed/muted.
 .addTabBtn {
-  color: $gray-400 !important;
+  color: $gray-500 !important;
   border: 2px dashed $gray-300 !important;
   background: transparent !important;
 
@@ -120,7 +120,7 @@
   padding: $spacing-sm $spacing-lg $spacing-xs;
   font-size: $text-xs;
   font-weight: $font-semibold;
-  color: $gray-400;
+  color: $gray-500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-top: 1px solid $gray-100;

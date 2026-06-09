@@ -22,7 +22,7 @@
 
     .memberCount {
       font-size: $text-xs;
-      color: $gray-400;
+      color: $gray-500;
       margin-top: $spacing-xs;
     }
   }
@@ -99,7 +99,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $gray-400;
+        color: $gray-500;
         flex-shrink: 0;
         overflow: hidden;
 
@@ -117,7 +117,7 @@
           align-items: center;
           justify-content: center;
           background-color: $gray-100;
-          color: $gray-400;
+          color: $gray-500;
         }
       }
 

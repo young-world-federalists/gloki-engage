@@ -151,12 +151,12 @@
   }
 
   &::placeholder {
-    color: $gray-400;
+    color: $gray-500;
   }
 
   &:disabled {
     background: $gray-50;
-    color: $gray-400;
+    color: $gray-500;
   }
 }
 

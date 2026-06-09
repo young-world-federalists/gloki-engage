@@ -177,12 +177,12 @@
   }
 
   &::placeholder {
-    color: $gray-400;
+    color: $gray-500;
   }
 
   &:disabled {
     background: $gray-50;
-    color: $gray-400;
+    color: $gray-500;
   }
 }
 
@@ -206,7 +206,7 @@
   background: transparent;
   border: 1px solid $gray-300;
   border-radius: $radius-md;
-  color: $gray-400;
+  color: $gray-500;
   cursor: pointer;
   flex-shrink: 0;
 

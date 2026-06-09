@@ -38,7 +38,7 @@
 
 .noData {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
   text-align: center;
   padding: $spacing-lg 0;
@@ -83,7 +83,7 @@
   align-items: center;
   gap: $spacing-sm;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 // ─── Support meter — the felt cost. Stacking hearts on one proposal fills
@@ -114,7 +114,7 @@
 
 .meterHint {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 // ─── Allocate (tap hearts) ─────────────────────────────────────────────
@@ -191,7 +191,7 @@
 }
 
 .heartEmpty {
-  color: $gray-400;
+  color: $gray-500;
   opacity: 0.5;
 }
 
@@ -240,7 +240,7 @@
 
 .participation {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   margin-left: auto;
   margin-top: $spacing-xs;
 }
@@ -252,7 +252,7 @@
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-xl;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-sm;
 }
 

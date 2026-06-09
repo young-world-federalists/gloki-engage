@@ -122,7 +122,7 @@
 
 .noData {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
   margin: 0;
   padding: $spacing-lg 0;
@@ -199,7 +199,7 @@
 
 .cardCreator {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   white-space: nowrap;
 }
 
@@ -366,7 +366,7 @@
 
 .resolutionAuthor {
   display: block;
-  color: $gray-400;
+  color: $gray-500;
   margin-top: 2px;
 }
 
@@ -376,6 +376,6 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-xl;
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-sm;
 }

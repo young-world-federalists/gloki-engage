@@ -180,7 +180,7 @@
 // ─── Sample data ─────────────────────────────
 .sampleBanner {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   text-align: center;
   padding: $spacing-sm;
   font-style: italic;
@@ -209,7 +209,7 @@
   align-items: center;
   gap: $spacing-xs;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   margin-top: $spacing-xs;
 }
 
@@ -227,12 +227,12 @@
     margin: $spacing-lg 0 $spacing-sm;
     font-size: $text-lg;
     font-weight: $font-semibold;
-    color: $gray-400;
+    color: $gray-500;
   }
 
   p {
     font-size: $text-sm;
-    color: $gray-400;
+    color: $gray-500;
     max-width: 300px;
   }
 }

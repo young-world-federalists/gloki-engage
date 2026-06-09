@@ -68,7 +68,7 @@ $initiative-color: #ea580c;
   font-size: $text-xs;
   font-weight: $font-semibold;
   border: 2px solid $gray-200;
-  color: $gray-400;
+  color: $gray-500;
   background: white;
   transition: all $transition-base;
 
@@ -98,7 +98,7 @@ $initiative-color: #ea580c;
 
 .stageLabel {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   white-space: nowrap;
 }
 
@@ -140,7 +140,7 @@ $initiative-color: #ea580c;
 
   .stageStep {
     font-size: $text-xs;
-    color: $gray-400;
+    color: $gray-500;
     font-weight: $font-medium;
   }
 }
@@ -210,7 +210,7 @@ $initiative-color: #ea580c;
   }
 
   .emptyNote {
-    color: $gray-400;
+    color: $gray-500;
     font-style: italic;
     font-size: $text-sm;
   }
@@ -446,7 +446,7 @@ $initiative-color: #ea580c;
 
 .finalStage {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
 }
 

@@ -73,7 +73,7 @@
 .historyEmpty {
   margin: 0;
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
 }
 .historyList {
   list-style: none;
@@ -95,7 +95,7 @@
   min-width: 0;
 }
 .historyWhen {
-  color: $gray-400;
+  color: $gray-500;
   font-size: $text-xs;
   flex-shrink: 0;
 }

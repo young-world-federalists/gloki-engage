@@ -87,7 +87,7 @@
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-3xl 0;
-  color: $gray-400;
+  color: $gray-500;
 
   p { margin: 0; font-size: $text-sm; }
 }
@@ -168,7 +168,7 @@
 
 .timestamp {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   margin-left: auto;
 }
 
@@ -214,7 +214,7 @@
   border: none;
   font-size: $text-xs;
   font-weight: $font-medium;
-  color: $gray-400;
+  color: $gray-500;
   cursor: pointer;
   border-radius: $radius-sm;
   transition: all $transition-base;

@@ -224,7 +224,7 @@ $initiative-color: #ea580c;
   justify-content: space-between;
   margin-top: $spacing-xs;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .thresholdTarget {
@@ -234,11 +234,11 @@ $initiative-color: #ea580c;
 .yourVote {
   margin-top: $spacing-sm;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .undoHint {
-  color: $gray-400;
+  color: $gray-500;
   opacity: 0.8;
 }
 

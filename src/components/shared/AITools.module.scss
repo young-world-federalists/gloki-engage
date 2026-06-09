@@ -109,7 +109,7 @@
   height: 20px;
   background: none;
   border: none;
-  color: $gray-400;
+  color: $gray-500;
   cursor: pointer;
   border-radius: $radius-full;
 
@@ -129,7 +129,7 @@
 
 .aiLoading {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
 }
 
@@ -170,7 +170,7 @@
   margin-left: $spacing-sm;
   font-size: $text-xs;
   font-style: italic;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 // ── Dark mode ───────────────────────────────────────────────────────────────

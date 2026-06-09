@@ -119,7 +119,7 @@ Sizes: sm (32px height), md (40px), lg (48px). Border radius: `$radius-md`.
 
 ### Loading States
 - Centered in container
-- Spinner + message text in `$gray-400`
+- Spinner + message text in `$gray-500` (`$gray-400` fails AA on light — see Typography → Caption)
 - Padding: `$spacing-xl`
 - Font size: `$text-sm`
 
@@ -132,7 +132,7 @@ Sizes: sm (32px height), md (40px), lg (48px). Border radius: `$radius-md`.
 
 ### Empty States
 - Centered icon (relevant lucide icon) in `$gray-300`, 48px
-- Message in `$gray-400`, `$text-sm`
+- Message in `$gray-500`, `$text-sm` (`$gray-400` fails AA on light; reserve it for the decorative icon above)
 - CTA button (primary, sm) below
 
 ## Mobile Patterns
@@ -243,6 +243,7 @@ Every interactive component must define all of these (don't ship hover-only or f
 Target **WCAG 2.1 AA**:
 
 - **Contrast:** body text ≥ **4.5:1** against its background; large text (≥ 24px, or ≥ 18.66px bold) and UI components / focus indicators ≥ **3:1**. This is why low-contrast gray text on tinted tabs (e.g. the Proposals/Results toggles) fails — fix with a token pair that meets the ratio.
+- **Caption colour gate:** `$gray-400` (#9ca3af) is **2.54:1 on white** — below AA for text. Use **`$gray-500`** for any caption/metadata/helper text on a light surface. Regression gate: `grep -rn 'color: $gray-400' src --include='*.module.scss'` should match **only** decorative (`border-`/`background`) and `::placeholder` uses — never standalone `color:` text.
 - **Don't rely on colour alone** — pair status colour with an icon or text label.
 - **Focus:** visible focus ring on all interactive elements (see Component states).
 - **Touch targets:** ≥ 44×44px (see Mobile Patterns).
