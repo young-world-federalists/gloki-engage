@@ -163,7 +163,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
 
       <div className={styles.feed}>
         <div className={styles.feedHeader}>
-          <h3 className={styles.feedTitle}>{t('community.activityTitle', 'Community Activity')}</h3>
+          <h2 className={styles.feedTitle}>{t('community.activityTitle', 'Community Activity')}</h2>
           <p className={styles.feedDescription}>
             {t(
               'community.activityDesc',
@@ -208,7 +208,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
                 </Badge>
                 {item.createdAt > 0 && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
               </div>
-              <h4 className={styles.cardTitle}>{item.title || t('community.untitled', 'Untitled Initiative')}</h4>
+              <h3 className={styles.cardTitle}>{item.title || t('community.untitled', 'Untitled Initiative')}</h3>
               {item.description && <p className={styles.cardDesc}>{item.description}</p>}
               <div className={styles.authorRow}>
                 {authorName && <span className={styles.author}>{authorName}</span>}
@@ -239,7 +239,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
                     </Badge>
                     <span className={styles.time}>{formatTimeAgo(sample.createdAt)}</span>
                   </div>
-                  <h4 className={styles.cardTitle}>{sample.title}</h4>
+                  <h3 className={styles.cardTitle}>{sample.title}</h3>
                   <p className={styles.cardDesc}>{sample.description}</p>
                   <span className={styles.author}>{sample.authorName}</span>
                 </Card>

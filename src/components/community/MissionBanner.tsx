@@ -32,7 +32,9 @@ const MissionBanner: React.FC<MissionBannerProps> = ({ name, description, missio
   return (
     <Card as="section" className={styles.banner}>
       <p className={styles.eyebrow}>{t('community.missionEyebrow', 'Our shared mission')}</p>
-      <h2 className={styles.name}>{name}</h2>
+      {/* Name is the page h1 already (CommunityView dark header); render as
+          styled text here so the community name isn't a duplicate heading (a11y #18). */}
+      <p className={styles.name}>{name}</p>
       {mission && <p className={styles.mission}>{mission}</p>}
       {description && <p className={styles.description}>{description}</p>}
       {journey && journey.length > 0 && (

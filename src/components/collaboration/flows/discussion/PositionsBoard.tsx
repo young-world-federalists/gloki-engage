@@ -268,9 +268,9 @@ const PositionsBoard: React.FC<PositionsBoardProps> = ({ positions, anchored, co
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>
+        <h2 className={styles.title}>
           <MessageCircle size={16} aria-hidden /> {t('deliberation.positions.heading', 'Where we stand')}
-        </h3>
+        </h2>
         {canParticipate && !adding && (
           <button type="button" className={styles.addBtn} onClick={() => setAdding(true)}>
             <Plus size={15} aria-hidden /> {t('deliberation.positions.add', 'Add a position')}

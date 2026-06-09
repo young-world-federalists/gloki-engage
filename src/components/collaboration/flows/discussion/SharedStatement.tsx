@@ -246,9 +246,9 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>
+        <h2 className={styles.title}>
           <Users size={16} aria-hidden /> {t('deliberation.coauthor.heading', 'Our shared statement')}
-        </h3>
+        </h2>
         {canParticipate && (
           <Button size="sm" variant="secondary" leftIcon={<PenLine size={14} />} onClick={() => setShowModal(true)}>
             {t('deliberation.coauthor.suggest', 'Suggest an edit')}
@@ -259,7 +259,7 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
       {/* The co-owned statement */}
       <div className={styles.statement}>
         <div className={styles.statementTitleRow}>
-          <h4 className={styles.statementTitle}>{statement.title}</h4>
+          <h3 className={styles.statementTitle}>{statement.title}</h3>
           <Badge tone="info" size="sm">{t('deliberation.coauthor.coOwned', 'Co-owned')}</Badge>
         </div>
         <p className={styles.statementBody}>{statement.body}</p>

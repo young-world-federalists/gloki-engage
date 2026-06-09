@@ -294,7 +294,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
               return (
                 <div key={s.id} className={`${styles.stageCard} ${styles[`card${status.charAt(0).toUpperCase() + status.slice(1)}`]}`}>
                   <div className={styles.cardHeader}>
-                    <h3 className={styles.cardTitle}>{s.label}</h3>
+                    <h2 className={styles.cardTitle}>{s.label}</h2>
                     <span className={`${styles.statusBadge} ${styles[`badge${status.charAt(0).toUpperCase() + status.slice(1)}`]}`}>
                       {status === 'completed' ? 'Completed' : status === 'active' ? 'Active' : 'Locked'}
                     </span>
