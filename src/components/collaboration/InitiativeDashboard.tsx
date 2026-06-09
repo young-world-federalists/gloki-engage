@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useT } from '../../i18n';
 import RoleDisplay from '../shared/RoleDisplay';
 import { getInitiativeRoles, type InitiativeRoles } from '../../services/initiativeRoles';
 import { CheckCircle2, Circle, Lock, AlertTriangle } from 'lucide-react';
@@ -52,6 +53,7 @@ type StageStatus = 'completed' | 'active' | 'locked';
 
 const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collaborationId, communityId }) => {
   const navigate = useNavigate();
+  const t = useT();
   const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -177,6 +179,12 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
   const currentStageIndex = STAGES.findIndex((s) => s.id === stage);
   const nextStage = currentStageIndex < STAGES.length - 1 ? STAGES[currentStageIndex + 1] : null;
 
+  // Stage label/description resolve through t() keyed by stage id (e.g.
+  // 'dashboard.stage.problem.label' / '.desc'); the English source is the
+  // STAGES array above (passed as the inline default). The W5 fr/sw wave adds
+  // overlays for these keys.
+  const stageLabel = (s: StageConfig) => t(`dashboard.stage.${s.id}.label`, s.label);
+
   const getStageStatus = (stageId: PipelineStage): StageStatus => {
     const idx = STAGES.findIndex((s) => s.id === stageId);
     if (idx < currentStageIndex) return 'completed';
@@ -188,9 +196,14 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
     if (stage === 'problem' && activeMemberCount > 0) {
       const threshold = Math.ceil(activeMemberCount * 0.50);
       if (problemTally.up < threshold) {
+        const remaining = Math.max(threshold - problemTally.up, 0);
         return {
           ready: false,
-          reason: `${Math.max(threshold - problemTally.up, 0)} more upvote${threshold - problemTally.up !== 1 ? 's' : ''} needed (${problemTally.up}/${threshold})`,
+          reason: t(
+            'dashboard.readiness.upvotes',
+            '{remaining} more upvote{s} needed ({up}/{threshold})',
+            { remaining, s: remaining !== 1 ? 's' : '', up: problemTally.up, threshold },
+          ),
         };
       }
     }
@@ -224,7 +237,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
     <div className={cs.container}>
       <PageHeader
         showBackButton
-        backButtonText="Back"
+        backButtonText={t('common.back', 'Back')}
         onBackClick={() => navigate(-1)}
         title={title}
         subtitle={communityName}
@@ -236,11 +249,11 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
           {roles?.status === 'merged_into' && roles.mergedInto && (
             <div className={styles.absorbedBanner}>
               <div>
-                <strong>This initiative merged into another one.</strong>
-                <p>Continue the conversation on the surviving initiative.</p>
+                <strong>{t('dashboard.merged.title', 'This initiative merged into another one.')}</strong>
+                <p>{t('dashboard.merged.body', 'Continue the conversation on the surviving initiative.')}</p>
               </div>
               <button onClick={() => navigate(`/initiative/${encodeURIComponent(params.initiativeHostServer || '')}/${encodeURIComponent(params.initiativeHostAgent || '')}/${communityId}/${roles.mergedInto}`)}>
-                Go to merged initiative →
+                {t('dashboard.merged.cta', 'Go to merged initiative →')}
               </button>
             </div>
           )}
@@ -269,7 +282,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                        status === 'locked' ? <Lock size={12} /> :
                        <Circle size={16} />}
                     </div>
-                    <span className={`${styles.stepLabel} ${styles[`${status}Label`]}`}>{s.label}</span>
+                    <span className={`${styles.stepLabel} ${styles[`${status}Label`]}`}>{stageLabel(s)}</span>
                   </div>
                 </React.Fragment>
               );
@@ -294,47 +307,58 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
               return (
                 <div key={s.id} className={`${styles.stageCard} ${styles[`card${status.charAt(0).toUpperCase() + status.slice(1)}`]}`}>
                   <div className={styles.cardHeader}>
-                    <h2 className={styles.cardTitle}>{s.label}</h2>
+                    <h2 className={styles.cardTitle}>{stageLabel(s)}</h2>
                     <span className={`${styles.statusBadge} ${styles[`badge${status.charAt(0).toUpperCase() + status.slice(1)}`]}`}>
-                      {status === 'completed' ? 'Completed' : status === 'active' ? 'Active' : 'Locked'}
+                      {status === 'completed'
+                        ? t('dashboard.status.completed', 'Completed')
+                        : status === 'active'
+                          ? t('dashboard.status.active', 'Active')
+                          : t('dashboard.status.locked', 'Locked')}
                     </span>
                   </div>
-                  <p className={styles.cardDescription}>{s.description}</p>
+                  <p className={styles.cardDescription}>{t(`dashboard.stage.${s.id}.desc`, s.description)}</p>
 
                   {/* LOCKED */}
                   {status === 'locked' && (
                     <div className={styles.lockedOverlay}>
                       <Lock size={20} />
-                      <span>Awaiting earlier stages</span>
+                      <span>{t('dashboard.locked', 'Awaiting earlier stages')}</span>
                     </div>
                   )}
 
                   {/* COMPLETED: problem summary */}
                   {status === 'completed' && s.id === 'problem' && (
                     <div className={styles.completedMetrics}>
-                      <span>{problemTally.up} upvotes / {problemTally.down} downvotes</span>
-                      <span className={styles.thresholdMet}>Threshold met</span>
+                      <span>{t('dashboard.problem.tally', '{up} upvotes / {down} downvotes', { up: problemTally.up, down: problemTally.down })}</span>
+                      <span className={styles.thresholdMet}>{t('dashboard.problem.thresholdMet', 'Threshold met')}</span>
                     </div>
                   )}
 
                   {/* COMPLETED: discussion summary */}
                   {status === 'completed' && s.id === 'discussion' && discussionSummary && (
                     <div className={styles.completedMetrics}>
-                      <span>{discussionSummary.participants} participant{discussionSummary.participants !== 1 ? 's' : ''} · {discussionSummary.comments} comment{discussionSummary.comments !== 1 ? 's' : ''}</span>
+                      <span>{t('dashboard.discussion.summary', '{participants} participant{ps} · {comments} comment{cs}', { participants: discussionSummary.participants, ps: discussionSummary.participants !== 1 ? 's' : '', comments: discussionSummary.comments, cs: discussionSummary.comments !== 1 ? 's' : '' })}</span>
                     </div>
                   )}
 
                   {/* COMPLETED: proposals summary */}
                   {status === 'completed' && s.id === 'proposals' && proposalsSummary && (
                     <div className={styles.completedMetrics}>
-                      <span>{proposalsSummary.proposals} proposal{proposalsSummary.proposals !== 1 ? 's' : ''}{proposalsSummary.topApprovedText ? ` · top: "${proposalsSummary.topApprovedText}" (${proposalsSummary.topApprovedCount} approval${proposalsSummary.topApprovedCount !== 1 ? 's' : ''})` : ''}</span>
+                      <span>
+                        {t('dashboard.proposals.summary', '{count} proposal{s}', { count: proposalsSummary.proposals, s: proposalsSummary.proposals !== 1 ? 's' : '' })}
+                        {proposalsSummary.topApprovedText
+                          ? t('dashboard.proposals.top', ' · top: "{text}" ({count} approval{s})', { text: proposalsSummary.topApprovedText, count: proposalsSummary.topApprovedCount, s: proposalsSummary.topApprovedCount !== 1 ? 's' : '' })
+                          : ''}
+                      </span>
                     </div>
                   )}
 
                   {/* COMPLETED: vote summary */}
                   {status === 'completed' && s.id === 'vote' && voteSummary && (
                     <div className={styles.completedMetrics}>
-                      <span>{voteSummary.winnerText ? `Winner: "${voteSummary.winnerText}" (${voteSummary.winnerCredits.toFixed(1)} votes)` : `${voteSummary.voters} voter${voteSummary.voters !== 1 ? 's' : ''}`}</span>
+                      <span>{voteSummary.winnerText
+                        ? t('dashboard.vote.winner', 'Winner: "{text}" ({credits} votes)', { text: voteSummary.winnerText, credits: voteSummary.winnerCredits.toFixed(1) })
+                        : t('dashboard.vote.voters', '{count} voter{s}', { count: voteSummary.voters, s: voteSummary.voters !== 1 ? 's' : '' })}</span>
                     </div>
                   )}
 
@@ -401,12 +425,12 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
               {confirmAdvance ? (
                 <div className={styles.confirmRow}>
                   <span className={styles.confirmText}>
-                    {`Advance to ${nextStage.label}?`}
+                    {t('dashboard.advance.confirm', 'Advance to {stage}?', { stage: stageLabel(nextStage) })}
                   </span>
                   <button className={styles.confirmYes} onClick={handleAdvance} disabled={advancing}>
-                    {advancing ? 'Moving...' : 'Confirm'}
+                    {advancing ? t('dashboard.advance.moving', 'Moving...') : t('common.confirm', 'Confirm')}
                   </button>
-                  <button className={styles.confirmNo} onClick={() => setConfirmAdvance(false)}>Cancel</button>
+                  <button className={styles.confirmNo} onClick={() => setConfirmAdvance(false)}>{t('common.cancel', 'Cancel')}</button>
                 </div>
               ) : (
                 <button
@@ -414,7 +438,7 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                   onClick={handleAdvance}
                   disabled={advancing || !stageReadiness.ready}
                 >
-                  {advancing ? 'Moving...' : `Move to ${nextStage.label}`}
+                  {advancing ? t('dashboard.advance.moving', 'Moving...') : t('dashboard.advance.move', 'Move to {stage}', { stage: stageLabel(nextStage) })}
                 </button>
               )}
             </div>
