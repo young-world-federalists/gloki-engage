@@ -14,6 +14,14 @@ PR (Ouri's lens). **All review agents were read-only; no files were modified by 
 > swap touches more than `api.ts`). Clear the blockers in §2 (mostly S/M effort) → **GREEN**. The larger
 > themes (i18n wiring, systemic button contrast, shared-kit a11y) can be staged across follow-up waves and
 > documented in the PR rather than blocking it.
+>
+> **§0b — Post-gate fixes applied this session** (verified live light/dark/360–390px, committed locally,
+> NOT pushed). Gate appetite = *quick-win blockers + seam doc*; *keep `$primary`, fix the advance button only*.
+> Done: **(1)** isFirstRun routing (`b9a8073`); **(2)** Communities card keyboard access, ConvictionStaking
+> focus/44px, advance button `#ea580c`→`#c2410c` (5.2:1 AA), CommunityView StageFooter clearance — incl. the
+> mobile `@media` block a live check caught (`ce00299`); **(3)** 1p1v "Vote" copy, stage-feed discussion card
+> → `/discussion`, `deleteComment` key (`dea2514`). The `$primary` AA gap is kept by decision; the seam-swap
+> surface is documented in §8. `tsc -b` + `npm run build` clean.
 
 ---
 
@@ -142,6 +150,29 @@ content-ux) × all 7 flows. ~120 raw findings → deduped + triaged below.
 - Full i18n locale parity (fr/sw) — the separate wave-1.5 task; this review only flags *wiring* gaps.
 - `Math.random()` key generation in `LoginPage` (Ouri's crypto concern at handoff).
 - Three duplicate `formatTimeAgo` implementations → consolidate to `utils/formatTimeAgo`.
+
+---
+
+## §8 — Seam swap surface (handoff checklist for Ouri)
+
+The contract seam is clean — `contractRead`/`contractWrite`/`deployContract`/`joinContract` in
+`src/services/api.ts` (backed by `src/services/demo/`) is the localized swap point. BUT the stub→server swap
+also touches the following, so they belong on the checklist (not just `api.ts`):
+
+1. **`src/services/eventStream.ts`** — opens a real `EventSource` to `${serverUrl}/stream` on login
+   (`AuthContext.connect`). Wire the real event stream here. (Benign in the mockup; it just isn't behind `api.ts`.)
+2. **`.demo.ts` files imported by components** — `src/components/stages/ProblemStage.demo.ts` (imports
+   `mockApi` + `demoContracts` directly, so *proposing a problem* bypasses `api.ts`) and
+   `src/components/mandate/MandatePage.demo.ts` (reads the `problems` fixture). Replace with `api.ts` calls.
+3. **Components reading demo *data* fixtures** (not just types) — Stage-2 co-authoring resolves authors +
+   presence from `demo/fixtures/deliberation` (`DiscussionStageView`, `useDiscussionData`, `SharedStatement`,
+   `PositionsBoard`, `AnchoredThread`, `CoPresenceBar`); `Profile`/`DigitalAgentCard` from
+   `demo/fixtures/identity`; `CommunityHome`/`MissionBanner` from `DEMO_COMMUNITIES`; the mandate components
+   from `demo/fixtures/mandate`. These need real contract/profile data, not fixtures.
+4. **Pure helpers/types misplaced under `demo/fixtures/`** — `diffWords`, `relativeTimeKey`, and shared types
+   (`PublishedMandate`, `JourneyPhase`, `Persona`, channel/sync types) are imported widely. Type-only imports
+   are erased at build (runtime-benign) but muddy the boundary; moving the pure helpers + types into a
+   non-demo module would make the demo boundary honest and the swap unambiguous.
 
 ---
 
