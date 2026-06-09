@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: $overlay-bg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,10 +74,10 @@
         .identityCard {
           width: 428px; // 85.6mm at 5px/mm scale
           height: 270px; // 54mm at 5px/mm scale
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          background: linear-gradient(135deg, white 0%, $gray-50 100%);
           border-radius: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-          border: 1px solid #e2e8f0;
+          box-shadow: $shadow-lg;
+          border: 1px solid $gray-200;
           overflow: hidden;
           position: relative;
           display: flex;
@@ -92,8 +92,8 @@
             right: 0;
             bottom: 0;
             background: 
-              radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+              radial-gradient(circle at 20% 20%, rgba($primary, 0.05) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba($success, 0.05) 0%, transparent 50%);
             pointer-events: none;
           }
 
@@ -112,7 +112,7 @@
               .logoIcon {
                 width: 40px;
                 height: 40px;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(white, 0.2);
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
@@ -218,7 +218,7 @@
                 border-radius: 12px;
                 background: white;
                 padding: 8px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                box-shadow: $shadow-md;
               }
             }
           }
@@ -443,7 +443,7 @@
               .qrSection {
                 .qrCode {
                   background: white;
-                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                  box-shadow: $shadow-md;
                 }
               }
             }

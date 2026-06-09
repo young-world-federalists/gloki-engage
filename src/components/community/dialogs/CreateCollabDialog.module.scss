@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: $overlay-bg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,7 +109,7 @@
           &:focus {
             outline: none;
             border-color: $primary;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba($primary, 0.1);
           }
 
           &:disabled {
@@ -161,10 +161,10 @@
 
             &.selected {
               border-color: $primary;
-              background-color: rgba(59, 130, 246, 0.05);
+              background-color: rgba($primary, 0.05);
 
               @media (prefers-color-scheme: dark) {
-                background-color: rgba(59, 130, 246, 0.1);
+                background-color: rgba($primary, 0.1);
               }
             }
 
@@ -197,9 +197,9 @@
       }
 
       .errorMessage {
-        background-color: #fef2f2;
-        border: 1px solid #fecaca;
-        color: $error;
+        background-color: $error-surface;
+        border: 1px solid rgba($error, 0.3);
+        color: $error-on-surface;
         padding: $spacing-md;
         border-radius: $radius-md;
         font-size: $text-sm;
