@@ -9,7 +9,10 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: #e6edf7;
+  // Inherit the header's text colour so the bell is visible on BOTH the dark
+  // homepage header (white) and the light two-row/single-row headers (dark text /
+  // $dark-text in dark mode). Was #e6edf7 (near-white) — invisible on white headers.
+  color: inherit;
   cursor: pointer;
   padding: 6px;
 
