@@ -41,16 +41,17 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: #e64949;
-  color: #fff;
+  background: $error;
+  color: white;
   font-size: 10px;
-  font-weight: 700;
-  border-radius: 999px;
+  font-weight: $font-bold;
+  border-radius: $radius-full;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+// Theme-aware popover panel (was a hardcoded dark palette in both themes).
 .dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -59,10 +60,10 @@
   max-width: 360px;
   max-height: 400px;
   overflow: auto;
-  background: #162136;
-  border: 1px solid #22304c;
-  border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
   z-index: 500;
 }
 
@@ -71,23 +72,31 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  border-bottom: 1px solid #22304c;
+  border-bottom: 1px solid $gray-100;
   font-size: 13px;
-  font-weight: 600;
-  color: #e6edf7;
+  font-weight: $font-semibold;
+  color: $gray-800;
 }
 
 .markAll {
   background: transparent;
   border: none;
-  color: #8fa0bb;
+  color: $gray-500;
   font-size: 11px;
   cursor: pointer;
+
+  &:hover { color: $gray-700; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
 }
 
 .empty {
   padding: 20px;
-  color: #8fa0bb;
+  color: $gray-500;
   font-size: 12px;
   text-align: center;
 }
@@ -98,17 +107,22 @@
   text-align: left;
   padding: 10px 14px;
   background: transparent;
-  color: #c8d2e0;
+  color: $gray-600;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid $gray-100;
   cursor: pointer;
 
-  &:hover { background: rgba(255, 255, 255, 0.04); }
+  &:hover { background: $gray-50; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
 
   .title {
     font-size: 12px;
-    font-weight: 600;
-    color: #e6edf7;
+    font-weight: $font-semibold;
+    color: $gray-800;
     margin-bottom: 2px;
   }
 
@@ -124,7 +138,40 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #2a5bd7;
+  background: $primary;
   margin-right: 6px;
   vertical-align: middle;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dropdown {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .header {
+    border-bottom-color: $dark-border;
+    color: $dark-text;
+  }
+
+  .markAll {
+    color: $dark-text-secondary;
+
+    &:hover { color: $dark-text; }
+  }
+
+  .empty {
+    color: $dark-text-secondary;
+  }
+
+  .item {
+    color: $dark-text-secondary;
+    border-bottom-color: rgba($dark-border, 0.5);
+
+    &:hover { background: rgba($dark-text, 0.04); }
+
+    .title {
+      color: $dark-text;
+    }
+  }
 }

@@ -1,3 +1,5 @@
+@use '../../styles/variables' as *;
+
 .strip {
   display: flex;
   flex-wrap: wrap;
@@ -17,13 +19,13 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #22304c;
-  color: #e6edf7;
+  background: $gray-200;
+  color: $gray-700;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: $font-semibold;
   overflow: hidden;
 
   img {
@@ -41,17 +43,28 @@
   position: absolute;
   bottom: -3px;
   right: -6px;
-  background: #d9a73b;
-  color: #1a1203;
+  background: $warning;
+  color: $gray-900;
   font-size: 9px;
-  font-weight: 700;
-  border-radius: 999px;
+  font-weight: $font-bold;
+  border-radius: $radius-full;
   padding: 1px 5px;
   line-height: 1;
 }
 
 .more {
   font-size: 10px;
-  color: #8fa0bb;
-  font-weight: 600;
+  color: $gray-500;
+  font-weight: $font-semibold;
+}
+
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    background: $dark-border;
+    color: $dark-text;
+  }
+
+  .more {
+    color: $dark-text-secondary;
+  }
 }

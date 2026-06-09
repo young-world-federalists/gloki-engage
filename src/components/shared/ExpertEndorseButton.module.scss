@@ -1,28 +1,57 @@
+@use '../../styles/variables' as *;
+
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: $radius-full;
   font-size: 11px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
-  color: #c8d2e0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: $font-semibold;
+  background: $gray-50;
+  color: $gray-600;
+  border: 1px solid $gray-200;
   cursor: pointer;
 
-  &:hover { background: rgba(255, 255, 255, 0.1); }
+  &:hover { background: $gray-100; }
   &:disabled { opacity: 0.5; cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .endorsed {
-  background: rgba(58, 167, 109, 0.18);
-  color: #6ddfa3;
-  border-color: rgba(58, 167, 109, 0.45);
+  background: $success-surface;
+  color: $success-on-surface;
+  border-color: rgba($success-on-surface, 0.3);
 }
 
 .expert {
-  background: rgba(217, 167, 59, 0.18);
-  color: #f0c65b;
-  border-color: rgba(217, 167, 59, 0.45);
+  background: $warning-surface;
+  color: $warning-on-surface;
+  border-color: rgba($warning-on-surface, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn {
+    background: rgba($dark-text, 0.06);
+    color: $dark-text-secondary;
+    border-color: $dark-border;
+
+    &:hover { background: rgba($dark-text, 0.1); }
+  }
+
+  .endorsed {
+    background: $success-surface-dark;
+    color: $dark-text;
+    border-color: rgba($dark-text, 0.25);
+  }
+
+  .expert {
+    background: $warning-surface-dark;
+    color: $dark-text;
+    border-color: rgba($dark-text, 0.25);
+  }
 }
