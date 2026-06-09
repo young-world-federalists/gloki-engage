@@ -91,7 +91,7 @@ $success-on-surface: #065f46;
 $warning-surface: #fef3c7;
 $warning-on-surface: #92400e;
 $error-surface: #fee2e2;
-$error-on-surface: $error;
+$error-on-surface: $error-dark; // $error (#dc2626) was only 3.95:1 on $error-surface; $error-dark is 5.30:1 (AA)
 $info-surface: #dbeafe;
 $info-on-surface: #1e40af;
 
