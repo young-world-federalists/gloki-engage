@@ -10,6 +10,7 @@ import { TrustBadge } from '../shared';
 import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
+import { useT } from '../../i18n';
 
 interface MemberItemProps {
   publicKey: string;
@@ -30,8 +31,9 @@ const MemberItem: React.FC<MemberItemProps> = ({
   trustState,
   vouchCount
 }) => {
+  const t = useT();
   const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
-  const displayName = fullName || 'Unknown Member';
+  const displayName = fullName || t('members.unknown', 'Unknown Member');
   const profileImage = profile?.userPhoto;
 
   return (
@@ -60,7 +62,7 @@ const MemberItem: React.FC<MemberItemProps> = ({
               disabled={isApproved}
               onClick={onApprove}
             >
-              {isApproved ? 'Approved' : 'Approve'}
+              {isApproved ? t('members.approved', 'Approved') : t('members.approve', 'Approve')}
             </button>
           )}
         </div>
@@ -76,6 +78,7 @@ interface MembersProps {
 }
 
 const Members: React.FC<MembersProps> = ({ communityId }) => {
+  const t = useT();
   const { communityMembers, communityTasks, communityNominates, profiles } = useAppSelector((state) => state.communities);
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
   const trust = useCommunityTrust(communityId);
@@ -109,7 +112,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
   const handleApproveClick = (agentId: string) => {
     const profile = profiles[agentId];
     const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
-    const displayName = fullName || 'Unknown Member';
+    const displayName = fullName || t('members.unknown', 'Unknown Member');
     const profileImage = profile?.userPhoto;
 
     setApprovalDialog({
@@ -184,7 +187,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
           if (event.reply === false) {
             setMessageDialog({
               isOpen: true,
-              message: 'There are currently too many nominates in the community. Please try again later.'
+              message: t('members.tooManyNominates', 'There are currently too many nominates in the community. Please try again later.')
             });
           }
           cleanupJoinListener();
@@ -200,7 +203,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
       joinRequestResponseRef.current = response;
     } catch (error) {
       console.error('Failed to join community:', error);
-      alert('Failed to join community. Please try again.');
+      alert(t('members.joinFailed', 'Failed to join community. Please try again.'));
       cleanupJoinListener();
     }
   };
@@ -209,9 +212,9 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
     <>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>Members</h2>
-          <p>People in this community. Members can propose initiatives, vote on decisions, and participate in governance.</p>
-          <p className={styles.memberCount}>{allMembers.length} community member{allMembers.length !== 1 ? 's' : ''}</p>
+          <h2>{t('members.title', 'Members')}</h2>
+          <p>{t('members.intro', 'People in this community. Members can propose initiatives, vote on decisions, and participate in governance.')}</p>
+          <p className={styles.memberCount}>{t('members.count', '{n} community member{s}', { n: allMembers.length, s: allMembers.length !== 1 ? 's' : '' })}</p>
         </div>
 
         {!currentUserInList && publicKey && (
@@ -221,7 +224,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
               disabled={isJoining}
               className={styles.joinButton}
             >
-              {isJoining ? 'Joining...' : 'Join Community'}
+              {isJoining ? t('members.joining', 'Joining...') : t('members.join', 'Join Community')}
             </button>
           </div>
         )}
@@ -229,7 +232,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
         <div className={styles.list}>
           {allPeople.length === 0 ? (
             <div className="empty-state">
-              <p>No members found.</p>
+              <p>{t('members.empty', 'No members found.')}</p>
             </div>
           ) : (
             allPeople.map((person) => (
