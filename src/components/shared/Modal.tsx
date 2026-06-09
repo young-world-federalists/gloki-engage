@@ -56,8 +56,10 @@ const Modal: React.FC<ModalProps> = ({
         return;
       }
       if (e.key !== 'Tab' || !dialogRef.current) return;
+      // Exclude disabled controls — a disabled footer button can't take focus,
+      // and treating it as the trap edge lets Tab escape past the real last control.
       const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
       );
       if (focusables.length === 0) return;
       const first = focusables[0];
