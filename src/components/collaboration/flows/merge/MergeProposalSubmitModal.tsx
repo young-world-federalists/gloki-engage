@@ -4,6 +4,7 @@ import { useAppSelector } from '../../../../store/hooks';
 import { contractRead } from '../../../../services/api';
 import type { IMethod } from '../../../../services/interfaces';
 import { proposeMerge } from './mergeApi';
+import { useT } from '../../../../i18n';
 import styles from './MergeProposalSubmitModal.module.scss';
 
 interface MergeProposalSubmitModalProps {
@@ -27,6 +28,7 @@ interface EligibleCollab {
 const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
   targetInitiativeId, targetTitle, targetCommunityId, mergeContractId, onClose, onSubmitted,
 }) => {
+  const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const collaborations = useAppSelector((s) => s.communities.communityCollaborations[targetCommunityId]);
@@ -67,12 +69,12 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
 
   const handleSubmit = async () => {
     if (!serverUrl || !publicKey || !mergeContractId) {
-      setError('Merge contract is not ready yet. Try again in a moment.');
+      setError(t('deliberation.merge.submit.notReady', 'Merge contract is not ready yet. Try again in a moment.'));
       return;
     }
-    if (!sourceId) { setError('Pick a source initiative.'); return; }
+    if (!sourceId) { setError(t('deliberation.merge.submit.pickSource', 'Pick a source initiative.')); return; }
     if (rationale.trim().length < MIN_RATIONALE) {
-      setError(`Rationale must be at least ${MIN_RATIONALE} characters.`);
+      setError(t('deliberation.merge.submit.rationaleTooShort', 'Rationale must be at least {n} characters.', { n: MIN_RATIONALE }));
       return;
     }
     setSubmitting(true);
@@ -82,7 +84,7 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
       if (onSubmitted) onSubmitted();
       onClose();
     } catch (err) {
-      setError(`Failed to submit: ${err instanceof Error ? err.message : 'unknown error'}`);
+      setError(t('deliberation.merge.submit.failed', 'Failed to submit: {detail}', { detail: err instanceof Error ? err.message : 'unknown error' }));
     } finally {
       setSubmitting(false);
     }
@@ -92,29 +94,29 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3>Propose a merge into &ldquo;{targetTitle}&rdquo;</h3>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close"><X size={16} /></button>
+          <h3>{t('deliberation.merge.submit.title', 'Propose a merge into “{title}”', { title: targetTitle })}</h3>
+          <button className={styles.closeBtn} onClick={onClose} aria-label={t('common.close', 'Close')}><X size={16} /></button>
         </div>
 
         {eligibleSources === null ? (
           <div className={styles.emptyState}>
-            <p>Loading your initiatives…</p>
+            <p>{t('deliberation.merge.submit.loading', 'Loading your initiatives…')}</p>
           </div>
         ) : eligibleSources.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>You need an initiative you authored in Problem, Discussion, or Proposals stage to propose a merge.</p>
-            <p className={styles.hint}>Vote- and Mandate-stage initiatives can&rsquo;t be merged.</p>
+            <p>{t('deliberation.merge.submit.noEligible', 'You need an initiative you authored in Problem, Discussion, or Proposals stage to propose a merge.')}</p>
+            <p className={styles.hint}>{t('deliberation.merge.submit.noEligibleHint', 'Vote- and Mandate-stage initiatives can’t be merged.')}</p>
           </div>
         ) : (
           <>
             <label className={styles.label}>
-              Which of your initiatives should be merged into this one?
+              {t('deliberation.merge.submit.sourceLabel', 'Which of your initiatives should be merged into this one?')}
               <select
                 className={styles.select}
                 value={sourceId}
                 onChange={(e) => setSourceId(e.target.value)}
               >
-                <option value="">Choose one…</option>
+                <option value="">{t('deliberation.merge.submit.chooseOne', 'Choose one…')}</option>
                 {eligibleSources.map((c) => (
                   <option key={c.id} value={c.id}>{c.title}</option>
                 ))}
@@ -122,12 +124,12 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
             </label>
 
             <label className={styles.label}>
-              Rationale (why should these merge?)
+              {t('deliberation.merge.submit.rationaleLabel', 'Rationale (why should these merge?)')}
               <textarea
                 className={styles.textarea}
                 value={rationale}
                 onChange={(e) => setRationale(e.target.value)}
-                placeholder="Explain the overlap and the benefits of consolidating."
+                placeholder={t('deliberation.merge.submit.rationalePlaceholder', 'Explain the overlap and the benefits of consolidating.')}
                 rows={5}
               />
               <span className={styles.charCount}>
@@ -138,9 +140,9 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
             {error && <p className={styles.error}>{error}</p>}
 
             <div className={styles.actions}>
-              <button className={styles.cancelBtn} onClick={onClose} disabled={submitting}>Cancel</button>
+              <button className={styles.cancelBtn} onClick={onClose} disabled={submitting}>{t('common.cancel', 'Cancel')}</button>
               <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
-                {submitting ? 'Submitting…' : 'Submit Merge Proposal'}
+                {submitting ? t('deliberation.merge.submit.submitting', 'Submitting…') : t('deliberation.merge.submit.submit', 'Submit Merge Proposal')}
               </button>
             </div>
           </>

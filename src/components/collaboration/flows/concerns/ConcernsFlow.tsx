@@ -7,6 +7,7 @@ import CountryBadge from '../shared/CountryBadge';
 import * as api from './concernsApi';
 import type { Concern, Resolution } from './concernsApi';
 import { useAppSelector } from '../../../../store/hooks';
+import { useT } from '../../../../i18n';
 const concernsContractCode = '';import styles from './ConcernsFlow.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -15,6 +16,7 @@ const concernsContractCode = '';import styles from './ConcernsFlow.module.scss';
 const AddConcernForm: React.FC<{
   onAdd: (text: string, severity: string) => Promise<void>;
 }> = ({ onAdd }) => {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [severity, setSeverity] = useState('medium');
@@ -40,7 +42,7 @@ const AddConcernForm: React.FC<{
   if (!open) {
     return (
       <button className={styles.addBtn} onClick={() => setOpen(true)}>
-        <Plus size={15} /> Raise a concern
+        <Plus size={15} /> {t('concerns.raise', 'Raise a concern')}
       </button>
     );
   }
@@ -50,7 +52,7 @@ const AddConcernForm: React.FC<{
       <textarea
         className={styles.addDescInput}
         rows={2}
-        placeholder="Describe your concern *"
+        placeholder={t('concerns.describePlaceholder', 'Describe your concern *')}
         value={text}
         autoFocus
         maxLength={1000}
@@ -91,6 +93,7 @@ const ConcernCard: React.FC<{
   onResolve: () => Promise<void>;
   onAddResolution: (text: string) => Promise<void>;
 }> = ({ concern, resolutions, isAuthor, profiles, onResolve, onAddResolution }) => {
+  const t = useT();
   const [resText, setResText] = useState('');
   const [showResForm, setShowResForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -165,7 +168,7 @@ const ConcernCard: React.FC<{
             <input
               className={styles.addTitleInput}
               type="text"
-              placeholder="Propose a resolution..."
+              placeholder={t('concerns.resolutionPlaceholder', 'Propose a resolution...')}
               value={resText}
               maxLength={500}
               onChange={(e) => setResText(e.target.value)}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CreateCollabDialog.module.scss';
 import { COLLAB_TEMPLATES, type CollabTemplate } from '../../collaboration/collabTemplates';
+import { useT } from '../../../i18n';
 
 interface CreateCollabDialogProps {
   isVisible: boolean;
@@ -13,6 +14,7 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const t = useT();
   const [name, setName] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(COLLAB_TEMPLATES[0].id);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,13 +45,13 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
     setError(null);
 
     if (!name.trim()) {
-      setError('Please enter a name for your collaboration');
+      setError(t('collab.create.nameRequired', 'Please enter a name for your collaboration'));
       return;
     }
 
-    const template = COLLAB_TEMPLATES.find((t) => t.id === selectedTemplateId);
+    const template = COLLAB_TEMPLATES.find((tpl) => tpl.id === selectedTemplateId);
     if (!template) {
-      setError('Please select a template');
+      setError(t('collab.create.templateRequired', 'Please select a template'));
       return;
     }
 
@@ -58,7 +60,7 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
       await Promise.resolve(onSubmit(name.trim(), template));
       handleClose();
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('collab.create.failed', 'Something went wrong. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,8 +72,8 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
     <div className={styles.overlay} onClick={handleOverlayClick}>
       <div className={styles.dialog}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Start a Collab</h3>
-          <button className={styles.closeButton} onClick={handleClose}>
+          <h3 className={styles.title}>{t('collab.create.title', 'Start a Collab')}</h3>
+          <button className={styles.closeButton} onClick={handleClose} aria-label={t('common.close', 'Close')}>
             ×
           </button>
         </div>
@@ -79,21 +81,21 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
         <div className={styles.content}>
           <div className={styles.formGroup}>
             <label htmlFor="collabName" className={styles.label}>
-              Name *
+              {t('collab.create.nameLabel', 'Name *')}
             </label>
             <input
               id="collabName"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="What are you collaborating on?"
+              placeholder={t('collab.create.namePlaceholder', 'What are you collaborating on?')}
               className={styles.inputField}
               disabled={isSubmitting}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Template</label>
+            <label className={styles.label}>{t('collab.create.templateLabel', 'Template')}</label>
             <div className={styles.templateGrid}>
               {COLLAB_TEMPLATES.map((template) => (
                 <button
@@ -119,14 +121,14 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
             className={styles.createButton}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creating...' : 'Start Collab'}
+            {isSubmitting ? t('collab.create.creating', 'Creating...') : t('collab.create.submit', 'Start Collab')}
           </button>
           <button
             onClick={handleClose}
             className={styles.cancelButton}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('common.cancel', 'Cancel')}
           </button>
         </div>
       </div>

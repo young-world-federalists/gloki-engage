@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useT } from '../../i18n';
 import styles from './SearchableSelect.module.scss';
 
 interface Option {
@@ -19,9 +20,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select...',
+  placeholder,
   disabled = false,
 }) => {
+  const t = useT();
+  const triggerPlaceholder = placeholder ?? t('select.placeholder', 'Select...');
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,7 +70,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         {selected ? (
           <span>{selected.icon && `${selected.icon} `}{selected.label}</span>
         ) : (
-          <span className={styles.placeholder}>{placeholder}</span>
+          <span className={styles.placeholder}>{triggerPlaceholder}</span>
         )}
       </button>
 
@@ -77,13 +80,13 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             ref={inputRef}
             className={styles.searchInput}
             type="text"
-            placeholder="Search..."
+            placeholder={t('select.search', 'Search...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <div className={styles.optionsList}>
             {filtered.length === 0 ? (
-              <div className={styles.noResults}>No matches</div>
+              <div className={styles.noResults}>{t('select.noMatches', 'No matches')}</div>
             ) : (
               filtered.map((o) => (
                 <button

@@ -4,6 +4,7 @@ import { Award, Plus, Trash2, UserPlus, UserMinus } from 'lucide-react';
 import type { FlowProps } from '../types';
 import * as api from './rolesApi';
 import type { Role } from './rolesApi';
+import { useT } from '../../../../i18n';
 import styles from './RolesFlow.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -13,12 +14,13 @@ const AddRoleForm: React.FC<{
   onSubmit: (name: string, description: string) => void;
   onCancel: () => void;
 }> = ({ onSubmit, onCancel }) => {
+  const t = useT();
   const [name, setName]   = useState('');
   const [desc, setDesc]   = useState('');
   const [error, setError] = useState('');
 
   const submit = () => {
-    if (!name.trim()) { setError('Role name is required.'); return; }
+    if (!name.trim()) { setError(t('roles.nameRequired', 'Role name is required.')); return; }
     onSubmit(name, desc);
   };
 
@@ -27,7 +29,7 @@ const AddRoleForm: React.FC<{
       <input
         className={styles.nameInput}
         type="text"
-        placeholder="Role name…"
+        placeholder={t('roles.namePlaceholder', 'Role name…')}
         value={name}
         autoFocus
         onChange={e => { setName(e.target.value); setError(''); }}
@@ -36,15 +38,15 @@ const AddRoleForm: React.FC<{
       <input
         className={styles.descInput}
         type="text"
-        placeholder="Short description (optional)"
+        placeholder={t('roles.descPlaceholder', 'Short description (optional)')}
         value={desc}
         onChange={e => setDesc(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }}
       />
       {error && <p className={styles.errorMsg}>{error}</p>}
       <div className={styles.formActions}>
-        <button className={styles.btnConfirm} onClick={submit}>Add Role</button>
-        <button className={styles.btnCancel}  onClick={onCancel}>Cancel</button>
+        <button className={styles.btnConfirm} onClick={submit}>{t('roles.add', 'Add Role')}</button>
+        <button className={styles.btnCancel}  onClick={onCancel}>{t('common.cancel', 'Cancel')}</button>
       </div>
     </div>
   );
@@ -58,6 +60,7 @@ const RoleCard: React.FC<{
   instanceId: string;
   onRefresh: () => void;
 }> = ({ role, instanceId, onRefresh }) => {
+  const t = useT();
   const assigned = api.isAssigned(role);
   const act = (fn: () => void) => { fn(); onRefresh(); };
 
@@ -70,24 +73,25 @@ const RoleCard: React.FC<{
             <button
               className={`${styles.assignBtn} ${styles.assignBtnLeave}`}
               onClick={() => act(() => api.leaveRole(instanceId, role.id))}
-              title="Leave this role"
+              title={t('roles.leaveTitle', 'Leave this role')}
             >
-              <UserMinus size={13} /> Leave
+              <UserMinus size={13} /> {t('roles.leave', 'Leave')}
             </button>
           ) : (
             <button
               className={`${styles.assignBtn} ${styles.assignBtnJoin}`}
               onClick={() => act(() => api.joinRole(instanceId, role.id))}
-              title="Join this role"
+              title={t('roles.joinTitle', 'Join this role')}
             >
-              <UserPlus size={13} /> Join
+              <UserPlus size={13} /> {t('roles.join', 'Join')}
             </button>
           )}
           {api.canDelete(role) && (
             <button
               className={styles.deleteBtn}
               onClick={() => act(() => api.deleteRole(instanceId, role.id))}
-              title="Delete role"
+              title={t('roles.deleteTitle', 'Delete role')}
+              aria-label={t('roles.deleteTitle', 'Delete role')}
             >
               <Trash2 size={13} />
             </button>
@@ -101,14 +105,14 @@ const RoleCard: React.FC<{
 
       <div className={styles.assignees}>
         {role.assignees.length === 0 ? (
-          <span className={styles.noAssignees}>No one assigned yet</span>
+          <span className={styles.noAssignees}>{t('roles.noAssignees', 'No one assigned yet')}</span>
         ) : (
           role.assignees.map(a => (
             <span
               key={a}
               className={`${styles.chip} ${a === api.CURRENT_USER ? styles.chipMe : ''}`}
             >
-              {a === api.CURRENT_USER ? 'you' : a}
+              {a === api.CURRENT_USER ? t('roles.you', 'you') : a}
             </span>
           ))
         )}
@@ -121,6 +125,7 @@ const RoleCard: React.FC<{
 // Root
 // ---------------------------------------------------------------------------
 const RolesFlow: React.FC<FlowProps> = ({ instanceId }) => {
+  const t = useT();
   const [roles,   setRoles]   = useState(() => api.getRoles(instanceId));
   const [adding,  setAdding]  = useState(false);
 
@@ -130,7 +135,7 @@ const RolesFlow: React.FC<FlowProps> = ({ instanceId }) => {
     <div className={styles.container}>
       <div className={styles.header}>
         <Award size={18} className={styles.headerIcon} />
-        <span>{roles.length} role{roles.length !== 1 ? 's' : ''}</span>
+        <span>{t('roles.count', '{n} role{s}', { n: roles.length, s: roles.length !== 1 ? 's' : '' })}</span>
       </div>
 
       {adding ? (
@@ -144,12 +149,12 @@ const RolesFlow: React.FC<FlowProps> = ({ instanceId }) => {
         />
       ) : (
         <button className={styles.addBtn} onClick={() => setAdding(true)}>
-          <Plus size={15} /> Add Role
+          <Plus size={15} /> {t('roles.add', 'Add Role')}
         </button>
       )}
 
       {roles.length === 0 ? (
-        <p className={styles.noData}>No roles defined yet. Add one above.</p>
+        <p className={styles.noData}>{t('roles.empty', 'No roles defined yet. Add one above.')}</p>
       ) : (
         <div className={styles.roleList}>
           {roles.map(r => (

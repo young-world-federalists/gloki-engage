@@ -7,6 +7,7 @@ import type { Comment, CommentCategory } from './discussionApi';
 import CountryBadge from '../shared/CountryBadge';
 import { useAppSelector } from '../../../../store/hooks';
 import { useFlowContract } from '../shared/useFlowContract';
+import { useT } from '../../../../i18n';
 const discussionContractCode = '';import styles from './DiscussionFlow.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -240,6 +241,7 @@ const CommentItem: React.FC<{
 // Root flow component
 // ---------------------------------------------------------------------------
 const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey }) => {
+  const t = useT();
   const profiles = useAppSelector((s) => s.communities.profiles) || {};
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -363,7 +365,7 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
       </div>
 
       <ComposeBox
-        placeholder="Share your thoughts on this topic…"
+        placeholder={t('discussionFlow.composePlaceholder', 'Share your thoughts on this topic…')}
         onSubmit={handleTopLevel}
         showCategories
       />

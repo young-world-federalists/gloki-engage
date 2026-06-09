@@ -93,10 +93,9 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
           <AlertTriangle size={36} />
           <p>{errorMessage}</p>
           <p className={styles.caveat}>
-            Chat is hosted on-chain and only available on communities created
-            after 2026-04-22. Older communities can't host sub-contracts yet.
+            {t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
           </p>
-          <button className={styles.newTopicBtn} onClick={retry}>Try again</button>
+          <button className={styles.newTopicBtn} onClick={retry}>{t('common.retry', 'Try again')}</button>
         </div>
       </div>
     );
@@ -107,7 +106,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
       <div className={styles.container}>
         <div className={styles.empty}>
           <MessageSquare size={36} />
-          <p>{statusMessage || (isDeploying ? 'Setting up chat…' : 'Loading…')}</p>
+          <p>{statusMessage || (isDeploying ? t('chat.settingUp', 'Setting up chat…') : t('common.loading', 'Loading…'))}</p>
         </div>
       </div>
     );
@@ -117,8 +116,8 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <h2>Chat</h2>
-        <p>Open conversations about anything in your community.</p>
+        <h2>{t('chat.title', 'Chat')}</h2>
+        <p>{t('chat.intro', 'Open conversations about anything in your community.')}</p>
       </div>
 
       {/* New topic input */}
@@ -126,7 +125,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
         <input
           className={styles.titleInput}
           type="text"
-          placeholder="Start a new topic…"
+          placeholder={t('chat.newTopicPlaceholder', 'Start a new topic…')}
           value={newTitle}
           onChange={e => setNewTitle(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -137,7 +136,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
           onClick={handleCreate}
           disabled={!newTitle.trim() || !publicKey || creating}
         >
-          {creating ? 'Creating…' : 'New Topic'}
+          {creating ? t('chat.creating', 'Creating…') : t('chat.newTopic', 'New Topic')}
         </button>
       </div>
 
@@ -145,7 +144,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
       {topics.length === 0 ? (
         <div className={styles.empty}>
           <MessageSquare size={36} />
-          <p>No topics yet. Start a conversation!</p>
+          <p>{t('chat.noTopics', 'No topics yet. Start a conversation!')}</p>
         </div>
       ) : (
         <div className={styles.topicList}>

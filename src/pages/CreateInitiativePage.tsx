@@ -110,7 +110,7 @@ const CreateInitiativePage: React.FC = () => {
       return;
     }
     if (!serverUrl || !publicKey || !communityId) {
-      setError(t('initiative.error.notLoggedIn', 'Not logged in'));
+      setError(t('common.notLoggedIn', 'Not logged in'));
       return;
     }
 

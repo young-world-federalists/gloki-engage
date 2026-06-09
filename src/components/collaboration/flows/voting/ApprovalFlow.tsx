@@ -228,7 +228,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
             <input
               className={styles.addInput}
               type="text"
-              placeholder="Add a proposal..."
+              placeholder={t('mechanisms.approval.addPlaceholder', 'Add a proposal...')}
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}

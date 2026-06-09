@@ -6,6 +6,7 @@ import CountryBadge from '../../collaboration/flows/shared/CountryBadge';
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 const chatContractCode = '';import { getMessages, addMessage, getTopics } from './chatApi';
 import type { ChatMessage, ChatTopic as ChatTopicType } from './chatApi';
+import { useT } from '../../../i18n';
 import styles from './ChatTopic.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -26,6 +27,7 @@ const POLL_INTERVAL_MS = 5_000;
 // ---------------------------------------------------------------------------
 
 const ChatTopic: React.FC = () => {
+  const t = useT();
   const { communityId, topicId } = useParams<{ communityId: string; topicId: string }>();
   const navigate = useNavigate();
 
@@ -91,7 +93,7 @@ const ChatTopic: React.FC = () => {
   }, [messages]);
 
   if (!communityId || !topicId) {
-    return <div className={styles.notFound}>Topic not found.</div>;
+    return <div className={styles.notFound}>{t('chat.topicNotFound', 'Topic not found.')}</div>;
   }
 
   if (hasError) {
@@ -100,10 +102,9 @@ const ChatTopic: React.FC = () => {
         <AlertTriangle size={36} />
         <p>{errorMessage}</p>
         <p className={styles.notFoundHint}>
-          Chat is hosted on-chain and only available on communities created
-          after 2026-04-22. Older communities can't host sub-contracts yet.
+          {t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
         </p>
-        <button className={styles.backBtn} onClick={retry}>Try again</button>
+        <button className={styles.backBtn} onClick={retry}>{t('common.retry', 'Try again')}</button>
       </div>
     );
   }
@@ -112,7 +113,7 @@ const ChatTopic: React.FC = () => {
     return (
       <div className={styles.notFound}>
         <MessageSquare size={36} />
-        <p>{statusMessage || (isDeploying ? 'Setting up chat…' : 'Loading…')}</p>
+        <p>{statusMessage || (isDeploying ? t('chat.settingUp', 'Setting up chat…') : t('common.loading', 'Loading…'))}</p>
       </div>
     );
   }
@@ -174,8 +175,8 @@ const ChatTopic: React.FC = () => {
         <button
           className={styles.backBtn}
           onClick={() => navigate(`/community/${communityId}/chat`)}
-          title="Back to Chat"
-          aria-label="Back to chat topics"
+          title={t('chat.backTitle', 'Back to Chat')}
+          aria-label={t('chat.backAria', 'Back to chat topics')}
         >
           <ArrowLeft size={18} />
         </button>
@@ -186,7 +187,7 @@ const ChatTopic: React.FC = () => {
       <div className={styles.messageStream}>
         {messages.length === 0 && (
           <div className={styles.emptyStream}>
-            <p>No messages yet. Say something!</p>
+            <p>{t('chat.noMessages', 'No messages yet. Say something!')}</p>
           </div>
         )}
 
@@ -197,7 +198,7 @@ const ChatTopic: React.FC = () => {
             ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
             : null;
           const displayName = isOwn
-            ? 'You'
+            ? t('deliberation.you', 'You')
             : fullName || msg.author.slice(0, 12) + '…';
           const countryCode = profile?.country;
 
@@ -227,7 +228,7 @@ const ChatTopic: React.FC = () => {
         <textarea
           className={styles.textarea}
           rows={1}
-          placeholder="Write a message…"
+          placeholder={t('chat.messagePlaceholder', 'Write a message…')}
           value={inputText}
           onChange={e => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -237,8 +238,8 @@ const ChatTopic: React.FC = () => {
           className={styles.sendBtn}
           onClick={handleSend}
           disabled={!inputText.trim() || !publicKey || sending}
-          title="Send"
-          aria-label="Send message"
+          title={t('chat.send', 'Send')}
+          aria-label={t('chat.sendAria', 'Send message')}
         >
           <Send size={18} />
         </button>

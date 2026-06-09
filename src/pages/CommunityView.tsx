@@ -234,7 +234,7 @@ const CommunityView: React.FC = () => {
           <button
             className={styles.menuButton}
             onClick={() => setShowMenu(true)}
-            aria-label="Open community menu"
+            aria-label={t('nav.openCommunityMenu', 'Open community menu')}
             aria-expanded={showMenu}
           >
             <Menu size={22} strokeWidth={2.5} />

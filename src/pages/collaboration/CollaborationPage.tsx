@@ -8,6 +8,7 @@ import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaborat
 import { removeContract } from '../../components/collaboration/flows/shared/flowContractsSlice';
 import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useT } from '../../i18n';
 import cs from '../Container.module.scss';
 import styles from './CollaborationPage.module.scss';
 
@@ -72,6 +73,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const t = useT();
   const { publicKey, serverUrl } = useAppSelector((s) => s.user);
   const communityMembers = useAppSelector((s) => s.communities.communityMembers);
 
@@ -182,7 +184,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
             <button
               className={`${cs.navItem} ${styles.addTabBtn}`}
               onClick={() => setShowAddMenu((v) => !v)}
-              title="Add a flow tab"
+              title={t('collab.addFlowTab', 'Add a flow tab')}
             >
               <Plus size={20} />
               <span>Add</span>

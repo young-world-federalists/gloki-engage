@@ -6,30 +6,38 @@ import { createCommunity } from '../services/contracts/community';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { seedDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { fetchContracts } from '../store/slices/userSlice';
+import { useT } from '../i18n';
 import styles from './CreateCommunityPage.module.scss';
 
+// English here is the source copy; the render wires each field through t()
+// (createCommunity.feature.{id}.*).
 const FEATURES = [
   {
+    id: 'governance',
     name: 'Governance Pipeline',
     icon: GitBranch,
     description: '5-stage democratic process from problem recognition to mandated action',
   },
   {
+    id: 'currency',
     name: 'Community Currency',
     icon: Coins,
     description: 'Mint, send, and manage a currency owned by your community',
   },
   {
+    id: 'collab',
     name: 'Collaboration Tools',
     icon: Users2,
     description: 'Shared workspaces for documents, tasks, scheduling, and roles',
   },
   {
+    id: 'trust',
     name: 'Identity & Trust',
     icon: Shield,
     description: 'Verify members through a web of trust, QR-based identity cards',
   },
   {
+    id: 'translation',
     name: 'AI Translation',
     icon: Globe,
     description: 'Automatic translation across 12 languages so everyone can participate',
@@ -39,6 +47,7 @@ const FEATURES = [
 const CreateCommunityPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const t = useT();
   const { publicKey, serverUrl, profileContractId } = useAppSelector((s) => s.user);
 
   const [name, setName] = useState('');
@@ -50,11 +59,11 @@ const CreateCommunityPage: React.FC = () => {
     setError(null);
 
     if (!name.trim()) {
-      setError('Please enter a community name');
+      setError(t('createCommunity.error.nameRequired', 'Please enter a community name'));
       return;
     }
     if (!serverUrl || !publicKey) {
-      setError('Not logged in');
+      setError(t('common.notLoggedIn', 'Not logged in'));
       return;
     }
 
@@ -79,7 +88,7 @@ const CreateCommunityPage: React.FC = () => {
     } catch (err) {
       console.error('[CreateCommunity] Deploy failed:', err);
       const detail = err instanceof Error ? err.message : String(err);
-      setError(`Failed to create community: ${detail}`);
+      setError(t('createCommunity.error.failed', 'Failed to create community: {detail}', { detail }));
     } finally {
       setIsSubmitting(false);
     }
@@ -88,59 +97,64 @@ const CreateCommunityPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate('/identity/communities')}>
+        <button
+          className={styles.backButton}
+          onClick={() => navigate('/identity/communities')}
+          aria-label={t('common.back', 'Back')}
+        >
           <ArrowLeft size={20} />
         </button>
-        <h1>Create a Community</h1>
+        <h1>{t('createCommunity.title', 'Create a Community')}</h1>
       </div>
 
       {/* What is a Community? */}
       <div className={styles.card}>
-        <h2>What is a Community on Gloki?</h2>
+        <h2>{t('createCommunity.whatTitle', 'What is a Community on Gloki?')}</h2>
         <p>
-          A community is a group of people united by a shared interest, location, cause, or goal.
-          On Gloki, communities are spaces for collective decision-making — where members can
-          identify problems, propose solutions, and vote on actions together.
+          {t(
+            'createCommunity.whatBody',
+            'A community is a group of people united by a shared interest, location, cause, or goal. On Gloki, communities are spaces for collective decision-making — where members can identify problems, propose solutions, and vote on actions together.',
+          )}
         </p>
         <p>
-          Every community on Gloki has access to the same democratic tools: a 5-stage governance
-          pipeline, community currency, collaboration workspaces, and identity verification.
+          {t(
+            'createCommunity.whatBody2',
+            'Every community on Gloki has access to the same democratic tools: a 5-stage governance pipeline, community currency, collaboration workspaces, and identity verification.',
+          )}
         </p>
       </div>
 
-      {/* Why Create? */}
+      {/* Why Create? — bold lead + body split around <strong> (no <Trans>; W5 may restructure) */}
       <div className={styles.card}>
-        <h2>Why Create a Community?</h2>
+        <h2>{t('createCommunity.whyTitle', 'Why Create a Community?')}</h2>
         <p>
-          <strong>Bring direct democracy to your group.</strong> Whether you're a neighbourhood
-          association, a student union, a workplace team, or an activist collective — Gloki gives
-          your group the tools to make decisions transparently and fairly.
+          <strong>{t('createCommunity.why.democracy.lead', 'Bring direct democracy to your group.')}</strong>{' '}
+          {t('createCommunity.why.democracy.body', "Whether you're a neighbourhood association, a student union, a workplace team, or an activist collective — Gloki gives your group the tools to make decisions transparently and fairly.")}
         </p>
         <p>
-          <strong>Every voice counts.</strong> Quadratic voting ensures no single person dominates
-          the outcome. Thresholds ensure decisions have genuine community support before moving forward.
+          <strong>{t('createCommunity.why.voice.lead', 'Every voice counts.')}</strong>{' '}
+          {t('createCommunity.why.voice.body', 'Quadratic voting ensures no single person dominates the outcome. Thresholds ensure decisions have genuine community support before moving forward.')}
         </p>
         <p>
-          <strong>From problems to mandates.</strong> Don't just talk about issues — turn them into
-          commitments. Gloki's pipeline moves problems through discussion, proposals, and voting
-          into mandates your community can act on.
+          <strong>{t('createCommunity.why.mandates.lead', 'From problems to mandates.')}</strong>{' '}
+          {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, proposals, and voting into mandates your community can act on.")}
         </p>
       </div>
 
       {/* Features */}
       <div className={styles.card}>
-        <h2>What Gloki Provides Your Community</h2>
+        <h2>{t('createCommunity.featuresTitle', 'What Gloki Provides Your Community')}</h2>
         <div className={styles.featureList}>
           {FEATURES.map((feature) => {
             const FeatureIcon = feature.icon;
             return (
-              <div key={feature.name} className={styles.featureItem}>
+              <div key={feature.id} className={styles.featureItem}>
                 <div className={styles.featureIcon}>
                   <FeatureIcon size={16} />
                 </div>
                 <div className={styles.featureContent}>
-                  <h3>{feature.name}</h3>
-                  <p>{feature.description}</p>
+                  <h3>{t(`createCommunity.feature.${feature.id}.name`, feature.name)}</h3>
+                  <p>{t(`createCommunity.feature.${feature.id}.desc`, feature.description)}</p>
                 </div>
               </div>
             );
@@ -150,35 +164,35 @@ const CreateCommunityPage: React.FC = () => {
 
       {/* Form */}
       <div className={styles.card}>
-        <h2>What We Need From You</h2>
-        <p>To create a community, we just need two things:</p>
+        <h2>{t('createCommunity.formTitle', 'What We Need From You')}</h2>
+        <p>{t('createCommunity.formIntro', 'To create a community, we just need two things:')}</p>
 
         <div className={styles.formGroup}>
-          <label htmlFor="communityName" className={styles.label}>Community name</label>
+          <label htmlFor="communityName" className={styles.label}>{t('createCommunity.form.nameLabel', 'Community name')}</label>
           <input
             id="communityName"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Berlin Climate Action Network"
+            placeholder={t('createCommunity.form.namePlaceholder', 'e.g. Berlin Climate Action Network')}
             className={styles.inputField}
             disabled={isSubmitting}
           />
-          <p className={styles.hint}>This is how your community appears to other Gloki users.</p>
+          <p className={styles.hint}>{t('createCommunity.form.nameHint', 'This is how your community appears to other Gloki users.')}</p>
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="communityDesc" className={styles.label}>Description</label>
+          <label htmlFor="communityDesc" className={styles.label}>{t('createCommunity.form.descLabel', 'Description')}</label>
           <textarea
             id="communityDesc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What is this community about? What are you trying to achieve?"
+            placeholder={t('createCommunity.form.descPlaceholder', 'What is this community about? What are you trying to achieve?')}
             className={`${styles.inputField} ${styles.textarea}`}
             rows={4}
             disabled={isSubmitting}
           />
-          <p className={styles.hint}>A good description helps attract the right members.</p>
+          <p className={styles.hint}>{t('createCommunity.form.descHint', 'A good description helps attract the right members.')}</p>
         </div>
 
         {error && (
@@ -193,10 +207,10 @@ const CreateCommunityPage: React.FC = () => {
           onClick={handleSubmit}
           disabled={isSubmitting || !name.trim()}
         >
-          {isSubmitting ? 'Creating...' : 'Create Community'}
+          {isSubmitting ? t('createCommunity.submitting', 'Creating...') : t('createCommunity.submit', 'Create Community')}
         </button>
         {!isSubmitting && !name.trim() && (
-          <p className={styles.submitHint}>Enter a community name to continue.</p>
+          <p className={styles.submitHint}>{t('createCommunity.submitHint', 'Enter a community name to continue.')}</p>
         )}
       </div>
     </div>
