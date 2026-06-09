@@ -196,7 +196,16 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
             <div
               key={contract.id}
               className={styles.card}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${contract.name || 'community'}`}
               onClick={() => handleCommunityClick(contract.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleCommunityClick(contract.id);
+                }
+              }}
             >
               <div className={styles.cardTop}>
                 <span className={styles.cardName}>{contract.name || 'Community'}</span>

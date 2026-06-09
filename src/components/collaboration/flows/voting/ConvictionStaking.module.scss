@@ -41,6 +41,7 @@
 }
 
 .retryBtn {
+  min-height: 44px;
   padding: $spacing-sm $spacing-lg;
   background: $primary;
   color: white;
@@ -52,6 +53,11 @@
   transition: opacity $transition-base;
 
   &:hover { opacity: 0.85; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 // ─── Section title ─────────────────────────────────────────────────────────
@@ -106,6 +112,7 @@
 .durationOption {
   flex: 1 1 auto;
   min-width: 72px;
+  min-height: 44px;
   padding: $spacing-sm $spacing-md;
   border: 1.5px solid $gray-200;
   border-radius: $radius-md;
@@ -119,6 +126,7 @@
 
   &:hover:not(:disabled) { border-color: $primary; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
 
   @media (prefers-color-scheme: dark) {
     background: $dark-surface;
@@ -178,6 +186,7 @@
 
 .stakeBtn {
   width: 100%;
+  min-height: 44px;
   padding: $spacing-sm $spacing-lg;
   background: $primary;
   color: white;
@@ -190,6 +199,11 @@
 
   &:hover:not(:disabled) { opacity: 0.88; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 // ─── Your commitment (post-back summary) ───────────────────────────────────

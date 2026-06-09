@@ -1,6 +1,6 @@
 @use '../../styles/variables' as *;
 
-$initiative-color: #ea580c;
+$initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); was #ea580c = 3.56:1 (a11y fail)
 
 // ─── Description ─────────────────────────────────────────────────────────────
 

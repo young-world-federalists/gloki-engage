@@ -90,6 +90,8 @@
 .body {
   flex: 1;
   padding: $spacing-lg;
+  // Clear the fixed 64px StageFooter so the bottom of every sub-route stays visible.
+  padding-bottom: calc(#{$footer-height} + #{$spacing-lg});
 }
 
 // ─── Options popup ───────────────────────────
@@ -225,5 +227,6 @@
 
   .body {
     padding: $spacing-md;
+    padding-bottom: calc(#{$footer-height} + #{$spacing-md}); // keep StageFooter clearance at mobile widths
   }
 }
