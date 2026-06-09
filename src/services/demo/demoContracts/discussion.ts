@@ -161,7 +161,7 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
       return comment;
     }
     case 'delete_comment': {
-      const id = method.values?.id as string | undefined;
+      const id = method.values?.comment_id as string | undefined; // API sends comment_id (matches edit_id/position_id convention)
       if (!id) return null;
       updateState<DiscussionState>(contractId, (s) => ({
         ...defaultState(),

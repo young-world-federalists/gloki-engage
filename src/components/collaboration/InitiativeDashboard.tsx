@@ -38,7 +38,7 @@ const STAGES: StageConfig[] = [
   { id: 'problem', label: 'Problem', description: 'Community identifies whether this is a cross-border problem' },
   { id: 'discussion', label: 'Discussion', description: 'Members share perspectives from their countries' },
   { id: 'proposals', label: 'Proposals', description: 'Solution proposals are submitted and reviewed' },
-  { id: 'vote', label: 'Vote', description: 'Weighted voting on the best proposals' },
+  { id: 'vote', label: 'Vote', description: 'Vote on the best proposals' }, // one person, one vote — never "weighted"
   { id: 'mandate', label: 'Mandate', description: 'Community conviction and commitment to action' },
 ];
 
