@@ -48,37 +48,14 @@ export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: strin
 // *problem* is its Stage-1 founding statement (see CreateInitiativePage for the
 // full decision). Copy below keeps "initiative" as the object and "problem" for
 // Stage 1 only.
-const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }>; description: string; emptyHint: string }> = {
-  problem: {
-    label: 'Problem',
-    icon: AlertCircle,
-    description: 'Initiatives start here — vote on whether each problem is worth solving.',
-    emptyHint: 'No initiatives at the problem stage yet. Start an initiative from a community to raise a problem.',
-  },
-  discussion: {
-    label: 'Discussion',
-    icon: MessageCircle,
-    description: 'Initiatives whose problem cleared the vote, now under community discussion.',
-    emptyHint: 'No initiatives in discussion yet. They advance here once their problem reaches 50% community approval.',
-  },
-  proposals: {
-    label: 'Proposals',
-    icon: Lightbulb,
-    description: 'Initiatives gathering concrete solution proposals.',
-    emptyHint: 'No initiatives at the proposals stage yet. They advance here after community discussion.',
-  },
-  vote: {
-    label: 'Vote',
-    icon: Vote,
-    description: 'Initiatives in formal voting on proposed solutions.',
-    emptyHint: 'No initiatives in formal voting yet. They advance here after proposals reach approval.',
-  },
-  mandate: {
-    label: 'Mandate',
-    icon: ScrollText,
-    description: 'Completed mandates — decisions the community has committed to.',
-    emptyHint: 'No mandates yet. A mandate is created when an initiative completes the full pipeline.',
-  },
+// Labels are t()-wired at the use sites via the shared `nav.*` keys (the value
+// here is the English fallback). Per-stage banner copy lives in the render.
+const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
+  problem: { label: 'Problem', icon: AlertCircle },
+  discussion: { label: 'Discussion', icon: MessageCircle },
+  proposals: { label: 'Proposals', icon: Lightbulb },
+  vote: { label: 'Vote', icon: Vote },
+  mandate: { label: 'Mandate', icon: ScrollText },
 };
 
 // One real-initiative card in the feed. Extracted so each card can resolve its
@@ -109,10 +86,10 @@ const StageFeedCard: React.FC<{
       <h3 className={styles.cardTitle}>
         {stage === 'discussion' ? (
           <button type="button" className={styles.cardTitleButton} onClick={() => onCardClick(item)}>
-            {item.title || 'Untitled Initiative'}
+            {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
           </button>
         ) : (
-          item.title || 'Untitled Initiative'
+          item.title || t('stagefeed.untitled', 'Untitled Initiative')
         )}
       </h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
@@ -272,19 +249,19 @@ const StageFeedView: React.FC = () => {
         {stage === 'problem' && (
           <div className={styles.thresholdBanner}>
             <AlertCircle size={16} />
-            <span>25% of active community members must participate. 50% must approve a problem for it to advance to discussion.</span>
+            <span>{t('stagefeed.problem.info', '25% of active community members must participate. 50% must approve a problem for it to advance to discussion.')}</span>
           </div>
         )}
         {stage === 'discussion' && (
           <div className={styles.thresholdBanner}>
             <MessageCircle size={16} />
-            <span>33% of community members must contribute perspectives before the initiative advances to proposals.</span>
+            <span>{t('stagefeed.discussion.info', '33% of community members must contribute perspectives before the initiative advances to proposals.')}</span>
           </div>
         )}
         {stage === 'proposals' && (
           <div className={styles.thresholdBanner}>
             <Lightbulb size={16} />
-            <span>Submit solution proposals and approve the ones you support. Top proposals advance to the formal vote.</span>
+            <span>{t('stagefeed.proposals.info', 'Submit solution proposals and approve the ones you support. Top proposals advance to the formal vote.')}</span>
           </div>
         )}
         {stage === 'vote' && (
@@ -296,20 +273,20 @@ const StageFeedView: React.FC = () => {
         {stage === 'mandate' && (
           <div className={styles.thresholdBanner}>
             <ScrollText size={16} />
-            <span>Completed mandates representing the collective will of community members across borders.</span>
+            <span>{t('stagefeed.mandate.info', 'Completed mandates representing the collective will of community members across borders.')}</span>
           </div>
         )}
 
         {isLoading && stageInitiatives.length === 0 && (
           <div className={styles.empty}>
             <StageIcon size={48} />
-            <h3>Loading initiatives...</h3>
-            <p>Fetching data from communities...</p>
+            <h3>{t('stagefeed.loading.title', 'Loading initiatives...')}</h3>
+            <p>{t('stagefeed.loading.body', 'Fetching data from communities...')}</p>
           </div>
         )}
 
         {usingSampleData && (
-          <div className={styles.sampleBanner}>Example initiatives — join or create a community to participate</div>
+          <div className={styles.sampleBanner}>{t('stagefeed.sample.banner', 'Example initiatives — join or create a community to participate')}</div>
         )}
 
         {(stageInitiatives.length > 0 ? stageInitiatives : usingSampleData ? [] : []).map((item) => {
@@ -347,35 +324,35 @@ const StageFeedView: React.FC = () => {
             {stage === 'problem' && (
               <div className={styles.stageInfo}>
                 <AlertCircle size={14} />
-                <span>Join a community to vote on problems</span>
+                <span>{t('stagefeed.sample.problem', 'Join a community to vote on problems')}</span>
               </div>
             )}
 
             {stage === 'discussion' && (
               <div className={styles.stageInfo}>
                 <MessageCircle size={14} />
-                <span>Tap to join the discussion</span>
+                <span>{t('stagefeed.sample.discussion', 'Tap to join the discussion')}</span>
               </div>
             )}
 
             {stage === 'proposals' && (
               <div className={styles.stageInfo}>
                 <Lightbulb size={14} />
-                <span>Join a community to submit and approve proposals</span>
+                <span>{t('stagefeed.sample.proposals', 'Join a community to submit and approve proposals')}</span>
               </div>
             )}
 
             {stage === 'vote' && (
               <div className={styles.stageInfo}>
                 <Vote size={14} />
-                <span>Join a community to allocate voting credits</span>
+                <span>{t('stagefeed.sample.vote', 'Join a community to allocate voting credits')}</span>
               </div>
             )}
 
             {stage === 'mandate' && (
               <div className={styles.stageInfo}>
                 <ScrollText size={14} />
-                <span>Join a community to stake your conviction</span>
+                <span>{t('stagefeed.sample.mandate', 'Join a community to stake your conviction')}</span>
               </div>
             )}
           </div>
