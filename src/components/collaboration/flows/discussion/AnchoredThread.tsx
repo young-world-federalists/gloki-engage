@@ -3,7 +3,7 @@ import { Reply, Send } from 'lucide-react';
 import { CountryFlag } from '../../../shared';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
-import { relativeTimeKey } from '../../../../services/demo/fixtures/deliberation';
+import { relativeTimeKey } from '../../../../utils/formatTimeAgo';
 import { useAuthorResolver } from './useDiscussionData';
 import * as api from './discussionApi';
 import type { AnchoredComment } from './discussionApi';

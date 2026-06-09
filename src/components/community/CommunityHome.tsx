@@ -8,6 +8,7 @@ import type { IMethod } from '../../services/interfaces';
 import type { Collaboration } from '../../services/contracts/community';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
+import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { Card, Badge, Button, TrustBadge } from '../shared';
 import type { BadgeTone } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
@@ -46,18 +47,6 @@ const SAMPLE_FEED: SampleItem[] = [
   { id: 's4', title: 'Digital Privacy Standards', description: 'Personal data harvested at unprecedented scale.', stage: 'vote', authorName: 'Sam R.', createdAt: Date.now() - 172800000 },
   { id: 's5', title: 'Universal Climate Fund', description: 'Decentralized climate adaptation resources for communities.', stage: 'mandate', authorName: 'Elena V.', createdAt: Date.now() - 259200000 },
 ];
-
-function formatTimeAgo(timestamp: number): string {
-  if (!timestamp) return '';
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 60) return 'just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
 
 interface CommunityHomeProps {
   communityId: string;
@@ -206,7 +195,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
                     {t(meta.labelKey, meta.labelDefault)}
                   </span>
                 </Badge>
-                {item.createdAt > 0 && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
+                {item.createdAt > 0 && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
               </div>
               <h3 className={styles.cardTitle}>{item.title || t('community.untitled', 'Untitled Initiative')}</h3>
               {item.description && <p className={styles.cardDesc}>{item.description}</p>}
@@ -237,7 +226,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
                         {t(meta.labelKey, meta.labelDefault)}
                       </span>
                     </Badge>
-                    <span className={styles.time}>{formatTimeAgo(sample.createdAt)}</span>
+                    <span className={styles.time}>{formatTimeAgo(t, sample.createdAt)}</span>
                   </div>
                   <h3 className={styles.cardTitle}>{sample.title}</h3>
                   <p className={styles.cardDesc}>{sample.description}</p>

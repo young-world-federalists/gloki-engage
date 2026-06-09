@@ -60,7 +60,7 @@ const HomeInitiativeCard: React.FC<{
         {card.communityId && card.author && (
           <TrustBadge state={trust.trustOf(card.author)} vouchCount={trust.vouchCountOf(card.author)} size="sm" />
         )}
-        {card.createdAt ? <span className={styles.time}>{formatTimeAgo(card.createdAt)}</span> : null}
+        {card.createdAt ? <span className={styles.time}>{formatTimeAgo(t, card.createdAt)}</span> : null}
       </div>
       <h3 className={styles.cardTitle}>{card.title}</h3>
       {card.description && <p className={styles.cardDesc}>{card.description}</p>}

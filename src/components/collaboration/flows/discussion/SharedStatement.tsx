@@ -3,7 +3,8 @@ import { PenLine, Users, Check, ThumbsUp, Eye, MessageCircle, ChevronDown, Chevr
 import { Badge, Banner, Button, Modal, CountryFlag, EmptyState } from '../../../shared';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
-import { deliberationParticipant, relativeTimeKey, diffWords } from '../../../../services/demo/fixtures/deliberation';
+import { deliberationParticipant, diffWords } from '../../../../services/demo/fixtures/deliberation';
+import { relativeTimeKey } from '../../../../utils/formatTimeAgo';
 import * as api from './discussionApi';
 import type { Statement, EditSuggestion } from './discussionApi';
 import styles from './SharedStatement.module.scss';

@@ -15,7 +15,7 @@ import { Badge, CountryFlag, EmptyState } from '../../../shared';
 import type { BadgeTone } from '../../../shared';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
-import { relativeTimeKey } from '../../../../services/demo/fixtures/deliberation';
+import { relativeTimeKey } from '../../../../utils/formatTimeAgo';
 import { useAuthorResolver } from './useDiscussionData';
 import AnchoredThread from './AnchoredThread';
 import * as api from './discussionApi';

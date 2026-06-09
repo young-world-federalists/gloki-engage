@@ -275,7 +275,7 @@ export interface SeedEdit {
   rationale: string;
   supporters: string[]; // pks — 1p1v
   status: 'open' | 'accepted' | 'stale';
-  createdAgo: number; // minutes (feeds relativeTimeKey); 0 = just now
+  createdAgo: number; // minutes (feeds utils/formatTimeAgo relativeTimeKey); 0 = just now
 }
 export interface SeedPosition {
   id: string;
@@ -474,19 +474,9 @@ function initialsOf(first: string, last: string): string {
   return (a + b || first.slice(0, 2)).toUpperCase();
 }
 
-/**
- * i18n descriptor for a "minutes ago" timestamp. Returns the key + English
- * default + vars so the component owns the actual `t()` call (data stays
- * i18n-free).
- */
-export function relativeTimeKey(minutesAgo: number): { key: string; def: string; vars: Record<string, number> } {
-  if (minutesAgo < 1) return { key: 'deliberation.time.now', def: 'just now', vars: {} };
-  if (minutesAgo < 60) return { key: 'deliberation.time.minutes', def: '{n}m ago', vars: { n: minutesAgo } };
-  const hours = Math.floor(minutesAgo / 60);
-  if (hours < 24) return { key: 'deliberation.time.hours', def: '{n}h ago', vars: { n: hours } };
-  const days = Math.floor(hours / 24);
-  return { key: 'deliberation.time.days', def: '{n}d ago', vars: { n: days } };
-}
+// relativeTimeKey moved to `src/utils/formatTimeAgo.ts` (the canonical
+// relative-time module) — a pure helper, so it doesn't belong under
+// demo/fixtures (review §8.4: keep the demo boundary honest).
 
 export type DiffToken = { value: string; type: 'same' | 'add' | 'del' };
 

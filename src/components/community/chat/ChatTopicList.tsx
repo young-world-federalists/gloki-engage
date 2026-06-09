@@ -6,26 +6,12 @@ import CountryBadge from '../../collaboration/flows/shared/CountryBadge';
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 const chatContractCode = '';import { getTopics, createTopic } from './chatApi';
 import type { ChatTopic } from './chatApi';
+import { useT } from '../../../i18n';
+import { formatTimeAgo } from '../../../utils/formatTimeAgo';
 import styles from './ChatTopicList.module.scss';
 
 interface ChatTopicListProps {
   communityId: string;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function timeAgo(ts: number): string {
-  const diff = Date.now() - ts;
-  const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 const POLL_INTERVAL_MS = 10_000;
@@ -35,6 +21,7 @@ const POLL_INTERVAL_MS = 10_000;
 // ---------------------------------------------------------------------------
 
 const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
+  const t = useT();
   const navigate = useNavigate();
   const serverUrl = useAppSelector((state) => state.user.serverUrl);
   const publicKey = useAppSelector((state) => state.user.publicKey);
@@ -188,7 +175,10 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
                     {topic.messageCount}
                   </span>
                   <span className={styles.metaDivider}>·</span>
-                  <span className={styles.timeAgo}>{timeAgo(topic.lastActivity)}</span>
+                  <span className={styles.timeAgo}>
+                    {formatTimeAgo(t, topic.lastActivity, { maxDays: 7 }) ||
+                      new Date(topic.lastActivity).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
                 </div>
               </button>
             );

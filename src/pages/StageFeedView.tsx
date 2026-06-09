@@ -80,7 +80,7 @@ const StageFeedCard: React.FC<{
         {item.author && (
           <TrustBadge state={trust.trustOf(item.author)} vouchCount={trust.vouchCountOf(item.author)} size="sm" />
         )}
-        {item.createdAt && <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>}
+        {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
       </div>
 
       <h3 className={styles.cardTitle}>
