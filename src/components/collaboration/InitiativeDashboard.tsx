@@ -26,6 +26,7 @@ import MandateStage from '../stages/MandateStage';
 import StageGate from '../community/StageGate';
 import JourneyRecap from '../mandate/JourneyRecap';
 import PageHeader from '../PageHeader';
+import { Banner, Button } from '../shared';
 import cs from '../../pages/Container.module.scss';
 import styles from './InitiativeDashboard.module.scss';
 
@@ -247,15 +248,22 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
       <div className={cs.content}>
         <div className={cs.main}>
           {roles?.status === 'merged_into' && roles.mergedInto && (
-            <div className={styles.absorbedBanner}>
-              <div>
-                <strong>{t('dashboard.merged.title', 'This initiative merged into another one.')}</strong>
-                <p>{t('dashboard.merged.body', 'Continue the conversation on the surviving initiative.')}</p>
-              </div>
-              <button onClick={() => navigate(`/initiative/${encodeURIComponent(params.initiativeHostServer || '')}/${encodeURIComponent(params.initiativeHostAgent || '')}/${communityId}/${roles.mergedInto}`)}>
-                {t('dashboard.merged.cta', 'Go to merged initiative →')}
-              </button>
-            </div>
+            <Banner
+              tone="warning"
+              title={t('dashboard.merged.title', 'This initiative merged into another one.')}
+              className={styles.absorbedBanner}
+              action={
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => navigate(`/initiative/${encodeURIComponent(params.initiativeHostServer || '')}/${encodeURIComponent(params.initiativeHostAgent || '')}/${communityId}/${roles.mergedInto}`)}
+                >
+                  {t('dashboard.merged.cta', 'Go to merged initiative →')}
+                </Button>
+              }
+            >
+              {t('dashboard.merged.body', 'Continue the conversation on the surviving initiative.')}
+            </Banner>
           )}
 
           {roles && (

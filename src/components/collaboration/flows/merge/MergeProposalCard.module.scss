@@ -1,14 +1,16 @@
+@use '../../../../styles/variables' as *;
+
 .card {
-  background: #162136;
+  background: white;
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 8px;
-  border: 1px solid transparent;
+  border: 1px solid $gray-200;
 }
 
-.accepted { border-color: rgba(58, 167, 109, 0.4); opacity: 0.8; }
-.rejected { border-color: rgba(255, 100, 100, 0.3); opacity: 0.6; }
-.expired  { border-color: rgba(255, 255, 255, 0.15); opacity: 0.5; }
+.accepted { border-color: rgba($success, 0.4); opacity: 0.8; }
+.rejected { border-color: rgba($error, 0.3); opacity: 0.6; }
+.expired  { border-color: $gray-200; opacity: 0.5; }
 
 .header {
   display: flex;
@@ -21,17 +23,17 @@
 
 .statusBadge {
   font-size: 10px;
-  font-weight: 700;
+  font-weight: $font-bold;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #f0c65b;
+  background: $warning-surface;
+  color: $warning-on-surface;
 
-  &.accepted { color: #6ddfa3; background: rgba(58, 167, 109, 0.15); }
-  &.rejected { color: #ff9b9b; background: rgba(255, 100, 100, 0.12); }
-  &.expired  { color: #8fa0bb; background: rgba(255, 255, 255, 0.06); }
+  &.accepted { color: $success-on-surface; background: $success-surface; }
+  &.rejected { color: $error-on-surface; background: $error-surface; }
+  &.expired  { color: $gray-500; background: $gray-100; }
 }
 
 .proposer {
@@ -48,7 +50,7 @@
 }
 
 .voteBar {
-  background: #0b1220;
+  background: $gray-50;
   border-radius: 6px;
   padding: 8px 10px;
   margin-bottom: 10px;
@@ -65,15 +67,15 @@
 
 .voteBarTrack {
   height: 6px;
-  background: #22304c;
+  background: $gray-200;
   border-radius: 3px;
   overflow: hidden;
 }
 
 .voteBarFill {
   height: 100%;
-  background: #3aa76d;
-  transition: width 200ms;
+  background: $success;
+  transition: width $transition-base;
 }
 
 .actions {
@@ -95,14 +97,19 @@
   gap: 4px;
   padding: 6px 10px;
   border-radius: 6px;
-  background: #1e3a5f;
-  color: #e6edf7;
+  background: $gray-100;
+  color: $gray-700;
   border: 1px solid transparent;
   cursor: pointer;
   font-size: 12px;
 
-  &.voted { background: #2a5bd7; }
+  &.voted { background: $primary; color: white; }
   &:disabled { opacity: 0.5; cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .acceptBtn, .rejectBtn {
@@ -116,14 +123,54 @@
   font-size: 12px;
 
   &:disabled { opacity: 0.5; cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
-.acceptBtn { background: #1b5e20; color: #e6edf7; }
-.rejectBtn { background: #4a1e1e; color: #e6edf7; }
+.acceptBtn { background: $success-surface; color: $success-on-surface; }
+.rejectBtn { background: $error-surface; color: $error-on-surface; }
 
 .deadline {
   margin-top: 6px;
   font-size: 10px;
-  color: #8fa0bb;
+  color: $gray-500;
   text-align: right;
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .accepted { border-color: rgba($success, 0.4); }
+  .rejected { border-color: rgba($error, 0.4); }
+  .expired  { border-color: $dark-border; }
+
+  .statusBadge {
+    background: $warning-surface-dark;
+    color: $dark-text;
+
+    &.accepted { color: $dark-text; background: $success-surface-dark; }
+    &.rejected { color: $dark-text; background: $error-surface-dark; }
+    &.expired  { color: $dark-text-secondary; background: rgba($dark-text, 0.06); }
+  }
+
+  .voteBar { background: $dark-surface; }
+  .voteBarTrack { background: $dark-border; }
+
+  .voteBtn {
+    background: $dark-border;
+    color: $dark-text;
+
+    &.voted { background: $primary; color: white; }
+  }
+
+  .acceptBtn { background: $success-surface-dark; color: $dark-text; }
+  .rejectBtn { background: $error-surface-dark; color: $dark-text; }
+
+  .deadline { color: $dark-text-secondary; }
 }

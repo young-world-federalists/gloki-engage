@@ -1,3 +1,5 @@
+@use '../../../../styles/variables' as *;
+
 .container { padding: 8px 0; }
 
 .header {
@@ -7,7 +9,7 @@
   margin-bottom: 10px;
 }
 
-.title { margin: 0; font-size: 14px; font-weight: 600; color: #e6edf7; }
+.title { margin: 0; font-size: 14px; font-weight: $font-semibold; color: $gray-800; }
 
 .proposeBtn {
   display: inline-flex;
@@ -15,34 +17,56 @@
   gap: 4px;
   padding: 6px 10px;
   border-radius: 6px;
-  background: #2a5bd7;
-  color: #fff;
+  background: $primary;
+  color: white;
   border: none;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: $font-semibold;
+
+  &:hover { background: $primary-dark; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .loading, .emptyText {
   font-size: 12px;
-  color: #8fa0bb;
+  color: $gray-500;
   text-align: center;
   padding: 16px;
 }
 
 .error {
-  color: #ff9b9b;
+  color: $error-dark;
   font-size: 12px;
   padding: 10px;
 }
 
 .retryBtn {
-  background: #2a5bd7;
-  color: #fff;
+  background: $primary;
+  color: white;
   border: none;
   padding: 4px 10px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
   margin-top: 6px;
+
+  &:hover { background: $primary-dark; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .title { color: $dark-text; }
+
+  .loading, .emptyText { color: $dark-text-secondary; }
+
+  .error { color: $error-on-dark; }
 }

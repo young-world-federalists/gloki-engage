@@ -1,7 +1,9 @@
+@use '../../../../styles/variables' as *;
+
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: $overlay-bg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,9 +12,9 @@
 }
 
 .modal {
-  background: #162136;
-  color: #e6edf7;
-  border-radius: 12px;
+  background: white;
+  color: $gray-800;
+  border-radius: $radius-lg;
   padding: 20px;
   max-width: 520px;
   width: 100%;
@@ -31,9 +33,17 @@
 .closeBtn {
   background: transparent;
   border: none;
-  color: #c8d2e0;
+  color: $gray-500;
   cursor: pointer;
   padding: 4px;
+
+  &:hover { color: $gray-700; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
 }
 
 .label {
@@ -41,42 +51,47 @@
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: $font-semibold;
   margin-bottom: 14px;
 }
 
 .select, .textarea {
-  background: #0b1220;
-  color: #e6edf7;
-  border: 1px solid #22304c;
-  border-radius: 8px;
+  background: white;
+  color: $gray-800;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
   padding: 8px 10px;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: $font-normal;
   font-family: inherit;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .charCount {
   font-size: 11px;
-  font-weight: 400;
-  color: #8fa0bb;
+  font-weight: $font-normal;
+  color: $gray-500;
   text-align: right;
 }
 
 .emptyState {
   padding: 20px 4px;
   font-size: 13px;
-  color: #c8d2e0;
+  color: $gray-600;
 }
 
 .hint {
-  color: #8fa0bb;
+  color: $gray-500;
   font-size: 11px;
 }
 
 .error {
-  background: rgba(255, 100, 100, 0.1);
-  color: #ff9b9b;
+  background: $error-surface;
+  color: $error-on-surface;
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 12px;
@@ -92,21 +107,65 @@
 
 .cancelBtn, .submitBtn {
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: $font-semibold;
   border: 1px solid transparent;
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
 }
 
 .cancelBtn {
   background: transparent;
-  color: #c8d2e0;
-  border-color: #22304c;
+  color: $gray-600;
+  border-color: $gray-200;
+
+  &:hover { background: $gray-50; }
 }
 
 .submitBtn {
-  background: #2a5bd7;
-  color: #fff;
+  background: $primary;
+  color: white;
+
+  &:hover { background: $primary-dark; }
   &:disabled { opacity: 0.5; cursor: default; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: $dark-bg;
+    color: $dark-text;
+  }
+
+  .closeBtn {
+    color: $dark-text-secondary;
+
+    &:hover { color: $dark-text; }
+  }
+
+  .select, .textarea {
+    background: $dark-surface;
+    color: $dark-text;
+    border-color: $dark-border;
+  }
+
+  .charCount, .hint { color: $dark-text-secondary; }
+
+  .emptyState { color: $dark-text-secondary; }
+
+  .error {
+    background: $error-surface-dark;
+    color: $dark-text;
+  }
+
+  .cancelBtn {
+    color: $dark-text-secondary;
+    border-color: $dark-border;
+
+    &:hover { background: rgba($dark-text, 0.06); }
+  }
 }
