@@ -1,5 +1,3 @@
-import { jsPDF } from 'jspdf';
-import 'svg2pdf.js';
 import React from 'react';
 import IdentityCardSVG from './IdentityCardSVG';
 
@@ -20,6 +18,14 @@ export const generateIdentityCardPDF = async ({
   agentId,
   qrData,
 }: IdentityCardPDFGeneratorProps): Promise<Blob> => {
+  // Heavy PDF deps load on demand — only when the user actually exports a
+  // card — so the IdentityCardDialog chunk stays small. The svg2pdf.js import
+  // is a side effect: it registers jsPDF.prototype.svg.
+  const [{ jsPDF }] = await Promise.all([
+    import('jspdf'),
+    import('svg2pdf.js'),
+  ]);
+
   // Create a temporary container for the SVG
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
