@@ -67,6 +67,42 @@ The Status column below reflects the **original audit**; this section is the aut
 
 ---
 
+## 1b. Batch-8 Part-1 resolution (the deferred C-tranche + token-debt triage)
+
+Eston re-scoped the C-tranche into Batch-8 Part 1 and set the appetite (question tool):
+**full caption sweep** + **token-debt: easy swaps now, flag the rest**. All fixes verified
+live (light + dark, 360–390px) with computed-contrast / heading-tree / bounding-box checks;
+`tsc -b` + `npm run build` clean. Local commits, **not pushed**.
+
+| Commit | Findings | What changed |
+|--------|----------|--------------|
+| `9998946` | #18, #15 | **#18** MissionBanner community-name `<h2>` (duplicated the dark-header `<h1>`) → styled `<p>`; community-home feed lifted to a clean h1→h2→h3. **#15** InitiativeDashboard stage cards + Discussion sections (SharedStatement / PositionsBoard) `<h3>`→`<h2>` (statement title `<h4>`→`<h3>`); both discussion components are used only in DiscussionStageView, so no level prop needed. |
+| `047b144` | #16 | PageHeader `.wordmark` gets `min-height: 44px` (was 40px). |
+| `a6f8a1b` | #2 (full) | **Full `$gray-400` caption sweep:** 95 standalone `color: $gray-400` (2.54:1) text instances → `$gray-500` (#6b7280, 4.76:1) across 38 `.module.scss` files. Decorative `border-`/`background`/`border-left` and input `::placeholder` left as-is; dark blocks already use `$dark-text-secondary` (verified none touched). DESIGN_SYSTEM.md Loading/Empty message-text guidance → `$gray-500`. |
+| `d7ca12e` | token-debt + NEW | **NotificationsBell invisible-bell (NEW bug):** `.bellBtn` was `#e6edf7` (near-white) — invisible on the white two-row/single-row headers (~1.07:1; dashboard, discussion, most pages). Now `color: inherit` (+ `.homepageActions{color:white}`) → visible on every header. **PageHeader logout button:** white-on-`#fb7185` was 2.69:1 (AA fail) → `$error`/`$error-dark` tokens (4.84:1); PageHeader is now hex-free. |
+
+**Grep-gate (caption regression):** `grep -rn 'color: $gray-400' src --include='*.module.scss'`
+must match **only** decorative (`border-`/`background`) and `::placeholder` uses — never a
+standalone `color:` text declaration. Also recorded in DESIGN_SYSTEM.md → Accessibility.
+
+**Token-debt — flagged for a focused cleanup wave** (appetite = easy swaps now, flag rest). Most
+remaining ad-hoc hex is in **hardcoded dark-palette components** needing a theme-aware rebuild
+(not a token swap), plus peripheral dialogs and dead code:
+- **Dead code (remove → hex goes with it):** `CreateIssueDialog`, `CreateCommunityDialog`,
+  `CollaborationPanel` — 0 importers (~52 hex). Also dead: `src/pages/InitiativeView.tsx` (the
+  Roadmap/Gaps/Steps shell, superseded by `pages/collaboration/InitiativeView.tsx`).
+- **Dark-palette family (theme-aware token rebuild):** `NotificationsBell` dropdown panel
+  (`#162136`/`#22304c`/`#e6edf7`/`#8fa0bb`/`#c8d2e0`), `RoleChip`, `RoleDisplay`,
+  `ExpertEndorseButton`, the merge flow (`MergeProposalCard`/`MergeProposalsList`/
+  `MergeProposalSubmitModal`), `InitiativeDashboard` `.absorbedBanner` (`#f0c65b`/`#c8d2e0`/`#2a5bd7`).
+- **Dialogs (ad-hoc hex → tokens):** `ApprovalDialog`, `CreateCollabDialog`, `IdentityCardDialog`
+  (also the ~484KB bundle outlier).
+- **Minor robustness (NEW, not fixed):** `useDigitalAgent.ts:34` reads `agent.languages.length` —
+  a partially-stored agent (missing the field) crashes the app via ErrorBoundary; `?.length` is
+  safer. Low priority (the store always merges from `baseAgent()`).
+
+---
+
 ## 2. Findings (severity × effort)
 
 Severity: **high** = blocks a task for a persona · **med** = real barrier with a partial workaround ·
