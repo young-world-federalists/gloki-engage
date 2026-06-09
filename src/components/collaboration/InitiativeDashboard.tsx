@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useT } from '../../i18n';
 import RoleDisplay from '../shared/RoleDisplay';
-import { getInitiativeRoles, type InitiativeRoles } from '../../services/initiativeRoles';
+import { getInitiativeRoles, isAuthorOrCoAuthor, type InitiativeRoles } from '../../services/initiativeRoles';
 import { CheckCircle2, Circle, Lock, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers, setInitiativeStage } from '../../store/slices/communitiesSlice';
@@ -427,8 +427,10 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
             })}
           </div>
 
-          {/* Advance bar */}
-          {nextStage && (
+          {/* Advance bar — author/co-authors only (Eston's Gate-B call, Batch 9b):
+              the thresholds gate readiness, but executing the advance is the
+              authors' action. Members still see stage progress via the cards. */}
+          {nextStage && roles && isAuthorOrCoAuthor(roles, publicKey) && (
             <div className={styles.advanceBar}>
               {!stageReadiness.ready && (
                 <div className={styles.advanceWarning}>

@@ -243,6 +243,7 @@ Every interactive component must define all of these (don't ship hover-only or f
 Target **WCAG 2.1 AA**:
 
 - **Contrast:** body text ≥ **4.5:1** against its background; large text (≥ 24px, or ≥ 18.66px bold) and UI components / focus indicators ≥ **3:1**. This is why low-contrast gray text on tinted tabs (e.g. the Proposals/Results toggles) fails — fix with a token pair that meets the ratio.
+- **Known accepted deviation — `$primary` buttons:** white on `$primary` `#3b82f6` is **3.68:1** (below the 4.5:1 normal-text bar). Kept deliberately as the brand blue (Eston's call, confirmed at the Batch-8 *and* Batch-9b gates). Do **not** darken `$primary` to "fix" this without a new product decision; `$primary-dark` `#2563eb` exists for hover/active.
 - **Caption colour gate:** `$gray-400` (#9ca3af) is **2.54:1 on white** — below AA for text. Use **`$gray-500`** for any caption/metadata/helper text on a light surface. Regression gate: `grep -rn 'color: $gray-400' src --include='*.module.scss'` should match **only** decorative (`border-`/`background`) and `::placeholder` uses — never standalone `color:` text.
 - **Don't rely on colour alone** — pair status colour with an icon or text label.
 - **Focus:** visible focus ring on all interactive elements (see Component states).

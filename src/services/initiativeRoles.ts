@@ -48,7 +48,12 @@ export async function getInitiativeRoles(
     }
 
     return {
-      author: typeof r.author === 'string' ? r.author : '',
+      // Older/demo initiative contracts don't implement get_roles; the author
+      // is still recorded in get_details, so fall back to it (keeps the
+      // author-only advance gate working across both contract generations).
+      author: typeof r.author === 'string' && r.author
+        ? r.author
+        : (typeof d.author === 'string' ? d.author : ''),
       coAuthors: Array.isArray(r.coAuthors) ? r.coAuthors : [],
       experts: Array.isArray(r.experts) ? r.experts : [],
       endorsementCounts: (r.endorsementCounts && typeof r.endorsementCounts === 'object') ? r.endorsementCounts as Record<string, number> : {},
