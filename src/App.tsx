@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
+import { getAgent, getProgress } from './components/identity/agent/digitalAgentStore';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FROZEN ROUTE MAP — the Voices-for-the-Climate journey.
@@ -50,10 +51,10 @@ const PresenceLabRoute = lazy(() => import('./components/shared/presence/Presenc
 // Such users land on the guided /welcome flow; everyone else goes straight to the stage feed.
 const isFirstRun = (): boolean => {
   try {
-    return (
-      !localStorage.getItem('gloki.digitalAgent') ||
-      localStorage.getItem('gloki.onboarding.completed') !== 'true'
-    );
+    // Read the agent store's canonical state — getProgress() reads `gloki.onboarding`,
+    // the key onboarding actually writes. The old code checked `gloki.onboarding.completed`,
+    // which nothing ever set, so every returning user was sent back to /welcome.
+    return !getAgent() || !getProgress().completed;
   } catch {
     // localStorage blocked (private mode) — fall back to the returning-user path.
     return false;
