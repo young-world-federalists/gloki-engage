@@ -181,11 +181,11 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
   const currentStageIndex = STAGES.findIndex((s) => s.id === stage);
   const nextStage = currentStageIndex < STAGES.length - 1 ? STAGES[currentStageIndex + 1] : null;
 
-  // Stage label/description resolve through t() keyed by stage id (e.g.
-  // 'dashboard.stage.problem.label' / '.desc'); the English source is the
-  // STAGES array above (passed as the inline default). The W5 fr/sw wave adds
-  // overlays for these keys.
-  const stageLabel = (s: StageConfig) => t(`dashboard.stage.${s.id}.label`, s.label);
+  // Stage labels resolve through the canonical full-label family `stage.{id}`
+  // (shared with CommunityHome badges + CreateInitiativePage); descriptions
+  // through 'dashboard.stage.{id}.desc'. English source is the STAGES array
+  // above (passed as the inline default).
+  const stageLabel = (s: StageConfig) => t(`stage.${s.id}`, s.label);
 
   const getStageStatus = (stageId: PipelineStage): StageStatus => {
     const idx = STAGES.findIndex((s) => s.id === stageId);
@@ -201,11 +201,13 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
         const remaining = Math.max(threshold - problemTally.up, 0);
         return {
           ready: false,
-          reason: t(
-            'dashboard.readiness.upvotes',
-            '{remaining} more upvote{s} needed ({up}/{threshold})',
-            { remaining, s: remaining !== 1 ? 's' : '', up: problemTally.up, threshold },
-          ),
+          // Full-string singular/plural alternatives — a bare '{s}' suffix is
+          // English-only morphology and untranslatable (W5).
+          reason: remaining === 1
+            ? t('dashboard.readiness.upvotes.one', '1 more upvote needed ({up}/{threshold})',
+                { up: problemTally.up, threshold })
+            : t('dashboard.readiness.upvotes.many', '{remaining} more upvotes needed ({up}/{threshold})',
+                { remaining, up: problemTally.up, threshold }),
         };
       }
     }
@@ -351,7 +353,14 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                   {/* COMPLETED: discussion summary */}
                   {status === 'completed' && s.id === 'discussion' && discussionSummary && (
                     <div className={styles.completedMetrics}>
-                      <span>{t('dashboard.discussion.summary', '{participants} participant{ps} · {comments} comment{cs}', { participants: discussionSummary.participants, ps: discussionSummary.participants !== 1 ? 's' : '', comments: discussionSummary.comments, cs: discussionSummary.comments !== 1 ? 's' : '' })}</span>
+                      <span>{[
+                        discussionSummary.participants === 1
+                          ? t('dashboard.discussion.participants.one', '1 participant')
+                          : t('dashboard.discussion.participants.many', '{n} participants', { n: discussionSummary.participants }),
+                        discussionSummary.comments === 1
+                          ? t('dashboard.discussion.comments.one', '1 comment')
+                          : t('dashboard.discussion.comments.many', '{n} comments', { n: discussionSummary.comments }),
+                      ].join(' · ')}</span>
                     </div>
                   )}
 
@@ -359,9 +368,13 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                   {status === 'completed' && s.id === 'proposals' && proposalsSummary && (
                     <div className={styles.completedMetrics}>
                       <span>
-                        {t('dashboard.proposals.summary', '{count} proposal{s}', { count: proposalsSummary.proposals, s: proposalsSummary.proposals !== 1 ? 's' : '' })}
+                        {proposalsSummary.proposals === 1
+                          ? t('dashboard.proposals.summary.one', '1 proposal')
+                          : t('dashboard.proposals.summary.many', '{count} proposals', { count: proposalsSummary.proposals })}
                         {proposalsSummary.topApprovedText
-                          ? t('dashboard.proposals.top', ' · top: "{text}" ({count} approval{s})', { text: proposalsSummary.topApprovedText, count: proposalsSummary.topApprovedCount, s: proposalsSummary.topApprovedCount !== 1 ? 's' : '' })
+                          ? (proposalsSummary.topApprovedCount === 1
+                            ? t('dashboard.proposals.top.one', ' · top: "{text}" (1 approval)', { text: proposalsSummary.topApprovedText })
+                            : t('dashboard.proposals.top.many', ' · top: "{text}" ({count} approvals)', { text: proposalsSummary.topApprovedText, count: proposalsSummary.topApprovedCount }))
                           : ''}
                       </span>
                     </div>
@@ -372,7 +385,9 @@ const InitiativeDashboard: React.FC<InitiativeDashboardProps> = ({ title, collab
                     <div className={styles.completedMetrics}>
                       <span>{voteSummary.winnerText
                         ? t('dashboard.vote.winner', 'Winner: "{text}" ({credits} votes)', { text: voteSummary.winnerText, credits: voteSummary.winnerCredits.toFixed(1) })
-                        : t('dashboard.vote.voters', '{count} voter{s}', { count: voteSummary.voters, s: voteSummary.voters !== 1 ? 's' : '' })}</span>
+                        : voteSummary.voters === 1
+                          ? t('dashboard.vote.voters.one', '1 voter')
+                          : t('dashboard.vote.voters.many', '{count} voters', { count: voteSummary.voters })}</span>
                     </div>
                   )}
 

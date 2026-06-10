@@ -214,7 +214,9 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
         <div className={styles.header}>
           <h2>{t('members.title', 'Members')}</h2>
           <p>{t('members.intro', 'People in this community. Members can propose initiatives, vote on decisions, and participate in governance.')}</p>
-          <p className={styles.memberCount}>{t('members.count', '{n} community member{s}', { n: allMembers.length, s: allMembers.length !== 1 ? 's' : '' })}</p>
+          <p className={styles.memberCount}>{allMembers.length === 1
+            ? t('members.count.one', '1 community member')
+            : t('members.count.many', '{n} community members', { n: allMembers.length })}</p>
         </div>
 
         {!currentUserInList && publicKey && (

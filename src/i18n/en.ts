@@ -25,12 +25,22 @@ const en: Dictionary = {
   'common.share': 'Share',
   'common.comingSoon': 'Coming soon',
 
-  // Global stage navigation (StageFooter)
+  // Global stage navigation (StageFooter) — SHORT stage forms
   'nav.problem': 'Problem',
   'nav.discussion': 'Discuss',
   'nav.proposals': 'Proposals',
   'nav.vote': 'Vote',
   'nav.mandate': 'Mandate',
+
+  // Canonical FULL stage labels (CommunityHome badges, InitiativeDashboard
+  // cards, CreateInitiativePage stepper). Two families only: nav.* = short,
+  // stage.* = full. The old dashboard.stage.{id}.label aliases are collapsed
+  // into this family; dashboard.stage.{id}.desc remains dashboard copy.
+  'stage.problem': 'Problem',
+  'stage.discussion': 'Discussion',
+  'stage.proposals': 'Proposals',
+  'stage.vote': 'Vote',
+  'stage.mandate': 'Mandate',
 
   // Language switcher (language names stay as endonyms across all locales)
   'lang.switch': 'Language',

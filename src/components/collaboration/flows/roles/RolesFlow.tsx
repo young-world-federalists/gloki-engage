@@ -135,7 +135,9 @@ const RolesFlow: React.FC<FlowProps> = ({ instanceId }) => {
     <div className={styles.container}>
       <div className={styles.header}>
         <Award size={18} className={styles.headerIcon} />
-        <span>{t('roles.count', '{n} role{s}', { n: roles.length, s: roles.length !== 1 ? 's' : '' })}</span>
+        <span>{roles.length === 1
+          ? t('roles.count.one', '1 role')
+          : t('roles.count.many', '{n} roles', { n: roles.length })}</span>
       </div>
 
       {adding ? (

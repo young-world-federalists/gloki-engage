@@ -191,7 +191,7 @@ const CreateInitiativePage: React.FC = () => {
                   {index < STAGES.length - 1 && <div className={styles.stepLine} />}
                 </div>
                 <div className={styles.stepContent}>
-                  <h3>{t(`dashboard.stage.${stage.id}.label`, stage.name)}</h3>
+                  <h3>{t(`stage.${stage.id}`, stage.name)}</h3>
                   <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
                 </div>
               </div>
