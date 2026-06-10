@@ -10,10 +10,10 @@ the i18n *wiring* is done on every major surface, so the locale work is finally 
 
 ---
 
-## What Batch 9b shipped (local commits `e330929..5da5168` on `ui`, NOT pushed — Eston controls deploy)
+## What Batch 9b shipped (pushed & deployed 2026-06-10 — `origin/ui` HEAD `8d9f8f2`, Pages GREEN)
 
-> Note: when 9b started, `origin/ui` was already at `30424b8` (the 9a commits got deployed). The 13 commits
-> after it are local-only.
+> 14 commits `e330929..8d9f8f2`, pushed on Eston's green-light at the 9b handback; the "Deploy to GitHub
+> Pages" run completed green, so everything below is **live**.
 
 - **W2 i18n wiring — COMPLETE.** StageFeedView (threshold/loading/sample banners; dead
   `STAGE_CONFIG.description/emptyHint` fields deleted — they were never rendered), CreateInitiativePage
@@ -123,10 +123,11 @@ the i18n *wiring* is done on every major surface, so the locale work is finally 
 
 ## The `ui → main` review PR (#20)
 
-Scope has shifted materially since it was refreshed (W1–W4 + gates done): once Eston pushes, update the PR
-body — cleared items from review §2/§4 (advance gating now author-only, Modal trap done, bell/merge/dialog
-token-debt done, i18n wiring done, 484KB chunk fixed), and keep pointing at §8 for the seam swap surface.
-**Ouri reviews/merges — don't merge; the 2 upstream `main` commits still need reconciling.**
+Scope has shifted materially since the body was last refreshed (W1–W4 + both gates are now live on `ui`):
+**refresh the PR body early this session** — mark the cleared review-§2/§4 items (advance gating now
+author-only, Modal focus trap done, bell/merge/dialog token-debt done, i18n wiring done, the 484KB chunk
+fixed) and keep pointing at §8 for the seam swap surface. **Ouri reviews/merges — don't merge; the 2
+upstream `main` commits still need reconciling.**
 
 ## Sizing + when done
 
