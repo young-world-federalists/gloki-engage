@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
 import { useT } from '../i18n';
+import { LanguageSwitcher } from '../components/shared';
 import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
@@ -118,6 +119,11 @@ const LoginPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
+        {/* Pre-auth language switcher (a11y finding #11) — reachable before
+            any English copy, so non-English speakers can switch first. */}
+        <div className={styles.langRow}>
+          <LanguageSwitcher />
+        </div>
         <div className={styles.header}>
           <h1>{t('login.title', 'Welcome to Gloki')}</h1>
           <p>{t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}</p>

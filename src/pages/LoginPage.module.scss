@@ -18,6 +18,12 @@
     width: 100%;
     max-width: 450px;
 
+    .langRow {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: $spacing-md;
+    }
+
     .header {
       text-align: center;
       margin-bottom: $spacing-2xl;

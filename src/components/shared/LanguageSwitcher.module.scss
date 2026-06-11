@@ -14,7 +14,7 @@
 .select {
   appearance: none;
   -webkit-appearance: none;
-  height: 36px;
+  height: 44px; // ≥44px touch target (DESIGN_SYSTEM → Mobile Patterns)
   padding: 0 $spacing-md;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
