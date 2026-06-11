@@ -430,6 +430,8 @@ const fr: Dictionary = {
 
   // ── Community home / shell ─────────────────────────────────────────────
   'community.fallbackName': 'Communauté',
+  'community.members.one': '1 membre',
+  'community.members.many': '{n} membres',
   'community.missionEyebrow': 'Notre mission commune',
   'community.journeyAria': 'Parcours de délibération',
   'community.activityTitle': 'Activité de la communauté',
@@ -556,6 +558,12 @@ const fr: Dictionary = {
   'currency.amountPlaceholder': 'Saisissez un montant',
   'currency.available': 'Disponible : {n} {symbol}',
   'currency.insufficient': 'Solde insuffisant',
+
+  // ── Initiative role chips (author / co-author / expert) ────────────────
+  'roles.author': 'Auteur',
+  'roles.coAuthor': 'Co-auteur',
+  'roles.expert': 'Expert',
+  'roles.expertTitle': 'Expert · {count} recommandations',
 
   // ── Roles flow ─────────────────────────────────────────────────────────
   'roles.count.one': '1 rôle',
@@ -700,6 +708,11 @@ const fr: Dictionary = {
   'concerns.describePlaceholder': 'Décrivez votre préoccupation *',
   'concerns.resolutionPlaceholder': 'Proposez une résolution…',
   'discussionFlow.composePlaceholder': 'Partagez vos réflexions sur ce sujet…',
+
+  // ── Pipeline (collab discussion context) ───────────────────────────────
+  'pipeline.discussion.intro': 'Apportez des nuances et des points de vue à ce problème. À quoi ressemble-t-il dans votre pays ? Comment touche-t-il votre communauté ?',
+  'pipeline.discussion.quorumCount': '{n} membres',
+  'pipeline.discussion.quorumRest': '(33 % de la communauté) doivent contribuer pour que cette étape avance.',
 
   // ── Voting mechanisms ──────────────────────────────────────────────────
   'mechanisms.problem.heading': 'Est-ce un problème partagé ?',

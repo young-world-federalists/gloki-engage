@@ -243,7 +243,9 @@ const CommunityView: React.FC = () => {
           {isDemo && <span className={styles.demoPill}>DEMO</span>}
         </div>
         {props.description && <p className={styles.communityDesc}>{props.description}</p>}
-        <span className={styles.memberCount}>{memberCount} member{memberCount !== 1 ? 's' : ''}</span>
+        <span className={styles.memberCount}>{memberCount === 1
+          ? t('community.members.one', '1 member')
+          : t('community.members.many', '{n} members', { n: memberCount })}</span>
       </div>
 
       {/* Slide-out community menu (shared pattern — see SlideOutMenu) */}

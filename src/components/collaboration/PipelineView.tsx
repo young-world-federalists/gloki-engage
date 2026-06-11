@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
+import { useT } from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { useSwipeRef } from '../../hooks/useSwipeNavigation';
 import { contractRead, contractWrite } from '../../services/api';
@@ -60,6 +61,7 @@ interface PipelineViewProps {
 }
 
 const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, communityId }) => {
+  const t = useT();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
@@ -256,9 +258,11 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
             <ErrorBoundary fallbackMessage="The discussion section encountered an error.">
               <div className={styles.flowContainer}>
                 <div className={styles.discussionContext}>
-                  <p>Add nuances and perspectives to this problem. What does it look like in your country? How does it affect your community?</p>
+                  <p>{t('pipeline.discussion.intro', 'Add nuances and perspectives to this problem. What does it look like in your country? How does it affect your community?')}</p>
+                  {/* Lead/body split around <strong> (no <Trans> mechanism) */}
                   <p className={styles.discussionMetric}>
-                    <strong>{Math.ceil(memberCount * 0.33)} members</strong> (33% of community) must contribute for this stage to advance.
+                    <strong>{t('pipeline.discussion.quorumCount', '{n} members', { n: Math.ceil(memberCount * 0.33) })}</strong>{' '}
+                    {t('pipeline.discussion.quorumRest', '(33% of community) must contribute for this stage to advance.')}
                   </p>
                 </div>
                 <DiscussionFlow

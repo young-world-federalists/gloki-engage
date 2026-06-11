@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppSelector } from '../../store/hooks';
+import { useT } from '../../i18n';
 import type { InitiativeRoles } from '../../services/initiativeRoles';
 import RoleChip from './RoleChip';
 import styles from './RoleDisplay.module.scss';
@@ -18,6 +19,7 @@ function initials(firstName?: string, lastName?: string, key?: string): string {
 }
 
 const RoleDisplay: React.FC<RoleDisplayProps> = ({ roles, maxCoAuthors = 3, maxExperts = 3 }) => {
+  const t = useT();
   const profiles = useAppSelector((s) => s.communities.profiles);
 
   const renderAvatar = (key: string, title: string) => {
@@ -38,12 +40,12 @@ const RoleDisplay: React.FC<RoleDisplayProps> = ({ roles, maxCoAuthors = 3, maxE
     <div className={styles.strip}>
       <div className={styles.group}>
         <RoleChip role="author" />
-        {roles.author && renderAvatar(roles.author, 'Author')}
+        {roles.author && renderAvatar(roles.author, t('roles.author', 'Author'))}
       </div>
       {roles.coAuthors.length > 0 && (
         <div className={styles.group}>
           <RoleChip role="co-author" />
-          {roles.coAuthors.slice(0, maxCoAuthors).map((k) => renderAvatar(k, 'Co-author'))}
+          {roles.coAuthors.slice(0, maxCoAuthors).map((k) => renderAvatar(k, t('roles.coAuthor', 'Co-author')))}
           {extraCoAuthors > 0 && <span className={styles.more}>+{extraCoAuthors}</span>}
         </div>
       )}
@@ -53,8 +55,8 @@ const RoleDisplay: React.FC<RoleDisplayProps> = ({ roles, maxCoAuthors = 3, maxE
           {roles.experts.slice(0, maxExperts).map((k) => {
             const count = roles.endorsementCounts[k] ?? 0;
             return (
-              <div key={k} className={styles.expertAvatar} title={`Expert · ${count} endorsements`}>
-                {renderAvatar(k, 'Expert')}
+              <div key={k} className={styles.expertAvatar} title={t('roles.expertTitle', 'Expert · {count} endorsements', { count })}>
+                {renderAvatar(k, t('roles.expert', 'Expert'))}
                 <span className={styles.endorseBadge}>{count}</span>
               </div>
             );

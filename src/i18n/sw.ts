@@ -430,6 +430,8 @@ const sw: Dictionary = {
 
   // ── Community home / shell ─────────────────────────────────────────────
   'community.fallbackName': 'Jumuiya',
+  'community.members.one': 'Mwanachama 1',
+  'community.members.many': 'Wanachama {n}',
   'community.missionEyebrow': 'Dhamira yetu ya pamoja',
   'community.journeyAria': 'Safari ya majadiliano',
   'community.activityTitle': 'Shughuli za jumuiya',
@@ -556,6 +558,12 @@ const sw: Dictionary = {
   'currency.amountPlaceholder': 'Weka kiasi',
   'currency.available': 'Kinachopatikana: {n} {symbol}',
   'currency.insufficient': 'Salio halitoshi',
+
+  // ── Initiative role chips (author / co-author / expert) ────────────────
+  'roles.author': 'Mwandishi',
+  'roles.coAuthor': 'Mwandishi mwenza',
+  'roles.expert': 'Mtaalamu',
+  'roles.expertTitle': 'Mtaalamu · idhini {count}',
 
   // ── Roles flow ─────────────────────────────────────────────────────────
   'roles.count.one': 'Jukumu 1',
@@ -700,6 +708,11 @@ const sw: Dictionary = {
   'concerns.describePlaceholder': 'Eleza wasiwasi wako *',
   'concerns.resolutionPlaceholder': 'Pendekeza suluhisho...',
   'discussionFlow.composePlaceholder': 'Shiriki mawazo yako kuhusu mada hii…',
+
+  // ── Pipeline (collab discussion context) ───────────────────────────────
+  'pipeline.discussion.intro': 'Ongeza mitazamo na undani kwenye tatizo hili. Linaonekanaje katika nchi yako? Linaathiri vipi jumuiya yako?',
+  'pipeline.discussion.quorumCount': 'Wanachama {n}',
+  'pipeline.discussion.quorumRest': '(33% ya jumuiya) lazima wachangie ili hatua hii isonge mbele.',
 
   // ── Voting mechanisms ──────────────────────────────────────────────────
   'mechanisms.problem.heading': 'Je, hili ni tatizo la pamoja?',
