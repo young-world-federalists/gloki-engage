@@ -30,8 +30,10 @@ export interface UseDigitalAgent {
 export function useDigitalAgent(): UseDigitalAgent {
   const agent = useSyncExternalStore(subscribe, getAgent, getAgent);
   const progress = useSyncExternalStore(subscribe, getProgress, getProgress);
+  // Defensive ?. on array fields: agent records written by older app versions
+  // (or the profile editor) may lack languages/vouchedBy entirely.
   const hasAgent =
-    !!agent && (!!agent.displayName || !!agent.country || agent.languages.length > 0);
+    !!agent && (!!agent.displayName || !!agent.country || (agent.languages?.length ?? 0) > 0);
   return {
     agent,
     progress,

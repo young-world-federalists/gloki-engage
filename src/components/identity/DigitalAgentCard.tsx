@@ -35,7 +35,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         )}
       </div>
 
-      {agent.languages.length > 0 && (
+      {(agent.languages?.length ?? 0) > 0 && (
         <div className={styles.langs}>
           {agent.languages.map((code) => (
             <Badge key={code} tone="neutral">
@@ -45,7 +45,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         </div>
       )}
 
-      {agent.vouchedBy.length > 0 && (
+      {(agent.vouchedBy?.length ?? 0) > 0 && (
         <div className={styles.vouch}>
           <CountryPresence
             countries={voucherCountries}

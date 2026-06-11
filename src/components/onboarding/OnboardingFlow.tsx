@@ -75,7 +75,7 @@ const OnboardingFlow: React.FC = () => {
     { label: t('onboarding.step.rules', 'Rules') },
     { label: t('onboarding.step.ready', 'Ready') },
   ];
-  const vouchCount = agent?.vouchedBy.length ?? 1;
+  const vouchCount = agent?.vouchedBy?.length ?? 1;
   const consented = !!agent?.consentedAt;
 
   return (
@@ -95,7 +95,7 @@ const OnboardingFlow: React.FC = () => {
         {step === 2 && (
           <HowItWorksStep
             headingRef={headingRef}
-            vouchCount={agent?.vouchedBy.length ?? ONBOARDING_SEED}
+            vouchCount={agent?.vouchedBy?.length ?? ONBOARDING_SEED}
             onBack={() => go(1)}
             onContinue={() => go(3)}
           />
