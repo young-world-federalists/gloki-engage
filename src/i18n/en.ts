@@ -14,6 +14,8 @@ const en: Dictionary = {
   'common.cancel': 'Cancel',
   'common.save': 'Save',
   'common.confirm': 'Confirm',
+  'common.ok': 'OK',
+  'common.errorTitle': 'Something went wrong',
   'common.continue': 'Continue',
   'common.back': 'Back',
   'common.next': 'Next',

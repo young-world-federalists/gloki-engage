@@ -5,6 +5,8 @@ import { useAppSelector } from '../../../store/hooks';
 import { encodeCommunityInvitation } from '../../../services/encodeDecode';
 import IdentityCardSVG from './IdentityCardSVG';
 import { generateIdentityCardPDF } from './IdentityCardPDFGenerator';
+import { useT } from '../../../i18n';
+import { useAlert } from '../../shared/useAlert';
 
 interface IdentityCardDialogProps {
   isOpen: boolean;
@@ -21,6 +23,8 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
   const { profiles } = useAppSelector(state => state.communities);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const t = useT();
+  const { showAlert, alertElement } = useAlert();
 
   // Get community contract info
   const communityContract = contracts.find((c) => c.name === communityName);
@@ -64,7 +68,12 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
       
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Error generating PDF: ' + (error instanceof Error ? error.message : String(error)));
+      showAlert(
+        t('identityCard.pdfError', "Couldn't generate the PDF: {error}", {
+          error: error instanceof Error ? error.message : String(error),
+        }),
+        { title: t('common.errorTitle', 'Something went wrong') },
+      );
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -117,6 +126,7 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
           </div>
         </div>
       </div>
+      {alertElement}
     </div>
   );
 };

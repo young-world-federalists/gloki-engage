@@ -203,7 +203,10 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
       joinRequestResponseRef.current = response;
     } catch (error) {
       console.error('Failed to join community:', error);
-      alert(t('members.joinFailed', 'Failed to join community. Please try again.'));
+      setMessageDialog({
+        isOpen: true,
+        message: t('members.joinFailed', 'Failed to join community. Please try again.'),
+      });
       cleanupJoinListener();
     }
   };

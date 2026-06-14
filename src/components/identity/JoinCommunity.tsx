@@ -10,9 +10,13 @@ import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
 import { useNavigate } from 'react-router-dom';
 import { joinContract } from '../../services/api';
+import { useT } from '../../i18n';
+import { useAlert } from '../shared/useAlert';
 
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
+  const t = useT();
+  const { showAlert, alertElement } = useAlert();
   const { publicKey, serverUrl, profileContractId } = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -108,7 +112,12 @@ const JoinCommunity: React.FC = () => {
     } catch (error) {
       setIsJoining(false);
       setJoinSuccess(false);
-      alert('Failed to join community: ' + (error instanceof Error ? error.message : error));
+      showAlert(
+        t('join.failed', "Couldn't join this community: {error}", {
+          error: error instanceof Error ? error.message : String(error),
+        }),
+        { title: t('common.errorTitle', 'Something went wrong') },
+      );
     }
   };
 
@@ -227,6 +236,7 @@ const JoinCommunity: React.FC = () => {
           </div>
         )}
       </div>
+      {alertElement}
     </div>
   );
 };

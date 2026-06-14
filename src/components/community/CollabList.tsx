@@ -6,6 +6,7 @@ import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { addCollaboration, type Collaboration } from '../../services/contracts/community';
 import CreateCollabDialog from './dialogs/CreateCollabDialog';
 import type { CollabTemplate } from '../collaboration/collabTemplates';
+import { useT } from '../../i18n';
 import styles from './CollabList.module.scss';
 
 interface CollabListProps {
@@ -15,6 +16,7 @@ interface CollabListProps {
 const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const t = useT();
 
   const { communityMembers, membersLoading, communityCollaborations } = useAppSelector(
     (state) => state.communities,
@@ -76,7 +78,7 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner} />
-          <p>Loading...</p>
+          <p>{t('common.loading', 'Loading…')}</p>
         </div>
       </div>
     );
@@ -86,8 +88,8 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>Collabs</h2>
-          <p>You are not yet a member of this community.</p>
+          <h2>{t('collab.listTitle', 'Collabs')}</h2>
+          <p>{t('collab.notMember', 'You are not yet a member of this community.')}</p>
         </div>
       </div>
     );
@@ -98,13 +100,13 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
       <div className={styles.header}>
         <div className={styles.headerIcon}><Users2 size={20} /></div>
         <div>
-          <h2>Collabs</h2>
-          <p>Template-based workspaces for teamwork</p>
+          <h2>{t('collab.listTitle', 'Collabs')}</h2>
+          <p>{t('collab.listSubtitle', 'Template-based workspaces for teamwork')}</p>
         </div>
       </div>
 
       {collabs.length === 0 ? (
-        <p className={styles.empty}>No collabs yet. Start one from a template.</p>
+        <p className={styles.empty}>{t('collab.empty', 'No collabs yet. Start one from a template.')}</p>
       ) : (
         <div className={styles.list}>
           {collabs.map((item) => (
@@ -121,7 +123,7 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
       )}
 
       <button className={styles.createBtn} onClick={() => setShowDialog(true)}>
-        Start Collab
+        {t('collab.start', 'Start Collab')}
       </button>
 
       <CreateCollabDialog

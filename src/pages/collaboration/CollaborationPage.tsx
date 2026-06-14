@@ -5,6 +5,7 @@ import PageHeader from '../../components/PageHeader';
 import ErrorBoundary from '../../components/shared/ErrorBoundary';
 import { Button } from '../../components/shared';
 import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaboration/flows/registry';
+import type { FlowDefinition } from '../../components/collaboration/flows/types';
 import { removeContract } from '../../components/collaboration/flows/shared/flowContractsSlice';
 import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -20,6 +21,13 @@ interface CollaborationTab {
 }
 
 const TABS_STORAGE_KEY = 'collaborationTabs';
+
+/** Add-Tab menu group name (English, from the registry) → i18n key. */
+const GROUP_KEYS: Record<string, string> = {
+  'Decision Making': 'collab.group.decisionMaking',
+  Teamwork: 'collab.group.teamwork',
+  Planning: 'collab.group.planning',
+};
 
 function loadTabs(collaborationId: string): CollaborationTab[] {
   try {
@@ -74,6 +82,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const t = useT();
+  const labelOf = (flow: FlowDefinition) => t(`collab.flow.${flow.id}`, flow.label);
   const { publicKey, serverUrl } = useAppSelector((s) => s.user);
   const communityMembers = useAppSelector((s) => s.communities.communityMembers);
 
@@ -144,7 +153,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
     <div className={cs.container}>
       <PageHeader
         showBackButton={true}
-        backButtonText="Back to Community"
+        backButtonText={t('collab.backToCommunity', 'Back to Community')}
         onBackClick={() => navigate(`/community/${communityId}/collaborations`)}
         title={title}
         subtitle={subtitle}
@@ -164,11 +173,11 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                 onClick={() => setActiveInstanceId(tab.instanceId)}
               >
                 <flow.icon size={20} />
-                <span>{flow.label}</span>
+                <span>{labelOf(flow)}</span>
                 <span
                   className={styles.removeBtn}
                   role="button"
-                  aria-label={`Remove ${flow.label} tab`}
+                  aria-label={t('collab.removeTab', 'Remove {label} tab', { label: labelOf(flow) })}
                   onClick={(e) => {
                     e.stopPropagation();
                     removeTab(tab.instanceId);
@@ -187,7 +196,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
               title={t('collab.addFlowTab', 'Add a flow tab')}
             >
               <Plus size={20} />
-              <span>Add</span>
+              <span>{t('collab.add', 'Add')}</span>
             </button>
             {showAddMenu && (
               <div className={styles.addTabMenu}>
@@ -198,7 +207,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                   return (
                     <React.Fragment key={group}>
                       <div className={styles.addTabMenuGroupHeader}>
-                        {group}
+                        {t(GROUP_KEYS[group], group)}
                       </div>
                       {flows.map((flow) => {
                         const available = flow.isAvailable?.(tabs.map(t => t.flowId)) ?? true;
@@ -208,10 +217,10 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                             className={`${styles.addTabMenuItem} ${!available ? styles.addTabMenuItemDisabled : ''}`}
                             onClick={() => { if (available) addTab(flow.id); }}
                             disabled={!available}
-                            title={!available ? 'Not available with current tabs' : undefined}
+                            title={!available ? t('collab.unavailableWithTabs', 'Not available with current tabs') : undefined}
                           >
                             <flow.icon size={16} />
-                            {flow.label}
+                            {labelOf(flow)}
                           </button>
                         );
                       })}
@@ -225,7 +234,7 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
 
         <div className={cs.main}>
           {ActiveComponent && activeTab ? (
-            <ErrorBoundary fallbackMessage="This flow hit an error. Your other tabs are unaffected.">
+            <ErrorBoundary fallbackMessage={t('collab.flowError', 'This flow hit an error. Your other tabs are unaffected.')}>
               <ActiveComponent
                 instanceId={activeTab.instanceId}
                 collaborationId={collaborationId}
@@ -237,25 +246,24 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
           ) : activeTab && !activeFlow ? (
             <div className={styles.unknownFlowCard}>
               <AlertTriangle size={32} className={styles.unknownFlowIcon} />
-              <h3 className={styles.emptyStateTitle}>Unknown flow</h3>
+              <h3 className={styles.emptyStateTitle}>{t('collab.unknownFlow', 'Unknown flow')}</h3>
               <p>
-                <code>{activeTab.flowId}</code> — your saved view may be stale.
-                Choose another tab, or add a new flow.
+                <code>{activeTab.flowId}</code>{' '}
+                {t('collab.unknownFlowBody', '— your saved view may be stale. Choose another tab, or add a new flow.')}
               </p>
               <Button variant="primary" onClick={() => removeTab(activeTab.instanceId)}>
-                Remove this tab
+                {t('collab.removeThisTab', 'Remove this tab')}
               </Button>
             </div>
           ) : (
             <div className={styles.emptyState}>
               <PackageOpen size={48} className={styles.emptyStateIcon} />
-              <h3 className={styles.emptyStateTitle}>No tools added yet</h3>
+              <h3 className={styles.emptyStateTitle}>{t('collab.noToolsTitle', 'No tools added yet')}</h3>
               <p>
-                Add a flow like Discussion, Task Board, or Shared Document to start
-                collaborating.
+                {t('collab.noToolsBody', 'Add a flow like Discussion, Task Board, or Shared Document to start collaborating.')}
               </p>
               <Button variant="primary" leftIcon={<Plus size={16} />} onClick={() => setShowAddMenu(true)}>
-                Add your first flow
+                {t('collab.addFirstFlow', 'Add your first flow')}
               </Button>
             </div>
           )}

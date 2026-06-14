@@ -105,8 +105,8 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
                   onClick={() => setSelectedTemplateId(template.id)}
                   disabled={isSubmitting}
                 >
-                  <span className={styles.templateLabel}>{template.label}</span>
-                  <span className={styles.templateDescription}>{template.description}</span>
+                  <span className={styles.templateLabel}>{t(`collab.template.${template.id}.label`, template.label)}</span>
+                  <span className={styles.templateDescription}>{t(`collab.template.${template.id}.description`, template.description)}</span>
                 </button>
               ))}
             </div>

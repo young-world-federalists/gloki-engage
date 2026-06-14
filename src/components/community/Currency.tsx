@@ -5,6 +5,7 @@ import { fetchUserBalance } from '../../store/slices/currencySlice';
 import { useT } from '../../i18n';
 import styles from './Currency.module.scss';
 import { transfer } from '../../services/contracts/community';
+import { useAlert } from '../shared/useAlert';
 
 interface CurrencyProps {
   communityId: string;
@@ -12,6 +13,7 @@ interface CurrencyProps {
 
 const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   const t = useT();
+  const { showAlert, alertElement } = useAlert();
   const dispatch = useAppDispatch();
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityMembers, membersLoading } = useAppSelector((state) => state.communities);
@@ -42,7 +44,10 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
     const paymentAmount = parseFloat(amount);
     if (userBalance !== null && paymentAmount > userBalance) {
-      alert(t('currency.insufficient', 'Insufficient balance'));
+      showAlert(
+        t('currency.insufficientBody', "You don't have enough points to send that amount."),
+        { title: t('currency.insufficient', 'Insufficient balance') },
+      );
       return;
     }
 
@@ -187,6 +192,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
           </div>
         </div>
       </div>
+      {alertElement}
     </div>
   );
 };

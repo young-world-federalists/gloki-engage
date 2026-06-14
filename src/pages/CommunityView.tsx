@@ -14,6 +14,7 @@ import { seedTestDataIfNeeded } from '../utils/seedTestData';
 import { eventStreamService } from '../services/eventStream';
 import type { BlockchainEvent } from '../services/eventStream';
 import styles from './CommunityView.module.scss';
+import { useAlert } from '../components/shared/useAlert';
 
 const CollabList = lazy(() => import('../components/community/CollabList'));
 const Members = lazy(() => import('../components/community/Members'));
@@ -29,19 +30,20 @@ import CommunityHome from '../components/community/CommunityHome';
 // ─── Collab page wrapper ────────────────────
 const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
   const navigate = useNavigate();
+  const t = useT();
   const { collabId } = useParams<{ collabId: string }>();
   const { communityCollaborations } = useAppSelector((s) => s.communities);
 
   const collabsLoaded = Array.isArray(communityCollaborations[communityId]);
   const collabs = communityCollaborations[communityId] ?? [];
   const collab = collabs.find((c) => c.id === collabId);
-  const title = collab?.title || 'Collab';
+  const title = collab?.title || t('collab.defaultTitle', 'Collab');
 
   if (!collabId) {
     return (
       <div className={styles.loadingState}>
-        <p>Collab link is missing an id.</p>
-        <button onClick={() => navigate(`/community/${communityId}/collab`)}>Back to collabs</button>
+        <p>{t('collab.missingId', 'Collab link is missing an id.')}</p>
+        <button onClick={() => navigate(`/community/${communityId}/collab`)}>{t('collab.backToCollabs', 'Back to collabs')}</button>
       </div>
     );
   }
@@ -49,14 +51,14 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
   if (collabsLoaded && !collab) {
     return (
       <div className={styles.loadingState}>
-        <p>This collab isn&apos;t part of the community, or it hasn&apos;t synced yet.</p>
-        <button onClick={() => navigate(`/community/${communityId}/collab`)}>Back to collabs</button>
+        <p>{t('collab.notInCommunity', "This collab isn't part of the community, or it hasn't synced yet.")}</p>
+        <button onClick={() => navigate(`/community/${communityId}/collab`)}>{t('collab.backToCollabs', 'Back to collabs')}</button>
       </div>
     );
   }
 
   return (
-    <Suspense fallback={<div className={styles.loadingState}><p>Loading collab…</p></div>}>
+    <Suspense fallback={<div className={styles.loadingState}><p>{t('collab.loading', 'Loading collab…')}</p></div>}>
       <CollaborationPage
         type="collab"
         title={title}
@@ -72,6 +74,7 @@ const CommunityView: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
   const navigate = useNavigate();
   const t = useT();
+  const { showAlert, showConfirm, alertElement } = useAlert();
   const { contracts, publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityProperties = {}, communityMembers = {} } = useAppSelector((state) => state.communities);
   const [fetching, setFetching] = useState(false);
@@ -183,18 +186,27 @@ const CommunityView: React.FC = () => {
     try {
       const link = await buildDemoShareLink();
       await navigator.clipboard.writeText(link);
-      // eslint-disable-next-line no-alert
-      alert('Demo link copied to clipboard. Anyone who opens it will land on this populated demo.');
+      showAlert(
+        t('community.demoLinkCopiedBody', 'Anyone who opens this link will land on this populated demo.'),
+        { title: t('community.demoLinkCopiedTitle', 'Demo link copied') },
+      );
     } catch (err) {
       console.error('[CommunityView] Failed to build demo share link:', err);
     }
     setShowMenu(false);
   };
 
-  const handleResetDemo = () => {
+  const handleResetDemo = async () => {
     if (!publicKey) return;
-    // eslint-disable-next-line no-alert
-    if (!window.confirm('Reset this demo to its seeded state? All demo interactions will be wiped.')) return;
+    const ok = await showConfirm(
+      t('community.resetBody', 'This wipes all demo interactions and restores the seeded state.'),
+      {
+        title: t('community.resetTitle', 'Reset demo?'),
+        confirmLabel: t('community.resetConfirm', 'Reset'),
+        destructive: true,
+      },
+    );
+    if (!ok) return;
     resetDemoCommunity(communityId, publicKey);
     setShowMenu(false);
     window.location.reload();
@@ -257,6 +269,8 @@ const CommunityView: React.FC = () => {
         side="left"
         closeLabel={t('community.menu.close', 'Close menu')}
       />
+
+      {alertElement}
 
       {/* Main content */}
       <div className={styles.body}>
