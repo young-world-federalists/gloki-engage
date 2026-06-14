@@ -87,8 +87,8 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
     <div className={styles.overlay}>
       <div className={styles.dialog}>
         <div className={styles.header}>
-          <h2>Identity Card</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <h2>{t('identityCard.title', 'Identity Card')}</h2>
+          <button className={styles.closeButton} onClick={onClose} aria-label={t('common.close', 'Close')}>
             <X size={20} />
           </button>
         </div>
@@ -118,10 +118,10 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
               disabled={isGeneratingPDF}
             >
               <Download size={18} />
-              {isGeneratingPDF ? 'Generating...' : 'Download Card'}
+              {isGeneratingPDF ? t('identityCard.generating', 'Generating…') : t('identityCard.download', 'Download Card')}
             </button>
             <button className={styles.closeDialogButton} onClick={onClose}>
-              Close
+              {t('common.close', 'Close')}
             </button>
           </div>
         </div>

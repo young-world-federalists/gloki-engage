@@ -140,7 +140,7 @@ const JoinCommunity: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <p className={styles.introLine}>To join a community, ask a member to share their invite QR code or credential JSON with you. You can scan the code or paste the JSON below.</p>
+        <p className={styles.introLine}>{t('join.intro', 'To join a community, ask a member to share their invite QR code or credential JSON with you. You can scan the code or paste the JSON below.')}</p>
         <div className={styles.scanSection}>
           <div className={styles.scanArea}>
             {showScanner ? (
@@ -151,19 +151,19 @@ const JoinCommunity: React.FC = () => {
                   styles={{ container: { width: '100%', height: 320, background: '#000' } }}
                 />
                 <button onClick={handleScannerClose} className="cancel-button" style={{ marginTop: 16 }}>
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
               </div>
             ) : (
               <div className={styles.qrPlaceholder}>
                 <QrCode size={64} />
-                <p>QR code scanner placeholder</p>
+                <p>{t('join.scannerPlaceholder', 'QR code scanner placeholder')}</p>
                 <button
                   onClick={handleScanQR}
                   className={styles.scanButton}
                 >
                   <Camera size={20} />
-                  Scan QR Code
+                  {t('join.scanQr', 'Scan QR Code')}
                 </button>
               </div>
             )}
@@ -186,29 +186,30 @@ const JoinCommunity: React.FC = () => {
             {isJoining ? (
               <>
                 <div className={styles.loadingSpinnerSmall}></div>
-                Joining... Waiting for confirmation
+                {t('join.joining', 'Joining… Waiting for confirmation')}
               </>
             ) : isResetting ? (
               <>
                 <div className={styles.loadingSpinnerSmall}></div>
-                Resetting...
+                {t('join.resetting', 'Resetting…')}
               </>
             ) : (
               <>
                 <CheckCircle size={16} />
-                Join Community
+                {t('join.cta', 'Join Community')}
               </>
             )}
           </button>
         </div>
 
         <div className={styles.manualInputSection}>
-          <h3>Manual Input</h3>
+          <h3>{t('join.manualTitle', 'Manual Input')}</h3>
           <p className={styles.tutorialText}>
-            Paste the community credential JSON that was shared with you. It should contain three fields: <code>server</code>, <code>agent</code>, and <code>contract</code>.
+            {t('join.manualHelp', 'Paste the community credential JSON that was shared with you. It should contain three fields:')}{' '}
+            <code>server</code>, <code>agent</code>, <code>contract</code>.
           </p>
           <div className="form-group">
-            <label htmlFor="qrData">Community Credentials (JSON)</label>
+            <label htmlFor="qrData">{t('join.credentialsLabel', 'Community Credentials (JSON)')}</label>
             <textarea
               id="qrData"
               value={decodedData}
@@ -223,16 +224,16 @@ const JoinCommunity: React.FC = () => {
         {joinSuccess && (
           <div className={styles.successMessage}>
             <CheckCircle size={24} />
-            <h4>Successfully joined community!</h4>
-            <p>You can now access the community from your Communities page.</p>
+            <h4>{t('join.successTitle', 'Successfully joined community!')}</h4>
+            <p>{t('join.successBody', 'You can now access the community from your Communities page.')}</p>
           </div>
         )}
 
         {scannedData && !parsedInvite && (
           <div className={styles.errorMessage}>
             <AlertCircle size={24} />
-            <h4>Invalid QR Code Data</h4>
-            <p>The scanned data doesn't contain valid community credentials.</p>
+            <h4>{t('join.invalidTitle', 'Invalid QR Code Data')}</h4>
+            <p>{t('join.invalidBody', "The scanned data doesn't contain valid community credentials.")}</p>
           </div>
         )}
       </div>
