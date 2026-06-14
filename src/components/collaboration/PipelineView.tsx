@@ -185,9 +185,16 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
     if (stage === 'problem' && memberCount > 0) {
       const threshold = Math.ceil(memberCount * 0.50);
       if (problemTally.up < threshold) {
+        const remaining = Math.max(threshold - problemTally.up, 0);
         return {
           ready: false,
-          reason: `${Math.max(threshold - problemTally.up, 0)} more upvote${threshold - problemTally.up !== 1 ? 's' : ''} needed to reach 50% threshold (${problemTally.up}/${threshold})`,
+          reason: t(
+            remaining === 1 ? 'pipeline.upvotesNeeded.one' : 'pipeline.upvotesNeeded.many',
+            remaining === 1
+              ? '1 more upvote needed to reach 50% threshold ({up}/{threshold})'
+              : '{n} more upvotes needed to reach 50% threshold ({up}/{threshold})',
+            { n: remaining, up: problemTally.up, threshold },
+          ),
         };
       }
     }
@@ -209,7 +216,7 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
     <div className={cs.container}>
       <PageHeader
         showBackButton
-        backButtonText="Back"
+        backButtonText={t('common.back', 'Back')}
         onBackClick={() => navigate(-1)}
         title={title}
         subtitle={communityName}
@@ -220,13 +227,15 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
         <div className={cs.main} ref={pipelineSwipeRef}>
           {/* Stage heading */}
           <div className={styles.stageHeading}>
-            <h2>{viewStageConfig?.label}</h2>
-            <span className={styles.stageStep}>Step {viewStageIndex + 1} of {STAGES.length}</span>
+            <h2>{viewStageConfig && t(`stage.${viewStageConfig.id}`, viewStageConfig.label)}</h2>
+            <span className={styles.stageStep}>
+              {t('pipeline.stepOf', 'Step {current} of {total}', { current: viewStageIndex + 1, total: STAGES.length })}
+            </span>
           </div>
           {viewStageConfig && (
             <div className={styles.stageHint}>
-              {!isViewingCurrentStage && <span className={styles.previewBadge}>Preview</span>}
-              {viewStageConfig.hint}
+              {!isViewingCurrentStage && <span className={styles.previewBadge}>{t('pipeline.preview', 'Preview')}</span>}
+              {t(`pipeline.hint.${viewStageConfig.id}`, viewStageConfig.hint)}
             </div>
           )}
 
@@ -240,7 +249,7 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
 
           {/* ── Step 1: Problem ── */}
           {viewStage === 'problem' && (
-            <ErrorBoundary fallbackMessage="The voting section encountered an error.">
+            <ErrorBoundary fallbackMessage={t('deliberation.voting.error', 'The voting section encountered an error.')}>
               <ProblemVoteFlow
                 instanceId={`${collaborationId}_problem_vote`}
                 description={description}
@@ -255,7 +264,7 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
 
           {/* ── Step 2: Discussion ── */}
           {viewStage === 'discussion' && (
-            <ErrorBoundary fallbackMessage="The discussion section encountered an error.">
+            <ErrorBoundary fallbackMessage={t('deliberation.error', 'The discussion section encountered an error.')}>
               <div className={styles.flowContainer}>
                 <div className={styles.discussionContext}>
                   <p>{t('pipeline.discussion.intro', 'Add nuances and perspectives to this problem. What does it look like in your country? How does it affect your community?')}</p>
@@ -282,11 +291,11 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
 
           {/* ── Step 3: Proposals ── */}
           {viewStage === 'proposals' && (
-            <ErrorBoundary fallbackMessage="The proposals section encountered an error.">
+            <ErrorBoundary fallbackMessage={t('deliberation.proposals.error', 'The proposals section encountered an error.')}>
               <div className={styles.flowContainer}>
                 {description && (
                   <div className={styles.problemContext}>
-                    <span className={styles.contextLabel}>The Problem:</span>
+                    <span className={styles.contextLabel}>{t('pipeline.problemLabel', 'The Problem:')}</span>
                     <p>{description}</p>
                   </div>
                 )}
@@ -309,7 +318,7 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
 
           {/* ── Step 4: Vote ── */}
           {viewStage === 'vote' && (
-            <ErrorBoundary fallbackMessage="The voting section encountered an error.">
+            <ErrorBoundary fallbackMessage={t('deliberation.voting.error', 'The voting section encountered an error.')}>
               <div className={styles.flowContainer}>
                 <QVFlow
                   instanceId={flowInstanceId}
@@ -325,17 +334,16 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
           {/* ── Step 5: Mandate ── */}
           {viewStage === 'mandate' && (
             <div className={styles.mandateStage}>
-              <h2>Mandate Reached</h2>
+              <h2>{t('pipeline.mandate.title', 'Mandate Reached')}</h2>
               <p>
-                The community has voted and established a shared position on this issue.
-                This mandate represents the collective will of community members across borders.
+                {t('pipeline.mandate.body', 'The community has voted and established a shared position on this issue. This mandate represents the collective will of community members across borders.')}
               </p>
               <div className={styles.mandateActions}>
                 <button className={styles.pledgeBtn}>
-                  Pledge Support
+                  {t('pipeline.mandate.pledge', 'Pledge Support')}
                 </button>
                 <p className={styles.mandateNote}>
-                  Click to pledge your support and commit to action. Track your progress and report back to the community.
+                  {t('pipeline.mandate.note', 'Click to pledge your support and commit to action. Track your progress and report back to the community.')}
                 </p>
               </div>
             </div>
@@ -355,13 +363,13 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
                   {confirmAdvance ? (
                     <div className={styles.confirmRow}>
                       <span className={styles.confirmText}>
-                        {`Advance to ${nextStage.label}?`}
+                        {t('pipeline.advanceConfirm', 'Advance to {stage}?', { stage: t(`stage.${nextStage.id}`, nextStage.label) })}
                       </span>
                       <button className={styles.confirmYes} onClick={handleAdvance} disabled={advancing}>
-                        {advancing ? 'Moving...' : 'Confirm'}
+                        {advancing ? t('pipeline.moving', 'Moving…') : t('common.confirm', 'Confirm')}
                       </button>
                       <button className={styles.confirmNo} onClick={() => setConfirmAdvance(false)}>
-                        Cancel
+                        {t('common.cancel', 'Cancel')}
                       </button>
                     </div>
                   ) : (
@@ -370,12 +378,12 @@ const PipelineView: React.FC<PipelineViewProps> = ({ title, collaborationId, com
                       onClick={handleAdvance}
                       disabled={advancing || !stageReadiness.ready}
                     >
-                      {advancing ? 'Moving...' : `Move to ${nextStage.label}`}
+                      {advancing ? t('pipeline.moving', 'Moving…') : t('pipeline.moveTo', 'Move to {stage}', { stage: t(`stage.${nextStage.id}`, nextStage.label) })}
                     </button>
                   )}
                 </div>
               ) : (
-                <span className={styles.finalStage}>Final stage reached</span>
+                <span className={styles.finalStage}>{t('pipeline.finalStage', 'Final stage reached')}</span>
               )}
             </div>
           )}

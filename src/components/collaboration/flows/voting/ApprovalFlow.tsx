@@ -171,9 +171,9 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
     </div>
   );
   if (isDeploying || !isReady) return (
-    <div className={styles.loading}>{statusMessage || 'Setting up proposals...'}</div>
+    <div className={styles.loading}>{statusMessage || t('mechanisms.approval.settingUp', 'Setting up proposals…')}</div>
   );
-  if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>Loading...</div>;
+  if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
   const proposalList = Object.values(proposals).sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
@@ -212,11 +212,11 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
       <div className={styles.helpSection}>
         <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
-          {showHelp ? 'Hide explanation' : 'How does approval voting work?'}
+          {showHelp ? t('mechanisms.approval.helpHide', 'Hide explanation') : t('mechanisms.approval.helpShow', 'How does approval voting work?')}
         </button>
         {showHelp && (
           <div className={styles.helpBox}>
-            <p>Review the proposals below and approve as many as you support. Each proposal you approve gets one vote from you. The proposals with the most approvals rise to the top.</p>
+            <p>{t('mechanisms.approval.helpBody', 'Review the proposals below and approve as many as you support. Each proposal you approve gets one vote from you. The proposals with the most approvals rise to the top.')}</p>
           </div>
         )}
       </div>
@@ -247,7 +247,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
           {/* Proposal list */}
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>No proposals yet. Add one above.</p>
+            <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No proposals yet. Add one above.')}</p>
           ) : (
             <div className={styles.proposalList}>
               {proposalList.map((p) => (
@@ -293,7 +293,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
       {activeTab === 'results' && (
         <>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>No proposals to show results for.</p>
+            <p className={styles.noData}>{t('mechanisms.approval.noResults', 'No proposals to show results for.')}</p>
           ) : (
             <div className={styles.resultsList}>
               {[...proposalList]
@@ -321,7 +321,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
                           />
                         ))}
                       </div>
-                      <div className={styles.resultCount}>{total} approval{total !== 1 ? 's' : ''}</div>
+                      <div className={styles.resultCount}>{t('mechanisms.approval.approvalsCount', '{n} approvals', { n: total })}</div>
                     </div>
                   );
                 })}

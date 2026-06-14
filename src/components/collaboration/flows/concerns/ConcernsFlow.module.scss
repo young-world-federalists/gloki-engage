@@ -40,7 +40,7 @@
   &:hover {
     border-color: $error;
     color: $error;
-    background: rgba(220, 38, 38, 0.04);
+    background: rgba($error, 0.04);
   }
 }
 
@@ -98,7 +98,7 @@
   font-weight: $font-medium;
   cursor: pointer;
   transition: background $transition-base;
-  &:hover { background: color.adjust(#dc2626, $lightness: -8%); }
+  &:hover { background: $error-dark; }
 }
 
 .btnCancel {
@@ -151,7 +151,7 @@
 
 .card_resolved {
   opacity: 0.75;
-  border-left-color: rgba(16, 185, 129, 0.5) !important;
+  border-left-color: rgba($success, 0.5) !important;
 }
 
 .card_rejected {
@@ -169,10 +169,20 @@
   border-radius: $radius-full;
   font-size: $text-xs;
   font-weight: $font-bold;
-  color: white;
   flex-shrink: 0;
   margin-top: 1px;
 }
+
+// Severity tones — semantic surface (fill) + on-surface (text) pairs, AA-legible.
+// Hue carries severity: red (high) · amber (medium) · neutral (low).
+.sevHigh   { background: $error-surface;   color: $error-on-surface; }
+.sevMedium { background: $warning-surface; color: $warning-on-surface; }
+.sevLow    { background: $gray-100;        color: $gray-600; }
+
+// Card left-border accent, matching the severity hue (solid line, bears no text).
+.cardSevHigh   { border-left-color: $error; }
+.cardSevMedium { border-left-color: $warning; }
+.cardSevLow    { border-left-color: $gray-400; }
 
 // ─── Card body ────────────────────────────────────────────────────────────────
 .cardBody {
@@ -247,19 +257,19 @@
 }
 
 .voteBtn_support {
-  &:hover { border-color: rgba(220,38,38,0.5); color: $error; background: rgba(220,38,38,0.06); }
+  &:hover { border-color: rgba($error,0.5); color: $error; background: rgba($error,0.06); }
 }
 .voteBtn_reject {
   &:hover { border-color: $gray-400; color: $gray-700; background: $gray-50; }
 }
 .voteBtn_resolved {
-  &:hover { border-color: rgba(16,185,129,0.5); color: $success; background: rgba(16,185,129,0.06); }
+  &:hover { border-color: rgba($success,0.5); color: $success; background: rgba($success,0.06); }
 }
 
 .voteBtnActive {
-  &.voteBtn_support  { border-color: $error;    color: $error;    background: rgba(220,38,38,0.1); }
+  &.voteBtn_support  { border-color: $error;    color: $error;    background: rgba($error,0.1); }
   &.voteBtn_reject   { border-color: $gray-500; color: $gray-700; background: $gray-100; }
-  &.voteBtn_resolved { border-color: $success;  color: $success;  background: rgba(16,185,129,0.1); }
+  &.voteBtn_resolved { border-color: $success;  color: $success;  background: rgba($success,0.1); }
 }
 
 // ─── Collapsible sections ─────────────────────────────────────────────────────
@@ -288,7 +298,7 @@
 }
 
 .toggleResolved {
-  &:hover { color: $success; border-color: rgba(16,185,129,0.4); }
+  &:hover { color: $success; border-color: rgba($success,0.4); }
 }
 
 .toggleRejected {
@@ -340,7 +350,7 @@
 .severityBtnActive {
   border-color: $error;
   color: $error;
-  background: rgba(220, 38, 38, 0.06);
+  background: rgba($error, 0.06);
 }
 
 // ─── Resolutions ─────────────────────────────────────────────────────────────

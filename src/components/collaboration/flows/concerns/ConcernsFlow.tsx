@@ -10,6 +10,12 @@ import { useAppSelector } from '../../../../store/hooks';
 import { useT } from '../../../../i18n';
 const concernsContractCode = '';import styles from './ConcernsFlow.module.scss';
 
+// Severity → semantic surface classes (badge fill + readable text) and card
+// border-accent classes. Replaces the old inline rgba ladder: de-hardcoded and
+// AA-legible (tinted surface + on-surface text instead of white-on-pale-red).
+const SEV_BADGE: Record<string, string> = { high: styles.sevHigh, medium: styles.sevMedium, low: styles.sevLow };
+const SEV_BORDER: Record<string, string> = { high: styles.cardSevHigh, medium: styles.cardSevMedium, low: styles.cardSevLow };
+
 // ---------------------------------------------------------------------------
 // Add concern form
 // ---------------------------------------------------------------------------
@@ -25,7 +31,7 @@ const AddConcernForm: React.FC<{
 
   const submit = async () => {
     if (!text.trim() || text.trim().length > 1000) {
-      setError('Concern must be between 1 and 1000 characters.');
+      setError(t('concerns.errorLength', 'Concern must be between 1 and 1000 characters.'));
       return;
     }
     setSubmitting(true);
@@ -33,7 +39,7 @@ const AddConcernForm: React.FC<{
       await onAdd(text.trim(), severity);
       setText(''); setSeverity('medium'); setError(''); setOpen(false);
     } catch {
-      setError('Failed to submit concern.');
+      setError(t('concerns.errorSubmit', 'Failed to submit concern.'));
     } finally {
       setSubmitting(false);
     }
@@ -65,17 +71,17 @@ const AddConcernForm: React.FC<{
             className={`${styles.severityBtn} ${severity === s ? styles.severityBtnActive : ''}`}
             onClick={() => setSeverity(s)}
           >
-            {s}
+            {t(`concerns.severity.${s}`, s)}
           </button>
         ))}
       </div>
       {error && <p className={styles.errorMsg}>{error}</p>}
       <div className={styles.addFormActions}>
         <button className={styles.btnConfirm} onClick={submit} disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Submit'}
+          {submitting ? t('common.submitting', 'Submitting…') : t('common.submit', 'Submit')}
         </button>
         <button className={styles.btnCancel} onClick={() => { setOpen(false); setError(''); }}>
-          Cancel
+          {t('common.cancel', 'Cancel')}
         </button>
       </div>
     </div>
@@ -98,9 +104,9 @@ const ConcernCard: React.FC<{
   const [showResForm, setShowResForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const severityColor = concern.severity === 'high' ? 'rgba(220,38,38,0.85)'
-    : concern.severity === 'medium' ? 'rgba(220,38,38,0.5)'
-    : 'rgba(220,38,38,0.25)';
+  const sevLabel = t(`concerns.severity.${concern.severity}`, concern.severity);
+  const badgeClass = SEV_BADGE[concern.severity] ?? styles.sevLow;
+  const borderClass = SEV_BORDER[concern.severity] ?? styles.cardSevLow;
 
   const handleSubmitResolution = async () => {
     if (!resText.trim()) return;
@@ -115,13 +121,12 @@ const ConcernCard: React.FC<{
 
   return (
     <div
-      className={`${styles.card} ${concern.resolved ? styles.card_resolved : styles.card_active}`}
-      style={!concern.resolved ? { borderLeftColor: severityColor } : undefined}
+      className={`${styles.card} ${concern.resolved ? styles.card_resolved : `${styles.card_active} ${borderClass}`}`}
     >
       {/* Severity badge */}
       {!concern.resolved && (
-        <div className={styles.weightBadge} style={{ background: severityColor }} title={concern.severity}>
-          {concern.severity[0].toUpperCase()}
+        <div className={`${styles.weightBadge} ${badgeClass}`} title={sevLabel}>
+          {(sevLabel[0] || '?').toUpperCase()}
         </div>
       )}
 
@@ -153,11 +158,11 @@ const ConcernCard: React.FC<{
         {!concern.resolved && (
           <div className={styles.voteButtons}>
             <button className={styles.voteBtn} onClick={() => setShowResForm((v) => !v)}>
-              Propose Resolution
+              {t('concerns.propose', 'Propose Resolution')}
             </button>
             {isAuthor && (
               <button className={`${styles.voteBtn} ${styles.voteBtn_resolved}`} onClick={onResolve}>
-                <Check size={14} /> Mark Resolved
+                <Check size={14} /> {t('concerns.markResolved', 'Mark Resolved')}
               </button>
             )}
           </div>
@@ -176,9 +181,9 @@ const ConcernCard: React.FC<{
             />
             <div className={styles.addFormActions}>
               <button className={styles.btnConfirm} onClick={handleSubmitResolution} disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit'}
+                {submitting ? t('common.submitting', 'Submitting…') : t('common.submit', 'Submit')}
               </button>
-              <button className={styles.btnCancel} onClick={() => setShowResForm(false)}>Cancel</button>
+              <button className={styles.btnCancel} onClick={() => setShowResForm(false)}>{t('common.cancel', 'Cancel')}</button>
             </div>
           </div>
         )}
@@ -214,6 +219,7 @@ const CollapsibleSection: React.FC<{
 // Root
 // ---------------------------------------------------------------------------
 const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey }) => {
+  const t = useT();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId, 'concern_resolution', 'concerns_contract.py', concernsContractCode, parentContractId, stageKey,
   );
@@ -275,14 +281,14 @@ const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stage
 
   if (hasError) return (
     <div className={styles.loading}>
-      <p>{errorMessage || 'Failed to set up concerns.'}</p>
-      <button onClick={retry} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>Retry</button>
+      <p>{errorMessage || t('concerns.setupError', 'Failed to set up concerns.')}</p>
+      <button onClick={retry} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>{t('common.retry', 'Try again')}</button>
     </div>
   );
   if (isDeploying || !isReady) return (
-    <div className={styles.loading}>{statusMessage || 'Setting up concerns...'}</div>
+    <div className={styles.loading}>{statusMessage || t('concerns.settingUp', 'Setting up concerns…')}</div>
   );
-  if (loading && concerns.length === 0) return <div className={styles.loading}>Loading...</div>;
+  if (loading && concerns.length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
   const active = concerns.filter((c) => !c.resolved);
   const resolved = concerns.filter((c) => c.resolved);
@@ -298,13 +304,17 @@ const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stage
     <div className={styles.container}>
       <div className={styles.header}>
         <AlertTriangle size={18} className={styles.headerIcon} />
-        <span>{active.length} active concern{active.length !== 1 ? 's' : ''}</span>
+        <span>{t(
+          active.length === 1 ? 'concerns.activeCount.one' : 'concerns.activeCount.many',
+          active.length === 1 ? '1 active concern' : '{n} active concerns',
+          { n: active.length },
+        )}</span>
       </div>
 
       <AddConcernForm onAdd={handleAddConcern} />
 
       {active.length === 0 ? (
-        <p className={styles.noData}>No active concerns. The floor is open — raise one above.</p>
+        <p className={styles.noData}>{t('concerns.emptyActive', 'No active concerns. The floor is open — raise one above.')}</p>
       ) : (
         <div className={styles.concernList}>
           {active.map((c) => (
@@ -321,7 +331,7 @@ const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stage
         </div>
       )}
 
-      <CollapsibleSection label="Resolved" count={resolved.length} colorClass={styles.toggleResolved}>
+      <CollapsibleSection label={t('concerns.resolved', 'Resolved')} count={resolved.length} colorClass={styles.toggleResolved}>
         <div className={styles.concernList}>
           {resolved.map((c) => (
             <ConcernCard

@@ -13,11 +13,11 @@ const discussionContractCode = '';import styles from './DiscussionFlow.module.sc
 // ---------------------------------------------------------------------------
 // Category config
 // ---------------------------------------------------------------------------
-const CATEGORIES: { key: CommentCategory; label: string; icon: React.ElementType; color: string }[] = [
-  { key: 'evidence',  label: 'Evidence',  icon: Search,        color: '#3b82f6' },
-  { key: 'impact',    label: 'Impact',    icon: Globe,         color: '#f59e0b' },
-  { key: 'solutions', label: 'Solutions', icon: Lightbulb,     color: '#10b981' },
-  { key: 'concerns',  label: 'Concerns',  icon: AlertTriangle, color: '#dc2626' },
+const CATEGORIES: { key: CommentCategory; labelKey: string; label: string; icon: React.ElementType; color: string }[] = [
+  { key: 'evidence',  labelKey: 'discussionFlow.category.evidence',  label: 'Evidence',  icon: Search,        color: '#3b82f6' },
+  { key: 'impact',    labelKey: 'discussionFlow.category.impact',    label: 'Impact',    icon: Globe,         color: '#f59e0b' },
+  { key: 'solutions', labelKey: 'discussionFlow.category.solutions', label: 'Solutions', icon: Lightbulb,     color: '#10b981' },
+  { key: 'concerns',  labelKey: 'discussionFlow.category.concerns',  label: 'Concerns',  icon: AlertTriangle, color: '#dc2626' },
 ];
 
 const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map(c => [c.key, c])) as Record<CommentCategory, typeof CATEGORIES[number]>;
@@ -44,19 +44,20 @@ function buildTree(flat: Comment[]): CommentNode[] {
 const formatTime = (ts: number) =>
   new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
-const authorLabel = (id: string, currentUserKey: string) => id === currentUserKey ? 'You' : id;
+const authorLabel = (id: string, currentUserKey: string, youLabel: string) => id === currentUserKey ? youLabel : id;
 
 // ---------------------------------------------------------------------------
 // Category badge (small inline label on comments)
 // ---------------------------------------------------------------------------
 const CategoryBadge: React.FC<{ category?: CommentCategory }> = ({ category }) => {
+  const t = useT();
   if (!category) return null;
   const cfg = CATEGORY_MAP[category];
   if (!cfg) return null;
   const Icon = cfg.icon;
   return (
     <span className={styles.categoryBadge} style={{ color: cfg.color, borderColor: cfg.color }}>
-      <Icon size={11} /> {cfg.label}
+      <Icon size={11} /> {t(cfg.labelKey, cfg.label)}
     </span>
   );
 };
@@ -71,6 +72,7 @@ const ComposeBox: React.FC<{
   autoFocus?: boolean;
   showCategories?: boolean;
 }> = ({ placeholder, onSubmit, onCancel, autoFocus, showCategories }) => {
+  const t = useT();
   const [text, setText] = useState('');
   const [category, setCategory] = useState<CommentCategory>('evidence');
 
@@ -95,7 +97,7 @@ const ComposeBox: React.FC<{
                 onClick={() => setCategory(cat.key)}
                 type="button"
               >
-                <Icon size={13} /> {cat.label}
+                <Icon size={13} /> {t(cat.labelKey, cat.label)}
               </button>
             );
           })}
@@ -116,10 +118,10 @@ const ComposeBox: React.FC<{
       <div className={styles.composeActions}>
         <button className={styles.btnSubmit} onClick={submit} disabled={!text.trim()}>
           <MessageSquare size={14} />
-          {onCancel ? 'Reply' : 'Comment'}
+          {onCancel ? t('discussionFlow.reply', 'Reply') : t('discussionFlow.comment', 'Comment')}
         </button>
         {onCancel && (
-          <button className={styles.btnCancel} onClick={onCancel}>Cancel</button>
+          <button className={styles.btnCancel} onClick={onCancel}>{t('common.cancel', 'Cancel')}</button>
         )}
       </div>
     </div>
@@ -138,11 +140,13 @@ const CommentItem: React.FC<{
   onReply: (parentId: string, text: string, category?: CommentCategory) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
 }> = ({ node, depth, profiles, currentUserKey, onReply, onDelete }) => {
+  const t = useT();
   const [replying,   setReplying]   = useState(false);
   const [collapsed,  setCollapsed]  = useState(false);
 
   const isOwn      = node.author === currentUserKey && !node.deleted;
   const hasChildren = node.children.length > 0;
+  const name = authorLabel(node.author, currentUserKey, t('discussionFlow.you', 'You'));
 
   const handleReplySubmit = useCallback(async (text: string) => {
     await onReply(node.id, text, node.category);
@@ -162,10 +166,10 @@ const CommentItem: React.FC<{
         {/* Header */}
         <div className={styles.commentHeader}>
           <span className={`${styles.avatar} ${isOwn ? styles.avatarMe : ''}`}>
-            {authorLabel(node.author, currentUserKey)[0]?.toUpperCase() ?? '?'}
+            {name[0]?.toUpperCase() ?? '?'}
           </span>
           <span className={styles.authorName}>
-            {authorLabel(node.author, currentUserKey)}
+            {name}
             <CountryBadge countryCode={profiles[node.author]?.country} />
           </span>
           <CategoryBadge category={node.category} />
@@ -174,7 +178,7 @@ const CommentItem: React.FC<{
             <button
               className={styles.collapseBtn}
               onClick={() => setCollapsed(v => !v)}
-              title={collapsed ? 'Expand' : 'Collapse'}
+              title={collapsed ? t('discussionFlow.expand', 'Expand') : t('discussionFlow.collapse', 'Collapse')}
             >
               {collapsed
                 ? <><ChevronRight size={14} /> {node.children.length}</>
@@ -193,7 +197,7 @@ const CommentItem: React.FC<{
               className={styles.actionBtn}
               onClick={() => setReplying(v => !v)}
             >
-              <Reply size={13} /> Reply
+              <Reply size={13} /> {t('discussionFlow.reply', 'Reply')}
             </button>
           )}
           {isOwn && (
@@ -201,7 +205,7 @@ const CommentItem: React.FC<{
               className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
               onClick={handleDeleteClick}
             >
-              <Trash2 size={13} /> Delete
+              <Trash2 size={13} /> {t('discussionFlow.delete', 'Delete')}
             </button>
           )}
         </div>
@@ -209,7 +213,7 @@ const CommentItem: React.FC<{
         {/* Reply compose */}
         {replying && (
           <ComposeBox
-            placeholder={`Replying to ${authorLabel(node.author, currentUserKey)}…`}
+            placeholder={t('discussionFlow.replyPlaceholder', 'Replying to {name}…', { name })}
             onSubmit={(text) => handleReplySubmit(text)}
             onCancel={() => setReplying(false)}
             autoFocus
@@ -327,7 +331,7 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
         <div className={styles.empty}>
           <AlertTriangle size={36} />
           <p>{errorMessage}</p>
-          <button className={styles.btnSubmit} onClick={retry}>Try again</button>
+          <button className={styles.btnSubmit} onClick={retry}>{t('common.retry', 'Try again')}</button>
         </div>
       </div>
     );
@@ -338,7 +342,7 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
       <div className={styles.container}>
         <div className={styles.empty}>
           <MessageSquare size={36} />
-          <p>{statusMessage || (isDeploying ? 'Setting up discussion…' : 'Loading…')}</p>
+          <p>{statusMessage || (isDeploying ? t('discussionFlow.settingUp', 'Setting up discussion…') : t('common.loading', 'Loading…'))}</p>
         </div>
       </div>
     );
@@ -361,7 +365,11 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
 
       <div className={styles.header}>
         <MessageSquare size={18} />
-        <span>{flat.length} comment{flat.length !== 1 ? 's' : ''}</span>
+        <span>{t(
+          flat.length === 1 ? 'discussionFlow.commentCount.one' : 'discussionFlow.commentCount.many',
+          flat.length === 1 ? '1 comment' : '{n} comments',
+          { n: flat.length },
+        )}</span>
       </div>
 
       <ComposeBox
@@ -376,7 +384,7 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
           className={`${styles.filterChip} ${activeFilter === 'all' ? styles.filterChipActive : ''}`}
           onClick={() => setActiveFilter('all')}
         >
-          All
+          {t('discussionFlow.filterAll', 'All')}
         </button>
         {CATEGORIES.map(cat => {
           const Icon = cat.icon;
@@ -388,7 +396,7 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
               style={activeFilter === cat.key ? { borderColor: cat.color, color: cat.color } : undefined}
               onClick={() => setActiveFilter(cat.key)}
             >
-              <Icon size={13} /> {cat.label} {count > 0 && <span className={styles.filterCount}>{count}</span>}
+              <Icon size={13} /> {t(cat.labelKey, cat.label)} {count > 0 && <span className={styles.filterCount}>{count}</span>}
             </button>
           );
         })}
@@ -397,7 +405,9 @@ const DiscussionFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, sta
       {tree.length === 0 ? (
         <div className={styles.empty}>
           <MessageSquare size={36} />
-          <p>{activeFilter === 'all' ? 'No comments yet. Start the discussion!' : `No ${activeFilter} comments yet.`}</p>
+          <p>{activeFilter === 'all'
+            ? t('discussionFlow.empty', 'No comments yet. Start the discussion!')
+            : t('discussionFlow.emptyFiltered', 'No {category} comments yet.', { category: t(`discussionFlow.category.${activeFilter}`, activeFilter) })}</p>
         </div>
       ) : (
         <div className={styles.commentList}>

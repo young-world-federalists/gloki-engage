@@ -24,6 +24,8 @@ const en: Dictionary = {
   'common.dismiss': 'Dismiss',
   'common.share': 'Share',
   'common.comingSoon': 'Coming soon',
+  'common.submit': 'Submit',
+  'common.submitting': 'Submitting…',
 
   // Global stage navigation (StageFooter) — SHORT stage forms
   'nav.problem': 'Problem',
