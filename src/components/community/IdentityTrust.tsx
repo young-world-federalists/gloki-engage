@@ -44,8 +44,8 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
     return (
       <div className={styles.container}>
         <div className={styles.pageHeader}>
-          <h2>Identity & Trust</h2>
-          <p>You must be a member of this community to access identity features.</p>
+          <h2>{t('identityTrust.title', 'Identity & Trust')}</h2>
+          <p>{t('identityTrust.nonMember', 'You must be a member of this community to access identity features.')}</p>
         </div>
       </div>
     );
@@ -54,11 +54,12 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
-        <h2>Identity & Trust</h2>
+        <h2>{t('identityTrust.title', 'Identity & Trust')}</h2>
         <p>
-          Gloki uses a web of trust to verify community members. By scanning each other's QR codes
-          and confirming real-world identity, you strengthen the trust network within your community.
-          The more verified connections you have, the stronger your community's democratic foundation.
+          {t(
+            'identityTrust.intro',
+            "Gloki uses a web of trust to verify community members. By scanning each other's QR codes and confirming real-world identity, you strengthen the trust network within your community. The more verified connections you have, the stronger your community's democratic foundation.",
+          )}
         </p>
       </div>
 
@@ -100,20 +101,20 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
         <div className={styles.trustActions}>
           <button className={styles.trustBtn} onClick={() => setShowIdentityCard(true)}>
             <IdCard size={18} />
-            <span>My ID Card</span>
+            <span>{t('identityTrust.myIdCard', 'My ID Card')}</span>
           </button>
           <button className={styles.trustBtn} onClick={() => setShowQRScanner(true)}>
             <QrCode size={18} />
-            <span>Scan Member</span>
+            <span>{t('identityTrust.scanMember', 'Scan Member')}</span>
           </button>
           <button className={styles.trustBtn} onClick={() => setShowShare((v) => !v)}>
             <Share2 size={18} />
-            <span>Share</span>
+            <span>{t('common.share', 'Share')}</span>
           </button>
         </div>
         {showShare && (
           <div className={styles.shareEmbed}>
-            <Suspense fallback={<p>Loading...</p>}>
+            <Suspense fallback={<p>{t('common.loading', 'Loading…')}</p>}>
               <Share communityId={communityId} />
             </Suspense>
           </div>
