@@ -99,18 +99,30 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
 
       <div className={styles.trustSection}>
         <div className={styles.trustActions}>
-          <button className={styles.trustBtn} onClick={() => setShowIdentityCard(true)}>
-            <IdCard size={18} />
-            <span>{t('identityTrust.myIdCard', 'My ID Card')}</span>
-          </button>
-          <button className={styles.trustBtn} onClick={() => setShowQRScanner(true)}>
-            <QrCode size={18} />
-            <span>{t('identityTrust.scanMember', 'Scan Member')}</span>
-          </button>
-          <button className={styles.trustBtn} onClick={() => setShowShare((v) => !v)}>
-            <Share2 size={18} />
-            <span>{t('common.share', 'Share')}</span>
-          </button>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<IdCard size={18} />}
+            onClick={() => setShowIdentityCard(true)}
+          >
+            {t('identityTrust.myIdCard', 'My ID Card')}
+          </Button>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<QrCode size={18} />}
+            onClick={() => setShowQRScanner(true)}
+          >
+            {t('identityTrust.scanMember', 'Scan Member')}
+          </Button>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<Share2 size={18} />}
+            onClick={() => setShowShare((v) => !v)}
+          >
+            {t('common.share', 'Share')}
+          </Button>
         </div>
         {showShare && (
           <div className={styles.shareEmbed}>

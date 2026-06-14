@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { joinContract } from '../../services/api';
 import { useT } from '../../i18n';
 import { useAlert } from '../shared/useAlert';
+import { Button } from '../shared';
 
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
@@ -150,56 +151,41 @@ const JoinCommunity: React.FC = () => {
                   onError={() => {}}
                   styles={{ container: { width: '100%', height: 320, background: '#000' } }}
                 />
-                <button onClick={handleScannerClose} className="cancel-button" style={{ marginTop: 16 }}>
+                <Button variant="secondary" onClick={handleScannerClose} style={{ marginTop: 16 }}>
                   {t('common.cancel', 'Cancel')}
-                </button>
+                </Button>
               </div>
             ) : (
               <div className={styles.qrPlaceholder}>
                 <QrCode size={64} />
                 <p>{t('join.scannerPlaceholder', 'QR code scanner placeholder')}</p>
-                <button
-                  onClick={handleScanQR}
-                  className={styles.scanButton}
-                >
-                  <Camera size={20} />
+                <Button variant="primary" leftIcon={<Camera size={20} />} onClick={handleScanQR}>
                   {t('join.scanQr', 'Scan QR Code')}
-                </button>
+                </Button>
               </div>
             )}
           </div>
         </div>
 
         <div className={styles.joinActions}>
-          <button
-            onClick={handleJoinCommunity}
+          <Button
+            variant="primary"
+            leftIcon={<CheckCircle size={16} />}
+            loading={isJoining || isResetting}
             disabled={
-              isJoining ||
-              isResetting ||
               !parsedInvite ||
               !parsedInvite?.server ||
               !parsedInvite?.agent ||
               !parsedInvite?.contract
             }
-            className={styles.joinButton}
+            onClick={handleJoinCommunity}
           >
-            {isJoining ? (
-              <>
-                <div className={styles.loadingSpinnerSmall}></div>
-                {t('join.joining', 'Joining… Waiting for confirmation')}
-              </>
-            ) : isResetting ? (
-              <>
-                <div className={styles.loadingSpinnerSmall}></div>
-                {t('join.resetting', 'Resetting…')}
-              </>
-            ) : (
-              <>
-                <CheckCircle size={16} />
-                {t('join.cta', 'Join Community')}
-              </>
-            )}
-          </button>
+            {isJoining
+              ? t('join.joining', 'Joining… Waiting for confirmation')
+              : isResetting
+                ? t('join.resetting', 'Resetting…')
+                : t('join.cta', 'Join Community')}
+          </Button>
         </div>
 
         <div className={styles.manualInputSection}>

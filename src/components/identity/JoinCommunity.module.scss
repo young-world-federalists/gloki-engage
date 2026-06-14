@@ -64,65 +64,12 @@
       color: $gray-500;
       text-align: center;
     }
-
-    .scanButton {
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-      padding: $spacing-md $spacing-xl;
-      background-color: $primary;
-      color: white;
-      border: none;
-      border-radius: $radius-md;
-      font-size: $text-sm;
-      font-weight: $font-medium;
-      cursor: pointer;
-      transition: background-color $transition-base;
-
-      &:hover {
-        background-color: $primary-dark;
-      }
-    }
   }
 }
 
 .joinActions {
   display: flex;
   justify-content: center;
-
-  .joinButton {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    padding: $spacing-md $spacing-xl;
-    background-color: $success;
-    color: white;
-    border: none;
-    border-radius: $radius-md;
-    font-size: $text-sm;
-    font-weight: $font-medium;
-    cursor: pointer;
-    transition: background-color $transition-base;
-
-    &:hover:not(:disabled) {
-      background-color: #059669;
-    }
-
-    &:disabled {
-      background-color: $gray-400;
-      color: $gray-600;
-      cursor: not-allowed;
-    }
-  }
-
-  .loadingSpinnerSmall {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
 }
 
 .manualInputSection {

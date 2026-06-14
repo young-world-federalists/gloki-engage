@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { X, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { Download } from 'lucide-react';
 import styles from './IdentityCardDialog.module.scss';
 import { useAppSelector } from '../../../store/hooks';
 import { encodeCommunityInvitation } from '../../../services/encodeDecode';
@@ -7,6 +7,7 @@ import IdentityCardSVG from './IdentityCardSVG';
 import { generateIdentityCardPDF } from './IdentityCardPDFGenerator';
 import { useT } from '../../../i18n';
 import { useAlert } from '../../shared/useAlert';
+import { Button, Modal } from '../../shared';
 
 interface IdentityCardDialogProps {
   isOpen: boolean;
@@ -21,7 +22,6 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
 }) => {
   const { contracts, publicKey } = useAppSelector(state => state.user);
   const { profiles } = useAppSelector(state => state.communities);
-  const cardRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const t = useT();
   const { showAlert, alertElement } = useAlert();
@@ -37,16 +37,18 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
 
   const qrData = encodeCommunityInvitation(server, agent, contract);
 
+  // The credential's name + fallbacks are kept in canonical English to stay coherent
+  // with the English IdentityCardSVG credential (see that file's header note).
+  const memberName =
+    userProfile.firstName && userProfile.lastName
+      ? `${userProfile.firstName} ${userProfile.lastName}`
+      : 'Unknown Member';
+  const memberInitial = userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '?';
+
   const handleDownloadCard = async () => {
     try {
       setIsGeneratingPDF(true);
-      
-      const memberName = userProfile.firstName && userProfile.lastName 
-        ? `${userProfile.firstName} ${userProfile.lastName}` 
-        : 'Unknown Member';
-      
-      const memberInitial = userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '?';
-      
+
       // Generate PDF directly from SVG using svg2pdf
       const pdfBlob = await generateIdentityCardPDF({
         communityName,
@@ -56,7 +58,7 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
         agentId: agent || 'Unknown',
         qrData,
       });
-      
+
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
@@ -65,7 +67,7 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
     } catch (error) {
       console.error('Error generating PDF:', error);
       showAlert(
@@ -79,55 +81,49 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
     }
   };
 
-
-
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.dialog}>
-        <div className={styles.header}>
-          <h2>{t('identityCard.title', 'Identity Card')}</h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label={t('common.close', 'Close')}>
-            <X size={20} />
-          </button>
-        </div>
-        
-        <div className={styles.content}>
-          <div className={styles.cardContainer}>
-            <div ref={cardRef}>
-              <IdentityCardSVG
-                communityName={communityName}
-                memberName={userProfile.firstName && userProfile.lastName 
-                  ? `${userProfile.firstName} ${userProfile.lastName}` 
-                  : 'Unknown Member'}
-                memberInitial={userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '?'}
-                memberPhoto={userProfile.userPhoto}
-                agentId={agent || 'Unknown'}
-                qrData={qrData}
-                width={428}
-                height={270}
-              />
-            </div>
-          </div>
-          
-          <div className={styles.actions}>
-            <button 
-              className={styles.downloadButton} 
-              onClick={handleDownloadCard}
-              disabled={isGeneratingPDF}
-            >
-              <Download size={18} />
-              {isGeneratingPDF ? t('identityCard.generating', 'Generating…') : t('identityCard.download', 'Download Card')}
-            </button>
-            <button className={styles.closeDialogButton} onClick={onClose}>
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={t('identityCard.title', 'Identity Card')}
+        closeLabel={t('common.close', 'Close')}
+        size="lg"
+        footer={
+          <>
+            <Button variant="secondary" onClick={onClose}>
               {t('common.close', 'Close')}
-            </button>
+            </Button>
+            <Button
+              variant="primary"
+              leftIcon={<Download size={18} />}
+              loading={isGeneratingPDF}
+              onClick={handleDownloadCard}
+            >
+              {isGeneratingPDF
+                ? t('identityCard.generating', 'Generating…')
+                : t('identityCard.download', 'Download Card')}
+            </Button>
+          </>
+        }
+      >
+        <div className={styles.cardContainer}>
+          <div className={styles.cardScaler}>
+            <IdentityCardSVG
+              communityName={communityName}
+              memberName={memberName}
+              memberInitial={memberInitial}
+              memberPhoto={userProfile.userPhoto}
+              agentId={agent || 'Unknown'}
+              qrData={qrData}
+              width={428}
+              height={270}
+            />
           </div>
         </div>
-      </div>
+      </Modal>
       {alertElement}
-    </div>
+    </>
   );
 };
 

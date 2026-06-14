@@ -36,36 +36,6 @@
   flex-wrap: wrap;
 }
 
-.trustBtn {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm $spacing-lg;
-  background: white;
-  border: 1px solid $gray-300;
-  border-radius: $radius-md;
-  color: $gray-700;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  transition: all $transition-base;
-  min-height: 40px;
-
-  &:hover {
-    background: $gray-100;
-    border-color: $gray-400;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  svg {
-    flex-shrink: 0;
-    color: $primary;
-  }
-}
-
 .shareEmbed {
   margin-top: $spacing-lg;
   padding-top: $spacing-lg;
@@ -133,17 +103,6 @@
   .trustSection {
     background: $dark-surface;
     border-color: $dark-border;
-  }
-
-  .trustBtn {
-    background: $dark-bg;
-    border-color: $dark-border;
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
   }
 
   .shareEmbed {
