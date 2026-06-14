@@ -7,6 +7,7 @@ import { markMergedInto, addCoAuthor, getInitiativeRoles } from '../../../../ser
 import { addNotification } from '../../../../store/slices/notificationsSlice';
 import MergeProposalCard from './MergeProposalCard';
 import MergeProposalSubmitModal from './MergeProposalSubmitModal';
+import { useT } from '../../../../i18n';
 import styles from './MergeProposalsList.module.scss';
 
 interface MergeProposalsListProps {
@@ -20,6 +21,7 @@ interface MergeProposalsListProps {
 const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
   targetInitiativeId, targetTitle, targetCommunityId, canDecide, onCountChange,
 }) => {
+  const t = useT();
   const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -87,27 +89,27 @@ const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
   if (hasError) {
     return (
       <div className={styles.error}>
-        <p>{errorMessage || 'Failed to load merge proposals.'}</p>
-        <button onClick={retry} className={styles.retryBtn}>Retry</button>
+        <p>{errorMessage || t('deliberation.merge.list.loadError', 'Failed to load merge proposals.')}</p>
+        <button onClick={retry} className={styles.retryBtn}>{t('common.retry', 'Try again')}</button>
       </div>
     );
   }
 
   if (isDeploying || !isReady || !contractId) {
-    return <p className={styles.loading}>Setting up merge contract…</p>;
+    return <p className={styles.loading}>{t('deliberation.merge.list.settingUp', 'Setting up merge contract…')}</p>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>Merge Proposals</h3>
+        <h3 className={styles.title}>{t('deliberation.merge.list.title', 'Merge Proposals')}</h3>
         <button className={styles.proposeBtn} onClick={() => setShowSubmit(true)}>
-          <Plus size={14} /> Propose Merge
+          <Plus size={14} /> {t('deliberation.merge.list.propose', 'Propose Merge')}
         </button>
       </div>
 
       {proposals.length === 0 && (
-        <p className={styles.emptyText}>No merge proposals yet.</p>
+        <p className={styles.emptyText}>{t('deliberation.merge.list.empty', 'No merge proposals yet.')}</p>
       )}
 
       {proposals.map((p) => (

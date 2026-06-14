@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown, CheckCircle, XCircle } from 'lucide-react';
 import { useAppSelector } from '../../../../store/hooks';
 import { voteOnMerge, authorDecideMerge, type MergeProposal } from './mergeApi';
+import { useT, type TFunction } from '../../../../i18n';
 import styles from './MergeProposalCard.module.scss';
 
 const DECISION_WINDOW_DAYS = 14;
@@ -15,17 +16,20 @@ interface MergeProposalCardProps {
   onChange?: () => void;
 }
 
-function formatDaysLeft(createdAt: number): string {
+function formatDaysLeft(createdAt: number, t: TFunction): string {
   const elapsedMs = Date.now() - createdAt * 1000;
   const remainingMs = (DECISION_WINDOW_DAYS * 24 * 60 * 60 * 1000) - elapsedMs;
-  if (remainingMs <= 0) return 'expired';
+  if (remainingMs <= 0) return t('deliberation.merge.card.status.expired', 'expired');
   const days = Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
-  return `${days} day${days === 1 ? '' : 's'} left to decide`;
+  return days === 1
+    ? t('deliberation.merge.card.dayOneLeft', '1 day left to decide')
+    : t('deliberation.merge.card.daysLeft', '{n} days left to decide', { n: days });
 }
 
 const MergeProposalCard: React.FC<MergeProposalCardProps> = ({
   proposal, myVote, mergeContractId, canDecide, onAcceptCrossContract, onChange,
 }) => {
+  const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = useAppSelector((s) => s.communities.profiles);
@@ -72,20 +76,20 @@ const MergeProposalCard: React.FC<MergeProposalCardProps> = ({
   return (
     <div className={`${styles.card} ${statusClass}`}>
       <div className={styles.header}>
-        <div className={styles.sourceLink}>Source initiative · {proposal.sourceInitiativeId.slice(0, 10)}…</div>
+        <div className={styles.sourceLink}>{t('deliberation.merge.card.source', 'Source initiative')} · {proposal.sourceInitiativeId.slice(0, 10)}…</div>
         <span className={`${styles.statusBadge} ${statusClass}`}>
-          {proposal.status}
+          {proposal.status && t(`deliberation.merge.card.status.${proposal.status}`, proposal.status)}
         </span>
       </div>
 
-      <div className={styles.proposer}>proposed by {proposerName}</div>
+      <div className={styles.proposer}>{t('deliberation.merge.card.proposedBy', 'proposed by {name}', { name: proposerName })}</div>
 
       <p className={styles.rationale}>"{proposal.rationale}"</p>
 
       <div className={styles.voteBar}>
         <div className={styles.voteBarText}>
-          <span>Community: {proposal.forCount} for · {proposal.againstCount} against</span>
-          <span className={styles.pct}>{supportPct}% support</span>
+          <span>{t('deliberation.merge.card.tally', 'Community: {forCount} for · {againstCount} against', { forCount: proposal.forCount, againstCount: proposal.againstCount })}</span>
+          <span className={styles.pct}>{t('deliberation.merge.card.support', '{pct}% support', { pct: supportPct })}</span>
         </div>
         <div className={styles.voteBarTrack}>
           <div className={styles.voteBarFill} style={{ width: `${supportPct}%` }} />
@@ -100,30 +104,30 @@ const MergeProposalCard: React.FC<MergeProposalCardProps> = ({
               onClick={() => handleVote('for')}
               disabled={voting}
             >
-              <ThumbsUp size={12} /> Vote For
+              <ThumbsUp size={12} /> {t('deliberation.merge.card.voteFor', 'Vote For')}
             </button>
             <button
               className={`${styles.voteBtn} ${myVote === 'against' ? styles.voted : ''}`}
               onClick={() => handleVote('against')}
               disabled={voting}
             >
-              <ThumbsDown size={12} /> Vote Against
+              <ThumbsDown size={12} /> {t('deliberation.merge.card.voteAgainst', 'Vote Against')}
             </button>
           </div>
           {canDecide && (
             <div className={styles.decideButtons}>
               <button className={styles.acceptBtn} onClick={() => handleDecide('accept')} disabled={deciding}>
-                <CheckCircle size={12} /> Accept Merge
+                <CheckCircle size={12} /> {t('deliberation.merge.card.accept', 'Accept Merge')}
               </button>
               <button className={styles.rejectBtn} onClick={() => handleDecide('reject')} disabled={deciding}>
-                <XCircle size={12} /> Reject
+                <XCircle size={12} /> {t('deliberation.merge.card.reject', 'Reject')}
               </button>
             </div>
           )}
         </div>
       )}
 
-      {isPending && <div className={styles.deadline}>{formatDaysLeft(proposal.createdAt)}</div>}
+      {isPending && <div className={styles.deadline}>{formatDaysLeft(proposal.createdAt, t)}</div>}
     </div>
   );
 };

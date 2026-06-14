@@ -121,12 +121,12 @@ const ChatTopic: React.FC = () => {
   if (!topic) {
     return (
       <div className={styles.notFound}>
-        <p>Topic not found.</p>
+        <p>{t('chat.topicNotFound', 'Topic not found.')}</p>
         <button
           className={styles.backBtn}
           onClick={() => navigate(`/community/${communityId}/chat`)}
         >
-          <ArrowLeft size={16} /> Back to Chat
+          <ArrowLeft size={16} /> {t('chat.backTitle', 'Back to Chat')}
         </button>
       </div>
     );

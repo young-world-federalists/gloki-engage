@@ -774,6 +774,29 @@ const fr: Dictionary = {
   'deliberation.merge.submit.submitting': 'Envoi…',
   'deliberation.merge.submit.failed': 'Échec de l’envoi : {detail}',
 
+  // Merge proposals list (MergeProposalsList)
+  'deliberation.merge.list.title': 'Propositions de fusion',
+  'deliberation.merge.list.propose': 'Proposer une fusion',
+  'deliberation.merge.list.empty': 'Pas encore de propositions de fusion.',
+  'deliberation.merge.list.loadError': 'Échec du chargement des propositions de fusion.',
+  'deliberation.merge.list.settingUp': 'Préparation du contrat de fusion…',
+
+  // Merge proposal card (MergeProposalCard)
+  'deliberation.merge.card.source': 'Initiative source',
+  'deliberation.merge.card.status.pending': 'en attente',
+  'deliberation.merge.card.status.accepted': 'acceptée',
+  'deliberation.merge.card.status.rejected': 'rejetée',
+  'deliberation.merge.card.status.expired': 'expirée',
+  'deliberation.merge.card.proposedBy': 'proposée par {name}',
+  'deliberation.merge.card.tally': 'Communauté : {forCount} pour · {againstCount} contre',
+  'deliberation.merge.card.support': '{pct} % de soutien',
+  'deliberation.merge.card.dayOneLeft': '1 jour restant pour décider',
+  'deliberation.merge.card.daysLeft': '{n} jours restants pour décider',
+  'deliberation.merge.card.voteFor': 'Voter pour',
+  'deliberation.merge.card.voteAgainst': 'Voter contre',
+  'deliberation.merge.card.accept': 'Accepter la fusion',
+  'deliberation.merge.card.reject': 'Rejeter',
+
   // ── Concerns / discussion flow (collab) ────────────────────────────────
   'concerns.raise': 'Soulever une préoccupation',
   'concerns.describePlaceholder': 'Décrivez votre préoccupation *',

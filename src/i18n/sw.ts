@@ -773,6 +773,29 @@ const sw: Dictionary = {
   'deliberation.merge.submit.submitting': 'Inawasilisha…',
   'deliberation.merge.submit.failed': 'Imeshindwa kuwasilisha: {detail}',
 
+  // Merge proposals list (MergeProposalsList)
+  'deliberation.merge.list.title': 'Mapendekezo ya muunganisho',
+  'deliberation.merge.list.propose': 'Pendekeza muunganisho',
+  'deliberation.merge.list.empty': 'Bado hakuna mapendekezo ya muunganisho.',
+  'deliberation.merge.list.loadError': 'Imeshindwa kupakia mapendekezo ya muunganisho.',
+  'deliberation.merge.list.settingUp': 'Inaandaa mkataba wa muunganisho…',
+
+  // Merge proposal card (MergeProposalCard)
+  'deliberation.merge.card.source': 'Mpango wa chanzo',
+  'deliberation.merge.card.status.pending': 'inasubiri',
+  'deliberation.merge.card.status.accepted': 'imekubaliwa',
+  'deliberation.merge.card.status.rejected': 'imekataliwa',
+  'deliberation.merge.card.status.expired': 'muda umeisha',
+  'deliberation.merge.card.proposedBy': 'imependekezwa na {name}',
+  'deliberation.merge.card.tally': 'Jumuiya: {forCount} kuunga mkono · {againstCount} kupinga',
+  'deliberation.merge.card.support': 'Uungaji mkono {pct}%',
+  'deliberation.merge.card.dayOneLeft': 'Siku 1 imebaki kuamua',
+  'deliberation.merge.card.daysLeft': 'Siku {n} zimebaki kuamua',
+  'deliberation.merge.card.voteFor': 'Unga mkono',
+  'deliberation.merge.card.voteAgainst': 'Pinga',
+  'deliberation.merge.card.accept': 'Kubali muunganisho',
+  'deliberation.merge.card.reject': 'Kataa',
+
   // ── Concerns / discussion flow (collab) ────────────────────────────────
   'concerns.raise': 'Toa hoja ya wasiwasi',
   'concerns.describePlaceholder': 'Eleza wasiwasi wako *',
