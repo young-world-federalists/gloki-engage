@@ -102,6 +102,24 @@ Use the spacing scale from variables. No ad-hoc pixel values.
 
 Sizes: sm (32px height), md (40px), lg (48px). Border radius: `$radius-md`.
 
+**When to reach for `<Button>` vs. keep a bespoke `<button>`.** `<Button>` is the canonical
+*action* button — use it for standard CTAs and dialog actions (and prefer Button's `loading`
+prop over hand-rolled spinners). A few legitimately-bespoke patterns intentionally stay
+hand-rolled because they don't fit the four pill variants, and forcing them in degrades the
+design:
+- **Section-themed actions** — e.g. CollabList's teal `.createBtn` lives in the collab
+  `#0d9488` section theme; as primary-blue it would lose that identity.
+- **Icon-only square buttons** — e.g. chat send / top-bar back (40×40). `<Button>` sizes are
+  pills (fixed height + horizontal padding), not squares.
+- **List-row / indicator buttons** — e.g. CollabList's collab rows, the `Stepper` step dots.
+  These are navigation rows and step indicators, not actions.
+
+There is **no a11y cost** to keeping these bespoke: a global `button:focus-visible` rule
+(`src/styles/index.scss`) already gives every `<button>` the 2px `$primary` focus ring. So
+consolidating them to `<Button>` would be consistency-only — not worth the design regression.
+_(Batch 14 finding; the identity-area action buttons + IdentityCardDialog→Modal were the clean
+wins and are done.)_
+
 ### Form Inputs
 - Height: 40px
 - Border: 1px solid `$gray-200`
@@ -202,7 +220,7 @@ scratch** — they already encode the tokens above.
 
 | Component | Use |
 |-----------|-----|
-| `Button` | The canonical button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Never hand-roll a button. |
+| `Button` | The canonical *action* button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Use for CTAs and dialog actions; a few themed / icon-only / list-row buttons stay bespoke — see Buttons → "When to reach for `<Button>`". |
 | `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. |
 | `Card` | Content container (padding, radius, shadow per the Cards spec). |
 | `Modal` | Centered overlay dialog (header → body → footer). |
