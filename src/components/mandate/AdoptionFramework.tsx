@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HeartHandshake, Globe, Plus } from 'lucide-react';
 import { Badge, Banner, Button, Modal } from '../shared';
-import { useT } from '../../i18n';
+import { useI18n } from '../../i18n';
 import type { TFunction } from '../../i18n';
 import { getCountryFlag, getCountryName } from '../../utils/countries';
 import {
@@ -29,6 +29,13 @@ function typeLabel(type: AdopterType, t: TFunction): string {
   }
 }
 
+/** Format a fixture `since` value (ISO `YYYY-MM`) as a localized month + year. */
+function formatSince(value: string, locale: string): string {
+  const d = new Date(`${value}-01T12:00:00`);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString(locale, { year: 'numeric', month: 'short' });
+}
+
 interface AdoptionFrameworkProps {
   /** Resolved mandate id (fixture key), e.g. "water". */
   mandateId: string;
@@ -40,7 +47,7 @@ interface AdoptionFrameworkProps {
  * organization (optimistic, session-local) so the mandate→action loop is felt.
  */
 const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [adopters, setAdopters] = useState<MandateAdopter[]>(() => getAdopters(mandateId));
   const [modalOpen, setModalOpen] = useState(false);
   const [justAddedName, setJustAddedName] = useState<string | null>(null);
@@ -123,7 +130,7 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
 
       <ul className={styles.list}>
         {adopters.map((a) => (
-          <AdopterCard key={a.id} adopter={a} t={t} />
+          <AdopterCard key={a.id} adopter={a} t={t} locale={locale} />
         ))}
       </ul>
 
@@ -142,9 +149,10 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
 interface AdopterCardProps {
   adopter: MandateAdopter;
   t: TFunction;
+  locale: string;
 }
 
-const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t }) => {
+const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t, locale }) => {
   const isSubscribed = adopter.level === 'subscribed';
   const isViewer = adopter.id.startsWith('endorse-');
   const pct = Math.round((adopter.progress ?? 0) * 100);
@@ -207,8 +215,8 @@ const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t }) => {
 
       <p className={styles.since}>
         {isSubscribed
-          ? t('mandate.subscribedSince', 'Subscribed {since}', { since: adopter.since })
-          : t('mandate.endorsedSince', 'Endorsed {since}', { since: adopter.since })}
+          ? t('mandate.subscribedSince', 'Subscribed {since}', { since: formatSince(adopter.since, locale) })
+          : t('mandate.endorsedSince', 'Endorsed {since}', { since: formatSince(adopter.since, locale) })}
       </p>
     </li>
   );

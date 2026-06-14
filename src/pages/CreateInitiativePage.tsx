@@ -26,41 +26,37 @@ const COUNTRY_OPTIONS = [
 ];
 
 // English here is the source copy; the render wires each field through t().
-// Stage labels reuse the dashboard's `dashboard.stage.{id}.label` keys (same
-// English on both surfaces \u2192 one translation covers both in the locale wave).
+// Stage labels use the canonical `stage.{id}` family (shared with the dashboard
+// badges and the footer). Per-stage step-circle colors live in the SCSS module
+// (.stepCircle_{id}) rather than as inline hex here.
 const STAGES = [
   {
     id: 'problem',
     name: 'Problem',
-    color: '#ef4444',
     icon: AlertTriangle,
     description: 'Your community votes on whether this is a real problem. At least 50% of voters must agree it\'s worth addressing before it moves forward.',
   },
   {
     id: 'discussion',
     name: 'Discussion',
-    color: '#f59e0b',
     icon: MessageSquare,
     description: 'Community members discuss the problem openly. At least 33% of members must participate in the conversation. Members can also suggest modifications to the initiative\'s framing.',
   },
   {
     id: 'proposals',
     name: 'Proposals',
-    color: '#8b5cf6',
     icon: FileText,
     description: 'Members submit concrete proposals for how to solve the problem. The community reviews and approves proposals. Modifications can still be suggested at this stage.',
   },
   {
     id: 'vote',
     name: 'Vote',
-    color: '#3b82f6',
     icon: Vote,
     description: 'The community votes on approved proposals using quadratic voting \u2014 a system where you spread credits across proposals you care about. This prevents any single voter from dominating the outcome.',
   },
   {
     id: 'mandate',
     name: 'Mandate',
-    color: '#10b981',
     icon: ScrollText,
     description: 'The winning proposal becomes a mandate. Community members can pledge to support its implementation. This is the community\'s commitment to action.',
   },
@@ -185,7 +181,7 @@ const CreateInitiativePage: React.FC = () => {
             return (
               <div key={stage.id} className={styles.step}>
                 <div className={styles.stepIndicator}>
-                  <div className={styles.stepCircle} style={{ background: stage.color }}>
+                  <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
                     <StageIcon size={16} />
                   </div>
                   {index < STAGES.length - 1 && <div className={styles.stepLine} />}

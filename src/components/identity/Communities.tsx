@@ -6,20 +6,22 @@ import { fetchContracts } from '../../store/slices/userSlice';
 import { fetchCommunityProperties, fetchCommunityMembers, fetchCollaborations, fetchInitiativeStage } from '../../store/slices/communitiesSlice';
 import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
+import { useI18n } from '../../i18n';
 import styles from './Communities.module.scss';
 
 interface CommunitiesProps {
   showHidden?: boolean;
 }
 
-const formatCreatedDate = (value: unknown): string | null => {
+const formatCreatedDate = (value: unknown, locale: string): string | null => {
   if (typeof value !== 'string' && typeof value !== 'number') return null;
   const date = new Date(value);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
+  const { locale } = useI18n();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
@@ -191,7 +193,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
           const unresolvedCount = initiatives.filter(
             (c) => initiativeStages[c.id] === '_unknown',
           ).length;
-          const createdDate = props.createdAt ? formatCreatedDate(props.createdAt) : null;
+          const createdDate = props.createdAt ? formatCreatedDate(props.createdAt, locale) : null;
           return (
             <div
               key={contract.id}

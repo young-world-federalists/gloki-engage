@@ -6,7 +6,7 @@ import CountryBadge from '../../collaboration/flows/shared/CountryBadge';
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 const chatContractCode = '';import { getTopics, createTopic } from './chatApi';
 import type { ChatTopic } from './chatApi';
-import { useT } from '../../../i18n';
+import { useI18n } from '../../../i18n';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
 import styles from './ChatTopicList.module.scss';
 
@@ -21,7 +21,7 @@ const POLL_INTERVAL_MS = 10_000;
 // ---------------------------------------------------------------------------
 
 const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const serverUrl = useAppSelector((state) => state.user.serverUrl);
   const publicKey = useAppSelector((state) => state.user.publicKey);
@@ -176,7 +176,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
                   <span className={styles.metaDivider}>·</span>
                   <span className={styles.timeAgo}>
                     {formatTimeAgo(t, topic.lastActivity, { maxDays: 7 }) ||
-                      new Date(topic.lastActivity).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      new Date(topic.lastActivity).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               </button>

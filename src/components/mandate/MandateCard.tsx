@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Globe2, Flame, Share2, ArrowDown, CalendarCheck } from 'lucide-react';
 import { Badge, Button, CountryPresence } from '../shared';
-import { useT } from '../../i18n';
+import { useI18n } from '../../i18n';
 import JourneyRecap from './JourneyRecap';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateCard.module.scss';
@@ -9,10 +9,10 @@ import styles from './MandateCard.module.scss';
 /** The scroll target id MandatePage puts on the full document (B2 keeps in sync). */
 export const MANDATE_DOC_ANCHOR_ID = 'mandate-document';
 
-function formatRatifiedOn(iso: string): string {
+function formatRatifiedOn(iso: string, locale: string): string {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  return d.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export interface MandateCardProps {
@@ -27,7 +27,7 @@ export interface MandateCardProps {
  * conviction never reads as weighted voting. Pure UI over the existing mandate.
  */
 const MandateCard: React.FC<MandateCardProps> = ({ mandate }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
   const { provenance } = mandate;
 
@@ -65,7 +65,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate }) => {
       </div>
       <p className={styles.ratifiedOn}>
         <CalendarCheck size={13} aria-hidden />
-        {t('mandate.card.ratifiedOn', 'Ratified {date}', { date: formatRatifiedOn(mandate.ratifiedOn) })}
+        {t('mandate.card.ratifiedOn', 'Ratified {date}', { date: formatRatifiedOn(mandate.ratifiedOn, locale) })}
       </p>
 
       <h2 className={styles.title}>{mandate.title}</h2>

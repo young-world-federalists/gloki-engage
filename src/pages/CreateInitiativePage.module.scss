@@ -98,6 +98,15 @@
   flex-shrink: 0;
 }
 
+// Per-stage step-circle accents (de-hardcoded from the STAGES array). discussion
+// /vote/mandate map to design tokens; problem/proposals have no exact token and
+// stay as literals — the deliberate 5-stage rainbow.
+.stepCircle_problem    { background: #ef4444; }
+.stepCircle_discussion { background: $warning; }
+.stepCircle_proposals  { background: #8b5cf6; }
+.stepCircle_vote       { background: $primary; }
+.stepCircle_mandate    { background: $success; }
+
 .stepLine {
   width: 2px;
   flex: 1;
