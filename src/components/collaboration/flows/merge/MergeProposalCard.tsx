@@ -17,7 +17,11 @@ interface MergeProposalCardProps {
 }
 
 function formatDaysLeft(createdAt: number, t: TFunction): string {
-  const elapsedMs = Date.now() - createdAt * 1000;
+  // `createdAt` is a millisecond epoch in demo data (every demo contract emits
+  // Date.now(), and formatTimeAgo assumes ms). Tolerate a seconds epoch too so
+  // the countdown stays correct whichever unit the real contract returns.
+  const createdMs = createdAt > 1e12 ? createdAt : createdAt * 1000;
+  const elapsedMs = Date.now() - createdMs;
   const remainingMs = (DECISION_WINDOW_DAYS * 24 * 60 * 60 * 1000) - elapsedMs;
   if (remainingMs <= 0) return t('deliberation.merge.card.status.expired', 'expired');
   const days = Math.ceil(remainingMs / (24 * 60 * 60 * 1000));

@@ -2,13 +2,18 @@
 import type { IMethod } from '../../interfaces';
 import { readState, updateState } from '../demoState';
 
+// Internal state vocab. Votes are stored verbatim from the caller; the React
+// card sends 'for'/'against', the deployed contract uses 'support'/'oppose' —
+// accept both so counting and "my vote" work regardless of which arrives.
+type Vote = 'for' | 'against' | 'support' | 'oppose';
+
 interface MergeProposal {
   id: string;
   sourceInitiativeId: string;
   rationale: string;
   proposer: string;
   decision: 'pending' | 'accepted' | 'rejected';
-  votes: Record<string, 'support' | 'oppose'>;
+  votes: Record<string, Vote>;
   createdAt: number;
 }
 
@@ -32,7 +37,15 @@ export function mergeRead(contractId: string, method: IMethod, caller: string): 
   const s = load(contractId);
   switch (method.name) {
     case 'get_merge_proposals':
-      return s.proposals;
+      // Map internal state → the shape the React card/list consume (the
+      // deployed contract returns this richer shape): `decision` → `status`,
+      // and the per-caller `votes` map → for/against tallies.
+      return s.proposals.map((p) => ({
+        ...p,
+        status: p.decision,
+        forCount: Object.values(p.votes).filter((v) => v === 'for' || v === 'support').length,
+        againstCount: Object.values(p.votes).filter((v) => v === 'against' || v === 'oppose').length,
+      }));
     case 'get_my_vote': {
       const mergeId = method.values?.merge_id as string | undefined;
       const proposal = s.proposals.find((p) => p.id === mergeId);
@@ -67,7 +80,7 @@ export function mergeWrite(contractId: string, method: IMethod, caller: string):
     }
     case 'vote_on_merge': {
       const mergeId = method.values?.merge_id as string | undefined;
-      const vote = method.values?.vote as 'support' | 'oppose' | undefined;
+      const vote = method.values?.vote as Vote | undefined;
       if (!mergeId || !vote) return { error: 'Missing merge_id or vote' };
       let result: unknown = null;
       updateState<MergeState>(contractId, (s) => ({
@@ -86,7 +99,13 @@ export function mergeWrite(contractId: string, method: IMethod, caller: string):
     }
     case 'author_decide_merge': {
       const mergeId = method.values?.merge_id as string | undefined;
-      const decision = method.values?.decision as 'accepted' | 'rejected' | undefined;
+      // Card sends 'accept'/'reject'; the deployed contract also accepts the
+      // past-tense form. Normalize to the stored 'accepted'/'rejected' status.
+      const raw = method.values?.decision as string | undefined;
+      const decision: 'accepted' | 'rejected' | undefined =
+        raw === 'accept' || raw === 'accepted' ? 'accepted'
+        : raw === 'reject' || raw === 'rejected' ? 'rejected'
+        : undefined;
       if (!mergeId || !decision) return { error: 'Missing merge_id or decision' };
       updateState<MergeState>(contractId, (s) => ({
         ...defaultState(),
