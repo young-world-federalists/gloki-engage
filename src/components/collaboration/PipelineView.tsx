@@ -1,3 +1,11 @@
+/*
+ * ⚠️ ORPHANED (as of Batch 14) — this component has no importer anywhere in `src/`.
+ *
+ * It is kept, not deleted, deliberately: its i18n is already fully wired and it is a
+ * complete pipeline view that may be intended for a route. Whether to delete it or
+ * re-wire it is an architectural call for Ouri on the `new-features` branch — do not
+ * delete blindly. If you revive it, mount it on a route and remove this banner.
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';

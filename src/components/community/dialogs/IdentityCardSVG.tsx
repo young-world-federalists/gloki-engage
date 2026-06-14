@@ -1,3 +1,19 @@
+/*
+ * IdentityCardSVG — the downloadable identity *credential*.
+ *
+ * Deliberately rendered in canonical English (the labels below) regardless of the
+ * active UI locale, the way a passport or official credential stays canonical. This
+ * is a product decision (Batch 14), not an oversight: the on-screen UI is fully
+ * localized, but the exported credential card is not.
+ *
+ * It is also not a clean string-swap to change: the labels are a single sentence
+ * fragmented around fixed-position, canvas-rendered PNGs (member name / community
+ * name) at hardcoded x/y, so longer fr/sw strings would clip. If this decision is
+ * ever revisited, it needs a layout reflow — let the labels auto-size like the
+ * name/community images already do — then t() the labels (add `identityCardSvg.*`
+ * keys to fr/sw) and localize the dialog's "Unknown Member"/"Unknown" fallbacks too
+ * (kept English here so they stay coherent with this English card).
+ */
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { createRoot } from 'react-dom/client';
