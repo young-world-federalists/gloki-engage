@@ -1,17 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { FileText, Code2, Copy, Check, Globe, Users, TrendingUp, CalendarCheck } from 'lucide-react';
 import { Badge, CountryPresence, SegmentedControl } from '../shared';
-import { useT } from '../../i18n';
+import { useI18n } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateDocument.module.scss';
 
 type MandateView = 'plain' | 'spec';
 
-/** "2026-04-18" → "18 April 2026" (falls back to the raw value on a bad date). */
-function formatRatifiedDate(iso: string): string {
+/** "2026-04-18" → a long date in the active locale (raw value on a bad date). */
+function formatRatifiedDate(iso: string, locale: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 /** The structured, machine-readable projection of the mandate. */
@@ -50,7 +50,7 @@ interface MandateDocumentProps {
  * deliberation, the vote, and sustained conviction — not merely asserted.
  */
 const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [view, setView] = useState<MandateView>('plain');
   const [copied, setCopied] = useState(false);
 
@@ -66,7 +66,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
     }
   };
 
-  const ratified = formatRatifiedDate(mandate.ratifiedOn);
+  const ratified = formatRatifiedDate(mandate.ratifiedOn, locale);
 
   return (
     <article className={styles.document} aria-label={t('mandate.docLabel', 'Published mandate')}>

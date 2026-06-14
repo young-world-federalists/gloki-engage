@@ -60,8 +60,8 @@
   letter-spacing: 0.08em;
   padding: 3px 8px;
   border-radius: $radius-full;
-  background: #f59e0b;
-  color: #1f1f1f;
+  background: $warning;
+  color: $gray-900;
   margin-left: auto;
   flex-shrink: 0;
 }

@@ -7,7 +7,7 @@ import type { Comment, CommentCategory } from './discussionApi';
 import CountryBadge from '../shared/CountryBadge';
 import { useAppSelector } from '../../../../store/hooks';
 import { useFlowContract } from '../shared/useFlowContract';
-import { useT } from '../../../../i18n';
+import { useT, useI18n } from '../../../../i18n';
 const discussionContractCode = '';import styles from './DiscussionFlow.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -41,8 +41,8 @@ function buildTree(flat: Comment[]): CommentNode[] {
   return roots;
 }
 
-const formatTime = (ts: number) =>
-  new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+const formatTime = (ts: number, locale: string) =>
+  new Date(ts).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
 
 const authorLabel = (id: string, currentUserKey: string, youLabel: string) => id === currentUserKey ? youLabel : id;
 
@@ -140,7 +140,7 @@ const CommentItem: React.FC<{
   onReply: (parentId: string, text: string, category?: CommentCategory) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
 }> = ({ node, depth, profiles, currentUserKey, onReply, onDelete }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [replying,   setReplying]   = useState(false);
   const [collapsed,  setCollapsed]  = useState(false);
 
@@ -173,7 +173,7 @@ const CommentItem: React.FC<{
             <CountryBadge countryCode={profiles[node.author]?.country} />
           </span>
           <CategoryBadge category={node.category} />
-          <span className={styles.timestamp}>{formatTime(node.timestamp)}</span>
+          <span className={styles.timestamp}>{formatTime(node.timestamp, locale)}</span>
           {hasChildren && (
             <button
               className={styles.collapseBtn}
