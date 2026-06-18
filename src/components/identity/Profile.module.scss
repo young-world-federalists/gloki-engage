@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
+  // Breathing room between the page header and the profile card.
+  padding-top: $spacing-xl;
 }
 
 .identityToggle {
@@ -91,34 +93,6 @@
     border-color: $primary;
   }
 }
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-}
-.chip {
-  min-height: 44px;
-  padding: $spacing-sm $spacing-lg;
-  border-radius: $radius-full;
-  border: 1px solid $gray-200;
-  background: white;
-  color: $gray-700;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  transition: all $transition-base;
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
-.chipActive {
-  background: $primary;
-  border-color: $primary;
-  color: white;
-}
-
 @media (prefers-color-scheme: dark) {
   .identityToggle {
     color: $dark-text-secondary;
@@ -133,16 +107,10 @@
     background: $dark-surface;
     color: $dark-text;
   }
-  .input,
-  .chip {
+  .input {
     background: $dark-bg;
     border-color: $dark-border;
     color: $dark-text;
-  }
-  .chipActive {
-    background: $primary;
-    border-color: $primary;
-    color: white;
   }
   .fieldLabel {
     color: $dark-text;

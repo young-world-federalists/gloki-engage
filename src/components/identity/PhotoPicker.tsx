@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
-import { Camera, User } from 'lucide-react';
+import { Camera } from 'lucide-react';
+import { useT } from '../../i18n';
 import styles from './PhotoPicker.module.scss';
 
 export interface PhotoPickerProps {
   /** Current photo data URL, or '' for none. */
   value: string;
   onChange: (dataUrl: string) => void;
-  /** Initials shown when there's no photo. */
-  initials?: string;
   /** Accessible label for the upload control (translated). */
   label: string;
   size?: 'md' | 'lg';
@@ -45,7 +44,8 @@ function resizeImage(file: File): Promise<string> {
   });
 }
 
-const PhotoPicker: React.FC<PhotoPickerProps> = ({ value, onChange, initials, label, size = 'lg' }) => {
+const PhotoPicker: React.FC<PhotoPickerProps> = ({ value, onChange, label, size = 'lg' }) => {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,20 +60,28 @@ const PhotoPicker: React.FC<PhotoPickerProps> = ({ value, onChange, initials, la
 
   return (
     <div className={`${styles.picker} ${styles[size]}`}>
-      <button type="button" className={styles.avatar} onClick={() => inputRef.current?.click()} aria-label={label}>
+      <button
+        type="button"
+        className={`${styles.avatar} ${value ? '' : styles.empty}`}
+        onClick={() => inputRef.current?.click()}
+        aria-label={label}
+      >
         {value ? (
           <img src={value} alt="" />
-        ) : initials ? (
-          <span className={styles.initials} aria-hidden>
-            {initials}
-          </span>
         ) : (
-          <User size={28} aria-hidden />
+          <span className={styles.prompt} aria-hidden>
+            <Camera size={size === 'md' ? 22 : 28} />
+            <span className={styles.promptText}>{t('photo.add', 'Add photo')}</span>
+          </span>
         )}
-        <span className={styles.camera} aria-hidden>
-          <Camera size={14} />
-        </span>
       </button>
+      {/* Corner "change photo" badge — sibling of the button so the avatar's
+          overflow:hidden never clips it. Decorative; clicks fall through to the button. */}
+      {value && (
+        <span className={styles.badge} aria-hidden>
+          <Camera size={16} />
+        </span>
+      )}
       <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} className={styles.input} tabIndex={-1} />
     </div>
   );

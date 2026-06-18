@@ -118,22 +118,7 @@ export function defaultVouchers(inviterKey: string): string[] {
   return other ? [inviterKey, other.publicKey] : [inviterKey];
 }
 
-/** A short, curated language set for the onboarding picker (NOT the full 197). */
-export interface OnboardingLanguage {
-  code: string;
-  defaultLabel: string;
-}
-export const ONBOARDING_LANGUAGES: OnboardingLanguage[] = [
-  { code: 'en', defaultLabel: 'English' },
-  { code: 'es', defaultLabel: 'Español' },
-  { code: 'fr', defaultLabel: 'Français' },
-  { code: 'pt', defaultLabel: 'Português' },
-  { code: 'ar', defaultLabel: 'العربية' },
-  { code: 'hi', defaultLabel: 'हिन्दी' },
-  { code: 'zh', defaultLabel: '中文' },
-];
-
-/** Demo participation rows for the Digital Agent card (real activity isn't tracked). */
+/** Demo participation rows for the profile card (real activity isn't tracked). */
 export interface ParticipationEntry {
   titleKey: string;
   defaultTitle: string;

@@ -3,6 +3,7 @@ import { Button, Card, CountryFlag, Badge, Banner } from '../../shared';
 import { CheckCircle2 } from 'lucide-react';
 import { useT } from '../../../i18n';
 import { getInitials, type DigitalAgent } from '../../identity/agent/digitalAgentStore';
+import { getLanguageNative } from '../../../utils/languages';
 import styles from './steps.module.scss';
 
 interface Props {
@@ -30,12 +31,12 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
           {agent?.photo ? <img src={agent.photo} alt="" /> : <span>{getInitials(name || '')}</span>}
         </div>
         <div className={styles.recapInfo}>
-          <span className={styles.recapName}>{name || t('onboarding.ready.anon', 'Your Digital Agent')}</span>
+          <span className={styles.recapName}>{name || t('onboarding.ready.anon', 'Your profile')}</span>
           <div className={styles.recapMeta}>
             {agent?.country && <CountryFlag code={agent.country} showName size="sm" />}
             {agent?.languages?.map((code) => (
               <Badge key={code} tone="neutral" size="sm">
-                {t(`lang.${code}`, code)}
+                {getLanguageNative(code)}
               </Badge>
             ))}
           </div>
@@ -58,7 +59,7 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
           {t('onboarding.cta.explore', 'Explore the climate deliberation')}
         </Button>
         <Button variant="secondary" fullWidth onClick={onViewAgent}>
-          {t('onboarding.cta.viewAgent', 'View my Digital Agent')}
+          {t('onboarding.cta.viewAgent', 'View my profile')}
         </Button>
       </div>
     </section>

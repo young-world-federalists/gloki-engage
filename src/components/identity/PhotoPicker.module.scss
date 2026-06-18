@@ -1,15 +1,15 @@
 @use '../../styles/variables' as *;
 
 .picker {
+  position: relative;
   display: inline-block;
 }
 
 .avatar {
   position: relative;
   border-radius: $radius-full;
-  border: 2px dashed $gray-300;
-  background: $gray-50;
-  color: $gray-500;
+  border: none;
+  background: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,6 +29,13 @@
   }
 }
 
+// Empty (no photo): an obvious "add a photo" target — tinted blue tile with a
+// centred camera + label, instead of a faint person glyph.
+.empty {
+  border: 2px dashed rgba($primary, 0.5);
+  background: rgba($primary, 0.08);
+}
+
 .md .avatar {
   width: 64px;
   height: 64px;
@@ -39,18 +46,28 @@
   height: 96px;
 }
 
-.initials {
-  font-size: $text-2xl;
-  font-weight: $font-semibold;
-  color: $gray-500;
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: $primary-dark; // AA on the light tint
 }
 
-.camera {
+.promptText {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+}
+
+// Corner badge shown when a photo exists ("change photo"). Sits OUTSIDE the
+// avatar's overflow clip (sibling of the button), so it's never cut off.
+.badge {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: $radius-full;
   background: $primary;
   color: white;
@@ -58,6 +75,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid white;
+  pointer-events: none;
 }
 
 .input {
@@ -69,14 +87,14 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .avatar {
-    background: $dark-bg;
-    border-color: $dark-border;
+  .empty {
+    border-color: rgba($primary, 0.6);
+    background: rgba($primary, 0.16);
   }
-  .camera {
+  .prompt {
+    color: $primary; // brighter blue for AA on the dark tint
+  }
+  .badge {
     border-color: $dark-bg;
-  }
-  .initials {
-    color: $dark-text-secondary;
   }
 }

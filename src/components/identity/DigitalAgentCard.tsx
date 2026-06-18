@@ -4,6 +4,7 @@ import { Pencil, History } from 'lucide-react';
 import { useT } from '../../i18n';
 import { getInitials, type DigitalAgent } from './agent/digitalAgentStore';
 import { getPersona, DEMO_PARTICIPATION } from '../../services/demo/fixtures/identity';
+import { getLanguageNative } from '../../utils/languages';
 import styles from './DigitalAgentCard.module.scss';
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
   const t = useT();
-  const name = agent.displayName?.trim() || t('agent.unnamed', 'Your Digital Agent');
+  const name = agent.displayName?.trim() || t('agent.unnamed', 'Your profile');
   const voucherCountries = agent.vouchedBy
     .map((k) => getPersona(k)?.country)
     .filter((c): c is string => !!c);
@@ -30,7 +31,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         </div>
         {onEdit && (
           <Button variant="ghost" size="sm" leftIcon={<Pencil size={16} />} onClick={onEdit}>
-            {t('common.edit', 'Edit')}
+            {t('agent.editProfile', 'Edit profile')}
           </Button>
         )}
       </div>
@@ -39,7 +40,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         <div className={styles.langs}>
           {agent.languages.map((code) => (
             <Badge key={code} tone="neutral">
-              {t(`lang.${code}`, code)}
+              {getLanguageNative(code)}
             </Badge>
           ))}
         </div>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import clsx from 'clsx';
 import { useAppSelector } from '../../store/hooks';
 import { Key, Server, ChevronDown, ChevronUp, UserPlus } from 'lucide-react';
 import { Button, Card, Modal, EmptyState, Banner, SearchableSelect } from '../shared';
@@ -8,9 +7,8 @@ import { useT } from '../../i18n';
 import DigitalAgentCard from './DigitalAgentCard';
 import PhotoPicker from './PhotoPicker';
 import { useDigitalAgent } from './agent/useDigitalAgent';
-import { getInitials } from './agent/digitalAgentStore';
-import { ONBOARDING_LANGUAGES } from '../../services/demo/fixtures/identity';
 import { COUNTRIES, OTHER_COUNTRY } from '../../utils/countries';
+import { LANGUAGE_OPTIONS } from '../../utils/languages';
 import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
 import styles from './Profile.module.scss';
 
@@ -27,26 +25,24 @@ const Profile: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [photo, setPhoto] = useState('');
   const [country, setCountry] = useState('');
-  const [languages, setLanguages] = useState<string[]>([]);
+  // Single primary language (legacy multi-language agents collapse to their first).
+  const [language, setLanguage] = useState('');
   const [apiKey, setApiKey] = useState('');
 
   const openEdit = () => {
     setDisplayName(agent?.displayName ?? '');
     setPhoto(agent?.photo ?? '');
     setCountry(agent?.country ?? '');
-    setLanguages(agent?.languages ?? []);
+    setLanguage(agent?.languages?.[0] ?? '');
     setApiKey(getLocalOpenAIApiKey(user.serverUrl, user.publicKey));
     setEditing(true);
   };
 
   const saveEdit = () => {
-    saveAgent({ displayName: displayName.trim(), photo, country, languages });
+    saveAgent({ displayName: displayName.trim(), photo, country, languages: language ? [language] : [] });
     if (user.serverUrl && user.publicKey) setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
     setEditing(false);
   };
-
-  const toggleLang = (code: string) =>
-    setLanguages((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
 
   return (
     <div className={styles.container}>
@@ -59,7 +55,7 @@ const Profile: React.FC = () => {
             </Button>
           }
         >
-          {t('agent.finishNudge', 'Finish setting up your Digital Agent')}
+          {t('agent.finishNudge', 'Finish setting up your profile')}
         </Banner>
       )}
 
@@ -68,7 +64,7 @@ const Profile: React.FC = () => {
       ) : (
         <EmptyState
           icon={<UserPlus size={48} />}
-          title={t('agent.empty.title', 'Set up your Digital Agent')}
+          title={t('agent.empty.title', 'Set up your profile')}
           message={t('agent.empty.message', 'Create the identity that represents you in deliberations — it only takes a minute.')}
           action={<Button onClick={() => navigate('/welcome')}>{t('agent.empty.cta', 'Get started')}</Button>}
         />
@@ -104,7 +100,7 @@ const Profile: React.FC = () => {
       <Modal
         isOpen={editing}
         onClose={() => setEditing(false)}
-        title={t('agent.edit.title', 'Edit your Digital Agent')}
+        title={t('agent.edit.title', 'Edit profile')}
         closeLabel={t('common.close', 'Close')}
         footer={
           <>
@@ -117,7 +113,7 @@ const Profile: React.FC = () => {
       >
         <div className={styles.editForm}>
           <div className={styles.photoRow}>
-            <PhotoPicker value={photo} onChange={setPhoto} initials={getInitials(displayName)} label={t('onboarding.agent.photo', 'Add a photo (optional)')} />
+            <PhotoPicker value={photo} onChange={setPhoto} label={t('onboarding.agent.photo', 'Add a photo (optional)')} />
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-name">
@@ -140,23 +136,15 @@ const Profile: React.FC = () => {
             />
           </div>
           <div className={styles.field}>
-            <span className={styles.fieldLabel}>{t('onboarding.agent.languages', 'Languages you speak')}</span>
-            <div className={styles.chips} role="group" aria-label={t('onboarding.agent.languages', 'Languages you speak')}>
-              {ONBOARDING_LANGUAGES.map((lang) => {
-                const active = languages.includes(lang.code);
-                return (
-                  <button
-                    key={lang.code}
-                    type="button"
-                    className={clsx(styles.chip, active && styles.chipActive)}
-                    aria-pressed={active}
-                    onClick={() => toggleLang(lang.code)}
-                  >
-                    {t(`lang.${lang.code}`, lang.defaultLabel)}
-                  </button>
-                );
-              })}
-            </div>
+            <label className={styles.fieldLabel} htmlFor="edit-language">
+              {t('onboarding.agent.language', 'Your language')}
+            </label>
+            <SearchableSelect
+              options={LANGUAGE_OPTIONS}
+              value={language}
+              onChange={setLanguage}
+              placeholder={t('onboarding.agent.languagePlaceholder', 'Select your language')}
+            />
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-key">

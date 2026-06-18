@@ -52,7 +52,7 @@ const OnboardingFlow: React.FC = () => {
         <Card className={styles.doneCard}>
           <h1 className={styles.doneTitle}>{t('onboarding.alreadyDone.title', "You're all set up")}</h1>
           <p className={styles.doneLead}>
-            {t('onboarding.alreadyDone.lead', 'Your Digital Agent is ready. Jump back into the deliberation, or start the welcome guide over.')}
+            {t('onboarding.alreadyDone.lead', 'Your profile is ready. Jump back into the deliberation, or start the welcome guide over.')}
           </p>
           <div className={styles.doneActions}>
             <Button fullWidth onClick={() => navigate('/stage/problem')}>
