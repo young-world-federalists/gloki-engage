@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import InitiativeDashboard from '../../components/collaboration/InitiativeDashboard';
+import { useParams, useLocation, Navigate } from 'react-router-dom';
 import DiscussionStageView from '../../components/collaboration/DiscussionStageView';
 import CollaborationFullView from '../../components/collaboration/CollaborationFullView';
 import { useAppSelector } from '../../store/hooks';
@@ -58,11 +57,11 @@ const InitiativeView: React.FC = () => {
     );
   }
 
+  // Default / roadmap route → community page with card auto-expanded
   return (
-    <InitiativeDashboard
-      title={title}
-      collaborationId={initiativeId!}
-      communityId={communityId!}
+    <Navigate
+      to={`/community/${communityId}?initiative=${initiativeId}`}
+      replace
     />
   );
 };

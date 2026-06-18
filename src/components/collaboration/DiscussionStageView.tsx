@@ -16,6 +16,7 @@ import ParticipationMeter from './flows/discussion/ParticipationMeter';
 import AnchoredThread from './flows/discussion/AnchoredThread';
 import CoPresenceBar from './flows/discussion/CoPresenceBar';
 import { DELIBERATION_PARTICIPANTS, PRESENCE_NOW, PRESENCE_TICKER } from '../../services/demo/fixtures/deliberation';
+import GlobalHeader from '../GlobalHeader';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 
@@ -65,6 +66,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, commun
 
   return (
     <div className={cs.container}>
+      <GlobalHeader />
       <PageHeader
         showBackButton
         backButtonText={t('deliberation.back', 'Back to Dashboard')}
