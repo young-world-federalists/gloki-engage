@@ -8,7 +8,7 @@
 
 .top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: $spacing-md;
 }
 .avatar {
@@ -43,6 +43,11 @@
   font-size: $text-xl;
   font-weight: $font-semibold;
   color: $gray-900;
+}
+.editBtn {
+  align-self: flex-start;
+  margin-top: $spacing-xs;
+  margin-left: -$spacing-sm; // align the ghost button's icon with the name
 }
 
 .langs {

@@ -28,12 +28,18 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         <div className={styles.identity}>
           <h2 className={styles.name}>{name}</h2>
           {agent.country && <CountryFlag code={agent.country} showName />}
+          {onEdit && (
+            <Button
+              className={styles.editBtn}
+              variant="ghost"
+              size="sm"
+              leftIcon={<Pencil size={16} />}
+              onClick={onEdit}
+            >
+              {t('agent.editProfile', 'Edit profile')}
+            </Button>
+          )}
         </div>
-        {onEdit && (
-          <Button variant="ghost" size="sm" leftIcon={<Pencil size={16} />} onClick={onEdit}>
-            {t('agent.editProfile', 'Edit profile')}
-          </Button>
-        )}
       </div>
 
       {(agent.languages?.length ?? 0) > 0 && (
