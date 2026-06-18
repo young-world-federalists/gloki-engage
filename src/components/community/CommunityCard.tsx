@@ -6,7 +6,6 @@ import { useT } from '../../i18n';
 import styles from './CommunityCard.module.scss';
 
 export interface CommunityCardProps {
-  communityId: string;
   name: string;
   description?: string;
   mission?: string;

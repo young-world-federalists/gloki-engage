@@ -69,7 +69,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, commun
       <GlobalHeader />
       <PageHeader
         showBackButton
-        backButtonText={t('deliberation.back', 'Back to Dashboard')}
+        backButtonText={t('common.back', 'Back')}
         onBackClick={() => navigate(-1)}
         title={t('deliberation.discussion.viewTitle', '{title} — Discussion', { title })}
         subtitle={communityName}

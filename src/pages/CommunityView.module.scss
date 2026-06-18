@@ -9,83 +9,6 @@
   background: $gray-50;
 }
 
-// ─── Dark header ─────────────────────────────
-.header {
-  background: $gray-800;
-  padding: $spacing-lg $spacing-xl;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.headerRow {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-}
-
-.menuButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  background: rgba(white, 0.18);
-  border: 1px solid rgba(white, 0.35);
-  border-radius: $radius-md;
-  color: white;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background $transition-base, color $transition-base;
-
-  &:hover {
-    background: rgba(white, 0.3);
-    color: white;
-  }
-
-  &:active {
-    background: rgba(white, 0.4);
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
-
-.demoPill {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 3px 8px;
-  border-radius: $radius-full;
-  background: $warning;
-  color: $gray-900;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.communityName {
-  font-size: $text-2xl;
-  font-weight: $font-bold;
-  color: white;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.communityDesc {
-  font-size: $text-sm;
-  color: rgba(white, 0.6);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.memberCount {
-  font-size: $text-xs;
-  color: rgba(white, 0.4);
-}
-
 // ─── Body ────────────────────────────────────
 .body {
   flex: 1;
@@ -196,10 +119,6 @@
     background: $dark-surface;
   }
 
-  .header {
-    background: $dark-bg;
-  }
-
   .optionsPanel {
     background: $dark-bg;
 
@@ -221,10 +140,6 @@
 
 // ─── Responsive ──────────────────────────────
 @media (max-width: $breakpoint-sm) {
-  .header {
-    padding: $spacing-md $spacing-lg;
-  }
-
   .body {
     padding: $spacing-md;
     padding-bottom: calc(#{$footer-height} + #{$spacing-md}); // keep StageFooter clearance at mobile widths

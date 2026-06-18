@@ -77,7 +77,7 @@ export const INITIATIVES: SeedInitiative[] = [
     community: 'health',
     title: 'Universal Access to Clean Drinking Water',
     description:
-      'Two billion people still lack safely managed drinking water. Should a coordinated push for universal clean-water access be a problem we take up together?',
+      'Two billion people still lack safely managed drinking water.',
     stage: 'problem',
     countries: ['IN', 'NG', 'BD', 'BR'],
     evidence: ['https://www.who.int/health-topics/water-sanitation-and-hygiene-wash'],
@@ -128,7 +128,7 @@ export const INITIATIVES: SeedInitiative[] = [
     community: 'climate',
     title: 'Ocean Plastic Pollution',
     description:
-      'Over eight million tonnes of plastic enter the ocean every year, breaking into microplastics that reach our food and water. Is coordinated action on ocean plastic a problem worth taking up together?',
+      'Over eight million tonnes of plastic enter the ocean every year, breaking into microplastics that reach our food and water.',
     stage: 'problem',
     countries: ['ID', 'PH', 'JP', 'NL'],
     evidence: ['https://www.unep.org/interactives/beat-plastic-pollution/'],

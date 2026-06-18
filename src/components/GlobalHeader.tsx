@@ -35,7 +35,7 @@ const GlobalHeader: React.FC = () => {
         aria-label={t('nav.openMenu', 'Open menu')}
         aria-expanded={menuOpen}
       >
-        <Menu size={22} strokeWidth={2.5} />
+        <Menu size={22} strokeWidth={2.5} aria-hidden />
       </button>
       <HomepageMenu
         isOpen={menuOpen}

@@ -118,7 +118,6 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
   return (
     <div className={styles.home}>
       <CommunityCard
-        communityId={communityId}
         name={props.name || t('community.fallbackName', 'Community')}
         description={props.description}
         mission={fixture?.mission}

@@ -87,13 +87,12 @@
   text-decoration: none;
   min-height: 44px;
 
-  &:hover,
-  &:focus-visible {
+  &:hover {
     text-decoration: underline;
-    outline: none;
   }
 
   &:focus-visible {
+    text-decoration: underline;
     outline: 2px solid $primary;
     outline-offset: 2px;
     border-radius: $radius-sm;
