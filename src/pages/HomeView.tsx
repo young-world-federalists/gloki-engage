@@ -96,7 +96,6 @@ const HomeView: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const { starred } = useAppSelector((s) => s.preferences);
   const { initiatives, isLoading } = useAllInitiatives();
 
@@ -165,11 +164,9 @@ const HomeView: React.FC = () => {
 
   const openInitiative = (card: HomeCard) => {
     if (!card.communityId) return; // sample card — display only
-    const hostServer = card.hostServer || serverUrl || 'local';
-    const hostAgent = card.hostAgent || publicKey || 'local';
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${card.communityId}/${card.id}/roadmap`,
-    );
+    // The initiative roadmap lives inline on the community page now — link straight
+    // there (auto-expands the card) instead of via the /…/roadmap redirect hop.
+    navigate(`/community/${card.communityId}?initiative=${card.id}`);
   };
 
   const handleCommunityClick = (e: React.MouseEvent, communityId?: string) => {

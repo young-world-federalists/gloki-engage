@@ -82,11 +82,9 @@ const InitiativeFeed: React.FC = () => {
   }, [serverUrl, publicKey, allInitiatives]);
 
   const handleClick = (item: InitiativeWithCommunity) => {
-    const hostServer = item.hostServer || serverUrl || 'local';
-    const hostAgent = item.hostAgent || publicKey || 'local';
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${item.communityId}/${item.id}/roadmap`,
-    );
+    // The initiative roadmap lives inline on the community page now — link straight
+    // there (auto-expands the card) instead of via the /…/roadmap redirect hop.
+    navigate(`/community/${item.communityId}?initiative=${item.id}`);
   };
 
   if (!serverUrl || !publicKey) {

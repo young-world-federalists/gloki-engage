@@ -184,14 +184,18 @@ const StageFeedView: React.FC = () => {
   );
 
   const handleCardClick = (item: InitiativeWithMeta) => {
-    const hostServer = item.hostServer || serverUrl || 'local';
-    const hostAgent = item.hostAgent || publicKey || 'local';
     // Discussion cards tap through to the co-authoring view (matches the "co-author"
-    // affordance); other stages open the dashboard. onCardClick only fires for discussion today.
-    const sub = stage === 'discussion' ? 'discussion' : 'roadmap';
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${item.communityId}/${item.id}/${sub}`,
-    );
+    // affordance); other stages open the initiative inline on the community page
+    // (auto-expands the card) instead of via the /…/roadmap redirect hop.
+    if (stage === 'discussion') {
+      const hostServer = item.hostServer || serverUrl || 'local';
+      const hostAgent = item.hostAgent || publicKey || 'local';
+      navigate(
+        `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${item.communityId}/${item.id}/discussion`,
+      );
+    } else {
+      navigate(`/community/${item.communityId}?initiative=${item.id}`);
+    }
   };
 
   const handleCommunityClick = (e: React.MouseEvent, communityId: string) => {
