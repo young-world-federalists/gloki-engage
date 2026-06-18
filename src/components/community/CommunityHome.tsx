@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
@@ -10,25 +9,10 @@ import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { Card, Badge, TrustBadge } from '../shared';
-import type { BadgeTone } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import CommunityCard from './CommunityCard';
+import { STAGE_META } from './stageMeta';
 import styles from './CommunityHome.module.scss';
-
-interface StageMeta {
-  tone: BadgeTone;
-  icon: React.ComponentType<{ size?: number }>;
-  labelKey: string;
-  labelDefault: string;
-}
-
-const STAGE_META: Record<string, StageMeta> = {
-  problem:    { tone: 'error',   icon: AlertCircle,   labelKey: 'stage.problem',    labelDefault: 'Problem' },
-  discussion: { tone: 'warning', icon: MessageCircle, labelKey: 'stage.discussion', labelDefault: 'Discussion' },
-  proposals:  { tone: 'info',    icon: Lightbulb,     labelKey: 'stage.proposals',  labelDefault: 'Proposals' },
-  vote:       { tone: 'primary', icon: Vote,          labelKey: 'stage.vote',       labelDefault: 'Vote' },
-  mandate:    { tone: 'success', icon: ScrollText,    labelKey: 'stage.mandate',    labelDefault: 'Mandate' },
-};
 
 interface SampleItem {
   id: string;

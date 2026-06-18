@@ -1,0 +1,113 @@
+@use '../../styles/variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Full-width transparent toggle button — the collapsed one-liner row.
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+
+  // Chevron icon inherits secondary colour.
+  > svg {
+    flex-shrink: 0;
+    color: $gray-500;
+  }
+}
+
+.summaryMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  flex: 1;
+  min-width: 0;
+}
+
+// Mirror the .badgeInner pattern from CommunityHome.module.scss
+.badgeInner {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.title {
+  font-size: $text-base;
+  font-weight: $font-medium;
+  color: $gray-800;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.byline {
+  font-size: $text-sm;
+  color: $gray-500;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+// Expanded inner panel — sits below the summary row.
+.panel {
+  border-top: 0.5px solid $gray-200;
+  padding-top: $spacing-md;
+  margin-top: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+// "Open discussion ↗" — right-aligned secondary text-link button.
+.deepLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-end;
+  background: none;
+  border: none;
+  padding: $spacing-xs 0;
+  cursor: pointer;
+  font-size: $text-sm;
+  color: $primary;
+  font-weight: $font-medium;
+  text-decoration: none;
+  min-height: 44px;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+// ── Dark mode ──────────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .title { color: $dark-text; }
+  .byline { color: $dark-text-secondary; }
+
+  .summary > svg { color: $dark-text-secondary; }
+
+  .panel { border-top-color: $dark-border; }
+
+  .deepLink { color: $primary; }
+}

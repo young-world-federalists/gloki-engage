@@ -465,6 +465,8 @@ const fr: Dictionary = {
   'community.resetConfirm': 'Réinitialiser',
   'community.menu.leave': 'Quitter la communauté',
   'community.menu.close': 'Fermer le menu',
+  'community.startedBy': 'Lancée par {name}',
+  'community.openDiscussion': 'Ouvrir la discussion',
 
   // ── Create community page ──────────────────────────────────────────────
   'createCommunity.title': 'Créer une communauté',

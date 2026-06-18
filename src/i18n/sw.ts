@@ -464,6 +464,8 @@ const sw: Dictionary = {
   'community.resetConfirm': 'Anzisha upya',
   'community.menu.leave': 'Ondoka kwenye jumuiya',
   'community.menu.close': 'Funga menyu',
+  'community.startedBy': 'Ilianzishwa na {name}',
+  'community.openDiscussion': 'Fungua mjadala',
 
   // ── Create community page ──────────────────────────────────────────────
   'createCommunity.title': 'Anzisha jumuiya',
