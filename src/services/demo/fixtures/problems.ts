@@ -128,7 +128,7 @@ export const INITIATIVES: SeedInitiative[] = [
     community: 'climate',
     title: 'Ocean Plastic Pollution',
     description:
-      'Over eight million tonnes of plastic enter the ocean every year, breaking into microplastics that reach our food and water.',
+      'Over eight million tonnes of plastic enter the ocean every year.',
     stage: 'problem',
     countries: ['ID', 'PH', 'JP', 'NL'],
     evidence: ['https://www.unep.org/interactives/beat-plastic-pollution/'],
@@ -167,7 +167,7 @@ export const INITIATIVES: SeedInitiative[] = [
     community: 'economy',
     title: 'Affordable Housing in Growing Cities',
     description:
-      'Rents are rising far faster than wages, pushing young people and key workers out of the cities they keep running. Is the affordability crisis a problem we should take on together?',
+      'Rents are rising far faster than wages, pushing young people and key workers out of the cities they keep running.',
     stage: 'problem',
     countries: ['BR', 'ZA', 'MX', 'DE'],
     evidence: ['https://unhabitat.org/topics/housing'],
