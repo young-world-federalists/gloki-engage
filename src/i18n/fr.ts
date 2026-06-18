@@ -313,9 +313,11 @@ const fr: Dictionary = {
   'journey.distribution': 'Distribution et évaluation',
 
   // ── Problems stage (propose + board) ───────────────────────────────────
-  'problems.proposeTitle': 'Proposer un problème',
-  'problems.proposeIntro': 'Nommez un problème que votre communauté devrait selon vous prendre en main. Restez simple — les autres décident ensemble s’il est partagé.',
-  'problems.proposeCta': 'Proposer un autre problème',
+  'problems.proposeFramingTitle': 'Proposer un cadrage',
+  'problems.proposeFramingIntro': 'Suggérez une façon différente de cadrer ce problème — les autres classent les cadrages ensemble.',
+  'problems.proposeFramingCta': 'Proposer un cadrage différent',
+  'problems.labelProblem': 'Le problème',
+  'problems.labelWho': 'Qui est touché',
   'problems.proposeSubmit': 'Soumettre au groupe',
   'problems.proposeDoneTitle': 'Votre problème est sur le tableau',
   'problems.proposeDoneBody': 'Tout commence par un premier appui. Partagez-le — quand la moitié d’entre vous est d’accord, il devient un problème que vous prenez en main ensemble.',

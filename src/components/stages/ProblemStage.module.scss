@@ -18,6 +18,35 @@
   gap: $spacing-sm $spacing-md;
 }
 
+/* Labeled field block — eyebrow label + text */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fieldLabel {
+  font-size: 0.6875rem;
+  font-weight: $font-medium;
+  letter-spacing: 0.06em;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.statement {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
 .whoWhy {
   margin: 0;
   font-size: $text-sm;

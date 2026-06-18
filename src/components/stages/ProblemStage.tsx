@@ -171,7 +171,18 @@ const ProblemStage: React.FC<ProblemStageProps> = ({
         </div>
       )}
 
-      {whoWhy && <p className={styles.whoWhy}>{whoWhy}</p>}
+      {(framing?.description || details?.description) && (
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('problems.labelProblem', 'The problem')}</span>
+          <p className={styles.statement}>{framing?.description || details?.description}</p>
+        </div>
+      )}
+      {whoWhy && (
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('problems.labelWho', 'Who it affects')}</span>
+          <p className={styles.whoWhy}>{whoWhy}</p>
+        </div>
+      )}
 
       {sources.length > 0 && (
         <div className={styles.sources}>
@@ -241,7 +252,7 @@ const ProblemStage: React.FC<ProblemStageProps> = ({
 
       <button type="button" className={styles.proposeLink} onClick={() => setProposeOpen(true)}>
         <Plus size={14} aria-hidden />
-        <span>{t('problems.proposeCta', 'Propose a different problem')}</span>
+        <span>{t('problems.proposeFramingCta', 'Propose a different framing')}</span>
       </button>
 
       <ProposeIssueModal
@@ -370,7 +381,7 @@ const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, 
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('problems.proposeTitle', 'Propose a problem')}
+      title={t('problems.proposeFramingTitle', 'Propose a framing')}
       closeLabel={t('common.close', 'Close')}
       footer={
         <>
@@ -386,8 +397,8 @@ const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, 
       <div className={styles.form}>
         <p className={styles.formIntro}>
           {t(
-            'problems.proposeIntro',
-            'Name a problem you think your community should take on. Keep it plain — others decide together whether it’s shared.',
+            'problems.proposeFramingIntro',
+            'Suggest a different way to frame this problem — others rank framings together.',
           )}
         </p>
 

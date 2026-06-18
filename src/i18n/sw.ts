@@ -312,9 +312,11 @@ const sw: Dictionary = {
   'journey.distribution': 'Ugawaji na Tathmini',
 
   // ── Problems stage (propose + board) ───────────────────────────────────
-  'problems.proposeTitle': 'Pendekeza tatizo',
-  'problems.proposeIntro': 'Taja tatizo unalofikiri jumuiya yako inapaswa kulishughulikia. Liweke wazi — wengine wataamua pamoja kama ni la pamoja.',
-  'problems.proposeCta': 'Pendekeza tatizo tofauti',
+  'problems.proposeFramingTitle': 'Pendekeza mfumo',
+  'problems.proposeFramingIntro': 'Pendekeza njia tofauti ya kufremu tatizo hili — wengine wanaainisha miundo pamoja.',
+  'problems.proposeFramingCta': 'Pendekeza mfumo tofauti',
+  'problems.labelProblem': 'Tatizo',
+  'problems.labelWho': 'Linawaathiri nani',
   'problems.proposeSubmit': 'Liwasilishe kwa kikundi',
   'problems.proposeDoneTitle': 'Suala lako liko kwenye ubao',
   'problems.proposeDoneBody': 'Huanza na muungaji wako wa kwanza. Lishiriki na wengine — nusu yenu wakikubali, linakuwa tatizo mnalolishughulikia pamoja.',
