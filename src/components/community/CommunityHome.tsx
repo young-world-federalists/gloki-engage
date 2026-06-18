@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
 import type { IMethod } from '../../services/interfaces';
-import type { Collaboration } from '../../services/contracts/community';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
-import { Card, Badge, TrustBadge } from '../shared';
+import { Card, Badge } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import CommunityCard from './CommunityCard';
 import { STAGE_META } from './stageMeta';
+import ActivityCard from './ActivityCard';
 import styles from './CommunityHome.module.scss';
 
 interface SampleItem {
@@ -41,12 +41,23 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
   const t = useT();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const { communityCollaborations, communityMembers, communityProperties, profiles } = useAppSelector(
     (s) => s.communities,
   );
   const trust = useCommunityTrust(communityId);
   const [stages, setStages] = useState<Record<string, string>>({});
+  const deepLinked = searchParams.get('initiative');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    () => new Set(deepLinked ? [deepLinked] : []),
+  );
+  const toggleExpanded = (id: string) =>
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   // Fetch collaborations if not already loaded.
   useEffect(() => {
@@ -102,14 +113,6 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
     return list;
   }, [members, profiles, fixture, memberCount]);
 
-  const handleCardClick = (item: Collaboration) => {
-    const hostServer = item.hostServer || serverUrl || 'local';
-    const hostAgent = item.hostAgent || publicKey || 'local';
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${item.id}/roadmap`,
-    );
-  };
-
   const usingSampleData = initiatives.length === 0;
 
   return (
@@ -140,49 +143,30 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
 
         {initiatives.map((item) => {
           const stage = stages[item.id] || 'problem';
-          const meta = STAGE_META[stage] || STAGE_META.problem;
-          const Icon = meta.icon;
           const authorProfile = item.author ? profiles[item.author] : undefined;
           const authorName = authorProfile
             ? `${authorProfile.firstName} ${authorProfile.lastName}`.trim()
             : item.author
               ? item.author.slice(0, 8) + '…'
               : '';
+          const hostServer = item.hostServer || serverUrl || 'local';
+          const hostAgent = item.hostAgent || publicKey || 'local';
 
           return (
-            <Card
+            <ActivityCard
               key={item.id}
-              as="article"
-              interactive
-              className={styles.card}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleCardClick(item)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleCardClick(item);
-                }
-              }}
-            >
-              <div className={styles.cardHeader}>
-                <Badge tone={meta.tone}>
-                  <span className={styles.badgeInner}>
-                    <Icon size={12} />
-                    {t(meta.labelKey, meta.labelDefault)}
-                  </span>
-                </Badge>
-                {item.createdAt > 0 && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
-              </div>
-              <h3 className={styles.cardTitle}>{item.title || t('community.untitled', 'Untitled Initiative')}</h3>
-              {item.description && <p className={styles.cardDesc}>{item.description}</p>}
-              <div className={styles.authorRow}>
-                {authorName && <span className={styles.author}>{authorName}</span>}
-                {item.author && (
-                  <TrustBadge state={trust.trustOf(item.author)} vouchCount={trust.vouchCountOf(item.author)} size="sm" />
-                )}
-              </div>
-            </Card>
+              item={item}
+              communityId={communityId}
+              stage={stage}
+              authorName={authorName}
+              authorKey={item.author}
+              trustState={trust.trustOf(item.author || '')}
+              vouchCount={trust.vouchCountOf(item.author || '')}
+              hostServer={hostServer}
+              hostAgent={hostAgent}
+              expanded={expandedIds.has(item.id)}
+              onToggle={() => toggleExpanded(item.id)}
+            />
           );
         })}
 
