@@ -1,7 +1,8 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Home, Menu, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings } from 'lucide-react';
+import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings } from 'lucide-react';
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
+import GlobalHeader from '../components/GlobalHeader';
 import { useT } from '../i18n';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
@@ -179,7 +180,6 @@ const CommunityView: React.FC = () => {
     );
   }
 
-  const memberCount = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId].length : 0;
   const isDemo = isDemoContract(communityId);
 
   const handleShareDemoLink = async () => {
@@ -240,33 +240,16 @@ const CommunityView: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* Dark header */}
-      <div className={styles.header}>
-        <div className={styles.headerRow}>
-          <button
-            className={styles.menuButton}
-            onClick={() => setShowMenu(true)}
-            aria-label={t('nav.openCommunityMenu', 'Open community menu')}
-            aria-expanded={showMenu}
-          >
-            <Menu size={22} strokeWidth={2.5} />
-          </button>
-          <h1 className={styles.communityName}>{props.name}</h1>
-          {isDemo && <span className={styles.demoPill}>DEMO</span>}
-        </div>
-        {props.description && <p className={styles.communityDesc}>{props.description}</p>}
-        <span className={styles.memberCount}>{memberCount === 1
-          ? t('community.members.one', '1 member')
-          : t('community.members.many', '{n} members', { n: memberCount })}</span>
-      </div>
+      {/* Global brand header */}
+      <GlobalHeader />
 
-      {/* Slide-out community menu (shared pattern — see SlideOutMenu) */}
+      {/* Slide-out community menu — opens from the right via CommunityCard "Menu" button */}
       <SlideOutMenu
         isOpen={showMenu}
         onClose={() => setShowMenu(false)}
         title={props.name}
         items={menuItems}
-        side="left"
+        side="right"
         closeLabel={t('community.menu.close', 'Close menu')}
       />
 

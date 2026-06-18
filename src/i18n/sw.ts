@@ -36,6 +36,7 @@ const sw: Dictionary = {
   'nav.vote': 'Piga kura',
   'nav.mandate': 'Agizo',
   'nav.openCommunityMenu': 'Fungua menyu ya jumuiya',
+  'nav.home': 'Nyumbani',
   'nav.openMenu': 'Fungua menyu',
   'nav.stagesLabel': 'Hatua za mchakato',
   'stage.problem': 'Tatizo',

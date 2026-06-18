@@ -37,6 +37,7 @@ const fr: Dictionary = {
   'nav.vote': 'Voter',
   'nav.mandate': 'Mandat',
   'nav.openCommunityMenu': 'Ouvrir le menu de la communauté',
+  'nav.home': 'Accueil',
   'nav.openMenu': 'Ouvrir le menu',
   'nav.stagesLabel': 'Étapes du processus',
   'stage.problem': 'Problème',
