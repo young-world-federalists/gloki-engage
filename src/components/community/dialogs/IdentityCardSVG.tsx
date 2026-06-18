@@ -195,6 +195,35 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
   const textSecondaryColor = '#6b7280';
   const borderColor = '#e5e7eb';
 
+  // QR layout (Batch 17): shrink the code and pin it to the top-right corner so
+  // the member name owns a wide lane on the left and can never run under it.
+  const qrScale = 0.78;
+  const qrBox = 140 * qrScale;
+  const qrX = cardWidth - 14 - qrBox; // left edge of the QR tile
+  const qrY = headerHeight + 16;
+  const nameLaneRight = qrX - 10; // member-name images must stop here
+
+  // Scale a canvas-rendered text image down — about its left/baseline anchor — if
+  // it would otherwise extend past `maxRight`, so long names shrink instead of
+  // clipping behind the QR. Returns the SVG <image> placement (x/y/width/height).
+  const fitText = (
+    img: { width: number; height: number; offsetX: number; offsetY: number },
+    anchorX: number,
+    baselineY: number,
+    maxRight: number,
+  ) => {
+    const x0 = anchorX + img.offsetX / 3;
+    const y0 = baselineY + img.offsetY / 3;
+    const w = img.width / 3;
+    const h = img.height / 3;
+    const right = x0 + w;
+    const s = right > maxRight ? (maxRight - anchorX) / (right - anchorX) : 1;
+    return { x: anchorX + (x0 - anchorX) * s, y: baselineY + (y0 - baselineY) * s, width: w * s, height: h * s };
+  };
+
+  const memberNamePos = fitText(memberNameImage, 120, headerHeight + 36, nameLaneRight);
+  const memberNameSmallPos = fitText(memberNameImageSmall, 114, headerHeight + 124, nameLaneRight);
+
   return (
     <svg
       width="100%"
@@ -355,10 +384,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
       {memberNameImage.imageData && (
         <image
           href={memberNameImage.imageData}
-          x={120 + memberNameImage.offsetX / 3}
-          y={headerHeight + 36 + memberNameImage.offsetY / 3}
-          width={memberNameImage.width / 3}
-          height={memberNameImage.height / 3}
+          x={memberNamePos.x}
+          y={memberNamePos.y}
+          width={memberNamePos.width}
+          height={memberNamePos.height}
         />
       )}
       
@@ -389,10 +418,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
         {memberNameImageSmall.imageData && (
           <image
             href={memberNameImageSmall.imageData}
-            x={114 + memberNameImageSmall.offsetX / 3}
-            y={headerHeight + 124 + memberNameImageSmall.offsetY / 3}
-            width={memberNameImageSmall.width / 3}
-            height={memberNameImageSmall.height / 3}
+            x={memberNameSmallPos.x}
+            y={memberNameSmallPos.y}
+            width={memberNameSmallPos.width}
+            height={memberNameSmallPos.height}
           />
         )}
         <text
@@ -415,8 +444,8 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
         )}
       </g>
       
-      {/* QR Code */}
-      <g transform={`translate(${cardWidth - 160}, ${headerHeight + 18})`}>
+      {/* QR Code — shrunk + corner-pinned so it never overlaps the member name */}
+      <g transform={`translate(${qrX}, ${qrY}) scale(${qrScale})`}>
         <rect
           x="0"
           y="0"
