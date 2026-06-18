@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, Plus } from 'lucide-react';
+import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
@@ -9,11 +9,10 @@ import type { Collaboration } from '../../services/contracts/community';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
-import { Card, Badge, Button, TrustBadge } from '../shared';
+import { Card, Badge, TrustBadge } from '../shared';
 import type { BadgeTone } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
-import { ParticipationSummary } from '../shared/presence';
-import MissionBanner from './MissionBanner';
+import CommunityCard from './CommunityCard';
 import styles from './CommunityHome.module.scss';
 
 interface StageMeta {
@@ -50,9 +49,11 @@ const SAMPLE_FEED: SampleItem[] = [
 
 interface CommunityHomeProps {
   communityId: string;
+  onOpenMenu: () => void;
+  isDemo?: boolean;
 }
 
-const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
+const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, isDemo }) => {
   const t = useT();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -129,26 +130,18 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId }) => {
 
   return (
     <div className={styles.home}>
-      <MissionBanner
+      <CommunityCard
+        communityId={communityId}
         name={props.name || t('community.fallbackName', 'Community')}
         description={props.description}
         mission={fixture?.mission}
-        journey={fixture?.journey}
+        journey={fixture?.journey?.map((phase) => t(phase.labelKey, phase.labelDefault))}
+        memberCount={memberCount}
+        participation={participation}
+        isDemo={isDemo}
+        onStartInitiative={() => navigate(`/community/${communityId}/create-initiative`)}
+        onOpenMenu={onOpenMenu}
       />
-
-      {participation.length > 0 && <ParticipationSummary participation={participation} />}
-
-      {/* Promoted primary action: starting an initiative is the community's
-          headline call-to-action, not a menu-only entry (see C7). */}
-      <Button
-        variant="primary"
-        size="lg"
-        fullWidth
-        leftIcon={<Plus size={18} />}
-        onClick={() => navigate(`/community/${communityId}/create-initiative`)}
-      >
-        {t('initiative.start', 'Start an initiative')}
-      </Button>
 
       <div className={styles.feed}>
         <div className={styles.feedHeader}>

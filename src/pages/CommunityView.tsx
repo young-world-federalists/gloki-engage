@@ -312,7 +312,7 @@ const CommunityView: React.FC = () => {
               <Route path="identity" element={<IdentityTrust communityId={communityId!} />} />
               <Route path="settings" element={<CommunitySettings communityId={communityId!} />} />
               <Route path="create-initiative" element={<CreateInitiativePage />} />
-              <Route path="*" element={<CommunityHome communityId={communityId!} />} />
+              <Route path="*" element={<CommunityHome communityId={communityId!} onOpenMenu={() => setShowMenu(true)} isDemo={isDemo} />} />
             </Routes>
           </ErrorBoundary>
         </Suspense>

@@ -435,6 +435,9 @@ const fr: Dictionary = {
 
   // ── Community home / shell ─────────────────────────────────────────────
   'community.fallbackName': 'Communauté',
+  'community.eyebrow': 'Communauté',
+  'community.menuButton': 'Menu',
+  'community.demo': 'Démo',
   'community.members.one': '1 membre',
   'community.members.many': '{n} membres',
   'community.missionEyebrow': 'Notre mission commune',

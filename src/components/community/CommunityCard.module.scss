@@ -1,0 +1,131 @@
+@use '../../styles/variables' as *;
+
+// ─── Card surface ─────────────────────────────
+.card {
+  background: white;
+  border: 0.5px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+// ─── Eyebrow row ──────────────────────────────
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: $gray-500;
+  font-weight: $font-medium;
+  // sentence case — NOT uppercase
+}
+
+.demoPill {
+  font-size: 0.7rem;
+  font-weight: $font-bold;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: $radius-full;
+  background: $warning;
+  color: $gray-900;
+  flex-shrink: 0;
+}
+
+// ─── Name (the page h1) ───────────────────────
+.name {
+  font-size: 1.5rem;
+  font-weight: $font-medium;
+  color: $gray-900;
+  margin: 0;
+  line-height: 1.2;
+}
+
+// ─── Mission blurb ────────────────────────────
+.mission {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ─── Meta row (member count + icon) ──────────
+.meta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+// ─── Journey list ─────────────────────────────
+.journey {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.journeyItem {
+  font-size: $text-sm;
+  color: $gray-600;
+  padding-left: 1rem;
+  position: relative;
+
+  &::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: $primary;
+  }
+}
+
+// ─── Action buttons ───────────────────────────
+.actions {
+  display: flex;
+  gap: 8px;
+  // Ensure both buttons render ≥44px tall (Button component handles min-height internally;
+  // flex here just arranges them.)
+}
+
+.startBtn {
+  flex: 1;
+}
+
+// ─── Dark mode ───────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .name {
+    color: $dark-text;
+  }
+
+  .mission {
+    color: $dark-text-secondary;
+  }
+
+  .eyebrow,
+  .metaItem {
+    color: $dark-text-secondary;
+  }
+
+  .journeyItem {
+    color: $dark-text-secondary;
+  }
+}

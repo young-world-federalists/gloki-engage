@@ -434,6 +434,9 @@ const sw: Dictionary = {
 
   // ── Community home / shell ─────────────────────────────────────────────
   'community.fallbackName': 'Jumuiya',
+  'community.eyebrow': 'Jumuiya',
+  'community.menuButton': 'Menyu',
+  'community.demo': 'Demo',
   'community.members.one': 'Mwanachama 1',
   'community.members.many': 'Wanachama {n}',
   'community.missionEyebrow': 'Dhamira yetu ya pamoja',
