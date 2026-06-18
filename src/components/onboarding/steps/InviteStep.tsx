@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, EarthFlag, CountryFlag } from '../../shared';
+import { Button, GlokiMark, CountryFlag } from '../../shared';
 import { useT } from '../../../i18n';
 import type { Persona } from '../../../services/demo/fixtures/identity';
 import styles from './steps.module.scss';
@@ -15,7 +15,7 @@ const InviteStep: React.FC<Props> = ({ voucher, onContinue, headingRef }) => {
   return (
     <section className={styles.step}>
       <div className={styles.hero}>
-        <EarthFlag size={64} />
+        <GlokiMark size={64} />
       </div>
       <h1 className={styles.heading} tabIndex={-1} ref={headingRef}>
         {t('onboarding.invite.title', "You've been invited")}

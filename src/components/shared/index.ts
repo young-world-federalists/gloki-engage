@@ -41,7 +41,7 @@ export type { CountryPresenceProps } from './CountryPresence';
 
 // Existing stable primitives (re-exported for discoverability).
 export { default as CountryParticipation } from './CountryParticipation';
-export { default as EarthFlag } from './EarthFlag';
+export { default as GlokiMark } from './GlokiMark';
 export { default as SearchableSelect } from './SearchableSelect';
 export { default as StageFooter } from './StageFooter';
 export { default as PageHeader } from '../PageHeader';

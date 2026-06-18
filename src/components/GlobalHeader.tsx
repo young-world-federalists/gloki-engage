@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import EarthFlag from './shared/EarthFlag';
+import GlokiMark from './shared/GlokiMark';
 import HomepageMenu from './identity/HomepageMenu';
 import { useT } from '../i18n';
 import styles from './GlobalHeader.module.scss';
@@ -26,7 +26,7 @@ const GlobalHeader: React.FC = () => {
         onClick={() => navigate('/')}
         aria-label={t('nav.home', 'Home')}
       >
-        <EarthFlag size={26} />
+        <GlokiMark size={28} />
         <span className={styles.wordmark}>Gloki</span>
       </button>
       <button

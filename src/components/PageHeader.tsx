@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu } from 'lucide-react';
-import EarthFlag from './shared/EarthFlag';
+import GlokiMark from './shared/GlokiMark';
 import NotificationsBell from './shared/NotificationsBell';
 import { useT } from '../i18n';
 import styles from './PageHeader.module.scss';
@@ -59,7 +59,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className={`${styles.header} ${styles.homepageHeader}`}>
         <div className={styles.homepageRow}>
           <button className={styles.wordmark} onClick={() => navigate('/')}>
-            <EarthFlag size={40} />
+            <GlokiMark size={40} />
             Gloki
           </button>
           <div className={styles.homepageActions}>
