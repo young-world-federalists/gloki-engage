@@ -35,3 +35,8 @@ dist-ssr
 
 # Claude Code local tooling (per-developer preview config; not shared)
 .claude/launch.json
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules

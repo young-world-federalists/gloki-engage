@@ -1,0 +1,38 @@
+{
+  "pkg": "gloki-ds",
+  "globalName": "GlokiDS",
+  "projectId": "f5e0f0b3-d709-451e-a5c4-ca82631e88fe",
+  "shape": "package",
+  "buildCmd": "npx vite build --config .design-sync/lib-build/vite.config.ts",
+  "tsconfig": "tsconfig.app.json",
+  "cssEntry": ".design-sync/.cache/lib-dist/q.css",
+  "guidelinesGlob": ["DESIGN_SYSTEM.md"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "Modal": { "cardMode": "single", "viewport": "480x360" }
+  },
+  "componentSrcMap": {
+    "Button": "src/components/shared/Button.tsx",
+    "Card": "src/components/shared/Card.tsx",
+    "Modal": "src/components/shared/Modal.tsx",
+    "Badge": "src/components/shared/Badge.tsx",
+    "Banner": "src/components/shared/Banner.tsx",
+    "Stepper": "src/components/shared/Stepper.tsx",
+    "SegmentedControl": "src/components/shared/SegmentedControl.tsx",
+    "EmptyState": "src/components/shared/EmptyState.tsx",
+    "CountryFlag": "src/components/shared/CountryFlag.tsx",
+    "GlokiMark": "src/components/shared/GlokiMark.tsx"
+  },
+  "dtsPropsFor": {
+    "Button": "variant?: 'primary' | 'secondary' | 'destructive' | 'ghost'; size?: 'sm' | 'md' | 'lg'; fullWidth?: boolean; loading?: boolean; leftIcon?: React.ReactNode; rightIcon?: React.ReactNode; children?: React.ReactNode; onClick?: React.MouseEventHandler<HTMLButtonElement>; disabled?: boolean; type?: 'button' | 'submit' | 'reset'; className?: string",
+    "Card": "interactive?: boolean; padded?: boolean; as?: 'div' | 'section' | 'article' | 'li'; children?: React.ReactNode; onClick?: React.MouseEventHandler<HTMLDivElement>; role?: string; tabIndex?: number; className?: string",
+    "Modal": "isOpen: boolean; onClose: () => void; title?: React.ReactNode; children: React.ReactNode; footer?: React.ReactNode; size?: 'sm' | 'md' | 'lg'; closeOnBackdrop?: boolean; closeLabel?: string",
+    "Badge": "tone?: 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info'; size?: 'sm' | 'md'; dot?: boolean; children: React.ReactNode; className?: string",
+    "Banner": "tone?: 'info' | 'success' | 'warning' | 'error'; title?: React.ReactNode; children?: React.ReactNode; icon?: React.ReactNode; onDismiss?: () => void; dismissLabel?: string; action?: React.ReactNode; className?: string",
+    "Stepper": "steps: { label: string; description?: string }[]; current: number; orientation?: 'horizontal' | 'vertical'; onStepClick?: (index: number) => void",
+    "SegmentedControl": "options: { value: string; label: React.ReactNode; icon?: React.ReactNode; ariaLabel?: string }[]; value: string; onChange: (value: string) => void; ariaLabel?: string; fullWidth?: boolean; size?: 'sm' | 'md'; className?: string",
+    "EmptyState": "icon?: React.ReactNode; title: string; message?: string; action?: React.ReactNode; compact?: boolean; className?: string",
+    "CountryFlag": "code: string; showName?: boolean; size?: 'sm' | 'md' | 'lg'; className?: string",
+    "GlokiMark": "size?: number; className?: string"
+  }
+}
