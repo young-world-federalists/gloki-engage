@@ -44,21 +44,21 @@ const STAGES = [
   },
   {
     id: 'proposals',
-    name: 'Proposals',
+    name: 'Solutions',
     icon: FileText,
-    description: 'Members submit concrete proposals for how to solve the problem. The community reviews and approves proposals. Modifications can still be suggested at this stage.',
+    description: 'Members submit concrete solutions for how to solve the problem. The community reviews and approves solutions. Modifications can still be suggested at this stage.',
   },
   {
     id: 'vote',
     name: 'Vote',
     icon: Vote,
-    description: 'The community votes on approved proposals using quadratic voting \u2014 a system where you spread credits across proposals you care about. This prevents any single voter from dominating the outcome.',
+    description: 'The community votes on approved solutions using quadratic voting \u2014 a system where you spread credits across solutions you care about. This prevents any single voter from dominating the outcome.',
   },
   {
     id: 'mandate',
     name: 'Mandate',
     icon: ScrollText,
-    description: 'The winning proposal becomes a mandate. Community members can pledge to support its implementation. This is the community\'s commitment to action.',
+    description: 'The winning solution becomes a mandate. Community members can pledge to support its implementation. This is the community\'s commitment to action.',
   },
 ];
 

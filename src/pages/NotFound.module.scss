@@ -1,0 +1,55 @@
+@use '../styles/variables' as *;
+
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: $spacing-3xl $spacing-lg;
+  padding-bottom: $footer-height;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-sm;
+  max-width: 40ch;
+}
+
+.icon {
+  color: $gray-300;
+  margin-bottom: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-semibold;
+  color: $gray-900;
+}
+
+.body {
+  margin: 0;
+  font-size: $text-base;
+  color: $gray-500;
+}
+
+.action {
+  margin-top: $spacing-lg;
+}
+
+@media (prefers-color-scheme: dark) {
+  .icon {
+    color: $dark-border;
+  }
+
+  .title {
+    color: $dark-text;
+  }
+
+  .body {
+    color: $dark-text-secondary;
+  }
+}

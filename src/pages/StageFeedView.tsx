@@ -51,7 +51,7 @@ export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: strin
 const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
   problem: { label: 'Problem', icon: AlertCircle },
   discussion: { label: 'Discussion', icon: MessageCircle },
-  proposals: { label: 'Proposals', icon: Lightbulb },
+  proposals: { label: 'Solutions', icon: Lightbulb },
   vote: { label: 'Vote', icon: Vote },
   mandate: { label: 'Mandate', icon: ScrollText },
 };
@@ -234,19 +234,19 @@ const StageFeedView: React.FC = () => {
         {stage === 'discussion' && (
           <div className={styles.thresholdBanner}>
             <MessageCircle size={16} />
-            <span>{t('stagefeed.discussion.info', '33% of community members must contribute perspectives before the initiative advances to proposals.')}</span>
+            <span>{t('stagefeed.discussion.info', '33% of community members must contribute perspectives before the initiative advances to solutions.')}</span>
           </div>
         )}
         {stage === 'proposals' && (
           <div className={styles.thresholdBanner}>
             <Lightbulb size={16} />
-            <span>{t('stagefeed.proposals.info', 'Submit solution proposals and approve the ones you support. Top proposals advance to the formal vote.')}</span>
+            <span>{t('stagefeed.proposals.info', 'Submit solutions and approve the ones you support. Top solutions advance to the formal vote.')}</span>
           </div>
         )}
         {stage === 'vote' && (
           <div className={styles.thresholdBanner}>
             <Vote size={16} />
-            <span>{t('stagefeed.vote.info', 'Distribute your voting credits across proposals. Each community decides who can cast a binding vote — see the rule on each card.')}</span>
+            <span>{t('stagefeed.vote.info', 'Distribute your voting credits across solutions. Each community decides who can cast a binding vote — see the rule on each card.')}</span>
           </div>
         )}
         {stage === 'mandate' && (
@@ -317,7 +317,7 @@ const StageFeedView: React.FC = () => {
             {stage === 'proposals' && (
               <div className={styles.stageInfo}>
                 <Lightbulb size={14} />
-                <span>{t('stagefeed.sample.proposals', 'Join a community to submit and approve proposals')}</span>
+                <span>{t('stagefeed.sample.proposals', 'Join a community to submit and approve solutions')}</span>
               </div>
             )}
 

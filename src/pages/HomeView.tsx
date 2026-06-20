@@ -77,7 +77,7 @@ const SECTIONS: {
 }[] = [
   { stage: 'problem', icon: AlertCircle, titleKey: 'home.problems', titleFallback: 'Problems', limit: 3 },
   { stage: 'discussion', icon: MessageCircle, titleKey: 'home.discussions', titleFallback: 'In discussion', limit: 2 },
-  { stage: 'proposals', icon: Lightbulb, titleKey: 'home.proposals', titleFallback: 'Proposals', limit: 2 },
+  { stage: 'proposals', icon: Lightbulb, titleKey: 'home.proposals', titleFallback: 'Solutions', limit: 2 },
   { stage: 'vote', icon: Vote, titleKey: 'home.votes', titleFallback: 'Open votes', limit: 2 },
 ];
 

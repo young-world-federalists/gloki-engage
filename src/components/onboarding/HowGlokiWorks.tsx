@@ -31,7 +31,7 @@ interface StageGuide {
 const STAGE_GUIDE: StageGuide[] = [
   { stage: 'problem', icon: AlertCircle, labelKey: 'nav.problem', labelDefault: 'Problem', descKey: 'howGloki.problem.desc', descDefault: 'Name a shared problem and rally support behind it.' },
   { stage: 'discussion', icon: MessageCircle, labelKey: 'nav.discussion', labelDefault: 'Discuss', descKey: 'howGloki.discussion.desc', descDefault: 'Co-author the community’s shared understanding of it.' },
-  { stage: 'proposals', icon: Lightbulb, labelKey: 'nav.proposals', labelDefault: 'Proposals', descKey: 'howGloki.proposals.desc', descDefault: 'Put forward concrete solutions to weigh.' },
+  { stage: 'proposals', icon: Lightbulb, labelKey: 'nav.proposals', labelDefault: 'Solutions', descKey: 'howGloki.proposals.desc', descDefault: 'Put forward concrete solutions to weigh.' },
   { stage: 'vote', icon: Vote, labelKey: 'nav.vote', labelDefault: 'Vote', descKey: 'howGloki.vote.desc', descDefault: 'Decide together — one person, one vote.' },
   { stage: 'mandate', icon: ScrollText, labelKey: 'nav.mandate', labelDefault: 'Mandate', descKey: 'howGloki.mandate.desc', descDefault: 'Turn the decision into a shared mandate for action.' },
 ];

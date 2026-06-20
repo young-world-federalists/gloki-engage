@@ -16,7 +16,7 @@ import styles from './CommunitySettings.module.scss';
 const STAGE_LABEL: Record<PipelineStage, string> = {
   problem: 'Problem',
   discussion: 'Discussion',
-  proposals: 'Proposals',
+  proposals: 'Solutions',
   vote: 'Vote',
   mandate: 'Mandate',
 };

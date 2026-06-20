@@ -7,7 +7,7 @@ import styles from './StageFooter.module.scss';
 const STAGES = [
   { id: 'problem', labelKey: 'nav.problem', fallback: 'Problem', icon: AlertCircle, path: '/stage/problem' },
   { id: 'discussion', labelKey: 'nav.discussion', fallback: 'Discuss', icon: MessageCircle, path: '/stage/discussion' },
-  { id: 'proposals', labelKey: 'nav.proposals', fallback: 'Proposals', icon: Lightbulb, path: '/stage/proposals' },
+  { id: 'proposals', labelKey: 'nav.proposals', fallback: 'Solutions', icon: Lightbulb, path: '/stage/proposals' },
   { id: 'vote', labelKey: 'nav.vote', fallback: 'Vote', icon: Vote, path: '/stage/vote' },
   { id: 'mandate', labelKey: 'nav.mandate', fallback: 'Mandate', icon: ScrollText, path: '/stage/mandate' },
 ] as const;

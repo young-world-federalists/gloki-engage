@@ -4,6 +4,8 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
+import NotFound from './pages/NotFound';
+import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 import { getAgent, getProgress } from './components/identity/agent/digitalAgentStore';
 
@@ -70,6 +72,7 @@ function RootRoute() {
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t, locale } = useI18n();
   const [hydratingDemo, setHydratingDemo] = useState(true);
 
   // Hydrate demo state from URL hash before rendering routes so a shared demo
@@ -82,23 +85,23 @@ function AppContent() {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Validating session...</p>
+        <p>{t('app.validatingSession', 'Validating session…')}</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
+      <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
         <LoginPage />
       </Suspense>
     );
   }
 
   return (
-    <ErrorBoundary fallbackMessage="Gloki encountered an unexpected error. Please refresh the page.">
+    <ErrorBoundary locale={locale} fallbackMessage={t('errorBoundary.appMessage', 'Gloki encountered an unexpected error. Please refresh the page.')}>
       <Router basename={getBasename()}>
-        <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
+        <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
           <Routes>
             <Route path="/" element={<RootRoute />} />
             <Route path="/welcome/*" element={<OnboardingFlow />} />
@@ -112,6 +115,7 @@ function AppContent() {
             />
             <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
             <Route path="/lab/presence" element={<PresenceLabRoute />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <StageFooter />
         </Suspense>

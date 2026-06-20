@@ -166,11 +166,11 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
     <div className={styles.container}>
       <SegmentedControl
         fullWidth
-        ariaLabel={t('mechanisms.qv.viewToggle', 'Proposals, vote, or results')}
+        ariaLabel={t('mechanisms.qv.viewToggle', 'Solutions, vote, or results')}
         value={activeTab}
         onChange={setActiveTab}
         options={[
-          { value: 'proposals', label: t('mechanisms.qv.tabProposals', 'Proposals') },
+          { value: 'proposals', label: t('mechanisms.qv.tabProposals', 'Solutions') },
           { value: 'allocate', label: t('mechanisms.qv.tabVote', 'Vote') },
           { value: 'results', label: t('mechanisms.qv.tabResults', 'Results') },
         ]}
@@ -180,7 +180,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
         <>
           <div className={styles.addForm}>
             <input className={styles.addInput} type="text"
-              placeholder={t('mechanisms.qv.addPlaceholder', 'Add a proposal…')}
+              placeholder={t('mechanisms.qv.addPlaceholder', 'Add a solution…')}
               value={newText} onChange={(e) => setNewText(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAddProposal(); }}
               maxLength={500}
@@ -191,7 +191,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
             </Button>
           </div>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noProposals', 'No proposals yet. Add one above.')}</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noProposals', 'No solutions yet. Add one above.')}</p>
           ) : (
             <div className={styles.proposalList}>
               {proposalList.map((p) => (
@@ -219,7 +219,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
             )}
           </p>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noneToBack', 'No proposals to back yet.')}</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noneToBack', 'No solutions to back yet.')}</p>
           ) : (
             <>
               <div
@@ -253,7 +253,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
                           className={styles.stepperBtn}
                           onClick={() => removeHeart(p.id)}
                           disabled={hearts === 0}
-                          aria-label={t('mechanisms.qv.removeHeart', 'Remove support from this proposal')}
+                          aria-label={t('mechanisms.qv.removeHeart', 'Remove support from this solution')}
                         >
                           <Minus size={16} />
                         </button>
@@ -274,7 +274,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
                           className={styles.stepperBtn}
                           onClick={() => addHeart(p.id)}
                           disabled={!canAddHeart(p.id)}
-                          aria-label={t('mechanisms.qv.addHeart', 'Back this proposal')}
+                          aria-label={t('mechanisms.qv.addHeart', 'Back this solution')}
                         >
                           <Plus size={16} />
                         </button>
@@ -302,7 +302,7 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
       {activeTab === 'results' && (
         <>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noResults', 'No proposals to show results for.')}</p>
+            <p className={styles.noData}>{t('mechanisms.qv.noResults', 'No solutions to show results for.')}</p>
           ) : (
             <div className={styles.resultsList}>
               {[...proposalList]

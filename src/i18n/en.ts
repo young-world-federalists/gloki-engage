@@ -29,10 +29,19 @@ const en: Dictionary = {
   'common.submit': 'Submit',
   'common.submitting': 'Submitting…',
 
+  // App shell — session loader, error boundary, 404 (rendered by App.tsx /
+  // ErrorBoundary). Title + retry reuse common.errorTitle / common.retry.
+  'app.validatingSession': 'Validating session…',
+  'errorBoundary.message': 'This section encountered an error. Your other work is safe.',
+  'errorBoundary.appMessage': 'Gloki encountered an unexpected error. Please refresh the page.',
+  'notFound.title': 'Page not found',
+  'notFound.body': 'We couldn’t find that page. It may have moved, or the link may be wrong.',
+  'notFound.home': 'Back to home',
+
   // Global stage navigation (StageFooter) — SHORT stage forms
   'nav.problem': 'Problem',
   'nav.discussion': 'Discuss',
-  'nav.proposals': 'Proposals',
+  'nav.proposals': 'Solutions',
   'nav.vote': 'Vote',
   'nav.mandate': 'Mandate',
   'nav.skipToContent': 'Skip to content',
@@ -47,7 +56,7 @@ const en: Dictionary = {
   // into this family; dashboard.stage.{id}.desc remains dashboard copy.
   'stage.problem': 'Problem',
   'stage.discussion': 'Discussion',
-  'stage.proposals': 'Proposals',
+  'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandate',
 

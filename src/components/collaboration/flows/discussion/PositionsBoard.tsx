@@ -33,7 +33,7 @@ interface CategoryMeta {
 const CATEGORIES: CategoryMeta[] = [
   { key: 'evidence', labelKey: 'deliberation.category.evidence', labelDefault: 'Evidence', icon: Search, tone: 'info' },
   { key: 'impact', labelKey: 'deliberation.category.impact', labelDefault: 'Impact', icon: Globe, tone: 'warning' },
-  { key: 'solutions', labelKey: 'deliberation.category.solutions', labelDefault: 'Solutions', icon: Lightbulb, tone: 'success' },
+  { key: 'solutions', labelKey: 'deliberation.category.solutions', labelDefault: 'Ideas', icon: Lightbulb, tone: 'success' },
   { key: 'concerns', labelKey: 'deliberation.category.concerns', labelDefault: 'Concerns', icon: AlertTriangle, tone: 'error' },
 ];
 const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((c) => [c.key, c])) as Record<PositionType, CategoryMeta>;

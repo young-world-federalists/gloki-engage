@@ -137,7 +137,7 @@ const CreateCommunityPage: React.FC = () => {
         </p>
         <p>
           <strong>{t('createCommunity.why.mandates.lead', 'From problems to mandates.')}</strong>{' '}
-          {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, proposals, and voting into mandates your community can act on.")}
+          {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, solutions, and voting into mandates your community can act on.")}
         </p>
       </div>
 

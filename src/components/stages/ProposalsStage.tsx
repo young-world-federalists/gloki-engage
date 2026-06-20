@@ -24,7 +24,7 @@ export interface ProposalsStageProps {
 const ProposalsStage: React.FC<ProposalsStageProps> = ({ initiativeId, variant }) => {
   const t = useT();
   return (
-    <ErrorBoundary fallbackMessage={t('deliberation.proposals.error', 'Proposals encountered an error.')}>
+    <ErrorBoundary fallbackMessage={t('deliberation.proposals.error', 'Solutions encountered an error.')}>
       {variant === 'dashboard' && <ProposalMergePanel />}
       <ApprovalFlow
         instanceId={`${initiativeId}_proposals`}

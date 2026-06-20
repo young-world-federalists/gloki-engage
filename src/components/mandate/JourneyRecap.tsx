@@ -60,7 +60,7 @@ function stepTexts(
       : t('mandate.recapProposeGeneric', 'Solutions were proposed, merged, and refined together.'),
     vote?.winnerText
       ? t('mandate.recapVoteData', 'The community chose “{winner}”.', { winner: vote.winnerText })
-      : t('mandate.recapVoteGeneric', 'The community voted on the strongest proposals.'),
+      : t('mandate.recapVoteGeneric', 'The community voted on the strongest solutions.'),
     t('mandate.recapMandateText', 'Backed by sustained conviction and published as a mandate the community can point to.'),
   ];
 }

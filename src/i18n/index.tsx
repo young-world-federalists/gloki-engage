@@ -22,6 +22,21 @@ function isLocale(v: string | null): v is Locale {
   return v === 'en' || v === 'fr' || v === 'sw';
 }
 
+/**
+ * Read the persisted locale outside React (for class components / pre-provider
+ * code such as ErrorBoundary). Falls back to the default when storage is blocked
+ * or empty. Components inside the tree should use `useI18n().locale` instead.
+ */
+export function getStoredLocale(): Locale {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (isLocale(stored)) return stored;
+  } catch {
+    /* localStorage unavailable — fall through to default */
+  }
+  return DEFAULT_LOCALE;
+}
+
 /** Replace `{name}` tokens. Unknown tokens are left visible as `{name}`. */
 function interpolate(str: string, vars?: Vars): string {
   if (!vars) return str;
@@ -50,15 +65,7 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (isLocale(stored)) return stored;
-    } catch {
-      /* localStorage unavailable — fall through to default */
-    }
-    return DEFAULT_LOCALE;
-  });
+  const [locale, setLocaleState] = useState<Locale>(getStoredLocale);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);

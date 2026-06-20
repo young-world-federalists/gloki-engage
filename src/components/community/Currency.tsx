@@ -101,7 +101,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
           <p>
             {t(
               'currency.explainerBody1',
-              'Support points are a shared way to signal what matters — back initiatives, support proposals, and send points to fellow members.',
+              'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
             )}
           </p>
           <p>

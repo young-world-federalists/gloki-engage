@@ -12,7 +12,7 @@ export interface StageMeta {
 export const STAGE_META: Record<string, StageMeta> = {
   problem:    { tone: 'error',   icon: AlertCircle,   labelKey: 'stage.problem',    labelDefault: 'Problem' },
   discussion: { tone: 'warning', icon: MessageCircle, labelKey: 'stage.discussion', labelDefault: 'Discussion' },
-  proposals:  { tone: 'info',    icon: Lightbulb,     labelKey: 'stage.proposals',  labelDefault: 'Proposals' },
+  proposals:  { tone: 'info',    icon: Lightbulb,     labelKey: 'stage.proposals',  labelDefault: 'Solutions' },
   vote:       { tone: 'primary', icon: Vote,          labelKey: 'stage.vote',       labelDefault: 'Vote' },
   mandate:    { tone: 'success', icon: ScrollText,    labelKey: 'stage.mandate',    labelDefault: 'Mandate' },
 };

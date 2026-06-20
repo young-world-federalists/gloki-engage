@@ -16,7 +16,7 @@ const discussionContractCode = '';import styles from './DiscussionFlow.module.sc
 const CATEGORIES: { key: CommentCategory; labelKey: string; label: string; icon: React.ElementType; color: string }[] = [
   { key: 'evidence',  labelKey: 'discussionFlow.category.evidence',  label: 'Evidence',  icon: Search,        color: '#3b82f6' },
   { key: 'impact',    labelKey: 'discussionFlow.category.impact',    label: 'Impact',    icon: Globe,         color: '#f59e0b' },
-  { key: 'solutions', labelKey: 'discussionFlow.category.solutions', label: 'Solutions', icon: Lightbulb,     color: '#10b981' },
+  { key: 'solutions', labelKey: 'discussionFlow.category.solutions', label: 'Ideas', icon: Lightbulb,     color: '#10b981' },
   { key: 'concerns',  labelKey: 'discussionFlow.category.concerns',  label: 'Concerns',  icon: AlertTriangle, color: '#dc2626' },
 ];
 

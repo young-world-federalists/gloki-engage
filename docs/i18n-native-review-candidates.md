@@ -38,6 +38,31 @@ least-reviewed key families and the specific concern per family, rather than dum
 
 ## Priority families (newest, least-reviewed — Batch 12 + Batch 13 additions)
 
+### ⚑ Proposals → **Solutions** rename (Wave 2a, 2026-06-20) — sw needs an agreement pass
+
+The "Proposals" pipeline stage was relabelled **Solutions** app-wide (label-only; the contract id /
+stage key stays `proposals`). Per-locale terms, **decided by Eston 2026-06-20**:
+
+- **fr** → **Solutions** (clean noun swap; "Propositions" → "Solutions").
+- **sw** → **Suluhisho** (Eston chose *Suluhisho* over *Suluhu*). ⚠️ **This was a lexical swap**
+  (`Mapendekezo`/`pendekezo` → `Suluhisho`) that preserved the surrounding words, so **noun-class
+  agreement may now be wrong** and needs a native fix. Examples to check: `dashboard.stage.proposals.desc`
+  ("Suluhisho **yanawasilishwa**…"), `mechanisms.approval.noResults` ("Suluhisho **za** kuonyesha…"),
+  `mechanisms.qv.*`. `mandate.recapPropose*` already used the **zi-/za-** concord for *suluhisho* — make
+  the rest consistent with whichever class is correct.
+- Affected keys: `nav.proposals`, `stage.proposals`, `home.proposals`, `stagefeed.{sample.proposals,
+  proposals.info, discussion.info, vote.info}`, `dashboard.stage.{proposals,vote}.desc`,
+  `dashboard.proposals.summary.*`, `initiative.stages.{proposals,vote,mandate}.desc`,
+  `pipeline.hint.{proposals,vote}`, `deliberation.proposals.error`, `mechanisms.approval.*`,
+  `mechanisms.qv.*` (the votable-item words), plus the `createCommunity.why.mandates.body` /
+  `currency.explainerBody1` prose mentions.
+- **Category collision:** the discussion-board "Solutions" *category* was renamed to avoid clashing with
+  the stage — **fr Idées · sw Mawazo · en Ideas** (`deliberation.category.solutions`,
+  `discussionFlow.category.solutions`; internal key stays `solutions`). Confirm *Mawazo* reads as "Ideas".
+- **Intentionally NOT renamed** (stay `pendekezo`/`proposition`): the **Merge** feature
+  (`deliberation.merge.*`, `collab.tabMerges`), `collab.tabSuggestions` (edit *suggestions*), and the
+  *propose* verb (`pendekeza`, `proposer`). Confirm these read as distinct from the Solutions stage.
+
 ### `join.*` — the Join-a-Community screen (Batch 13, 14 keys)
 
 | key | fr | sw | Intended meaning |
@@ -137,7 +162,8 @@ canonical choices and their occurrence counts:
 | vouching / sponsorship | **udhamini** | 4 |
 | collaboration | **ushirikiano** | 15 |
 | vote | **kura** | 54 |
-| proposal | **pendekezo** | 11 |
+| solution (Solutions stage + votable items) | **suluhisho** | renamed Wave 2a — agreement needs a native pass |
+| proposal (merge motions / edit suggestions / "propose" verb only) | **pendekezo** | merge.* + collab.tabSuggestions + verbs |
 
 **Drift to actively check** (greps that returned *more* than the canonical term — confirm the extras are
 genuinely a different concept, not the same concept rendered inconsistently):

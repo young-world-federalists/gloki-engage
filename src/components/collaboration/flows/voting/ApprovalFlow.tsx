@@ -164,14 +164,14 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
   if (hasError) return (
     <div className={styles.loading}>
-      <p>{errorMessage || t('mechanisms.approval.setupError', 'Failed to set up proposals.')}</p>
+      <p>{errorMessage || t('mechanisms.approval.setupError', 'Failed to set up solutions.')}</p>
       <Button variant="secondary" size="sm" onClick={retry}>
         {t('common.retry', 'Try again')}
       </Button>
     </div>
   );
   if (isDeploying || !isReady) return (
-    <div className={styles.loading}>{statusMessage || t('mechanisms.approval.settingUp', 'Setting up proposals…')}</div>
+    <div className={styles.loading}>{statusMessage || t('mechanisms.approval.settingUp', 'Setting up solutions…')}</div>
   );
   if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
@@ -201,11 +201,11 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
       {/* View toggle */}
       <SegmentedControl
         fullWidth
-        ariaLabel={t('mechanisms.approval.viewToggle', 'Proposals or results')}
+        ariaLabel={t('mechanisms.approval.viewToggle', 'Solutions or results')}
         value={activeTab}
         onChange={setActiveTab}
         options={[
-          { value: 'proposals', label: t('mechanisms.approval.tabProposals', 'Proposals') },
+          { value: 'proposals', label: t('mechanisms.approval.tabProposals', 'Solutions') },
           { value: 'results', label: t('mechanisms.approval.tabResults', 'Results') },
         ]}
       />
@@ -216,7 +216,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
         </button>
         {showHelp && (
           <div className={styles.helpBox}>
-            <p>{t('mechanisms.approval.helpBody', 'Review the proposals below and approve as many as you support. Each proposal you approve gets one vote from you. The proposals with the most approvals rise to the top.')}</p>
+            <p>{t('mechanisms.approval.helpBody', 'Review the solutions below and approve as many as you support. Each solution you approve gets one vote from you. The solutions with the most approvals rise to the top.')}</p>
           </div>
         )}
       </div>
@@ -228,7 +228,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
             <input
               className={styles.addInput}
               type="text"
-              placeholder={t('mechanisms.approval.addPlaceholder', 'Add a proposal...')}
+              placeholder={t('mechanisms.approval.addPlaceholder', 'Add a solution...')}
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
@@ -247,7 +247,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
 
           {/* Proposal list */}
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No proposals yet. Add one above.')}</p>
+            <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No solutions yet. Add one above.')}</p>
           ) : (
             <div className={styles.proposalList}>
               {proposalList.map((p) => (
@@ -293,7 +293,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
       {activeTab === 'results' && (
         <>
           {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.approval.noResults', 'No proposals to show results for.')}</p>
+            <p className={styles.noData}>{t('mechanisms.approval.noResults', 'No solutions to show results for.')}</p>
           ) : (
             <div className={styles.resultsList}>
               {[...proposalList]
