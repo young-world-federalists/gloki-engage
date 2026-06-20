@@ -145,9 +145,9 @@
 }
 
 .compactLabel {
-  font-size: 0.625rem;
+  font-size: $text-xs;
   font-weight: $font-medium;
-  line-height: 1.2;
+  line-height: 1.25;
   padding: 0 2px;
   overflow-wrap: anywhere;
   color: $gray-600;

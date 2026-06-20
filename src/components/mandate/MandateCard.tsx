@@ -110,11 +110,11 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate }) => {
       <JourneyRecap compact />
 
       <div className={styles.actions}>
-        <Button variant="primary" leftIcon={<Share2 size={16} aria-hidden />} onClick={share}>
-          {copied ? t('mandate.copied', 'Copied') : t('mandate.card.share', 'Share')}
-        </Button>
-        <Button variant="secondary" rightIcon={<ArrowDown size={16} aria-hidden />} onClick={readFull}>
+        <Button variant="primary" size="lg" fullWidth rightIcon={<ArrowDown size={16} aria-hidden />} onClick={readFull}>
           {t('mandate.card.readFull', 'Read the full mandate')}
+        </Button>
+        <Button variant="secondary" leftIcon={<Share2 size={16} aria-hidden />} onClick={share}>
+          {copied ? t('mandate.copied', 'Copied') : t('mandate.card.share', 'Share')}
         </Button>
       </div>
       <span className={styles.srStatus} role="status" aria-live="polite">
