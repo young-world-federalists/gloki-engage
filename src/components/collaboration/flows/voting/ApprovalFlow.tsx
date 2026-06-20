@@ -9,7 +9,7 @@ import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor, getCountryName } from '../../../../utils/countries';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../../services/initiativeRoles';
 import ExpertEndorseButton from '../../../shared/ExpertEndorseButton';
-import { SegmentedControl, Button } from '../../../shared';
+import { SegmentedControl, Button, InfoDisclosure } from '../../../shared';
 import { useT } from '../../../../i18n';
 const approvalContractCode = '';import styles from './ApprovalFlow.module.scss';
 
@@ -35,7 +35,6 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
   const profiles = useAppSelector((s) => s.communities.profiles);
 
   const [activeTab, setActiveTab] = useState<'proposals' | 'results'>('proposals');
-  const [showHelp, setShowHelp] = useState(false);
   const [proposals, setProposals] = useState<Record<string, Proposal>>({});
   const [approvalCounts, setApprovalCounts] = useState<Record<string, number>>({});
   const [approvals, setApprovals] = useState<Record<string, Record<string, boolean>>>({});
@@ -211,14 +210,12 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
       />
 
       <div className={styles.helpSection}>
-        <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
-          {showHelp ? t('mechanisms.approval.helpHide', 'Hide explanation') : t('mechanisms.approval.helpShow', 'How does approval voting work?')}
-        </button>
-        {showHelp && (
-          <div className={styles.helpBox}>
-            <p>{t('mechanisms.approval.helpBody', 'Review the solutions below and approve as many as you support. Each solution you approve gets one vote from you. The solutions with the most approvals rise to the top.')}</p>
-          </div>
-        )}
+        <InfoDisclosure
+          label={t('mechanisms.approval.helpShow', 'How does approval voting work?')}
+          title={t('mechanisms.approval.helpShow', 'How does approval voting work?')}
+        >
+          <p>{t('mechanisms.approval.helpBody', 'Review the solutions below and approve as many as you support. Each solution you approve gets one vote from you. The solutions with the most approvals rise to the top.')}</p>
+        </InfoDisclosure>
       </div>
 
       {activeTab === 'proposals' && (

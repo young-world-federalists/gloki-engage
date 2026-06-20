@@ -12,6 +12,9 @@ export type { CardProps } from './Card';
 export { default as Modal } from './Modal';
 export type { ModalProps } from './Modal';
 
+export { default as InfoDisclosure } from './InfoDisclosure';
+export type { InfoDisclosureProps } from './InfoDisclosure';
+
 export { default as Stepper } from './Stepper';
 export type { StepperProps, StepperStep } from './Stepper';
 

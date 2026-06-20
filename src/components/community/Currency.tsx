@@ -6,6 +6,7 @@ import { useT } from '../../i18n';
 import styles from './Currency.module.scss';
 import { transfer } from '../../services/contracts/community';
 import { useAlert } from '../shared/useAlert';
+import { InfoDisclosure } from '../shared';
 
 interface CurrencyProps {
   communityId: string;
@@ -88,29 +89,27 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>{t('currency.title', 'Community Support Points')}</h2>
+        <div className={styles.titleRow}>
+          <h2>{t('currency.title', 'Community Support Points')}</h2>
+          <InfoDisclosure
+            label={t('currency.explainerTitle', 'How Support Points Work')}
+            title={t('currency.explainerTitle', 'How Support Points Work')}
+          >
+            <p>
+              {t(
+                'currency.explainerBody1',
+                'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
+              )}
+            </p>
+            <p>
+              {t(
+                'currency.explainerBody2',
+                'The community sets how points flow. Check your balance below and send support to any member.',
+              )}
+            </p>
+          </InfoDisclosure>
+        </div>
         <p>{t('currency.subtitle', 'Signal what matters and support fellow members')}</p>
-      </div>
-
-      <div className={styles.explainer}>
-        <div className={styles.explainerIcon}>
-          <Coins size={24} />
-        </div>
-        <div className={styles.explainerText}>
-          <h3>{t('currency.explainerTitle', 'How Support Points Work')}</h3>
-          <p>
-            {t(
-              'currency.explainerBody1',
-              'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
-            )}
-          </p>
-          <p>
-            {t(
-              'currency.explainerBody2',
-              'The community sets how points flow. Check your balance below and send support to any member.',
-            )}
-          </p>
-        </div>
       </div>
 
       <div className={styles.content}>

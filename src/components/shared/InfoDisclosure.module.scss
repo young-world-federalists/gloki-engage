@@ -1,0 +1,33 @@
+@use '../../styles/variables' as *;
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: color $transition-base, background $transition-base;
+
+  &:hover {
+    color: $primary;
+    background: $gray-100;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .trigger {
+    color: $dark-text-secondary;
+
+    &:hover {
+      color: $primary;
+      background: $dark-bg;
+    }
+  }
+}
