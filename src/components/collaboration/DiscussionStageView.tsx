@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
 import { useT } from '../../i18n';
 import { Button } from '../shared';
-import PageHeader from '../PageHeader';
+import AppHeader from '../AppHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
 import { useDiscussionData } from './flows/discussion/useDiscussionData';
@@ -16,7 +16,6 @@ import ParticipationMeter from './flows/discussion/ParticipationMeter';
 import AnchoredThread from './flows/discussion/AnchoredThread';
 import CoPresenceBar from './flows/discussion/CoPresenceBar';
 import { DELIBERATION_PARTICIPANTS, PRESENCE_NOW, PRESENCE_TICKER } from '../../services/demo/fixtures/deliberation';
-import GlobalHeader from '../GlobalHeader';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 
@@ -33,7 +32,7 @@ interface DiscussionStageViewProps {
  * initiative, all one person, one vote. Viewing is always visible; actions gate
  * on the community's per-stage trust rule.
  */
-const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, communityId, initiativeId }) => {
+const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, initiativeId }) => {
   const navigate = useNavigate();
   const t = useT();
   const dispatch = useAppDispatch();
@@ -66,16 +65,13 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, commun
 
   return (
     <div className={cs.container}>
-      <GlobalHeader />
-      <PageHeader
-        showBackButton
-        backButtonText={t('common.back', 'Back')}
-        onBackClick={() => navigate(-1)}
-        title={t('deliberation.discussion.viewTitle', '{title} — Discussion', { title })}
-        subtitle={communityName}
-        layout="two-row"
+      <AppHeader
+        showBack
+        onBack={() => navigate(-1)}
+        title={communityName}
+        eyebrow={t('header.section.discussion', 'Discussion')}
       />
-      <div className={cs.content}>
+      <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>
           <ErrorBoundary fallbackMessage={t('deliberation.error', 'The discussion section encountered an error.')}>
             {hasError ? (
@@ -126,7 +122,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, commun
             )}
           </ErrorBoundary>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

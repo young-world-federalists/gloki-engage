@@ -1,13 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import type { PipelineStage } from '../types/initiative';
-import PageHeader from '../components/PageHeader';
-import HomepageMenu from '../components/identity/HomepageMenu';
+import AppHeader from '../components/AppHeader';
 import ProblemStage from '../components/stages/ProblemStage';
 import DiscussionStage from '../components/stages/DiscussionStage';
 import ProposalsStage from '../components/stages/ProposalsStage';
@@ -164,8 +162,6 @@ const StageFeedView: React.FC = () => {
   const { stageId } = useParams<{ stageId: string }>();
   const navigate = useNavigate();
   const t = useT();
-  const { logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [showStageIntro, setShowStageIntro] = useState(() => !getHintSeen('stageFeedIntro'));
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const { communityMembers, communityActiveMembers } = useAppSelector((s) => s.communities);
@@ -209,32 +205,11 @@ const StageFeedView: React.FC = () => {
 
   const StageIcon = config.icon;
 
-  const handleMenuNavigate = (path: string) => {
-    navigate(`/identity/${path}`);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   return (
     <div className={cs.container}>
-      <PageHeader
-        title="Gloki"
-        layout="homepage"
-        onMenuClick={() => setMenuOpen(true)}
-        menuOpen={menuOpen}
-      />
+      <AppHeader />
 
-      <HomepageMenu
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onNavigate={handleMenuNavigate}
-        onLogout={handleLogout}
-      />
-
-      <div className={styles.feedContainer}>
+      <main id="main" tabIndex={-1} className={styles.feedContainer}>
         <h1 className={styles.srOnly}>{t(`nav.${stage}`, config.label)}</h1>
         {showStageIntro && (
           <Banner
@@ -361,7 +336,7 @@ const StageFeedView: React.FC = () => {
             )}
           </div>
         ))}
-      </div>
+      </main>
     </div>
   );
 };

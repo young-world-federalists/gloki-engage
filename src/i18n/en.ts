@@ -35,6 +35,11 @@ const en: Dictionary = {
   'nav.proposals': 'Proposals',
   'nav.vote': 'Vote',
   'nav.mandate': 'Mandate',
+  'nav.skipToContent': 'Skip to content',
+
+  // AppHeader section eyebrows (Wave 1)
+  'header.section.discussion': 'Discussion',
+  'header.section.collaboration': 'Collaboration',
 
   // Canonical FULL stage labels (CommunityHome badges, InitiativeDashboard
   // cards, CreateInitiativePage stepper). Two families only: nav.* = short,

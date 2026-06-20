@@ -6,7 +6,7 @@ import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { getInitiativeRoles, isAuthorOrCoAuthor, type InitiativeRoles } from '../../services/initiativeRoles';
 import ModificationSuggestions from './flows/modifications/ModificationSuggestions';
 import MergeProposalsList from './flows/merge/MergeProposalsList';
-import PageHeader from '../PageHeader';
+import AppHeader from '../AppHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import { Button, SegmentedControl } from '../shared';
 import { useT } from '../../i18n';
@@ -72,8 +72,8 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
   if (isMerged && mergedInto) {
     return (
       <div className={cs.container}>
-        <PageHeader showBackButton backButtonText="Back" onBackClick={() => navigate(-1)} title={title} subtitle={communityName} layout="two-row" />
-        <div className={cs.content}>
+        <AppHeader showBack onBack={() => navigate(-1)} title={communityName} eyebrow={t('header.section.collaboration', 'Collaboration')} />
+        <main id="main" tabIndex={-1} className={cs.content}>
           <div className={cs.main}>
             <div className={styles.mergedBanner}>
               <strong className={styles.mergedTitle}>
@@ -91,15 +91,15 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
               </Button>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className={cs.container}>
-      <PageHeader showBackButton backButtonText="Back" onBackClick={() => navigate(-1)} title={`${title} — Collaboration`} subtitle={communityName} layout="two-row" />
-      <div className={cs.content}>
+      <AppHeader showBack onBack={() => navigate(-1)} title={communityName} eyebrow={t('header.section.collaboration', 'Collaboration')} />
+      <main id="main" tabIndex={-1} className={cs.content}>
         <div className={cs.main}>
           <SegmentedControl<Tab>
             className={styles.viewToggle}
@@ -148,7 +148,7 @@ const CollaborationFullView: React.FC<CollaborationFullViewProps> = ({
             </ErrorBoundary>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

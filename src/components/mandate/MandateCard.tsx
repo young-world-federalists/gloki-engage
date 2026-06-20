@@ -68,7 +68,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate }) => {
         {t('mandate.card.ratifiedOn', 'Ratified {date}', { date: formatRatifiedOn(mandate.ratifiedOn, locale) })}
       </p>
 
-      <h2 className={styles.title}>{mandate.title}</h2>
+      <h1 className={styles.title}>{mandate.title}</h1>
 
       <div className={styles.decided}>
         <span className={styles.decidedLabel}>{t('mandate.card.decided', 'What we decided')}</span>

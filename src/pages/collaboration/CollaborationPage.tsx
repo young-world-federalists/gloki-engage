@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, PackageOpen, AlertTriangle } from 'lucide-react';
-import PageHeader from '../../components/PageHeader';
+import { Plus, PackageOpen, AlertTriangle, ArrowLeft } from 'lucide-react';
 import ErrorBoundary from '../../components/shared/ErrorBoundary';
 import { Button } from '../../components/shared';
 import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaboration/flows/registry';
@@ -75,7 +74,6 @@ interface CollaborationPageProps {
 const CollaborationPage: React.FC<CollaborationPageProps> = ({
   type,
   title,
-  subtitle,
   collaborationId,
   communityId,
 }) => {
@@ -151,16 +149,21 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
 
   return (
     <div className={cs.container}>
-      <PageHeader
-        showBackButton={true}
-        backButtonText={t('collab.backToCommunity', 'Back to Community')}
-        onBackClick={() => navigate(`/community/${communityId}/collaborations`)}
-        title={title}
-        subtitle={subtitle}
-        layout="two-row"
-      />
-
+      {/* CollaborationPage always renders inside CommunityView, which provides the
+          single AppHeader (community name) + <main> landmark. So this is a
+          header-less sub-route: just a back affordance + the collab title. */}
       <div className={cs.content}>
+        <div className={styles.collabHeader}>
+          <button
+            type="button"
+            className={styles.collabBack}
+            onClick={() => navigate(`/community/${communityId}/collab`)}
+            aria-label={t('common.back', 'Back')}
+          >
+            <ArrowLeft size={20} aria-hidden />
+          </button>
+          <h2 className={styles.collabTitle}>{title}</h2>
+        </div>
         <nav className={cs.nav}>
           {tabs.map((tab) => {
             const flow = getFlow(tab.flowId);

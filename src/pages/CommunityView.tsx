@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from
 import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings } from 'lucide-react';
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
-import GlobalHeader from '../components/GlobalHeader';
+import AppHeader from '../components/AppHeader';
 import { useT } from '../i18n';
 import { isDemoContract } from '../services/demo/demoRegistry';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
@@ -240,8 +240,8 @@ const CommunityView: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* Global brand header */}
-      <GlobalHeader />
+      {/* Global app header — the community name is the page's single <h1> */}
+      <AppHeader title={props.name} />
 
       {/* Slide-out community menu — opens from the right via CommunityCard "Menu" button */}
       <SlideOutMenu
@@ -256,7 +256,7 @@ const CommunityView: React.FC = () => {
       {alertElement}
 
       {/* Main content */}
-      <div className={styles.body}>
+      <main id="main" tabIndex={-1} className={styles.body}>
         <Suspense fallback={<div className={styles.loadingState}>Loading...</div>}>
           <ErrorBoundary fallbackMessage="This section encountered an error.">
             <Routes>
@@ -299,7 +299,7 @@ const CommunityView: React.FC = () => {
             </Routes>
           </ErrorBoundary>
         </Suspense>
-      </div>
+      </main>
 
     </div>
   );

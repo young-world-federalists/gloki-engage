@@ -29,7 +29,7 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
         <span className={styles.eyebrow}>{t('community.eyebrow', 'Community')}</span>
         {isDemo && <span className={styles.demoPill}>{t('community.demo', 'Demo')}</span>}
       </div>
-      <h1 className={styles.name}>{name}</h1>
+      <h2 className={styles.name}>{name}</h2>
       {blurb && <p className={styles.mission}>{blurb}</p>}
 
       <div className={styles.meta}>

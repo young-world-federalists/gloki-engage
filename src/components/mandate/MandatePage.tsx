@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../PageHeader';
-import { useT } from '../../i18n';
+import AppHeader from '../AppHeader';
 import { getPublishedMandate } from './MandatePage.demo';
 import MandateCard, { MANDATE_DOC_ANCHOR_ID } from './MandateCard';
 import MandateDocument from './MandateDocument';
@@ -18,7 +17,6 @@ import styles from './MandatePage.module.scss';
  * the flagship water mandate so the page always renders a credible artifact.
  */
 const MandatePage: React.FC = () => {
-  const t = useT();
   const navigate = useNavigate();
   // UI-only mockup: the page renders the flagship water mandate artifact.
   // SEAM (Ouri): resolve the real initiative title here once the backend is
@@ -29,16 +27,9 @@ const MandatePage: React.FC = () => {
 
   return (
     <div className={cs.container}>
-      <PageHeader
-        showBackButton
-        backButtonText={t('common.back', 'Back')}
-        onBackClick={() => navigate(-1)}
-        title={t('mandate.pageTitle', 'Published mandate')}
-        subtitle={mandate.title}
-        layout="two-row"
-      />
+      <AppHeader showBack onBack={() => navigate(-1)} />
 
-      <div className={cs.content}>
+      <main id="main" tabIndex={-1} className={cs.content}>
         <div className={cs.main}>
           <div className={styles.page}>
             <MandateCard mandate={mandate} />
@@ -48,7 +39,7 @@ const MandatePage: React.FC = () => {
             <AdoptionFramework mandateId={mandate.id} />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

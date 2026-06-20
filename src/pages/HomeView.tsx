@@ -1,13 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import { SAMPLE_INITIATIVES } from './StageFeedView';
-import PageHeader from '../components/PageHeader';
-import HomepageMenu from '../components/identity/HomepageMenu';
+import AppHeader from '../components/AppHeader';
 import { TrustBadge } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
@@ -94,8 +92,6 @@ const SECTIONS: {
 const HomeView: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
-  const { logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const { starred } = useAppSelector((s) => s.preferences);
   const { initiatives, isLoading } = useAllInitiatives();
 
@@ -174,12 +170,6 @@ const HomeView: React.FC = () => {
     if (communityId) navigate(`/community/${communityId}/initiative`);
   };
 
-  const handleMenuNavigate = (path: string) => navigate(`/identity/${path}`);
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   const cardInteractionProps = (card: HomeCard) => {
     if (!card.communityId) return {};
     return {
@@ -207,21 +197,9 @@ const HomeView: React.FC = () => {
 
   return (
     <div className={cs.container}>
-      <PageHeader
-        title="Gloki"
-        layout="homepage"
-        onMenuClick={() => setMenuOpen(true)}
-        menuOpen={menuOpen}
-      />
+      <AppHeader />
 
-      <HomepageMenu
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onNavigate={handleMenuNavigate}
-        onLogout={handleLogout}
-      />
-
-      <div className={styles.home}>
+      <main id="main" tabIndex={-1} className={styles.home}>
         <header className={styles.intro}>
           <h1 className={styles.introTitle}>{t('home.title', 'Across your communities')}</h1>
           <p className={styles.introSubtitle}>
@@ -289,7 +267,7 @@ const HomeView: React.FC = () => {
             </div>
           </section>
         )}
-      </div>
+      </main>
     </div>
   );
 };

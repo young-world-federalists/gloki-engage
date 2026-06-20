@@ -1,0 +1,211 @@
+// AppHeader.module.scss
+// The single global app header — light, sticky, one banner landmark per screen.
+// Row 1: [back?] [brand anchor] … [bell] [menu]. Row 2 (optional): the page's
+// single <h1> (community name) with a quiet eyebrow. Supersedes the former
+// dual-header setup. Tokens only; no page CTA lives here by design.
+@use '../styles/variables' as *;
+
+// "Skip to content" link — the first focusable element on the page. Hidden
+// off-screen until focused, then revealed; jumps to the <main id="main"> landmark.
+.skipLink {
+  position: absolute;
+  top: $spacing-sm;
+  left: $spacing-sm;
+  z-index: 200; // above the sticky header (z-index 100)
+  padding: $spacing-sm $spacing-md;
+  background-color: $primary;
+  color: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  border-radius: $radius-md;
+  text-decoration: none;
+  transform: translateY(-150%); // tucked above the viewport edge
+  transition: transform $transition-base;
+
+  &:focus,
+  &:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background-color: white;
+  border-bottom: 0.5px solid $gray-200;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: $dark-bg;
+    border-bottom-color: $dark-border;
+  }
+}
+
+// Row 1
+.bar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+// Brand anchor: GlokiMark + "Gloki" wordmark → home. The wordmark renders once.
+.brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 44px; // ≥44px touch target
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $gray-900;
+  border-radius: $radius-sm;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.wordmark {
+  font-size: $text-lg;
+  font-weight: $font-medium;
+  letter-spacing: -0.3px;
+}
+
+// Icon-only back button — ≥44px hit area, visible focus ring.
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  color: $gray-700;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base, border-color $transition-base;
+
+  &:hover {
+    background-color: $gray-100;
+    color: $gray-900;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      background-color: $dark-surface;
+      color: $dark-text;
+    }
+  }
+}
+
+// Bell + menu, pinned to the right.
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  color: $gray-700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color $transition-base, color $transition-base, border-color $transition-base;
+
+  &:hover {
+    background-color: $gray-100;
+    color: $gray-900;
+  }
+
+  &:active {
+    background-color: $gray-200;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      background-color: $dark-surface;
+      color: $dark-text;
+    }
+
+    &:active {
+      background-color: $dark-border;
+    }
+  }
+}
+
+// Row 2 — the page title block (the single <h1>).
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; // allow the h1 to truncate instead of pushing the row
+}
+
+.eyebrow {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  line-height: 1.2;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.title {
+  margin: 0;
+  min-width: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  line-height: 1.25;
+  color: $gray-900;
+  // Single line — a long community/initiative name (or the longer fr/sw string)
+  // truncates rather than wrapping or pushing the controls off a 360px screen.
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}

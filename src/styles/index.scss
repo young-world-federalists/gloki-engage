@@ -52,6 +52,13 @@ body {
   height: 100%;
 }
 
+// Skip-link target: the <main id="main"> landmark receives programmatic focus
+// from the AppHeader's "Skip to content" link. It is not an interactive control,
+// so suppress the focus ring on the region itself (inner controls keep theirs).
+main:focus {
+  outline: none;
+}
+
 // Links use the interactive colour token (never the Vite scaffold purple).
 a {
   font-weight: $font-medium;
