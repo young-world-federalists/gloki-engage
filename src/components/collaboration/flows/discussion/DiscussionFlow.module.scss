@@ -41,7 +41,7 @@
   transition: border-color $transition-base;
 
   &:focus { border-color: $primary; }
-  &::placeholder { color: $gray-400; }
+  &::placeholder { color: $gray-500; }
 }
 
 .composeActions {

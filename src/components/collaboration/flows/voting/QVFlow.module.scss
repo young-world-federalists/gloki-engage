@@ -33,7 +33,7 @@
   box-sizing: border-box;
 
   &:focus { border-color: $primary; }
-  &::placeholder { color: $gray-400; }
+  &::placeholder { color: $gray-500; }
 }
 
 .noData {

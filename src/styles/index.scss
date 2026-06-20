@@ -91,3 +91,18 @@ button {
     color: $dark-text;
   }
 }
+
+// Reduced motion (WCAG 2.3.3): one app-wide reset so every animation/transition
+// is neutralised for users who ask for it. Component modules keep their styles;
+// only the motion is removed. Near-zero (not 0) durations so transitionend/
+// animationend handlers still fire.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

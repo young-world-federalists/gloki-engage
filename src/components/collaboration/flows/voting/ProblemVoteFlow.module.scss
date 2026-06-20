@@ -151,7 +151,7 @@ $initiative-color: #ea580c;
 }
 
 .upBtn {
-  color: $success;
+  color: $success-on-surface;
 
   &:hover:not(:disabled) {
     border-color: $success;
@@ -165,7 +165,7 @@ $initiative-color: #ea580c;
 }
 
 .downBtn {
-  color: $error;
+  color: $error-dark;
 
   &:hover:not(:disabled) {
     border-color: $error;
@@ -215,8 +215,12 @@ $initiative-color: #ea580c;
   top: -4px;
   width: 2px;
   height: 16px;
-  background: $gray-400;
+  background: $gray-600;
   transform: translateX(-1px);
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-text-secondary;
+  }
 }
 
 .thresholdLabels {
@@ -239,7 +243,6 @@ $initiative-color: #ea580c;
 
 .undoHint {
   color: $gray-500;
-  opacity: 0.8;
 }
 
 // Dark mode

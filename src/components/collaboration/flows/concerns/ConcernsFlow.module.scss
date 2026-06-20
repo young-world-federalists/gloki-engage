@@ -67,7 +67,7 @@
   transition: border-color $transition-base;
 
   &:focus { border-color: $error; }
-  &::placeholder { color: $gray-400; }
+  &::placeholder { color: $gray-500; }
 }
 
 .addDescInput {
@@ -232,7 +232,7 @@
 
 .countSupport  { color: $error; font-weight: $font-medium; }
 .countReject   { color: $gray-500; }
-.countResolved { color: $success; }
+.countResolved { color: $success-on-surface; }
 
 // ─── Vote buttons ─────────────────────────────────────────────────────────────
 .voteButtons {

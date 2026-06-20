@@ -78,7 +78,7 @@
   border-radius: $radius-md;
   font-size: $text-sm;
   font-weight: $font-medium;
-  color: $primary;
+  color: $primary-dark;
   cursor: pointer;
   white-space: nowrap;
   transition: background-color $transition-base;
@@ -137,8 +137,8 @@
 }
 
 .communityBadge {
-  background: rgba($primary, 0.1);
-  color: $primary;
+  background: $info-surface;
+  color: $info-on-surface;
   font-size: $text-xs;
   font-weight: $font-semibold;
   padding: 2px $spacing-sm;

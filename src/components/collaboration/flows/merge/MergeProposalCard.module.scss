@@ -38,7 +38,7 @@
 
 .proposer {
   font-size: 11px;
-  opacity: 0.6;
+  color: $gray-500;
   margin-bottom: 10px;
 }
 
@@ -63,7 +63,7 @@
   margin-bottom: 6px;
 }
 
-.pct { opacity: 0.6; }
+.pct { color: $gray-900; font-weight: $font-semibold; }
 
 .voteBarTrack {
   height: 6px;
