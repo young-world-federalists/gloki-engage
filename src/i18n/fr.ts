@@ -361,7 +361,6 @@ const fr: Dictionary = {
   'problems.voteError': 'Le vote a rencontré une erreur.',
 
   // ── Mandate page + card ────────────────────────────────────────────────
-  'mandate.pageTitle': 'Mandat publié',
   'mandate.docLabel': 'Mandat publié',
   'mandate.statusRatified': 'Ratifié',
   'mandate.ratifiedOn': 'Ratifié le {date}',
@@ -653,7 +652,6 @@ const fr: Dictionary = {
   'collab.mergedBody': 'Poursuivez la conversation sur l’initiative conservée.',
   'collab.mergedCta': 'Aller à l’initiative fusionnée',
   // ── Collab shell + list + templates (B12 §2) ───────────────────────────
-  'collab.backToCommunity': 'Retour à la communauté',
   'collab.add': 'Ajouter',
   'collab.removeTab': 'Supprimer l’onglet {label}',
   'collab.unavailableWithTabs': 'Indisponible avec les onglets actuels',
@@ -701,7 +699,6 @@ const fr: Dictionary = {
   'deliberation.action.cancel': 'Annuler',
   'deliberation.action.close': 'Fermer',
   'deliberation.action.dismiss': 'Ignorer',
-  'deliberation.discussion.viewTitle': '{title} — Discussion',
   'deliberation.discussion.open': 'Ouvrir l’espace de co-rédaction',
   'deliberation.discussion.tapToCoauthor': 'Touchez pour co-rédiger',
   'deliberation.discussion.preview': 'Déclaration en cours · {p} positions · {e} modifications ouvertes',
@@ -896,7 +893,6 @@ const fr: Dictionary = {
   'mechanisms.approval.setupError': 'Impossible de préparer les solutions.',
   'mechanisms.approval.settingUp': 'Préparation des solutions…',
   'mechanisms.approval.helpShow': 'Comment fonctionne le vote par approbation ?',
-  'mechanisms.approval.helpHide': 'Masquer l’explication',
   'mechanisms.approval.helpBody': 'Passez en revue les solutions ci-dessous et approuvez-en autant que vous en soutenez. Chaque solution que vous approuvez reçoit une voix de votre part. Les solutions les plus approuvées remontent en tête.',
   'mechanisms.approval.noProposals': 'Pas encore de solutions. Ajoutez-en une ci-dessus.',
   'mechanisms.approval.noResults': 'Aucune solution pour afficher des résultats.',

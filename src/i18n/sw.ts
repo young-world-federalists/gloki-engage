@@ -360,7 +360,6 @@ const sw: Dictionary = {
   'problems.voteError': 'Upigaji kura umekumbana na hitilafu.',
 
   // ── Mandate page + card ────────────────────────────────────────────────
-  'mandate.pageTitle': 'Agizo lililochapishwa',
   'mandate.docLabel': 'Agizo lililochapishwa',
   'mandate.statusRatified': 'Limeidhinishwa',
   'mandate.ratifiedOn': 'Limeidhinishwa {date}',
@@ -652,7 +651,6 @@ const sw: Dictionary = {
   'collab.mergedBody': 'Endeleza mazungumzo kwenye mpango uliobaki.',
   'collab.mergedCta': 'Nenda kwenye mpango ulioungana',
   // ── Collab shell + list + templates (B12 §2) ───────────────────────────
-  'collab.backToCommunity': 'Rudi kwenye jumuiya',
   'collab.add': 'Ongeza',
   'collab.removeTab': 'Ondoa kichupo cha {label}',
   'collab.unavailableWithTabs': 'Haipatikani na vichupo vya sasa',
@@ -700,7 +698,6 @@ const sw: Dictionary = {
   'deliberation.action.cancel': 'Ghairi',
   'deliberation.action.close': 'Funga',
   'deliberation.action.dismiss': 'Ondoa',
-  'deliberation.discussion.viewTitle': '{title} — Majadiliano',
   'deliberation.discussion.open': 'Fungua nafasi ya uandishi wa pamoja',
   'deliberation.discussion.tapToCoauthor': 'Gusa ili kuandika pamoja',
   'deliberation.discussion.preview': 'Tamko linaundwa · misimamo {p} · maboresho {e} yaliyo wazi',
@@ -895,7 +892,6 @@ const sw: Dictionary = {
   'mechanisms.approval.setupError': 'Imeshindwa kuandaa suluhisho.',
   'mechanisms.approval.settingUp': 'Inaandaa suluhisho…',
   'mechanisms.approval.helpShow': 'Upigaji kura wa kuidhinisha hufanyaje kazi?',
-  'mechanisms.approval.helpHide': 'Ficha maelezo',
   'mechanisms.approval.helpBody': 'Pitia suluhisho hapa chini na uidhinishe mengi kadiri unavyoyaunga mkono. Kila suluhisho unaloidhinisha hupata kura moja kutoka kwako. Suluhisho zenye idhini nyingi hupanda juu.',
   'mechanisms.approval.noProposals': 'Bado hakuna suluhisho. Ongeza moja hapo juu.',
   'mechanisms.approval.noResults': 'Hakuna suluhisho za kuonyesha matokeo yake.',

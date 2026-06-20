@@ -188,38 +188,6 @@
   margin-bottom: $spacing-lg;
 }
 
-.helpToggle {
-  background: none;
-  border: none;
-  color: $primary;
-  font-size: $text-sm;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: $spacing-xs 0;
-
-  &:hover { color: $primary-dark; }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
-
-.helpBox {
-  margin-top: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
-  background: rgba($primary, 0.05);
-  border-left: 3px solid $primary;
-  border-radius: 0 $radius-md $radius-md 0;
-  p {
-    font-size: $text-sm;
-    color: $gray-600;
-    line-height: 1.5;
-    margin-bottom: $spacing-sm;
-    &:last-child { margin-bottom: 0; }
-  }
-}
-
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
   .addInput {
@@ -249,6 +217,4 @@
 
   .loading,
   .noData { color: $dark-text-secondary; }
-
-  .helpBox p { color: $dark-text-secondary; }
 }
