@@ -21,7 +21,7 @@ const formatCreatedDate = (value: unknown, locale: string): string | null => {
 };
 
 const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
@@ -126,7 +126,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
       <div className={styles.container}>
         <div className={styles.loadingState}>
           <div className={styles.spinner}></div>
-          <p className={styles.text}>Loading communities...</p>
+          <p className={styles.text}>{t('communities.loading', 'Loading communities…')}</p>
         </div>
       </div>
     );
@@ -139,20 +139,20 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
           <button className={styles.hiddenBackBtn} onClick={() => navigate('/identity/communities')}>
             <ArrowLeft size={18} />
           </button>
-          <h2 className={styles.hiddenTitle}>Hidden Communities</h2>
+          <h2 className={styles.hiddenTitle}>{t('communities.hiddenTitle', 'Hidden Communities')}</h2>
         </div>
         {sortedContracts.length === 0 ? (
-          <p className={styles.emptyNote}>No hidden communities.</p>
+          <p className={styles.emptyNote}>{t('communities.hiddenEmpty', 'No hidden communities.')}</p>
         ) : (
           <div className={styles.grid}>
             {sortedContracts.map((contract) => (
               <div key={contract.id} className={`${styles.card} ${styles.hiddenCard}`}>
-                <span className={styles.cardName}>{contract.name || 'Community'}</span>
+                <span className={styles.cardName}>{contract.name || t('communities.communityFallback', 'Community')}</span>
                 <button
                   className={styles.unhideBtn}
                   onClick={() => dispatch(unhide(contract.id))}
-                  title={`Show ${contract.name || 'Community'}`}
-                  aria-label={`Show ${contract.name || 'Community'}`}
+                  title={t('communities.show', 'Show {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                  aria-label={t('communities.show', 'Show {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
                 >
                   <Eye size={18} strokeWidth={2.25} />
                 </button>
@@ -168,10 +168,9 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
     <div className={styles.container}>
       {/* Page header */}
       <div className={styles.pageHeader}>
-        <h2 className={styles.pageTitle}>Your Communities</h2>
+        <h2 className={styles.pageTitle}>{t('communities.title', 'Your Communities')}</h2>
         <p className={styles.pageDescription}>
-          Communities you've joined on Gloki. Star your favourites to keep them at the top,
-          or hide ones you don't need right now.
+          {t('communities.description', "Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need right now.")}
         </p>
       </div>
 
@@ -200,7 +199,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
               className={styles.card}
               role="button"
               tabIndex={0}
-              aria-label={`Open ${contract.name || 'community'}`}
+              aria-label={t('communities.openAria', 'Open {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
               onClick={() => handleCommunityClick(contract.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -210,21 +209,21 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
               }}
             >
               <div className={styles.cardTop}>
-                <span className={styles.cardName}>{contract.name || 'Community'}</span>
+                <span className={styles.cardName}>{contract.name || t('communities.communityFallback', 'Community')}</span>
                 <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
                   <button
                     className={`${styles.starBtn} ${isStarred ? styles.starBtnActive : ''}`}
                     onClick={() => dispatch(toggleStar(contract.id))}
-                    title={isStarred ? 'Unstar' : 'Star'}
-                    aria-label={isStarred ? 'Unstar community' : 'Star community'}
+                    title={isStarred ? t('communities.unstar', 'Unstar') : t('communities.star', 'Star')}
+                    aria-label={isStarred ? t('communities.unstarAria', 'Unstar community') : t('communities.starAria', 'Star community')}
                   >
                     <Star size={18} strokeWidth={2.25} fill={isStarred ? 'currentColor' : 'none'} />
                   </button>
                   <button
                     className={styles.hideBtn}
                     onClick={() => dispatch(toggleHide(contract.id))}
-                    title={`Hide ${contract.name || 'Community'}`}
-                    aria-label={`Hide ${contract.name || 'Community'}`}
+                    title={t('communities.hide', 'Hide {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                    aria-label={t('communities.hide', 'Hide {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
                   >
                     <EyeOff size={18} strokeWidth={2.25} />
                   </button>
@@ -232,13 +231,13 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
               </div>
               {description && <p className={styles.cardDescription}>{description}</p>}
               <div className={styles.cardMeta}>
-                <span className={styles.metaItem}><Users size={12} /> {memberCount} member{memberCount !== 1 ? 's' : ''}</span>
+                <span className={styles.metaItem}><Users size={12} /> {memberCount === 1 ? t('community.members.one', '1 member') : t('community.members.many', '{n} members', { n: memberCount })}</span>
                 <span
                   className={styles.metaItem}
-                  title={unresolvedCount > 0 ? `${unresolvedCount} initiative${unresolvedCount !== 1 ? 's' : ''} couldn't be resolved and aren't counted` : undefined}
+                  title={unresolvedCount > 0 ? (unresolvedCount === 1 ? t('communities.unresolvedTitle.one', "1 initiative couldn't be resolved and isn't counted") : t('communities.unresolvedTitle.many', "{n} initiatives couldn't be resolved and aren't counted", { n: unresolvedCount })) : undefined}
                 >
-                  <ScrollText size={12} /> {mandateCount} mandate{mandateCount !== 1 ? 's' : ''}
-                  {unresolvedCount > 0 && <span className={styles.metaItemHint}> · {unresolvedCount} unresolved</span>}
+                  <ScrollText size={12} /> {mandateCount === 1 ? t('communities.mandates.one', '1 mandate') : t('communities.mandates.many', '{n} mandates', { n: mandateCount })}
+                  {unresolvedCount > 0 && <span className={styles.metaItemHint}> · {t('communities.unresolved', '{n} unresolved', { n: unresolvedCount })}</span>}
                 </span>
                 {createdDate && (
                   <span className={styles.metaItem}><Calendar size={12} /> {createdDate}</span>
@@ -255,13 +254,13 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
         onClick={() => navigate('/create-community')}
       >
         <PlusCircle size={20} />
-        <span>Create a community</span>
+        <span>{t('communities.createCommunity', 'Create a community')}</span>
       </button>
 
       {sortedContracts.length === 0 && !loading && (
         <div className={styles.emptyState}>
-          <h3 className={styles.title}>No Communities Yet</h3>
-          <p className={styles.description}>Create or join a community to get started</p>
+          <h3 className={styles.title}>{t('communities.emptyTitle', 'No Communities Yet')}</h3>
+          <p className={styles.description}>{t('communities.emptyDescription', 'Create or join a community to get started')}</p>
         </div>
       )}
 
@@ -270,7 +269,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
           className={styles.hiddenToggle}
           onClick={() => navigate('/identity/hidden')}
         >
-          {hiddenCount} hidden communit{hiddenCount === 1 ? 'y' : 'ies'}
+          {hiddenCount === 1 ? t('communities.hiddenCount.one', '1 hidden community') : t('communities.hiddenCount.many', '{n} hidden communities', { n: hiddenCount })}
         </button>
       )}
     </div>
