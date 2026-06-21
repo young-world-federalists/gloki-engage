@@ -190,8 +190,7 @@ const fr: Dictionary = {
   'login.getStarted': 'Commencer',
   'login.connecting': 'Connexion…',
   'login.generate': 'Générer une nouvelle clé d’identité',
-  'login.help.show': 'Comment ça marche ?',
-  'login.help.hide': 'Masquer les détails',
+  'login.help.title': 'Comment fonctionne Gloki',
   'login.help.keys': 'Gloki utilise une clé plutôt qu’un mot de passe. Cette clé est votre identité dans toutes les communautés — générez-en une nouvelle ci-dessous, ou collez une clé existante pour vous reconnecter.',
   'login.help.server': 'Le serveur vous connecte à un réseau Gloki. Celui par défaut est déjà configuré.',
   'login.key.label': 'Votre clé d’identité',
@@ -294,6 +293,7 @@ const fr: Dictionary = {
 
   // ── Create initiative page ─────────────────────────────────────────────
   'initiative.start': 'Lancer une initiative',
+  'initiative.howItWorks': 'Comment fonctionnent les initiatives',
   'initiative.whatTitle': 'Qu’est-ce qu’une initiative ?',
   'initiative.whatBody': 'Une initiative, c’est la manière dont votre communauté transforme un problème en action. Vous en lancez une en nommant un problème qui mérite d’être résolu — puis votre communauté le reconnaît, discute des solutions, propose des actions et vote sur la suite.',
   'initiative.whatBody2': 'Voyez-la comme une demande formelle d’action collective — portée par un processus transparent et démocratique.',
@@ -519,6 +519,7 @@ const fr: Dictionary = {
 
   // ── Create community page ──────────────────────────────────────────────
   'createCommunity.title': 'Créer une communauté',
+  'createCommunity.howItWorks': 'Comment fonctionnent les communautés',
   'createCommunity.whatTitle': 'Qu’est-ce qu’une communauté sur Gloki ?',
   'createCommunity.whatBody': 'Une communauté est un groupe de personnes unies par un intérêt, un lieu, une cause ou un objectif communs. Sur Gloki, les communautés sont des espaces de décision collective — où les membres peuvent identifier des problèmes, proposer des solutions et voter des actions ensemble.',
   'createCommunity.whatBody2': 'Chaque communauté sur Gloki dispose des mêmes outils démocratiques : un processus de gouvernance en 5 étapes, une monnaie communautaire, des espaces de collaboration et la vérification d’identité.',

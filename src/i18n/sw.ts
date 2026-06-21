@@ -189,8 +189,7 @@ const sw: Dictionary = {
   'login.getStarted': 'Anza',
   'login.connecting': 'Inaunganisha…',
   'login.generate': 'Tengeneza ufunguo mpya wa utambulisho',
-  'login.help.show': 'Hii inafanyaje kazi?',
-  'login.help.hide': 'Ficha maelezo',
+  'login.help.title': 'Jinsi Gloki inavyofanya kazi',
   'login.help.keys': 'Gloki hutumia ufunguo badala ya nenosiri. Ufunguo huu ndio utambulisho wako katika kila jumuiya — tengeneza mpya hapa chini, au bandika ufunguo uliopo ili kuunganisha tena.',
   'login.help.server': 'Seva inakuunganisha na mtandao wa Gloki. Ile ya msingi tayari imewekwa kwa ajili yako.',
   'login.key.label': 'Ufunguo wako wa utambulisho',
@@ -293,6 +292,7 @@ const sw: Dictionary = {
 
   // ── Create initiative page ─────────────────────────────────────────────
   'initiative.start': 'Anzisha mpango',
+  'initiative.howItWorks': 'Jinsi mipango inavyofanya kazi',
   'initiative.whatTitle': 'Mpango ni nini?',
   'initiative.whatBody': 'Mpango ndio njia ya jumuiya yako kugeuza tatizo kuwa hatua. Unaanzisha kwa kutaja tatizo linalostahili kutatuliwa — kisha jumuiya yako inalitambua, inajadili suluhisho, inapendekeza hatua, na inapiga kura juu ya njia ya kusonga mbele.',
   'initiative.whatBody2': 'Lichukulie kama ombi rasmi la hatua za pamoja — linaloungwa mkono na mchakato wa uwazi na kidemokrasia.',
@@ -518,6 +518,7 @@ const sw: Dictionary = {
 
   // ── Create community page ──────────────────────────────────────────────
   'createCommunity.title': 'Anzisha jumuiya',
+  'createCommunity.howItWorks': 'Jinsi jumuiya zinavyofanya kazi',
   'createCommunity.whatTitle': 'Jumuiya ni nini kwenye Gloki?',
   'createCommunity.whatBody': 'Jumuiya ni kundi la watu walioungana kwa maslahi, eneo, dhamira au lengo la pamoja. Kwenye Gloki, jumuiya ni nafasi za kufanya maamuzi ya pamoja — ambapo wanachama wanaweza kubaini matatizo, kupendekeza suluhisho, na kupigia kura hatua kwa pamoja.',
   'createCommunity.whatBody2': 'Kila jumuiya kwenye Gloki ina zana zilezile za kidemokrasia: mchakato wa utawala wa hatua 5, sarafu ya jumuiya, nafasi za ushirikiano, na uthibitisho wa utambulisho.',

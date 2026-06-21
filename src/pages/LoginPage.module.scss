@@ -28,42 +28,24 @@
       text-align: center;
       margin-bottom: $spacing-2xl;
 
+      .titleRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+      }
+
       h1 {
         font-size: $text-3xl;
         font-weight: $font-bold;
         color: $gray-800;
-        margin-bottom: $spacing-sm;
+        margin: 0;
       }
 
       p {
         color: $gray-600;
         font-size: $text-base;
-      }
-
-      .helpToggle {
-        background: none;
-        border: none;
-        color: $primary;
-        font-size: $text-sm;
-        cursor: pointer;
-        margin-top: $spacing-sm;
-        text-decoration: underline;
-        &:hover { color: $primary-dark; }
-      }
-
-      .helpBox {
-        margin-top: $spacing-md;
-        padding: $spacing-lg;
-        background: $gray-50;
-        border-radius: $radius-md;
-        text-align: left;
-        p {
-          font-size: $text-sm;
-          color: $gray-600;
-          line-height: 1.5;
-          margin-bottom: $spacing-sm;
-          &:last-child { margin-bottom: 0; }
-        }
       }
     }
 
@@ -245,8 +227,35 @@
   }
 }
 
+// The (i) trigger sits inline after the title; its Modal content (.helpBody)
+// portals to <body>, so these classes live at the top level — not nested under
+// .card — to apply outside the card's DOM subtree.
+.infoTrigger {
+  flex-shrink: 0;
+}
+
+.helpBody {
+  text-align: left;
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.5;
+    margin-bottom: $spacing-sm;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
 // Dark mode support
 @media (prefers-color-scheme: dark) {
+  // Portaled Modal content — top-level, sibling to .container.
+  .helpBody p {
+    color: $dark-text-secondary;
+  }
+
   .container {
     .card {
       background-color: $dark-bg;
@@ -258,14 +267,6 @@
 
         p {
           color: $dark-text-secondary;
-        }
-
-        .helpBox {
-          background: $dark-surface;
-
-          p {
-            color: $dark-text-secondary;
-          }
         }
       }
 

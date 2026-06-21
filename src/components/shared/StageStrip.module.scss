@@ -1,0 +1,64 @@
+@use '../../styles/variables' as *;
+
+// Compact, read-only pipeline strip — five evenly-spaced stage markers that
+// stay visible after the per-stage explainer collapses behind the page `(i)`.
+.strip {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-xs;
+  margin: 0 0 $spacing-lg;
+  padding: $spacing-md $spacing-sm;
+  list-style: none;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+}
+
+.stage {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  text-align: center;
+}
+
+.circle {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  line-height: 1.2;
+  color: $gray-700;
+}
+
+// Five distinct stage colours, all design tokens. The pipeline reads as a
+// rainbow so each stage is individually recognisable; `proposals` uses the
+// brand-gradient purple because no semantic "info" token is visually distinct
+// from `$primary` (vote).
+.stage_problem .circle    { background: $error; }
+.stage_discussion .circle { background: $warning; }
+.stage_proposals .circle  { background: $brand-gradient-end; }
+.stage_vote .circle       { background: $primary; }
+.stage_mandate .circle    { background: $success; }
+
+@media (prefers-color-scheme: dark) {
+  .strip {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .label {
+    color: $dark-text-secondary;
+  }
+}

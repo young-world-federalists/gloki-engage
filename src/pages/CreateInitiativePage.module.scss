@@ -17,8 +17,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     background: transparent;
     border: none;
     border-radius: $radius-full;
@@ -33,11 +33,45 @@
     }
   }
 
-  h1 {
+  h2 {
+    flex: 1;
+    min-width: 0;
     font-size: $text-xl;
     font-weight: $font-bold;
     color: $gray-800;
     margin: 0;
+  }
+}
+
+// The (i) trigger sits at the end of the header row, after the title.
+.infoTrigger {
+  flex-shrink: 0;
+}
+
+// Explainer prose shown inside the (i) Modal.
+.explainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.explainerSection {
+  h3 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: $spacing-md;
   }
 }
 
@@ -117,7 +151,7 @@
 .stepContent {
   padding-top: 4px;
 
-  h3 {
+  h4 {
     font-size: $text-sm;
     font-weight: $font-semibold;
     color: $gray-800;
@@ -243,27 +277,10 @@
   }
 }
 
-.submitButton {
-  width: 100%;
-  padding: $spacing-md $spacing-xl;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-base;
-  font-weight: $font-semibold;
-  cursor: pointer;
-  transition: background $transition-base;
+// The submit CTA is a kit <Button size="lg" fullWidth>; only the top spacing
+// is page-specific.
+.submit {
   margin-top: $spacing-lg;
-
-  &:hover:not(:disabled) {
-    background: $primary-dark;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
 
 .errorMessage {
@@ -273,8 +290,13 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .header h1 {
+  .header h2 {
     color: $dark-text;
+  }
+
+  .explainerSection {
+    h3 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
   }
 
   .header .backButton {
@@ -295,7 +317,7 @@
   }
 
   .stepContent {
-    h3 { color: $dark-text; }
+    h4 { color: $dark-text; }
     p { color: $dark-text-secondary; }
   }
 

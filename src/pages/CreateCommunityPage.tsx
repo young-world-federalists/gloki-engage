@@ -7,6 +7,7 @@ import { isDemoContract } from '../services/demo/demoRegistry';
 import { seedDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { fetchContracts } from '../store/slices/userSlice';
 import { useT } from '../i18n';
+import { Button, InfoDisclosure, StageStrip } from '../components/shared';
 import styles from './CreateCommunityPage.module.scss';
 
 // English here is the source copy; the render wires each field through t()
@@ -105,62 +106,73 @@ const CreateCommunityPage: React.FC = () => {
           <ArrowLeft size={20} />
         </button>
         <h1>{t('createCommunity.title', 'Create a Community')}</h1>
-      </div>
+        {/* Task-first: the "what is a community / why / features" explainer
+            prose lives behind the (i); the form below is the primary content. */}
+        <InfoDisclosure
+          className={styles.infoTrigger}
+          size="md"
+          label={t('createCommunity.howItWorks', 'How communities work')}
+        >
+          <div className={styles.explainer}>
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.whatTitle', 'What is a Community on Gloki?')}</h3>
+              <p>
+                {t(
+                  'createCommunity.whatBody',
+                  'A community is a group of people united by a shared interest, location, cause, or goal. On Gloki, communities are spaces for collective decision-making — where members can identify problems, propose solutions, and vote on actions together.',
+                )}
+              </p>
+              <p>
+                {t(
+                  'createCommunity.whatBody2',
+                  'Every community on Gloki has access to the same democratic tools: a 5-stage governance pipeline, community currency, collaboration workspaces, and identity verification.',
+                )}
+              </p>
+            </section>
 
-      {/* What is a Community? */}
-      <div className={styles.card}>
-        <h2>{t('createCommunity.whatTitle', 'What is a Community on Gloki?')}</h2>
-        <p>
-          {t(
-            'createCommunity.whatBody',
-            'A community is a group of people united by a shared interest, location, cause, or goal. On Gloki, communities are spaces for collective decision-making — where members can identify problems, propose solutions, and vote on actions together.',
-          )}
-        </p>
-        <p>
-          {t(
-            'createCommunity.whatBody2',
-            'Every community on Gloki has access to the same democratic tools: a 5-stage governance pipeline, community currency, collaboration workspaces, and identity verification.',
-          )}
-        </p>
-      </div>
+            {/* Why Create? — bold lead + body split around <strong> (no <Trans>). */}
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.whyTitle', 'Why Create a Community?')}</h3>
+              <p>
+                <strong>{t('createCommunity.why.democracy.lead', 'Bring direct democracy to your group.')}</strong>{' '}
+                {t('createCommunity.why.democracy.body', "Whether you're a neighbourhood association, a student union, a workplace team, or an activist collective — Gloki gives your group the tools to make decisions transparently and fairly.")}
+              </p>
+              <p>
+                <strong>{t('createCommunity.why.voice.lead', 'Every voice counts.')}</strong>{' '}
+                {t('createCommunity.why.voice.body', 'Quadratic voting ensures no single person dominates the outcome. Thresholds ensure decisions have genuine community support before moving forward.')}
+              </p>
+              <p>
+                <strong>{t('createCommunity.why.mandates.lead', 'From problems to mandates.')}</strong>{' '}
+                {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, solutions, and voting into mandates your community can act on.")}
+              </p>
+            </section>
 
-      {/* Why Create? — bold lead + body split around <strong> (no <Trans>; W5 may restructure) */}
-      <div className={styles.card}>
-        <h2>{t('createCommunity.whyTitle', 'Why Create a Community?')}</h2>
-        <p>
-          <strong>{t('createCommunity.why.democracy.lead', 'Bring direct democracy to your group.')}</strong>{' '}
-          {t('createCommunity.why.democracy.body', "Whether you're a neighbourhood association, a student union, a workplace team, or an activist collective — Gloki gives your group the tools to make decisions transparently and fairly.")}
-        </p>
-        <p>
-          <strong>{t('createCommunity.why.voice.lead', 'Every voice counts.')}</strong>{' '}
-          {t('createCommunity.why.voice.body', 'Quadratic voting ensures no single person dominates the outcome. Thresholds ensure decisions have genuine community support before moving forward.')}
-        </p>
-        <p>
-          <strong>{t('createCommunity.why.mandates.lead', 'From problems to mandates.')}</strong>{' '}
-          {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, solutions, and voting into mandates your community can act on.")}
-        </p>
-      </div>
-
-      {/* Features */}
-      <div className={styles.card}>
-        <h2>{t('createCommunity.featuresTitle', 'What Gloki Provides Your Community')}</h2>
-        <div className={styles.featureList}>
-          {FEATURES.map((feature) => {
-            const FeatureIcon = feature.icon;
-            return (
-              <div key={feature.id} className={styles.featureItem}>
-                <div className={styles.featureIcon}>
-                  <FeatureIcon size={16} />
-                </div>
-                <div className={styles.featureContent}>
-                  <h3>{t(`createCommunity.feature.${feature.id}.name`, feature.name)}</h3>
-                  <p>{t(`createCommunity.feature.${feature.id}.desc`, feature.description)}</p>
-                </div>
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.featuresTitle', 'What Gloki Provides Your Community')}</h3>
+              <div className={styles.featureList}>
+                {FEATURES.map((feature) => {
+                  const FeatureIcon = feature.icon;
+                  return (
+                    <div key={feature.id} className={styles.featureItem}>
+                      <div className={styles.featureIcon}>
+                        <FeatureIcon size={16} />
+                      </div>
+                      <div className={styles.featureContent}>
+                        <h4>{t(`createCommunity.feature.${feature.id}.name`, feature.name)}</h4>
+                        <p>{t(`createCommunity.feature.${feature.id}.desc`, feature.description)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </section>
+          </div>
+        </InfoDisclosure>
       </div>
+
+      {/* Compact, read-only pipeline strip — the governance context stays
+          visible even though the explainer prose is now behind the (i). */}
+      <StageStrip />
 
       {/* Form */}
       <div className={styles.card}>
@@ -202,13 +214,16 @@ const CreateCommunityPage: React.FC = () => {
           </div>
         )}
 
-        <button
-          className={styles.submitButton}
+        <Button
+          size="lg"
+          fullWidth
+          className={styles.submit}
+          loading={isSubmitting}
+          disabled={!name.trim()}
           onClick={handleSubmit}
-          disabled={isSubmitting || !name.trim()}
         >
           {isSubmitting ? t('createCommunity.submitting', 'Creating...') : t('createCommunity.submit', 'Create Community')}
-        </button>
+        </Button>
         {!isSubmitting && !name.trim() && (
           <p className={styles.submitHint}>{t('createCommunity.submitHint', 'Enter a community name to continue.')}</p>
         )}

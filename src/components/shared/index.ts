@@ -18,6 +18,9 @@ export type { InfoDisclosureProps } from './InfoDisclosure';
 export { default as Stepper } from './Stepper';
 export type { StepperProps, StepperStep } from './Stepper';
 
+export { default as StageStrip } from './StageStrip';
+export type { StageStripProps } from './StageStrip';
+
 export { default as SegmentedControl } from './SegmentedControl';
 export type { SegmentedControlProps, SegmentOption } from './SegmentedControl';
 

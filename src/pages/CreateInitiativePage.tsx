@@ -6,7 +6,7 @@ import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
 import { sanitizeExternalUrl } from '../utils/urlSafety';
 import { useT } from '../i18n';
-import { CountryMultiSelect } from '../components/shared';
+import { Button, CountryMultiSelect, InfoDisclosure, StageStrip } from '../components/shared';
 import styles from './CreateInitiativePage.module.scss';
 
 // ─── Vocabulary decision (Gloki product voice, confirmed with Eston, Batch 3 C7)
@@ -138,60 +138,72 @@ const CreateInitiativePage: React.FC = () => {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1>{t('initiative.start', 'Start an initiative')}</h1>
-      </div>
+        {/* Nested under CommunityView's AppHeader (community name = the page's
+            single <h1>), so this title is an <h2>. */}
+        <h2>{t('initiative.start', 'Start an initiative')}</h2>
+        {/* Task-first: the "what is an initiative / 5 stages / tips" explainer
+            prose lives behind the (i); the form below is the primary content. */}
+        <InfoDisclosure
+          className={styles.infoTrigger}
+          size="md"
+          label={t('initiative.howItWorks', 'How initiatives work')}
+        >
+          <div className={styles.explainer}>
+            <section className={styles.explainerSection}>
+              <h3>{t('initiative.whatTitle', 'What is an initiative?')}</h3>
+              <p>
+                {t(
+                  'initiative.whatBody',
+                  "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
+                )}
+              </p>
+              <p>
+                {t(
+                  'initiative.whatBody2',
+                  'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
+                )}
+              </p>
+            </section>
 
-      {/* What is an initiative? */}
-      <div className={styles.card}>
-        <h2>{t('initiative.whatTitle', 'What is an initiative?')}</h2>
-        <p>
-          {t(
-            'initiative.whatBody',
-            "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
-          )}
-        </p>
-        <br />
-        <p>
-          {t(
-            'initiative.whatBody2',
-            'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
-          )}
-        </p>
-      </div>
-
-      {/* The 5 Stages */}
-      <div className={styles.card}>
-        <h2>{t('initiative.stagesTitle', 'The 5 Stages')}</h2>
-        <div className={styles.stepper}>
-          {STAGES.map((stage, index) => {
-            const StageIcon = stage.icon;
-            return (
-              <div key={stage.id} className={styles.step}>
-                <div className={styles.stepIndicator}>
-                  <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
-                    <StageIcon size={16} />
-                  </div>
-                  {index < STAGES.length - 1 && <div className={styles.stepLine} />}
-                </div>
-                <div className={styles.stepContent}>
-                  <h3>{t(`stage.${stage.id}`, stage.name)}</h3>
-                  <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
-                </div>
+            <section className={styles.explainerSection}>
+              <h3>{t('initiative.stagesTitle', 'The 5 Stages')}</h3>
+              <div className={styles.stepper}>
+                {STAGES.map((stage, index) => {
+                  const StageIcon = stage.icon;
+                  return (
+                    <div key={stage.id} className={styles.step}>
+                      <div className={styles.stepIndicator}>
+                        <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
+                          <StageIcon size={16} />
+                        </div>
+                        {index < STAGES.length - 1 && <div className={styles.stepLine} />}
+                      </div>
+                      <div className={styles.stepContent}>
+                        <h4>{t(`stage.${stage.id}`, stage.name)}</h4>
+                        <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </section>
+
+            {/* Tips — each tip is a bold lead + body sentence. No <Trans>
+                mechanism exists, so lead/body are split into sibling keys. */}
+            <section className={`${styles.explainerSection} ${styles.tips}`}>
+              <h3>{t('initiative.tipsTitle', 'What Makes a Good Initiative?')}</h3>
+              <p><strong>{t('initiative.tips.specific.lead', 'Be specific.')}</strong> {t('initiative.tips.specific.body', '"Climate change is bad" won\'t get traction. "Our neighbourhood lacks recycling infrastructure" will.')}</p>
+              <p><strong>{t('initiative.tips.why.lead', 'Explain why it matters.')}</strong> {t('initiative.tips.why.body', 'Help your community understand the impact. Who is affected? What happens if nothing changes?')}</p>
+              <p><strong>{t('initiative.tips.evidence.lead', 'Provide evidence.')}</strong> {t('initiative.tips.evidence.body', 'Link to articles, reports, data, or personal accounts that support your case. Evidence builds trust and accelerates consensus.')}</p>
+              <p><strong>{t('initiative.tips.local.lead', 'Think locally.')}</strong> {t('initiative.tips.local.body', 'The best initiatives are ones your community can actually act on.')}</p>
+            </section>
+          </div>
+        </InfoDisclosure>
       </div>
 
-      {/* Tips — each tip is a bold lead + body sentence. No <Trans> mechanism
-          exists, so lead/body are split into sibling keys (W5: restructure). */}
-      <div className={`${styles.card} ${styles.tips}`}>
-        <h2>{t('initiative.tipsTitle', 'What Makes a Good Initiative?')}</h2>
-        <p><strong>{t('initiative.tips.specific.lead', 'Be specific.')}</strong> {t('initiative.tips.specific.body', '"Climate change is bad" won\'t get traction. "Our neighbourhood lacks recycling infrastructure" will.')}</p>
-        <p><strong>{t('initiative.tips.why.lead', 'Explain why it matters.')}</strong> {t('initiative.tips.why.body', 'Help your community understand the impact. Who is affected? What happens if nothing changes?')}</p>
-        <p><strong>{t('initiative.tips.evidence.lead', 'Provide evidence.')}</strong> {t('initiative.tips.evidence.body', 'Link to articles, reports, data, or personal accounts that support your case. Evidence builds trust and accelerates consensus.')}</p>
-        <p><strong>{t('initiative.tips.local.lead', 'Think locally.')}</strong> {t('initiative.tips.local.body', 'The best initiatives are ones your community can actually act on.')}</p>
-      </div>
+      {/* Compact, read-only pipeline strip — keeps the 5-stage context visible
+          even though the explainer prose is now behind the (i). */}
+      <StageStrip />
 
       {/* Form */}
       <div className={styles.card}>
@@ -275,13 +287,16 @@ const CreateInitiativePage: React.FC = () => {
 
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <button
-          className={styles.submitButton}
+        <Button
+          size="lg"
+          fullWidth
+          className={styles.submit}
+          loading={isSubmitting}
+          disabled={!title.trim() || !description.trim()}
           onClick={handleSubmit}
-          disabled={isSubmitting || !title.trim() || !description.trim()}
         >
           {isSubmitting ? t('initiative.submitting', 'Submitting…') : t('initiative.start', 'Start an initiative')}
-        </button>
+        </Button>
       </div>
     </div>
   );

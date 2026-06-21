@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
 import { useT } from '../i18n';
-import { LanguageSwitcher } from '../components/shared';
+import { InfoDisclosure, LanguageSwitcher } from '../components/shared';
 import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
@@ -12,7 +12,6 @@ const LoginPage: React.FC = () => {
   const [serverUrl, setServerUrl] = useState('');
   const [serverUrlHistory, setServerUrlHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
@@ -125,17 +124,22 @@ const LoginPage: React.FC = () => {
           <LanguageSwitcher />
         </div>
         <div className={styles.header}>
-          <h1>{t('login.title', 'Welcome to Gloki')}</h1>
+          {/* Task-first: the login action is screen one; the warm-up explainer
+              prose lives behind the (i) next to the title. */}
+          <div className={styles.titleRow}>
+            <h1>{t('login.title', 'Welcome to Gloki')}</h1>
+            <InfoDisclosure
+              className={styles.infoTrigger}
+              size="md"
+              label={t('login.help.title', 'How Gloki works')}
+            >
+              <div className={styles.helpBody}>
+                <p>{t('login.help.keys', 'Gloki uses a key instead of a password. This key is your identity across every community — generate a fresh one below, or paste an existing key to reconnect.')}</p>
+                <p>{t('login.help.server', 'The server connects you to a Gloki network. The default is already set for you.')}</p>
+              </div>
+            </InfoDisclosure>
+          </div>
           <p>{t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}</p>
-          <button className={styles.helpToggle} onClick={() => setShowHelp(v => !v)}>
-            {showHelp ? t('login.help.hide', 'Hide details') : t('login.help.show', 'How does this work?')}
-          </button>
-          {showHelp && (
-            <div className={styles.helpBox}>
-              <p>{t('login.help.keys', 'Gloki uses a key instead of a password. This key is your identity across every community — generate a fresh one below, or paste an existing key to reconnect.')}</p>
-              <p>{t('login.help.server', 'The server connects you to a Gloki network. The default is already set for you.')}</p>
-            </div>
-          )}
         </div>
 
         <div className={styles.form}>
