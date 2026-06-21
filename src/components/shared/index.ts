@@ -42,6 +42,9 @@ export type { CountryFlagProps } from './CountryFlag';
 export { default as CountryPresence } from './CountryPresence';
 export type { CountryPresenceProps } from './CountryPresence';
 
+export { default as CountryMultiSelect } from './CountryMultiSelect';
+export type { CountryMultiSelectProps } from './CountryMultiSelect';
+
 // Existing stable primitives (re-exported for discoverability).
 export { default as CountryParticipation } from './CountryParticipation';
 export { default as GlokiMark } from './GlokiMark';

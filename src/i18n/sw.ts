@@ -90,6 +90,17 @@ const sw: Dictionary = {
   'select.search': 'Tafuta…',
   'select.noMatches': 'Hakuna kilicholingana',
 
+  // ── Country selection (CountryMultiSelect) ─────────────────────────────
+  'country.add': 'Ongeza nchi',
+  'country.quickAdd': 'Ongeza haraka',
+  'country.remove': 'Ondoa {country}',
+  'country.other': 'Nyingine',
+  'region.africa': 'Afrika',
+  'region.asia': 'Asia',
+  'region.americas': 'Amerika',
+  'region.europe': 'Ulaya',
+  'region.oceania': 'Oseania',
+
   // ── Home (cross-community overview) ────────────────────────────────────
   'home.title': 'Katika jumuiya zako',
   'home.subtitle': 'Mwonekano wa moja kwa moja wa kile watu wanachofanyia kazi — kuanzia matatizo hadi maamuzi.',
@@ -308,7 +319,6 @@ const sw: Dictionary = {
   'initiative.form.descHint': 'Hii ndiyo hoja yako ya kuchukua hatua. Kuwa mshawishi lakini mkweli.',
   'initiative.form.countriesLabel': 'Nchi zinazoathirika',
   'initiative.form.countriesHint': 'Chagua nchi zinazoathirika zaidi na tatizo hili.',
-  'initiative.form.countryOther': 'Nyingine',
   'initiative.form.evidenceLabel': 'Ushahidi wa kuunga mkono',
   'initiative.form.evidenceHint': 'Viungo vya makala, ripoti, au data zinazounga mkono hoja yako.',
   'initiative.form.addLink': 'Ongeza kiungo',

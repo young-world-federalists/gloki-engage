@@ -91,6 +91,17 @@ const fr: Dictionary = {
   'select.search': 'Rechercher…',
   'select.noMatches': 'Aucun résultat',
 
+  // ── Country selection (CountryMultiSelect) ─────────────────────────────
+  'country.add': 'Ajouter un pays',
+  'country.quickAdd': 'Ajout rapide',
+  'country.remove': 'Retirer {country}',
+  'country.other': 'Autre',
+  'region.africa': 'Afrique',
+  'region.asia': 'Asie',
+  'region.americas': 'Amériques',
+  'region.europe': 'Europe',
+  'region.oceania': 'Océanie',
+
   // ── Home (cross-community overview) ────────────────────────────────────
   'home.title': 'Dans vos communautés',
   'home.subtitle': 'Un aperçu en direct de ce sur quoi les gens travaillent — des problèmes aux décisions.',
@@ -309,7 +320,6 @@ const fr: Dictionary = {
   'initiative.form.descHint': 'C’est votre plaidoyer pour l’action. Soyez persuasif mais honnête.',
   'initiative.form.countriesLabel': 'Pays concernés',
   'initiative.form.countriesHint': 'Sélectionnez les pays les plus touchés par ce problème.',
-  'initiative.form.countryOther': 'Autre',
   'initiative.form.evidenceLabel': 'Preuves à l’appui',
   'initiative.form.evidenceHint': 'Liens vers des articles, rapports ou données qui appuient votre cas.',
   'initiative.form.addLink': 'Ajouter un lien',

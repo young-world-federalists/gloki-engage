@@ -1,0 +1,151 @@
+@use '../../styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+/* ── Selected countries — removable pills (whole chip is the 44px tap target) ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $primary-dark;
+  background: rgba($primary, 0.1);
+  border: 1px solid $primary;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.18);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+    border-color: $primary;
+
+    &:hover {
+      background: rgba($primary, 0.35);
+    }
+  }
+}
+
+.flag {
+  font-size: $text-base;
+  line-height: 1;
+}
+
+.removeIcon {
+  margin-left: $spacing-xs;
+  opacity: 0.8;
+}
+
+/* ── Region-grouped quick picks ── */
+.quickAdd {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.quickAddLabel {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.region {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.regionLabel {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.quickChip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  color: $gray-700;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: background $transition-base, border-color $transition-base, color $transition-base;
+
+  &:hover {
+    border-color: $gray-300;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.quickChipSelected {
+  color: $primary-dark;
+  background: rgba($primary, 0.1);
+  border-color: $primary;
+
+  &:hover {
+    border-color: $primary;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+    border-color: $primary;
+  }
+}

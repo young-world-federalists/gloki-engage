@@ -208,6 +208,21 @@ export const COUNTRIES: CountryInfo[] = [
 export const OTHER_COUNTRY: CountryInfo = { code: 'OTHER', name: 'Other', flag: '🌐' };
 export const PILOT_COUNTRIES = COUNTRIES;
 
+/**
+ * Curated quick-pick countries grouped by region, surfaced above the full
+ * 197-country search in CountryMultiSelect for fast common picks. Region
+ * labels localize via `region.*` (with `labelEn` as the inline default);
+ * country names render canonical-English (countries.ts carries no locale form,
+ * see getCountryName).
+ */
+export const REGIONAL_QUICK_PICKS: { regionKey: string; labelEn: string; codes: string[] }[] = [
+  { regionKey: 'region.africa', labelEn: 'Africa', codes: ['KE', 'NG', 'MW', 'CD', 'ZA'] },
+  { regionKey: 'region.asia', labelEn: 'Asia', codes: ['IN', 'BD', 'PH', 'ID'] },
+  { regionKey: 'region.americas', labelEn: 'Americas', codes: ['US', 'BR', 'MX'] },
+  { regionKey: 'region.europe', labelEn: 'Europe', codes: ['GB', 'DE', 'FR'] },
+  { regionKey: 'region.oceania', labelEn: 'Oceania', codes: ['AU', 'FJ'] },
+];
+
 const COUNTRY_MAP = new Map<string, CountryInfo>(
   [...COUNTRIES, OTHER_COUNTRY].map((c) => [c.code, c]),
 );

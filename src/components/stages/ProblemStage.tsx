@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Globe, MessageCircle, ChevronDown, Plus, ExternalLink } from 'lucide-react';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ProblemVoteFlow from '../collaboration/flows/voting/ProblemVoteFlow';
-import { Banner, Badge, Button, Modal, CountryPresence } from '../shared';
+import { Banner, Badge, Button, Modal, CountryPresence, CountryMultiSelect } from '../shared';
 import { useT } from '../../i18n';
 import type { TFunction } from '../../i18n';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -39,9 +39,6 @@ interface Tally {
   down: number;
   total: number;
 }
-
-/** The 4 VftC countries — offered as relevance toggles when proposing an issue. */
-const PROPOSE_COUNTRIES = ['KE', 'NG', 'MW', 'CD'];
 
 /** Show a readable host instead of a long raw URL. */
 function prettyHost(url: string): string {
@@ -307,11 +304,6 @@ const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, 
     onClose();
   };
 
-  const toggleCountry = (code: string) =>
-    setSelectedCountries((prev) =>
-      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
-    );
-
   const canSubmit = title.trim().length > 0 && statement.trim().length > 0;
 
   const handleSubmit = () => {
@@ -466,25 +458,11 @@ const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, 
             {t('problems.fieldCountries', 'Where is it relevant?')}{' '}
             <span className={styles.optional}>{t('problems.optional', 'optional')}</span>
           </span>
-          <div className={styles.chipRow} role="group" aria-label={t('problems.fieldCountries', 'Where is it relevant?')}>
-            {PROPOSE_COUNTRIES.map((code) => {
-              const selected = selectedCountries.includes(code);
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  className={selected ? `${styles.chip} ${styles.chipSelected}` : styles.chip}
-                  aria-pressed={selected}
-                  onClick={() => toggleCountry(code)}
-                >
-                  <span role="img" aria-hidden>
-                    {getCountryFlag(code)}
-                  </span>{' '}
-                  {getCountryName(code)}
-                </button>
-              );
-            })}
-          </div>
+          <CountryMultiSelect
+            value={selectedCountries}
+            onChange={setSelectedCountries}
+            ariaLabel={t('problems.fieldCountries', 'Where is it relevant?')}
+          />
         </div>
 
         <div className={styles.formField}>

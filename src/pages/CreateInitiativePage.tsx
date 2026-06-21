@@ -6,6 +6,7 @@ import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
 import { sanitizeExternalUrl } from '../utils/urlSafety';
 import { useT } from '../i18n';
+import { CountryMultiSelect } from '../components/shared';
 import styles from './CreateInitiativePage.module.scss';
 
 // ─── Vocabulary decision (Gloki product voice, confirmed with Eston, Batch 3 C7)
@@ -16,14 +17,6 @@ import styles from './CreateInitiativePage.module.scss';
 // reserved for Stage 1 and the founding statement. The single create verb is
 // "Start" ("Start an initiative"), never "Create". Keep copy consistent with
 // this across Home, the stage feed, the menus, and this page.
-
-const COUNTRY_OPTIONS = [
-  { code: 'KE', label: 'Kenya' },
-  { code: 'NG', label: 'Nigeria' },
-  { code: 'MW', label: 'Malawi' },
-  { code: 'CD', label: 'DR Congo' },
-  { code: 'OTHER', label: 'Other' },
-];
 
 // English here is the source copy; the render wires each field through t().
 // Stage labels use the canonical `stage.{id}` family (shared with the dashboard
@@ -86,12 +79,6 @@ const CreateInitiativePage: React.FC = () => {
 
   const handleRemoveEvidence = (index: number) => {
     setEvidence((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleToggleCountry = (code: string) => {
-    setCountries((prev) =>
-      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
-    );
   };
 
   const handleSubmit = async () => {
@@ -278,21 +265,12 @@ const CreateInitiativePage: React.FC = () => {
         <div className={styles.formGroup}>
           <label className={styles.label}>{t('initiative.form.countriesLabel', 'Countries affected')}</label>
           <p className={styles.hint}>{t('initiative.form.countriesHint', 'Select which countries are most affected by this problem.')}</p>
-          <div className={styles.chipGroup}>
-            {COUNTRY_OPTIONS.map((country) => (
-              <button
-                key={country.code}
-                type="button"
-                className={`${styles.chip} ${countries.includes(country.code) ? styles.chipSelected : ''}`}
-                onClick={() => handleToggleCountry(country.code)}
-                disabled={isSubmitting}
-              >
-                {/* Country proper nouns stay as data (countries.ts localization is a
-                    W5 scope call); only the non-noun option is t()-wired. */}
-                {country.code === 'OTHER' ? t('initiative.form.countryOther', 'Other') : country.label}
-              </button>
-            ))}
-          </div>
+          <CountryMultiSelect
+            value={countries}
+            onChange={setCountries}
+            ariaLabel={t('initiative.form.countriesLabel', 'Countries affected')}
+            disabled={isSubmitting}
+          />
         </div>
 
         {error && <div className={styles.errorMessage}>{error}</div>}

@@ -243,41 +243,6 @@
   }
 }
 
-.chipGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-  margin-top: $spacing-sm;
-}
-
-.chip {
-  padding: $spacing-sm $spacing-md;
-  border: 1px solid $gray-300;
-  border-radius: $radius-full;
-  background: white;
-  color: $gray-700;
-  font-size: $text-sm;
-  cursor: pointer;
-  transition: all $transition-base;
-
-  &:hover {
-    border-color: $primary;
-    color: $primary;
-  }
-}
-
-.chipSelected {
-  background: $primary;
-  border-color: $primary;
-  color: white;
-
-  &:hover {
-    background: $primary-dark;
-    border-color: $primary-dark;
-    color: white;
-  }
-}
-
 .submitButton {
   width: 100%;
   padding: $spacing-md $spacing-xl;
@@ -367,18 +332,6 @@
       background: $dark-bg;
       color: $dark-text-secondary;
     }
-  }
-
-  .chip {
-    background: $dark-surface;
-    border-color: $dark-border;
-    color: $dark-text-secondary;
-  }
-
-  .chipSelected {
-    background: $primary;
-    border-color: $primary;
-    color: white;
   }
 
   .removeButton {
