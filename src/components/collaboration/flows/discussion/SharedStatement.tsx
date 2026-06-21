@@ -251,7 +251,10 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
           <Users size={16} aria-hidden /> {t('deliberation.coauthor.heading', 'Our shared statement')}
         </h2>
         {canParticipate && (
-          <Button size="sm" variant="secondary" leftIcon={<PenLine size={14} />} onClick={() => setShowModal(true)}>
+          /* The stage's primary contribution action — you co-author by suggesting
+             an edit (supporting an existing edit is the inline, per-card secondary
+             action). Promoted to a primary/md button in Wave 5a. */
+          <Button size="md" variant="primary" leftIcon={<PenLine size={16} />} onClick={() => setShowModal(true)}>
             {t('deliberation.coauthor.suggest', 'Suggest an edit')}
           </Button>
         )}
