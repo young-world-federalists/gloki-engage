@@ -96,7 +96,7 @@ const CreateCommunityPage: React.FC = () => {
   };
 
   return (
-    <div className={styles.page}>
+    <main id="main" tabIndex={-1} className={styles.page}>
       <div className={styles.header}>
         <button
           className={styles.backButton}
@@ -228,7 +228,7 @@ const CreateCommunityPage: React.FC = () => {
           <p className={styles.submitHint}>{t('createCommunity.submitHint', 'Enter a community name to continue.')}</p>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

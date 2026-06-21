@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
+import { fetchCommunityMembers, fetchCommunityProperties } from '../../store/slices/communitiesSlice';
 import { useT } from '../../i18n';
 import { Button } from '../shared';
 import AppHeader from '../AppHeader';
@@ -44,11 +44,14 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, 
   const memberCount = Array.isArray(members) ? members.length : 0;
 
   // Direct/deep-link to this route doesn't pass through the community loader, so
-  // pull members here (gates the trust rule + the participation meter denominator).
+  // pull members + properties here (members gate the trust rule + the participation
+  // meter denominator; properties carry the community name shown as the page's <h1>,
+  // which otherwise falls back to a truncated id).
   useEffect(() => {
-    if (!serverUrl || !publicKey || !communityId || members) return;
-    dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: communityId }));
-  }, [serverUrl, publicKey, communityId, members, dispatch]);
+    if (!serverUrl || !publicKey || !communityId) return;
+    if (!members) dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: communityId }));
+    if (!communityProps) dispatch(fetchCommunityProperties({ serverUrl, publicKey, contractId: communityId }));
+  }, [serverUrl, publicKey, communityId, members, communityProps, dispatch]);
 
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     `discussion-${initiativeId}`,
