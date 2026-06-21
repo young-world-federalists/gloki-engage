@@ -149,6 +149,29 @@ technical term of art; there may be no better Swahili rendering).
 
 ---
 
+## Wave 3 additions (2026-06-21) — country widget, communities list, identity titles
+
+New model-translated keys added during Wave 3. Live, layout-verified (360px light/dark), at full fr/sw +
+`{var}` parity. The Swahili **noun-class agreement** items are the priority for the pass.
+
+- **`region.*`** (5: africa/asia/americas/europe/oceania) — continent labels for the country quick-picks.
+  - sw: `Afrika` / `Asia` / `Amerika` / `Ulaya` / `Oseania`. Confirm `Oseania` is the preferred sw form (vs
+    `Oceania`), and that `Amerika` reads as "the Americas" (not specifically the USA / `Marekani`).
+  - fr: `Afrique` / `Asie` / `Amériques` / `Europe` / `Océanie` — standard, low risk.
+- **`country.add` / `country.quickAdd` / `country.remove` / `country.other`** — CountryMultiSelect chrome.
+  - sw `country.quickAdd` = `Ongeza haraka` ("add quickly"); confirm it reads as a section label — an
+    alternative is `Chaguo za haraka` ("quick choices").
+- **`communities.*`** (23: the identity communities list/dashboard) — **Swahili noun-class agreement is the
+  main concern.** Check the relative/possessive concord with *jumuiya* (N-class) and *mpango / mipango*
+  (M/MI-class) in: `communities.hiddenCount.one/.many` (`Jumuiya 1 iliyofichwa` / `Jumuiya {n} zilizofichwa`),
+  `communities.unresolvedTitle.one/.many` (`Mpango 1 haukuweza kutatuliwa…` / `Mipango {n} haikuweza…`),
+  `communities.mandates.one/.many` (`Agizo 1` / `Maagizo {n}`), and `communities.description`.
+- **`join.title`** (`Jiunge na jumuiya`) and **`profile.title`** (`Wasifu`) — page titles; quick confirm.
+
+(These join the existing **Suluhisho** noun-class caveat already tracked under Cross-cutting decision 1.)
+
+---
+
 ## Cross-cutting decision 1 — Swahili civic-vocabulary consistency
 
 The biggest risk in a model-translated overlay is the **same English concept rendering as two different

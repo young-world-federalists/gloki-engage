@@ -15,6 +15,17 @@
   align-items: stretch;
 }
 
+.pageTitle {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
 .introLine {
   margin: 0 0 $spacing-xs 0;
   font-size: $text-sm;
@@ -113,38 +124,6 @@
   }
 }
 
-.successMessage,
-.errorMessage {
-  padding: $spacing-xl;
-  border-radius: $radius-md;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: $spacing-sm;
-
-  h4 {
-    margin: 0;
-    font-size: $text-lg;
-  }
-
-  p {
-    margin: 0;
-    font-size: $text-sm;
-  }
-}
-
-.successMessage {
-  background-color: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #065f46;
-}
-
-.errorMessage {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -185,18 +164,6 @@
   .scanSection .scanArea {
     background-color: $dark-surface;
     border-color: $dark-border;
-  }
-
-  .successMessage {
-    background-color: rgba(16, 185, 129, 0.15);
-    border-color: $success;
-    color: #6ee7b7;
-  }
-
-  .errorMessage {
-    background-color: rgba(220, 38, 38, 0.15);
-    border-color: $error;
-    color: #fca5a5;
   }
 }
 

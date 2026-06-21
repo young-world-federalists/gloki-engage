@@ -46,6 +46,9 @@ const Profile: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {/* Route heading — the page leads visually with the agent card, so the
+          single <h1> is screen-reader-only (no visible title to promote). */}
+      <h1 className={styles.srOnly}>{t('profile.title', 'Profile')}</h1>
       {!isOnboarded && hasAgent && (
         <Banner
           tone="info"

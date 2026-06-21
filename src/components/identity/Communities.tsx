@@ -139,7 +139,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
           <button className={styles.hiddenBackBtn} onClick={() => navigate('/identity/communities')}>
             <ArrowLeft size={18} />
           </button>
-          <h2 className={styles.hiddenTitle}>{t('communities.hiddenTitle', 'Hidden Communities')}</h2>
+          <h1 className={styles.hiddenTitle}>{t('communities.hiddenTitle', 'Hidden Communities')}</h1>
         </div>
         {sortedContracts.length === 0 ? (
           <p className={styles.emptyNote}>{t('communities.hiddenEmpty', 'No hidden communities.')}</p>
@@ -168,7 +168,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
     <div className={styles.container}>
       {/* Page header */}
       <div className={styles.pageHeader}>
-        <h2 className={styles.pageTitle}>{t('communities.title', 'Your Communities')}</h2>
+        <h1 className={styles.pageTitle}>{t('communities.title', 'Your Communities')}</h1>
         <p className={styles.pageDescription}>
           {t('communities.description', "Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need right now.")}
         </p>
@@ -214,6 +214,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
                   <button
                     className={`${styles.starBtn} ${isStarred ? styles.starBtnActive : ''}`}
                     onClick={() => dispatch(toggleStar(contract.id))}
+                    aria-pressed={isStarred}
                     title={isStarred ? t('communities.unstar', 'Unstar') : t('communities.star', 'Star')}
                     aria-label={isStarred ? t('communities.unstarAria', 'Unstar community') : t('communities.starAria', 'Star community')}
                   >

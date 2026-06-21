@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, Camera, CheckCircle, AlertCircle } from 'lucide-react';
+import { QrCode, Camera, CheckCircle } from 'lucide-react';
 import styles from './JoinCommunity.module.scss';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { decodeCommunityInvitation } from '../../services/encodeDecode';
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { joinContract } from '../../services/api';
 import { useT } from '../../i18n';
 import { useAlert } from '../shared/useAlert';
-import { Button } from '../shared';
+import { Banner, Button } from '../shared';
 
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
@@ -141,6 +141,7 @@ const JoinCommunity: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+        <h1 className={styles.pageTitle}>{t('join.title', 'Join a community')}</h1>
         <p className={styles.introLine}>{t('join.intro', 'To join a community, ask a member to share their invite QR code or credential JSON with you. You can scan the code or paste the JSON below.')}</p>
         <div className={styles.scanSection}>
           <div className={styles.scanArea}>
@@ -208,19 +209,15 @@ const JoinCommunity: React.FC = () => {
         </div>
 
         {joinSuccess && (
-          <div className={styles.successMessage}>
-            <CheckCircle size={24} />
-            <h4>{t('join.successTitle', 'Successfully joined community!')}</h4>
-            <p>{t('join.successBody', 'You can now access the community from your Communities page.')}</p>
-          </div>
+          <Banner tone="success" title={t('join.successTitle', 'Successfully joined community!')}>
+            {t('join.successBody', 'You can now access the community from your Communities page.')}
+          </Banner>
         )}
 
         {scannedData && !parsedInvite && (
-          <div className={styles.errorMessage}>
-            <AlertCircle size={24} />
-            <h4>{t('join.invalidTitle', 'Invalid QR Code Data')}</h4>
-            <p>{t('join.invalidBody', "The scanned data doesn't contain valid community credentials.")}</p>
-          </div>
+          <Banner tone="error" title={t('join.invalidTitle', 'Invalid QR Code Data')}>
+            {t('join.invalidBody', "The scanned data doesn't contain valid community credentials.")}
+          </Banner>
         )}
       </div>
       {alertElement}
