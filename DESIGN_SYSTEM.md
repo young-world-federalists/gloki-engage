@@ -153,6 +153,49 @@ wins and are done.)_
 - Message in `$gray-500`, `$text-sm` (`$gray-400` fails AA on light; reserve it for the decorative icon above)
 - CTA button (primary, sm) below
 
+### App shell, disclosure & pipeline primitives
+
+Shipped with the hierarchy/a11y redesign (Waves 0–5). Reuse these instead of
+hand-rolling page chrome — they encode the one-header / one-`<h1>` / disclosure /
+inline-numbers rules the redesign is built on.
+
+**`AppHeader`** (`src/components/AppHeader.tsx`) — the single light top bar and the
+app's only `banner` landmark; render **exactly one per page**. Self-manages (callers
+never pass them) the "Skip to content" link → `#main`, the `GlokiMark` + "Gloki"
+wordmark (rendered once), the notifications bell, and the account menu. Props:
+`showBack`/`onBack` (icon back button; `onBack` defaults to `navigate(-1)`),
+`title` (the page's single `<h1>` — **omit** on top-level pages and standalone
+artifact pages like the published mandate, where an in-content heading is the `<h1>`),
+`eyebrow` (a quiet line above the title, e.g. the stage name). **No page-CTA prop by
+design** — primary actions live in content / the thumb zone, never the header. Each
+page wraps its content in `<main id="main" tabIndex={-1}>` (the skip-link target).
+
+**`InfoDisclosure`** (`src/components/shared/InfoDisclosure.tsx`) — the `(i)` →
+focus-trapped `Modal` disclosure standard. A ≥44px `(i)` icon-button (tap-only, no
+auto-open; `aria-haspopup="dialog"`, `aria-expanded` reflects state) that opens
+rules/how-it-works/explainer prose in a `Modal` (focus moves in, Escape closes,
+focus restores to the trigger). **The rule:** put *prose* behind the `(i)`, but keep
+the *number* — threshold, tally, meter, stake, source count — inline and visible.
+Props: `label` (translated trigger aria-label), `title` (modal heading, defaults to
+`label`), `children` (the prose), `size`, `className`.
+
+**`StageStrip`** (`src/components/shared/StageStrip.tsx`) — a compact, read-only
+`<ol>` of the five governance stages (Problem → Discussion → Solutions → Vote →
+Mandate). A glanceable pipeline anchor — **not navigation, not the explainer**.
+Token-pure rainbow (five distinct stage fills, all tokens). Default `aria-label` =
+`stage.pipelineOverview` ("The 5 governance stages"), deliberately distinct from the
+`StageFooter`'s `nav.stagesLabel` ("Pipeline stages") so the two landmarks never
+share an accessible name. Used on the task-first create + login screens. Props:
+`ariaLabel`, `className`.
+
+**`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
+selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
+plus an "Other" catch-all) + region-grouped quick-pick toggles (`aria-pressed`).
+Replaces hardcoded 4–5 country-chip rows so a global-democracy app never excludes
+190+ countries. `role="group"`; country proper nouns render canonical-English (only
+the chrome is `t()`-wired). Props: `value` (ISO alpha-2 codes), `onChange`,
+`ariaLabel`, `includeOther` (default `true`), `disabled`.
+
 ## Mobile Patterns
 
 - **Touch targets:** minimum 44x44px (Apple HIG)
@@ -224,7 +267,10 @@ scratch** — they already encode the tokens above.
 | `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. |
 | `Card` | Content container (padding, radius, shadow per the Cards spec). |
 | `Modal` | Centered overlay dialog (header → body → footer). |
-| `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). |
+| `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). Bakes in `role` — `alert` for the error tone, `status` otherwise. |
+| `InfoDisclosure` | The `(i)` → focus-trapped `Modal` disclosure standard (prose behind the `(i)`, numbers stay inline). See **App shell, disclosure & pipeline primitives**. |
+| `StageStrip` | Read-only `<ol>` of the 5 governance stages; token rainbow; default `aria-label` `stage.pipelineOverview`. See the primitives subsection. |
+| `CountryMultiSelect` | Chips + search over all 197 countries + regional quick-picks. Use instead of hardcoded country chips. |
 | `Badge` | Small status or count label. |
 | `EmptyState` | Centered icon + message + CTA for empty lists/feeds. |
 | `ErrorBoundary` | Wraps a subtree to catch render errors. |
@@ -234,7 +280,7 @@ scratch** — they already encode the tokens above.
 | `LanguageSwitcher` | i18n language picker. |
 | `NotificationsBell` | Notifications indicator. |
 | `CountryFlag` / `CountryParticipation` / `CountryPresence` | Country flag glyph / top-countries-with-counts / presence display. |
-| `EarthFlag` | International Flag of Planet Earth (logo, used in `PageHeader`). |
+| `GlokiMark` | The Gloki logo mark. Rendered in the `AppHeader` wordmark (once per page) and the onboarding invite step. |
 | `RoleChip` / `RoleDisplay` | Role label chip / role display. |
 | `ExpertEndorseButton` | Expert endorsement action. |
 | `AITools` | `TranslateButton`, `SummaryButton`, `AIToolbar` (need OpenAI key). |
