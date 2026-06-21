@@ -227,6 +227,22 @@
   }
 }
 
+// At phone widths the card sits inside the page gutter *and* its own padding —
+// two levels that, at the default $spacing-3xl, leave the 5-stage StageStrip
+// (5c) too narrow at 360px. Trim both horizontal levels (page gutter → sm,
+// card → lg) so the strip gets the same room it has on the create screens
+// (one $spacing-xl level). Below ~466px the card is full-width, so this only
+// bites on small phones; at ≥466px the card is centred and these are moot.
+@media (max-width: $breakpoint-sm) {
+  .container {
+    padding: $spacing-lg $spacing-sm;
+  }
+
+  .container .card {
+    padding: $spacing-2xl $spacing-lg;
+  }
+}
+
 // The (i) trigger sits inline after the title; its Modal content (.helpBody)
 // portals to <body>, so these classes live at the top level — not nested under
 // .card — to apply outside the card's DOM subtree.

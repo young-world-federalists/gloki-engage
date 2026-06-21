@@ -18,7 +18,9 @@ const STAGES = [
 ] as const;
 
 export interface StageStripProps {
-  /** Accessible label for the list. Defaults to the shared "Pipeline stages". */
+  /** Accessible label for the list. Defaults to "The 5 governance stages" —
+   *  deliberately distinct from the StageFooter nav's "Pipeline stages" so the
+   *  two landmarks don't share an accessible name (Wave 5b). */
   ariaLabel?: string;
   /** Extra class for layout (e.g. margins) at the call site. */
   className?: string;
@@ -34,7 +36,7 @@ export interface StageStripProps {
 const StageStrip: React.FC<StageStripProps> = ({ ariaLabel, className }) => {
   const t = useT();
   return (
-    <ol className={clsx(styles.strip, className)} aria-label={ariaLabel ?? t('nav.stagesLabel', 'Pipeline stages')}>
+    <ol className={clsx(styles.strip, className)} aria-label={ariaLabel ?? t('stage.pipelineOverview', 'The 5 governance stages')}>
       {STAGES.map((stage) => {
         const Icon = stage.icon;
         return (

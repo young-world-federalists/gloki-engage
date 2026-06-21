@@ -55,6 +55,7 @@ const sw: Dictionary = {
   'stage.proposals': 'Suluhisho',
   'stage.vote': 'Kura',
   'stage.mandate': 'Agizo',
+  'stage.pipelineOverview': 'Hatua tano za utawala',
 
   'lang.switch': 'Lugha',
 

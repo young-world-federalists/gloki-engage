@@ -172,6 +172,45 @@ New model-translated keys added during Wave 3. Live, layout-verified (360px ligh
 
 ---
 
+## Wave 4 + 5 additions (2026-06-21) — "How it works" disclosures + StageStrip overview label
+
+New model-translated keys from the task-first onboarding (Wave 4) and the StageStrip aria-label work
+(Wave 5b). Live, layout-verified (360px light/dark), at full fr/sw + `{var}` parity. **The Swahili
+noun-class agreement on the three "How it works" strings is the priority for this pass.**
+
+### `*.howItWorks` / `login.help.title` — the (i) disclosure triggers (Wave 4, 3 keys)
+
+These three label the `(i)` "how it works" disclosures on the two create screens and the login screen. All
+three sw renderings use the **`jinsi … -vyo-`** manner-relative ("the way X works"); the concern is the
+subject concord on the verb.
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `initiative.howItWorks` | Comment fonctionnent les initiatives | Jinsi mipango inavyofanya kazi | How initiatives work |
+| `createCommunity.howItWorks` | Comment fonctionnent les communautés | Jinsi jumuiya zinavyofanya kazi | How communities work |
+| `login.help.title` | Comment fonctionne Gloki | Jinsi Gloki inavyofanya kazi | How Gloki works |
+
+**Specific concern (sw, priority):** the verb's subject prefix must match its noun class —
+`mipango` (MI-class plural → **i-**: "mipango **i**navyofanya"), `jumuiya` (N-class plural → **zi-**:
+"jumuiya **zi**navyofanya"), `Gloki` (proper-noun singular thing → **i-**: "Gloki **i**navyofanya").
+Confirm each subject prefix is right (these are the agreements Eston flagged). Note `initiative` is rendered
+**mpango/mipango** here, consistent with Cross-cutting decision 1 (not *jitihada*).
+
+### `stage.pipelineOverview` — the StageStrip accessible name (Wave 5b, 1 key)
+
+The read-only 5-stage `StageStrip` `<ol>` now has its own accessible name, distinct from the StageFooter
+nav's "Pipeline stages" (`nav.stagesLabel`). Screen-reader-only — never shown visually.
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `stage.pipelineOverview` | Les cinq étapes de gouvernance | Hatua tano za utawala | The 5 governance stages |
+
+**Specific concern (sw):** confirm `Hatua tano za utawala` ("five stages of governance") — the `za`
+possessive agrees with `hatua` (N-class plural), and `utawala` is the chosen term for "governance" (vs.
+`uongozi` "leadership"). Keep it consistent with `nav.stagesLabel` = `Hatua za mchakato`.
+
+---
+
 ## Cross-cutting decision 1 — Swahili civic-vocabulary consistency
 
 The biggest risk in a model-translated overlay is the **same English concept rendering as two different

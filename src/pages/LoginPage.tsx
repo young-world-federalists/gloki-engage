@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
 import { useT } from '../i18n';
-import { InfoDisclosure, LanguageSwitcher } from '../components/shared';
+import { InfoDisclosure, LanguageSwitcher, StageStrip } from '../components/shared';
 import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
@@ -141,6 +141,11 @@ const LoginPage: React.FC = () => {
           </div>
           <p>{t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}</p>
         </div>
+
+        {/* The five governance stages — pipeline context before the user even
+            logs in (Wave 5c). The login card's mobile padding is trimmed in
+            LoginPage.module.scss so all five labelled stages fit at 360px. */}
+        <StageStrip />
 
         <div className={styles.form}>
           <div className={styles.inputGroup}>

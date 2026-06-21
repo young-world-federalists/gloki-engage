@@ -56,6 +56,7 @@ const fr: Dictionary = {
   'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandat',
+  'stage.pipelineOverview': 'Les cinq étapes de gouvernance',
 
   'lang.switch': 'Langue',
 
