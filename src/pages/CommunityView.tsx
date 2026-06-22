@@ -240,8 +240,9 @@ const CommunityView: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* Global app header — the community name is the page's single <h1> */}
-      <AppHeader title={props.name} />
+      {/* Global app header — the community name is the page's single <h1>, kept for
+          assistive tech but hidden on screen (the community card shows it visibly). */}
+      <AppHeader title={props.name} titleVisuallyHidden />
 
       {/* Slide-out community menu — opens from the right via CommunityCard "Menu" button */}
       <SlideOutMenu

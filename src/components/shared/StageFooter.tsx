@@ -19,8 +19,6 @@ const StageFooter: React.FC = () => {
 
   // Hide on the first-run onboarding flow — its stepper frames the journey on its own.
   if (location.pathname.startsWith('/welcome')) return null;
-  // Hide on community pages (they have their own footer)
-  if (location.pathname.startsWith('/community/')) return null;
 
   const activeStage = STAGES.find((s) => location.pathname.startsWith(s.path))?.id ?? null;
 

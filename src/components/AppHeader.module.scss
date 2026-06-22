@@ -181,6 +181,21 @@
   min-width: 0; // allow the h1 to truncate instead of pushing the row
 }
 
+// Keep the <h1> for assistive tech but hide it on screen — for pages whose
+// content already shows the name (e.g. the community card), avoiding an
+// on-screen duplicate while preserving one programmatic h1 per page.
+.titleHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .eyebrow {
   font-size: $text-xs;
   font-weight: $font-medium;

@@ -21,6 +21,12 @@ export interface AppHeaderProps {
   title?: string;
   /** A small, quiet line above the title (e.g. a stage/section name). */
   eyebrow?: string;
+  /**
+   * Keep `title` as the page's programmatic `<h1>` but hide it visually — for
+   * pages whose content already shows the name (e.g. the community card), so the
+   * name isn't duplicated on screen while one h1 per page is preserved.
+   */
+  titleVisuallyHidden?: boolean;
 }
 
 /**
@@ -37,7 +43,7 @@ export interface AppHeaderProps {
  * Also renders the app's "Skip to content" link (the first focusable element),
  * which targets the `<main id="main">` landmark each page wraps its content in.
  */
-const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, eyebrow }) => {
+const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, eyebrow, titleVisuallyHidden }) => {
   const navigate = useNavigate();
   const t = useT();
   const { logout } = useAuth();
@@ -92,7 +98,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, 
         </div>
 
         {title && (
-          <div className={styles.titleBlock}>
+          <div className={`${styles.titleBlock} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
             {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
             <h1 className={styles.title}>{title}</h1>
           </div>

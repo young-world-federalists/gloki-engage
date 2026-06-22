@@ -289,7 +289,8 @@
   }
 
   .communityBadge {
-    background: rgba($primary, 0.2);
+    background: $info-surface-dark;
+    color: $info-surface; // light-blue text on dark-blue pill — was unreadable dark-on-dark
   }
 
   .mandateCard {
