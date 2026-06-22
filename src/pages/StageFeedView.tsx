@@ -157,31 +157,31 @@ const StageFeedView: React.FC = () => {
         {stage === 'problem' && (
           <div className={styles.thresholdBanner}>
             <AlertCircle size={16} />
-            <span>{t('stagefeed.problem.info', '25% of active community members must participate. 50% must approve a problem for it to advance to discussion.')}</span>
+            <span>{t('stagefeed.problem.info', 'Advances when 25% take part and 50% approve.')}</span>
           </div>
         )}
         {stage === 'discussion' && (
           <div className={styles.thresholdBanner}>
             <MessageCircle size={16} />
-            <span>{t('stagefeed.discussion.info', '33% of community members must contribute perspectives before the initiative advances to solutions.')}</span>
+            <span>{t('stagefeed.discussion.info', 'Advances once 33% share a perspective.')}</span>
           </div>
         )}
         {stage === 'proposals' && (
           <div className={styles.thresholdBanner}>
             <Lightbulb size={16} />
-            <span>{t('stagefeed.proposals.info', 'Submit solutions and approve the ones you support. Top solutions advance to the formal vote.')}</span>
+            <span>{t('stagefeed.proposals.info', 'Suggest solutions and back the ones you support — the top ones reach the vote.')}</span>
           </div>
         )}
         {stage === 'vote' && (
           <div className={styles.thresholdBanner}>
             <Vote size={16} />
-            <span>{t('stagefeed.vote.info', 'Distribute your voting credits across solutions. Each community decides who can cast a binding vote — see the rule on each card.')}</span>
+            <span>{t('stagefeed.vote.info', 'Spread your voting credits across the solutions you support.')}</span>
           </div>
         )}
         {stage === 'mandate' && (
           <div className={styles.thresholdBanner}>
             <ScrollText size={16} />
-            <span>{t('stagefeed.mandate.info', 'Completed mandates representing the collective will of community members across borders.')}</span>
+            <span>{t('stagefeed.mandate.info', 'Decisions communities have committed to, across borders.')}</span>
           </div>
         )}
 

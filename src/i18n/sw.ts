@@ -119,11 +119,11 @@ const sw: Dictionary = {
   'stagefeed.sample.proposals': 'Jiunge na jumuiya ili kuwasilisha na kuidhinisha suluhisho',
   'stagefeed.sample.vote': 'Jiunge na jumuiya ili kugawa pointi zako za kura',
   'stagefeed.sample.mandate': 'Jiunge na jumuiya ili kuweka dhamira yako',
-  'stagefeed.problem.info': '25% ya wanachama hai lazima washiriki. 50% lazima wakubali tatizo ili lisonge mbele kwenye majadiliano.',
-  'stagefeed.discussion.info': '33% ya wanachama wa jumuiya lazima watoe mitazamo yao kabla mpango haujasonga kwenye suluhisho.',
-  'stagefeed.proposals.info': 'Wasilisha suluhisho na uidhinishe unayoyaunga mkono. Suluhisho bora husonga kwenye kura rasmi.',
-  'stagefeed.vote.info': 'Gawa pointi zako za kura kati ya suluhisho. Kila jumuiya huamua nani anaweza kupiga kura ya maamuzi — ona kanuni kwenye kila kadi.',
-  'stagefeed.mandate.info': 'Maagizo yaliyokamilika yanayowakilisha matakwa ya pamoja ya wanachama kuvuka mipaka.',
+  'stagefeed.problem.info': 'Husonga mbele 25% washiriki na 50% wakubali.',
+  'stagefeed.discussion.info': 'Husonga mbele 33% watoapo mtazamo.',
+  'stagefeed.proposals.info': 'Pendekeza suluhisho na uunge mkono unazopenda — bora zaidi hufika kwenye kura.',
+  'stagefeed.vote.info': 'Gawa pointi zako za kura kwa suluhisho unazounga mkono.',
+  'stagefeed.mandate.info': 'Maamuzi ambayo jumuiya zimejitolea, kuvuka mipaka.',
 
   // ── Participation gates ────────────────────────────────────────────────
   'gate.join': 'Shiriki',

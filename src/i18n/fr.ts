@@ -120,11 +120,11 @@ const fr: Dictionary = {
   'stagefeed.sample.proposals': 'Rejoignez une communauté pour soumettre et approuver des solutions',
   'stagefeed.sample.vote': 'Rejoignez une communauté pour répartir vos crédits de vote',
   'stagefeed.sample.mandate': 'Rejoignez une communauté pour engager votre conviction',
-  'stagefeed.problem.info': '25 % des membres actifs doivent participer. 50 % doivent approuver un problème pour qu’il passe en discussion.',
-  'stagefeed.discussion.info': '33 % des membres de la communauté doivent apporter leur point de vue avant que l’initiative passe aux solutions.',
-  'stagefeed.proposals.info': 'Soumettez des solutions et approuvez celles que vous soutenez. Les meilleures passent au vote formel.',
-  'stagefeed.vote.info': 'Répartissez vos crédits de vote entre les solutions. Chaque communauté décide qui peut voter de façon contraignante — voyez la règle sur chaque carte.',
-  'stagefeed.mandate.info': 'Mandats aboutis représentant la volonté collective des membres par-delà les frontières.',
+  'stagefeed.problem.info': 'Avance quand 25 % participent et 50 % approuvent.',
+  'stagefeed.discussion.info': 'Avance quand 33 % donnent leur avis.',
+  'stagefeed.proposals.info': 'Proposez des solutions et soutenez celles de votre choix — les meilleures passent au vote.',
+  'stagefeed.vote.info': 'Répartissez vos crédits de vote entre les solutions que vous soutenez.',
+  'stagefeed.mandate.info': 'Décisions adoptées par les communautés, par-delà les frontières.',
 
   // ── Participation gates ────────────────────────────────────────────────
   'gate.join': 'Participer',
