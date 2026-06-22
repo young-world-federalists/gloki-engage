@@ -1,0 +1,176 @@
+@use '../../styles/variables' as *;
+
+.card {
+  padding: 0; // the summary + panel own their spacing; engage panel is full-bleed
+  overflow: hidden;
+}
+
+// ─── Read summary (always visible; the whole row toggles expand) ───────────
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+    border-radius: $radius-lg;
+  }
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  color: $gray-500;
+}
+
+.badgeInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headline {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  line-height: 1.35;
+}
+
+.byline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.bylineName {
+  color: $gray-600;
+}
+
+.date {
+  margin-left: auto;
+  color: $gray-500;
+}
+
+// ─── Expanded panel ───────────────────────────────────────────────────────
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.metaLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: 0 $spacing-lg $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: $gray-500;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+// The Engage zone — visually distinct (shaded, divider), full-bleed to the card edges.
+.engage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background: $gray-50;
+  border-top: 1px solid $gray-100;
+}
+
+.openBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: background-color $transition-base;
+
+  &:hover {
+    background: $primary-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.teaser {
+  padding: 0 $spacing-lg $spacing-md;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+// ─── Dark mode ────────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .headline {
+    color: $dark-text;
+  }
+
+  .badgeRow,
+  .byline,
+  .bylineName,
+  .date,
+  .metaLine,
+  .metaItem,
+  .teaser {
+    color: $dark-text-secondary;
+  }
+
+  .engage {
+    background: $dark-surface;
+    border-top-color: $dark-border;
+  }
+}
+
+// ─── Responsive — hold the 360px flagship ─────────────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .summary {
+    padding: $spacing-md;
+  }
+
+  .metaLine {
+    padding: 0 $spacing-md $spacing-sm;
+  }
+
+  .engage {
+    padding: $spacing-md;
+  }
+
+  .teaser {
+    padding: 0 $spacing-md $spacing-md;
+  }
+}
