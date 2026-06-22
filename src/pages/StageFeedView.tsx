@@ -1,19 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight } from 'lucide-react';
+import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
-import ProblemStage from '../components/stages/ProblemStage';
-import DiscussionStage from '../components/stages/DiscussionStage';
-import ProposalsStage from '../components/stages/ProposalsStage';
-import VoteStage from '../components/stages/VoteStage';
-import MandateStage from '../components/stages/MandateStage';
 import { TrustBadge, Banner } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
-import StageGate from '../components/community/StageGate';
 import { useT } from '../i18n';
 import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
 import styles from './StageFeedView.module.scss';
@@ -56,20 +50,20 @@ const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ 
   mandate: { label: 'Mandate', icon: ScrollText },
 };
 
-// One real-initiative card in the feed. Extracted so each card can resolve its
-// own community's trust (author badge) and, per-stage, gate participation.
+// One initiative card in the per-stage browse feed. Compact + tap-through: the
+// title is the real control and a stretched ::after makes the whole card the hit
+// area (the community badge stays clickable above it via z-index). The heavy
+// per-stage participation UI lives on the initiative's own page — this feed is
+// for *browsing*, matching the cross-community Home.
 const StageFeedCard: React.FC<{
   item: InitiativeWithMeta;
-  stage: PipelineStage;
-  activeMemberCount: number;
-  onCardClick: (item: InitiativeWithMeta) => void;
+  onOpen: (item: InitiativeWithMeta) => void;
   onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
-}> = ({ item, stage, activeMemberCount, onCardClick, onCommunityClick }) => {
+}> = ({ item, onOpen, onCommunityClick }) => {
   const trust = useCommunityTrust(item.communityId);
-  const navigate = useNavigate();
   const t = useT();
   return (
-    <div className={`${styles.card} ${stage !== 'discussion' ? styles.noClick : ''}`}>
+    <div className={styles.card}>
       <div className={styles.cardMeta}>
         <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
           {item.communityName}
@@ -82,78 +76,11 @@ const StageFeedCard: React.FC<{
       </div>
 
       <h3 className={styles.cardTitle}>
-        {stage === 'discussion' ? (
-          <button type="button" className={styles.cardTitleButton} onClick={() => onCardClick(item)}>
-            {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
-          </button>
-        ) : (
-          item.title || t('stagefeed.untitled', 'Untitled Initiative')
-        )}
+        <button type="button" className={styles.cardTitleButton} onClick={() => onOpen(item)}>
+          {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
+        </button>
       </h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
-
-      {/* The published mandate is a read-only artifact — reachable even when the
-          stage's staking action is gated, so surface its link outside the gate. */}
-      {stage === 'mandate' && (
-        <button
-          type="button"
-          className={styles.viewMandateLink}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/mandate/${item.communityId}/${item.id}`);
-          }}
-        >
-          <span>{t('mandate.viewPublished', 'View the published mandate')}</span>
-          <ArrowRight size={14} aria-hidden />
-        </button>
-      )}
-
-      {/* Stage-specific participation UI — lane-owned stage components.
-          Gated by the community's per-stage rule; the meta/title/description above
-          stay visible (read-only viewing is never blocked). */}
-      <StageGate communityId={item.communityId} stage={stage}>
-      {stage === 'problem' && (
-        <div className={styles.inlineFlow}>
-          <ProblemStage initiativeId={item.id} communityMemberCount={activeMemberCount} />
-        </div>
-      )}
-
-      {stage === 'discussion' && (
-        <DiscussionStage
-          variant="feed"
-          initiativeId={item.id}
-          communityId={item.communityId}
-          title={item.title || ''}
-          hostServer=""
-          hostAgent=""
-        />
-      )}
-
-      {stage === 'proposals' && (
-        <div className={styles.inlineFlow}>
-          <ProposalsStage
-            variant="feed"
-            initiativeId={item.id}
-            communityId={item.communityId}
-            title={item.title || ''}
-            hostServer=""
-            hostAgent=""
-          />
-        </div>
-      )}
-
-      {stage === 'vote' && (
-        <div className={styles.inlineFlow}>
-          <VoteStage initiativeId={item.id} />
-        </div>
-      )}
-
-      {stage === 'mandate' && (
-        <div className={styles.inlineFlow}>
-          <MandateStage variant="feed" initiativeId={item.id} />
-        </div>
-      )}
-      </StageGate>
     </div>
   );
 };
@@ -164,7 +91,6 @@ const StageFeedView: React.FC = () => {
   const t = useT();
   const [showStageIntro, setShowStageIntro] = useState(() => !getHintSeen('stageFeedIntro'));
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
-  const { communityMembers, communityActiveMembers } = useAppSelector((s) => s.communities);
 
   const stage = (stageId || 'problem') as PipelineStage;
   const config = STAGE_CONFIG[stage] || STAGE_CONFIG.problem;
@@ -179,16 +105,19 @@ const StageFeedView: React.FC = () => {
     [initiatives, stage],
   );
 
+  // Tap-through: browse here, participate on the initiative's own surface.
+  // Discussion opens the co-authoring view; a published mandate opens its
+  // read-only artifact; everything else opens the initiative inline on its
+  // community page (auto-expands the card).
   const handleCardClick = (item: InitiativeWithMeta) => {
-    // Discussion cards tap through to the co-authoring view (matches the "co-author"
-    // affordance); other stages open the initiative inline on the community page
-    // (auto-expands the card) instead of via the /…/roadmap redirect hop.
     if (stage === 'discussion') {
       const hostServer = item.hostServer || serverUrl || 'local';
       const hostAgent = item.hostAgent || publicKey || 'local';
       navigate(
         `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${item.communityId}/${item.id}/discussion`,
       );
+    } else if (stage === 'mandate') {
+      navigate(`/mandate/${item.communityId}/${item.id}`);
     } else {
       navigate(`/community/${item.communityId}?initiative=${item.id}`);
     }
@@ -268,25 +197,16 @@ const StageFeedView: React.FC = () => {
           <div className={styles.sampleBanner}>{t('stagefeed.sample.banner', 'Example initiatives — join or create a community to participate')}</div>
         )}
 
-        {(stageInitiatives.length > 0 ? stageInitiatives : usingSampleData ? [] : []).map((item) => {
-          const memberCount = Array.isArray(communityMembers[item.communityId])
-            ? communityMembers[item.communityId].length
-            : 0;
-          const activeMemberCount = communityActiveMembers[item.communityId] ?? memberCount;
+        {stageInitiatives.map((item) => (
+          <StageFeedCard
+            key={item.id}
+            item={item}
+            onOpen={handleCardClick}
+            onCommunityClick={handleCommunityClick}
+          />
+        ))}
 
-          return (
-            <StageFeedCard
-              key={item.id}
-              item={item}
-              stage={stage}
-              activeMemberCount={activeMemberCount}
-              onCardClick={handleCardClick}
-              onCommunityClick={handleCommunityClick}
-            />
-          );
-        })}
-
-        {/* Sample cards when no real data */}
+        {/* Sample cards when no real data — compact, display-only. */}
         {usingSampleData && sampleItems.map((sample) => (
           <div
             key={sample.id}
@@ -299,41 +219,6 @@ const StageFeedView: React.FC = () => {
 
             <h3 className={styles.cardTitle}>{sample.title}</h3>
             <p className={styles.cardDescription}>{sample.description}</p>
-
-            {stage === 'problem' && (
-              <div className={styles.stageInfo}>
-                <AlertCircle size={14} />
-                <span>{t('stagefeed.sample.problem', 'Join a community to vote on problems')}</span>
-              </div>
-            )}
-
-            {stage === 'discussion' && (
-              <div className={styles.stageInfo}>
-                <MessageCircle size={14} />
-                <span>{t('stagefeed.sample.discussion', 'Tap to join the discussion')}</span>
-              </div>
-            )}
-
-            {stage === 'proposals' && (
-              <div className={styles.stageInfo}>
-                <Lightbulb size={14} />
-                <span>{t('stagefeed.sample.proposals', 'Join a community to submit and approve solutions')}</span>
-              </div>
-            )}
-
-            {stage === 'vote' && (
-              <div className={styles.stageInfo}>
-                <Vote size={14} />
-                <span>{t('stagefeed.sample.vote', 'Join a community to allocate voting credits')}</span>
-              </div>
-            )}
-
-            {stage === 'mandate' && (
-              <div className={styles.stageInfo}>
-                <ScrollText size={14} />
-                <span>{t('stagefeed.sample.mandate', 'Join a community to stake your conviction')}</span>
-              </div>
-            )}
           </div>
         ))}
       </main>

@@ -56,7 +56,7 @@ const OnboardingFlow: React.FC = () => {
           </p>
           <div className={styles.doneActions}>
             <Button fullWidth onClick={() => navigate('/stage/problem')}>
-              {t('onboarding.cta.explore', 'Explore the climate deliberation')}
+              {t('onboarding.cta.explore', 'Explore Gloki')}
             </Button>
             <Button variant="ghost" fullWidth onClick={() => { startOver(); setStep(0); }}>
               {t('onboarding.cta.startOver', 'Start over')}

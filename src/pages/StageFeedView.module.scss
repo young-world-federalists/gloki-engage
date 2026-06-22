@@ -1,32 +1,5 @@
 @use '../styles/variables' as *;
 
-/* Read-only link to the published mandate — sits outside the per-stage gate. */
-.viewMandateLink {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  align-self: flex-start;
-  min-height: 44px;
-  padding: $spacing-xs $spacing-sm;
-  margin: $spacing-xs 0 0 -#{$spacing-sm};
-  background: none;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  color: $primary;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
-
 .feedContainer {
   padding: $spacing-lg;
   padding-bottom: 80px; // room for fixed footer
@@ -76,12 +49,14 @@
     cursor: default;
 
     &:hover {
-      transform: none;
+      box-shadow: none;
     }
   }
 }
 
 .cardMeta {
+  position: relative;
+  z-index: 1; // keep badges/byline clickable above the title's stretched-link overlay
   display: flex;
   align-items: center;
   gap: $spacing-sm;
@@ -117,16 +92,16 @@
 }
 
 .cardTitle {
-  font-size: $text-xl;
+  font-size: $text-base; // match the compact Home card
   font-weight: $font-semibold;
   color: $gray-800;
   margin: 0;
   line-height: 1.3;
 }
 
-// Discussion cards are a keyboard-accessible tap-through: the title is the real
-// control, and a stretched ::after makes the whole card its hit area. Other
-// interactive elements (community badge) sit above it via z-index.
+// The title is a keyboard-accessible tap-through: it's the real control, and a
+// stretched ::after makes the whole card its hit area. Other interactive
+// elements (community badge, byline) sit above it via z-index.
 .cardTitleButton {
   font: inherit;
   color: inherit;
@@ -171,8 +146,8 @@
   color: $gray-600;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2; // match the compact Home card
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -190,27 +165,6 @@
   opacity: 0.85;
   border-style: dashed;
   border-color: rgba($primary, 0.25);
-}
-
-// ─── Inline flow container ───────────────────
-.inlineFlow {
-  margin-top: $spacing-md;
-  padding-top: $spacing-md;
-  border-top: 1px solid $gray-100;
-
-  @media (prefers-color-scheme: dark) {
-    border-top-color: $dark-border;
-  }
-}
-
-// ─── Stage info hint ──────────────────────────
-.stageInfo {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  font-size: $text-xs;
-  color: $gray-500;
-  margin-top: $spacing-xs;
 }
 
 // ─── Empty state ──────────────────────────────
@@ -257,8 +211,7 @@
   }
 
   .author,
-  .time,
-  .stageInfo {
+  .time {
     color: $dark-text-secondary;
   }
 

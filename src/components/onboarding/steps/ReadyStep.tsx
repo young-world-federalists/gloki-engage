@@ -56,7 +56,7 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
       )}
       <div className={styles.actions}>
         <Button fullWidth size="lg" onClick={onExplore}>
-          {t('onboarding.cta.explore', 'Explore the climate deliberation')}
+          {t('onboarding.cta.explore', 'Explore Gloki')}
         </Button>
         <Button variant="secondary" fullWidth onClick={onViewAgent}>
           {t('onboarding.cta.viewAgent', 'View my profile')}

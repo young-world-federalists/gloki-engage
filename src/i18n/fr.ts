@@ -240,7 +240,7 @@ const fr: Dictionary = {
   'onboarding.ready.review': 'Relire',
   'onboarding.alreadyDone.title': 'Tout est prêt',
   'onboarding.alreadyDone.lead': 'Votre profil est prêt. Replongez dans la délibération, ou recommencez le guide de bienvenue.',
-  'onboarding.cta.explore': 'Explorer la délibération climat',
+  'onboarding.cta.explore': 'Explorer Gloki',
   'onboarding.cta.viewAgent': 'Voir mon profil',
   'onboarding.cta.startOver': 'Recommencer',
 

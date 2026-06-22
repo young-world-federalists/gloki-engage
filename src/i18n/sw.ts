@@ -239,7 +239,7 @@ const sw: Dictionary = {
   'onboarding.ready.review': 'Pitia',
   'onboarding.alreadyDone.title': 'Kila kitu kiko tayari',
   'onboarding.alreadyDone.lead': 'Wasifu wako uko tayari. Rejea kwenye majadiliano, au anza upya mwongozo wa kukaribisha.',
-  'onboarding.cta.explore': 'Chunguza majadiliano ya tabianchi',
+  'onboarding.cta.explore': 'Chunguza Gloki',
   'onboarding.cta.viewAgent': 'Ona wasifu wangu',
   'onboarding.cta.startOver': 'Anza upya',
 
