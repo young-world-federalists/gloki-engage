@@ -335,6 +335,13 @@ const fr: Dictionary = {
   'problems.optional': 'facultatif',
   'problems.sdgTag': 'ODD {id} · {label}',
   'problems.nCountries': '{n} pays',
+
+  // Card system — shared InitiativeStageCard (Read summary + Engage panel)
+  'card.openProblem': 'Ouvrir le problème complet',
+  'card.discussThis': 'En discuter',
+  'card.teaserAgreed': 'Approuvé par votre communauté',
+  'card.teaserWeighIn': '{n} d’accord · donnez votre avis',
+
   'problems.sources': 'Sources',
   'problems.whyMatters': 'Pourquoi c’est important pour nous',
   'problems.chosenTogether': 'Nous l’avons choisi ensemble.',

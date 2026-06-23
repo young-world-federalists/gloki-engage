@@ -334,6 +334,13 @@ const sw: Dictionary = {
   'problems.optional': 'si lazima',
   'problems.sdgTag': 'SDG {id} · {label}',
   'problems.nCountries': 'nchi {n}',
+
+  // Card system — shared InitiativeStageCard (Read summary + Engage panel)
+  'card.openProblem': 'Fungua tatizo kamili',
+  'card.discussThis': 'Jadili hili',
+  'card.teaserAgreed': 'Limekubaliwa na jumuiya yako',
+  'card.teaserWeighIn': '{n} wamekubali · toa maoni',
+
   'problems.sources': 'Vyanzo',
   'problems.whyMatters': 'Kwa nini hili ni muhimu kwetu',
   'problems.chosenTogether': 'Tulilichagua pamoja.',

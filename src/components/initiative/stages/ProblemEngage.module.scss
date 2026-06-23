@@ -1,106 +1,12 @@
-@use '../../styles/variables' as *;
+@use '../../../styles/variables' as *;
 
-.stage {
+.engage {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
 }
 
-.payoff {
-  margin-bottom: $spacing-xs;
-}
-
-/* Framing strip: country presence + optional SDG tag */
-.framing {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $spacing-sm $spacing-md;
-}
-
-/* Labeled field block — eyebrow label + text */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.fieldLabel {
-  font-size: 0.6875rem;
-  font-weight: $font-medium;
-  letter-spacing: 0.06em;
-  color: $gray-500;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.statement {
-  margin: 0;
-  font-size: $text-sm;
-  line-height: 1.5;
-  color: $gray-700;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text;
-  }
-}
-
-.whoWhy {
-  margin: 0;
-  font-size: $text-sm;
-  line-height: 1.5;
-  color: $gray-600;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-/* Sources — gently surfaced, not shouted */
-.sources {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-xs;
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-xs;
-    font-size: $text-xs;
-    color: $primary;
-    text-decoration: none;
-    word-break: break-word;
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    svg {
-      flex-shrink: 0;
-    }
-  }
-}
-
-.sourcesLabel {
-  font-size: $text-xs;
-  font-weight: $font-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $gray-500;
-}
-
-/* Plain-language threshold legibility (B3) */
+/* Plain-language threshold legibility */
 .thresholdHint {
   margin: 0;
   font-size: $text-xs;
@@ -112,105 +18,18 @@
   }
 }
 
-/* "Why this matters" reveal — a light pre-deliberation gut-check */
-.voices {
+/* Secondary text actions — Discuss this / Propose a different framing */
+.actions {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-lg;
+  align-items: center;
 }
 
-.voicesToggle {
+.textAction {
   display: inline-flex;
   align-items: center;
   gap: $spacing-xs;
-  align-self: flex-start;
-  min-height: 44px;
-  padding: $spacing-xs $spacing-sm;
-  margin-left: -#{$spacing-sm};
-  background: none;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-600;
-  cursor: pointer;
-
-  svg {
-    transition: transform $transition-base;
-  }
-
-  &:hover {
-    color: $primary;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.chevOpen {
-  transform: rotate(180deg);
-}
-
-.voiceList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.voice {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-sm;
-  padding: $spacing-sm $spacing-md;
-  background: $gray-50;
-  border-radius: $radius-md;
-  border: 1px solid $gray-100;
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-surface;
-    border-color: $dark-border;
-  }
-}
-
-.voiceFlag {
-  font-size: $text-lg;
-  line-height: 1.2;
-  flex-shrink: 0;
-}
-
-.voiceText {
-  font-size: $text-sm;
-  line-height: 1.5;
-  color: $gray-700;
-
-  strong {
-    color: $gray-900;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-
-    strong {
-      color: $dark-text;
-    }
-  }
-}
-
-/* Propose a different problem — a quiet, universal invitation */
-.proposeLink {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  align-self: flex-start;
   min-height: 44px;
   padding: $spacing-xs $spacing-sm;
   margin-left: -#{$spacing-sm};

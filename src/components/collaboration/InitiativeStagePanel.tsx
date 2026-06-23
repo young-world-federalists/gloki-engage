@@ -18,7 +18,7 @@ import {
 } from './flows/shared/stageMetrics';
 import type { IMethod } from '../../services/interfaces';
 import type { PipelineStage } from '../../types/initiative';
-import ProblemStage from '../stages/ProblemStage';
+import ProblemEngage from '../initiative/stages/ProblemEngage';
 import DiscussionStage from '../stages/DiscussionStage';
 import ProposalsStage from '../stages/ProposalsStage';
 import VoteStage from '../stages/VoteStage';
@@ -77,7 +77,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
   const communityActiveMembers = useAppSelector((s) => s.communities.communityActiveMembers);
 
   const [stage, setStage] = useState<PipelineStage>('problem');
-  const [details, setDetails] = useState<Record<string, unknown>>({});
   const [advancing, setAdvancing] = useState(false);
   const [confirmAdvance, setConfirmAdvance] = useState(false);
   const [advanceError, setAdvanceError] = useState<string | null>(null);
@@ -96,7 +95,8 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
     return () => { cancelled = true; };
   }, [serverUrl, publicKey, initiativeId]);
 
-  // Fetch stage and details
+  // Fetch the current stage (the per-stage read chrome — countries, evidence —
+  // now lives in the cards' own data hooks, so the panel no longer reads details).
   useEffect(() => {
     if (!serverUrl || !publicKey || !initiativeId) return;
     contractRead({
@@ -107,15 +107,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
         if (typeof result === 'string' && STAGES.some((s) => s.id === result)) {
           setStage(result as PipelineStage);
         }
-      })
-      .catch(() => {});
-
-    contractRead({
-      serverUrl, publicKey, contractId: initiativeId,
-      method: { name: 'get_details', values: {} } as IMethod,
-    })
-      .then((result: Record<string, unknown>) => {
-        if (result && typeof result === 'object') setDetails(result);
       })
       .catch(() => {});
   }, [serverUrl, publicKey, initiativeId]);
@@ -242,8 +233,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
   };
 
   const stageReadiness = getStageReadiness();
-  const evidenceLinks = Array.isArray(details.evidence) ? (details.evidence as string[]) : [];
-  const countries = Array.isArray(details.countries) ? (details.countries as string[]) : [];
 
   return (
     <div>
@@ -286,11 +275,13 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
       <div className={styles.activeStage}>
         <StageGate communityId={communityId} stage={stage}>
           {stage === 'problem' && (
-            <ProblemStage
+            <ProblemEngage
               initiativeId={initiativeId}
+              communityId={communityId}
               communityMemberCount={activeMemberCount}
-              evidenceLinks={evidenceLinks}
-              countries={countries}
+              up={problemTally.up}
+              hostServer={hostServer}
+              hostAgent={hostAgent}
             />
           )}
 

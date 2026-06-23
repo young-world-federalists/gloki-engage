@@ -1,0 +1,141 @@
+@use '../../styles/variables' as *;
+
+$initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); matches InitiativeStagePanel
+
+// Layout-only hook for the merged-into <Banner tone="warning"> — the shared
+// Banner owns surface, text and action styling.
+.absorbedBanner {
+  margin-bottom: $spacing-md;
+}
+
+.advanceBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $gray-200;
+  flex-wrap: wrap;
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: $dark-border;
+  }
+}
+
+.advanceWarning {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: $warning;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($warning, 0.08);
+  border-radius: $radius-sm;
+  width: 100%;
+}
+
+.advanceButton {
+  padding: $spacing-sm $spacing-xl;
+  min-height: 44px;
+  background: $initiative-color;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: background $transition-base, opacity $transition-base;
+
+  &:hover:not(:disabled) {
+    background: darken($initiative-color, 8%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.advanceButtonWarn {
+  opacity: 0.7;
+}
+
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.confirmText {
+  font-size: $text-sm;
+  color: $gray-600;
+  font-weight: $font-medium;
+  flex: 1;
+  min-width: 200px;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.confirmYes {
+  padding: $spacing-sm $spacing-lg;
+  min-height: 44px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.confirmNo {
+  padding: $spacing-sm $spacing-lg;
+  min-height: 44px;
+  background: transparent;
+  color: $gray-500;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  cursor: pointer;
+
+  &:hover {
+    background: $gray-50;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+    border-color: $dark-border;
+
+    &:hover {
+      background: $dark-surface;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .advanceBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .confirmRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .confirmText {
+    min-width: unset;
+  }
+}

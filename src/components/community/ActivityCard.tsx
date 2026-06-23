@@ -6,6 +6,7 @@ import type { Collaboration } from '../../services/contracts/community';
 import { useT } from '../../i18n';
 import { STAGE_META } from './stageMeta';
 import InitiativeStagePanel from '../collaboration/InitiativeStagePanel';
+import ProblemActivityCard from './ProblemActivityCard';
 import styles from './ActivityCard.module.scss';
 
 export interface ActivityCardProps {
@@ -28,6 +29,27 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
+
+  // The Problem stage renders the new shared two-part card (Read summary over an
+  // Engage panel). Other stages keep the InitiativeStagePanel body until units
+  // 2–4 convert them to the same shell.
+  if (stage === 'problem') {
+    return (
+      <ProblemActivityCard
+        item={item}
+        communityId={communityId}
+        authorName={authorName}
+        authorKey={authorKey}
+        trustState={trustState}
+        vouchCount={vouchCount}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        expanded={expanded}
+        onToggle={onToggle}
+      />
+    );
+  }
+
   const meta = STAGE_META[stage] || STAGE_META.problem;
   const Icon = meta.icon;
   const panelId = `activity-panel-${item.id}`;
