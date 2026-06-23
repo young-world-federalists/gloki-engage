@@ -121,7 +121,6 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
         name={props.name || t('community.fallbackName', 'Community')}
         description={props.description}
         mission={fixture?.mission}
-        journey={fixture?.journey?.map((phase) => t(phase.labelKey, phase.labelDefault))}
         memberCount={memberCount}
         participation={participation}
         isDemo={isDemo}

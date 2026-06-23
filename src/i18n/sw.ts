@@ -445,6 +445,7 @@ const sw: Dictionary = {
   'community.demo': 'Demo',
   'community.members.one': 'Mwanachama 1',
   'community.members.many': 'Wanachama {n}',
+  'community.countries': 'nchi {n}',
 
   // ── Communities (identity list / dashboard view) ───────────────────────
   'communities.loading': 'Inapakia jumuiya…',

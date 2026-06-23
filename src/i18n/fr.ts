@@ -446,6 +446,7 @@ const fr: Dictionary = {
   'community.demo': 'Démo',
   'community.members.one': '1 membre',
   'community.members.many': '{n} membres',
+  'community.countries': '{n} pays',
 
   // ── Communities (identity list / dashboard view) ───────────────────────
   'communities.loading': 'Chargement des communautés…',
