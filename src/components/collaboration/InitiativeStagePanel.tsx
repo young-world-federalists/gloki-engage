@@ -13,8 +13,8 @@ import type { PipelineStage } from '../../types/initiative';
 import ProblemEngage from '../initiative/stages/ProblemEngage';
 import MandateEngage from '../initiative/stages/MandateEngage';
 import SolutionEngage from '../initiative/stages/SolutionEngage';
+import VoteEngage from '../initiative/stages/VoteEngage';
 import DiscussionStage from '../stages/DiscussionStage';
-import VoteStage from '../stages/VoteStage';
 import StageGate from '../community/StageGate';
 import { Banner, Button } from '../shared';
 import styles from './InitiativeStagePanel.module.scss';
@@ -241,6 +241,8 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
             hostServer={hostServer}
             hostAgent={hostAgent}
           />
+        ) : stage === 'vote' ? (
+          <VoteEngage initiativeId={initiativeId} communityId={communityId} />
         ) : (
           <StageGate communityId={communityId} stage={stage}>
             {stage === 'problem' && (
@@ -264,10 +266,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
                 hostAgent={hostAgent}
                 memberCount={memberCount}
               />
-            )}
-
-            {stage === 'vote' && (
-              <VoteStage initiativeId={initiativeId} />
             )}
           </StageGate>
         )}

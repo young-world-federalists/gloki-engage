@@ -8,6 +8,7 @@ import { STAGE_META } from './stageMeta';
 import InitiativeStagePanel from '../collaboration/InitiativeStagePanel';
 import ProblemActivityCard from './ProblemActivityCard';
 import SolutionActivityCard from './SolutionActivityCard';
+import VoteActivityCard from './VoteActivityCard';
 import MandateActivityCard from './MandateActivityCard';
 import styles from './ActivityCard.module.scss';
 
@@ -77,6 +78,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   if (stage === 'proposals') {
     return (
       <SolutionActivityCard
+        item={item}
+        communityId={communityId}
+        authorName={authorName}
+        authorKey={authorKey}
+        trustState={trustState}
+        vouchCount={vouchCount}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        expanded={expanded}
+        onToggle={onToggle}
+      />
+    );
+  }
+
+  // The Vote stage uses the same shared shell: a "Cast your vote" teaser that
+  // expands to the full ballot inline (gated) + the advance control (vote → mandate).
+  if (stage === 'vote') {
+    return (
+      <VoteActivityCard
         item={item}
         communityId={communityId}
         authorName={authorName}

@@ -20,9 +20,8 @@ export interface SolutionEngageProps {
  * `InitiativeStageCard`. It WRAPS the existing rich {@link ProposalsStage} — the
  * proposal slate + support + merge/expert-review panel — so that richness is
  * preserved exactly (spec §3: "keeps its richness but gains hierarchy"). The card
- * shell owns the read chrome (headline, byline, meta) and the blue "Open the full
- * solution" CTA; this slot only carries the participation UI, gated by the
- * community's per-stage trust rule ({@link StageGate}).
+ * shell owns the read chrome (headline, byline, meta); this slot only carries the
+ * participation UI, gated by the community's per-stage trust rule ({@link StageGate}).
  *
  * Carries its own StageGate so callers must render it OUTSIDE any shared gate to
  * avoid double-gating (mirrors MandateEngage).

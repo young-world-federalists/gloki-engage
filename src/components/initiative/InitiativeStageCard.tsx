@@ -28,10 +28,11 @@ export interface InitiativeStageCardProps {
   vouchCount?: number;
   expanded: boolean;
   onToggle: () => void;
-  /** The blue "Open the full {stage}" action. */
-  onOpen: () => void;
+  /** The blue "Open the full {stage}" action. Omit (with openLabel) for card-only
+   *  stages that have no dedicated page — the button is then not rendered. */
+  onOpen?: () => void;
   /** Already-translated label for the open button. */
-  openLabel: string;
+  openLabel?: string;
   /** A single muted line shown when collapsed (e.g. "12 agree · weigh in"). */
   collapsedTeaser?: React.ReactNode;
   /** The per-stage Engage UI — rendered only when expanded, in the shaded panel. */
@@ -127,10 +128,12 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
           <div className={styles.engage}>
             {children}
-            <button type="button" className={styles.openBtn} onClick={onOpen}>
-              {openLabel}
-              <ArrowRight size={16} aria-hidden />
-            </button>
+            {onOpen && openLabel && (
+              <button type="button" className={styles.openBtn} onClick={onOpen}>
+                {openLabel}
+                <ArrowRight size={16} aria-hidden />
+              </button>
+            )}
           </div>
         </div>
       ) : (

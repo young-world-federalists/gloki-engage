@@ -6,10 +6,10 @@ import type { Collaboration } from '../../services/contracts/community';
 import type { TrustBadgeProps } from '../shared';
 import InitiativeStageCard, { type StagePost } from '../initiative/InitiativeStageCard';
 import { useInitiativePost } from '../initiative/useInitiativePost';
-import SolutionEngage from '../initiative/stages/SolutionEngage';
+import VoteEngage from '../initiative/stages/VoteEngage';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 
-export interface SolutionActivityCardProps {
+export interface VoteActivityCardProps {
   item: Collaboration;
   communityId: string;
   authorName: string;
@@ -23,15 +23,15 @@ export interface SolutionActivityCardProps {
 }
 
 /**
- * The Solution-stage (proposals) community-page card: the shared two-part
- * {@link InitiativeStageCard} (Read summary over an Engage panel) wired to the
- * initiative post. The initiative statement is the headline; the byline shows the
- * author once; the Engage slot WRAPS the existing rich {@link SolutionEngage}
- * (proposal slate + support + merge — unchanged, just gains hierarchy, spec §3)
- * plus the author/co-author advance control ({@link StageAdvanceBar}, proposals →
- * vote). Card-only stage (no dedicated page — Eston, 2026-06-23): no Open button.
+ * The Vote-stage community-page card: the shared two-part
+ * {@link InitiativeStageCard} wired to the initiative post. The initiative
+ * statement is the headline; the byline shows the author once; the collapsed card
+ * shows a "Cast your vote" teaser, and expanding reveals the full ballot inline
+ * ({@link VoteEngage}, gated) plus the author/co-author advance control
+ * ({@link StageAdvanceBar}, vote → mandate). Card-only stage (no dedicated ballot
+ * page — Eston, 2026-06-23): no Open button.
  */
-const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
+const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
   item,
   communityId,
   authorName,
@@ -50,7 +50,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
   const communityMembers = useAppSelector((s) => s.communities.communityMembers);
   const communityActiveMembers = useAppSelector((s) => s.communities.communityActiveMembers);
 
-  // Active-member count feeds useInitiativePost (mirrors MandateActivityCard).
+  // Active-member count feeds useInitiativePost (mirrors SolutionActivityCard).
   useEffect(() => {
     if (!serverUrl || !publicKey || !communityId) return;
     if (!communityMembers[communityId]) {
@@ -67,7 +67,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
   const { post } = useInitiativePost(item.id, activeMemberCount, item.title);
 
   const fullPost: StagePost = {
-    stage: 'proposals',
+    stage: 'vote',
     headline: post.headline || item.title || t('community.untitled', 'Untitled Initiative'),
     byline: authorName ? t('community.startedBy', 'Started by {name}', { name: authorName }) : undefined,
     authorKey,
@@ -84,21 +84,14 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
-      collapsedTeaser={t('card.teaserSolution', 'Weigh in on the solutions')}
+      collapsedTeaser={t('card.teaserVote', 'Cast your vote')}
     >
-      <SolutionEngage
-        initiativeId={item.id}
-        communityId={communityId}
-        title={item.title || ''}
-        hostServer={hostServer}
-        hostAgent={hostAgent}
-      />
-      {/* Proposals → vote. Readiness is ungated for proposals, so omit
-          ready/notReadyReason — the bar defaults to ready. */}
+      <VoteEngage initiativeId={item.id} communityId={communityId} />
+      {/* Vote → mandate. Readiness is ungated for vote, so omit ready/notReadyReason. */}
       <StageAdvanceBar
         initiativeId={item.id}
         communityId={communityId}
-        stage="proposals"
+        stage="vote"
         hostServer={hostServer}
         hostAgent={hostAgent}
       />
@@ -106,4 +99,4 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
   );
 };
 
-export default SolutionActivityCard;
+export default VoteActivityCard;

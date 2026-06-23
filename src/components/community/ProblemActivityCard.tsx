@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../../store/slices/communitiesSlice';
@@ -46,7 +45,6 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
   onToggle,
 }) => {
   const t = useT();
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -91,11 +89,9 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
           threshold: needed,
         });
 
-  const openDiscussion = () =>
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${item.id}/discussion`,
-    );
-
+  // Card-only stage (no dedicated "full problem" page — Eston, 2026-06-23): the
+  // shell renders no Open button; deep engagement (Discuss this / Propose a
+  // framing) lives in the Engage panel below.
   return (
     <InitiativeStageCard
       post={fullPost}
@@ -103,8 +99,6 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
-      onOpen={openDiscussion}
-      openLabel={t('card.openProblem', 'Open the full problem')}
       collapsedTeaser={
         thresholdMet
           ? t('card.teaserAgreed', 'Agreed by your community')

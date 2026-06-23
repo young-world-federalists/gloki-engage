@@ -336,12 +336,11 @@ const sw: Dictionary = {
   'problems.nCountries': 'nchi {n}',
 
   // Card system — shared InitiativeStageCard (Read summary + Engage panel)
-  'card.openProblem': 'Fungua tatizo kamili',
-  'card.openSolution': 'Fungua suluhisho kamili',
   'card.discussThis': 'Jadili hili',
   'card.teaserAgreed': 'Limekubaliwa na jumuiya yako',
   'card.teaserWeighIn': '{n} wamekubali · toa maoni',
   'card.teaserSolution': 'Toa maoni kuhusu suluhisho',
+  'card.teaserVote': 'Piga kura yako',
   'card.viewMandate': 'Tazama agizo lililochapishwa',
   'card.teaserMandate': 'Agizo la jumuiya',
 
