@@ -341,6 +341,8 @@ const fr: Dictionary = {
   'card.discussThis': 'En discuter',
   'card.teaserAgreed': 'Approuvé par votre communauté',
   'card.teaserWeighIn': '{n} d’accord · donnez votre avis',
+  'card.viewMandate': 'Voir le mandat publié',
+  'card.teaserMandate': 'Mandat de la communauté',
 
   'problems.sources': 'Sources',
   'problems.whyMatters': 'Pourquoi c’est important pour nous',

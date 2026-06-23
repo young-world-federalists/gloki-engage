@@ -7,6 +7,7 @@ import { useT } from '../../i18n';
 import { STAGE_META } from './stageMeta';
 import InitiativeStagePanel from '../collaboration/InitiativeStagePanel';
 import ProblemActivityCard from './ProblemActivityCard';
+import MandateActivityCard from './MandateActivityCard';
 import styles from './ActivityCard.module.scss';
 
 export interface ActivityCardProps {
@@ -36,6 +37,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   if (stage === 'problem') {
     return (
       <ProblemActivityCard
+        item={item}
+        communityId={communityId}
+        authorName={authorName}
+        authorKey={authorKey}
+        trustState={trustState}
+        vouchCount={vouchCount}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        expanded={expanded}
+        onToggle={onToggle}
+      />
+    );
+  }
+
+  // The Mandate stage (last in the pipeline — no advance control) uses the same
+  // shared shell: a journey recap + the gated conviction action in the Engage slot.
+  if (stage === 'mandate') {
+    return (
+      <MandateActivityCard
         item={item}
         communityId={communityId}
         authorName={authorName}

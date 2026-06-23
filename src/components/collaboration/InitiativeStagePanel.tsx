@@ -8,23 +8,14 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers, setInitiativeStage } from '../../store/slices/communitiesSlice';
 import { contractRead, contractWrite } from '../../services/api';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
-import {
-  fetchDiscussionSummary,
-  fetchProposalsSummary,
-  fetchVoteSummary,
-  type DiscussionSummary,
-  type ProposalsSummary,
-  type VoteSummary,
-} from './flows/shared/stageMetrics';
 import type { IMethod } from '../../services/interfaces';
 import type { PipelineStage } from '../../types/initiative';
 import ProblemEngage from '../initiative/stages/ProblemEngage';
+import MandateEngage from '../initiative/stages/MandateEngage';
 import DiscussionStage from '../stages/DiscussionStage';
 import ProposalsStage from '../stages/ProposalsStage';
 import VoteStage from '../stages/VoteStage';
-import MandateStage from '../stages/MandateStage';
 import StageGate from '../community/StageGate';
-import JourneyRecap from '../mandate/JourneyRecap';
 import { Banner, Button } from '../shared';
 import styles from './InitiativeStagePanel.module.scss';
 
@@ -57,9 +48,9 @@ interface InitiativeStagePanelProps {
 /**
  * Embeddable engagement panel for an initiative's CURRENT stage. Renders bare
  * content (no page chrome): the merged-into banner, the author/MC RoleDisplay,
- * the active stage's StageGate-wrapped participation UI, the mandate JourneyRecap
- * (mandate stage only), and the author/co-author advance bar. Mounted inside an
- * ActivityCard on the community page.
+ * the active stage's StageGate-wrapped participation UI (the mandate stage renders
+ * MandateEngage directly — it carries its own JourneyRecap + StageGate), and the
+ * author/co-author advance bar. Mounted inside an ActivityCard on the community page.
  */
 const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
   initiativeId,
@@ -81,9 +72,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
   const [confirmAdvance, setConfirmAdvance] = useState(false);
   const [advanceError, setAdvanceError] = useState<string | null>(null);
   const [problemTally, setProblemTally] = useState<{ up: number; down: number; total: number }>({ up: 0, down: 0, total: 0 });
-  const [discussionSummary, setDiscussionSummary] = useState<DiscussionSummary | null>(null);
-  const [proposalsSummary, setProposalsSummary] = useState<ProposalsSummary | null>(null);
-  const [voteSummary, setVoteSummary] = useState<VoteSummary | null>(null);
   const [roles, setRoles] = useState<InitiativeRoles | null>(null);
 
   useEffect(() => {
@@ -152,29 +140,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
       } catch { /* non-blocking */ }
     };
     fetchProblemData();
-  }, [serverUrl, publicKey, initiativeId]);
-
-  // Fetch compact summaries — these feed JourneyRecap at the mandate stage and
-  // the readiness math. Each returns null silently on old initiatives without
-  // the relevant sub-contract.
-  useEffect(() => {
-    if (!serverUrl || !publicKey || !initiativeId) return;
-    let cancelled = false;
-    Promise.allSettled([
-      fetchDiscussionSummary(serverUrl, publicKey, initiativeId),
-      fetchProposalsSummary(serverUrl, publicKey, initiativeId),
-      fetchVoteSummary(serverUrl, publicKey, initiativeId),
-    ]).then(([d, p, v]) => {
-      if (cancelled) return;
-      setDiscussionSummary(d.status === 'fulfilled' ? d.value : null);
-      setProposalsSummary(p.status === 'fulfilled' ? p.value : null);
-      setVoteSummary(v.status === 'fulfilled' ? v.value : null);
-    });
-    return () => { cancelled = true; };
-    // `stage` intentionally omitted — the summaries reflect historical data
-    // that doesn't change with the active stage, and re-fetching on every
-    // advance is wasteful.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUrl, publicKey, initiativeId]);
 
   const memberCount = Array.isArray(communityMembers[communityId])
@@ -259,63 +224,54 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
         <RoleDisplay roles={roles} />
       )}
 
-      {/* E3 — journey recap: the whole arc, culminating in the published mandate */}
-      {stage === 'mandate' && (
-        <JourneyRecap
-          problemUp={problemTally.up}
-          discussion={discussionSummary}
-          proposals={proposalsSummary}
-          vote={voteSummary}
-          onViewMandate={() => navigate(`/mandate/${communityId}/${initiativeId}`)}
-        />
-      )}
-
       {/* Active-stage participation UI only, gated by the community's per-stage
-          rule. The completed/locked roadmap cards are dashboard-only and gone. */}
+          rule. The completed/locked roadmap cards are dashboard-only and gone.
+          Mandate is the exception: MandateEngage owns its own JourneyRecap +
+          StageGate, so it renders directly (wrapping it again would double-gate). */}
       <div className={styles.activeStage}>
-        <StageGate communityId={communityId} stage={stage}>
-          {stage === 'problem' && (
-            <ProblemEngage
-              initiativeId={initiativeId}
-              communityId={communityId}
-              communityMemberCount={activeMemberCount}
-              up={problemTally.up}
-              hostServer={hostServer}
-              hostAgent={hostAgent}
-            />
-          )}
+        {stage === 'mandate' ? (
+          <MandateEngage initiativeId={initiativeId} communityId={communityId} />
+        ) : (
+          <StageGate communityId={communityId} stage={stage}>
+            {stage === 'problem' && (
+              <ProblemEngage
+                initiativeId={initiativeId}
+                communityId={communityId}
+                communityMemberCount={activeMemberCount}
+                up={problemTally.up}
+                hostServer={hostServer}
+                hostAgent={hostAgent}
+              />
+            )}
 
-          {stage === 'discussion' && (
-            <DiscussionStage
-              variant="dashboard"
-              initiativeId={initiativeId}
-              communityId={communityId}
-              title={title}
-              hostServer={hostServer}
-              hostAgent={hostAgent}
-              memberCount={memberCount}
-            />
-          )}
+            {stage === 'discussion' && (
+              <DiscussionStage
+                variant="dashboard"
+                initiativeId={initiativeId}
+                communityId={communityId}
+                title={title}
+                hostServer={hostServer}
+                hostAgent={hostAgent}
+                memberCount={memberCount}
+              />
+            )}
 
-          {stage === 'proposals' && (
-            <ProposalsStage
-              variant="dashboard"
-              initiativeId={initiativeId}
-              communityId={communityId}
-              title={title}
-              hostServer={hostServer}
-              hostAgent={hostAgent}
-            />
-          )}
+            {stage === 'proposals' && (
+              <ProposalsStage
+                variant="dashboard"
+                initiativeId={initiativeId}
+                communityId={communityId}
+                title={title}
+                hostServer={hostServer}
+                hostAgent={hostAgent}
+              />
+            )}
 
-          {stage === 'vote' && (
-            <VoteStage initiativeId={initiativeId} />
-          )}
-
-          {stage === 'mandate' && (
-            <MandateStage variant="dashboard" initiativeId={initiativeId} />
-          )}
-        </StageGate>
+            {stage === 'vote' && (
+              <VoteStage initiativeId={initiativeId} />
+            )}
+          </StageGate>
+        )}
       </div>
 
       {/* Advance bar — author/co-authors only (Eston's Gate-B call, Batch 9b):

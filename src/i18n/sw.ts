@@ -340,6 +340,8 @@ const sw: Dictionary = {
   'card.discussThis': 'Jadili hili',
   'card.teaserAgreed': 'Limekubaliwa na jumuiya yako',
   'card.teaserWeighIn': '{n} wamekubali · toa maoni',
+  'card.viewMandate': 'Tazama agizo lililochapishwa',
+  'card.teaserMandate': 'Agizo la jumuiya',
 
   'problems.sources': 'Vyanzo',
   'problems.whyMatters': 'Kwa nini hili ni muhimu kwetu',

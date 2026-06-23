@@ -1,0 +1,10 @@
+@use '../../../styles/variables' as *;
+
+/* Mandate engage stack: the journey recap over the gated conviction action.
+   JourneyRecap and ConvictionStaking own their internal styling — this just
+   spaces the two zones consistently with the other engage slots (ProblemEngage). */
+.engage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
