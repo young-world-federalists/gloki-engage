@@ -7,6 +7,7 @@ import { useT } from '../../i18n';
 import { STAGE_META } from './stageMeta';
 import InitiativeStagePanel from '../collaboration/InitiativeStagePanel';
 import ProblemActivityCard from './ProblemActivityCard';
+import SolutionActivityCard from './SolutionActivityCard';
 import MandateActivityCard from './MandateActivityCard';
 import styles from './ActivityCard.module.scss';
 
@@ -32,8 +33,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const navigate = useNavigate();
 
   // The Problem stage renders the new shared two-part card (Read summary over an
-  // Engage panel). Other stages keep the InitiativeStagePanel body until units
-  // 2–4 convert them to the same shell.
+  // Engage panel). Problem/Solution/Mandate are converted; the remaining stages
+  // keep the InitiativeStagePanel body until later units convert them.
   if (stage === 'problem') {
     return (
       <ProblemActivityCard
@@ -56,6 +57,26 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   if (stage === 'mandate') {
     return (
       <MandateActivityCard
+        item={item}
+        communityId={communityId}
+        authorName={authorName}
+        authorKey={authorKey}
+        trustState={trustState}
+        vouchCount={vouchCount}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        expanded={expanded}
+        onToggle={onToggle}
+      />
+    );
+  }
+
+  // The Solution stage (proposals) uses the same shared shell: the existing rich
+  // proposal slate (wrapped, not rebuilt) + the author/co-author advance control
+  // in the Engage slot.
+  if (stage === 'proposals') {
+    return (
+      <SolutionActivityCard
         item={item}
         communityId={communityId}
         authorName={authorName}

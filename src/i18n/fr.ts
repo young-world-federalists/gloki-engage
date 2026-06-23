@@ -338,9 +338,11 @@ const fr: Dictionary = {
 
   // Card system — shared InitiativeStageCard (Read summary + Engage panel)
   'card.openProblem': 'Ouvrir le problème complet',
+  'card.openSolution': 'Ouvrir la solution complète',
   'card.discussThis': 'En discuter',
   'card.teaserAgreed': 'Approuvé par votre communauté',
   'card.teaserWeighIn': '{n} d’accord · donnez votre avis',
+  'card.teaserSolution': 'Donnez votre avis sur les solutions',
   'card.viewMandate': 'Voir le mandat publié',
   'card.teaserMandate': 'Mandat de la communauté',
 

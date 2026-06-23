@@ -1,0 +1,10 @@
+@use '../../../styles/variables' as *;
+
+/* Solution engage slot: the gated proposals slate (ProposalsStage owns all its
+   internal styling — the merge panel + approve/withdraw flow). This just spaces
+   the zone consistently with the other engage slots (ProblemEngage/MandateEngage). */
+.engage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
