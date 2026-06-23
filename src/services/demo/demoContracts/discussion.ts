@@ -12,7 +12,7 @@
 // dedup — never a weight. Eligibility is gated in the UI by StageGate.
 import type { IMethod } from '../../interfaces';
 import { readState, writeState, updateState } from '../demoState';
-import { DISCUSSION_SEED } from '../fixtures/deliberation';
+import type { DiscussionSeed } from '../fixtures/deliberation';
 
 interface DiscussionComment {
   id: string;
@@ -74,19 +74,35 @@ function byId<T extends { id: string }>(items: readonly T[]): Record<string, T> 
   return out;
 }
 
-// Rebuilt every call (cheap, deterministic, STABLE ids — no Date.now in the
-// seed) so a fresh contract reads the rich demo until a write persists over it.
+// A fresh discussion sub-contract opens EMPTY. Only the showcase initiative is
+// pre-seeded with the rich co-authoring demo — at seed time, via initDiscussion
+// (see seedDemoCommunity.ts). Every other initiative's discussion deploys its
+// own contract whose default is this blank state, so each initiative shows its
+// OWN discussion rather than a shared misinformation seed (Unit 5 fix).
 function defaultState(): DiscussionState {
   return {
     comments: [],
-    statement: {
-      ...DISCUSSION_SEED.statement,
-      coAuthors: [...DISCUSSION_SEED.statement.coAuthors],
-    },
-    edits: byId(DISCUSSION_SEED.edits),
-    positions: byId(DISCUSSION_SEED.positions),
-    anchored: byId(DISCUSSION_SEED.anchored),
+    statement: { title: '', body: '', coAuthors: [] },
+    edits: {},
+    positions: {},
+    anchored: {},
   };
+}
+
+/**
+ * Write the rich co-authoring seed into a specific discussion sub-contract.
+ * Called once at seed time for the showcase initiative; `useFlowContract` then
+ * JOINs that stored contract and reads the seeded state back. Demo-only (mock
+ * write through `writeState` — no real server call).
+ */
+export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
+  writeState<DiscussionState>(contractId, {
+    comments: [],
+    statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
+    edits: byId(seed.edits),
+    positions: byId(seed.positions),
+    anchored: byId(seed.anchored),
+  });
 }
 
 function load(contractId: string): DiscussionState {

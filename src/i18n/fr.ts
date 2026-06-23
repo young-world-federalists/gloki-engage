@@ -329,6 +329,7 @@ const fr: Dictionary = {
   'problems.fieldWhoWhy': 'Qui est touché, et pourquoi maintenant',
   'problems.fieldWhoWhyPlaceholder': 'p. ex. Les jeunes du littoral sont les plus touchés, et ça empire.',
   'problems.fieldCountries': 'Où est-ce pertinent ?',
+  'problems.fieldCountriesPlaceholder': 'Choisir un pays',
   'problems.fieldSdg': 'Objectif mondial',
   'problems.fieldSource': 'Une source ou un lien',
   'problems.sourceNudge': 'Une source n’est pas obligatoire, mais elle aide les autres à faire confiance au problème.',

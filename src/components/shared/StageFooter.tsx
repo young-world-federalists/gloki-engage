@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
+import { AlertCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useT } from '../../i18n';
 import styles from './StageFooter.module.scss';
 
+// Discussion is no longer a browse stage — it's reached per-post via "Discuss
+// this", so the footer carries the four browseable stages only (Unit 5).
 const STAGES = [
   { id: 'problem', labelKey: 'nav.problem', fallback: 'Problem', icon: AlertCircle, path: '/stage/problem' },
-  { id: 'discussion', labelKey: 'nav.discussion', fallback: 'Discuss', icon: MessageCircle, path: '/stage/discussion' },
   { id: 'proposals', labelKey: 'nav.proposals', fallback: 'Solutions', icon: Lightbulb, path: '/stage/proposals' },
   { id: 'vote', labelKey: 'nav.vote', fallback: 'Vote', icon: Vote, path: '/stage/vote' },
   { id: 'mandate', labelKey: 'nav.mandate', fallback: 'Mandate', icon: ScrollText, path: '/stage/mandate' },

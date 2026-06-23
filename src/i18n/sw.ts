@@ -328,6 +328,7 @@ const sw: Dictionary = {
   'problems.fieldWhoWhy': 'Linawaathiri nani, na kwa nini sasa',
   'problems.fieldWhoWhyPlaceholder': 'k.m. Linawaathiri zaidi vijana wa pwani, na linazidi kuwa baya.',
   'problems.fieldCountries': 'Linahusika wapi?',
+  'problems.fieldCountriesPlaceholder': 'Chagua nchi',
   'problems.fieldSdg': 'Lengo la kimataifa',
   'problems.fieldSource': 'Chanzo au kiungo',
   'problems.sourceNudge': 'Chanzo si lazima, lakini huwasaidia wengine kuliamini tatizo.',

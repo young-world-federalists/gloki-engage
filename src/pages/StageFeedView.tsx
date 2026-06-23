@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
@@ -133,6 +133,13 @@ const StageFeedView: React.FC = () => {
   const sampleItems = SAMPLE_INITIATIVES[stage] || [];
 
   const StageIcon = config.icon;
+
+  // Discussion is no longer a browse stage (Unit 5) — it lives only as a
+  // per-post thread reached via "Discuss this". Any old /stage/discussion link
+  // lands on the Problem feed. Placed after all hooks to keep their order stable.
+  if (stageId === 'discussion') {
+    return <Navigate to="/stage/problem" replace />;
+  }
 
   return (
     <div className={cs.container}>

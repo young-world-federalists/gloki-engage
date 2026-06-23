@@ -367,6 +367,16 @@ function buildDiscussionSeed(): DiscussionSeed {
 export const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
 
 /**
+ * Discussion seeds keyed by initiative `key`. The seeder pre-seeds a discussion
+ * sub-contract ONLY for keys present here; every other initiative's discussion
+ * deploys fresh and opens empty. Today only the misinformation showcase carries
+ * the rich co-authoring demo (Unit 5 product decision).
+ */
+export const DISCUSSION_SEED_BY_KEY: Record<string, DiscussionSeed> = {
+  misinfo: DISCUSSION_SEED,
+};
+
+/**
  * A glanceable summary of the seed for the Stage 2 feed/dashboard previews.
  * List/summary contexts read this (no contract deploy); the full co-authoring
  * space reads the live contract. Documented simplification.

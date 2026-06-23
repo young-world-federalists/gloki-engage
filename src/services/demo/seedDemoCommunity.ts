@@ -10,9 +10,10 @@ import { initApproval } from './demoContracts/approval';
 import { initQV } from './demoContracts/qv';
 import { initConviction } from './demoContracts/conviction';
 import { initModification } from './demoContracts/modification';
+import { initDiscussion } from './demoContracts/discussion';
 import { PERSONAS, pick } from './fixtures/identity';
 import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
-import { PROPOSALS_BY_KEY } from './fixtures/deliberation';
+import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
   votePattern,
@@ -134,6 +135,20 @@ export function seedDemoCommunity(
       name: 'register_stage_contract',
       values: { stage_key: 'discussionModsContractId', contract_id: dmId, address: '', agent: publicKey },
     } as IMethod, publicKey);
+
+    // Co-authoring discussion — pre-seeded ONLY for showcase initiatives that
+    // have a seed (today: misinfo). Registering the contract id makes
+    // useFlowContract JOIN it and read the rich seed; un-seeded initiatives have
+    // no stored id, so their discussion deploys fresh and opens empty.
+    const discSeed = DISCUSSION_SEED_BY_KEY[seed.key];
+    if (discSeed) {
+      const discId = deployStageContract('discussion_contract.py', initiativeId, seed.title);
+      initDiscussion(discId, discSeed);
+      initiativeWrite(initiativeId, {
+        name: 'register_stage_contract',
+        values: { stage_key: 'discussionContractId', contract_id: discId, address: '', agent: publicKey },
+      } as IMethod, publicKey);
+    }
 
     // Proposals (approval voting)
     const propProposals = proposals.map((text, i) => ({

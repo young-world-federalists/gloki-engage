@@ -4,12 +4,13 @@ import { Globe, MessageCircle, Plus } from 'lucide-react';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import ProblemVoteFlow from '../../collaboration/flows/voting/ProblemVoteFlow';
 import StageGate from '../../community/StageGate';
-import { Banner, Button, Modal, CountryMultiSelect } from '../../shared';
+import { Banner, Button, Modal, SearchableSelect } from '../../shared';
 import { useT } from '../../../i18n';
 import type { TFunction } from '../../../i18n';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { fetchCollaborations } from '../../../store/slices/communitiesSlice';
 import { sanitizeExternalUrl } from '../../../utils/urlSafety';
+import { COUNTRIES } from '../../../utils/countries';
 import { SDG_OPTIONS, type SdgTag } from '../../../services/demo/fixtures/problems';
 import { proposeCandidateIssue } from '../../stages/ProblemStage.demo';
 import styles from './ProblemEngage.module.scss';
@@ -119,6 +120,12 @@ interface ProposeIssueModalProps {
   communityId: string | null;
   t: TFunction;
 }
+
+// Single-select country options (spec §5) — built once from the shared country
+// list; the flag rides along as the option icon. State stays a string[] holding
+// 0-or-1 code so the existing proposeCandidateIssue({ countries }) call is
+// unchanged.
+const COUNTRY_OPTIONS = COUNTRIES.map((c) => ({ value: c.code, label: c.name, icon: c.flag }));
 
 const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, communityId, t }) => {
   const dispatch = useAppDispatch();
@@ -304,10 +311,11 @@ const ProposeIssueModal: React.FC<ProposeIssueModalProps> = ({ isOpen, onClose, 
             {t('problems.fieldCountries', 'Where is it relevant?')}{' '}
             <span className={styles.optional}>{t('problems.optional', 'optional')}</span>
           </span>
-          <CountryMultiSelect
-            value={selectedCountries}
-            onChange={setSelectedCountries}
-            ariaLabel={t('problems.fieldCountries', 'Where is it relevant?')}
+          <SearchableSelect
+            options={COUNTRY_OPTIONS}
+            value={selectedCountries[0] ?? ''}
+            onChange={(code) => setSelectedCountries(code ? [code] : [])}
+            placeholder={t('problems.fieldCountriesPlaceholder', 'Select a country')}
           />
         </div>
 
