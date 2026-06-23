@@ -345,6 +345,7 @@ const fr: Dictionary = {
   'card.teaserVote': 'Votez',
   'card.viewMandate': 'Voir le mandat publié',
   'card.teaserMandate': 'Mandat de la communauté',
+  'card.teaserDiscussion': 'Rejoindre la discussion',
 
   'problems.sources': 'Sources',
   'problems.whyMatters': 'Pourquoi c’est important pour nous',
@@ -724,6 +725,8 @@ const fr: Dictionary = {
   'deliberation.discussion.tapToCoauthor': 'Touchez pour co-rédiger',
   'deliberation.discussion.preview': 'Déclaration en cours · {p} positions · {e} modifications ouvertes',
   'deliberation.discussion.leaning': '{p} positions · {e} modifications ouvertes',
+  'deliberation.empty.title': 'Pas encore de discussion',
+  'deliberation.empty.body': 'Soyez le premier à co-rédiger une déclaration commune pour ce problème.',
   'deliberation.coauthor.heading': 'Notre déclaration commune',
   'deliberation.coauthor.coOwned': 'Co-détenue',
   'deliberation.coauthor.coauthored': 'Co-rédigée avec',

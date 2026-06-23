@@ -1,0 +1,23 @@
+@use '../../../styles/variables' as *;
+
+/* Discussion engage slot: ambient co-presence over either a compact live preview
+   (participation meter + one-line summary) or a friendly empty state. Spaces the
+   zone consistently with the other engage slots (ProblemEngage/MandateEngage). */
+.engage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+/* One-line live preview, mirrors the retired DiscussionStage .summaryHint. */
+.preview {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.6;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}

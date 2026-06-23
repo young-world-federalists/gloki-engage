@@ -7,6 +7,7 @@ import { useT } from '../../i18n';
 import { STAGE_META } from './stageMeta';
 import InitiativeStagePanel from '../collaboration/InitiativeStagePanel';
 import ProblemActivityCard from './ProblemActivityCard';
+import DiscussionActivityCard from './DiscussionActivityCard';
 import SolutionActivityCard from './SolutionActivityCard';
 import VoteActivityCard from './VoteActivityCard';
 import MandateActivityCard from './MandateActivityCard';
@@ -39,6 +40,27 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   if (stage === 'problem') {
     return (
       <ProblemActivityCard
+        item={item}
+        communityId={communityId}
+        authorName={authorName}
+        authorKey={authorKey}
+        trustState={trustState}
+        vouchCount={vouchCount}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        expanded={expanded}
+        onToggle={onToggle}
+      />
+    );
+  }
+
+  // The Discussion stage uses the same shared shell: a live, per-initiative
+  // co-authoring preview (or a friendly empty state) in the Engage slot, plus a
+  // blue "Open the co-authoring space" to the full view (Discussion has a real
+  // destination page, like Mandate).
+  if (stage === 'discussion') {
+    return (
+      <DiscussionActivityCard
         item={item}
         communityId={communityId}
         authorName={authorName}

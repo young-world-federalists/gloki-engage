@@ -344,6 +344,7 @@ const sw: Dictionary = {
   'card.teaserVote': 'Piga kura yako',
   'card.viewMandate': 'Tazama agizo lililochapishwa',
   'card.teaserMandate': 'Agizo la jumuiya',
+  'card.teaserDiscussion': 'Jiunge na majadiliano',
 
   'problems.sources': 'Vyanzo',
   'problems.whyMatters': 'Kwa nini hili ni muhimu kwetu',
@@ -723,6 +724,8 @@ const sw: Dictionary = {
   'deliberation.discussion.tapToCoauthor': 'Gusa ili kuandika pamoja',
   'deliberation.discussion.preview': 'Tamko linaundwa · misimamo {p} · maboresho {e} yaliyo wazi',
   'deliberation.discussion.leaning': 'misimamo {p} · maboresho {e} yaliyo wazi',
+  'deliberation.empty.title': 'Bado hakuna majadiliano',
+  'deliberation.empty.body': 'Kuwa wa kwanza kuandika pamoja taarifa ya pamoja kwa tatizo hili.',
   'deliberation.coauthor.heading': 'Tamko letu la pamoja',
   'deliberation.coauthor.coOwned': 'Linamilikiwa pamoja',
   'deliberation.coauthor.coauthored': 'Limeandikwa pamoja na',

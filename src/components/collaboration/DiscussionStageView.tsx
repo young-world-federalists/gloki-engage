@@ -4,7 +4,7 @@ import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityProperties } from '../../store/slices/communitiesSlice';
 import { useT } from '../../i18n';
-import { Button } from '../shared';
+import { Button, EmptyState } from '../shared';
 import AppHeader from '../AppHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
@@ -96,6 +96,21 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, 
                   <CoPresenceBar participants={DELIBERATION_PARTICIPANTS} hereNow={PRESENCE_NOW} ticker={PRESENCE_TICKER} />
                   <ParticipationMeter taken={data.participantCount} members={memberCount} />
                 </div>
+                {/* Un-started discussion: lead with a friendly invitation rather
+                    than empty statement/positions scaffolding. The co-authoring
+                    controls below stay reachable (SharedStatement carries the
+                    "Suggest an edit" action + the statement editor), so the user
+                    can still start the first statement. */}
+                {data.participantCount === 0 && !data.statement.title && data.positions.length === 0 && (
+                  <EmptyState
+                    icon={<MessageSquare size={36} aria-hidden />}
+                    title={t('deliberation.empty.title', 'No discussion yet')}
+                    message={t(
+                      'deliberation.empty.body',
+                      'Be the first to co-author a shared statement for this problem.',
+                    )}
+                  />
+                )}
                 <SharedStatement
                   contractId={contractId}
                   statement={data.statement}

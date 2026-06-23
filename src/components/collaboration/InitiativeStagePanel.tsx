@@ -14,7 +14,7 @@ import ProblemEngage from '../initiative/stages/ProblemEngage';
 import MandateEngage from '../initiative/stages/MandateEngage';
 import SolutionEngage from '../initiative/stages/SolutionEngage';
 import VoteEngage from '../initiative/stages/VoteEngage';
-import DiscussionStage from '../stages/DiscussionStage';
+import DiscussionEngage from '../initiative/stages/DiscussionEngage';
 import StageGate from '../community/StageGate';
 import { Banner, Button } from '../shared';
 import styles from './InitiativeStagePanel.module.scss';
@@ -226,10 +226,11 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
 
       {/* Active-stage participation UI only, gated by the community's per-stage
           rule. The completed/locked roadmap cards are dashboard-only and gone.
-          Mandate and Solution (proposals) are the exceptions: MandateEngage /
-          SolutionEngage own their own StageGate (and MandateEngage its
-          JourneyRecap), so they render directly — wrapping them again would
-          double-gate. */}
+          Mandate, Solution (proposals) and Discussion are the exceptions:
+          MandateEngage / SolutionEngage own their own StageGate (and MandateEngage
+          its JourneyRecap), so they render directly — wrapping them again would
+          double-gate. DiscussionEngage is a read-only live preview (actions live
+          in the full view), so it needs no gate. */}
       <div className={styles.activeStage}>
         {stage === 'mandate' ? (
           <MandateEngage initiativeId={initiativeId} communityId={communityId} />
@@ -243,6 +244,12 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
           />
         ) : stage === 'vote' ? (
           <VoteEngage initiativeId={initiativeId} communityId={communityId} />
+        ) : stage === 'discussion' ? (
+          <DiscussionEngage
+            initiativeId={initiativeId}
+            communityId={communityId}
+            memberCount={memberCount}
+          />
         ) : (
           <StageGate communityId={communityId} stage={stage}>
             {stage === 'problem' && (
@@ -253,18 +260,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
                 up={problemTally.up}
                 hostServer={hostServer}
                 hostAgent={hostAgent}
-              />
-            )}
-
-            {stage === 'discussion' && (
-              <DiscussionStage
-                variant="dashboard"
-                initiativeId={initiativeId}
-                communityId={communityId}
-                title={title}
-                hostServer={hostServer}
-                hostAgent={hostAgent}
-                memberCount={memberCount}
               />
             )}
           </StageGate>
