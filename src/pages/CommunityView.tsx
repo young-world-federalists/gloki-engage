@@ -223,7 +223,7 @@ const CommunityView: React.FC = () => {
     { key: 'create-initiative', icon: PlusCircle, label: t('initiative.start', 'Start an initiative'), onClick: closeAfter(() => navigate(`/community/${communityId}/create-initiative`)) },
     { key: 'collab', icon: Users2, label: t('community.menu.collab', 'Collab'), onClick: closeAfter(() => navigate(`/community/${communityId}/collab`)), dividerBefore: true },
     { key: 'chat', icon: MessageSquare, label: t('community.menu.chat', 'Chat'), onClick: closeAfter(() => navigate(`/community/${communityId}/chat`)) },
-    { key: 'currency', icon: Coins, label: t('community.menu.currency', 'Currency'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
+    { key: 'currency', icon: Coins, label: t('community.menu.funds', 'Community Funds'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
     { key: 'members', icon: Users, label: t('community.menu.members', 'Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
     { key: 'identity', icon: Shield, label: t('community.menu.identity', 'Identity & Trust'), onClick: closeAfter(() => navigate(`/community/${communityId}/identity`)) },
     { key: 'settings', icon: Settings, label: t('community.menu.settings', 'Settings'), onClick: closeAfter(() => navigate(`/community/${communityId}/settings`)) },

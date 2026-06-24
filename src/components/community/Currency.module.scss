@@ -30,12 +30,12 @@
       gap: $spacing-xs;
       margin-bottom: $spacing-sm;
 
-      h2 {
+      h1 {
         margin-bottom: 0;
       }
     }
 
-    h2 {
+    h1 {
       font-size: $text-2xl;
       font-weight: $font-bold;
       color: $gray-800;
@@ -66,7 +66,7 @@
           margin-bottom: $spacing-xl;
           color: $primary;
 
-          h3 {
+          h2 {
             font-size: $text-xl;
             font-weight: $font-semibold;
             color: $gray-800;
@@ -131,76 +131,323 @@
       .actionCard {
         @include card-surface;
 
-        h3 {
+        // Section header (h2) — also handles the optional InfoDisclosure title row.
+        > h2 {
           font-size: $text-lg;
           font-weight: $font-semibold;
           color: $gray-800;
           margin-bottom: $spacing-lg;
         }
 
-        .actionButton {
+        .titleRow {
           display: flex;
           align-items: center;
-          gap: $spacing-sm;
-          padding: $spacing-md $spacing-xl;
-          background-color: $primary;
-          color: white;
-          border: none;
-          border-radius: $radius-md;
-          font-size: $text-sm;
-          font-weight: $font-medium;
-          cursor: pointer;
-          transition: background-color $transition-base;
+          gap: $spacing-xs;
+          margin-bottom: $spacing-lg;
 
-          &:hover {
-            background-color: $primary-dark;
+          h2 {
+            font-size: $text-lg;
+            font-weight: $font-semibold;
+            color: $gray-800;
+            margin: 0;
           }
         }
 
+        .fullWidthAction {
+          width: 100%;
+        }
+
+        // Monetary-policy preference inputs.
+        .preferences {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-lg;
+          margin-bottom: $spacing-lg;
+
+          .preferenceItem {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-xs;
+
+            label {
+              font-size: $text-sm;
+              font-weight: $font-medium;
+              color: $gray-700;
+            }
+
+            // Native input kept (not a Button) — guarantee the 44px touch target.
+            .inputField {
+              min-height: 44px;
+              padding-right: $spacing-2xl; // room for the trailing trend icon
+            }
+
+            // Trailing trend glyph, vertically centred on the 44px input.
+            .mintIcon,
+            .burnIcon {
+              position: absolute;
+              right: $spacing-md;
+              bottom: $spacing-md;
+              pointer-events: none;
+            }
+
+            .mintIcon {
+              color: $success;
+            }
+
+            .burnIcon {
+              color: $error;
+            }
+          }
+        }
+
+        .preferenceActions {
+          display: flex;
+          gap: $spacing-sm;
+          flex-wrap: wrap;
+        }
       }
     }
   }
 
-  .paymentFormOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: $spacing-lg;
+  // ── Funds list ─────────────────────────────────────────────────────────
+  .fundsCard {
+    @include card-surface;
+    margin-top: $spacing-lg;
 
-    .paymentForm {
-      background: white;
-      border-radius: $radius-lg;
-      padding: $spacing-2xl;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    .fundsHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-lg;
 
-      h3 {
-        font-size: $text-xl;
+      h2 {
+        font-size: $text-lg;
         font-weight: $font-semibold;
         color: $gray-800;
-        margin-bottom: $spacing-xl;
-      }
-
-      .sendButton {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .balanceInfo {
-        margin-top: $spacing-sm;
-        font-size: $text-sm;
-        color: $gray-500;
-        text-align: right;
+        margin: 0;
       }
     }
+
+    .fundsLoading {
+      color: $gray-500;
+      font-size: $text-sm;
+    }
+
+    .fundList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+    }
+
+    // Row layout shared by the commons row and the per-fund buttons.
+    %fundRowLayout {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: $spacing-md;
+      width: 100%;
+      min-height: 44px;
+      padding: $spacing-md;
+      border-radius: $radius-md;
+      text-align: left;
+    }
+
+    .fundRow {
+      @extend %fundRowLayout;
+    }
+
+    .fundRowButton {
+      @extend %fundRowLayout;
+      background: $gray-50;
+      border: 1px solid $gray-100;
+      cursor: pointer;
+      transition: background-color $transition-base, border-color $transition-base;
+
+      &:hover {
+        background: $gray-100;
+        border-color: $gray-200;
+      }
+    }
+
+    .fundRowCommons {
+      background: $info-surface;
+    }
+
+    .fundName {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      font-size: $text-sm;
+      font-weight: $font-medium;
+      color: $gray-800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .commonsIcon {
+      color: $warning;
+      flex-shrink: 0;
+    }
+
+    .fundBalance {
+      font-size: $text-sm;
+      font-weight: $font-semibold;
+      color: $gray-700;
+      white-space: nowrap;
+    }
+
+    .fundPct {
+      font-size: $text-xs;
+      color: $gray-500;
+      white-space: nowrap;
+    }
+
+    .noFunds {
+      list-style: none;
+      color: $gray-500;
+      font-size: $text-sm;
+      padding: $spacing-md 0 0;
+    }
+  }
+
+  // ── Community allocation ───────────────────────────────────────────────
+  .allocationCard {
+    @include card-surface;
+    margin-top: $spacing-lg;
+
+    .allocationHeader {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+
+      .titleRow {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+
+        h2 {
+          font-size: $text-lg;
+          font-weight: $font-semibold;
+          color: $gray-800;
+          margin: 0;
+        }
+      }
+
+      .distributionStatus {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+      }
+
+      .statusText {
+        font-size: $text-xs;
+        color: $gray-500;
+      }
+    }
+
+    .allocationLoading {
+      color: $gray-500;
+      font-size: $text-sm;
+    }
+
+    .allocationRow {
+      display: grid;
+      grid-template-columns: 1fr auto 96px;
+      align-items: center;
+      gap: $spacing-md;
+      padding: $spacing-sm 0;
+      border-bottom: 1px solid $gray-100;
+
+      &:last-of-type {
+        border-bottom: none;
+      }
+    }
+
+    .allocationHeadings {
+      border-bottom: 1px solid $gray-200;
+
+      span {
+        font-size: $text-xs;
+        font-weight: $font-medium;
+        color: $gray-500;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+    }
+
+    .allocationRowCommons {
+      background: $info-surface;
+      border-radius: $radius-md;
+      padding: $spacing-sm $spacing-md;
+      margin-bottom: $spacing-xs;
+    }
+
+    .colAccount {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      font-size: $text-sm;
+      font-weight: $font-medium;
+      color: $gray-800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .colPct {
+      font-size: $text-sm;
+      color: $gray-600;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .colPtsInput {
+      min-height: 44px;
+      width: 100%;
+      text-align: right;
+    }
+
+    .noFunds {
+      color: $gray-500;
+      font-size: $text-sm;
+      padding: $spacing-md 0;
+    }
+
+    .allocationFooter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: $spacing-sm;
+      flex-wrap: wrap;
+      margin-top: $spacing-lg;
+    }
+
+    .allocationTotal {
+      font-size: $text-sm;
+      font-weight: $font-semibold;
+      color: $gray-700;
+    }
+
+    .allocationTotalOver {
+      color: $error;
+    }
+  }
+
+  // The "Send Support" inputs render inline; reuse the shared balance-info caption.
+  .balanceInfo {
+    margin-top: $spacing-sm;
+    font-size: $text-sm;
+    color: $gray-500;
+    text-align: right;
   }
 }
 
@@ -226,7 +473,7 @@
 @media (prefers-color-scheme: dark) {
   .container {
     .header {
-      h2 {
+      h1 {
         color: $dark-text;
       }
 
@@ -240,8 +487,12 @@
       .actionsSection .actionCard {
         @include card-surface-dark;
 
-        h3 {
+        h2 {
           color: $dark-text;
+        }
+
+        .preferences .preferenceItem label {
+          color: $dark-text-secondary;
         }
 
         .balanceAmount {
@@ -266,20 +517,76 @@
       }
     }
 
-    .explainer {
-      background: rgba($primary, 0.1);
-      border-color: rgba($primary, 0.2);
+    .fundsCard,
+    .allocationCard {
+      @include card-surface-dark;
 
-      .explainerText {
-        h3 { color: $dark-text; }
-        p { color: $dark-text-secondary; }
+      h2 {
+        color: $dark-text;
       }
     }
 
-    .paymentFormOverlay .paymentForm {
-      background-color: $dark-bg;
+    .fundsCard {
+      .fundRowButton {
+        background: $dark-surface;
+        border-color: $dark-border;
 
-      h3 {
+        &:hover {
+          background: $dark-border;
+        }
+      }
+
+      .fundRowCommons {
+        background: $info-surface-dark;
+      }
+
+      .fundName {
+        color: $dark-text;
+      }
+
+      .fundBalance {
+        color: $dark-text;
+      }
+
+      .fundPct,
+      .fundsLoading,
+      .noFunds {
+        color: $dark-text-secondary;
+      }
+    }
+
+    .allocationCard {
+      .allocationRow {
+        border-bottom-color: $dark-border;
+      }
+
+      .allocationHeadings {
+        border-bottom-color: $dark-border;
+
+        span {
+          color: $dark-text-secondary;
+        }
+      }
+
+      .allocationRowCommons {
+        background: $info-surface-dark;
+      }
+
+      .colAccount {
+        color: $dark-text;
+      }
+
+      .colPct {
+        color: $dark-text-secondary;
+      }
+
+      .statusText,
+      .allocationLoading,
+      .noFunds {
+        color: $dark-text-secondary;
+      }
+
+      .allocationTotal {
         color: $dark-text;
       }
     }
