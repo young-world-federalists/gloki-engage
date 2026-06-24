@@ -584,7 +584,16 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
             communityId={communityId}
             currentUser={publicKey || ''}
             serverUrl={serverUrl || ''}
-            onBack={() => setSelectedFundId(null)}
+            onBack={() => {
+              setSelectedFundId(null);
+              // The demo seam emits no contract_write events, so a contribution
+              // made in the detail won't have refreshed the list. Re-fetch the
+              // fund balances, commons, allocation %s, and personal balance.
+              void loadAllocationData();
+              if (serverUrl && publicKey && communityId) {
+                dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
+              }
+            }}
           />
         </div>
       ) : (
