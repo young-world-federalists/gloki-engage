@@ -14,17 +14,41 @@ interface Collaboration {
   [key: string]: unknown;
 }
 
+interface Account {
+  balanceOf: number;
+  creationTime: number;
+  elapsedDays: number;
+  type?: 'personal' | 'central' | 'fund';
+  owner?: string;
+}
+
+interface MonetaryParams { mint: number; burn: number; commons_mint: number; }
+
 interface CommunityState {
   members: Record<string, unknown[]>;
   properties: Record<string, unknown>;
   collaborations: Collaboration[];
-  accounts: Record<string, { balanceOf: number; creationTime: number; elapsedDays: number }>;
+  accounts: Record<string, Account>;
+  allocations: Record<string, Record<string, number>>; // member -> { account: points }
+  parameters: Record<string, MonetaryParams>;           // member -> prefs
+  distribution: { paymentCount: number; dayStep: number };
   stage_contracts: Record<string, { contractId: string; address: string; agent: string }>;
   stage_permissions: Record<string, StageRule>;
 }
 
 function defaultState(): CommunityState {
-  return { members: {}, properties: {}, collaborations: [], accounts: {}, stage_contracts: {}, stage_permissions: {} };
+  return {
+    members: {}, properties: {}, collaborations: [], accounts: {},
+    allocations: {}, parameters: {}, distribution: { paymentCount: 0, dayStep: 0 },
+    stage_contracts: {}, stage_permissions: {},
+  };
+}
+
+function median(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 function load(contractId: string): CommunityState {
@@ -40,16 +64,9 @@ export function initCommunity(
   const state = defaultState();
   state.properties = properties;
   state.members[publicKey] = [];
-  state.accounts[publicKey] = {
-    balanceOf: 1000,
-    creationTime: Date.now(),
-    elapsedDays: 0,
-  };
-  state.accounts['centralAccount'] = {
-    balanceOf: 0,
-    creationTime: Date.now(),
-    elapsedDays: 0,
-  };
+  state.accounts[publicKey] = { balanceOf: 1000, creationTime: Date.now(), elapsedDays: 0, type: 'personal' };
+  state.accounts['centralAccount'] = { balanceOf: 0, creationTime: Date.now(), elapsedDays: 0, type: 'central' };
+  state.parameters[publicKey] = { mint: 10, burn: 1, commons_mint: 5 };
   writeState(contractId, state);
 }
 
@@ -113,6 +130,38 @@ export function communityRead(contractId: string, method: IMethod, caller: strin
     case 'get_stage_permissions':
       // Default-merged so un-configured communities return sane defaults.
       return { ...DEFAULT_STAGE_PERMISSIONS, ...state.stage_permissions };
+    case 'get_fund_balance': {
+      const fundName = method.values?.fund_name as string | undefined;
+      if (!fundName) return 0;
+      return state.accounts[fundName]?.balanceOf ?? 0;
+    }
+    case 'get_all_allocations':
+      return state.allocations;
+    case 'get_account_details': {
+      const result: Record<string, { type: string; balance: number }> = {};
+      for (const [name, acct] of Object.entries(state.accounts)) {
+        result[name] = { type: acct.type ?? 'personal', balance: acct.balanceOf };
+      }
+      return result;
+    }
+    case 'get_distribution_status': {
+      const hasFund = Object.values(state.accounts).some((a) => a.type === 'fund');
+      return {
+        days_since_creation: state.distribution.dayStep,
+        payment_count: state.distribution.paymentCount,
+        can_distribute: hasFund,
+      };
+    }
+    case 'get_parameters': {
+      const mints: number[] = [], burns: number[] = [], commons: number[] = [];
+      for (const p of Object.values(state.parameters)) {
+        mints.push(p.mint); burns.push(p.burn); commons.push(p.commons_mint);
+      }
+      return {
+        parameters: state.parameters[caller] ?? { mint: 0, burn: 0, commons_mint: 0 },
+        medians: { mint: median(mints), burn: median(burns), commons_mint: median(commons) },
+      };
+    }
     default:
       return null;
   }
@@ -170,7 +219,9 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
             balanceOf: 1000,
             creationTime: Date.now(),
             elapsedDays: 0,
+            type: 'personal',
           };
+          next.parameters[caller] = { mint: 10, burn: 1, commons_mint: 5 };
         }
         return next;
       });
@@ -187,7 +238,9 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
           balanceOf: 1000,
           creationTime: Date.now(),
           elapsedDays: 0,
+          type: 'personal',
         };
+        next.parameters[key] = { mint: 10, burn: 1, commons_mint: 5 };
         return next;
       });
       return null;
@@ -245,6 +298,98 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
         return next;
       });
       return true;
+    }
+    case 'create_fund_account': {
+      const name = method.values?.name as string | undefined;
+      const owner = (method.values?.owner as string) ?? caller;
+      if (!name) return false;
+      let created = false;
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        if (next.accounts[name]) return next;
+        next.accounts = { ...next.accounts, [name]: { balanceOf: 0, creationTime: Date.now(), elapsedDays: 0, type: 'fund', owner } };
+        created = true;
+        return next;
+      });
+      return created;
+    }
+    case 'fund_transfer': {
+      const fundName = method.values?.fund_name as string | undefined;
+      const to = method.values?.to as string | undefined;
+      const value = (method.values?.value as number) ?? 0;
+      if (!fundName || !to) return false;
+      let ok = false;
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        const fund = next.accounts[fundName];
+        const recipient = next.accounts[to];
+        if (fund && fund.type === 'fund' && fund.owner === caller && recipient && fund.balanceOf >= value) {
+          next.accounts = { ...next.accounts, [fundName]: { ...fund, balanceOf: fund.balanceOf - value }, [to]: { ...recipient, balanceOf: recipient.balanceOf + value } };
+          ok = true;
+        }
+        return next;
+      });
+      return ok;
+    }
+    case 'set_allocation': {
+      const allocation = method.values?.allocation as Record<string, number> | undefined;
+      if (!allocation) return false;
+      const total = Object.values(allocation).reduce((sum, v) => sum + v, 0);
+      if (total > 1000) return false;
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        next.allocations = { ...next.allocations, [caller]: allocation };
+        return next;
+      });
+      return true;
+    }
+    case 'set_parameters': {
+      const mint = (method.values?.mint as number) ?? 0;
+      const burn = (method.values?.burn as number) ?? 0;
+      const commons_mint = (method.values?.commons_mint as number) ?? 0;
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        next.parameters = { ...next.parameters, [caller]: { mint, burn, commons_mint } };
+        return next;
+      });
+      return true;
+    }
+    case 'distribute_commons': {
+      let status = { days_since_creation: 0, payment_count: 0, can_distribute: false };
+      updateState<CommunityState>(contractId, (s) => {
+        const next = { ...defaultState(), ...s };
+        // One simulated day: mint the median commons into the treasury, then split it
+        // across funds by the community's collective allocation points.
+        const commonsMint = median(Object.values(next.parameters).map((p) => p.commons_mint));
+        const central = next.accounts['centralAccount'] ?? { balanceOf: 0, creationTime: Date.now(), elapsedDays: 0, type: 'central' as const };
+        central.balanceOf += commonsMint;
+        const fundNames = Object.keys(next.accounts).filter((n) => next.accounts[n].type === 'fund');
+        const fundPoints: Record<string, number> = {};
+        let totalFundPoints = 0;
+        for (const alloc of Object.values(next.allocations)) {
+          for (const fn of fundNames) {
+            const pts = alloc[fn] ?? 0;
+            fundPoints[fn] = (fundPoints[fn] ?? 0) + pts;
+            totalFundPoints += pts;
+          }
+        }
+        const pool = central.balanceOf;
+        const updated: Record<string, Account> = { ...next.accounts };
+        if (totalFundPoints > 0 && pool > 0) {
+          for (const fn of fundNames) {
+            const share = (fundPoints[fn] ?? 0) / totalFundPoints;
+            const amount = Math.round(pool * share);
+            updated[fn] = { ...updated[fn], balanceOf: updated[fn].balanceOf + amount };
+          }
+          central.balanceOf = 0;
+        }
+        updated['centralAccount'] = central;
+        next.accounts = updated;
+        next.distribution = { paymentCount: next.distribution.paymentCount + 1, dayStep: next.distribution.dayStep + 1 };
+        status = { days_since_creation: next.distribution.dayStep, payment_count: next.distribution.paymentCount, can_distribute: fundNames.length > 0 };
+        return next;
+      });
+      return status;
     }
     default:
       return null;
