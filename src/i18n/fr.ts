@@ -980,6 +980,129 @@ const fr: Dictionary = {
   'presence.sectionPosts': 'Traduction en direct et passerelles',
   'presence.sectionConnectivity': 'Faible bande passante et hors ligne',
   'presence.dataSaverNote': 'Activez-le — les avatars ci-dessus deviennent des espaces réservés légers.',
+
+  // ── Community menu — Funds entry (CommunityView.tsx) ──────────────────
+  'community.menu.funds': 'Fonds communautaires',
+
+  // ── Community Funds page (Currency.tsx + FundingFlow.tsx) ─────────────
+  // Page header + explainer
+  'funds.title': 'Fonds communautaires',
+  'funds.subtitle': 'Gérez les fonds partagés et signalez ce qui compte',
+  'funds.explainerTitle': 'Comment fonctionnent les fonds communautaires',
+  'funds.explainerBody1': 'Les points de soutien sont une façon commune de signaler ce qui compte — appuyez des initiatives, soutenez des solutions et envoyez des points aux autres membres.',
+  'funds.explainerBody2': 'La communauté regroupe également des points dans des fonds. Définissez vos taux de frappe préférés, choisissez la part des biens communs que chaque fonds doit recevoir, et distribuez les biens communs quand ils s’accumulent.',
+
+  // Monetary-policy section
+  'funds.policyTitle': 'Votre politique monétaire',
+  'funds.policyExplainerTitle': 'Comment fonctionne la politique monétaire',
+  'funds.policyExplainerBody': 'Chaque membre fixe ses taux préférés. La communauté utilise la médiane de tous les membres, ainsi personne ne contrôle seul la masse monétaire.',
+  'funds.mintRateLabel': 'Taux de frappe ({symbol}/jour)',
+  'funds.burnRateLabel': 'Taux de combustion (% par jour)',
+  'funds.commonsMintLabel': 'Frappe des biens communs ({symbol}/jour)',
+  'funds.policySave': 'Enregistrer les préférences',
+  'funds.policyRevert': 'Annuler les modifications',
+  'funds.policyInvalidTitle': 'Taux invalides',
+  'funds.policyInvalidBody': 'Veuillez saisir des nombres valides pour les taux de frappe, de combustion et de frappe des biens communs.',
+  'funds.policySaveFailedTitle': 'Échec de l’enregistrement',
+  'funds.policySaveFailedBody': 'Impossible d’enregistrer vos préférences. Veuillez réessayer.',
+
+  // Funds list
+  'funds.fundsTitle': 'Fonds',
+  'funds.createFund': 'Créer un fonds',
+  'funds.loadingAccounts': 'Chargement des fonds…',
+  'funds.commonsTreasury': 'Trésorerie des biens communs',
+  'funds.balanceWithSymbol': '{n} {symbol}',
+  'funds.communitySharePct': '{n}%',
+  'funds.noFunds': 'Aucun fonds pour l’instant. Les fonds permettent à la communauté de regrouper des points vers un objectif commun.',
+  'funds.detailUnavailableTitle': 'Détail du fonds indisponible',
+  'funds.detailUnavailableBody': 'Ce fonds n’a pas encore de vue détaillée.',
+
+  // Community allocation section
+  'funds.allocationTitle': 'Répartition communautaire',
+  'funds.allocationExplainerTitle': 'Comment fonctionne la répartition',
+  'funds.allocationExplainerBody': 'Répartissez jusqu’à {budget} points entre les fonds et la trésorerie des biens communs. Les points de chacun sont regroupés — la part communautaire de chaque fonds détermine la tranche des biens communs qu’il reçoit lors de la distribution.',
+  'funds.distributionStatus': 'Jour {day} · {n} paiements effectués',
+  'funds.payToFunds': 'Payer les fonds',
+  'funds.payToFundsHint': 'Distribuer le solde des biens communs aux fonds',
+  'funds.payToFundsUnavailable': 'Aucun paiement disponible aujourd’hui',
+  'funds.colAccount': 'Compte',
+  'funds.colCommunityShare': 'Part communautaire %',
+  'funds.colMyPoints': 'Mes points',
+  'funds.allocationPointsFor': 'Points pour {name}',
+  'funds.noFundsAllocation': 'Aucun fonds à allouer pour l’instant. Créez un fonds pour commencer.',
+  'funds.allocationTotal': '{total} / {budget} points',
+  'funds.saveAllocation': 'Enregistrer ma répartition',
+  'funds.allocationSaveFailedTitle': 'Échec de l’enregistrement',
+  'funds.allocationSaveFailedBody': 'Impossible d’enregistrer votre répartition. Veuillez réessayer.',
+  'funds.distributeFailedTitle': 'Paiement échoué',
+  'funds.distributeFailedBody': 'Impossible de distribuer les biens communs aux fonds. Veuillez réessayer.',
+  'funds.createFailedTitle': 'Création échouée',
+  'funds.createFailedBody': 'Impossible de créer le fonds. Veuillez réessayer.',
+
+  // Fund setup dialog
+  'funds.setupTitle': 'Créer un fonds',
+  'funds.setupNameLabel': 'Nom du fonds',
+  'funds.setupNamePlaceholder': 'p. ex. Rénovation du jardin communautaire',
+  'funds.setupNameRequired': 'Veuillez donner un nom au fonds.',
+  'funds.setupDescLabel': 'Description',
+  'funds.optional': '(facultatif)',
+  'funds.setupDescPlaceholder': 'À quoi serviront les fonds ?',
+  'funds.setupGoalLabel': 'Objectif cible',
+  'funds.setupGoalOptional': '(facultatif, en {symbol})',
+  'funds.setupGoalPlaceholder': 'p. ex. 500',
+  'funds.setupGoalInvalid': 'L’objectif doit être un nombre positif.',
+  'funds.setupLaunch': 'Lancer le fonds',
+
+  // Fund detail — stats + progress
+  'funds.statTotalRaised': 'Total collecté ({symbol})',
+  'funds.statContributors': 'Contributeurs',
+  'funds.statGoal': 'Objectif ({symbol})',
+  'funds.statYourContribution': 'Votre contribution',
+  'funds.ofGoal': 'sur {n} {symbol} d’objectif',
+  'funds.pctReached': '{n}% atteint',
+
+  // Fund detail — contribute form
+  'funds.contributeTitle': 'Contribuer',
+  'funds.contributeAmountLabel': 'Montant de la contribution en {symbol}',
+  'funds.contributeAmountPlaceholder': 'Montant en {symbol}',
+  'funds.contributeAction': 'Contribuer',
+  'funds.amountPositive': 'Le montant doit être positif.',
+  'funds.contributeFailed': 'Échec de l’enregistrement de la contribution.',
+  'funds.contributeThanks': 'Merci pour votre contribution !',
+
+  // Fund detail — contributions list
+  'funds.contributionsTitle': 'Contributions',
+  'funds.noContributions': 'Aucune contribution pour l’instant. Soyez le premier !',
+  'funds.you': 'Vous',
+
+  // Fund detail — budget allocation tabs
+  'funds.budgetAllocation': 'Répartition budgétaire',
+  'funds.budgetTabsLabel': 'Vues du budget',
+  'funds.tabAllocation': 'Ma répartition',
+  'funds.tabResults': 'Résultats',
+
+  // Fund detail — allocation tab
+  'funds.pointsUsedOf': '/ {total} points utilisés',
+  'funds.pointsRemaining': '({n} restants)',
+  'funds.pointsFull': '✓ entièrement réparti',
+  'funds.pointsOver': '({n} au-dessus de la limite !)',
+  'funds.addItemLabel': 'Ajouter un poste budgétaire',
+  'funds.addItemPlaceholder': 'Ajouter un poste budgétaire…',
+  'funds.addItemAction': 'Ajouter',
+  'funds.addItemFailed': 'Échec de l’ajout du poste.',
+  'funds.noItems': 'Aucun poste pour l’instant. Ajoutez-en un ci-dessus.',
+  'funds.ptsAbbrev': 'pts',
+  'funds.saveAllocationAction': 'Enregistrer la répartition',
+
+  // Fund detail — results tab
+  'funds.noResults': 'Aucun poste pour l’instant. Ajoutez-en dans l’onglet Ma répartition.',
+  'funds.resultsNote': 'Les pourcentages sont normalisés sur tous les postes en fonction du total des points alloués.',
+
+  // Fund detail — loading / error states
+  'funds.loadFailed': 'Échec du chargement des données de financement.',
+  'funds.loadingFund': 'Chargement du fonds…',
+  'funds.notConfigured': 'Ce fonds n’a pas encore été configuré.',
+  'funds.backToFunds': 'Retour aux fonds',
 };
 
 export default fr;

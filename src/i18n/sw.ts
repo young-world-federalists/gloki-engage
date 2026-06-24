@@ -979,6 +979,129 @@ const sw: Dictionary = {
   'presence.sectionPosts': 'Tafsiri ya moja kwa moja na madaraja',
   'presence.sectionConnectivity': 'Mtandao hafifu na nje ya mtandao',
   'presence.dataSaverNote': 'Iwashe — avatar hapo juu zitabadilika kuwa nafasi nyepesi.',
+
+  // ── Community menu — Funds entry (CommunityView.tsx) ──────────────────
+  'community.menu.funds': 'Mifuko ya Jumuiya',
+
+  // ── Community Funds page (Currency.tsx + FundingFlow.tsx) ─────────────
+  // Page header + explainer
+  'funds.title': 'Mifuko ya Jumuiya',
+  'funds.subtitle': 'Simamia mifuko ya pamoja na ishara ya kinachohusika',
+  'funds.explainerTitle': 'Jinsi Mifuko ya Jumuiya Inavyofanya Kazi',
+  'funds.explainerBody1': 'Pointi za msaada ni njia ya pamoja ya kuashiria kinachohusika — unga mkono mipango, saidia suluhisho na tuma pointi kwa wanachama wengine.',
+  'funds.explainerBody2': 'Jumuiya pia inaweka pointi pamoja katika mifuko. Weka viwango vyako vya uchimbaji unavyopendelea, chagua kiasi cha hazina ya pamoja ambacho kila mfuko unapaswa kupokea, na lipa hazina ya pamoja inapoongezeka.',
+
+  // Monetary-policy section
+  'funds.policyTitle': 'Sera Yako ya Fedha',
+  'funds.policyExplainerTitle': 'Jinsi sera ya fedha inavyofanya kazi',
+  'funds.policyExplainerBody': 'Kila mwanachama huweka viwango vinavyopendelewa. Jumuiya hutumia wastani kati ya wanachama wote, hivyo hakuna mwanachama mmoja anayedhibiti ugavi wa fedha.',
+  'funds.mintRateLabel': 'Kiwango cha uchimbaji ({symbol}/siku)',
+  'funds.burnRateLabel': 'Kiwango cha uchomaji (% kwa siku)',
+  'funds.commonsMintLabel': 'Uchimbaji wa hazina ya pamoja ({symbol}/siku)',
+  'funds.policySave': 'Hifadhi mapendeleo',
+  'funds.policyRevert': 'Rejesha mabadiliko',
+  'funds.policyInvalidTitle': 'Viwango visivyo sahihi',
+  'funds.policyInvalidBody': 'Tafadhali ingiza nambari sahihi kwa viwango vya uchimbaji, uchomaji, na uchimbaji wa hazina ya pamoja.',
+  'funds.policySaveFailedTitle': 'Kuhifadhi kumeshindwa',
+  'funds.policySaveFailedBody': 'Imeshindwa kuhifadhi mapendeleo yako. Tafadhali jaribu tena.',
+
+  // Funds list
+  'funds.fundsTitle': 'Mifuko',
+  'funds.createFund': 'Unda mfuko',
+  'funds.loadingAccounts': 'Inapakia mifuko…',
+  'funds.commonsTreasury': 'Hazina ya Pamoja',
+  'funds.balanceWithSymbol': '{n} {symbol}',
+  'funds.communitySharePct': '{n}%',
+  'funds.noFunds': 'Bado hakuna mifuko. Mifuko huruhusu jumuiya kukusanya pointi kuelekea lengo la pamoja.',
+  'funds.detailUnavailableTitle': 'Maelezo ya mfuko hayapatikani',
+  'funds.detailUnavailableBody': 'Mfuko huu bado hauna ukurasa wa maelezo.',
+
+  // Community allocation section
+  'funds.allocationTitle': 'Ugawaji wa Jumuiya',
+  'funds.allocationExplainerTitle': 'Jinsi ugawaji unavyofanya kazi',
+  'funds.allocationExplainerBody': 'Gawa pointi hadi {budget} kati ya mifuko na Hazina ya Pamoja. Pointi za kila mtu zinakusanywa — sehemu ya jumuiya ya kila mfuko inaamua kipande cha hazina ya pamoja kinachopokea wakati wa malipo.',
+  'funds.distributionStatus': 'Siku {day} · malipo {n} yamefanywa',
+  'funds.payToFunds': 'Lipa Mifuko',
+  'funds.payToFundsHint': 'Lipa salio la hazina ya pamoja kwa mifuko',
+  'funds.payToFundsUnavailable': 'Hakuna malipo mapya yanayopatikana leo',
+  'funds.colAccount': 'Akaunti',
+  'funds.colCommunityShare': 'Sehemu ya Jumuiya %',
+  'funds.colMyPoints': 'Pointi zangu',
+  'funds.allocationPointsFor': 'Pointi za {name}',
+  'funds.noFundsAllocation': 'Bado hakuna mifuko ya kugawa. Unda mfuko ili kuanza.',
+  'funds.allocationTotal': 'Pointi {total} / {budget}',
+  'funds.saveAllocation': 'Hifadhi ugawaji wangu',
+  'funds.allocationSaveFailedTitle': 'Kuhifadhi kumeshindwa',
+  'funds.allocationSaveFailedBody': 'Imeshindwa kuhifadhi ugawaji wako. Tafadhali jaribu tena.',
+  'funds.distributeFailedTitle': 'Malipo yameshindwa',
+  'funds.distributeFailedBody': 'Imeshindwa kulipa hazina ya pamoja kwa mifuko. Tafadhali jaribu tena.',
+  'funds.createFailedTitle': 'Kuunda kumeshindwa',
+  'funds.createFailedBody': 'Imeshindwa kuunda mfuko. Tafadhali jaribu tena.',
+
+  // Fund setup dialog
+  'funds.setupTitle': 'Weka mfuko',
+  'funds.setupNameLabel': 'Jina la mfuko',
+  'funds.setupNamePlaceholder': 'mf. Ukarabati wa Bustani ya Jumuiya',
+  'funds.setupNameRequired': 'Tafadhali wape mfuko jina.',
+  'funds.setupDescLabel': 'Maelezo',
+  'funds.optional': '(si lazima)',
+  'funds.setupDescPlaceholder': 'Fedha zitatumika kwa nini?',
+  'funds.setupGoalLabel': 'Lengo linalolengwa',
+  'funds.setupGoalOptional': '(si lazima, kwa {symbol})',
+  'funds.setupGoalPlaceholder': 'mf. 500',
+  'funds.setupGoalInvalid': 'Lengo lazima liwe nambari chanya.',
+  'funds.setupLaunch': 'Zindua mfuko',
+
+  // Fund detail — stats + progress
+  'funds.statTotalRaised': 'Jumla iliyokusanywa ({symbol})',
+  'funds.statContributors': 'Wachangiaji',
+  'funds.statGoal': 'Lengo ({symbol})',
+  'funds.statYourContribution': 'Mchango wako',
+  'funds.ofGoal': 'kati ya lengo la {n} {symbol}',
+  'funds.pctReached': '{n}% imefikiwa',
+
+  // Fund detail — contribute form
+  'funds.contributeTitle': 'Changia',
+  'funds.contributeAmountLabel': 'Kiasi cha mchango kwa {symbol}',
+  'funds.contributeAmountPlaceholder': 'Kiasi kwa {symbol}',
+  'funds.contributeAction': 'Changia',
+  'funds.amountPositive': 'Kiasi lazima kiwe chanya.',
+  'funds.contributeFailed': 'Imeshindwa kurekodi mchango.',
+  'funds.contributeThanks': 'Asante kwa mchango wako!',
+
+  // Fund detail — contributions list
+  'funds.contributionsTitle': 'Michango',
+  'funds.noContributions': 'Bado hakuna michango. Kuwa wa kwanza!',
+  'funds.you': 'Wewe',
+
+  // Fund detail — budget allocation tabs
+  'funds.budgetAllocation': 'Ugawaji wa bajeti',
+  'funds.budgetTabsLabel': 'Maoni ya bajeti',
+  'funds.tabAllocation': 'Ugawaji wangu',
+  'funds.tabResults': 'Matokeo',
+
+  // Fund detail — allocation tab
+  'funds.pointsUsedOf': '/ pointi {total} zilizotumika',
+  'funds.pointsRemaining': '({n} zimebaki)',
+  'funds.pointsFull': '✓ zimegawanywa kikamilifu',
+  'funds.pointsOver': '({n} zaidi ya kikomo!)',
+  'funds.addItemLabel': 'Ongeza kipengele cha bajeti',
+  'funds.addItemPlaceholder': 'Ongeza kipengele cha bajeti…',
+  'funds.addItemAction': 'Ongeza',
+  'funds.addItemFailed': 'Imeshindwa kuongeza kipengele.',
+  'funds.noItems': 'Bado hakuna vipengele. Ongeza moja hapo juu.',
+  'funds.ptsAbbrev': 'pti',
+  'funds.saveAllocationAction': 'Hifadhi ugawaji',
+
+  // Fund detail — results tab
+  'funds.noResults': 'Bado hakuna vipengele. Ongeza katika kichupo cha Ugawaji wangu.',
+  'funds.resultsNote': 'Asilimia zimepangwa upya katika vipengele vyote kulingana na jumla ya pointi zilizogawanywa.',
+
+  // Fund detail — loading / error states
+  'funds.loadFailed': 'Imeshindwa kupakia data ya ufadhili.',
+  'funds.loadingFund': 'Inapakia mfuko…',
+  'funds.notConfigured': 'Mfuko huu bado haukuwekwa.',
+  'funds.backToFunds': 'Rudi kwenye mifuko',
 };
 
 export default sw;

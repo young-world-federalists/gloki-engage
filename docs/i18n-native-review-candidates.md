@@ -257,6 +257,34 @@ Two house-style calls a native fr reviewer should make once, then apply consiste
 
 ---
 
+---
+
+## `funds.*` + `community.menu.funds` — Community Funds feature (Task 7 / 2026-06-24, 96 keys)
+
+95 `funds.*` keys + 1 `community.menu.funds` key added at fr/sw parity. Machine-translated. Live at Task 8 verification. Specific concerns for native review:
+
+**Swahili (sw) priority:**
+- **`funds.policyTitle`** = "Sera Yako ya Fedha" ("Your Money Policy") — confirm "sera ya fedha" is natural for "monetary policy" in a community-points context (vs. a more colloquial term like "jinsi pointi zinavyozalishwa").
+- **`funds.commonsTreasury`** = "Hazina ya Pamoja" — confirm this reads as a shared pool/treasury, not a national treasury.
+- **`funds.ptsAbbrev`** = "pti" (points abbreviation) — there is no standard sw short-form; confirm "pti" is acceptable or propose a better abbreviation.
+- **`funds.fundsTitle` / `funds.createFund`** = "Mifuko" / "Unda mfuko" — "mfuko" (N-class) is "bag/fund". Confirm the N-class concord is right throughout: "mifuko {n}" for plural.
+- **`funds.mintRateLabel` / `funds.commonsMintLabel`** use "uchimbaji" (mining/digging) for minting points — confirm this metaphor reads naturally for digital points, or propose an alternative (e.g. "kuzalisha").
+- **`funds.burnRateLabel`** uses "uchomaji" (burning/incineration) — same question; "kupungua" (reduction) might be more intuitive.
+
+**French (fr) priority:**
+- **`funds.policyTitle`** = "Votre politique monétaire" — confirm "politique monétaire" reads naturally in a community/civic context (vs. something like "vos préférences de circulation des points").
+- **`funds.mintRateLabel`** = "Taux de frappe" — confirm "frappe" (minting/striking) is the right metaphor here, vs. "émission".
+- **`funds.burnRateLabel`** = "Taux de combustion" — confirm "combustion" reads naturally for point burning, vs. "destruction" or "déflation".
+- **`funds.commonsTreasury`** = "Trésorerie des biens communs" — confirm this phrasing vs. a shorter "Trésor commun".
+- **`funds.fundsTitle`** = "Fonds" — unambiguous.
+
+| Concern level | Namespace | Files |
+|---|---|---|
+| Medium | `funds.*` | `src/i18n/fr.ts`, `src/i18n/sw.ts` |
+| Low | `community.menu.funds` | both |
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
