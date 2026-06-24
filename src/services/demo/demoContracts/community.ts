@@ -361,7 +361,7 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
         // One simulated day: mint the median commons into the treasury, then split it
         // across funds by the community's collective allocation points.
         const commonsMint = median(Object.values(next.parameters).map((p) => p.commons_mint));
-        const central = next.accounts['centralAccount'] ?? { balanceOf: 0, creationTime: Date.now(), elapsedDays: 0, type: 'central' as const };
+        const central = { ...(next.accounts['centralAccount'] ?? { balanceOf: 0, creationTime: Date.now(), elapsedDays: 0, type: 'central' as const }) };
         central.balanceOf += commonsMint;
         const fundNames = Object.keys(next.accounts).filter((n) => next.accounts[n].type === 'fund');
         const fundPoints: Record<string, number> = {};
@@ -376,12 +376,13 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
         const pool = central.balanceOf;
         const updated: Record<string, Account> = { ...next.accounts };
         if (totalFundPoints > 0 && pool > 0) {
+          let distributed = 0;
           for (const fn of fundNames) {
-            const share = (fundPoints[fn] ?? 0) / totalFundPoints;
-            const amount = Math.round(pool * share);
+            const amount = Math.floor((pool * (fundPoints[fn] ?? 0)) / totalFundPoints);
             updated[fn] = { ...updated[fn], balanceOf: updated[fn].balanceOf + amount };
+            distributed += amount;
           }
-          central.balanceOf = 0;
+          central.balanceOf = pool - distributed; // keep rounding dust in the treasury; total supply conserved
         }
         updated['centralAccount'] = central;
         next.accounts = updated;
