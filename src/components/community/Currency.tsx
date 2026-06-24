@@ -17,6 +17,12 @@ import {
 import type { IDistributionStatus } from '../../services/contracts/community';
 import { useAlert } from '../shared/useAlert';
 import { Button, InfoDisclosure } from '../shared';
+import { contractRead, contractWrite, deployContract } from '../../services/api';
+import fundingContractSrc from '../../assets/contracts/funding_flow_contract.py?raw';
+import FundingFlow, {
+  FundingSetupDialog,
+  type FundingSetupConfig,
+} from '../collaboration/flows/funding/FundingFlow';
 
 interface CurrencyProps {
   communityId: string;
@@ -71,8 +77,12 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   const [allocationLoading, setAllocationLoading] = useState(true);
   const [allocationSaving, setAllocationSaving] = useState(false);
   const [distributing, setDistributing] = useState(false);
-  // Task 5 opens a per-fund detail off this; for now a row click sets it but no detail renders.
-  const [, setSelectedFundId] = useState<string | null>(null);
+  // A row click opens the per-fund detail (FundingFlow); back clears it.
+  const [selectedFundId, setSelectedFundId] = useState<string | null>(null);
+  // fund account name -> its funding-flow contract id (persisted on the community
+  // as `fund_<name>` properties when a fund is created).
+  const [fundContractMap, setFundContractMap] = useState<Record<string, string>>({});
+  const [setupOpen, setSetupOpen] = useState(false);
   const myAllocationInitialized = useRef(false);
   const myAllocationRef = useRef(myAllocation);
   myAllocationRef.current = myAllocation;
@@ -107,14 +117,29 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   const loadAllocationData = useCallback(async () => {
     if (!publicKey || !serverUrl || !communityId) return;
     try {
-      const [details, allAllocs, status] = await Promise.all([
+      const [details, allAllocs, status, properties] = await Promise.all([
         getAccountDetails(serverUrl, publicKey, communityId),
         getAllAllocations(serverUrl, publicKey, communityId),
         getDistributionStatus(serverUrl, publicKey, communityId),
+        contractRead({
+          serverUrl,
+          publicKey,
+          contractId: communityId,
+          method: { name: 'get_properties', values: {} },
+        }),
       ]);
       setAccountDetails(details);
       setAllAllocations(allAllocs);
       setDistributionStatus(status);
+      // Build "fund account name -> funding contract id" from `fund_<name>` keys.
+      const props = (properties && typeof properties === 'object' ? properties : {}) as Record<string, unknown>;
+      const map: Record<string, string> = {};
+      for (const [key, value] of Object.entries(props)) {
+        if (key.startsWith('fund_') && typeof value === 'string') {
+          map[key.slice('fund_'.length)] = value;
+        }
+      }
+      setFundContractMap(map);
       if (!myAllocationInitialized.current) {
         setMyAllocation(allAllocs[publicKey] ?? {});
         myAllocationInitialized.current = true;
@@ -229,6 +254,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
   const commonsBalance = accountDetails[COMMONS_ACCOUNT]?.balance ?? 0;
   const isOverBudget = totalAllocated > ALLOCATION_BUDGET;
+  const selectedFundContractId = selectedFundId ? fundContractMap[selectedFundId] : undefined;
 
   const handleSetAccountPoints = (account: string, raw: string) => {
     const points = Math.max(0, Math.round(Number(raw) || 0));
@@ -267,9 +293,60 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     }
   };
 
-  // TODO Task 5: open the fund-creation flow (FundingSetupDialog).
-  const handleCreateFund = () => {
-    /* no-op until Task 5 wires the fund-creation flow */
+  // Deploy a per-fund funding contract, wire it to the community, register the
+  // fund account, and persist the account-name -> contract-id mapping so the
+  // list can open the detail. Dual write keeps balances in sync.
+  const handleCreateFund = async (config: FundingSetupConfig) => {
+    if (!serverUrl || !publicKey || !communityId) return;
+    try {
+      const { id } = await deployContract({
+        serverUrl,
+        publicKey,
+        name: config.name,
+        contract: 'funding_flow_contract.py',
+        code: fundingContractSrc,
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: id,
+        method: { name: 'set_config', values: { config } },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: id,
+        method: {
+          name: 'set_community_and_fund',
+          values: {
+            community_server: serverUrl,
+            community_agent: publicKey,
+            community_id: communityId,
+            fund_account_name: config.name,
+          },
+        },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: communityId,
+        method: { name: 'create_fund_account', values: { name: config.name, owner: publicKey } },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: communityId,
+        method: { name: 'set_property', values: { key: `fund_${config.name}`, value: id } },
+      });
+      setSetupOpen(false);
+      await loadAllocationData();
+    } catch (e) {
+      console.error('Failed to create fund:', e);
+      showAlert(
+        t('funds.createFailedBody', 'Could not create the fund. Please try again.'),
+        { title: t('funds.createFailedTitle', 'Create failed') },
+      );
+    }
   };
 
   if (isMembersLoading || balanceLoading) {
@@ -495,14 +572,24 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
       </div>
 
       {/* ── Funds ───────────────────────────────────────────────────────── */}
+      {selectedFundId && selectedFundContractId ? (
+        <div className={styles.fundsCard}>
+          <FundingFlow
+            fundContractId={selectedFundContractId}
+            communityId={communityId}
+            currentUser={publicKey || ''}
+            serverUrl={serverUrl || ''}
+            onBack={() => setSelectedFundId(null)}
+          />
+        </div>
+      ) : (
       <div className={styles.fundsCard}>
         <div className={styles.fundsHeader}>
           <h2>{t('funds.fundsTitle', 'Funds')}</h2>
           <Button
             variant="secondary"
-            size="sm"
-            onClick={handleCreateFund}
-            disabled
+            size="md"
+            onClick={() => setSetupOpen(true)}
             leftIcon={<Plus size={16} />}
           >
             {t('funds.createFund', 'Create fund')}
@@ -539,7 +626,16 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
                   <button
                     type="button"
                     className={styles.fundRowButton}
-                    onClick={() => setSelectedFundId(fund.name)}
+                    onClick={() => {
+                      if (fundContractMap[fund.name]) {
+                        setSelectedFundId(fund.name);
+                      } else {
+                        showAlert(
+                          t('funds.detailUnavailableBody', 'This fund has no detail view yet.'),
+                          { title: t('funds.detailUnavailableTitle', 'Fund detail unavailable') },
+                        );
+                      }
+                    }}
                   >
                     <span className={styles.fundName} title={fund.name}>
                       {fund.name}
@@ -559,6 +655,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
           </ul>
         )}
       </div>
+      )}
 
       {/* ── Community allocation ─────────────────────────────────────────── */}
       <div className={styles.allocationCard}>
@@ -588,7 +685,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
               </span>
               <Button
                 variant="primary"
-                size="sm"
+                size="md"
                 onClick={handleDistribute}
                 disabled={!distributionStatus.can_distribute}
                 loading={distributing}
@@ -686,6 +783,12 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
           </>
         )}
       </div>
+
+      <FundingSetupDialog
+        isOpen={setupOpen}
+        onDone={handleCreateFund}
+        onCancel={() => setSetupOpen(false)}
+      />
 
       {alertElement}
     </div>
