@@ -483,7 +483,7 @@ const sw: Dictionary = {
   'community.menu.home': 'Nyumbani',
   'community.menu.collab': 'Ushirikiano',
   'community.menu.chat': 'Gumzo',
-  'community.menu.currency': 'Sarafu',
+
   'community.menu.members': 'Wanachama',
   'community.menu.identity': 'Utambulisho na Uaminifu',
   'community.menu.settings': 'Mipangilio',
@@ -610,12 +610,7 @@ const sw: Dictionary = {
   'chat.onChainCaveat': 'Gumzo huhifadhiwa kwenye mnyororo na linapatikana tu kwenye jumuiya zilizoundwa baada ya 2026-04-22. Jumuiya za zamani haziwezi kuhifadhi mikataba midogo bado.',
 
   // ── Currency (support points) ──────────────────────────────────────────
-  'currency.title': 'Pointi za Msaada za Jumuiya',
-  'currency.subtitle': 'Onyesha kinachokuwa muhimu na uwasaidie wanachama wenzako',
   'currency.symbol': 'pointi',
-  'currency.explainerTitle': 'Jinsi pointi za msaada zinavyofanya kazi',
-  'currency.explainerBody1': 'Pointi za msaada ni njia ya pamoja ya kuonyesha kinachokuwa muhimu — unga mkono mipango, saidia suluhisho, na tuma pointi kwa wanachama wenzako.',
-  'currency.explainerBody2': 'Jumuiya huweka jinsi pointi zinavyozunguka. Angalia salio lako hapa chini na tuma msaada kwa mwanachama yeyote.',
   'currency.yourBalance': 'Pointi zako za msaada',
   'currency.loadingBalance': 'Inapakia salio...',
   'currency.loadingMembers': 'Inapakia wanachama wa jumuiya...',
@@ -1067,6 +1062,8 @@ const sw: Dictionary = {
   'funds.contributeAction': 'Changia',
   'funds.amountPositive': 'Kiasi lazima kiwe chanya.',
   'funds.contributeFailed': 'Imeshindwa kurekodi mchango.',
+  'funds.contributeTransferFailed': 'Haiwezekani kuhamisha pointi zako — tafadhali angalia salio lako.',
+  'funds.contributeNoCommunity': 'Kiungo cha jumuiya hakipatikani — tafadhali jaribu tena.',
   'funds.contributeThanks': 'Asante kwa mchango wako!',
 
   // Fund detail — contributions list

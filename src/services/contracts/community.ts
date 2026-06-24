@@ -477,8 +477,9 @@ export async function setParameters(
     publicKey: publicKey,
     contractId: contractId,
     method: {
-      name: 'set_parameters',
-      values: { mint, burn, commons_mint: commonsMint },
+      name: 'transfer',
+      values: { to: publicKey, value: 0 },
+      parameters: { mint, burn, commons_mint: commonsMint },
     } as IMethod,
   });
 }
@@ -539,7 +540,7 @@ export async function getAllAllocations(
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'get_all_allocations', values: {} } as IMethod,
+    method: { name: 'get_allocations', values: {} } as IMethod,
   });
   return (res && typeof res === 'object') ? res as Record<string, Record<string, number>> : {};
 }
@@ -586,6 +587,6 @@ export async function distributeCommons(
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'distribute_commons', values: {} } as IMethod,
+    method: { name: 'distribute', values: {} } as IMethod,
   });
 }

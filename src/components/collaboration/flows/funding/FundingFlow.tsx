@@ -210,7 +210,14 @@ const ContributeForm: React.FC<{
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2500);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('funds.contributeFailed', 'Failed to record contribution.'));
+      const msg = e instanceof Error ? e.message : '';
+      if (msg === 'TRANSFER_FAILED') {
+        setError(t('funds.contributeTransferFailed', "Couldn't move your points — please check your balance."));
+      } else if (msg === 'NO_COMMUNITY') {
+        setError(t('funds.contributeNoCommunity', 'Community link not available — please try again.'));
+      } else {
+        setError(msg || t('funds.contributeFailed', 'Failed to record contribution.'));
+      }
     } finally {
       setSubmitting(false);
     }

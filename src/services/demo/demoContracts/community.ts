@@ -135,7 +135,7 @@ export function communityRead(contractId: string, method: IMethod, caller: strin
       if (!fundName) return 0;
       return state.accounts[fundName]?.balanceOf ?? 0;
     }
-    case 'get_all_allocations':
+    case 'get_allocations':
       return state.allocations;
     case 'get_account_details': {
       const result: Record<string, { type: string; balance: number }> = {};
@@ -277,6 +277,11 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
       let ok = false;
       updateState<CommunityState>(contractId, (s) => {
         const next = { ...defaultState(), ...s };
+        // Apply monetary-policy parameters when present (set_parameters carrier mechanism).
+        const params = method.parameters as { mint?: number; burn?: number; commons_mint?: number } | undefined;
+        if (params && (params.mint !== undefined || params.burn !== undefined || params.commons_mint !== undefined)) {
+          next.parameters = { ...next.parameters, [caller]: { mint: params.mint ?? 0, burn: params.burn ?? 0, commons_mint: params.commons_mint ?? 0 } };
+        }
         const sender = next.accounts[caller];
         const recipient = next.accounts[to];
         if (sender && recipient && sender.balanceOf >= value) {
@@ -343,18 +348,7 @@ export function communityWrite(contractId: string, method: IMethod, caller: stri
       });
       return true;
     }
-    case 'set_parameters': {
-      const mint = (method.values?.mint as number) ?? 0;
-      const burn = (method.values?.burn as number) ?? 0;
-      const commons_mint = (method.values?.commons_mint as number) ?? 0;
-      updateState<CommunityState>(contractId, (s) => {
-        const next = { ...defaultState(), ...s };
-        next.parameters = { ...next.parameters, [caller]: { mint, burn, commons_mint } };
-        return next;
-      });
-      return true;
-    }
-    case 'distribute_commons': {
+    case 'distribute': {
       let status = { days_since_creation: 0, payment_count: 0, can_distribute: false };
       updateState<CommunityState>(contractId, (s) => {
         const next = { ...defaultState(), ...s };

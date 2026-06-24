@@ -484,7 +484,7 @@ const fr: Dictionary = {
   'community.menu.home': 'Accueil',
   'community.menu.collab': 'Collab',
   'community.menu.chat': 'Chat',
-  'community.menu.currency': 'Monnaie',
+
   'community.menu.members': 'Membres',
   'community.menu.identity': 'Identité et confiance',
   'community.menu.settings': 'Réglages',
@@ -611,12 +611,7 @@ const fr: Dictionary = {
   'chat.onChainCaveat': 'Le chat est hébergé sur la chaîne et disponible uniquement dans les communautés créées après le 22/04/2026. Les communautés plus anciennes ne peuvent pas encore héberger de sous-contrats.',
 
   // ── Currency (support points) ──────────────────────────────────────────
-  'currency.title': 'Points de soutien de la communauté',
-  'currency.subtitle': 'Signalez ce qui compte et soutenez les autres membres',
   'currency.symbol': 'points',
-  'currency.explainerTitle': 'Comment fonctionnent les points de soutien',
-  'currency.explainerBody1': 'Les points de soutien sont une façon commune de signaler ce qui compte — appuyez des initiatives, soutenez des solutions et envoyez des points aux autres membres.',
-  'currency.explainerBody2': 'La communauté définit comment les points circulent. Consultez votre solde ci-dessous et envoyez du soutien à n’importe quel membre.',
   'currency.yourBalance': 'Vos points de soutien',
   'currency.loadingBalance': 'Chargement du solde…',
   'currency.loadingMembers': 'Chargement des membres…',
@@ -1067,7 +1062,9 @@ const fr: Dictionary = {
   'funds.contributeAmountPlaceholder': 'Montant en {symbol}',
   'funds.contributeAction': 'Contribuer',
   'funds.amountPositive': 'Le montant doit être positif.',
-  'funds.contributeFailed': 'Échec de l’enregistrement de la contribution.',
+  'funds.contributeFailed': "Échec de l'enregistrement de la contribution.",
+  'funds.contributeTransferFailed': 'Impossible de transférer vos points — vérifiez votre solde.',
+  'funds.contributeNoCommunity': 'Lien communautaire non disponible — veuillez réessayer.',
   'funds.contributeThanks': 'Merci pour votre contribution !',
 
   // Fund detail — contributions list

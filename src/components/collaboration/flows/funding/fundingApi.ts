@@ -168,7 +168,7 @@ export async function contribute(
   communityInfo?: CommunityInfo,
 ): Promise<void> {
   if (communityInfo) {
-    await contractWrite({
+    const moved = await contractWrite({
       serverUrl: communityInfo.communityServer,
       publicKey: currentUser,
       contractId: communityInfo.communityId,
@@ -177,6 +177,9 @@ export async function contribute(
         values: { to: communityInfo.fundAccountName, value: amount },
       } as IMethod,
     });
+    if (!moved) throw new Error('TRANSFER_FAILED');
+  } else {
+    throw new Error('NO_COMMUNITY');
   }
   await contractWrite({
     serverUrl: server,
