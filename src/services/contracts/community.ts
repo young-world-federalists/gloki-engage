@@ -10,10 +10,12 @@ export interface IParameters {
   medians: {
     mint: number;
     burn: number;
+    commons_mint: number;
   };
   parameters: {
     mint: number;
     burn: number;
+    commons_mint: number;
   };
 }
 
