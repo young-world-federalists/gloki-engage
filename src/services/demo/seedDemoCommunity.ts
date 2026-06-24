@@ -4,6 +4,7 @@
 import { mockDeployDirect } from './mockApi';
 import { registerDemoContract, removeDemoSubtree, getDemoContract } from './demoRegistry';
 import { initCommunity, communityWrite } from './demoContracts/community';
+import { fundingWrite } from './demoContracts/funding';
 import { initInitiative, initiativeWrite } from './demoContracts/initiative';
 import { initProblemVote } from './demoContracts/problemVote';
 import { initApproval } from './demoContracts/approval';
@@ -22,6 +23,7 @@ import {
   convictionPattern,
 } from './fixtures/mechanisms';
 import { DEMO_COMMUNITIES, DEFAULT_COMMUNITY } from './fixtures/community';
+import { updateState } from './demoState';
 import type { IMethod } from '../interfaces';
 
 const STAGE_ORDER = ['problem', 'discussion', 'proposals', 'vote', 'mandate'] as const;
@@ -227,6 +229,137 @@ export function seedDemoCommunity(
 
     console.log(`[DemoSeed] ${seed.title} (stage=${seed.stage}) initiativeId=${initiativeId}`);
   });
+
+  // 5. Seed demo funds for the flagship community (Global Health Network).
+  //    Two funds: "Clean Water Fund" and "Community Garden". Each gets a funding
+  //    contract, contributions from seeded members, budget items, and allocations.
+  //    Fund account balances are made consistent with contributions by transfer-ing
+  //    each contributor's amount from their personal account into the fund account.
+  const fixture = DEMO_COMMUNITIES.find((c) =>
+    getDemoContract(communityId)?.name === c.name,
+  );
+  if (fixture?.key === 'health') {
+    // Pick 4 contributors from the seeded personas — stable, coprime stride.
+    const contributors = [PERSONAS[0], PERSONAS[2], PERSONAS[4], PERSONAS[6]]; // Priya, Amina, Sofia, Yuki
+
+    // ── Fund 1: Clean Water Fund ──────────────────────────────────────────
+    const fundName1 = 'Clean Water Fund';
+    const { id: fundId1 } = mockDeployDirect({
+      name: fundName1,
+      contract: 'funding_flow_contract.py',
+      parentId: communityId,
+      kind: 'stage',
+    });
+
+    fundingWrite(fundId1, {
+      name: 'set_config',
+      values: { config: { name: fundName1, description: 'Bring safe drinking water to underserved communities.', goal: 500 } },
+    } as IMethod, publicKey);
+
+    fundingWrite(fundId1, {
+      name: 'set_community_and_fund',
+      values: {
+        community_server: 'demo',
+        community_agent: publicKey,
+        community_id: communityId,
+        fund_account_name: fundName1,
+      },
+    } as IMethod, publicKey);
+
+    const cwContributions = [
+      { id: 'cwc-1', participantId: contributors[0].publicKey, amount: 80, timestamp: Date.now() - 7 * 86400000 },
+      { id: 'cwc-2', participantId: contributors[1].publicKey, amount: 60, timestamp: Date.now() - 4 * 86400000 },
+      { id: 'cwc-3', participantId: contributors[2].publicKey, amount: 50, timestamp: Date.now() - 2 * 86400000 },
+    ];
+    for (const c of cwContributions) {
+      fundingWrite(fundId1, { name: 'add_contribution', values: { contribution: c } } as IMethod, c.participantId);
+    }
+
+    fundingWrite(fundId1, { name: 'add_item', values: { item: { id: 'cwi-1', name: 'Borehole drilling (Phase 1)', createdBy: contributors[0].publicKey } } } as IMethod, contributors[0].publicKey);
+    fundingWrite(fundId1, { name: 'add_item', values: { item: { id: 'cwi-2', name: 'Water-quality testing kits', createdBy: contributors[1].publicKey } } } as IMethod, contributors[1].publicKey);
+    fundingWrite(fundId1, { name: 'add_item', values: { item: { id: 'cwi-3', name: 'Community training programme', createdBy: contributors[2].publicKey } } } as IMethod, contributors[2].publicKey);
+
+    // Two members set their budget allocations across the three items.
+    fundingWrite(fundId1, { name: 'set_my_allocation', values: { allocation: { 'cwi-1': 400, 'cwi-2': 350, 'cwi-3': 250 } } } as IMethod, contributors[0].publicKey);
+    fundingWrite(fundId1, { name: 'set_my_allocation', values: { allocation: { 'cwi-1': 300, 'cwi-2': 400, 'cwi-3': 300 } } } as IMethod, contributors[1].publicKey);
+
+    // Create the fund account on the community contract, then transfer each
+    // contributor's amount into it to keep fund balance ≈ sum of contributions.
+    communityWrite(communityId, { name: 'create_fund_account', values: { name: fundName1, owner: contributors[0].publicKey } } as IMethod, publicKey);
+    for (const c of cwContributions) {
+      communityWrite(communityId, { name: 'transfer', values: { to: fundName1, value: c.amount } } as IMethod, c.participantId);
+    }
+    // Wire the funding contract id to the community so the funds page can resolve it.
+    communityWrite(communityId, { name: 'set_property', values: { key: `fund_${fundName1}`, value: fundId1 } } as IMethod, publicKey);
+
+    // ── Fund 2: Community Garden ──────────────────────────────────────────
+    const fundName2 = 'Community Garden';
+    const { id: fundId2 } = mockDeployDirect({
+      name: fundName2,
+      contract: 'funding_flow_contract.py',
+      parentId: communityId,
+      kind: 'stage',
+    });
+
+    fundingWrite(fundId2, {
+      name: 'set_config',
+      values: { config: { name: fundName2, description: 'Grow shared green spaces for food, connection, and mental health.', goal: 300 } },
+    } as IMethod, publicKey);
+
+    fundingWrite(fundId2, {
+      name: 'set_community_and_fund',
+      values: {
+        community_server: 'demo',
+        community_agent: publicKey,
+        community_id: communityId,
+        fund_account_name: fundName2,
+      },
+    } as IMethod, publicKey);
+
+    const cgContributions = [
+      { id: 'cgc-1', participantId: contributors[1].publicKey, amount: 40, timestamp: Date.now() - 5 * 86400000 },
+      { id: 'cgc-2', participantId: contributors[3].publicKey, amount: 35, timestamp: Date.now() - 3 * 86400000 },
+    ];
+    for (const c of cgContributions) {
+      fundingWrite(fundId2, { name: 'add_contribution', values: { contribution: c } } as IMethod, c.participantId);
+    }
+
+    fundingWrite(fundId2, { name: 'add_item', values: { item: { id: 'cgi-1', name: 'Raised beds & soil', createdBy: contributors[3].publicKey } } } as IMethod, contributors[3].publicKey);
+    fundingWrite(fundId2, { name: 'add_item', values: { item: { id: 'cgi-2', name: 'Irrigation system', createdBy: contributors[1].publicKey } } } as IMethod, contributors[1].publicKey);
+
+    fundingWrite(fundId2, { name: 'set_my_allocation', values: { allocation: { 'cgi-1': 600, 'cgi-2': 400 } } } as IMethod, contributors[3].publicKey);
+
+    communityWrite(communityId, { name: 'create_fund_account', values: { name: fundName2, owner: contributors[3].publicKey } } as IMethod, publicKey);
+    for (const c of cgContributions) {
+      communityWrite(communityId, { name: 'transfer', values: { to: fundName2, value: c.amount } } as IMethod, c.participantId);
+    }
+    communityWrite(communityId, { name: 'set_property', values: { key: `fund_${fundName2}`, value: fundId2 } } as IMethod, publicKey);
+
+    // ── Community-level allocations ────────────────────────────────────────
+    // Two members signal how the commons should be split across the two funds.
+    communityWrite(communityId, {
+      name: 'set_allocation',
+      values: { allocation: { [fundName1]: 500, [fundName2]: 300, centralAccount: 200 } },
+    } as IMethod, contributors[0].publicKey);
+    communityWrite(communityId, {
+      name: 'set_allocation',
+      values: { allocation: { [fundName1]: 400, [fundName2]: 400, centralAccount: 200 } },
+    } as IMethod, contributors[2].publicKey);
+
+    // Give the commons treasury a small starting balance so the "Commons Treasury"
+    // row reads > 0 immediately. Done via a direct state update using the same
+    // writeState mechanism the seeder uses elsewhere.
+    type CommunityAccounts = { accounts: Record<string, { balanceOf: number; creationTime: number; elapsedDays: number; type?: string; owner?: string }> };
+    updateState<CommunityAccounts>(communityId, (s) => {
+      const next = { ...s };
+      if (next.accounts?.['centralAccount']) {
+        next.accounts = { ...next.accounts, centralAccount: { ...next.accounts['centralAccount'], balanceOf: 300 } };
+      }
+      return next;
+    });
+
+    console.log(`[DemoSeed] Funds seeded: ${fundName1} (${fundId1}), ${fundName2} (${fundId2})`);
+  }
 
   markSeeded(communityId);
   console.log('[DemoSeed] Done');
