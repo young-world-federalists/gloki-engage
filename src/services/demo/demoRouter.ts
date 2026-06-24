@@ -14,6 +14,7 @@ import { discussionRead, discussionWrite } from './demoContracts/discussion';
 import { concernsRead, concernsWrite } from './demoContracts/concerns';
 import { mergeRead, mergeWrite } from './demoContracts/merge';
 import { profileRead, profileWrite } from './demoContracts/profile';
+import { fundingRead, fundingWrite } from './demoContracts/funding';
 
 type Handler = (contractId: string, method: IMethod, caller: string) => unknown;
 
@@ -30,6 +31,7 @@ const READ: Record<string, Handler> = {
   'concerns_contract.py': concernsRead,
   'merge_contract.py': mergeRead,
   'gloki_contract.py': profileRead,
+  'funding_flow_contract.py': fundingRead,
 };
 
 const WRITE: Record<string, Handler> = {
@@ -45,6 +47,7 @@ const WRITE: Record<string, Handler> = {
   'concerns_contract.py': concernsWrite,
   'merge_contract.py': mergeWrite,
   'gloki_contract.py': profileWrite,
+  'funding_flow_contract.py': fundingWrite,
 };
 
 // If a contract is read/written before its deploy was registered (e.g. a
