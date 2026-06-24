@@ -467,16 +467,16 @@ export async function setParameters(
   publicKey: string,
   contractId: string,
   mint: number,
-  burn: number
+  burn: number,
+  commonsMint: number
 ) {
   return await contractWrite({
     serverUrl: serverUrl,
     publicKey: publicKey,
     contractId: contractId,
     method: {
-      name: 'transfer',
-      values: { to: publicKey, value: 0 },
-      parameters: { mint, burn },
+      name: 'set_parameters',
+      values: { mint, burn, commons_mint: commonsMint },
     } as IMethod,
   });
 }
@@ -495,11 +495,95 @@ export async function getParameters(
       values: {},
     } as IMethod,
   });
-  
+
   if (!parameters.parameters || Object.keys(parameters.parameters).length === 0) {
     console.log('No parameters found, setting default values');
-    setParameters(serverUrl, publicKey, contractId, 100, 0.0003);
+    setParameters(serverUrl, publicKey, contractId, 100, 0.0003, 0);
   }
 
   return parameters;
+}
+
+// ---------------------------------------------------------------------------
+// Funding / commons service wrappers
+// ---------------------------------------------------------------------------
+
+export interface IDistributionStatus {
+  days_since_creation: number;
+  payment_count: number;
+  can_distribute: boolean;
+}
+
+export async function getAccountDetails(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, { type: string; balance: number }>> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_account_details', values: {} } as IMethod,
+  });
+  return (res && typeof res === 'object') ? res as Record<string, { type: string; balance: number }> : {};
+}
+
+export async function getAllAllocations(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, Record<string, number>>> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_all_allocations', values: {} } as IMethod,
+  });
+  return (res && typeof res === 'object') ? res as Record<string, Record<string, number>> : {};
+}
+
+export async function setAllocation(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  allocation: Record<string, number>,
+): Promise<void> {
+  await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'set_allocation', values: { allocation } } as IMethod,
+  });
+}
+
+export async function getDistributionStatus(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<IDistributionStatus> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_distribution_status', values: {} } as IMethod,
+  });
+  const r = (res ?? {}) as Partial<IDistributionStatus>;
+  return {
+    days_since_creation: r.days_since_creation ?? 0,
+    payment_count: r.payment_count ?? 0,
+    can_distribute: r.can_distribute ?? false,
+  };
+}
+
+export async function distributeCommons(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<void> {
+  await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'distribute_commons', values: {} } as IMethod,
+  });
 }
