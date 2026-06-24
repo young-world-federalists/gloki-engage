@@ -186,7 +186,8 @@ const ContributeForm: React.FC<{
   currentUser: string;
   fundContractId: string;
   communityInfo: api.CommunityInfo | null;
-}> = ({ serverUrl, currentUser, fundContractId, communityInfo }) => {
+  reload?: () => Promise<void>;
+}> = ({ serverUrl, currentUser, fundContractId, communityInfo, reload }) => {
   const t = useT();
   const symbol = t('currency.symbol', 'points');
   const [amountInput, setAmountInput] = useState('');
@@ -203,6 +204,7 @@ const ContributeForm: React.FC<{
     setSubmitting(true);
     try {
       await api.contribute(serverUrl, currentUser, fundContractId, currentUser, amount, communityInfo ?? undefined);
+      if (reload) await reload();
       setAmountInput('');
       setError('');
       setSuccess(true);
@@ -302,7 +304,8 @@ const AllocationTab: React.FC<{
   myAllocation: Record<string, number>;
   onMyAllocationChange: (updated: Record<string, number>) => void;
   onSaveAllocation: () => Promise<void>;
-}> = ({ serverUrl, currentUser, fundContractId, items, allocations, myAllocation, onMyAllocationChange, onSaveAllocation }) => {
+  reload?: () => Promise<void>;
+}> = ({ serverUrl, currentUser, fundContractId, items, allocations, myAllocation, onMyAllocationChange, onSaveAllocation, reload }) => {
   const t = useT();
   const [inputText, setInputText] = useState('');
   const [error, setError] = useState('');
@@ -319,6 +322,7 @@ const AllocationTab: React.FC<{
     setAdding(true);
     try {
       await api.addItem(serverUrl, currentUser, fundContractId, currentUser, name);
+      if (reload) await reload();
       setInputText('');
     } catch (e) {
       setError(e instanceof Error ? e.message : t('funds.addItemFailed', 'Failed to add item.'));
@@ -530,7 +534,8 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
 
   const handleSaveAllocation = useCallback(async () => {
     await api.saveMyAllocation(serverUrl, currentUser, fundContractId, myAllocationRef.current);
-  }, [serverUrl, currentUser, fundContractId]);
+    await load();
+  }, [serverUrl, currentUser, fundContractId, load]);
 
   const backButton = (
     <div className={styles.backRow}>
@@ -631,6 +636,7 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
         currentUser={currentUser}
         fundContractId={fundContractId}
         communityInfo={communityInfo}
+        reload={load}
       />
 
       <div className={styles.historySection}>
@@ -682,6 +688,7 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
               myAllocation={myAllocation}
               onMyAllocationChange={setMyAllocation}
               onSaveAllocation={handleSaveAllocation}
+              reload={load}
             />
           </div>
         )}

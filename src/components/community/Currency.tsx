@@ -179,6 +179,8 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
     if (serverUrl && publicKey && communityId) {
       await transfer(serverUrl, publicKey, communityId, selectedMember, paymentAmount);
+      dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
+      await loadAllocationData();
     }
 
     setAmount('');
@@ -205,6 +207,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     setSavingPreferences(true);
     try {
       await setParameters(serverUrl, publicKey, communityId, mintValue, burnValue, commonsMintValue);
+      dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
     } catch (error) {
       console.error('Failed to update parameters:', error);
       showAlert(
@@ -266,6 +269,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     setAllocationSaving(true);
     try {
       await setAllocation(serverUrl, publicKey, communityId, myAllocationRef.current);
+      await loadAllocationData();
     } catch (e) {
       console.error('Failed to save allocation:', e);
       showAlert(
@@ -275,13 +279,14 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     } finally {
       setAllocationSaving(false);
     }
-  }, [publicKey, serverUrl, communityId, showAlert, t]);
+  }, [publicKey, serverUrl, communityId, showAlert, t, loadAllocationData]);
 
   const handleDistribute = async () => {
     if (!publicKey || !serverUrl || !communityId) return;
     setDistributing(true);
     try {
       await distributeCommons(serverUrl, publicKey, communityId);
+      await loadAllocationData();
     } catch (e) {
       console.error('Failed to distribute:', e);
       showAlert(
