@@ -247,8 +247,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
         ) : stage === 'discussion' ? (
           <DiscussionEngage
             initiativeId={initiativeId}
-            communityId={communityId}
-            memberCount={memberCount}
           />
         ) : (
           <StageGate communityId={communityId} stage={stage}>

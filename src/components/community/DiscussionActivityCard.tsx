@@ -96,10 +96,10 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
       expanded={expanded}
       onToggle={onToggle}
       onOpen={openDiscussion}
-      openLabel={t('deliberation.discussion.open', 'Open the co-authoring space')}
+      openLabel={t('deliberation.discussion.open', 'Open the discussion')}
       collapsedTeaser={t('card.teaserDiscussion', 'Join the discussion')}
     >
-      <DiscussionEngage initiativeId={item.id} communityId={communityId} memberCount={activeMemberCount} />
+      <DiscussionEngage initiativeId={item.id} />
       {/* Discussion → proposals. Ungated, so omit ready/notReadyReason — the bar
           defaults to ready. */}
       <StageAdvanceBar
