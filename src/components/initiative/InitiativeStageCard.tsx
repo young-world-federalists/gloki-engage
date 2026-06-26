@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { ChevronDown, ChevronUp, ArrowRight, Flag, ExternalLink } from 'lucide-react';
-import { Card, Badge, TrustBadge } from '../shared';
+import { Card, Badge, UserIdentity } from '../shared';
+import type { UserIdentityProps } from '../shared';
 import { STAGE_META } from '../community/stageMeta';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { useT } from '../../i18n';
@@ -16,6 +17,8 @@ export type StagePost = {
   byline?: string;
   /** Author public key — drives the trust badge (when present). */
   authorKey?: string;
+  /** ISO 3166-1 alpha-2 country code for the author — renders a flag before the byline name. */
+  authorCountry?: string;
   createdAt?: number;
   sdg?: { id: number | string; label: string };
   countryCount?: number;
@@ -24,7 +27,7 @@ export type StagePost = {
 
 export interface InitiativeStageCardProps {
   post: StagePost;
-  trustState?: React.ComponentProps<typeof TrustBadge>['state'];
+  trustState?: UserIdentityProps['trustState'];
   vouchCount?: number;
   expanded: boolean;
   onToggle: () => void;
@@ -50,7 +53,6 @@ export interface InitiativeStageCardProps {
 const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   post,
   trustState,
-  vouchCount,
   expanded,
   onToggle,
   onOpen,
@@ -86,10 +88,12 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
         {post.byline && (
           <span className={styles.byline}>
-            <span className={styles.bylineName}>{post.byline}</span>
-            {post.authorKey && trustState && (
-              <TrustBadge state={trustState} vouchCount={vouchCount ?? 0} size="sm" />
-            )}
+            <UserIdentity
+              name={post.byline}
+              countryCode={post.authorCountry}
+              trustState={trustState}
+              size="sm"
+            />
             {post.createdAt != null && (
               <span className={styles.date}>{formatTimeAgo(t, post.createdAt)}</span>
             )}

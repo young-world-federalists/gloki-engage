@@ -49,6 +49,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const communityMembers = useAppSelector((s) => s.communities.communityMembers);
   const communityActiveMembers = useAppSelector((s) => s.communities.communityActiveMembers);
+  const profiles = useAppSelector((s) => s.communities.profiles);
 
   // Active-member count feeds useInitiativePost (mirrors SolutionActivityCard).
   useEffect(() => {
@@ -71,6 +72,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
     headline: post.headline || item.title || t('community.untitled', 'Untitled Initiative'),
     byline: authorName ? t('community.startedBy', 'Started by {name}', { name: authorName }) : undefined,
     authorKey,
+    authorCountry: authorKey ? profiles[authorKey]?.country : undefined,
     createdAt: item.createdAt,
     sdg: post.sdg,
     countryCount: post.countryCount,
