@@ -22,6 +22,7 @@ interface DiscussionComment {
   timestamp: number;
   category?: 'evidence' | 'impact' | 'solutions' | 'concerns';
   deleted?: boolean;
+  likes: string[]; // 1p1v pubkeys — surfaces "top" replies; no advancement effect
 }
 
 type PositionType = 'evidence' | 'impact' | 'solutions' | 'concerns';
@@ -168,6 +169,7 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         parentId: (method.values?.parentId as string | null | undefined) ?? null,
         timestamp: Date.now(),
         category: method.values?.category as DiscussionComment['category'],
+        likes: [],
       };
       updateState<DiscussionState>(contractId, (s) => ({
         ...defaultState(),
@@ -185,6 +187,26 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         comments: (s.comments ?? []).map((c) =>
           c.id === id && c.author === caller ? { ...c, deleted: true, text: '' } : c,
         ),
+      }));
+      return null;
+    }
+    // 1p1v like toggle on a threaded comment — surfaces "top" replies in the UI;
+    // it does NOT gate advancement. NEW METHOD FOR OURI: `like_comment(comment_id)`
+    // appends/removes the caller's pk on the comment's `likes` list (dedup).
+    case 'like_comment': {
+      const id = method.values?.comment_id as string | undefined;
+      if (!id) return null;
+      updateState<DiscussionState>(contractId, (s) => ({
+        ...defaultState(),
+        ...s,
+        comments: (s.comments ?? []).map((c) => {
+          if (c.id !== id || c.deleted) return c;
+          const likes = c.likes ?? [];
+          return {
+            ...c,
+            likes: likes.includes(caller) ? likes.filter((pk) => pk !== caller) : [...likes, caller],
+          };
+        }),
       }));
       return null;
     }

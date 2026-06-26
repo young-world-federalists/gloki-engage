@@ -11,6 +11,7 @@ export interface Comment {
   timestamp: number;
   category?: CommentCategory;
   deleted?: boolean;
+  likes: string[];
 }
 
 interface RawComment {
@@ -21,6 +22,7 @@ interface RawComment {
   timestamp?: number | string;
   category?: CommentCategory | '' | null;
   deleted?: boolean;
+  likes?: unknown;
 }
 
 function normalizeTimestamp(raw: number | string | undefined): number {
@@ -59,6 +61,7 @@ function normalizeComment(raw: RawComment): Comment {
     timestamp: normalizeTimestamp(raw.timestamp),
     category: raw.category ? (raw.category as CommentCategory) : undefined,
     deleted,
+    likes: Array.isArray(raw.likes) ? raw.likes.map((x) => String(x)).filter(Boolean) : [],
   };
 }
 
@@ -99,6 +102,20 @@ export async function deleteComment(
       name: 'delete_comment',
       values: { comment_id: commentId },
     } as IMethod,
+  });
+}
+
+export async function likeComment(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  commentId: string,
+) {
+  return await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'like_comment', values: { comment_id: commentId } } as IMethod,
   });
 }
 
