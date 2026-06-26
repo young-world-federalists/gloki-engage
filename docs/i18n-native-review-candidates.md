@@ -285,6 +285,61 @@ Two house-style calls a native fr reviewer should make once, then apply consiste
 
 ---
 
+## Session 2 (2026-06-26) — thread/DM/CTA strings + reworded discussion keys
+
+New keys added during Session 2 of the design-consistency + card-redesign work. All are best-effort machine
+drafts awaiting fr/sw native review. Full key parity confirmed (fr = sw = 954 keys).
+
+### New keys added (Step 1)
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `card.discussProblem` | Discuter de ce problème | Jadili tatizo hili | Open the discussion on this problem (card CTA) |
+| `card.suggestToAuthor` | Envoyer une suggestion à l'auteur | Tuma pendekezo kwa mwandishi | Send a private suggestion to the initiative author |
+| `problems.thresholdHintShort` | Cela devient un problème commun lorsqu'au moins la moitié de votre communauté est d'accord. | Inakuwa tatizo la pamoja pindi angalau nusu ya jamii yako inakubali. | Short threshold hint on problem cards |
+| `deliberation.thread.addPlaceholder` | Ajouter à la discussion… | Changia kwenye majadiliano… | Thread composer placeholder |
+| `deliberation.thread.comment` | Commenter | Toa maoni | Post a top-level comment |
+| `deliberation.thread.reply` | Répondre | Jibu | Reply to a comment |
+| `deliberation.thread.replyPlaceholder` | Répondre à {name}… | Mjibu {name}… | Reply composer placeholder |
+| `deliberation.thread.delete` | Supprimer | Futa | Delete a comment |
+| `deliberation.thread.like` | J'aime | Penda | Like/heart a comment |
+| `deliberation.thread.expand` | Afficher les réponses | Onyesha majibu | Expand collapsed reply thread |
+| `deliberation.thread.collapse` | Masquer les réponses | Ficha majibu | Collapse expanded replies |
+| `deliberation.thread.sortLabel` | Trier les commentaires | Panga maoni | Sort picker label |
+| `deliberation.thread.sortTop` | Populaires | Maarufu | Sort by top/popular |
+| `deliberation.thread.sortNewest` | Récents | Mpya | Sort by newest |
+| `deliberation.thread.continue` | Continuer ce fil ({n}) → | Endelea na uzi huu ({n}) → | Continue reading nested thread |
+| `deliberation.thread.back` | Retour à la discussion complète | Rudi kwenye majadiliano kamili | Back to full discussion |
+| `deliberation.thread.emptyTitle` | Pas encore de commentaires | Hakuna maoni bado | Thread empty state title |
+| `deliberation.thread.empty` | Lancez la conversation sur ce problème. | Anzisha mazungumzo kuhusu tatizo hili. | Thread empty state body |
+| `deliberation.thread.count.one` | 1 commentaire | Maoni 1 | Singular comment count |
+| `deliberation.thread.count.many` | {n} commentaires | Maoni {n} | Plural comment count |
+| `deliberation.discussion.teaser` | {c} commentaires · {p} personnes | Maoni {c} · watu {p} | Discussion teaser on collapsed card |
+| `suggest.eyebrow` | Suggestion | Pendekezo | Eyebrow label on DM suggestion page |
+| `suggest.author` | l'auteur | mwandishi | Author reference in empty-state copy |
+| `suggest.emptyTitle` | Envoyer une suggestion privée | Tuma pendekezo la faragha | Empty-state title on suggestion DM |
+| `suggest.empty` | Votre suggestion est envoyée en privé à {name}. | Pendekezo lako litatumwa kwa faragha kwa {name}. | Empty-state body on suggestion DM |
+| `suggest.placeholder` | Écrivez votre suggestion… | Andika pendekezo lako… | Suggestion composer placeholder |
+| `suggest.send` | Envoyer la suggestion | Tuma pendekezo | Send button on suggestion DM |
+
+### Reworded keys (Step 2)
+
+| key | fr (old → new) | sw (old → new) | Reason |
+|---|---|---|---|
+| `deliberation.discussion.open` | "Ouvrir l'espace de co-rédaction" → "Ouvrir la discussion" | "Fungua nafasi ya uandishi wa pamoja" → "Fungua majadiliano" | Discussion is now a thread, not a co-authoring panel |
+| `deliberation.settingUp` | "Préparation de l'espace de co-rédaction…" → "Préparation de la discussion…" | "Inaandaa nafasi ya uandishi wa pamoja…" → "Inaandaa majadiliano…" | Same — loading state for the threaded discussion |
+| `deliberation.empty.body` | "Soyez le premier à co-rédiger une déclaration commune pour ce problème." → "Soyez le premier à donner votre avis sur ce problème." | "Kuwa wa kwanza kuandika pamoja taarifa ya pamoja kwa tatizo hili." → "Kuwa wa kwanza kutoa maoni kuhusu tatizo hili." | Reflects that the empty state is now for commenting, not co-authoring |
+
+**Native-review concerns for Session 2 strings:**
+
+- **fr `deliberation.thread.*`:** most are functional labels. Confirm `J'aime` (like) reads naturally as a comment action vs. a generic "I like" verb (could be `Aimer` as infinitive or `👍` instead). Confirm `Populaires` vs `Les plus populaires` for the sort label.
+- **sw `deliberation.thread.*`:** `Toa maoni` is used for both `deliberation.thread.comment` and `deliberation.thread.reply` is `Jibu` — confirm these are clearly distinct in context. `Maarufu` for "popular/top" — confirm this reads as a sorting criterion, not as "famous".
+- **sw `suggest.*`:** `Pendekezo la faragha` ("private suggestion") — confirm `faragha` is the right register (privacy/intimacy) for a private DM context. `Andika pendekezo lako…` ("write your suggestion") — natural as a composer placeholder?
+- **fr `suggest.author`:** `l'auteur` (lowercase, with elision) — this appears inline in a sentence like "Envoyer une suggestion à {name} / l'auteur". Confirm the case and article choice read naturally in all contexts.
+- **sw `problems.thresholdHintShort`:** `pindi … inakubali` — `pindi` ("when/once") with present tense `inakubali` (she/it accepts) — the subject of `inakubali` should be `nusu ya jamii yako` (N-class singular → `i-` prefix). Confirm the agreement is right: "nusu … **i**nakubali".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
