@@ -4,7 +4,6 @@ import { useT } from '../../i18n';
 import {
   COUNTRIES,
   OTHER_COUNTRY,
-  REGIONAL_QUICK_PICKS,
   getCountryFlag,
   getCountryName,
 } from '../../utils/countries';
@@ -45,7 +44,6 @@ const CountryMultiSelect: React.FC<CountryMultiSelectProps> = ({
     if (code && !value.includes(code)) onChange([...value, code]);
   };
   const remove = (code: string) => onChange(value.filter((c) => c !== code));
-  const toggle = (code: string) => (value.includes(code) ? remove(code) : add(code));
 
   const label = (code: string) =>
     code === 'OTHER' ? t('country.other', 'Other') : getCountryName(code);
@@ -87,35 +85,6 @@ const CountryMultiSelect: React.FC<CountryMultiSelectProps> = ({
         placeholder={t('country.add', 'Add a country')}
         disabled={disabled}
       />
-
-      <div className={styles.quickAdd}>
-        <span className={styles.quickAddLabel}>{t('country.quickAdd', 'Quick add')}</span>
-        {REGIONAL_QUICK_PICKS.map((region) => (
-          <div key={region.regionKey} className={styles.region}>
-            <span className={styles.regionLabel}>{t(region.regionKey, region.labelEn)}</span>
-            {region.codes.map((code) => {
-              const selected = value.includes(code);
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  className={
-                    selected ? `${styles.quickChip} ${styles.quickChipSelected}` : styles.quickChip
-                  }
-                  aria-pressed={selected}
-                  onClick={() => toggle(code)}
-                  disabled={disabled}
-                >
-                  <span className={styles.flag} role="img" aria-hidden>
-                    {getCountryFlag(code)}
-                  </span>
-                  <span>{getCountryName(code)}</span>
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

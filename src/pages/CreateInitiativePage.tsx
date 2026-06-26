@@ -136,7 +136,7 @@ const CreateInitiativePage: React.FC = () => {
           onClick={() => navigate(`/community/${communityId}`)}
           aria-label={t('common.back', 'Back')}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={24} />
         </button>
         {/* Nested under CommunityView's AppHeader (community name = the page's
             single <h1>), so this title is an <h2>. */}
