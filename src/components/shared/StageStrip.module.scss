@@ -42,15 +42,13 @@
   color: $gray-700;
 }
 
-// Five distinct stage colours, all design tokens. The pipeline reads as a
-// rainbow so each stage is individually recognisable; `proposals` uses the
-// brand-gradient purple because no semantic "info" token is visually distinct
-// from `$primary` (vote).
-.stage_problem .circle    { background: $error; }
-.stage_discussion .circle { background: $warning; }
-.stage_proposals .circle  { background: $brand-gradient-end; }
-.stage_vote .circle       { background: $primary; }
-.stage_mandate .circle    { background: $success; }
+// Five distinct stage colours from the canonical $stage-* set (variables.scss),
+// the single source shared with the create-initiative stepper.
+.stage_problem .circle    { background: $stage-problem; }
+.stage_discussion .circle { background: $stage-discussion; }
+.stage_proposals .circle  { background: $stage-solutions; }
+.stage_vote .circle       { background: $stage-vote; }
+.stage_mandate .circle    { background: $stage-mandate; }
 
 @media (prefers-color-scheme: dark) {
   .strip {
