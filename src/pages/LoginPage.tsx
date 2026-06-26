@@ -250,7 +250,7 @@ const LoginPage: React.FC = () => {
           <button
             onClick={handleLogin}
             disabled={!isValid || isLoading}
-            className={`login-button ${styles.loginButton}`}
+            className={styles.loginButton}
           >
             <span>{isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}</span>
             {!isLoading && <ArrowRight size={20} />}

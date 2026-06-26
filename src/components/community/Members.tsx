@@ -6,7 +6,7 @@ import MessageDialog from './dialogs/MessageDialog';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
-import { UserIdentity } from '../shared';
+import { UserIdentity, Button } from '../shared';
 import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
@@ -61,13 +61,15 @@ const MemberItem: React.FC<MemberItemProps> = ({
             size="sm"
           />
           {showApproveButton && (
-            <button
-              className={isApproved ? styles.approvedButton : styles.pendingButton}
-              disabled={isApproved}
-              onClick={onApprove}
-            >
-              {isApproved ? t('members.approved', 'Approved') : t('members.approve', 'Approve')}
-            </button>
+            isApproved ? (
+              <Button variant="primary" size="sm" disabled>
+                {t('members.approved', 'Approved')}
+              </Button>
+            ) : (
+              <Button variant="primary" size="sm" onClick={onApprove}>
+                {t('members.approve', 'Approve')}
+              </Button>
+            )
           )}
         </div>
         <div className={styles.publicKey}>{publicKey}</div>
@@ -227,13 +229,9 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
 
         {!currentUserInList && publicKey && (
           <div className={styles.joinSection}>
-            <button
-              onClick={handleJoinCommunity}
-              disabled={isJoining}
-              className={styles.joinButton}
-            >
-              {isJoining ? t('members.joining', 'Joining...') : t('members.join', 'Join Community')}
-            </button>
+            <Button variant="primary" loading={isJoining} onClick={handleJoinCommunity}>
+              {t('members.join', 'Join Community')}
+            </Button>
           </div>
         )}
 

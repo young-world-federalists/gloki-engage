@@ -33,31 +33,6 @@
     justify-content: flex-start;
   }
 
-  .joinButton {
-    padding: $spacing-md $spacing-xl;
-    border-radius: $radius-lg;
-    font-size: $text-lg;
-    font-weight: $font-medium;
-    background-color: $primary;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background-color: $primary-dark;
-    }
-
-    &:active:not(:disabled) {
-      background-color: $primary-dark;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
   .section {
     margin-bottom: $spacing-2xl;
 
@@ -167,36 +142,6 @@
           white-space: nowrap;
         }
 
-        button {
-          padding: $spacing-md $spacing-xl; // Slightly reduced height, same width
-          border-radius: $radius-lg;
-          font-size: $text-lg; // Much bigger font
-          font-weight: $font-medium;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          white-space: nowrap; // Prevent button text from wrapping
-          flex-shrink: 0; // Prevent button from shrinking
-
-          &.pendingButton {
-            background-color: $primary;
-            color: white;
-
-            &:hover {
-              background-color: $primary-dark;
-            }
-
-            &:active {
-              background-color: $primary-dark;
-            }
-          }
-
-          &.approvedButton {
-            background-color: $success;
-            color: white;
-            cursor: not-allowed;
-          }
-        }
       }
     }
   }
@@ -225,10 +170,6 @@
             font-size: $text-xs;
           }
 
-          button {
-            padding: $spacing-sm $spacing-md; // Smaller but still bigger than before
-            font-size: $text-base;
-          }
         }
       }
     }
@@ -281,21 +222,6 @@
             color: $dark-text-secondary;
           }
 
-          button {
-            &.pendingButton {
-              background-color: $primary;
-              color: white;
-
-              &:hover {
-                background-color: $primary-dark;
-              }
-            }
-
-            &.approvedButton {
-              background-color: $success;
-              color: white;
-            }
-          }
         }
       }
     }
