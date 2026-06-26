@@ -35,6 +35,10 @@ const WriteTogetherPage: React.FC<{ communityId: string }> = ({ communityId }) =
     [view, drafts],
   );
 
+  useEffect(() => {
+    if (view.mode === 'edit' && !current) setView({ mode: 'list' });
+  }, [view, current]);
+
   if (view.mode === 'start') {
     return (
       <div className={styles.page}>
