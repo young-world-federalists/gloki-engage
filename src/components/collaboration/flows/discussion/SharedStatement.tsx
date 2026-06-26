@@ -1,9 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { PenLine, Users, Check, ThumbsUp, Eye, MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
-import { Badge, Banner, Button, Modal, CountryFlag, EmptyState } from '../../../shared';
+import { Badge, Banner, Button, Modal, EmptyState } from '../../../shared';
+import UserIdentity from '../../../shared/UserIdentity';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
-import { deliberationParticipant, diffWords } from '../../../../services/demo/fixtures/deliberation';
+import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
+import type { TrustState } from '../../../../services/trust';
+import { diffWords } from '../../../../services/demo/fixtures/deliberation';
 import { relativeTimeKey } from '../../../../utils/formatTimeAgo';
 import * as api from './discussionApi';
 import type { Statement, EditSuggestion } from './discussionApi';
@@ -116,6 +119,8 @@ const SuggestEditModal: React.FC<{
   );
 };
 
+type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string }>;
+
 /** One open edit — track-changes diff + a 1p1v support bar toward fold-in. */
 const EditCard: React.FC<{
   t: TFunction;
@@ -124,10 +129,10 @@ const EditCard: React.FC<{
   currentUserKey: string;
   canParticipate: boolean;
   onToggleSupport: (edit: EditSuggestion) => void;
-}> = ({ t, edit, target, currentUserKey, canParticipate, onToggleSupport }) => {
-  const isMine = edit.author === currentUserKey;
-  const person = deliberationParticipant(edit.author);
-  const name = isMine ? t('deliberation.you', 'You') : person.name;
+  profiles: ProfileMap;
+  trustOf: (pk: string) => TrustState;
+  nameOf: (key: string) => string;
+}> = ({ t, edit, target, currentUserKey, canParticipate, onToggleSupport, profiles, trustOf, nameOf }) => {
   const rt = relativeTimeKey(edit.createdAgo);
   const count = edit.supporters.length;
   const mine = edit.supporters.includes(currentUserKey);
@@ -136,11 +141,12 @@ const EditCard: React.FC<{
   return (
     <div className={styles.suggestion}>
       <div className={styles.suggestionHead}>
-        <span className={styles.avatar} aria-hidden>{person.initials}</span>
-        <span className={styles.authorName}>
-          {name}
-          {person.country && <CountryFlag code={person.country} size="sm" />}
-        </span>
+        <UserIdentity
+          name={nameOf(edit.author)}
+          countryCode={profiles[edit.author]?.country}
+          trustState={trustOf(edit.author)}
+          size="sm"
+        />
         <Badge tone="neutral" size="sm">
           {edit.field === 'title'
             ? t('deliberation.coauthor.field.title', 'Title')
@@ -195,6 +201,8 @@ export interface SharedStatementProps {
   onChanged: () => void | Promise<void>;
   /** Optional anchored-discussion-on-the-statement, injected by the view (A3). */
   discussionSlot?: React.ReactNode;
+  /** Drives the verified-member shield via community trust lookup. */
+  communityId?: string;
 }
 
 /**
@@ -212,11 +220,20 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
   canParticipate,
   onChanged,
   discussionSlot,
+  communityId,
 }) => {
   const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const currentUserKey = publicKey || 'me';
+  const profiles = useAppSelector((s) => s.communities.profiles) || {};
+  const trust = useCommunityTrust(communityId);
+  const nameOf = (key: string) => {
+    if (key === currentUserKey) return t('deliberation.you', 'You');
+    const p = profiles[key];
+    const full = p ? `${p.firstName || ''} ${p.lastName || ''}`.trim() : '';
+    return full || `${key.slice(0, 8)}…`;
+  };
   const [showModal, setShowModal] = useState(false);
   const [showDiscussion, setShowDiscussion] = useState(false);
 
@@ -271,15 +288,16 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
           <div className={styles.credit}>
             <Users size={13} aria-hidden />
             <span>{t('deliberation.coauthor.coauthored', 'Co-authored with')}</span>
-            {creditNames.map((k) => {
-              const p = deliberationParticipant(k);
-              return (
-                <span key={k} className={styles.creditName}>
-                  {p.country && <CountryFlag code={p.country} size="sm" />}
-                  {p.name}
-                </span>
-              );
-            })}
+            {creditNames.map((k) => (
+              <span key={k} className={styles.creditName}>
+                <UserIdentity
+                  name={nameOf(k)}
+                  countryCode={profiles[k]?.country}
+                  trustState={trust.trustOf(k)}
+                  size="sm"
+                />
+              </span>
+            ))}
           </div>
         )}
       </div>
@@ -323,6 +341,9 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
               currentUserKey={currentUserKey}
               canParticipate={canParticipate}
               onToggleSupport={toggleSupport}
+              profiles={profiles}
+              trustOf={trust.trustOf}
+              nameOf={nameOf}
             />
           ))}
         </div>
@@ -339,7 +360,6 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
         <div className={styles.resolved}>
           <p className={styles.sectionHint}>{t('deliberation.coauthor.resolved', 'Resolved')}</p>
           {resolved.map((e) => {
-            const p = deliberationParticipant(e.author);
             const accepted = e.status === 'accepted';
             return (
               <Banner
@@ -348,8 +368,8 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
                 icon={accepted ? <Check size={16} /> : <PenLine size={16} />}
               >
                 {accepted
-                  ? t('deliberation.coauthor.acceptedNote', "{name}'s edit folded in — they're now a co-author.", { name: p.name })
-                  : t('deliberation.coauthor.staleNote', "{name}'s edit was superseded by another change — it can be re-proposed.", { name: p.name })}
+                  ? t('deliberation.coauthor.acceptedNote', "{name}'s edit folded in — they're now a co-author.", { name: nameOf(e.author) })
+                  : t('deliberation.coauthor.staleNote', "{name}'s edit was superseded by another change — it can be re-proposed.", { name: nameOf(e.author) })}
               </Banner>
             );
           })}
