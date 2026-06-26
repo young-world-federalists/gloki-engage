@@ -39,6 +39,9 @@ export type { BadgeProps, BadgeTone } from './Badge';
 export { default as TrustBadge } from './TrustBadge';
 export type { TrustBadgeProps } from './TrustBadge';
 
+export { default as UserIdentity } from './UserIdentity';
+export type { UserIdentityProps } from './UserIdentity';
+
 export { default as CountryFlag } from './CountryFlag';
 export type { CountryFlagProps } from './CountryFlag';
 

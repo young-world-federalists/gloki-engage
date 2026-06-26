@@ -1,0 +1,29 @@
+@use '../../styles/variables' as *;
+
+.identity {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.flag { flex-shrink: 0; }
+
+.name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: $font-medium;
+}
+
+// Shield reads like an exponent: small, raised, success-toned (verified = good).
+.shield {
+  flex-shrink: 0;
+  margin-left: 1px;
+  transform: translateY(-0.3em);
+  color: $success;
+}
+
+.sm .name { font-size: $text-sm; }
+.md .name { font-size: $text-base; }
