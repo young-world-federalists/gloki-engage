@@ -1,11 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, Send } from 'lucide-react';
+import { Copy, MessageCircle, Send } from 'lucide-react';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import ProblemVoteFlow from '../../collaboration/flows/voting/ProblemVoteFlow';
 import StageGate from '../../community/StageGate';
 import { Button } from '../../shared';
 import { useT } from '../../../i18n';
+import { codeForId } from '../../../utils/problemCode';
 import styles from './ProblemEngage.module.scss';
 
 export interface ProblemEngageProps {
@@ -73,6 +74,17 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
           ? t('problems.thresholdMetHint', 'Agreed by at least half of your community.')
           : t('problems.thresholdHintShort', 'It becomes a shared problem once at least half of your community agrees.')}
       </p>
+
+      <button
+        type="button"
+        className={styles.codeChip}
+        onClick={() => navigator.clipboard?.writeText(codeForId(initiativeId))}
+        aria-label={t('writeTogether.copyCode', 'Copy problem code')}
+      >
+        <span className={styles.codeLabel}>{t('writeTogether.problemCodeLabel', 'Problem code')}</span>
+        <code className={styles.codeValue}>{codeForId(initiativeId)}</code>
+        <Copy size={14} aria-hidden />
+      </button>
 
       <div className={styles.actions}>
         <Button variant="secondary" onClick={openDiscussion}>

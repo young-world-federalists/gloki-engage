@@ -18,6 +18,54 @@
   }
 }
 
+/* Copyable 3-word problem code chip */
+.codeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: transparent;
+  cursor: pointer;
+  color: $gray-500;
+  font-size: $text-xs;
+  text-align: left;
+
+  &:hover {
+    border-color: $gray-300;
+    color: $gray-700;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      border-color: $dark-text-secondary;
+      color: $dark-text;
+    }
+  }
+}
+
+.codeLabel {
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.codeValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
 /* The two CTA buttons — wrap at 360px */
 .actions {
   display: flex;
