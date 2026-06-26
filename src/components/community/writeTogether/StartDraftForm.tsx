@@ -33,7 +33,7 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
   const canStart = title.trim() && body.trim() && (mode === 'problem' || !!tag);
 
   const handleStart = async () => {
-    if (!serverUrl || !publicKey || !canStart) return;
+    if (busy || !serverUrl || !publicKey || !canStart) return;
     setBusy(true);
     try {
       const entry = await startDraft(serverUrl, publicKey, communityId, {
@@ -63,7 +63,7 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
             role="radio"
             aria-checked={mode === m}
             className={`${styles.modeBtn} ${mode === m ? styles.modeBtnActive : ''}`}
-            onClick={() => setMode(m)}
+            onClick={() => { setMode(m); if (m === 'problem') setTag(undefined); }}
           >
             {m === 'problem'
               ? t('writeTogether.modeProblem', 'Problem')
