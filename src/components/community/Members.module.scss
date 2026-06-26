@@ -55,7 +55,7 @@
       gap: $spacing-lg;
       background: white;
       border-radius: $radius-lg;
-      padding: $spacing-lg;
+      padding: $spacing-xl $spacing-lg;
       box-shadow: $shadow-base;
       border: 1px solid $gray-200;
       transition: box-shadow 0.2s ease;
@@ -152,7 +152,7 @@
   .container {
     .list {
       .memberCard {
-        padding: $spacing-md;
+        padding: $spacing-lg $spacing-md;
         gap: $spacing-md;
         min-height: 75px; // Reduced mobile height
 

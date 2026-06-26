@@ -5,9 +5,9 @@
 .strip {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-xs;
+  gap: $spacing-sm;
   margin: 0 0 $spacing-lg;
-  padding: $spacing-md $spacing-sm;
+  padding: $spacing-md $spacing-xs;
   list-style: none;
   background: $gray-50;
   border: 1px solid $gray-200;
@@ -38,8 +38,10 @@
 .label {
   font-size: $text-xs;
   font-weight: $font-medium;
-  line-height: 1.2;
+  line-height: 1.3;
   color: $gray-700;
+  white-space: normal;
+  word-break: break-word;
 }
 
 // Five distinct stage colours from the canonical $stage-* set (variables.scss),
