@@ -7,6 +7,7 @@ interface Proposal {
   text: string;
   author: string;
   timestamp: number;
+  coAuthors?: string[];
 }
 
 interface ApprovalState {
@@ -81,7 +82,11 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       const text = cleanText(method.values?.text);
       if (!text) return { error: 'Proposal text must be between 1 and 500 characters' };
       const id = 'p' + s.count;
-      s.proposals[id] = { id, text, author: caller, timestamp: Date.now() };
+      // coAuthors (Write Together, S3): optional credited co-authors carried from
+      // a co-owned draft. FOR OURI: `add_proposal` gains optional `co_authors`.
+      const rawCo = method.values?.co_authors;
+      const coAuthors = Array.isArray(rawCo) ? rawCo.map((x) => String(x)).filter(Boolean) : [];
+      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors };
       s.count += 1;
       writeState(contractId, s);
       return id;

@@ -18,12 +18,13 @@ export async function addProposal(
   publicKey: string,
   contractId: string,
   text: string,
+  coAuthors: string[] = [],
 ) {
   return throwIfContractError(await contractWrite({
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'add_proposal', values: { text } } as IMethod,
+    method: { name: 'add_proposal', values: { text, co_authors: coAuthors } } as IMethod,
   }));
 }
 

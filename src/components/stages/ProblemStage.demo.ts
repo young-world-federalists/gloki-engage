@@ -56,6 +56,8 @@ export interface ProposeIssueInput {
   whoWhy?: string;
   /** Optional light SDG tag. */
   sdg?: SdgTag;
+  /** Optional credited co-authors carried from a co-owned draft (Write Together, S3). */
+  coAuthors?: string[];
 }
 
 /**
@@ -66,11 +68,12 @@ export interface ProposeIssueInput {
  *
  * Throws if the underlying mock writes fail; callers should surface the error.
  */
-// Reserved for Write Together (Session 3): the "propose a new framing/candidate
-// issue" flow relocates there. No card calls this after S2 (the problem card's
+// Used by Write Together (Session 3): the "propose a new framing/candidate
+// issue" flow relocates there and threads coAuthors from the co-owned draft.
+// No card calls this after S2 (the problem card's
 // "Propose a different framing" became "Send suggestion to author").
 export function proposeCandidateIssue(input: ProposeIssueInput): string {
-  const { publicKey, communityId, title, description, countries, evidence, whoWhy, sdg } = input;
+  const { publicKey, communityId, title, description, countries, evidence, whoWhy, sdg, coAuthors } = input;
   const now = Date.now();
 
   const { id: initiativeId } = mockDeployDirect({
@@ -92,6 +95,7 @@ export function proposeCandidateIssue(input: ProposeIssueInput): string {
       currencyGoal: 100,
       currencyGathered: 0,
       activityCount: 0,
+      coAuthors: coAuthors ?? [],
     },
     'problem',
   );
@@ -129,6 +133,7 @@ export function proposeCandidateIssue(input: ProposeIssueInput): string {
           currencyGathered: 0,
           currencyGoal: 100,
           activityCount: 1,
+          coAuthors: coAuthors ?? [],
         },
       },
     } as IMethod,
