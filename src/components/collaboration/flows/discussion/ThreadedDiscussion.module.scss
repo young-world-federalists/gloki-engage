@@ -1,0 +1,198 @@
+@use '../../../../styles/variables' as *;
+
+.container { display: flex; flex-direction: column; gap: $spacing-md; }
+
+/* Composer */
+.composeBox { display: flex; flex-direction: column; gap: $spacing-sm; }
+.composeTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  resize: vertical;
+
+  &::placeholder { color: $gray-500; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: $dark-bg;
+    border-color: $dark-border;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+}
+.composeActions { display: flex; gap: $spacing-sm; }
+.btnSubmit {
+  min-height: 44px;
+  padding: $spacing-xs $spacing-lg;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: $primary-dark; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.btnCancel {
+  min-height: 44px;
+  padding: $spacing-xs $spacing-md;
+  background: none;
+  color: $gray-600;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+
+/* Toolbar: count + sort toggle */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; }
+.count {
+  font-size: $text-xs;
+  color: $gray-500;
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.sortToggle { display: inline-flex; gap: $spacing-xs; }
+.sortBtn, .sortActive {
+  min-height: 36px;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  background: none;
+  color: $gray-500;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.sortActive {
+  color: $primary;
+  background: rgba($primary, 0.1);
+  @media (prefers-color-scheme: dark) { color: $dark-text; background: rgba($primary, 0.25); }
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-start;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  margin-left: -#{$spacing-sm};
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+/* Thread */
+.commentList { display: flex; flex-direction: column; gap: $spacing-md; }
+.commentItem { position: relative; }
+.nested { margin-left: $spacing-md; padding-left: $spacing-md; }
+.threadLine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: $gray-200;
+  border-radius: $radius-full;
+  @media (prefers-color-scheme: dark) { background: $dark-border; }
+}
+
+.commentBody { display: flex; flex-direction: column; gap: $spacing-xs; }
+.commentHeader { display: flex; align-items: center; gap: $spacing-sm; flex-wrap: wrap; }
+.timestamp {
+  font-size: $text-xs;
+  color: $gray-500;
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.collapseBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  padding: 0 $spacing-xs;
+  background: none;
+  border: none;
+  color: $gray-500;
+  font-size: $text-xs;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.commentText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.6;
+  color: $gray-800;
+  white-space: pre-wrap;
+  word-break: break-word;
+  @media (prefers-color-scheme: dark) { color: $dark-text; }
+}
+
+.commentActions { display: flex; align-items: center; gap: $spacing-md; }
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-xs;
+  background: none;
+  border: none;
+  color: $gray-500;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  cursor: pointer;
+
+  &:hover { color: $primary; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.liked {
+  color: $error;
+  &:hover { color: $error-dark; }
+}
+.actionBtnDelete {
+  &:hover { color: $error; }
+}
+
+.continueBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-left: $spacing-md;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.children { display: flex; flex-direction: column; gap: $spacing-md; margin-top: $spacing-md; }
