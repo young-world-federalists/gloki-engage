@@ -6,7 +6,7 @@ import MessageDialog from './dialogs/MessageDialog';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
-import { TrustBadge } from '../shared';
+import { UserIdentity } from '../shared';
 import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
@@ -29,7 +29,6 @@ const MemberItem: React.FC<MemberItemProps> = ({
   isApproved = false,
   onApprove,
   trustState,
-  vouchCount
 }) => {
   const t = useT();
   const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
@@ -55,7 +54,12 @@ const MemberItem: React.FC<MemberItemProps> = ({
       </div>
       <div className={styles.memberInfo}>
         <div className={styles.nameRow}>
-          <div className={styles.memberName}>{displayName}</div>
+          <UserIdentity
+            name={displayName}
+            countryCode={profile?.country}
+            trustState={trustState}
+            size="sm"
+          />
           {showApproveButton && (
             <button
               className={isApproved ? styles.approvedButton : styles.pendingButton}
@@ -66,7 +70,6 @@ const MemberItem: React.FC<MemberItemProps> = ({
             </button>
           )}
         </div>
-        {trustState && <TrustBadge state={trustState} vouchCount={vouchCount} size="sm" className={styles.memberTrust} />}
         <div className={styles.publicKey}>{publicKey}</div>
       </div>
     </div>

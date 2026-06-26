@@ -6,7 +6,7 @@ import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllIniti
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
-import { TrustBadge, Banner } from '../components/shared';
+import { UserIdentity, Banner } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
@@ -61,6 +61,7 @@ const StageFeedCard: React.FC<{
   onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
 }> = ({ item, onOpen, onCommunityClick }) => {
   const trust = useCommunityTrust(item.communityId);
+  const profiles = useAppSelector((s) => s.communities.profiles);
   const t = useT();
   return (
     <div className={styles.card}>
@@ -68,10 +69,16 @@ const StageFeedCard: React.FC<{
         <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
           {item.communityName}
         </button>
-        {item.authorName && <span className={styles.author}>{item.authorName}</span>}
-        {item.author && (
-          <TrustBadge state={trust.trustOf(item.author)} vouchCount={trust.vouchCountOf(item.author)} size="sm" />
-        )}
+        {item.authorName && item.author ? (
+          <UserIdentity
+            name={item.authorName}
+            countryCode={profiles[item.author]?.country}
+            trustState={trust.trustOf(item.author)}
+            size="sm"
+          />
+        ) : item.authorName ? (
+          <span className={styles.author}>{item.authorName}</span>
+        ) : null}
         {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
       </div>
 

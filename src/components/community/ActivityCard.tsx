@@ -1,7 +1,9 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Badge, TrustBadge } from '../shared';
+import { Card, Badge, UserIdentity } from '../shared';
+import type { UserIdentityProps } from '../shared';
+import { useAppSelector } from '../../store/hooks';
 import type { Collaboration } from '../../services/contracts/community';
 import { useT } from '../../i18n';
 import { STAGE_META } from './stageMeta';
@@ -19,7 +21,7 @@ export interface ActivityCardProps {
   stage: string;
   authorName: string;
   authorKey?: string;
-  trustState: React.ComponentProps<typeof TrustBadge>['state'];
+  trustState: UserIdentityProps['trustState'];
   vouchCount: number;
   hostServer: string;
   hostAgent: string;
@@ -33,6 +35,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
+  const profiles = useAppSelector((s) => s.communities.profiles);
 
   // The Problem stage renders the new shared two-part card (Read summary over an
   // Engage panel). Problem/Solution/Mandate are converted; the remaining stages
@@ -153,8 +156,12 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <span className={styles.title}>{item.title || t('community.untitled', 'Untitled Initiative')}</span>
           {authorName && (
             <span className={styles.byline}>
-              {t('community.startedBy', 'Started by {name}', { name: authorName })}
-              {authorKey && <TrustBadge state={trustState} vouchCount={vouchCount} size="sm" />}
+              <UserIdentity
+                name={t('community.startedBy', 'Started by {name}', { name: authorName })}
+                countryCode={authorKey ? profiles[authorKey]?.country : undefined}
+                trustState={trustState}
+                size="sm"
+              />
             </span>
           )}
         </span>

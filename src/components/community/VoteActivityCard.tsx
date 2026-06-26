@@ -3,7 +3,7 @@ import { useT } from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../../store/slices/communitiesSlice';
 import type { Collaboration } from '../../services/contracts/community';
-import type { TrustBadgeProps } from '../shared';
+import type { UserIdentityProps } from '../shared';
 import InitiativeStageCard, { type StagePost } from '../initiative/InitiativeStageCard';
 import { useInitiativePost } from '../initiative/useInitiativePost';
 import VoteEngage from '../initiative/stages/VoteEngage';
@@ -14,7 +14,7 @@ export interface VoteActivityCardProps {
   communityId: string;
   authorName: string;
   authorKey?: string;
-  trustState: TrustBadgeProps['state'];
+  trustState: UserIdentityProps['trustState'];
   vouchCount: number;
   hostServer: string;
   hostAgent: string;

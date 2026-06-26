@@ -6,7 +6,7 @@ import { useAllInitiatives } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import { SAMPLE_INITIATIVES } from './StageFeedView';
 import AppHeader from '../components/AppHeader';
-import { TrustBadge } from '../components/shared';
+import { UserIdentity } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import styles from './HomeView.module.scss';
@@ -40,6 +40,7 @@ const HomeInitiativeCard: React.FC<{
 }> = ({ card, starred, interactionProps, onCommunityClick }) => {
   const t = useT();
   const trust = useCommunityTrust(card.communityId);
+  const profiles = useAppSelector((s) => s.communities.profiles);
   const clickable = Boolean(card.communityId);
   return (
     <div className={`${styles.card} ${clickable ? '' : styles.cardStatic}`} {...interactionProps}>
@@ -54,10 +55,16 @@ const HomeInitiativeCard: React.FC<{
         ) : (
           <span className={`${styles.communityBadge} ${styles.communityBadgeStatic}`}>{card.communityName}</span>
         )}
-        {card.authorName && <span className={styles.author}>{card.authorName}</span>}
-        {card.communityId && card.author && (
-          <TrustBadge state={trust.trustOf(card.author)} vouchCount={trust.vouchCountOf(card.author)} size="sm" />
-        )}
+        {card.authorName && card.communityId && card.author ? (
+          <UserIdentity
+            name={card.authorName}
+            countryCode={profiles[card.author]?.country}
+            trustState={trust.trustOf(card.author)}
+            size="sm"
+          />
+        ) : card.authorName ? (
+          <span className={styles.author}>{card.authorName}</span>
+        ) : null}
         {card.createdAt ? <span className={styles.time}>{formatTimeAgo(t, card.createdAt)}</span> : null}
       </div>
       <h3 className={styles.cardTitle}>{card.title}</h3>
