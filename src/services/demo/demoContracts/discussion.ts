@@ -337,6 +337,19 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
       return comment;
     }
 
+    // Start a co-owned draft (Write Together, S3). NEW METHOD FOR OURI:
+    // `set_statement(title, body)` initialises the co-owned statement with the
+    // caller as sole co-author. Used once when a draft is created; fold-ins via
+    // `support_edit` extend `coAuthors` thereafter.
+    case 'set_statement': {
+      const title = str(method.values?.title);
+      const body = str(method.values?.body);
+      const s = load(contractId);
+      const statement: Statement = { title, body, coAuthors: [caller] };
+      writeState<DiscussionState>(contractId, { ...s, statement });
+      return statement;
+    }
+
     default:
       return null;
   }

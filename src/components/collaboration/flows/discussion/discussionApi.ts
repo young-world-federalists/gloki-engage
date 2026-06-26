@@ -264,6 +264,21 @@ export async function getStatement(
   return normalizeStatement(raw);
 }
 
+export async function setStatement(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  title: string,
+  body: string,
+) {
+  return await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'set_statement', values: { title, body } } as IMethod,
+  });
+}
+
 export async function getEdits(
   serverUrl: string,
   publicKey: string,
