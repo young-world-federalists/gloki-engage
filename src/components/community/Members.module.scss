@@ -111,11 +111,6 @@
           min-height: 40px; // Reduced height to match smaller card
         }
 
-        // Trust chip hugs its content instead of stretching the column width.
-        .memberTrust {
-          align-self: flex-start;
-        }
-
         .memberName {
           font-size: $text-2xl; // Even bigger font for name
           font-weight: $font-semibold;

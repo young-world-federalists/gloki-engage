@@ -88,14 +88,8 @@ const fr: Dictionary = {
 
   // ── Country selection (CountryMultiSelect) ─────────────────────────────
   'country.add': 'Ajouter un pays',
-  'country.quickAdd': 'Ajout rapide',
   'country.remove': 'Retirer {country}',
   'country.other': 'Autre',
-  'region.africa': 'Afrique',
-  'region.asia': 'Asie',
-  'region.americas': 'Amériques',
-  'region.europe': 'Europe',
-  'region.oceania': 'Océanie',
 
   // ── Home (cross-community overview) ────────────────────────────────────
   'home.title': 'Dans vos communautés',
@@ -548,7 +542,6 @@ const fr: Dictionary = {
   'members.empty': 'Aucun membre trouvé.',
   'members.unknown': 'Membre inconnu',
   'members.join': 'Rejoindre la communauté',
-  'members.joining': 'Adhésion…',
   'members.joinFailed': 'Impossible de rejoindre la communauté. Veuillez réessayer.',
   'join.failed': 'Impossible de rejoindre cette communauté : {error}',
   'join.title': 'Rejoindre une communauté',

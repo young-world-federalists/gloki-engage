@@ -87,14 +87,8 @@ const sw: Dictionary = {
 
   // ── Country selection (CountryMultiSelect) ─────────────────────────────
   'country.add': 'Ongeza nchi',
-  'country.quickAdd': 'Ongeza haraka',
   'country.remove': 'Ondoa {country}',
   'country.other': 'Nyingine',
-  'region.africa': 'Afrika',
-  'region.asia': 'Asia',
-  'region.americas': 'Amerika',
-  'region.europe': 'Ulaya',
-  'region.oceania': 'Oseania',
 
   // ── Home (cross-community overview) ────────────────────────────────────
   'home.title': 'Katika jumuiya zako',
@@ -547,7 +541,6 @@ const sw: Dictionary = {
   'members.empty': 'Hakuna wanachama waliopatikana.',
   'members.unknown': 'Mwanachama asiyejulikana',
   'members.join': 'Jiunge na jumuiya',
-  'members.joining': 'Inajiunga...',
   'members.joinFailed': 'Imeshindwa kujiunga na jumuiya. Tafadhali jaribu tena.',
   'join.failed': 'Imeshindwa kujiunga na jumuiya hii: {error}',
   'join.title': 'Jiunge na jumuiya',
