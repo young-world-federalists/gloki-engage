@@ -1,0 +1,159 @@
+@use '../../../styles/variables' as *;
+
+// DraftEditor — compact B-style draft editing surface.
+// Token-only: no hardcoded hex. Back button + discuss toggle ≥44px.
+// Setup header uses $gray-50 surface (same secondary-surface pattern as the
+// rest of the writeTogether SCSS files).
+
+// -------------------------------------------------------------------------
+// Outer editor wrapper: flex column, constrained, scrollable
+// -------------------------------------------------------------------------
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-lg $spacing-2xl;
+  box-sizing: border-box;
+}
+
+// -------------------------------------------------------------------------
+// Back button — ≥44px icon button (matches StartDraftForm pattern)
+// -------------------------------------------------------------------------
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  color: $gray-500;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base;
+  flex-shrink: 0;
+  align-self: flex-start;
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-800;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    &:hover {
+      background: $dark-border;
+      color: $dark-text;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Setup header — mode pill · "for {community}" · optional tag chip.
+// Subtle secondary surface: $gray-50 in light, $dark-surface in dark.
+// -------------------------------------------------------------------------
+.setup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+// Secondary text in the setup row — caption-weight, AA color ($gray-500 ≈4.8:1 on white)
+.setupText {
+  font-size: $text-sm;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+// -------------------------------------------------------------------------
+// Discuss section — border-top separator + collapsible toggle
+// -------------------------------------------------------------------------
+.discussSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// Discuss toggle — ≥44px touch target, row layout with icon + chevron
+.discussToggle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 44px;
+  padding: 0 $spacing-sm;
+  background: transparent;
+  border: none;
+  border-top: 1px solid $gray-200;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  font-family: inherit;
+  color: $gray-700;
+  cursor: pointer;
+  transition: color $transition-base, background-color $transition-base;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    background: $gray-50;
+    color: $gray-800;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      background: $dark-surface;
+      color: $dark-text;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Submitted banner — success tone
+// -------------------------------------------------------------------------
+.submittedBanner {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $success-surface;
+  border: 1px solid $success;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  color: $success-on-surface;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background: $success-surface-dark;
+    border-color: $success-dark;
+    color: $success;
+  }
+}
