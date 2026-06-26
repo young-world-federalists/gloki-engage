@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings } from 'lucide-react';
+import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings, PenLine } from 'lucide-react';
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
 import AppHeader from '../components/AppHeader';
 import { useT } from '../i18n';
@@ -26,6 +26,7 @@ const CollaborationPage = lazy(() => import('./collaboration/CollaborationPage')
 const IdentityTrust = lazy(() => import('../components/community/IdentityTrust'));
 const CreateInitiativePage = lazy(() => import('./CreateInitiativePage'));
 const CommunitySettings = lazy(() => import('../components/community/CommunitySettings'));
+const WriteTogetherPage = lazy(() => import('../components/community/writeTogether/WriteTogetherPage'));
 import CommunityHome from '../components/community/CommunityHome';
 
 // ─── Collab page wrapper ────────────────────
@@ -221,6 +222,7 @@ const CommunityView: React.FC = () => {
   const menuItems: SlideOutMenuItem[] = [
     { key: 'home', icon: Home, label: t('community.menu.home', 'Home'), onClick: closeAfter(() => navigate('/stage/problem')) },
     { key: 'create-initiative', icon: PlusCircle, label: t('initiative.start', 'Start an initiative'), onClick: closeAfter(() => navigate(`/community/${communityId}/create-initiative`)) },
+    { key: 'write-together', icon: PenLine, label: t('community.menu.writeTogether', 'Write together'), onClick: closeAfter(() => navigate(`/community/${communityId}/write-together`)) },
     { key: 'collab', icon: Users2, label: t('community.menu.collab', 'Collab'), onClick: closeAfter(() => navigate(`/community/${communityId}/collab`)), dividerBefore: true },
     { key: 'chat', icon: MessageSquare, label: t('community.menu.chat', 'Chat'), onClick: closeAfter(() => navigate(`/community/${communityId}/chat`)) },
     { key: 'currency', icon: Coins, label: t('community.menu.funds', 'Community Funds'), onClick: closeAfter(() => navigate(`/community/${communityId}/currency`)) },
@@ -296,6 +298,7 @@ const CommunityView: React.FC = () => {
               <Route path="identity" element={<IdentityTrust communityId={communityId!} />} />
               <Route path="settings" element={<CommunitySettings communityId={communityId!} />} />
               <Route path="create-initiative" element={<CreateInitiativePage />} />
+              <Route path="write-together" element={<WriteTogetherPage communityId={communityId!} />} />
               <Route path="*" element={<CommunityHome communityId={communityId!} onOpenMenu={() => setShowMenu(true)} isDemo={isDemo} />} />
             </Routes>
           </ErrorBoundary>
