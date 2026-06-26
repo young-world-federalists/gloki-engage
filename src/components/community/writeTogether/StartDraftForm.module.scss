@@ -1,0 +1,258 @@
+@use '../../../styles/variables' as *;
+
+// StartDraftForm — stacked form for creating a new Write Together draft.
+// Token-only: no hardcoded hex. All ≥44px touch targets.
+
+// -------------------------------------------------------------------------
+// Form container: flex column, constrained, scrollable
+// -------------------------------------------------------------------------
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-lg $spacing-2xl;
+  box-sizing: border-box;
+}
+
+// -------------------------------------------------------------------------
+// Back button — ≥44px icon button (same pattern as CreateInitiativePage)
+// -------------------------------------------------------------------------
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  color: $gray-500;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base;
+  flex-shrink: 0;
+  align-self: flex-start;
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-800;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+
+    &:hover {
+      background: $dark-border;
+      color: $dark-text;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Heading
+// -------------------------------------------------------------------------
+.heading {
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  color: $gray-800;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+// -------------------------------------------------------------------------
+// Mode toggle — role="radiogroup" segmented control
+// Two buttons side-by-side, ≥44px height.
+// -------------------------------------------------------------------------
+.modeToggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: $dark-border;
+  }
+}
+
+.modeBtn {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 $spacing-lg;
+  background: transparent;
+  border: none;
+  border-right: 1px solid $gray-200;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  font-family: inherit;
+  color: $gray-600;
+  cursor: pointer;
+  transition: background-color $transition-base, color $transition-base;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover:not([aria-checked='true']) {
+    background: $gray-50;
+    color: $gray-800;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-right-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover:not([aria-checked='true']) {
+      background: $dark-border;
+      color: $dark-text;
+    }
+  }
+}
+
+// Active mode button — brand primary tint background
+.modeBtnActive {
+  background: rgba($primary, 0.1);
+  color: $primary;
+  font-weight: $font-semibold;
+
+  &:hover {
+    background: rgba($primary, 0.15);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba($primary, 0.2);
+    color: $primary;
+
+    &:hover {
+      background: rgba($primary, 0.25);
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Labels — AA caption color ($gray-500 ≈4.8:1 on white, NOT $gray-400)
+// Matches CreateInitiativePage .label pattern (semibold, $gray-800 for form
+// labels that act as field headings; but brief says "caption" → $gray-500).
+// Using $gray-700 — clearly readable, caption-weight, no confusion with
+// $gray-400 which is below AA for text.
+// -------------------------------------------------------------------------
+.label {
+  display: block;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+// -------------------------------------------------------------------------
+// Text input — ≥44px height, matches app input standard from
+// CreateInitiativePage.module.scss (.inputField) and ProblemTagPicker (.codeInput)
+// -------------------------------------------------------------------------
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-family: inherit;
+  color: $gray-800;
+  background: white;
+  box-sizing: border-box;
+  transition: border-color $transition-base, box-shadow $transition-base;
+
+  &::placeholder {
+    color: $gray-400; // decorative placeholder — allowed below AA per DESIGN_SYSTEM.md
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+
+    &:focus {
+      border-color: $primary;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Textarea — ≥44px minimum, resizable vertically
+// -------------------------------------------------------------------------
+.textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-family: inherit;
+  color: $gray-800;
+  background: white;
+  box-sizing: border-box;
+  resize: vertical;
+  transition: border-color $transition-base, box-shadow $transition-base;
+
+  &::placeholder {
+    color: $gray-400; // decorative placeholder — allowed below AA
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+
+    &:focus {
+      border-color: $primary;
+    }
+  }
+}
