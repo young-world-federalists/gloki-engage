@@ -66,7 +66,7 @@
 }
 .sortToggle { display: inline-flex; gap: $spacing-xs; }
 .sortBtn, .sortActive {
-  min-height: 36px;
+  min-height: 44px;
   padding: $spacing-xs $spacing-sm;
   font-size: $text-xs;
   font-weight: $font-medium;
@@ -130,8 +130,8 @@
 .collapseBtn {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  min-height: 32px;
+  gap: $spacing-xs;
+  min-height: 44px;
   padding: 0 $spacing-xs;
   background: none;
   border: none;
