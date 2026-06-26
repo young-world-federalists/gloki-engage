@@ -1101,7 +1101,7 @@ const fr: Dictionary = {
   'writeTogether.tagToProblem': 'Associer à un problème',
   'writeTogether.pickProblem': 'Choisissez un problème…',
   'writeTogether.problemCodeLabel': 'Code du problème',
-  'writeTogether.pasteCode': 'ou collez un code · brave-loutre-rivière',
+  'writeTogether.pasteCode': 'ou collez un code · brave-otter-river',
   'writeTogether.resolveCode': 'Trouver',
   'writeTogether.codeNotFound': 'Aucun problème trouvé pour ce code.',
   'writeTogether.chooseCommunity': 'Choisissez une communauté…',
