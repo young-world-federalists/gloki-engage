@@ -1,0 +1,118 @@
+@use '../../../styles/variables' as *;
+
+// ProblemTagPicker — a searchable dropdown of the target community's initiatives
+// plus a 3-word code input that resolves problems across all of the user's communities.
+// Token-only: no hardcoded hex or ad-hoc pixel values.
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+// Row containing the code input + Find button
+.codeRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+// Text input for the 3-word code (e.g. "brave-otter-river")
+// ≥44px touch height (Mobile HIG); border/radius/focus matches the app input standard
+.codeInput {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 $spacing-sm;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-family: inherit;
+  background: white;
+  color: $gray-800;
+  box-sizing: border-box;
+  transition: border-color $transition-base, box-shadow $transition-base;
+
+  &::placeholder {
+    color: $gray-400; // decorative placeholder — not body text, allowed below AA
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-color: $primary;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: $error;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+// "Find" button — ≥44px touch target (Mobile HIG)
+.codeBtn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 $spacing-lg;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color $transition-base;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: $primary;
+
+    &:hover:not(:disabled) {
+      background: $primary-dark;
+    }
+  }
+}
+
+// AA error text — $error-on-surface ($error-dark = #b91c1c, 5.30:1 on $error-surface;
+// also passes on white: ~7.6:1). Never use $error (#dc2626) or $gray-400 for text.
+.codeError {
+  font-size: $text-xs;
+  color: $error-on-surface;
+  margin: 0;
+}
+
+// Caption confirming the tagged problem — $gray-500 is the AA caption color
+// per DESIGN_SYSTEM.md (≈4.8:1 on white). $gray-400 is below AA and must not be
+// used for text.
+.tagged {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
