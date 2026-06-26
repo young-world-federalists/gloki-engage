@@ -1,8 +1,6 @@
 @use '../../styles/variables' as *;
 @use '../../styles/animations';
 
-$collab-color: #0d9488;
-
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -21,8 +19,8 @@ $collab-color: #0d9488;
     width: 40px;
     height: 40px;
     border-radius: $radius-lg;
-    background: rgba(13, 148, 136, 0.1);
-    color: $collab-color;
+    background: rgba($primary, 0.1);
+    color: $primary;
     flex-shrink: 0;
     margin-top: 2px;
   }
@@ -88,7 +86,7 @@ $collab-color: #0d9488;
   animation: slideUpFadeIn 0.3s ease-out both;
   min-height: 48px;
   border: 1px solid $gray-200;
-  border-left: 3px solid $collab-color;
+  border-left: 3px solid $primary;
   border-radius: $radius-md;
   cursor: pointer;
   transition: all $transition-base;
@@ -121,8 +119,8 @@ $collab-color: #0d9488;
   display: block;
   width: 100%;
   padding: $spacing-md;
-  background: rgba(13, 148, 136, 0.1);
-  color: $collab-color;
+  background: rgba($primary, 0.1);
+  color: $primary;
   border: none;
   border-radius: $radius-md;
   font-size: $text-sm;
@@ -131,7 +129,7 @@ $collab-color: #0d9488;
   transition: background $transition-fast;
 
   &:hover {
-    background: rgba(13, 148, 136, 0.18);
+    background: rgba($primary, 0.18);
   }
 }
 
@@ -149,7 +147,7 @@ $collab-color: #0d9488;
   .item {
     background: $dark-bg;
     border-color: $dark-border;
-    border-left-color: $collab-color;
+    border-left-color: $primary;
 
     &:hover {
       background: $dark-surface;

@@ -1,7 +1,5 @@
 @use '../../styles/variables' as *;
 
-$initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); matches InitiativeStagePanel
-
 // Layout-only hook for the merged-into <Banner tone="warning"> — the shared
 // Banner owns surface, text and action styling.
 .absorbedBanner {
@@ -36,7 +34,7 @@ $initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); matches I
 .advanceButton {
   padding: $spacing-sm $spacing-xl;
   min-height: 44px;
-  background: $initiative-color;
+  background: $primary;
   color: white;
   border: none;
   border-radius: $radius-md;
@@ -46,7 +44,7 @@ $initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); matches I
   transition: background $transition-base, opacity $transition-base;
 
   &:hover:not(:disabled) {
-    background: darken($initiative-color, 8%);
+    background: $primary-dark;
   }
 
   &:disabled {

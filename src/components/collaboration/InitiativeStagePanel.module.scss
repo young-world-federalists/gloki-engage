@@ -1,7 +1,5 @@
 @use '../../styles/variables' as *;
 
-$initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); was #ea580c = 3.56:1 (a11y fail)
-
 // ─── Absorbed Banner ─────────────────────────────────────────────────────────
 // Layout-only hook for the merged-into <Banner tone="warning"> — the shared
 // Banner owns surface, text and action styling.
@@ -48,7 +46,7 @@ $initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); was #ea58
 
 .advanceButton {
   padding: $spacing-sm $spacing-xl;
-  background: $initiative-color;
+  background: $primary;
   color: white;
   border: none;
   border-radius: $radius-md;
@@ -58,7 +56,7 @@ $initiative-color: #c2410c; // orange-700 — white text = 5.2:1 (AA); was #ea58
   transition: background $transition-base, opacity $transition-base;
 
   &:hover:not(:disabled) {
-    background: darken($initiative-color, 8%);
+    background: $primary-dark;
   }
 
   &:disabled {
