@@ -157,13 +157,13 @@
       }
 
       .starBtnActive {
-        background: #f59e0b;
-        border-color: #f59e0b;
+        background: $warning;
+        border-color: $warning;
         color: white;
 
         &:hover {
-          background: #d97706;
-          border-color: #d97706;
+          background: $warning-dark;
+          border-color: $warning-dark;
           color: white;
         }
       }
@@ -377,7 +377,7 @@
         }
 
         .starBtnActive {
-          color: #f59e0b;
+          color: $warning;
         }
       }
     }

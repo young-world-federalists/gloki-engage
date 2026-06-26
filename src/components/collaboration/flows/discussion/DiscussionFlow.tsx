@@ -13,6 +13,7 @@ const discussionContractCode = '';import styles from './DiscussionFlow.module.sc
 // ---------------------------------------------------------------------------
 // Category config
 // ---------------------------------------------------------------------------
+// Component-semantic colour literals — keep in sync with variables.scss ($primary, $warning, $success, $error).
 const CATEGORIES: { key: CommentCategory; labelKey: string; label: string; icon: React.ElementType; color: string }[] = [
   { key: 'evidence',  labelKey: 'discussionFlow.category.evidence',  label: 'Evidence',  icon: Search,        color: '#3b82f6' },
   { key: 'impact',    labelKey: 'discussionFlow.category.impact',    label: 'Impact',    icon: Globe,         color: '#f59e0b' },

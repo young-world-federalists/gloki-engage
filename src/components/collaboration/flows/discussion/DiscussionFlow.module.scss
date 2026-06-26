@@ -156,7 +156,7 @@
 }
 
 .avatarMe {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba($primary, 0.15);
   color: $primary-dark;
 }
 
@@ -219,11 +219,11 @@
   border-radius: $radius-sm;
   transition: all $transition-base;
 
-  &:hover { color: $primary; background: rgba(59, 130, 246, 0.06); }
+  &:hover { color: $primary; background: rgba($primary, 0.06); }
 }
 
 .actionBtnDelete {
-  &:hover { color: $error; background: rgba(220, 38, 38, 0.06); }
+  &:hover { color: $error; background: rgba($error, 0.06); }
 }
 
 // ─── Children ─────────────────────────────────────────────────────────────────
@@ -366,7 +366,7 @@
     color: $dark-text-secondary;
   }
   .avatarMe {
-    background: rgba(59, 130, 246, 0.25);
+    background: rgba($primary, 0.25);
     color: $primary;
   }
 
@@ -382,7 +382,7 @@
 
   .actionBtn {
     color: $dark-text-secondary;
-    &:hover { color: $primary; background: rgba(59, 130, 246, 0.1); }
+    &:hover { color: $primary; background: rgba($primary, 0.1); }
   }
 
   .collapseBtn {

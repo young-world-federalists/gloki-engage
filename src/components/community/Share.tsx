@@ -88,6 +88,9 @@ const Share: React.FC<ShareProps> = ({ communityId }) => {
         }
       };
       
+      // Canvas/SVG literals — cannot reference SCSS tokens at draw time. Keep in sync
+      // with variables.scss: #3b82f6=$primary, #1d4ed8≈$primary-dark, #f8fafc=$gray-50,
+      // #1f2937=$gray-800, #6b7280=$gray-600, #e5e7eb=$gray-200.
       // Draw white background with rounded corners (reduced width)
       drawRoundedRect(0, 0, 264, 300, 12, '#ffffff');
       

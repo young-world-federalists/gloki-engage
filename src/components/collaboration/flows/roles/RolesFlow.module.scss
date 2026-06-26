@@ -41,7 +41,7 @@
   &:hover {
     border-color: $warning;
     color: $warning;
-    background: rgba(245, 158, 11, 0.04);
+    background: rgba($warning, 0.04);
   }
 }
 
@@ -99,7 +99,7 @@
   font-weight: $font-medium;
   cursor: pointer;
   transition: background $transition-base;
-  &:hover { background: color.adjust(#f59e0b, $lightness: -8%); }
+  &:hover { background: color.adjust($warning, $lightness: -8%); }
 }
 
 .btnCancel {
@@ -145,8 +145,8 @@
 }
 
 .cardAssigned {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: rgba(245, 158, 11, 0.02);
+  border-color: rgba($warning, 0.4);
+  background: rgba($warning, 0.02);
 }
 
 // ─── Card header ──────────────────────────────────────────────────────────────
@@ -186,11 +186,11 @@
 
 .assignBtnJoin {
   color: $warning;
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.06);
+  border-color: rgba($warning, 0.35);
+  background: rgba($warning, 0.06);
 
   &:hover {
-    background: rgba(245, 158, 11, 0.14);
+    background: rgba($warning, 0.14);
     border-color: $warning;
   }
 }
@@ -200,7 +200,7 @@
   border-color: $gray-200;
   background: none;
 
-  &:hover { color: $error; border-color: rgba(220, 38, 38, 0.4); }
+  &:hover { color: $error; border-color: rgba($error, 0.4); }
 }
 
 .deleteBtn {
@@ -214,7 +214,7 @@
   color: $gray-300;
   cursor: pointer;
   transition: all $transition-base;
-  &:hover { color: $error; border-color: rgba(220, 38, 38, 0.4); }
+  &:hover { color: $error; border-color: rgba($error, 0.4); }
 }
 
 // ─── Description ──────────────────────────────────────────────────────────────
@@ -252,6 +252,6 @@
 }
 
 .chipMe {
-  background: rgba(245, 158, 11, 0.15);
-  color: color.adjust(#f59e0b, $lightness: -20%);
+  background: rgba($warning, 0.15);
+  color: color.adjust($warning, $lightness: -20%);
 }
