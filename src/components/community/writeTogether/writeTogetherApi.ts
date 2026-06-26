@@ -81,11 +81,15 @@ async function resolveSolutionsContract(serverUrl: string, publicKey: string, pr
   if (stored?.contractId) return stored.contractId;
   const resp = await deployContract({ serverUrl, publicKey, name: `approval_${problemInitiativeId}`, contract: 'approval_contract.py', code: '' });
   const newId = resolveId(resp);
-  await contractWrite({
+  // Race-safe (mirrors useFlowContract shared mode): if another member already
+  // registered a solutions contract for this problem, register_stage_contract
+  // returns THEIRS — use it so a proposal never lands on an orphan contract.
+  const registration = await contractWrite({
     serverUrl, publicKey, contractId: problemInitiativeId,
     method: { name: 'register_stage_contract', values: { stage_key: 'proposalsContractId', contract_id: newId, address: serverUrl, agent: publicKey } } as IMethod,
   });
-  return newId;
+  const registered = normalizeStageContract(registration);
+  return registered?.contractId || newId;
 }
 
 export async function submitDraft(
