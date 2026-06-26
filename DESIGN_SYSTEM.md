@@ -60,6 +60,27 @@ instead of hardcoding tinted hex. Dark variants pair with `$dark-text`.
 
 Overlays/scrims (modal backdrops): `$overlay-bg`.
 
+### Stage colours
+
+Five canonical tokens for the five governance-stage accents. **Single source of truth** —
+used by both `StageStrip` (the read-only pipeline marker) and the `CreateInitiativePage`
+stepper circles. Always pair a stage colour with the stage icon + label; never use it
+alone to convey meaning.
+
+**Rule:** Colour means only "stage" or "status". Stage colours must not be reused for
+unrelated UI elements.
+
+| Token | Value | Stage |
+|-------|-------|-------|
+| `$stage-problem` | `#ef4444` | Problem |
+| `$stage-discussion` | `#f59e0b` | Discussion |
+| `$stage-solutions` | `#8b5cf6` | Solutions |
+| `$stage-vote` | `#3b82f6` | Vote |
+| `$stage-mandate` | `#10b981` | Mandate |
+
+`$warning-dark` (`#d97706`) was added alongside this set to complete the `-dark`
+companion pattern (`$primary-dark`, `$success-dark`, `$error-dark`).
+
 ## Typography
 
 | Level | Token | Weight | Use |
@@ -119,6 +140,11 @@ There is **no a11y cost** to keeping these bespoke: a global `button:focus-visib
 consolidating them to `<Button>` would be consistency-only — not worth the design regression.
 _(Batch 14 finding; the identity-area action buttons + IdentityCardDialog→Modal were the clean
 wins and are done.)_
+
+**Legacy classes removed.** Eight global button-style classes (`.save-button`, `.cancel-button`,
+`.submit-button`, `.action-button`, `.primary-button`, `.secondary-button`, `.delete-button`,
+`.back-button`) were deleted as dead CSS — no component referenced them. The bespoke-`<button>`
+exceptions listed above are intentional departures, not remnants of these removed classes.
 
 ### Form Inputs
 - Height: 40px
@@ -190,11 +216,11 @@ share an accessible name. Used on the task-first create + login screens. Props:
 
 **`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
 selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
-plus an "Other" catch-all) + region-grouped quick-pick toggles (`aria-pressed`).
-Replaces hardcoded 4–5 country-chip rows so a global-democracy app never excludes
-190+ countries. `role="group"`; country proper nouns render canonical-English (only
-the chrome is `t()`-wired). Props: `value` (ISO alpha-2 codes), `onChange`,
-`ariaLabel`, `includeOther` (default `true`), `disabled`.
+plus an "Other" catch-all). Replaces hardcoded 4–5 country-chip rows so a
+global-democracy app never excludes 190+ countries. `role="group"`; country proper
+nouns render canonical-English (only the chrome is `t()`-wired). Props: `value`
+(ISO alpha-2 codes), `onChange`, `ariaLabel`, `includeOther` (default `true`),
+`disabled`.
 
 ## Mobile Patterns
 
@@ -270,7 +296,8 @@ scratch** — they already encode the tokens above.
 | `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). Bakes in `role` — `alert` for the error tone, `status` otherwise. |
 | `InfoDisclosure` | The `(i)` → focus-trapped `Modal` disclosure standard (prose behind the `(i)`, numbers stay inline). See **App shell, disclosure & pipeline primitives**. |
 | `StageStrip` | Read-only `<ol>` of the 5 governance stages; token rainbow; default `aria-label` `stage.pipelineOverview`. See the primitives subsection. |
-| `CountryMultiSelect` | Chips + search over all 197 countries + regional quick-picks. Use instead of hardcoded country chips. |
+| `UserIdentity` | Inline person identity — `[flag] Name [verified-shield]`. The verified-only shield renders as an exponent (small, raised, `$success` tint). Use in feed/card bylines and author lines. Replaces the text-based `TrustBadge` in those contexts. `TrustBadge` remains on the dedicated verification page (`IdentityTrust`). Props: `publicKey`, `size` (`sm`/`md`). |
+| `CountryMultiSelect` | Chips + search over all 197 countries. Use instead of hardcoded country chips. |
 | `Badge` | Small status or count label. |
 | `EmptyState` | Centered icon + message + CTA for empty lists/feeds. |
 | `ErrorBoundary` | Wraps a subtree to catch render errors. |
