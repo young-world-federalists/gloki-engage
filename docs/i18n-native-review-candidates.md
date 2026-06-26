@@ -340,6 +340,65 @@ drafts awaiting fr/sw native review. Full key parity confirmed (fr = sw = 954 ke
 
 ---
 
+## Session 3 (2026-06-26) — "Write Together" feature (`writeTogether.*` + `community.menu.writeTogether`)
+
+36 new keys added for the co-authoring draft page (Task 12 / Batch S3). All are machine-translated
+(fr + sw) and await a native-speaker pass. Full key parity confirmed (fr = sw = 992 keys after this batch).
+
+> **Note:** The 3-word problem-code wordlist (e.g. `brave-otter-river`, shown in
+> `writeTogether.pasteCode`) is **intentionally English** — it is a spoken shared code that users
+> read aloud to each other, so no per-word i18n keys were created and the wordlist does not need
+> translation.
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `community.menu.writeTogether` | Écrire ensemble | Andika Pamoja | Community menu entry for Write Together page |
+| `writeTogether.title` | Écrire ensemble | Andika Pamoja | Page heading |
+| `writeTogether.subtitle` | Co-rédigez un problème ou une solution, puis soumettez-le au fil. | Andika tatizo au suluhisho pamoja na wengine, kisha liwasilishe kwenye mtiririko. | Page subtitle |
+| `writeTogether.emptyTitle` | Aucun brouillon pour l'instant | Hakuna rasimu bado | Empty state title |
+| `writeTogether.empty` | Lancez-en un et rédigez-le ensemble. | Anza moja na mliandike pamoja. | Empty state body |
+| `writeTogether.startDraft` | Commencer un brouillon | Anza rasimu | CTA in empty state |
+| `writeTogether.startHeading` | Commencer un brouillon | Anza rasimu | Form heading |
+| `writeTogether.start` | Commencer le brouillon | Anza rasimu | Form submit button |
+| `writeTogether.titleLabel` | Titre | Kichwa | Draft title field label |
+| `writeTogether.titlePlaceholder` | Un titre clair en une ligne | Kichwa kifupi na wazi | Title field placeholder |
+| `writeTogether.bodyLabel` | Premier brouillon | Rasimu ya kwanza | Body field label |
+| `writeTogether.bodyPlaceholder` | Rédigez la première version — les autres peuvent suggérer des modifications. | Andika toleo la kwanza — wengine wanaweza kupendekeza mabadiliko. | Body field placeholder |
+| `writeTogether.modeLabel` | Type de brouillon | Aina ya rasimu | Draft mode picker label |
+| `writeTogether.modeProblem` | Problème | Tatizo | Draft mode option: Problem |
+| `writeTogether.modeSolution` | Solution | Suluhisho | Draft mode option: Solution |
+| `writeTogether.tagToProblem` | Associer à un problème | Unganisha na tatizo | Tag-to-problem section heading |
+| `writeTogether.pickProblem` | Choisissez un problème… | Chagua tatizo… | Problem picker placeholder |
+| `writeTogether.problemCodeLabel` | Code du problème | Msimbo wa tatizo | Problem code input label |
+| `writeTogether.pasteCode` | ou collez un code · brave-loutre-rivière | au bandika msimbo · brave-otter-river | Problem code input hint (wordlist example intentionally English) |
+| `writeTogether.resolveCode` | Trouver | Tafuta | Resolve problem-code button |
+| `writeTogether.codeNotFound` | Aucun problème trouvé pour ce code. | Hakuna tatizo lililopatikana kwa msimbo huo. | Error: no problem found for code |
+| `writeTogether.chooseCommunity` | Choisissez une communauté… | Chagua jumuiya… | Community picker placeholder |
+| `writeTogether.draftingFor` | Brouillon pour | Rasimu kwa ajili ya | Label showing which community the draft is for |
+| `writeTogether.forCommunity` | pour {name} | kwa {name} | Community name suffix |
+| `writeTogether.taggedTo` | Associé à {title} | Imeunganishwa na {title} | Shows which problem the draft is tagged to |
+| `writeTogether.copyCode` | Copier le code du problème | Nakili msimbo wa tatizo | Copy problem code button |
+| `writeTogether.discuss` | Discuter de ce brouillon | Jadili rasimu hii | Discuss CTA in draft detail |
+| `writeTogether.discussEmpty` | Discutez ensemble de ce brouillon. | Jadilini rasimu hii pamoja. | Thread empty state body in draft |
+| `writeTogether.submitTo` | Soumettre à {name} | Wasilisha kwa {name} | Submit draft to community button |
+| `writeTogether.alreadySubmitted` | Soumis à {name}. | Imewasilishwa kwa {name}. | Already-submitted status label |
+| `writeTogether.statusDraft` | Brouillon | Rasimu | Status badge: draft |
+| `writeTogether.statusSubmitted` | Soumis | Imewasilishwa | Status badge: submitted |
+| `writeTogether.startFailed` | Impossible de démarrer le brouillon. Veuillez réessayer. | Haikuweza kuanza rasimu. Tafadhali jaribu tena. | Error starting draft |
+| `writeTogether.submitFailed` | Impossible de soumettre. Veuillez réessayer. | Haikuweza kuwasilisha. Tafadhali jaribu tena. | Error submitting draft |
+| `writeTogether.explainerTitle` | Comment fonctionne l'écriture collective | Jinsi uandishi wa pamoja unavyofanya kazi | Explainer (i) disclosure title |
+| `writeTogether.explainerBody` | Rédigez un problème ou une solution en communauté… | Andika tatizo au suluhisho kwa jumuiya… | Explainer (i) disclosure body |
+
+**Specific native-review concerns:**
+
+- **fr `writeTogether.pasteCode`:** "brave-loutre-rivière" is the French translation of the English example wordlist "brave-otter-river" — reviewer should confirm a French speaker would understand this is just an example code placeholder, not a real instruction. If that risks confusion, revert to `brave-otter-river` (the wordlist is English).
+- **sw `writeTogether.explainerTitle`:** "Jinsi uandishi wa pamoja unavyofanya kazi" uses the `-vyo-` relative. The subject is *uandishi* (M/U-class singular → **u-**: "uandishi **u**navyofanya"). Confirm the concord is correct.
+- **sw `writeTogether.discussEmpty`:** "Jadilini" uses the -ni imperative plural (inclusive). Confirm this reads naturally as an invitation to all readers, not as a command to multiple people.
+- **sw `writeTogether.statusSubmitted`:** "Imewasilishwa" (passive perfect, it-has-been-submitted). Confirm this reads as a status label, not a sentence fragment.
+- **fr `writeTogether.subtitle`:** "au fil" (to the feed) — confirm "fil" is the right word here vs. "flux".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

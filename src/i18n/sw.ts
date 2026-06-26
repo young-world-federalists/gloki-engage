@@ -949,6 +949,9 @@ const sw: Dictionary = {
   // ── Community menu — Funds entry (CommunityView.tsx) ──────────────────
   'community.menu.funds': 'Mifuko ya Jumuiya',
 
+  // ── Community menu — Write Together entry (CommunityView.tsx) ─────────
+  'community.menu.writeTogether': 'Andika Pamoja',
+
   // ── Community Funds page (Currency.tsx + FundingFlow.tsx) ─────────────
   // Page header + explainer
   'funds.title': 'Mifuko ya Jumuiya',
@@ -1078,6 +1081,43 @@ const sw: Dictionary = {
   'suggest.empty': 'Pendekezo lako litatumwa kwa faragha kwa {name}.',
   'suggest.placeholder': 'Andika pendekezo lako…',
   'suggest.send': 'Tuma pendekezo',
+
+  // ── Write Together feature (WriteTogether*.tsx) — Batch S3 ────────────
+  'writeTogether.title': 'Andika Pamoja',
+  'writeTogether.subtitle': 'Andika tatizo au suluhisho pamoja na wengine, kisha liwasilishe kwenye mtiririko.',
+  'writeTogether.emptyTitle': 'Hakuna rasimu bado',
+  'writeTogether.empty': 'Anza moja na mliandike pamoja.',
+  'writeTogether.startDraft': 'Anza rasimu',
+  'writeTogether.startHeading': 'Anza rasimu',
+  'writeTogether.start': 'Anza rasimu',
+  'writeTogether.titleLabel': 'Kichwa',
+  'writeTogether.titlePlaceholder': 'Kichwa kifupi na wazi',
+  'writeTogether.bodyLabel': 'Rasimu ya kwanza',
+  'writeTogether.bodyPlaceholder': 'Andika toleo la kwanza — wengine wanaweza kupendekeza mabadiliko.',
+  'writeTogether.modeLabel': 'Aina ya rasimu',
+  'writeTogether.modeProblem': 'Tatizo',
+  'writeTogether.modeSolution': 'Suluhisho',
+  'writeTogether.tagToProblem': 'Unganisha na tatizo',
+  'writeTogether.pickProblem': 'Chagua tatizo…',
+  'writeTogether.problemCodeLabel': 'Msimbo wa tatizo',
+  'writeTogether.pasteCode': 'au bandika msimbo · brave-otter-river',
+  'writeTogether.resolveCode': 'Tafuta',
+  'writeTogether.codeNotFound': 'Hakuna tatizo lililopatikana kwa msimbo huo.',
+  'writeTogether.chooseCommunity': 'Chagua jumuiya…',
+  'writeTogether.draftingFor': 'Rasimu kwa ajili ya',
+  'writeTogether.forCommunity': 'kwa {name}',
+  'writeTogether.taggedTo': 'Imeunganishwa na {title}',
+  'writeTogether.copyCode': 'Nakili msimbo wa tatizo',
+  'writeTogether.discuss': 'Jadili rasimu hii',
+  'writeTogether.discussEmpty': 'Jadilini rasimu hii pamoja.',
+  'writeTogether.submitTo': 'Wasilisha kwa {name}',
+  'writeTogether.alreadySubmitted': 'Imewasilishwa kwa {name}.',
+  'writeTogether.statusDraft': 'Rasimu',
+  'writeTogether.statusSubmitted': 'Imewasilishwa',
+  'writeTogether.startFailed': 'Haikuweza kuanza rasimu. Tafadhali jaribu tena.',
+  'writeTogether.submitFailed': 'Haikuweza kuwasilisha. Tafadhali jaribu tena.',
+  'writeTogether.explainerTitle': 'Jinsi uandishi wa pamoja unavyofanya kazi',
+  'writeTogether.explainerBody': 'Andika tatizo au suluhisho kwa jumuiya — andika toleo la kwanza, ruhusu wengine kupendekeza mabadiliko yanayoidhinishwa kwa kura, kisha liwasilishe kwa jumuiya.',
 };
 
 export default sw;

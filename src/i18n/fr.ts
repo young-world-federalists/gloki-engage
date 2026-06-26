@@ -950,6 +950,9 @@ const fr: Dictionary = {
   // ── Community menu — Funds entry (CommunityView.tsx) ──────────────────
   'community.menu.funds': 'Fonds communautaires',
 
+  // ── Community menu — Write Together entry (CommunityView.tsx) ─────────
+  'community.menu.writeTogether': 'Écrire ensemble',
+
   // ── Community Funds page (Currency.tsx + FundingFlow.tsx) ─────────────
   // Page header + explainer
   'funds.title': 'Fonds communautaires',
@@ -1079,6 +1082,43 @@ const fr: Dictionary = {
   'suggest.empty': 'Votre suggestion est envoyée en privé à {name}.',
   'suggest.placeholder': 'Écrivez votre suggestion…',
   'suggest.send': 'Envoyer la suggestion',
+
+  // ── Write Together feature (WriteTogether*.tsx) — Batch S3 ────────────
+  'writeTogether.title': 'Écrire ensemble',
+  'writeTogether.subtitle': 'Co-rédigez un problème ou une solution, puis soumettez-le au fil.',
+  'writeTogether.emptyTitle': 'Aucun brouillon pour l’instant',
+  'writeTogether.empty': 'Lancez-en un et rédigez-le ensemble.',
+  'writeTogether.startDraft': 'Commencer un brouillon',
+  'writeTogether.startHeading': 'Commencer un brouillon',
+  'writeTogether.start': 'Commencer le brouillon',
+  'writeTogether.titleLabel': 'Titre',
+  'writeTogether.titlePlaceholder': 'Un titre clair en une ligne',
+  'writeTogether.bodyLabel': 'Premier brouillon',
+  'writeTogether.bodyPlaceholder': 'Rédigez la première version — les autres peuvent suggérer des modifications.',
+  'writeTogether.modeLabel': 'Type de brouillon',
+  'writeTogether.modeProblem': 'Problème',
+  'writeTogether.modeSolution': 'Solution',
+  'writeTogether.tagToProblem': 'Associer à un problème',
+  'writeTogether.pickProblem': 'Choisissez un problème…',
+  'writeTogether.problemCodeLabel': 'Code du problème',
+  'writeTogether.pasteCode': 'ou collez un code · brave-loutre-rivière',
+  'writeTogether.resolveCode': 'Trouver',
+  'writeTogether.codeNotFound': 'Aucun problème trouvé pour ce code.',
+  'writeTogether.chooseCommunity': 'Choisissez une communauté…',
+  'writeTogether.draftingFor': 'Brouillon pour',
+  'writeTogether.forCommunity': 'pour {name}',
+  'writeTogether.taggedTo': 'Associé à {title}',
+  'writeTogether.copyCode': 'Copier le code du problème',
+  'writeTogether.discuss': 'Discuter de ce brouillon',
+  'writeTogether.discussEmpty': 'Discutez ensemble de ce brouillon.',
+  'writeTogether.submitTo': 'Soumettre à {name}',
+  'writeTogether.alreadySubmitted': 'Soumis à {name}.',
+  'writeTogether.statusDraft': 'Brouillon',
+  'writeTogether.statusSubmitted': 'Soumis',
+  'writeTogether.startFailed': 'Impossible de démarrer le brouillon. Veuillez réessayer.',
+  'writeTogether.submitFailed': 'Impossible de soumettre. Veuillez réessayer.',
+  'writeTogether.explainerTitle': 'Comment fonctionne l’écriture collective',
+  'writeTogether.explainerBody': 'Rédigez un problème ou une solution en communauté — écrivez une première version, laissez les autres suggérer des modifications soumises au vote, puis soumettez-le à une communauté.',
 };
 
 export default fr;
