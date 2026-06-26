@@ -14,7 +14,7 @@ import { initModification } from './demoContracts/modification';
 import { initDiscussion } from './demoContracts/discussion';
 import { PERSONAS, pick } from './fixtures/identity';
 import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
-import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY } from './fixtures/deliberation';
+import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
   votePattern,
@@ -86,6 +86,10 @@ export function seedDemoCommunity(
       values: { key: p.publicKey, value: [] },
     } as IMethod, publicKey);
   }
+
+  // Track the deployed id of the 'water' problem initiative so the Write-Together
+  // draft seed (health community block below) can reference it as the tag problem.
+  let waterInitiativeId = '';
 
   initiatives.forEach((seed, idx) => {
     const seedInt = (idx + 1) * 7919;
@@ -227,6 +231,9 @@ export function seedDemoCommunity(
       },
     } as IMethod, publicKey);
 
+    // Capture the 'water' initiative id for the Write-Together draft tag below.
+    if (seed.key === 'water') waterInitiativeId = initiativeId;
+
     console.log(`[DemoSeed] ${seed.title} (stage=${seed.stage}) initiativeId=${initiativeId}`);
   });
 
@@ -359,6 +366,99 @@ export function seedDemoCommunity(
     });
 
     console.log(`[DemoSeed] Funds seeded: ${fundName1} (${fundId1}), ${fundName2} (${fundId2})`);
+
+    // ── Write-Together sample draft ────────────────────────────────────────
+    // Seeds one in-progress "solution" draft so the Write-Together page opens
+    // alive (not empty) on first load. Linked to the 'water' problem initiative
+    // that was just seeded above (id captured into waterInitiativeId).
+    // Author: Priya (PERSONAS[0]); co-author: Amina (PERSONAS[2]).
+    if (waterInitiativeId) {
+      const wtAuthor = PERSONAS[0];   // Priya Nair — IN
+      const wtCoauth = PERSONAS[2];   // Amina Suleiman — NG
+      const wtEditor = PERSONAS[4];   // Sofia Rossi — IT
+
+      const { id: wtId } = mockDeployDirect({
+        name: 'wt_draft_seed',
+        contract: 'discussion_contract.py',
+        parentId: communityId,
+        kind: 'stage',
+      });
+
+      const wtSeed: DiscussionSeed = {
+        statement: {
+          title: 'Community-Led Water Safety Committees',
+          body: 'Establish locally-elected water safety committees in every underserved district. Each committee monitors water quality, coordinates with regional authorities, and reports publicly so problems cannot be ignored.',
+          coAuthors: [wtAuthor.publicKey, wtCoauth.publicKey],
+        },
+        edits: [
+          {
+            id: 'wt-e1',
+            field: 'body',
+            author: wtEditor.publicKey,
+            baseText: 'Establish locally-elected water safety committees in every underserved district. Each committee monitors water quality, coordinates with regional authorities, and reports publicly so problems cannot be ignored.',
+            text: 'Establish locally-elected water safety committees in every underserved district. Each committee monitors water quality, coordinates with regional authorities, and publishes monthly open-data reports so communities can hold both the committee and authorities to account.',
+            rationale: 'Monthly open-data reports turn accountability into something anyone can check — not just attend a meeting to hear about.',
+            supporters: [wtEditor.publicKey, wtCoauth.publicKey],
+            status: 'open',
+            createdAgo: 45,
+          },
+        ],
+        positions: [],
+        anchored: [],
+        comments: [
+          {
+            id: 'wt-c1',
+            author: wtCoauth.publicKey,
+            text: 'In my district people already organise informally around water access. Giving that structure and authority could be transformative.',
+            parentId: null,
+            likes: [wtAuthor.publicKey, wtEditor.publicKey],
+            minutesAgo: 90,
+          },
+          {
+            id: 'wt-c2',
+            author: wtEditor.publicKey,
+            text: 'Worth specifying how the committees are funded — without a budget they become unpaid volunteers who burn out quickly.',
+            parentId: null,
+            likes: [wtCoauth.publicKey],
+            minutesAgo: 60,
+          },
+          {
+            id: 'wt-c2a',
+            author: wtAuthor.publicKey,
+            text: 'Good point. We could tie the committee budget to a small levy on regional infrastructure spend — keeps it proportional.',
+            parentId: 'wt-c2',
+            likes: [wtEditor.publicKey, wtCoauth.publicKey],
+            minutesAgo: 30,
+          },
+        ],
+      };
+
+      initDiscussion(wtId, wtSeed);
+
+      const draftEntry = {
+        id: wtId,
+        contractId: wtId,
+        mode: 'solution' as const,
+        target: communityId,
+        targetName: 'Global Health Network',
+        tag: {
+          problemId: waterInitiativeId,
+          title: 'Universal Access to Clean Drinking Water',
+          community: communityId,
+        },
+        title: 'Community-Led Water Safety Committees',
+        status: 'draft' as const,
+        author: wtAuthor.publicKey,
+        createdAt: Date.now() - 2 * 3_600_000, // 2 hours ago
+      };
+
+      communityWrite(communityId, {
+        name: 'set_property',
+        values: { key: `wtdraft_${wtId}`, value: JSON.stringify(draftEntry) },
+      } as IMethod, publicKey);
+
+      console.log(`[DemoSeed] Write-Together draft seeded: ${wtId} (tagged to waterInitiativeId=${waterInitiativeId})`);
+    }
   }
 
   markSeeded(communityId);
