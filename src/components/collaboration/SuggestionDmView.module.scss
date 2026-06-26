@@ -1,0 +1,62 @@
+@use '../../styles/variables' as *;
+
+.thread { display: flex; flex-direction: column; gap: $spacing-md; padding: $spacing-md 0; }
+
+.message { display: flex; flex-direction: column; gap: $spacing-xs; max-width: 85%; }
+.mine { align-self: flex-end; align-items: flex-end; }
+
+.meta { display: flex; align-items: center; gap: $spacing-sm; }
+.time {
+  font-size: $text-xs;
+  color: $gray-500;
+  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+}
+.text {
+  padding: $spacing-sm $spacing-md;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-800;
+  background: $gray-50;
+  border-radius: $radius-md;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  @media (prefers-color-scheme: dark) { color: $dark-text; background: $dark-surface; }
+}
+.mine .text { color: white; background: $primary; }
+
+.inputBar { display: flex; gap: $spacing-sm; align-items: flex-end; padding: $spacing-sm 0; }
+.textarea {
+  flex: 1;
+  box-sizing: border-box;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  resize: none;
+
+  &::placeholder { color: $gray-500; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
+  @media (prefers-color-scheme: dark) { color: $dark-text; background: $dark-bg; border-color: $dark-border; &::placeholder { color: $dark-text-secondary; } }
+}
+.sendBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: $primary-dark; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}

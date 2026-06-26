@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, Navigate } from 'react-router-dom';
 import DiscussionStageView from '../../components/collaboration/DiscussionStageView';
 import CollaborationFullView from '../../components/collaboration/CollaborationFullView';
+import SuggestionDmView from '../../components/collaboration/SuggestionDmView';
 import { useAppSelector } from '../../store/hooks';
 import { contractRead } from '../../services/api';
 import type { IMethod } from '../../services/interfaces';
@@ -35,7 +36,12 @@ const InitiativeView: React.FC = () => {
 
   // Check if we're on a sub-route
   const isDiscussion = location.pathname.endsWith('/discussion');
+  const isSuggest = location.pathname.endsWith('/suggest');
   const isCollaboration = location.pathname.endsWith('/collaboration');
+
+  if (isSuggest) {
+    return <SuggestionDmView communityId={communityId!} initiativeId={initiativeId!} />;
+  }
 
   if (isDiscussion) {
     return (
