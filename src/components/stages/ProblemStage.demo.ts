@@ -66,6 +66,9 @@ export interface ProposeIssueInput {
  *
  * Throws if the underlying mock writes fail; callers should surface the error.
  */
+// Reserved for Write Together (Session 3): the "propose a new framing/candidate
+// issue" flow relocates there. No card calls this after S2 (the problem card's
+// "Propose a different framing" became "Send suggestion to author").
 export function proposeCandidateIssue(input: ProposeIssueInput): string {
   const { publicKey, communityId, title, description, countries, evidence, whoWhy, sdg } = input;
   const now = Date.now();

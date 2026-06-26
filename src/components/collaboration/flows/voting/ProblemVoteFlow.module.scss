@@ -98,11 +98,6 @@
 }
 
 .votingSection {
-  padding: $spacing-xl;
-  background: $gray-50;
-  border-radius: $radius-lg;
-  border: 1px solid $gray-200;
-
   h4 {
     font-size: $text-base;
     font-weight: $font-semibold;
@@ -259,13 +254,8 @@
     border-color: transparent;
   }
 
-  .votingSection {
-    background: $dark-surface;
-    border-color: $dark-border;
-
-    h4 {
-      color: $dark-text;
-    }
+  .votingSection h4 {
+    color: $dark-text;
   }
 
   .voteBtn {

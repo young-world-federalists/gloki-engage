@@ -114,6 +114,8 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
         up={up}
         hostServer={hostServer}
         hostAgent={hostAgent}
+        authorKey={authorKey}
+        authorName={authorName}
       />
       <StageAdvanceBar
         initiativeId={item.id}
