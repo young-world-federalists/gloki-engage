@@ -97,8 +97,19 @@ function defaultState(): DiscussionState {
  * write through `writeState` — no real server call).
  */
 export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
+  const now = Date.now();
   writeState<DiscussionState>(contractId, {
-    comments: [],
+    // Threaded-chat seed (S2): convert relative minutesAgo → absolute timestamps
+    // at seed time; likes ride along (1p1v). The co-authoring group below stays
+    // seeded too but is dormant (no longer rendered) — kept for Session 3.
+    comments: seed.comments.map((c) => ({
+      id: c.id,
+      author: c.author,
+      text: c.text,
+      parentId: c.parentId,
+      timestamp: now - c.minutesAgo * 60_000,
+      likes: [...c.likes],
+    })),
     statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
     edits: byId(seed.edits),
     positions: byId(seed.positions),

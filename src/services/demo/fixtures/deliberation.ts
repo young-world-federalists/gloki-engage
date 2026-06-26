@@ -293,11 +293,20 @@ export interface SeedAnchored {
   parentId: string | null;
   createdAgo: number;
 }
+export interface SeedComment {
+  id: string;
+  author: string;
+  text: string;
+  parentId: string | null;
+  likes: string[]; // 1p1v pks
+  minutesAgo: number;
+}
 export interface DiscussionSeed {
   statement: SeedStatement;
   edits: SeedEdit[];
   positions: SeedPosition[];
   anchored: SeedAnchored[];
+  comments: SeedComment[]; // threaded-chat seed (S2 discussion-as-chat)
 }
 
 // Supporter lists — every pk is one of the eight thread participants
@@ -318,6 +327,35 @@ const EDIT_SUPPORTERS: Record<string, string[]> = {
 };
 // reply comment id → the root position it anchors under
 const ANCHOR_OF: Record<string, string> = { c1a: 'pos-c1', c1b: 'pos-c1', c3a: 'pos-c3', c5a: 'pos-c5' };
+
+// Threaded-chat seed (S2 discussion-as-chat). A realistic conversation on the
+// misinformation showcase so the redesigned Discussion stage opens alive rather
+// than empty. One branch (d1 → d1a → d1b → d1c → d1d) runs 5 deep so the
+// "Continue this thread →" affordance (depth cap 3) is demoable; like counts
+// vary so the Top sort is meaningful. Eight distinct authors → "9 comments · 8 people".
+const DISCUSSION_THREAD: SeedComment[] = [
+  { id: 'd1', author: 'demo-user-kr-jiwoo', parentId: null, minutesAgo: 420,
+    text: "Where I am, deepfake audio of a candidate went viral on messaging apps 48 hours before polls — too late for any fact-check to catch up.",
+    likes: ['demo-user-ng-amina', 'demo-user-cn-mei', 'demo-user-it-sofia', 'demo-user-br-lucas', 'demo-user-ph-maria'] },
+  { id: 'd2', author: 'demo-user-ng-amina', parentId: null, minutesAgo: 400,
+    text: "It isn't only fakes — real clips get stripped of context and reframed. Detection tools alone won't fix that.",
+    likes: ['demo-user-cn-mei', 'demo-user-de-anika'] },
+  { id: 'd3', author: 'demo-user-cn-mei', parentId: null, minutesAgo: 380,
+    text: "Platforms could add friction near elections: a 'forwarded many times' label and a short slowdown on mass-forwarding.",
+    likes: ['demo-user-kr-jiwoo', 'demo-user-ph-maria', 'demo-user-br-lucas'] },
+  { id: 'd1a', author: 'demo-user-it-sofia', parentId: 'd1', minutesAgo: 360,
+    text: "Did the platform act once it was flagged?", likes: ['demo-user-kr-jiwoo'] },
+  { id: 'd1b', author: 'demo-user-kr-jiwoo', parentId: 'd1a', minutesAgo: 340,
+    text: "Only after the vote. The takedown came three days late.", likes: ['demo-user-br-lucas', 'demo-user-pl-marta'] },
+  { id: 'd1c', author: 'demo-user-br-lucas', parentId: 'd1b', minutesAgo: 320,
+    text: "That lag is the whole problem. Response time near an election needs a legal deadline.", likes: ['demo-user-pl-marta', 'demo-user-ph-maria'] },
+  { id: 'd1d', author: 'demo-user-pl-marta', parentId: 'd1c', minutesAgo: 300,
+    text: "Agreed — plus an audit log so we can see when they actually knew.", likes: [] },
+  { id: 'd2a', author: 'demo-user-ph-maria', parentId: 'd2', minutesAgo: 350,
+    text: "Media-literacy programs help, but they work slowly. We need both the slow and the fast fixes.", likes: ['demo-user-ng-amina'] },
+  { id: 'd3a', author: 'demo-user-de-anika', parentId: 'd3', minutesAgo: 370,
+    text: "Friction near elections is smart — but who defines the 'election window'? That power can be abused too.", likes: ['demo-user-cn-mei', 'demo-user-it-sofia'] },
+];
 
 function buildDiscussionSeed(): DiscussionSeed {
   const roots = DISCUSSION_COMMENTS.filter((c) => c.parentId === null);
@@ -360,6 +398,7 @@ function buildDiscussionSeed(): DiscussionSeed {
     edits,
     positions,
     anchored,
+    comments: DISCUSSION_THREAD,
   };
 }
 
