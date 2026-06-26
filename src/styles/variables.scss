@@ -10,10 +10,25 @@ $success-dark: #059669; // success hover/active, pairs with $success like $prima
 $warning: #f59e0b;
 $error: #dc2626;
 $error-dark: #b91c1c; // destructive hover, pairs with $error like $primary-dark; AA on white + error-surface
+$warning-dark: #d97706; // warning hover/darker; completes the -dark set ($primary/$success/$error-dark)
 
 // Brand gradient (login / decorative surfaces — no text sits directly on it)
 $brand-gradient-start: #667eea;
 $brand-gradient-end: #764ba2;
+
+// ---------------------------------------------------------------------------
+// Stage identity — the SINGLE source of truth for the 5 governance-stage
+// colours (Problem → Discussion → Solutions → Vote → Mandate). Used by the
+// StageStrip circles and the create-initiative stepper. A harmonised sibling
+// set (consistent weight) so the pipeline reads as one calm rainbow, not a
+// clash. Stage colour ALWAYS pairs with the stage icon + label, so it never
+// reads as a status (e.g. red Problem ≠ error). Tunable at review.
+// ---------------------------------------------------------------------------
+$stage-problem:    #ef4444;
+$stage-discussion: #f59e0b;
+$stage-solutions:  #8b5cf6;
+$stage-vote:       #3b82f6;
+$stage-mandate:    #10b981;
 
 // Grays (Light mode)
 $gray-50: #f8fafc;
