@@ -24,7 +24,9 @@ export interface DraftEntry {
 const PREFIX = 'wtdraft_';
 
 function resolveId(resp: unknown): string {
-  return (resp as { id?: string })?.id || (resp as string);
+  const id = (resp as { id?: string })?.id ?? (typeof resp === 'string' ? resp : undefined);
+  if (!id) throw new Error(`deployContract returned no contract id: ${JSON.stringify(resp)}`);
+  return id;
 }
 
 export async function getDrafts(serverUrl: string, publicKey: string, communityId: string): Promise<DraftEntry[]> {
