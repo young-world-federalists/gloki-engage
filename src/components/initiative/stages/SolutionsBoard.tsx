@@ -3,6 +3,7 @@ import { ThumbsUp, Microscope, GitMerge } from 'lucide-react';
 
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 import * as api from '../../collaboration/flows/voting/approvalApi';
+import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
 import { Button, UserIdentity, InfoDisclosure, Modal } from '../../shared';
 import { useT } from '../../../i18n';
@@ -57,6 +58,36 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = newText.trim().length > 0 && newCommitments.some((c) => c.trim().length > 0);
+
+  const [roles, setRoles] = useState<InitiativeRoles | null>(null);
+  useEffect(() => {
+    if (!serverUrl || !publicKey || !initiativeId) return;
+    let cancelled = false;
+    getInitiativeRoles(serverUrl, publicKey, initiativeId).then((r) => { if (!cancelled) setRoles(r); });
+    return () => { cancelled = true; };
+  }, [serverUrl, publicKey, initiativeId]);
+  const isExpert = Boolean(publicKey && roles?.experts.includes(publicKey));
+
+  const [reviewFor, setReviewFor] = useState<string | null>(null);
+  const [reviewMetrics, setReviewMetrics] = useState<string[]>(['', '']);
+  const [reviewNote, setReviewNote] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const canSubmitReview = reviewMetrics.some((m) => m.trim().length > 0);
+
+  const handleAddReview = async () => {
+    if (!serverUrl || !publicKey || !contractId || !reviewFor || !canSubmitReview) return;
+    setReviewSubmitting(true);
+    try {
+      const metrics = reviewMetrics.map((m) => m.trim()).filter(Boolean);
+      await api.addExpertReview(serverUrl, publicKey, contractId, reviewFor, metrics, reviewNote.trim() || undefined);
+      setReviewFor(null); setReviewMetrics(['', '']); setReviewNote('');
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to add expert review:', err);
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const handleAdd = async () => {
     if (!serverUrl || !publicKey || !contractId || !canSubmit) return;
@@ -236,6 +267,41 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </div>
       </Modal>
 
+      <Modal
+        isOpen={reviewFor !== null}
+        onClose={() => setReviewFor(null)}
+        title={t('mechanisms.approval.addExpertReview', 'Add expert review')}
+        closeLabel={t('common.close', 'Close')}
+        footer={
+          <Button variant="primary" onClick={handleAddReview} loading={reviewSubmitting} disabled={!canSubmitReview}>
+            {t('mechanisms.approval.submitReview', 'Submit review')}
+          </Button>
+        }
+      >
+        <div className={styles.addForm}>
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.metricsPrompt', 'How will we know this is working?')}</p>
+          {reviewMetrics.map((m, i) => (
+            <input
+              key={i}
+              className={styles.commitInput}
+              type="text"
+              placeholder={t('mechanisms.approval.metricPlaceholder', 'A measurable indicator')}
+              value={m}
+              maxLength={280}
+              onChange={(e) => setReviewMetrics((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+          ))}
+          <textarea
+            className={styles.addTextarea}
+            placeholder={t('mechanisms.approval.reviewNotePlaceholder', 'A short review note (optional)')}
+            value={reviewNote}
+            onChange={(e) => setReviewNote(e.target.value)}
+            maxLength={500}
+            rows={2}
+          />
+        </div>
+      </Modal>
+
       {mergeSource && (
         <div className={styles.mergeBanner} role="status">
           <GitMerge size={16} aria-hidden />
@@ -275,6 +341,14 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     {p.commitments!.map((c, i) => <li key={i}>{c}</li>)}
                   </ul>
                 )}
+                {(p.expertReviews?.length ?? 0) > 0 && (
+                  <div className={styles.metrics}>
+                    <p className={styles.metricsLabel}>{t('mechanisms.approval.metricsLabel', "How we’ll know it’s working")}</p>
+                    <ul>
+                      {p.expertReviews!.flatMap((r) => r.metrics).map((m, i) => <li key={i}>{m}</li>)}
+                    </ul>
+                  </div>
+                )}
                 <div className={styles.byline}>
                   <UserIdentity name={authorName(p.author)} countryCode={profiles[p.author]?.country} size="sm" />
                   {reviewed && (
@@ -309,6 +383,11 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                       <GitMerge size={16} aria-hidden />
                     </button>
                   </div>
+                )}
+                {isExpert && !mergeSource && (
+                  <button type="button" className={styles.expertAddBtn} onClick={() => setReviewFor(p.id)}>
+                    {t('mechanisms.approval.addExpertReview', 'Add expert review')}
+                  </button>
                 )}
               </div>
             );
