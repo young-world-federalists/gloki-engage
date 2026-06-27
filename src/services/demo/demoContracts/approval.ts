@@ -2,12 +2,30 @@
 import type { IMethod } from '../../interfaces';
 import { readState, writeState } from '../demoState';
 
+interface ExpertReview {
+  expert: string;     // public key of the reviewing expert
+  metrics: string[];  // "how we'll know it's working" — consumed by S6 as indicators
+  note?: string;      // optional short review note
+  timestamp: number;
+}
+
+interface MergeSuggestion {
+  target: string;     // id of the proposal this one is suggested to merge into
+  suggester: string;  // public key of the member who suggested it
+  timestamp: number;
+}
+
 interface Proposal {
   id: string;
   text: string;
   author: string;
   timestamp: number;
   coAuthors?: string[];
+  // --- S4 commitments/metrics spine (all optional, backward-compatible) ---
+  commitments?: string[];           // authored in the add-solution popup (≥1)
+  expertReviewRequests?: string[];  // public keys of members who requested review (1p1v)
+  expertReviews?: ExpertReview[];   // experts who reviewed, each attaching metrics
+  mergeSuggestions?: MergeSuggestion[]; // solution→solution merge suggestions (suggest-only)
 }
 
 interface ApprovalState {
@@ -51,6 +69,18 @@ function cleanText(text: unknown): string | null {
   return trimmed;
 }
 
+// Sanitise a commitments array: trim, drop empties, cap to 3 lines × 280 chars.
+// FOR OURI: `add_proposal` gains optional `commitments` (string list) authored
+// in the add-solution popup; the winning proposal's commitments become the
+// Mandate's "What we commit to" (S6). ≥1 is enforced in the UI, not here.
+function cleanStringList(raw: unknown, maxItems: number, maxLen: number): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((x) => (typeof x === 'string' ? x.trim() : ''))
+    .filter((x) => x.length > 0 && x.length <= maxLen)
+    .slice(0, maxItems);
+}
+
 export function approvalRead(contractId: string, method: IMethod, caller: string): unknown {
   const s = load(contractId);
   switch (method.name) {
@@ -86,7 +116,8 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       // a co-owned draft. FOR OURI: `add_proposal` gains optional `co_authors`.
       const rawCo = method.values?.co_authors;
       const coAuthors = Array.isArray(rawCo) ? rawCo.map((x) => String(x)).filter(Boolean) : [];
-      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors };
+      const commitments = cleanStringList(method.values?.commitments, 3, 280);
+      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors, commitments };
       s.count += 1;
       writeState(contractId, s);
       return id;
@@ -105,6 +136,56 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       if (s.approvals[caller]) {
         delete s.approvals[caller][pid];
       }
+      writeState(contractId, s);
+      return null;
+    }
+    case 'request_expert_review': {
+      // FOR OURI: a 1p1v member signal that a solution should get expert review.
+      // Toggles the caller in/out of the proposal's expertReviewRequests. This
+      // does NOT mark the solution expert-reviewed — it narratively prompts the
+      // Gloki Team to solicit experts (see add_expert_review).
+      const pid = method.values?.proposal_id as string | undefined;
+      if (!pid || !(pid in s.proposals)) return { error: 'Unknown proposal' };
+      const p = s.proposals[pid];
+      const reqs = Array.isArray(p.expertReviewRequests) ? p.expertReviewRequests : [];
+      p.expertReviewRequests = reqs.includes(caller)
+        ? reqs.filter((k) => k !== caller)
+        : [...reqs, caller];
+      writeState(contractId, s);
+      return null;
+    }
+    case 'add_expert_review': {
+      // FOR OURI: an expert attaches metrics ("how we'll know it's working") to a
+      // solution. Demo gate is permissive; the real contract MUST gate this on the
+      // caller holding the expert role. One review per expert per proposal (replace
+      // on re-submit). The winning proposal's metrics become the Mandate's
+      // "How we'll know it's working" (S6).
+      const pid = method.values?.proposal_id as string | undefined;
+      if (!pid || !(pid in s.proposals)) return { error: 'Unknown proposal' };
+      const metrics = cleanStringList(method.values?.metrics, 5, 280);
+      if (metrics.length === 0) return { error: 'At least one metric is required' };
+      const rawNote = method.values?.note;
+      const note = typeof rawNote === 'string' && rawNote.trim() ? rawNote.trim().slice(0, 500) : undefined;
+      const p = s.proposals[pid];
+      const reviews = Array.isArray(p.expertReviews) ? p.expertReviews.filter((r) => r.expert !== caller) : [];
+      reviews.push({ expert: caller, metrics, note, timestamp: Date.now() });
+      p.expertReviews = reviews;
+      writeState(contractId, s);
+      return null;
+    }
+    case 'suggest_proposal_merge': {
+      // FOR OURI: a suggest-only solution→solution merge (never auto-merges).
+      // Records the suggestion on the source proposal pointing at the target.
+      const sourceId = method.values?.source_id as string | undefined;
+      const targetId = method.values?.target_id as string | undefined;
+      if (!sourceId || !(sourceId in s.proposals)) return { error: 'Unknown source proposal' };
+      if (!targetId || !(targetId in s.proposals) || targetId === sourceId) return { error: 'Invalid merge target' };
+      const p = s.proposals[sourceId];
+      const existing = Array.isArray(p.mergeSuggestions) ? p.mergeSuggestions : [];
+      if (!existing.some((m) => m.target === targetId && m.suggester === caller)) {
+        existing.push({ target: targetId, suggester: caller, timestamp: Date.now() });
+      }
+      p.mergeSuggestions = existing;
       writeState(contractId, s);
       return null;
     }
