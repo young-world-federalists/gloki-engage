@@ -1,295 +1,130 @@
 @use '../../../../styles/variables' as *;
 
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
+.container { display: flex; flex-direction: column; gap: $spacing-lg; }
+
+.loading {
+  display: flex; flex-direction: column; align-items: center; gap: $spacing-md;
+  padding: $spacing-xl; color: $gray-600; font-size: $text-sm;
 }
 
-// ─── Plain-language intro (the one sentence, no math) ──────────────────
-.intro {
-  font-size: $text-sm;
-  color: $gray-600;
-  line-height: 1.5;
-  margin: 0;
+// ─── Auto status line ──────────────────────────────────────────────────
+.status {
+  display: flex; align-items: center; gap: $spacing-sm;
+  font-size: $text-sm; font-weight: $font-medium; color: $primary;
 }
+.dot { width: 8px; height: 8px; border-radius: $radius-full; background: currentColor; flex: 0 0 auto; }
+.dotDone { color: $success; }
+.statusSub { font-size: $text-xs; color: $gray-600; margin: 0; }
 
-// ─── Add proposal ──────────────────────────────────────────────────────
-.addForm {
-  display: flex;
-  gap: $spacing-sm;
+// ─── Merged guide + support meter ──────────────────────────────────────
+.guide {
+  display: flex; flex-direction: column; gap: $spacing-xs;
+  padding: $spacing-md; border-radius: $radius-md;
+  background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.2);
 }
+.guideText { margin: 0 0 $spacing-xs; font-size: $text-sm; line-height: 1.5; color: $gray-700; }
+.hint { font-size: $text-xs; color: $gray-600; }
 
-.addInput {
-  flex: 1;
-  min-width: 0;
-  height: 40px;
-  padding: $spacing-sm $spacing-md;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  color: $gray-800;
-  outline: none;
-  box-sizing: border-box;
+.track { height: 8px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
+.fill { height: 100%; border-radius: $radius-full; transition: width 0.3s ease; }
+.fillSupport { background: $primary; }
+.fillTurnout { background: $gray-500; }
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
 
-  &:focus { border-color: $primary; }
-  &::placeholder { color: $gray-500; }
+// ─── Solution card ─────────────────────────────────────────────────────
+.sol { border: 1.5px solid $gray-200; border-radius: $radius-md; padding: $spacing-md; background: white; }
+.solHead { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; margin-bottom: $spacing-sm; }
+.solNum { font-size: $text-xs; font-weight: $font-bold; text-transform: uppercase; letter-spacing: 0.04em; color: $gray-500; }
+.reviewed { font-size: $text-xs; font-weight: $font-medium; color: $success; }
+
+.solText { margin: 0 0 $spacing-sm; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
+.solByline { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; }
+
+// ─── Hearts bar (on top) ───────────────────────────────────────────────
+.heartsBar {
+  display: flex; align-items: center; justify-content: center; gap: $spacing-md;
+  padding: $spacing-sm; margin-bottom: $spacing-sm;
+  background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.22); border-radius: $radius-md;
 }
-
-.noData {
-  font-size: $text-sm;
-  color: $gray-500;
-  font-style: italic;
-  text-align: center;
-  padding: $spacing-lg 0;
-}
-
-// ─── Proposal list ─────────────────────────────────────────────────────
-.proposalList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.proposalCard {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  background: white;
-  border: 1.5px solid $gray-200;
-  border-radius: $radius-md;
-  box-shadow: $shadow-sm;
-}
-
-.proposalBody {
-  display: flex;
-  justify-content: space-between;
-  gap: $spacing-sm;
-  flex: 1;
-  min-width: 0;
-}
-
-.proposalText {
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-800;
-  word-break: break-word;
-  flex: 1;
-}
-
-.proposalMeta {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  font-size: $text-xs;
-  color: $gray-500;
-}
-
-// ─── Support meter — the felt cost. Stacking hearts on one proposal fills
-//     it fast (quadratic), spreading fills it slowly. No numbers shown. ────
-.meter {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.meterTrack {
-  height: 10px;
-  background: $gray-100;
-  border-radius: $radius-full;
-  overflow: hidden;
-}
-
-.meterFill {
-  height: 100%;
-  background: $primary;
-  border-radius: $radius-full;
-  transition: width $transition-base;
-}
-
-.meterFill.meterFull {
-  background: $warning;
-}
-
-.meterHint {
-  font-size: $text-xs;
-  color: $gray-500;
-}
-
-// ─── Allocate (tap hearts) ─────────────────────────────────────────────
-.allocateList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.allocateRow {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  border: 1.5px solid $gray-200;
-  border-radius: $radius-md;
-  background: white;
-}
-
-.allocateLabel {
-  font-size: $text-sm;
-  color: $gray-800;
-  word-break: break-word;
-}
-
-.allocateControls {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-}
-
-.stepperBtn {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: $gray-100;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  color: $gray-700;
-  cursor: pointer;
+.stepper {
+  width: 44px; height: 44px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: $gray-100; border: 1px solid $gray-200; border-radius: $radius-md; color: $gray-700; cursor: pointer;
   transition: background-color $transition-base, color $transition-base, transform $transition-fast;
-
-  &:hover:not(:disabled) {
-    background: $gray-200;
-    color: $gray-900;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-
+  &:hover:not(:disabled) { background: $gray-200; color: $gray-900; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  &:active:not(:disabled) { transform: translateY(1px); }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
+.hearts { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: $spacing-xs; flex: 1; min-height: 24px; }
+.heartFilled { color: $primary; }
+.heartEmpty { color: $gray-500; opacity: 0.5; }
 
-.hearts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $spacing-xs;
-  flex: 1;
-  min-height: 24px;
+// ─── Detail cards (commitments / metrics) ──────────────────────────────
+.dcard { border: 1px solid $gray-200; border-radius: $radius-md; margin-top: $spacing-xs; overflow: hidden; }
+.dsummary {
+  list-style: none; cursor: pointer; min-height: 44px;
+  display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm;
+  padding: 0 $spacing-md; font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
+  &::-webkit-details-marker { display: none; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
 }
+.plus {
+  width: 24px; height: 24px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid $gray-200; border-radius: $radius-sm; font-size: $text-lg; line-height: 1;
+  transition: transform $transition-base;
+}
+.dcard[open] .plus { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .plus { transition: none; } }
+.dinner { padding: 0 $spacing-md $spacing-md; }
+.dinner ul { margin: 0; padding-left: $spacing-md; }
+.dinner li { font-size: $text-xs; line-height: 1.6; color: $gray-600; }
+.metricsCard { border-color: rgba($success, 0.4); }
+.metricsCard .dsummary { color: $success; }
 
-.heartFilled {
-  color: $primary;
+// ─── Your vote (locked) ────────────────────────────────────────────────
+.yourVote {
+  display: flex; align-items: center; gap: $spacing-sm;
+  padding: $spacing-xs $spacing-sm; margin-bottom: $spacing-sm;
+  background: rgba($primary, 0.08); border: 1px solid rgba($primary, 0.22); border-radius: $radius-sm;
 }
+.yourVoteLbl { font-size: $text-xs; font-weight: $font-bold; color: $gray-700; }
+.yourVoteHearts { display: flex; align-items: center; gap: 2px; color: $primary; }
+.yourVoteNone { opacity: 0.6; }
 
-.heartEmpty {
-  color: $gray-500;
-  opacity: 0.5;
-}
+// ─── Region results bar ────────────────────────────────────────────────
+.regbar { display: flex; height: 20px; border-radius: $radius-sm; overflow: hidden; background: $gray-100; margin-bottom: $spacing-xs; }
+.regbar > span { height: 100%; display: block; }
+.rescount { font-size: $text-xs; color: $gray-500; }
 
-.submitRow {
-  display: flex;
-  justify-content: flex-end;
+// ─── Region key ────────────────────────────────────────────────────────
+.keygrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-xs $spacing-md;
+  padding-top: $spacing-md; border-top: 1px solid $gray-200;
 }
+.keyitem { display: flex; align-items: center; gap: $spacing-sm; font-size: $text-xs; color: $gray-600; }
+.sw { width: 12px; height: 12px; border-radius: $radius-sm; flex: 0 0 auto; }
 
-// ─── Results ───────────────────────────────────────────────────────────
-.resultsList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.resultRow {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.resultLabel {
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-700;
-}
-
-.resultBar {
-  display: flex;
-  height: 24px;
-  border-radius: $radius-sm;
-  overflow: hidden;
-  background: $gray-100;
-}
-
-.resultSegment {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.resultCount {
-  font-size: $text-xs;
-  color: $gray-500;
-  margin-left: auto;
-}
-
-.participation {
-  font-size: $text-xs;
-  color: $gray-500;
-  margin-left: auto;
-  margin-top: $spacing-xs;
-}
-
-// ─── States ────────────────────────────────────────────────────────────
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-md;
-  padding: $spacing-xl;
-  color: $gray-500;
-  font-size: $text-sm;
-}
+// ─── Turnout footer ────────────────────────────────────────────────────
+.turnout { display: flex; flex-direction: column; gap: 4px; padding-top: $spacing-md; border-top: 1px solid $gray-200; }
+.turnoutHead { display: flex; justify-content: space-between; font-size: $text-sm; color: $gray-600; }
+.turnoutNote { font-size: $text-xs; color: $gray-500; margin-top: 2px; }
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
-  .intro { color: $dark-text-secondary; }
-
-  .addInput {
-    background: $dark-bg;
-    border-color: $dark-border;
-    color: $dark-text;
-    &::placeholder { color: $dark-text-secondary; }
-  }
-
-  .proposalCard,
-  .allocateRow {
-    background: $dark-bg;
-    border-color: $dark-border;
-    box-shadow: none;
-  }
-  .proposalText,
-  .allocateLabel { color: $dark-text; }
-  .proposalMeta,
-  .meterHint,
-  .participation { color: $dark-text-secondary; }
-
-  .meterTrack,
-  .resultBar { background: $dark-border; }
-
-  .stepperBtn {
-    background: $dark-surface;
-    border-color: $dark-border;
-    color: $dark-text;
+  .loading, .statusSub, .hint, .turnoutHead, .turnoutNote, .rescount, .keyitem, .dinner li { color: $dark-text-secondary; }
+  .guideText, .solText { color: $dark-text; }
+  .solNum { color: $dark-text-secondary; }
+  .track, .regbar { background: $dark-border; }
+  .sol { background: $dark-bg; border-color: $dark-border; }
+  .dcard { border-color: $dark-border; }
+  .dsummary { color: $dark-text; }
+  .plus { border-color: $dark-border; }
+  .stepper {
+    background: $dark-surface; border-color: $dark-border; color: $dark-text;
     &:hover:not(:disabled) { background: $dark-border; color: $dark-text; }
   }
-
-  .resultLabel { color: $dark-text; }
-  .resultCount { color: $dark-text-secondary; }
-  .loading { color: $dark-text-secondary; }
+  .keygrid, .turnout { border-color: $dark-border; }
+  .yourVoteLbl { color: $dark-text; }
 }

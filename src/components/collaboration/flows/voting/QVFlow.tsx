@@ -2,136 +2,208 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, Plus, Minus } from 'lucide-react';
 import type { FlowProps } from '../types';
 import { useFlowContract } from '../shared/useFlowContract';
-import CountryBadge from '../shared/CountryBadge';
 import * as api from './qvApi';
+import * as approvalApi from './approvalApi';
 import { useAppSelector } from '../../../../store/hooks';
-import { getCountryColor, getCountryName } from '../../../../utils/countries';
 import { useT } from '../../../../i18n';
-import { SegmentedControl, Button } from '../../../shared';
+import { Button, UserIdentity } from '../../../shared';
+import { REGIONS, regionOf, regionColorVar, type RegionId } from '../../../../utils/regions';
 import styles from './QVFlow.module.scss';
 
-const qvContractCode = '';
+interface QvProposal { id: string; text: string; author: string; timestamp: string | number }
+interface ExpertReview { expert: string; metrics: string[]; note?: string; timestamp: number }
+interface ApprovalProposal {
+  id: string; text: string; author: string; timestamp: number | string;
+  commitments?: string[]; expertReviews?: ExpertReview[];
+}
+interface Config { credits_per_voter: number; status: string }
 
-interface Proposal { id: string; text: string; author: string; timestamp: string; }
-interface Config { credits_per_voter: number; status: string; }
+// A ballot row: hearts/results from qv, commitments/metrics/reviewed from approval.
+interface BallotSolution {
+  id: string; text: string; author: string;
+  commitments: string[]; metrics: string[]; reviewed: boolean;
+}
 
-// The mechanism is quadratic voting, but the voter never sees the math. They tap
-// "hearts" (= whole votes) onto proposals; the *cost* of those hearts is
-// quadratic (h hearts cost h² from a shared support pool), so piling onto one
-// proposal drains the pool fast while spreading is cheap. We store hearts in the
-// draft and only convert hearts → credits (h²) when submitting to the contract,
-// which keeps the existing sqrt-based results untouched (sqrt(h²) = h).
+export interface QVFlowProps extends FlowProps {
+  /** Active community member count — denominator for the 75% turnout footer. */
+  communityMemberCount?: number;
+}
+
+// Hearts are whole votes; their cost is quadratic (h hearts cost h² from a shared
+// pool). We store hearts in the draft and convert to credits (h²) on submit, so the
+// contract's sqrt-based results read back as whole votes (sqrt(h²) = h).
 const heartCost = (hearts: number): number => hearts * hearts;
 const heartsFromCredits = (credits: number): number => Math.max(0, Math.round(Math.sqrt(credits)));
 
-const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey }) => {
+const TURNOUT_TARGET = 75; // % of the community whose votes complete the stage
+
+const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey, communityMemberCount = 0 }) => {
   const t = useT();
-  const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(instanceId, 'quadratic_vote', 'qv_contract.py', qvContractCode, parentContractId, stageKey);
+  const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } =
+    useFlowContract(instanceId, 'quadratic_vote', 'qv_contract.py', '', parentContractId, stageKey);
+  // The initiative's approval (proposals) contract is the canonical home of the S4
+  // commitments + expert-metrics spine. The vote card READS it (never writes) and
+  // joins by proposal id. FOR OURI: this is the carry — S6 reads the winning
+  // solution's commitments/metrics from the same approval contract.
+  const { contractId: proposalsContractId, isReady: proposalsReady } =
+    useFlowContract(`${parentContractId}_proposals`, 'approval_voting', 'approval_contract.py', '', parentContractId, 'proposalsContractId');
+
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = useAppSelector((s) => s.communities.profiles);
 
-  const [activeTab, setActiveTab] = useState<'proposals' | 'allocate' | 'results'>('proposals');
-  const [proposals, setProposals] = useState<Record<string, Proposal>>({});
+  const [qvProposals, setQvProposals] = useState<Record<string, QvProposal>>({});
+  const [approvalProposals, setApprovalProposals] = useState<Record<string, ApprovalProposal>>({});
   const [config, setConfig] = useState<Config>({ credits_per_voter: 100, status: 'open' });
-  const draftInitialized = useRef(false);
   const [allAllocations, setAllAllocations] = useState<Record<string, Record<string, number>>>({});
   const [results, setResults] = useState<Record<string, number>>({});
-  const [newText, setNewText] = useState('');
+  const [myAllocation, setMyAllocation] = useState<Record<string, number>>({});
+  const [draft, setDraft] = useState<Record<string, number>>({});
+  const draftInitialized = useRef(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // draft maps proposalId -> hearts (whole votes). Quadratic cost applied on top.
-  const [draft, setDraft] = useState<Record<string, number>>({});
+
+  // "Voted" = this member already has an allocation (hard-lock once cast). FOR OURI:
+  // derived client-side from get_my_allocation; no new contract method needed.
+  const hasVoted = Object.keys(myAllocation).length > 0;
 
   const fetchData = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
     setLoading(true);
     try {
-      const showDetailedResults = activeTab === 'results';
-      const [p, c, ma, aa, r] = await Promise.all([
+      const [p, c, ma, aa, r, ap] = await Promise.all([
         api.getProposals(serverUrl, publicKey, contractId),
         api.getConfig(serverUrl, publicKey, contractId),
         api.getMyAllocation(serverUrl, publicKey, contractId),
-        showDetailedResults
-          ? api.getAllocations(serverUrl, publicKey, contractId)
-          : Promise.resolve(null),
-        showDetailedResults
-          ? api.getResults(serverUrl, publicKey, contractId)
+        api.getAllocations(serverUrl, publicKey, contractId), // always — for turnout count
+        api.getResults(serverUrl, publicKey, contractId),
+        proposalsReady && proposalsContractId
+          ? approvalApi.getProposals(serverUrl, publicKey, proposalsContractId)
           : Promise.resolve(null),
       ]);
-      setProposals((p as Record<string, Proposal>) || {});
+      setQvProposals((p as Record<string, QvProposal>) || {});
       setConfig((c as Config) || { credits_per_voter: 100, status: 'open' });
-      const myAlloc = (ma as Record<string, number>) || {};
+      const mine = (ma as Record<string, number>) || {};
+      setMyAllocation(mine);
       if (!draftInitialized.current) {
-        // Contract stores credits (h²); rehydrate the draft back into hearts.
         const hearts: Record<string, number> = {};
-        for (const [pid, credits] of Object.entries(myAlloc)) {
+        for (const [pid, credits] of Object.entries(mine)) {
           const h = heartsFromCredits(credits);
           if (h > 0) hearts[pid] = h;
         }
         setDraft(hearts);
         draftInitialized.current = true;
       }
-      setAllAllocations(showDetailedResults ? ((aa as Record<string, Record<string, number>>) || {}) : {});
-      setResults(showDetailedResults ? ((r as Record<string, number>) || {}) : {});
+      setAllAllocations((aa as Record<string, Record<string, number>>) || {});
+      setResults((r as Record<string, number>) || {});
+      if (ap) setApprovalProposals(ap as Record<string, ApprovalProposal>);
     } catch (err) { console.error('Failed to fetch QV data:', err); }
     finally { setLoading(false); }
-  }, [activeTab, serverUrl, publicKey, contractId]);
+  }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady]);
 
   useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
 
-  const handleAddProposal = async () => {
-    const trimmed = newText.trim();
-    if (!serverUrl || !publicKey || !contractId || !trimmed || trimmed.length > 500) return;
-    setSubmitting(true);
-    try {
-      await api.addProposal(serverUrl, publicKey, contractId, trimmed);
-      setNewText('');
-      await fetchData();
-    } catch (err) { console.error('Failed to add proposal:', err); }
-    finally { setSubmitting(false); }
-  };
+  // ── Build the ballot: join qv (mechanics) + approval (spine), reviewed-only ──
+  const qvList = Object.values(qvProposals).sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
+  const merged: BallotSolution[] = qvList.map((q) => {
+    const twin = approvalProposals[q.id];
+    const reviews = twin?.expertReviews ?? [];
+    return {
+      id: q.id,
+      text: twin?.text ?? q.text,
+      author: twin?.author ?? q.author,
+      commitments: twin?.commitments ?? [],
+      metrics: reviews.flatMap((rv) => rv.metrics),
+      reviewed: reviews.length > 0,
+    };
+  });
+  const reviewedList = merged.filter((m) => m.reviewed);
+  const ballot = reviewedList.length > 0 ? reviewedList : merged; // graceful fallback
 
+  // ── Hearts / quadratic pool ──
   const pool = config.credits_per_voter;
   const spent = Object.values(draft).reduce((sum, h) => sum + heartCost(h), 0);
   const poolUsedPct = pool > 0 ? Math.min((spent / pool) * 100, 100) : 0;
-
-  // Adding heart (h+1) to a proposal already holding h costs (h+1)² − h² = 2h+1.
-  const canAddHeart = (proposalId: string): boolean => {
-    const h = draft[proposalId] || 0;
+  const canAddHeart = (id: string): boolean => {
+    const h = draft[id] || 0;
     return spent + (2 * h + 1) <= pool;
   };
-
-  const addHeart = (proposalId: string) => {
-    if (!canAddHeart(proposalId)) return;
-    setDraft((prev) => ({ ...prev, [proposalId]: (prev[proposalId] || 0) + 1 }));
-  };
-
-  const removeHeart = (proposalId: string) => {
-    setDraft((prev) => {
-      const h = prev[proposalId] || 0;
-      if (h <= 1) {
-        const { [proposalId]: _omit, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [proposalId]: h - 1 };
-    });
-  };
+  const addHeart = (id: string) => { if (canAddHeart(id)) setDraft((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 })); };
+  const removeHeart = (id: string) => setDraft((prev) => {
+    const h = prev[id] || 0;
+    if (h <= 1) { const { [id]: _omit, ...rest } = prev; return rest; }
+    return { ...prev, [id]: h - 1 };
+  });
 
   const handleSubmitAllocation = async () => {
     if (!serverUrl || !publicKey || !contractId) return;
     setSubmitting(true);
     try {
-      // hearts → credits (h²) so the contract's sqrt results read back as whole votes.
       const credits: Record<string, number> = {};
-      for (const [pid, h] of Object.entries(draft)) {
-        if (h > 0) credits[pid] = heartCost(h);
-      }
+      for (const [pid, h] of Object.entries(draft)) if (h > 0) credits[pid] = heartCost(h);
       await api.allocate(serverUrl, publicKey, contractId, credits);
-      setActiveTab('results');
+      await fetchData(); // demo seam emits no write events → re-fetch; flips to locked
     } catch (err) { console.error('Failed to submit allocation:', err); }
     finally { setSubmitting(false); }
   };
+
+  // ── Turnout (distinct allocators ÷ active members) ──
+  const allocators = Object.keys(allAllocations).length;
+  const turnoutPct = communityMemberCount > 0 ? Math.round((allocators / communityMemberCount) * 100) : 0;
+  const turnoutFillPct = Math.min((turnoutPct / TURNOUT_TARGET) * 100, 100);
+
+  // ── Region breakdown of a solution's votes (sqrt(credits) = whole votes) ──
+  const regionBreakdown = (id: string): Partial<Record<RegionId, number>> => {
+    const out: Partial<Record<RegionId, number>> = {};
+    for (const [voter, alloc] of Object.entries(allAllocations)) {
+      const credits = alloc[id];
+      if (!credits) continue;
+      const region = regionOf(profiles[voter]?.country);
+      out[region] = (out[region] || 0) + Math.sqrt(credits);
+    }
+    return out;
+  };
+
+  const authorName = (key: string): string => {
+    const p = profiles[key];
+    const n = p ? `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() : '';
+    return n || `${key.slice(0, 8)}…`;
+  };
+
+  const turnoutFooter = (
+    <div className={styles.turnout}>
+      <div className={styles.turnoutHead}>
+        <span>{t('mechanisms.qv.turnoutLabel', 'Community turnout')}</span>
+        <span>{t('mechanisms.qv.turnoutValue', '{pct}% of {target}% needed', { pct: turnoutPct, target: TURNOUT_TARGET })}</span>
+      </div>
+      <div
+        className={styles.track}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={turnoutPct}
+        aria-label={t('mechanisms.qv.turnoutLabel', 'Community turnout')}
+      >
+        <div className={`${styles.fill} ${styles.fillTurnout}`} style={{ width: `${turnoutFillPct}%` }} />
+      </div>
+      <div className={styles.turnoutNote}>
+        {t('mechanisms.qv.turnoutNote', 'The vote completes when {target}% of members have taken part.', { target: TURNOUT_TARGET })}
+      </div>
+    </div>
+  );
+
+  const regionKey = (
+    <div className={styles.keygrid}>
+      {REGIONS.map((rg) => (
+        <div key={rg.id} className={styles.keyitem}>
+          <span className={styles.sw} style={{ backgroundColor: regionColorVar(rg.id) }} aria-hidden="true" />
+          {rg.label}
+        </div>
+      ))}
+    </div>
+  );
 
   if (hasError) return (
     <div className={styles.loading}>
@@ -142,196 +214,157 @@ const QVFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey })
   if (isDeploying || !isReady) return (
     <div className={styles.loading}>{statusMessage || t('mechanisms.qv.settingUp', 'Setting up voting…')}</div>
   );
-  if (loading && Object.keys(proposals).length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
-
-  const proposalList = Object.values(proposals).sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  );
-
-  // Country breakdown of votes for a proposal. Credits stored as h², so each
-  // voter's contribution is sqrt(credits) = their heart count (whole votes).
-  const getCountryQVBreakdown = (proposalId: string): Record<string, number> => {
-    const breakdown: Record<string, number> = {};
-    for (const [voter, voterAlloc] of Object.entries(allAllocations)) {
-      const credits = voterAlloc[proposalId];
-      if (!credits) continue;
-      const profile = profiles[voter];
-      const country = profile?.country || 'OTHER';
-      breakdown[country] = (breakdown[country] || 0) + Math.sqrt(credits);
-    }
-    return breakdown;
-  };
+  if (loading && qvList.length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
   return (
     <div className={styles.container}>
-      <SegmentedControl
-        fullWidth
-        ariaLabel={t('mechanisms.qv.viewToggle', 'Solutions, vote, or results')}
-        value={activeTab}
-        onChange={setActiveTab}
-        options={[
-          { value: 'proposals', label: t('mechanisms.qv.tabProposals', 'Solutions') },
-          { value: 'allocate', label: t('mechanisms.qv.tabVote', 'Vote') },
-          { value: 'results', label: t('mechanisms.qv.tabResults', 'Results') },
-        ]}
-      />
-
-      {activeTab === 'proposals' && (
+      {!hasVoted ? (
         <>
-          <div className={styles.addForm}>
-            <input className={styles.addInput} type="text"
-              placeholder={t('mechanisms.qv.addPlaceholder', 'Add a solution…')}
-              value={newText} onChange={(e) => setNewText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddProposal(); }}
-              maxLength={500}
-              disabled={submitting} />
-            <Button variant="primary" onClick={handleAddProposal}
-              loading={submitting} disabled={!newText.trim()}>
-              {t('mechanisms.qv.add', 'Add')}
-            </Button>
+          <div className={styles.status} role="status">
+            <span className={styles.dot} aria-hidden="true" />
+            {t('mechanisms.qv.statusOpen', 'Voting open · {n} solutions', { n: ballot.length })}
           </div>
-          {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noProposals', 'No solutions yet. Add one above.')}</p>
-          ) : (
-            <div className={styles.proposalList}>
-              {proposalList.map((p) => (
-                <div key={p.id} className={styles.proposalCard}>
-                  <div className={styles.proposalBody}>
-                    <div className={styles.proposalText}>{p.text}</div>
-                    <div className={styles.proposalMeta}>
-                      <span>{p.author.slice(0, 8)}…</span>
-                      <CountryBadge countryCode={profiles[p.author]?.country} />
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+          <div className={styles.guide}>
+            <p className={styles.guideText}>
+              {t('mechanisms.qv.guide', 'Tap ♥ to back what you care about — spreading your hearts across solutions costs less than piling them onto one.')}
+            </p>
+            <div
+              className={styles.track}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(poolUsedPct)}
+              aria-label={t('mechanisms.qv.supportUsed', 'Support used')}
+            >
+              <div className={`${styles.fill} ${styles.fillSupport}`} style={{ width: `${poolUsedPct}%` }} />
             </div>
-          )}
-        </>
-      )}
+            <span className={styles.hint}>
+              {t('mechanisms.qv.supportUsedPct', '{pct}% of your support used', { pct: Math.round(poolUsedPct) })}
+            </span>
+          </div>
 
-      {activeTab === 'allocate' && (
-        <>
-          <p className={styles.intro}>
-            {t(
-              'mechanisms.qv.intro',
-              'Tap ♥ to back what you care about. Piling onto one costs more than spreading out — so even a few people who care deeply get heard.',
-            )}
-          </p>
-          {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noneToBack', 'No solutions to back yet.')}</p>
-          ) : (
-            <>
-              <div
-                className={styles.meter}
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(poolUsedPct)}
-                aria-label={t('mechanisms.qv.supportUsed', 'Support used')}
-              >
-                <div className={styles.meterTrack}>
-                  <div
-                    className={`${styles.meterFill} ${poolUsedPct >= 100 ? styles.meterFull : ''}`}
-                    style={{ width: `${poolUsedPct}%` }}
-                  />
+          {ballot.map((s, i) => {
+            const hearts = draft[s.id] || 0;
+            return (
+              <div key={s.id} className={styles.sol}>
+                <div className={styles.solHead}>
+                  <span className={styles.solNum}>{t('mechanisms.qv.solutionN', 'Solution {i} of {n}', { i: i + 1, n: ballot.length })}</span>
+                  {s.reviewed && <span className={styles.reviewed}>{t('mechanisms.qv.expertReviewed', 'expert reviewed')}</span>}
                 </div>
-                <span className={styles.meterHint}>
-                  {poolUsedPct >= 100
-                    ? t('mechanisms.qv.poolFull', 'All your support is in — remove a ♥ to back something else.')
-                    : t('mechanisms.qv.poolHint', 'Your support')}
-                </span>
-              </div>
-              <div className={styles.allocateList}>
-                {proposalList.map((p) => {
-                  const hearts = draft[p.id] || 0;
-                  return (
-                    <div key={p.id} className={styles.allocateRow}>
-                      <div className={styles.allocateLabel}>{p.text}</div>
-                      <div className={styles.allocateControls}>
-                        <button
-                          className={styles.stepperBtn}
-                          onClick={() => removeHeart(p.id)}
-                          disabled={hearts === 0}
-                          aria-label={t('mechanisms.qv.removeHeart', 'Remove support from this solution')}
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <div
-                          className={styles.hearts}
-                          role="img"
-                          aria-label={t('mechanisms.qv.heartsAria', '{n} hearts of support', { n: hearts })}
-                        >
-                          {hearts === 0 ? (
-                            <Heart size={18} className={styles.heartEmpty} aria-hidden="true" />
-                          ) : (
-                            Array.from({ length: hearts }).map((_, i) => (
-                              <Heart key={i} size={18} className={styles.heartFilled} fill="currentColor" aria-hidden="true" />
-                            ))
-                          )}
-                        </div>
-                        <button
-                          className={styles.stepperBtn}
-                          onClick={() => addHeart(p.id)}
-                          disabled={!canAddHeart(p.id)}
-                          aria-label={t('mechanisms.qv.addHeart', 'Back this solution')}
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className={styles.submitRow}>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  onClick={handleSubmitAllocation}
-                  loading={submitting}
-                >
-                  {t('mechanisms.qv.cast', 'Cast my votes')}
-                </Button>
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-      {activeTab === 'results' && (
-        <>
-          {proposalList.length === 0 ? (
-            <p className={styles.noData}>{t('mechanisms.qv.noResults', 'No solutions to show results for.')}</p>
-          ) : (
-            <div className={styles.resultsList}>
-              {[...proposalList]
-                .sort((a, b) => (results[b.id] || 0) - (results[a.id] || 0))
-                .map((p) => {
-                  const totalVotes = results[p.id] || 0;
-                  const breakdown = getCountryQVBreakdown(p.id);
-                  const maxVotes = Math.max(...Object.values(results), 1);
-                  return (
-                    <div key={p.id} className={styles.resultRow}>
-                      <div className={styles.resultLabel}>{p.text}</div>
-                      <div className={styles.resultBar}>
-                        {Object.entries(breakdown).map(([country, votes]) => (
-                          <div key={country} className={styles.resultSegment}
-                            style={{ width: `${(votes / maxVotes) * 100}%`, backgroundColor: getCountryColor(country) }}
-                            title={`${getCountryName(country)}: ${Math.round(votes)}`} />
+                <div className={styles.heartsBar}>
+                  <button
+                    className={styles.stepper}
+                    onClick={() => removeHeart(s.id)}
+                    disabled={hearts === 0}
+                    aria-label={t('mechanisms.qv.removeHeart', 'Remove support from this solution')}
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <div className={styles.hearts} role="img" aria-label={t('mechanisms.qv.heartsAria', '{n} hearts of support', { n: hearts })}>
+                    {hearts === 0
+                      ? <Heart size={18} className={styles.heartEmpty} aria-hidden="true" />
+                      : Array.from({ length: hearts }).map((_, k) => (
+                          <Heart key={k} size={18} className={styles.heartFilled} fill="currentColor" aria-hidden="true" />
                         ))}
-                      </div>
-                      <div className={styles.resultCount}>
-                        {t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(totalVotes) })}
-                      </div>
-                    </div>
-                  );
-                })}
-              <div className={styles.participation}>
-                {t('mechanisms.qv.participants', '{n} took part', { n: Object.keys(allAllocations).length })}
+                  </div>
+                  <button
+                    className={styles.stepper}
+                    onClick={() => addHeart(s.id)}
+                    disabled={!canAddHeart(s.id)}
+                    aria-label={t('mechanisms.qv.addHeart', 'Back this solution')}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                <p className={styles.solText}>{s.text}</p>
+                <div className={styles.solByline}>
+                  <UserIdentity name={authorName(s.author)} countryCode={profiles[s.author]?.country} size="sm" />
+                </div>
+                {s.commitments.length > 0 && (
+                  <details className={styles.dcard}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('mechanisms.qv.commitsLabel', 'What this commits to ({n})', { n: s.commitments.length })}</span>
+                      <span className={styles.plus} aria-hidden="true">+</span>
+                    </summary>
+                    <div className={styles.dinner}><ul>{s.commitments.map((c, k) => <li key={k}>{c}</li>)}</ul></div>
+                  </details>
+                )}
+                {s.metrics.length > 0 && (
+                  <details className={`${styles.dcard} ${styles.metricsCard}`}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('mechanisms.qv.metricsLabel', 'How we’ll know it’s working ({n})', { n: s.metrics.length })}</span>
+                      <span className={styles.plus} aria-hidden="true">+</span>
+                    </summary>
+                    <div className={styles.dinner}><ul>{s.metrics.map((m, k) => <li key={k}>{m}</li>)}</ul></div>
+                  </details>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })}
+
+          <Button variant="primary" size="lg" fullWidth onClick={handleSubmitAllocation} loading={submitting} disabled={spent === 0}>
+            {t('mechanisms.qv.cast', 'Cast my votes')}
+          </Button>
+
+          {turnoutFooter}
+        </>
+      ) : (
+        <>
+          <div className={styles.status} role="status">
+            <span className={`${styles.dot} ${styles.dotDone}`} aria-hidden="true" />
+            {t('mechanisms.qv.statusVoted', 'You’ve voted')}
+          </div>
+          <p className={styles.statusSub}>{t('mechanisms.qv.votedSub', 'Live results below · votes can’t be changed')}</p>
+
+          {[...ballot].sort((a, b) => (results[b.id] || 0) - (results[a.id] || 0)).map((s, idx) => {
+            const total = results[s.id] || 0;
+            const breakdown = regionBreakdown(s.id);
+            const sumVotes = Object.values(breakdown).reduce((x, y) => x + (y || 0), 0) || 1;
+            const myHearts = draft[s.id] || 0;
+            return (
+              <div key={s.id} className={styles.sol}>
+                <div className={styles.solHead}>
+                  <span className={styles.solNum}>{t('mechanisms.qv.solutionN', 'Solution {i} of {n}', { i: idx + 1, n: ballot.length })}</span>
+                  {s.reviewed && <span className={styles.reviewed}>{t('mechanisms.qv.expertReviewed', 'expert reviewed')}</span>}
+                </div>
+                <p className={styles.solText}>{s.text}</p>
+                <div className={`${styles.yourVote} ${myHearts === 0 ? styles.yourVoteNone : ''}`}>
+                  <span className={styles.yourVoteLbl}>{t('mechanisms.qv.yourVote', 'Your vote')}</span>
+                  <span className={styles.yourVoteHearts} role="img" aria-label={t('mechanisms.qv.heartsAria', '{n} hearts of support', { n: myHearts })}>
+                    {myHearts === 0 ? '—' : Array.from({ length: myHearts }).map((_, k) => (
+                      <Heart key={k} size={13} fill="currentColor" aria-hidden="true" />
+                    ))}
+                  </span>
+                </div>
+                <div className={styles.regbar} role="img" aria-label={t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(total) })}>
+                  {REGIONS.map((rg) => {
+                    const v = breakdown[rg.id] || 0;
+                    if (!v) return null;
+                    return <span key={rg.id} style={{ width: `${(v / sumVotes) * 100}%`, backgroundColor: regionColorVar(rg.id) }} title={`${rg.label}: ${Math.round(v)}`} />;
+                  })}
+                  {breakdown.other ? (
+                    <span style={{ width: `${(breakdown.other / sumVotes) * 100}%`, backgroundColor: regionColorVar('other') }} title={`${t('mechanisms.qv.regionOther', 'Other')}: ${Math.round(breakdown.other)}`} />
+                  ) : null}
+                </div>
+                <div className={styles.rescount}>
+                  {t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(total) })}{idx === 0 ? ` · ${t('mechanisms.qv.leading', 'leading')}` : ''}
+                </div>
+                {(s.commitments.length > 0 || s.metrics.length > 0) && (
+                  <details className={`${styles.dcard} ${styles.metricsCard}`}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('mechanisms.qv.commitsMetrics', 'Commitments & metrics')}</span>
+                      <span className={styles.plus} aria-hidden="true">+</span>
+                    </summary>
+                    <div className={styles.dinner}><ul>{[...s.commitments, ...s.metrics].map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                  </details>
+                )}
+              </div>
+            );
+          })}
+
+          {regionKey}
+          {turnoutFooter}
         </>
       )}
     </div>
