@@ -38,9 +38,9 @@ const ASIA_PACIFIC = new Set([
   'AU','NZ','FJ','PG','SB','VU','WS','TO','KI','TV','NR','FM','MH','PW','CK','NU',
 ]);
 const AFRICA = new Set([
-  'AO','BJ','BW','BF','BI','CV','CM','CF','CD','CG','CI','DJ','EQ','ER','SZ','ET','GA','GM','GH',
-  'GN','GW','KE','LS','LR','MG','MW','ML','MR','MU','MZ','NA','NE','NG','RW','ST','SN','SC','SL','SO','SS',
-  'TZ','TG','UG','ZM','ZW',
+  'AO','BJ','BW','BF','BI','CV','CM','CF','TD','KM','CD','CG','CI','DJ','GQ','ER','SZ','ET','GA','GM','GH',
+  'GN','GW','KE','LS','LR','MG','MW','ML','MR','MU','MZ','NA','NE','NG','RW','ST','SN','SC','SL','SS',
+  'TZ','TG','UG','ZM','ZW','SO',
 ]);
 
 export function regionOf(countryCode: string | undefined): RegionId {
