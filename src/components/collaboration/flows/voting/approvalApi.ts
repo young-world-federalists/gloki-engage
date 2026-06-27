@@ -19,12 +19,13 @@ export async function addProposal(
   contractId: string,
   text: string,
   coAuthors: string[] = [],
+  commitments: string[] = [],
 ) {
   return throwIfContractError(await contractWrite({
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'add_proposal', values: { text, co_authors: coAuthors } } as IMethod,
+    method: { name: 'add_proposal', values: { text, co_authors: coAuthors, commitments } } as IMethod,
   }));
 }
 
@@ -137,4 +138,49 @@ export async function getProposalsAndCounts(
     });
   }
   return { proposals, counts };
+}
+
+export async function requestExpertReview(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  proposalId: string,
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'request_expert_review', values: { proposal_id: proposalId } } as IMethod,
+  }));
+}
+
+export async function addExpertReview(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  proposalId: string,
+  metrics: string[],
+  note?: string,
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'add_expert_review', values: { proposal_id: proposalId, metrics, note } } as IMethod,
+  }));
+}
+
+export async function suggestProposalMerge(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  sourceId: string,
+  targetId: string,
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'suggest_proposal_merge', values: { source_id: sourceId, target_id: targetId } } as IMethod,
+  }));
 }
