@@ -14,7 +14,7 @@ import { initModification } from './demoContracts/modification';
 import { initDiscussion } from './demoContracts/discussion';
 import { PERSONAS, pick } from './fixtures/identity';
 import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
-import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed } from './fixtures/deliberation';
+import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed, PROPOSAL_COMMITMENTS_BY_KEY, PROPOSAL_EXPERT_REVIEWS_BY_KEY } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
   votePattern,
@@ -157,12 +157,21 @@ export function seedDemoCommunity(
     }
 
     // Proposals (approval voting)
-    const propProposals = proposals.map((text, i) => ({
-      id: 'p' + i,
-      text,
-      author: voters[i % voters.length].publicKey,
-      timestamp: Date.now() - (proposals.length - i) * 3_600_000,
-    }));
+    const commitmentsByIndex = PROPOSAL_COMMITMENTS_BY_KEY[seed.key] ?? {};
+    const reviewSeeds = PROPOSAL_EXPERT_REVIEWS_BY_KEY[seed.key] ?? [];
+    const propProposals = proposals.map((text, i) => {
+      const reviews = reviewSeeds
+        .filter((r) => r.proposalIndex === i)
+        .map((r) => ({ expert: r.expert, metrics: r.metrics, note: r.note, timestamp: Date.now() - (proposals.length - i) * 3_600_000 }));
+      return {
+        id: 'p' + i,
+        text,
+        author: voters[i % voters.length].publicKey,
+        timestamp: Date.now() - (proposals.length - i) * 3_600_000,
+        commitments: commitmentsByIndex[i] ?? [],
+        ...(reviews.length > 0 ? { expertReviews: reviews } : {}),
+      };
+    });
     const propId = deployStageContract('approval_contract.py', initiativeId, seed.title);
     initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2));
     initiativeWrite(initiativeId, {

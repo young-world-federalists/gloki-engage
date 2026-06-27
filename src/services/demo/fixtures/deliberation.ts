@@ -446,6 +446,38 @@ export const EXPERT_REVIEWS: ExpertReview[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// S4 — commitments + expert-metric seeds (keyed by initiative `key`, then by
+// the proposal's index in PROPOSALS_BY_KEY). The proposals-stage initiatives
+// (amr, jobs) open with real commitments + two distinct expert reviews so the
+// redesigned card's threshold bars read mid-progress (Experts reviewed: 2/3).
+// ---------------------------------------------------------------------------
+export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]>> = {
+  amr: {
+    0: ['Health ministries make antibiotics prescription-only', 'Pharmacists are trained and funded as gatekeepers', 'Clinics adopt shared prescribing guidelines'],
+    1: ['Donors fund rapid point-of-care test kits', 'Clinics are reimbursed for testing before prescribing'],
+    2: ['Labs report prescribing data to a shared registry', 'Communities see local resistance trends each month'],
+    3: ['Governments invest in clean water and sanitation', 'Vaccination coverage is widened to cut infections'],
+  },
+  jobs: {
+    0: ['Employers offer placements with a public stipend', 'Local governments co-fund the stipend for low-income youth'],
+    1: ['Training boards rebuild curricula around employer-listed gaps', 'Colleges refresh courses each year, not each decade'],
+    2: ['A public dashboard matches training to posted jobs', 'Regions publish quarterly skills-gap data'],
+    3: ['Small businesses receive a wage subsidy for first hires', 'Mentors are funded for each first-time worker'],
+  },
+};
+
+export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalIndex: number; expert: string; metrics: string[]; note?: string }>> = {
+  amr: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of antibiotics sold without prescription', 'Districts with a trained stewardship lead'], note: 'Gatekeeping works only if the rapid tests (idea 2) are funded alongside — pair them.' },
+    { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Clinics reporting prescribing data monthly', 'Regions with a published resistance trend'] },
+  ],
+  jobs: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Young people placed per quarter', 'Share of placements taken by low-income youth'] },
+    { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Courses realigned to live job postings', 'Time from skills-gap signal to curriculum update'] },
+  ],
+};
+
+// ---------------------------------------------------------------------------
 // Pure helpers (no React / no i18n)
 // ---------------------------------------------------------------------------
 const PERSONA_BY_KEY: Record<string, Persona> = Object.fromEntries(
