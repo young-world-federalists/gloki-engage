@@ -81,6 +81,30 @@ unrelated UI elements.
 `$warning-dark` (`#d97706`) was added alongside this set to complete the `-dark`
 companion pattern (`$primary-dark`, `$success-dark`, `$error-dark`).
 
+### Region colours (vote results)
+
+Six geopolitical regions — **Africa, Asia & Pacific, Europe, Latin America & Caribbean, North America, Middle East & North Africa** — plus an `other` fallback. Used exclusively in the vote-card results breakdown (region-coloured bar chart). The `other` region renders when a solution's voter has no country metadata.
+
+**Rule:** the region key is always rendered so colour is never the only signal. Region names stay English (not i18n).
+
+| Token | Light | Dark | Region |
+|-------|-------|------|--------|
+| `$region-africa` | `#d98a2b` | `#e8a33d` | Africa |
+| `$region-asia-pacific` | `#1f9e94` | `#2bb8ac` | Asia & Pacific |
+| `$region-europe` | `#4f63d2` | `#6f81e8` | Europe |
+| `$region-latam` | `#d94f6a` | `#e86d84` | Latin America & Caribbean |
+| `$region-north-america` | `#9b5de0` | `#a78bfa` | North America |
+| `$region-mena` | `#2f9e57` | `#3fb86c` | Middle East & North Africa |
+| `$region-other` | `#8a909c` | `#a0a6b2` | Other (fallback) |
+
+These are deployed as SCSS tokens in `src/styles/variables.scss` and as CSS custom properties (`--region-africa`, `--region-asia-pacific`, etc.) in both light and dark modes in `src/styles/index.scss`.
+
+**API:** `src/utils/regions.ts` exports:
+- `REGIONS` — array of the 6 visible regions (not `other`); each has `id` and `label`.
+- `regionOf(countryCode)` — maps ISO 3166-1 alpha-2 country codes to region IDs; returns `'other'` for unmapped/missing codes.
+- `regionColorVar(id)` — returns the CSS custom property string (e.g. `'var(--region-africa)'`) for a region ID.
+- `type RegionId` — the 7 region IDs: `'africa' | 'asiaPacific' | 'europe' | 'latam' | 'northAmerica' | 'mena' | 'other'`.
+
 ## Typography
 
 | Level | Token | Weight | Use |
@@ -314,6 +338,39 @@ scratch** — they already encode the tokens above.
 | `LanePlaceholder` | Dev placeholder for unbuilt areas. |
 
 Subfolders: `connectivity/`, `presence/`.
+
+### Vote card (QVFlow pattern)
+
+Quadratic voting pattern used in the Vote stage (`src/components/collaboration/flows/voting/QVFlow.tsx`). Reads ballot mechanics from a `quadratic_vote` contract and the commitment/metrics spine from an `approval_voting` (proposals) contract, joined by proposal ID.
+
+**Dual interface:** votable until the user submits, then auto-switches to hard-locked results display (no toggle; gated on `hasVoted`, derived client-side from non-empty `get_my_allocation`).
+
+**Votable state:**
+- Hearts on top (quadratic cost: *h* hearts cost *h*² credits from a shared pool)
+- Solution text + author (via `UserIdentity`)
+- Collapsible commitment detail card (if commitments exist)
+- Collapsible metrics detail card (if expert reviews with metrics exist; reviewed-only, with graceful fallback to all proposals if none are marked reviewed)
+- Progress bar tracking pool usage (blue fill on gray track)
+- "Cast my votes" primary CTA (disabled until ≥1 heart allocated)
+- 75% community-turnout progress bar at the bottom (slate colour, `fillTurnout` class) with denominator from `communityMemberCount` prop
+
+**Results state (after vote cast):**
+- Solutions sorted by vote count descending
+- "Your vote" indicator (hearts or "—" if you didn't back it)
+- Region-coloured horizontal bar chart showing vote distribution (`regbar` element; one segment per region with non-zero votes; `backgroundColor` set via `regionColorVar()`)
+- Region key below all solutions (grid of region swatches + labels)
+- Same collapsible commitments & metrics card
+- 75% community-turnout footer (turnout only updates on re-fetch post-cast, since demo seam emits no write events)
+
+**Props:**
+- Extends `FlowProps` (standard flow properties: `instanceId`, `parentContractId`, `stageKey`)
+- `communityMemberCount?: number` — active member count; used to calculate turnout ÷ denominator (optional, defaults to 0; when omitted, turnout shows as "0%")
+
+**Rules:**
+- Region key is always rendered so colour is never the only signal for vote distribution.
+- Heart icons stay filled/empty in both votable and results states (no state-dependent icon swap).
+- No "voting open/closed" contract-status check in the UI — the contract's `allocate` method either succeeds (vote cast) or fails (already voted or voting closed server-side).
+- i18n keys: `mechanisms.qv.*` namespace.
 
 ## Component states
 
