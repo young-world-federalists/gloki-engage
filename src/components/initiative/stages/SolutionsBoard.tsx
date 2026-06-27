@@ -4,7 +4,7 @@ import { ThumbsUp } from 'lucide-react';
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import { useAppSelector } from '../../../store/hooks';
-import { Button, UserIdentity, InfoDisclosure } from '../../shared';
+import { Button, UserIdentity, InfoDisclosure, Modal } from '../../shared';
 import { useT } from '../../../i18n';
 import styles from './SolutionsBoard.module.scss';
 
@@ -48,6 +48,28 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [myApprovals, setMyApprovals] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [newText, setNewText] = useState('');
+  const [newCommitments, setNewCommitments] = useState<string[]>(['', '', '']);
+  const [submitting, setSubmitting] = useState(false);
+
+  const canSubmit = newText.trim().length > 0 && newCommitments.some((c) => c.trim().length > 0);
+
+  const handleAdd = async () => {
+    if (!serverUrl || !publicKey || !contractId || !canSubmit) return;
+    setSubmitting(true);
+    try {
+      const commitments = newCommitments.map((c) => c.trim()).filter(Boolean);
+      await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments);
+      setNewText(''); setNewCommitments(['', '', '']); setAddOpen(false);
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to add solution:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const fetchData = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -121,7 +143,47 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </InfoDisclosure>
       </div>
 
-      {/* Threshold bars (Task 7) + Add-solution (Task 6) render here. */}
+      <button type="button" className={styles.addBtn} onClick={() => setAddOpen(true)}>
+        + {t('mechanisms.approval.addSolutionCta', 'Add a solution to this problem')}
+      </button>
+
+      <Modal
+        isOpen={addOpen}
+        onClose={() => setAddOpen(false)}
+        title={t('mechanisms.approval.addSolutionTitle', 'Add a solution')}
+        closeLabel={t('common.close', 'Close')}
+        footer={
+          <Button variant="primary" onClick={handleAdd} loading={submitting} disabled={!canSubmit}>
+            {t('mechanisms.approval.addSolutionSubmit', 'Add solution')}
+          </Button>
+        }
+      >
+        <div className={styles.addForm}>
+          <textarea
+            className={styles.addTextarea}
+            placeholder={t('mechanisms.approval.solutionPlaceholder', 'Describe your solution')}
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            maxLength={500}
+            rows={3}
+          />
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.commitmentsPrompt', 'Who and what needs to change?')}</p>
+          <p className={styles.commitHint}>{t('mechanisms.approval.commitmentsHint', 'List up to three commitments. At least one.')}</p>
+          {newCommitments.map((c, i) => (
+            <input
+              key={i}
+              className={styles.commitInput}
+              type="text"
+              placeholder={t('mechanisms.approval.commitmentPlaceholder', 'A commitment this solution needs')}
+              value={c}
+              maxLength={280}
+              onChange={(e) => setNewCommitments((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+          ))}
+        </div>
+      </Modal>
+
+      {/* Threshold bars (Task 7) render here. */}
 
       {proposalList.length === 0 ? (
         <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No solutions yet. Add one above.')}</p>
