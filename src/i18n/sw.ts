@@ -873,6 +873,8 @@ const sw: Dictionary = {
   'mechanisms.approval.commitmentsHint': 'Orodhesha hadi ahadi tatu. Angalau moja.',
   'mechanisms.approval.commitmentPlaceholder': 'Ahadi inayohitajika kwa suluhisho hili',
   'mechanisms.approval.expertReviewed': 'imekaguliwa na mtaalam',
+  'mechanisms.approval.thresholdSolutions': 'Suluhisho zinazoungwa mkono na nusu ya jamii',
+  'mechanisms.approval.thresholdExperts': 'Wataalam waliokagua',
   'mechanisms.approval.upvote': 'Unga mkono',
   'mechanisms.qv.intro': 'Gusa ♥ ili kuunga mkono unachokijali. Kurundika kwenye moja kunagharimu zaidi kuliko kutawanya — hivyo hata watu wachache wanaojali sana husikika.',
   'mechanisms.qv.tabProposals': 'Suluhisho',

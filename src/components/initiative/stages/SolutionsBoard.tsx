@@ -114,9 +114,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     return name || `${key.slice(0, 8)}…`;
   };
 
-  // communityMemberCount is accepted for future threshold bars (Task 7)
-  void communityMemberCount;
-
   if (hasError) return (
     <div className={styles.loading}>
       <p>{errorMessage || t('mechanisms.approval.setupError', 'Failed to set up solutions.')}</p>
@@ -132,6 +129,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
 
+  // T1: solutions each backed by upvotes from >=50% of the community.
+  const half = Math.max(Math.ceil(communityMemberCount * 0.5), 1);
+  const backedCount = proposalList.filter((p) => (approvalCounts[p.id] || 0) >= half).length;
+  const T1_TARGET = 5;
+  // T2: distinct experts who have actually reviewed (attached metrics), any solution.
+  const reviewerSet = new Set<string>();
+  proposalList.forEach((p) => (p.expertReviews ?? []).forEach((r) => reviewerSet.add(r.expert)));
+  const expertsReviewed = reviewerSet.size;
+  const T2_TARGET = 3;
+
+  const pct = (n: number, target: number) => `${Math.min(Math.round((n / target) * 100), 100)}%`;
+
   return (
     <div className={styles.container}>
       <div className={styles.helpSection}>
@@ -141,6 +150,23 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         >
           <p>{t('mechanisms.approval.helpBody', 'Add a solution and the commitments it needs. Upvote the ones you support, ask for expert review, or suggest two be merged. The strongest rise to the vote.')}</p>
         </InfoDisclosure>
+      </div>
+
+      <div className={styles.thresholds}>
+        <div className={styles.threshold}>
+          <div className={styles.thresholdHead}>
+            <span>{t('mechanisms.approval.thresholdSolutions', 'Solutions backed by half the community')}</span>
+            <span className={styles.thresholdCount}>{backedCount} / {T1_TARGET}</span>
+          </div>
+          <div className={styles.track}><div className={styles.fill} style={{ width: pct(backedCount, T1_TARGET) }} /></div>
+        </div>
+        <div className={styles.threshold}>
+          <div className={styles.thresholdHead}>
+            <span>{t('mechanisms.approval.thresholdExperts', 'Experts reviewed')}</span>
+            <span className={styles.thresholdCount}>{expertsReviewed} / {T2_TARGET}</span>
+          </div>
+          <div className={styles.track}><div className={`${styles.fill} ${styles.fillSuccess}`} style={{ width: pct(expertsReviewed, T2_TARGET) }} /></div>
+        </div>
       </div>
 
       <button type="button" className={styles.addBtn} onClick={() => setAddOpen(true)}>
@@ -182,8 +208,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
           ))}
         </div>
       </Modal>
-
-      {/* Threshold bars (Task 7) render here. */}
 
       {proposalList.length === 0 ? (
         <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No solutions yet. Add one above.')}</p>
