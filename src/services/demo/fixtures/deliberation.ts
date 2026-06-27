@@ -35,9 +35,9 @@ export const PROPOSALS_BY_KEY: Record<string, string[]> = {
     'Fund media-literacy "pre-bunking" in schools and over messaging apps.',
   ],
   privacy: [
-    'A baseline right to know what data is collected and to delete it, enforceable anywhere.',
-    'Privacy by default: opt-in, not opt-out, for any non-essential data use.',
-    'Ban the sale of precise location data outright.',
+    'An independent data-protection authority with binding audit powers over both public agencies and large platforms, funded by a levy on data processors so it can never be starved of the budget it needs to police them.',
+    'End-to-end encryption by default for all citizen–government messaging, built on open, independently audited protocols with no exceptional-access backdoors, so a leak or a change of government can\'t retroactively expose people.',
+    'A free, portable digital identity that every resident fully controls, with an offline fallback so access to services never depends on connectivity, a smartphone, or a single vendor.',
     'Independent audits of high-risk algorithms, with public summaries.',
   ],
   ocean: [
@@ -464,6 +464,11 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
     2: ['A public dashboard matches training to posted jobs', 'Regions publish quarterly skills-gap data'],
     3: ['Small businesses receive a wage subsidy for first hires', 'Mentors are funded for each first-time worker'],
   },
+  privacy: {
+    0: ['An independent authority audits the largest platforms every year', 'Every ruling is published within 30 days'],
+    1: ['The reference client is open-sourced', 'An independent security audit passes before launch'],
+    2: ['An offline fallback works in every region', 'People can export their data in one tap — no vendor lock-in'],
+  },
 };
 
 export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalIndex: number; expert: string; metrics: string[]; note?: string }>> = {
@@ -474,6 +479,11 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalInde
   jobs: [
     { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Young people placed per quarter', 'Share of placements taken by low-income youth'] },
     { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Courses realigned to live job postings', 'Time from skills-gap signal to curriculum update'] },
+  ],
+  privacy: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of audits completed on schedule', 'Median days to resolve a complaint'] },
+    { proposalIndex: 1, expert: 'demo-expert-lena', metrics: ['Independent audits passed', 'Share of public services encrypted by default'] },
+    { proposalIndex: 2, expert: 'demo-expert-renata', metrics: ['Share of the population with an active ID', 'Service uptime including offline mode'] },
   ],
 };
 
