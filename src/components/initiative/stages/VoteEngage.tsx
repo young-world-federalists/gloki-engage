@@ -8,6 +8,8 @@ export interface VoteEngageProps {
   initiativeId: string;
   /** Hosting community — gates the ballot via {@link StageGate}. */
   communityId: string;
+  /** Active community member count — denominator for the turnout footer. */
+  communityMemberCount?: number;
 }
 
 /**
@@ -20,11 +22,11 @@ export interface VoteEngageProps {
  * Carries its own StageGate, so callers render it OUTSIDE any shared gate to
  * avoid double-gating (mirrors SolutionEngage / MandateEngage).
  */
-const VoteEngage: React.FC<VoteEngageProps> = ({ initiativeId, communityId }) => {
+const VoteEngage: React.FC<VoteEngageProps> = ({ initiativeId, communityId, communityMemberCount }) => {
   return (
     <div className={styles.engage}>
       <StageGate communityId={communityId} stage="vote">
-        <VoteStage initiativeId={initiativeId} />
+        <VoteStage initiativeId={initiativeId} communityMemberCount={communityMemberCount} />
       </StageGate>
     </div>
   );

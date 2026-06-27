@@ -75,6 +75,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
     authorCountry: authorKey ? profiles[authorKey]?.country : undefined,
     createdAt: item.createdAt,
     sdg: post.sdg,
+    scope: post.scope,
     countryCount: post.countryCount,
     source: post.source,
   };
@@ -88,7 +89,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
       onToggle={onToggle}
       collapsedTeaser={t('card.teaserVote', 'Cast your vote')}
     >
-      <VoteEngage initiativeId={item.id} communityId={communityId} />
+      <VoteEngage initiativeId={item.id} communityId={communityId} communityMemberCount={activeMemberCount} />
       {/* Vote → mandate. Readiness is ungated for vote, so omit ready/notReadyReason. */}
       <StageAdvanceBar
         initiativeId={item.id}
