@@ -75,6 +75,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
     authorCountry: authorKey ? profiles[authorKey]?.country : undefined,
     createdAt: item.createdAt,
     sdg: post.sdg,
+    scope: post.scope,
     countryCount: post.countryCount,
     source: post.source,
   };

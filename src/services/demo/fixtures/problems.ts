@@ -12,6 +12,9 @@
 
 import type { PipelineStage } from '../../../types/initiative';
 
+/** Whether a problem is framed as global in reach or specific to one community. */
+export type ProblemScope = 'global' | 'community';
+
 /** A light, optional UN Sustainable Development Goal tag for an issue. */
 export interface SdgTag {
   id: number;
@@ -32,6 +35,8 @@ export interface SeedInitiative {
   title: string;
   description: string;
   stage: PipelineStage;
+  /** Global-reach vs single-community problem (drives the card scope badge). */
+  scope: ProblemScope;
   countries: string[];
   evidence: string[];
   // --- Framing extras (optional; ignored by seedDemoCommunity) ---
@@ -46,6 +51,8 @@ export interface SeedInitiative {
 /** What ProblemStage consumes to frame a candidate issue. */
 export interface ProblemFraming {
   title: string;
+  /** Global-reach vs single-community problem (drives the card scope badge). */
+  scope: ProblemScope;
   description: string;
   countries: string[];
   evidence: string[];
@@ -79,6 +86,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Two billion people still lack safely managed drinking water.',
     stage: 'problem',
+    scope: 'global',
     countries: ['IN', 'NG', 'BD', 'BR'],
     evidence: ['https://www.who.int/health-topics/water-sanitation-and-hygiene-wash'],
     whoWhy:
@@ -96,6 +104,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Drug-resistant infections already kill over a million people a year. Without coordinated action, routine surgery and minor infections grow deadly again. Propose how communities and clinics should respond.',
     stage: 'proposals',
+    scope: 'global',
     countries: ['IN', 'US', 'BR', 'ZA'],
     evidence: ['https://www.who.int/health-topics/antimicrobial-resistance'],
   },
@@ -108,6 +117,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'AI-generated misinformation is spreading faster than anyone can fact-check, and trust in shared facts is eroding. How should communities and platforms respond without harming free expression? Share how this looks where you are.',
     stage: 'discussion',
+    scope: 'global',
     countries: ['US', 'BR', 'PH', 'NG', 'DE'],
     evidence: ['https://www.un.org/en/countering-disinformation'],
   },
@@ -118,6 +128,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Personal data is harvested at vast scale with little protection in most countries. A shared baseline of digital rights is overdue. Vote on the proposals that should lead.',
     stage: 'vote',
+    scope: 'global',
     countries: ['DE', 'FR', 'US', 'JP', 'BR', 'IN'],
     evidence: ['https://www.ohchr.org/en/topic/digital-space-and-human-rights'],
   },
@@ -130,6 +141,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Over eight million tonnes of plastic enter the ocean every year.',
     stage: 'problem',
+    scope: 'global',
     countries: ['ID', 'PH', 'JP', 'NL'],
     evidence: ['https://www.unep.org/interactives/beat-plastic-pollution/'],
     whoWhy:
@@ -147,6 +159,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'After a year of cross-border deliberation, this initiative reached a mandate: a community-governed adaptation fund that frontline towns and islands can apply to directly for resilience infrastructure.',
     stage: 'mandate',
+    scope: 'global',
     countries: ['BD', 'PH', 'MX', 'KE', 'FJ'],
     evidence: ['https://www.adaptation-fund.org/'],
   },
@@ -159,6 +172,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Youth unemployment tops 30% in many countries even as employers say they cannot find the skills they need. Propose how communities can close the gap between school and decent work.',
     stage: 'proposals',
+    scope: 'community',
     countries: ['ES', 'ZA', 'EG', 'GR', 'IN'],
     evidence: ['https://www.ilo.org/topics/youth-employment'],
   },
@@ -169,6 +183,7 @@ export const INITIATIVES: SeedInitiative[] = [
     description:
       'Rents are rising far faster than wages, pushing young people and key workers out of the cities they keep running.',
     stage: 'problem',
+    scope: 'community',
     countries: ['BR', 'ZA', 'MX', 'DE'],
     evidence: ['https://unhabitat.org/topics/housing'],
     whoWhy:
@@ -185,6 +200,7 @@ export const INITIATIVES: SeedInitiative[] = [
 export function toProblemFraming(seed: SeedInitiative): ProblemFraming {
   return {
     title: seed.title,
+    scope: seed.scope,
     description: seed.description,
     countries: seed.countries,
     evidence: seed.evidence,

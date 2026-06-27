@@ -120,6 +120,7 @@ export function useInitiativePost(
     return {
       headline,
       sdg,
+      scope: framing?.scope,
       countryCount: countryCount || undefined,
       source: firstSource ? { label: prettyHost(firstSource), url: firstSource } : undefined,
     };

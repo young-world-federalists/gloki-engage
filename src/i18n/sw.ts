@@ -306,6 +306,8 @@ const sw: Dictionary = {
   'problems.labelProblem': 'Tatizo',
   'problems.labelWho': 'Linawaathiri nani',
   'problems.sdgTag': 'SDG {id} · {label}',
+  'problems.scopeGlobal': 'Tatizo la kimataifa',
+  'problems.scopeCommunity': 'Tatizo la jamii',
   'problems.nCountries': 'nchi {n}',
 
   // Card system — shared InitiativeStageCard (Read summary + Engage panel)

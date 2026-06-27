@@ -21,6 +21,7 @@ export type StagePost = {
   authorCountry?: string;
   createdAt?: number;
   sdg?: { id: number | string; label: string };
+  scope?: 'global' | 'community';
   countryCount?: number;
   source?: { label: string; url: string };
 };
@@ -103,8 +104,15 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
       {expanded ? (
         <div id={panelId} className={styles.panel}>
-          {(post.sdg || post.countryCount || post.source) && (
+          {(post.scope || post.sdg || post.countryCount || post.source) && (
             <div className={styles.metaLine}>
+              {post.scope && (
+                <Badge tone={post.scope === 'global' ? 'info' : 'primary'} size="sm">
+                  {post.scope === 'global'
+                    ? t('problems.scopeGlobal', 'Global problem')
+                    : t('problems.scopeCommunity', 'Community problem')}
+                </Badge>
+              )}
               {post.sdg && (
                 <span className={styles.metaItem}>
                   {t('problems.sdgTag', 'SDG {id} · {label}', { id: post.sdg.id, label: post.sdg.label })}

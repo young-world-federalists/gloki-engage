@@ -307,6 +307,8 @@ const fr: Dictionary = {
   'problems.labelProblem': 'Le problème',
   'problems.labelWho': 'Qui est touché',
   'problems.sdgTag': 'ODD {id} · {label}',
+  'problems.scopeGlobal': 'Problème mondial',
+  'problems.scopeCommunity': 'Problème de la communauté',
   'problems.nCountries': '{n} pays',
 
   // Card system — shared InitiativeStageCard (Read summary + Engage panel)

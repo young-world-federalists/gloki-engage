@@ -56,6 +56,8 @@ export interface ProposeIssueInput {
   whoWhy?: string;
   /** Optional light SDG tag. */
   sdg?: SdgTag;
+  /** Global-reach vs single-community framing. */
+  scope?: import('../../services/demo/fixtures/problems').ProblemScope;
   /** Optional credited co-authors carried from a co-owned draft (Write Together, S3). */
   coAuthors?: string[];
 }
@@ -73,7 +75,7 @@ export interface ProposeIssueInput {
 // No card calls this after S2 (the problem card's
 // "Propose a different framing" became "Send suggestion to author").
 export function proposeCandidateIssue(input: ProposeIssueInput): string {
-  const { publicKey, communityId, title, description, countries, evidence, whoWhy, sdg, coAuthors } = input;
+  const { publicKey, communityId, title, description, countries, evidence, whoWhy, sdg, scope, coAuthors } = input;
   const now = Date.now();
 
   const { id: initiativeId } = mockDeployDirect({
@@ -142,6 +144,7 @@ export function proposeCandidateIssue(input: ProposeIssueInput): string {
 
   proposedFraming.set(initiativeId, {
     title,
+    scope: scope ?? 'community',
     description,
     countries,
     evidence,
