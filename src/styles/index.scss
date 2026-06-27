@@ -13,6 +13,15 @@
 
   color-scheme: light dark;
 
+  // Region colours (consumed by the vote-results bars via regionColorVar()).
+  --region-africa: #{$region-africa};
+  --region-asia-pacific: #{$region-asia-pacific};
+  --region-europe: #{$region-europe};
+  --region-latam: #{$region-latam};
+  --region-north-america: #{$region-north-america};
+  --region-mena: #{$region-mena};
+  --region-other: #{$region-other};
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -111,5 +120,18 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+// Dark mode region colour overrides (slightly lightened for AA on dark surfaces).
+@media (prefers-color-scheme: dark) {
+  :root {
+    --region-africa: #e8a33d;
+    --region-asia-pacific: #2bb8ac;
+    --region-europe: #6f81e8;
+    --region-latam: #e86d84;
+    --region-north-america: #a78bfa;
+    --region-mena: #3fb86c;
+    --region-other: #a0a6b2;
   }
 }

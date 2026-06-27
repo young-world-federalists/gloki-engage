@@ -29,6 +29,16 @@ $stage-solutions:  #8b5cf6;
 $stage-vote:       #3b82f6;
 $stage-mandate:    #10b981;
 
+// Region palette — vote-results colours (6 regions + neutral fallback).
+// Chosen distinct + AA as bar fills against card backgrounds in light & dark.
+$region-africa:        #d98a2b;
+$region-asia-pacific:  #1f9e94;
+$region-europe:        #4f63d2;
+$region-latam:         #d94f6a;
+$region-north-america: #8b5cf6;
+$region-mena:          #2f9e57;
+$region-other:         #8a909c;
+
 // Grays (Light mode)
 $gray-50: #f8fafc;
 $gray-100: #f1f5f9;
