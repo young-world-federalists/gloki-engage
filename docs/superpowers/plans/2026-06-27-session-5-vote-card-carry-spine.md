@@ -330,7 +330,7 @@ const VoteStage: React.FC<VoteStageProps> = ({ initiativeId, communityMemberCoun
 - [ ] **Step 4: Verify the build is clean**
 
 Run: `npm run build`
-Expected: `QVFlow` does not yet accept `communityMemberCount` → this will FAIL with a TS error on the `QVFlow` prop. That is expected; Task 4 adds the prop. **If you are running tasks strictly independently, temporarily accept the error here and confirm it is only the `communityMemberCount`-on-`QVFlow` error**; it clears at the end of Task 4. (Subagent-driven execution runs Task 4 immediately after; the reviewer gate for Task 3 is the three files compiling apart from that single expected prop error.)
+Expected: PASS. (Execution order note: Task 4 runs **before** this task, so `QVFlow` already declares the optional `communityMemberCount?: number` prop — passing it here compiles cleanly with no errors.)
 
 - [ ] **Step 5: Commit**
 
@@ -870,7 +870,7 @@ export default QVFlow;
 - [ ] **Step 3: Verify the build is clean**
 
 Run: `npm run build`
-Expected: PASS (no TS/SCSS errors). The Task 3 expected error (`communityMemberCount` on `QVFlow`) is now resolved.
+Expected: PASS (no TS/SCSS errors). (`QVFlow` declares `communityMemberCount?: number` as optional, so it compiles even though no caller passes it until Task 3, which runs next.)
 
 - [ ] **Step 4: Verify in the browser (preview)**
 
@@ -1070,4 +1070,4 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 **Type consistency:** `RegionId`/`REGIONS`/`regionOf`/`regionColorVar` defined in Task 1 and used identically in Task 4; `communityMemberCount?: number` defined in Task 3 (`VoteEngageProps`, `VoteStageProps`) and consumed as `QVFlowProps.communityMemberCount` in Task 4; `BallotSolution` fields (`commitments`/`metrics`/`reviewed`) consistent throughout Task 4.
 
-**Known cross-task build note:** Task 3 introduces a deliberate transient TS error (the `communityMemberCount` prop on `QVFlow`) that Task 4 resolves. Flagged in Task 3 Step 4. Run Tasks 3 and 4 back-to-back.
+**Execution order:** run Task 4 (QVFlow, which declares the optional `communityMemberCount?` prop) **before** Task 3 (which wires the callers to pass it). Full order: 1 → 2 → 4 → 3 → 4a → 5 → 6. Every task then builds clean with no transient errors. (Task 4's preview shows turnout at 0% until Task 3 wires the member count; the populated-turnout check lands in Task 3/4a.)
