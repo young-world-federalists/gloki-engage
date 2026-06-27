@@ -1,0 +1,109 @@
+@use '../../../styles/variables' as *;
+
+.container { display: flex; flex-direction: column; gap: $spacing-lg; }
+.loading { display: flex; flex-direction: column; align-items: center; gap: $spacing-md; padding: $spacing-xl; color: $gray-600; font-size: $text-sm; }
+.noData { font-size: $text-sm; color: $gray-600; font-style: italic; padding: $spacing-lg 0; }
+.helpSection { margin-bottom: $spacing-xs; }
+
+// ─── Threshold bars (Task 7) ───────────────────────────────────────────
+.thresholds { display: flex; flex-direction: column; gap: $spacing-sm; }
+.threshold { display: flex; flex-direction: column; gap: 4px; }
+.thresholdHead { display: flex; justify-content: space-between; font-size: $text-sm; color: $gray-600; }
+.thresholdCount { font-weight: $font-bold; color: $gray-800; }
+.track { height: 6px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
+.fill { height: 100%; background: $primary; border-radius: $radius-full; transition: width 0.3s ease; }
+.fillSuccess { background: $success; }
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+
+// ─── Add solution (Task 6) ─────────────────────────────────────────────
+.addBtn {
+  width: 100%; min-height: 44px; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  border: 1px dashed $gray-200; border-radius: $radius-md;
+  background: none; color: $gray-600; cursor: pointer;
+  padding: 0 $spacing-md; font-size: $text-base;
+  &:hover { background: rgba($primary, 0.05); color: $gray-800; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.addForm { display: flex; flex-direction: column; gap: $spacing-sm; }
+.addTextarea, .commitInput {
+  width: 100%; box-sizing: border-box; padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-200; border-radius: $radius-md; font-size: $text-sm; color: $gray-800;
+  &:focus { border-color: $primary; outline: none; }
+  &::placeholder { color: $gray-500; }
+}
+.addTextarea { resize: vertical; }
+.commitPrompt { margin: $spacing-xs 0 0; font-size: $text-sm; font-weight: $font-medium; color: $gray-800; }
+.commitHint { margin: 0 0 $spacing-xs; font-size: $text-xs; color: $gray-600; }
+
+// ─── Solution list (Tasks 5/8/10) ──────────────────────────────────────
+.list { display: flex; flex-direction: column; gap: $spacing-md; }
+.solution { border: 1.5px solid $gray-200; border-radius: $radius-md; padding: $spacing-md; background: white; }
+.text { margin: 0 0 $spacing-sm; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
+.commitments {
+  margin: 0 0 $spacing-sm; padding-left: $spacing-md;
+  font-size: $text-xs; color: $gray-600; line-height: 1.6;
+  li { margin: 0; }
+}
+.metrics { margin: 0 0 $spacing-sm; font-size: $text-xs; color: $gray-600;
+  ul { margin: 2px 0 0; padding-left: $spacing-md; line-height: 1.6; }
+}
+.metricsLabel { margin: 0; font-weight: $font-medium; color: $gray-800; font-size: $text-xs; }
+.byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
+.reviewedTag { font-size: $text-xs; color: $success; }
+
+.actionRow { display: flex; gap: $spacing-xs; margin-top: $spacing-sm; border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
+.actionBtn {
+  flex: 1; min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1.5px solid $gray-200; border-radius: $radius-sm;
+  background: none; color: $gray-600; cursor: pointer; font-size: $text-sm;
+  transition: all $transition-base;
+  &:hover:not(:disabled) { border-color: $primary; color: $primary; background: rgba($primary, 0.05); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.actionBtnActive { border-color: $primary; color: $primary; background: rgba($primary, 0.1); }
+.expertAddBtn {
+  margin-top: $spacing-xs; min-height: 44px; width: 100%;
+  background: none; border: 1.5px solid $primary; color: $primary;
+  border-radius: $radius-sm; cursor: pointer; font-size: $text-sm;
+  &:hover { background: rgba($primary, 0.08); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+// ─── Merge "pick a target" mode (Task 9) ───────────────────────────────
+.mergeBanner {
+  display: flex; align-items: center; gap: 8px;
+  padding: $spacing-sm $spacing-md; border-radius: $radius-sm;
+  background: rgba($primary, 0.1); color: $primary; font-size: $text-sm;
+}
+.mergeCancel {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  color: $primary; text-decoration: underline; font-size: $text-sm;
+  min-height: 44px; padding: 0 $spacing-xs;
+}
+.mergeSourceCard { opacity: 0.5; }
+.mergeTargetCard {
+  border: 2px solid $primary; cursor: pointer;
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  animation: mergeRingPulse 1.6s ease-in-out infinite;
+}
+.mergeHint { margin: 0 0 $spacing-xs; font-size: $text-sm; color: $primary; }
+@keyframes mergeRingPulse { 0%, 100% { border-color: $primary; } 50% { border-color: $gray-200; } }
+@media (prefers-reduced-motion: reduce) { .mergeTargetCard { animation: none; } }
+
+// ─── Dark mode ─────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .loading, .noData, .thresholdHead, .commitHint, .commitments, .metrics { color: $dark-text-secondary; }
+  .thresholdCount, .text, .commitPrompt, .metricsLabel { color: $dark-text; }
+  .track { background: $dark-border; }
+  .solution { background: $dark-bg; border-color: $dark-border; }
+  .addBtn { border-color: $dark-border; color: $dark-text-secondary; &:hover { color: $dark-text; } }
+  .addTextarea, .commitInput {
+    background: $dark-bg; border-color: $dark-border; color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+  .actionBtn { border-color: $dark-border; color: $dark-text-secondary; }
+  .mergeSourceCard { opacity: 0.5; }
+}

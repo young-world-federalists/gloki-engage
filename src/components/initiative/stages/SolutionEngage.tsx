@@ -13,6 +13,8 @@ export interface SolutionEngageProps {
   /** Host coordinates, forwarded to ProposalsStage. */
   hostServer: string;
   hostAgent: string;
+  /** Active member count — denominator for the solutions threshold. */
+  communityMemberCount?: number;
 }
 
 /**
@@ -32,6 +34,7 @@ const SolutionEngage: React.FC<SolutionEngageProps> = ({
   title,
   hostServer,
   hostAgent,
+  communityMemberCount,
 }) => {
   return (
     <div className={styles.engage}>
@@ -43,6 +46,7 @@ const SolutionEngage: React.FC<SolutionEngageProps> = ({
           title={title}
           hostServer={hostServer}
           hostAgent={hostAgent}
+          communityMemberCount={communityMemberCount}
         />
       </StageGate>
     </div>

@@ -241,6 +241,7 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
             title={title}
             hostServer={hostServer}
             hostAgent={hostAgent}
+            communityMemberCount={activeMemberCount}
           />
         ) : stage === 'vote' ? (
           <VoteEngage initiativeId={initiativeId} communityId={communityId} />
