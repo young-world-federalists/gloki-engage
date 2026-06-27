@@ -49,7 +49,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [loading, setLoading] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [mergeSource, setMergeSource] = useState<string | null>(null);
-  void mergeSource; // Task 9 will read this to enter merge-target-picker mode
   const [requestingId, setRequestingId] = useState<string | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -121,6 +120,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       console.error('Failed to request expert review:', err);
     } finally {
       setRequestingId(null);
+    }
+  };
+
+  const handlePickMergeTarget = async (targetId: string) => {
+    if (!serverUrl || !publicKey || !contractId || !mergeSource || targetId === mergeSource) return;
+    try {
+      await api.suggestProposalMerge(serverUrl, publicKey, contractId, mergeSource, targetId);
+      setMergeSource(null);
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to suggest merge:', err);
+      setMergeSource(null);
     }
   };
 
@@ -225,6 +236,16 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </div>
       </Modal>
 
+      {mergeSource && (
+        <div className={styles.mergeBanner} role="status">
+          <GitMerge size={16} aria-hidden />
+          <span>{t('mechanisms.approval.mergePickTarget', 'Tap the solution to merge this into')}</span>
+          <button type="button" className={styles.mergeCancel} onClick={() => setMergeSource(null)}>
+            {t('mechanisms.approval.mergeCancel', 'Cancel')}
+          </button>
+        </div>
+      )}
+
       {proposalList.length === 0 ? (
         <p className={styles.noData}>{t('mechanisms.approval.noProposals', 'No solutions yet. Add one above.')}</p>
       ) : (
@@ -232,7 +253,22 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
           {proposalList.map((p) => {
             const reviewed = (p.expertReviews?.length ?? 0) > 0;
             return (
-              <div key={p.id} className={styles.solution}>
+              <div
+                key={p.id}
+                className={[
+                  styles.solution,
+                  mergeSource && p.id === mergeSource ? styles.mergeSourceCard : '',
+                  mergeSource && p.id !== mergeSource ? styles.mergeTargetCard : '',
+                ].filter(Boolean).join(' ')}
+                {...(mergeSource && p.id !== mergeSource
+                  ? { role: 'button', tabIndex: 0,
+                      onClick: () => handlePickMergeTarget(p.id),
+                      onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handlePickMergeTarget(p.id); } } }
+                  : {})}
+              >
+                {mergeSource && p.id !== mergeSource && (
+                  <p className={styles.mergeHint}>{t('mechanisms.approval.mergeIntoThis', 'Tap to merge into this')}</p>
+                )}
                 <p className={styles.text}>{p.text}</p>
                 {(p.commitments?.length ?? 0) > 0 && (
                   <ul className={styles.commitments}>
@@ -245,33 +281,35 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     <span className={styles.reviewedTag}>{t('mechanisms.approval.expertReviewed', 'expert reviewed')}</span>
                   )}
                 </div>
-                <div className={styles.actionRow}>
-                  <button
-                    className={`${styles.actionBtn} ${myApprovals[p.id] ? styles.actionBtnActive : ''}`}
-                    onClick={() => handleToggleApproval(p.id)}
-                    disabled={togglingId === p.id}
-                    aria-label={t('mechanisms.approval.upvote', 'Upvote')}
-                  >
-                    <ThumbsUp size={16} aria-hidden />
-                    <span>{approvalCounts[p.id] || 0}</span>
-                  </button>
-                  <button
-                    className={`${styles.actionBtn} ${publicKey && p.expertReviewRequests?.includes(publicKey) ? styles.actionBtnActive : ''}`}
-                    onClick={() => handleRequestReview(p.id)}
-                    disabled={requestingId === p.id}
-                    aria-label={t('mechanisms.approval.requestReview', 'Request expert review')}
-                  >
-                    <Microscope size={16} aria-hidden />
-                    <span>{p.expertReviewRequests?.length ?? 0}</span>
-                  </button>
-                  <button
-                    className={styles.actionBtn}
-                    onClick={() => setMergeSource(p.id)}
-                    aria-label={t('mechanisms.approval.suggestMerge', 'Suggest a merge')}
-                  >
-                    <GitMerge size={16} aria-hidden />
-                  </button>
-                </div>
+                {!mergeSource && (
+                  <div className={styles.actionRow}>
+                    <button
+                      className={`${styles.actionBtn} ${myApprovals[p.id] ? styles.actionBtnActive : ''}`}
+                      onClick={() => handleToggleApproval(p.id)}
+                      disabled={togglingId === p.id}
+                      aria-label={t('mechanisms.approval.upvote', 'Upvote')}
+                    >
+                      <ThumbsUp size={16} aria-hidden />
+                      <span>{approvalCounts[p.id] || 0}</span>
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${publicKey && p.expertReviewRequests?.includes(publicKey) ? styles.actionBtnActive : ''}`}
+                      onClick={() => handleRequestReview(p.id)}
+                      disabled={requestingId === p.id}
+                      aria-label={t('mechanisms.approval.requestReview', 'Request expert review')}
+                    >
+                      <Microscope size={16} aria-hidden />
+                      <span>{p.expertReviewRequests?.length ?? 0}</span>
+                    </button>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => setMergeSource(p.id)}
+                      aria-label={t('mechanisms.approval.suggestMerge', 'Suggest a merge')}
+                    >
+                      <GitMerge size={16} aria-hidden />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
