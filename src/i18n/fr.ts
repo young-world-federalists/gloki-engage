@@ -877,6 +877,8 @@ const fr: Dictionary = {
   'mechanisms.approval.thresholdSolutions': 'Solutions soutenues par la moitié de la communauté',
   'mechanisms.approval.thresholdExperts': 'Experts ayant examiné',
   'mechanisms.approval.upvote': 'Soutenir',
+  'mechanisms.approval.requestReview': 'Demander un examen par un expert',
+  'mechanisms.approval.suggestMerge': 'Proposer une fusion',
   'mechanisms.qv.intro': 'Touchez ♥ pour soutenir ce qui compte pour vous. Tout miser sur une seule coûte plus que répartir — ainsi même un petit nombre de personnes très engagées se fait entendre.',
   'mechanisms.qv.tabProposals': 'Solutions',
   'mechanisms.qv.tabVote': 'Vote',

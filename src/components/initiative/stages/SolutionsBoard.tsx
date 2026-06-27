@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ThumbsUp } from 'lucide-react';
+import { ThumbsUp, Microscope, GitMerge } from 'lucide-react';
 
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 import * as api from '../../collaboration/flows/voting/approvalApi';
@@ -48,6 +48,9 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [myApprovals, setMyApprovals] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [mergeSource, setMergeSource] = useState<string | null>(null);
+  void mergeSource; // Task 9 will read this to enter merge-target-picker mode
+  const [requestingId, setRequestingId] = useState<string | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
   const [newText, setNewText] = useState('');
@@ -105,6 +108,19 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       console.error('Failed to toggle approval:', err);
     } finally {
       setTogglingId(null);
+    }
+  };
+
+  const handleRequestReview = async (proposalId: string) => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    setRequestingId(proposalId);
+    try {
+      await api.requestExpertReview(serverUrl, publicKey, contractId, proposalId);
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to request expert review:', err);
+    } finally {
+      setRequestingId(null);
     }
   };
 
@@ -229,7 +245,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     <span className={styles.reviewedTag}>{t('mechanisms.approval.expertReviewed', 'expert reviewed')}</span>
                   )}
                 </div>
-                {/* The 3-action row (Task 8) replaces this single upvote button. */}
                 <div className={styles.actionRow}>
                   <button
                     className={`${styles.actionBtn} ${myApprovals[p.id] ? styles.actionBtnActive : ''}`}
@@ -239,6 +254,22 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                   >
                     <ThumbsUp size={16} aria-hidden />
                     <span>{approvalCounts[p.id] || 0}</span>
+                  </button>
+                  <button
+                    className={`${styles.actionBtn} ${publicKey && p.expertReviewRequests?.includes(publicKey) ? styles.actionBtnActive : ''}`}
+                    onClick={() => handleRequestReview(p.id)}
+                    disabled={requestingId === p.id}
+                    aria-label={t('mechanisms.approval.requestReview', 'Request expert review')}
+                  >
+                    <Microscope size={16} aria-hidden />
+                    <span>{p.expertReviewRequests?.length ?? 0}</span>
+                  </button>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => setMergeSource(p.id)}
+                    aria-label={t('mechanisms.approval.suggestMerge', 'Suggest a merge')}
+                  >
+                    <GitMerge size={16} aria-hidden />
                   </button>
                 </div>
               </div>

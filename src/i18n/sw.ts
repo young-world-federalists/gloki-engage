@@ -876,6 +876,8 @@ const sw: Dictionary = {
   'mechanisms.approval.thresholdSolutions': 'Suluhisho zinazoungwa mkono na nusu ya jamii',
   'mechanisms.approval.thresholdExperts': 'Wataalam waliokagua',
   'mechanisms.approval.upvote': 'Unga mkono',
+  'mechanisms.approval.requestReview': 'Omba ukaguzi wa mtaalam',
+  'mechanisms.approval.suggestMerge': 'Pendekeza muunganiko',
   'mechanisms.qv.intro': 'Gusa ♥ ili kuunga mkono unachokijali. Kurundika kwenye moja kunagharimu zaidi kuliko kutawanya — hivyo hata watu wachache wanaojali sana husikika.',
   'mechanisms.qv.tabProposals': 'Suluhisho',
   'mechanisms.qv.tabVote': 'Kura',
