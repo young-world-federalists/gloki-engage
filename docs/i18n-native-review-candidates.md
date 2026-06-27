@@ -469,6 +469,46 @@ metrics). All are machine-translated (fr + sw) and await a native-speaker pass. 
 
 ---
 
+## Session 5 (2026-06-27) — Vote card redesign (`mechanisms.qv.*` additions)
+
+16 new keys added for the redesigned QV (Quadratic Voting) card in the Solutions stage (Task 5 / Session 5). All are machine-translated (fr + sw) and await a native-speaker pass. Full key parity confirmed (fr = sw).
+
+> **Note:** Region names (e.g. "Autre" / "Nyingine") stay English in the source data layer and are **not i18n keys** — they are rendered via lookup in the countries list. The `regionOther` keys below are UI fallback labels only.
+
+### `mechanisms.qv.*` — QV card status, guidance, and metrics (16 keys)
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `mechanisms.qv.statusOpen` | Vote ouvert · {n} solutions | Upigaji kura uko wazi · suluhu {n} | Card heading when vote is open |
+| `mechanisms.qv.statusVoted` | Vous avez voté | Umepiga kura | Card heading after user has voted |
+| `mechanisms.qv.votedSub` | Résultats en direct ci-dessous · le vote ne peut pas être modifié | Matokeo ya moja kwa moja hapa chini · kura haiwezi kubadilishwa | Subheading shown after voting |
+| `mechanisms.qv.guide` | Touchez ♥ pour soutenir ce qui vous tient à cœur — répartir vos cœurs coûte moins que de tout miser sur une seule solution. | Gusa ♥ kuunga mkono unachojali — kueneza mioyo yako kwenye suluhu nyingi kunagharimu kidogo kuliko kuirundika kwenye moja. | Voting guidance text |
+| `mechanisms.qv.supportUsedPct` | {pct} % de votre soutien utilisé | Asilimia {pct} ya uungaji mkono wako imetumika | Support budget indicator |
+| `mechanisms.qv.solutionN` | Solution {i} sur {n} | Suluhu {i} kati ya {n} | Solution card numbering |
+| `mechanisms.qv.commitsLabel` | Ce à quoi cela engage ({n}) | Inachojitolea ({n}) | Commitments section heading (with count) |
+| `mechanisms.qv.metricsLabel` | Comment nous saurons que ça marche ({n}) | Jinsi tutakavyojua inafanya kazi ({n}) | Metrics section heading (with count) |
+| `mechanisms.qv.commitsMetrics` | Engagements et indicateurs | Ahadi na vipimo | Tab label showing both commitments and metrics together |
+| `mechanisms.qv.yourVote` | Votre vote | Kura yako | Results card heading showing user's own votes |
+| `mechanisms.qv.leading` | en tête | inaongoza | Badge label for leading solution |
+| `mechanisms.qv.turnoutLabel` | Participation de la communauté | Ushiriki wa jamii | Turnout section heading |
+| `mechanisms.qv.turnoutValue` | {pct} % sur {target} % requis | Asilimia {pct} kati ya {target} zinazohitajika | Turnout percentage display |
+| `mechanisms.qv.turnoutNote` | Le vote se termine lorsque {target} % des membres ont participé. | Upigaji kura unakamilika wakati asilimia {target} ya wanachama wameshiriki. | Turnout completion note |
+| `mechanisms.qv.regionOther` | Autre | Nyingine | Fallback label if region name is missing |
+| `mechanisms.qv.expertReviewed` | examiné par un expert | imekaguliwa na mtaalam | Badge label on expert-reviewed solution |
+
+**Specific native-review concerns:**
+
+- **sw `mechanisms.qv.guide`:** The string uses the imperative "Gusa ♥" ("Touch ♥") — confirm this reads naturally as guidance, not a command. The rest uses `-nchi-` relatives and gerunds (`kueneza`, `kunagharimu`, `kuirundika`) — confirm these convey the intended meaning about cost optimization.
+- **sw `mechanisms.qv.solutionN`:** "Suluhu {i} kati ya {n}" — confirm "kati ya" ("out of / among") reads naturally for numbering, vs. "ya {n}".
+- **sw `mechanisms.qv.leading`:** "inaongoza" (present progressive, "it is leading") — confirm this reads as a badge label vs. a full sentence. Capitalization choice: lowercase is intentional here.
+- **sw `mechanisms.qv.turnoutLabel` / `mechanisms.qv.turnoutNote`:** "Ushiriki wa jamii" (community participation) and "wanachama" (members) — confirm consistency with existing civic terminology. Note "jamii" vs. "jumuiya": here we use "jamii" (kin/community as collective) in the label but "wanachama" (members) in the explanatory note — confirm this reads as parallel, not contradictory.
+- **sw `mechanisms.qv.expertReviewed`:** Same concern as Session 4: passive perfect participle used as a badge label. Confirm readability.
+- **fr `mechanisms.qv.guide`:** "touchez ♥ pour soutenir ce qui vous tient à cœur" — confirm register and phrasing are natural (imperative in guidance context). "répartir vos cœurs coûte moins" — confirm "coûte" metaphor works for "costs voting hearts" vs. an alternative phrasing.
+- **fr `mechanisms.qv.leading`:** lowercase "en tête" — confirm this is the intended short-form badge label for "leading/in the lead".
+- **fr `mechanisms.qv.turnoutNote`:** "Le vote se termine lorsque {target} %" — confirm "lorsque" timing language is clear (vs. "quand").
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
