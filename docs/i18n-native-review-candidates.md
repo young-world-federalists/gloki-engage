@@ -399,6 +399,76 @@ drafts awaiting fr/sw native review. Full key parity confirmed (fr = sw = 954 ke
 
 ---
 
+## Session 4 (2026-06-27) — Solutions board + commitments spine (`problems.scope*` + `mechanisms.approval.*` additions)
+
+26 new keys added for the SolutionsBoard feature (solution authoring, commitments, expert review, merge,
+metrics). All are machine-translated (fr + sw) and await a native-speaker pass. Full key parity confirmed.
+
+> **Results-tab keys remain live:** `mechanisms.approval.tabResults`, `mechanisms.approval.noResults`,
+> `mechanisms.approval.approvalsCount`, `mechanisms.approval.viewToggle`, and
+> `mechanisms.approval.tabProposals` are **still referenced by `ApprovalFlow.tsx`** (the collab-registry
+> flow) and were NOT removed. They are tracked under the existing Proposals→Solutions rename concern above.
+
+### `problems.scope*` — problem scope badge (2 keys)
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `problems.scopeGlobal` | Problème mondial | Tatizo la kimataifa | "Global problem" badge on a problem card |
+| `problems.scopeCommunity` | Problème de la communauté | Tatizo la jamii | "Community problem" badge on a problem card |
+
+**Native-review concern:** sw `Tatizo la jamii` — confirm `jamii` reads as "community" in this civic context
+(vs `jumuiya`, the established term used elsewhere). If they are equivalent, pick one for consistency.
+
+### `mechanisms.approval.*` — SolutionsBoard additions (24 keys)
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `mechanisms.approval.addSolutionCta` | Ajouter une solution à ce problème | Ongeza suluhisho kwa tatizo hili | Primary CTA to add a solution |
+| `mechanisms.approval.addSolutionTitle` | Ajouter une solution | Ongeza suluhisho | Modal/panel heading |
+| `mechanisms.approval.solutionPlaceholder` | Décrivez votre solution | Eleza suluhisho lako | Solution text field placeholder |
+| `mechanisms.approval.addSolutionSubmit` | Ajouter la solution | Ongeza suluhisho | Submit button in add-solution form |
+| `mechanisms.approval.commitmentsPrompt` | Qui et quoi doivent changer ? | Nani na nini lazima vibadilike? | Commitments section heading prompt |
+| `mechanisms.approval.commitmentsHint` | Indiquez jusqu'à trois engagements. Au moins un. | Orodhesha hadi ahadi tatu. Angalau moja. | Helper text below commitments |
+| `mechanisms.approval.commitmentPlaceholder` | Un engagement nécessaire à cette solution | Ahadi inayohitajika kwa suluhisho hili | Commitment field placeholder |
+| `mechanisms.approval.expertReviewed` | examiné par un expert | imekaguliwa na mtaalam | Badge label on an expert-reviewed solution |
+| `mechanisms.approval.upvote` | Soutenir | Unga mkono | Upvote / support button label |
+| `mechanisms.approval.thresholdSolutions` | Solutions soutenues par la moitié de la communauté | Suluhisho zinazoungwa mkono na nusu ya jamii | Threshold indicator: community support |
+| `mechanisms.approval.thresholdExperts` | Experts ayant examiné | Wataalam waliokagua | Threshold indicator: expert reviews |
+| `mechanisms.approval.requestReview` | Demander un examen par un expert | Omba ukaguzi wa mtaalam | Request-expert-review button |
+| `mechanisms.approval.suggestMerge` | Proposer une fusion | Pendekeza muunganiko | Suggest-merge button |
+| `mechanisms.approval.mergePickTarget` | Touchez la solution dans laquelle fusionner celle-ci | Gusa suluhisho la kuunganisha hili ndani yake | Prompt shown when picking a merge target |
+| `mechanisms.approval.mergeIntoThis` | Toucher pour fusionner dans celle-ci | Gusa kuunganisha ndani ya hili | Per-card label during merge picking |
+| `mechanisms.approval.mergeCancel` | Annuler | Ghairi | Cancel merge button |
+| `mechanisms.approval.metricsLabel` | Comment nous saurons que ça marche | Jinsi tutakavyojua inafanya kazi | Metrics section heading |
+| `mechanisms.approval.metricsPrompt` | Comment saurons-nous que cela fonctionne ? | Tutajuaje kama hili linafanya kazi? | Metrics section prompt |
+| `mechanisms.approval.metricPlaceholder` | Un indicateur mesurable | Kipimo kinachoweza kupimika | Metric field placeholder |
+| `mechanisms.approval.addExpertReview` | Ajouter un examen d'expert | Ongeza ukaguzi wa mtaalam | Add-expert-review button |
+| `mechanisms.approval.submitReview` | Envoyer l'examen | Wasilisha ukaguzi | Submit expert review button |
+| `mechanisms.approval.reviewNotePlaceholder` | Une brève note d'examen (facultatif) | Dokezo fupi la ukaguzi (hiari) | Expert review note placeholder |
+
+**Specific native-review concerns:**
+
+- **sw `mechanisms.approval.expertReviewed`:** "imekaguliwa na mtaalam" is a passive perfect participle
+  ("has been reviewed by an expert"). It appears as a badge label — confirm this reads naturally as a short
+  label vs. a sentence fragment.
+- **sw `mechanisms.approval.thresholdSolutions`:** "Suluhisho **zinazoungwa** mkono" — the subject-relative
+  concord on `suluhisho` (N-class plural → `zi-`): "Suluhisho **zi**nazo-ungwa mkono". Confirm the
+  agreement is correct (the existing noun-class concern for *suluhisho* applies here too).
+- **sw `mechanisms.approval.commitmentsPrompt`:** "Nani na nini lazima **vibadilike**?" — `vi-` prefix
+  suggests a VI-class subject, but the expected answer is people (`watu`, `nani`) and things. Confirm
+  whether `vibadilike` is grammatically acceptable here or whether a different mood/subject is better.
+- **sw `mechanisms.approval.mergeCancel`:** "Ghairi" — confirm this is the preferred short form for
+  "Cancel" (vs `Kataa` or `Sitisha`). It is also used elsewhere (`writeTogether.*`) so keep it consistent.
+- **fr `mechanisms.approval.expertReviewed`:** lowercase "examiné par un expert" — appears as a badge; if
+  the component capitalises the first letter automatically, this is fine. Confirm usage context.
+- **fr `mechanisms.approval.thresholdSolutions`:** "Solutions soutenues par **la moitié** de la communauté"
+  — confirm "la moitié" is the intended phrasing for the 50% threshold (vs. "au moins la moitié" for
+  clarity).
+- **fr `mechanisms.approval.suggestMerge`:** "Proposer une fusion" — confirm "fusion" is preferred over
+  "fusionnement" for a merge action in a civic/democratic UI context.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
