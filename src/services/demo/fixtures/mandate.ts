@@ -102,8 +102,10 @@ export interface PublishedMandate {
 
 /**
  * The deeply-authored flagship mandate: a global deliberation on a community
- * climate-adaptation fund, ratified after the cross-border vote. Its three
- * articles are the three winning proposals (see deliberation.ts `adaptation`).
+ * climate-adaptation fund, ratified after the cross-border vote. Its
+ * articles/indicators are now DERIVED from the winning solution's
+ * commitments/expert-metrics (see `useMandate`); this fixture is the graceful
+ * fallback when no spine exists.
  */
 const ADAPTATION_MANDATE: PublishedMandate = {
   id: 'adaptation',

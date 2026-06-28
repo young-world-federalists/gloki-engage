@@ -469,6 +469,9 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
     1: ['The reference client is open-sourced', 'An independent security audit passes before launch'],
     2: ['An offline fallback works in every region', 'People can export their data in one tap — no vendor lock-in'],
   },
+  // adaptation: the rich spine sits on the FUND proposal at the LAST index (the
+  // qv winner — qvAllocationPattern elects the last proposal). If you reorder the
+  // adaptation proposals above, move this 4-commitment block to the new last index.
   adaptation: {
     0: [
       'Spending favours resilience communities can maintain themselves over large external contracts.',
@@ -499,6 +502,7 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalInde
     { proposalIndex: 1, expert: 'demo-expert-lena', metrics: ['Independent audits passed', 'Share of public services encrypted by default'] },
     { proposalIndex: 2, expert: 'demo-expert-renata', metrics: ['Share of the population with an active ID', 'Service uptime including offline mode'] },
   ],
+  // adaptation: expert metrics attached to the FUND proposal (last index = qv winner).
   adaptation: [
     {
       proposalIndex: 2,

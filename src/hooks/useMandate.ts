@@ -35,6 +35,9 @@ export interface UseMandateResult {
  * contract methods — reads get_results + get_proposals only.
  */
 export function useMandate(initiativeId: string | undefined): UseMandateResult {
+  // `initiativeId` is a deployed contract id, not a fixture key, so this lookup
+  // currently resolves via DEFAULT_MANDATE_KEY. Kept id-keyed for when a
+  // contractId→fixture map exists; the contract read-back below uses the real id.
   const fixture = MANDATES_BY_KEY[initiativeId ?? ''] ?? MANDATES_BY_KEY[DEFAULT_MANDATE_KEY];
 
   const parent = initiativeId ?? '';

@@ -17,7 +17,7 @@ S4 **authored** the commitments + expert-metrics spine on each solution; S5 **ca
    - `metric` → `MandateIndicator { label: metric, target: '' }`
    `MandateDocument` skips the `<h3>` article title when empty and drops the right-aligned target column when target is empty. `buildSpec()` keeps its existing keys with empty strings for the absent fields so the JSON stays well-formed. No invented prose. (Consequence: the derived `adaptation` articles lose their current hand-authored headings — accepted.)
 
-3. **Seed scope — adaptation only.** Add an `adaptation` entry to `PROPOSAL_COMMITMENTS_BY_KEY` + `PROPOSAL_EXPERT_REVIEWS_BY_KEY` in `fixtures/deliberation.ts`, on the qv-winning proposal (**index 0**, whose text exactly matches `provenance.voteWinner`: "A community-governed adaptation fund frontline towns can apply to directly"). Bump `DEMO_VERSION` `global-v9` → `global-v10`. `privacy` and others derive naturally when they reach mandate, or use the fixture fallback.
+3. **Seed scope — adaptation only.** Add an `adaptation` entry to `PROPOSAL_COMMITMENTS_BY_KEY` + `PROPOSAL_EXPERT_REVIEWS_BY_KEY` in `fixtures/deliberation.ts`, on the qv-winning proposal (**index 2, the LAST index**, because `qvAllocationPattern` elects the last proposal — an initial v10 seeded index 0, but the fund proposal only wins at the last index; fixed in FX1). Bump `DEMO_VERSION` `global-v10` → `global-v11`. `privacy` and others derive naturally when they reach mandate, or use the fixture fallback.
 
 4. **Problem line — new hand-authored fixture field.** Add `problem: string` to `PublishedMandate` (fixture-side, like `preamble`; does NOT derive). adaptation: "Frontline communities face climate disasters without the resources to adapt." Renders as the card's Problem row.
 
