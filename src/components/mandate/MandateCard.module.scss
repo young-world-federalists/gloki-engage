@@ -16,36 +16,24 @@
   }
 }
 
-.eyebrowRow {
+.eyebrow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: $spacing-sm;
-}
-
-.eyebrow {
-  font-size: $text-xs;
-  font-weight: $font-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $gray-500;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.ratifiedOn {
-  display: inline-flex;
-  align-items: center;
   gap: $spacing-xs;
-  margin: calc(-1 * #{$spacing-sm}) 0 0;
-  font-size: $text-xs;
-  color: $gray-500;
+  color: $primary-dark;
 
   @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
+    color: $primary; // $primary-light not defined; substituted with $primary
   }
+}
+
+.eyebrowIcon { flex: 0 0 auto; }
+
+.brand {
+  font-size: $text-xs;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .title {
@@ -60,121 +48,134 @@
   }
 }
 
-/* ── What we decided — the heart of the card ─────────────────────────── */
-.decided {
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  gap: $spacing-md;
+  align-items: baseline;
+  padding: $spacing-sm 0;
+
+  & + & {
+    border-top: 1px solid $gray-100;
+
+    @media (prefers-color-scheme: dark) {
+      border-top-color: $dark-border;
+    }
+  }
+}
+
+.rowLabel {
+  flex: 0 0 84px;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.rowValue {
+  flex: 1;
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.problem {
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.note {
+  display: block;
+  margin-top: 2px;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* Mandate row — boxed hero value + understated "View full" under the label. */
+.mandateRow { align-items: flex-start; }
+
+.mandateRow .rowLabel {
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
-  padding: $spacing-md $spacing-lg;
+}
+
+.solBox {
+  display: block;
+  padding: $spacing-sm $spacing-md;
   background: rgba($primary, 0.06);
-  border-left: 3px solid $primary;
+  border: 1px solid rgba($primary, 0.2);
   border-radius: $radius-md;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.36;
+  color: $gray-900;
 
   @media (prefers-color-scheme: dark) {
     background: rgba($primary, 0.16);
-  }
-}
-
-.decidedLabel {
-  font-size: $text-xs;
-  font-weight: $font-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: $primary-dark;
-
-  @media (prefers-color-scheme: dark) {
+    border-color: rgba($primary, 0.4);
     color: $dark-text;
   }
 }
 
-.decidedText {
-  margin: 0;
-  font-size: $text-base;
-  font-weight: $font-medium;
-  line-height: 1.45;
-  color: $gray-900;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text;
-  }
-}
-
-/* ── Three legitimacy signals ────────────────────────────────────────── */
-.signals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-}
-
-.signal {
-  flex: 1 1 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: $spacing-md;
-  background: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-lg;
-
-  @media (prefers-color-scheme: dark) {
-    background: $dark-bg;
-    border-color: $dark-border;
-  }
-}
-
-.signalIcon {
+.linkBtn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin-bottom: $spacing-xs;
-  border-radius: $radius-full;
-  background: rgba($primary, 0.1);
-  color: $primary-dark;
-
-  @media (prefers-color-scheme: dark) {
-    background: rgba($primary, 0.25);
-    color: $dark-text;
-  }
-}
-
-.signalLabel {
+  gap: 3px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
   font-size: $text-xs;
   font-weight: $font-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: $gray-500;
+  color: $primary;
+  text-transform: none;
+  letter-spacing: 0;
 
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+
+  @media (prefers-color-scheme: dark) { color: $primary; } // $primary-light not defined; substituted with $primary
 }
 
-.signalValue {
+.countries {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.country {
   font-size: $text-sm;
-  font-weight: $font-semibold;
-  color: $gray-900;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text;
-  }
+  white-space: nowrap;
 }
 
-.signalNote {
-  font-size: $text-xs;
-  color: $gray-500;
+.flag { margin-right: $spacing-xs; }
 
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
-  }
-}
-
-.signalFlags {
-  margin-top: $spacing-xs;
-}
-
-/* ── Actions ─────────────────────────────────────────────────────────── */
 .actions {
   display: flex;
   flex-wrap: wrap;
