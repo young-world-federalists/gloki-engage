@@ -46,9 +46,9 @@ export const PROPOSALS_BY_KEY: Record<string, string[]> = {
     'Phase out the worst single-use items where refillable alternatives exist.',
   ],
   adaptation: [
-    'A community-governed adaptation fund frontline towns can apply to directly.',
     'Prioritise low-cost, locally-maintainable resilience: drainage, mangroves, early warning.',
     'Open, community-reported tracking of every funded project.',
+    'A community-governed adaptation fund frontline towns can apply to directly.',
   ],
   jobs: [
     'Paid apprenticeships placing young people with local employers, with a stipend so the poorest can take part.',
@@ -471,16 +471,16 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
   },
   adaptation: {
     0: [
+      'Spending favours resilience communities can maintain themselves over large external contracts.',
+    ],
+    1: [
+      'Every funded project is tracked openly, with community-reported updates.',
+    ],
+    2: [
       'A standing adaptation fund accepts applications directly from frontline towns, islands and neighbourhoods — not only national governments.',
       'A community-majority board decides how the money is allocated.',
       'Priority goes to low-cost, locally-maintainable resilience: drainage, mangroves, water storage and early warning.',
       'Every funded project publishes progress on a simple public dashboard, updated by the community.',
-    ],
-    1: [
-      'Spending favours resilience communities can maintain themselves over large external contracts.',
-    ],
-    2: [
-      'Every funded project is tracked openly, with community-reported updates.',
     ],
   },
 };
@@ -501,7 +501,7 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalInde
   ],
   adaptation: [
     {
-      proposalIndex: 0,
+      proposalIndex: 2,
       expert: 'demo-expert-renata',
       metrics: [
         'Frontline communities funded each year',
