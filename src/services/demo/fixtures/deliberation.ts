@@ -469,6 +469,20 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
     1: ['The reference client is open-sourced', 'An independent security audit passes before launch'],
     2: ['An offline fallback works in every region', 'People can export their data in one tap — no vendor lock-in'],
   },
+  adaptation: {
+    0: [
+      'A standing adaptation fund accepts applications directly from frontline towns, islands and neighbourhoods — not only national governments.',
+      'A community-majority board decides how the money is allocated.',
+      'Priority goes to low-cost, locally-maintainable resilience: drainage, mangroves, water storage and early warning.',
+      'Every funded project publishes progress on a simple public dashboard, updated by the community.',
+    ],
+    1: [
+      'Spending favours resilience communities can maintain themselves over large external contracts.',
+    ],
+    2: [
+      'Every funded project is tracked openly, with community-reported updates.',
+    ],
+  },
 };
 
 export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalIndex: number; expert: string; metrics: string[]; note?: string }>> = {
@@ -484,6 +498,19 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalInde
     { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of audits completed on schedule', 'Median days to resolve a complaint'] },
     { proposalIndex: 1, expert: 'demo-expert-lena', metrics: ['Independent audits passed', 'Share of public services encrypted by default'] },
     { proposalIndex: 2, expert: 'demo-expert-renata', metrics: ['Share of the population with an active ID', 'Service uptime including offline mode'] },
+  ],
+  adaptation: [
+    {
+      proposalIndex: 0,
+      expert: 'demo-expert-renata',
+      metrics: [
+        'Frontline communities funded each year',
+        'Share of each grant reaching local control',
+        'Funded projects with open progress reporting',
+        'Days from application to first disbursement',
+      ],
+      note: 'Direct-access funding works only if disbursement stays fast and local control is measured — track both.',
+    },
   ],
 };
 
