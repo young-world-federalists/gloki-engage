@@ -509,6 +509,36 @@ metrics). All are machine-translated (fr + sw) and await a native-speaker pass. 
 
 ---
 
+## Session 6 (2026-06-28) — MandateCard redesign strings (`mandate.card.*` additions + reachValue update)
+
+9 new `mandate.card.*` keys added for the redesigned MandateCard component (Task 7 / S6). `mandate.card.reachValue` updated to "across" phrasing. 6 orphaned card keys pruned (`decided`, `ratified`, `ratifiedOn`, `mandateValue`, `oneVote`, `readFull`). All machine-translated (fr + sw). Full key parity confirmed (parity diff empty).
+
+| key | en (inline default) | fr | sw | Intended meaning |
+|---|---|---|---|---|
+| `mandate.card.brand` | Gloki Mandate | Gloki Mandate | Gloki Mandate | Product eyebrow label on the card |
+| `mandate.card.problemLabel` | Problem | Problème | Tatizo | Row label for the problem description |
+| `mandate.card.viewFull` | View full | Voir en entier | Tazama kamili | Expand link to read the full mandate text |
+| `mandate.card.reachValue` | {people} people across {countries} countries | {people} personnes dans {countries} pays | Watu {people} katika nchi {countries} | Reach stat (changed from "·" separator to "across/dans/katika") |
+| `mandate.card.reachNote` | over a year of open deliberation | au fil d'une année de délibération ouverte | kwa mwaka mzima wa majadiliano ya wazi | Note below the reach stat |
+| `mandate.card.jurisdictionLabel` | Jurisdiction | Juridiction | Mamlaka | Row label for jurisdiction list |
+| `mandate.card.viewAll` | View all | Voir tout | Tazama zote | Expand button for jurisdiction list |
+| `mandate.card.viewLess` | View less | Voir moins | Tazama chache | Collapse button for jurisdiction list |
+| `mandate.card.showSupport` | Show your support | Apportez votre soutien | Onyesha uungaji mkono wako | Primary CTA button on the card |
+
+**Native-review concerns for Session 6 strings:**
+
+- **fr `mandate.card.reachNote`:** "au fil d'une année" uses the right apostrophe (`'`, U+2019). Confirm "au fil d" reads naturally ("over the course of a year") for a civic context, vs. "au cours d'une année".
+- **sw `mandate.card.jurisdictionLabel`:** "Mamlaka" means "authority/jurisdiction" — confirm this is the preferred term for listing the territories/regions a mandate covers (vs. "Eneo la mamlaka").
+- **sw `mandate.card.viewLess`:** "Tazama chache" is literally "see fewer" — confirm this reads naturally as a collapse control (vs. "Ficha" / hide).
+- **sw `mandate.card.showSupport`:** "Onyesha uungaji mkono wako" (show your support/backing) — confirm register is appropriate for a civic endorsement CTA.
+- **fr `mandate.card.showSupport`:** "Apportez votre soutien" (bring/give your support) — confirm this reads as a call-to-action vs. stating a fact.
+
+| Concern level | Namespace | Files |
+|---|---|---|
+| Medium | `mandate.card.*` | `src/i18n/fr.ts`, `src/i18n/sw.ts` |
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
