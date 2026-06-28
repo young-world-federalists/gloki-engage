@@ -148,7 +148,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
             <ol className={styles.articles}>
               {mandate.articles.map((a) => (
                 <li key={a.id} className={styles.article}>
-                  <h3 className={styles.articleTitle}>{a.title}</h3>
+                  {a.title && <h3 className={styles.articleTitle}>{a.title}</h3>}
                   <p className={styles.articleBody}>{a.body}</p>
                 </li>
               ))}
@@ -163,7 +163,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
               {mandate.indicators.map((ind) => (
                 <div key={ind.label} className={styles.indicator}>
                   <dt className={styles.indicatorLabel}>{ind.label}</dt>
-                  <dd className={styles.indicatorTarget}>{ind.target}</dd>
+                  {ind.target && <dd className={styles.indicatorTarget}>{ind.target}</dd>}
                 </div>
               ))}
             </dl>
