@@ -412,8 +412,6 @@ export function seedDemoCommunity(
             createdAgo: 45,
           },
         ],
-        positions: [],
-        anchored: [],
         comments: [
           {
             id: 'wt-c1',

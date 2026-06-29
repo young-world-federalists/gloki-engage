@@ -79,12 +79,6 @@ export interface DeliberationComment {
   minutesAgo: number;
 }
 
-/** A live-presence ticker event (C1) — who just arrived / is reading / is writing. */
-export interface PresenceEvent {
-  author: string;
-  kind: 'joined' | 'viewing' | 'typing';
-}
-
 /** A track-changes edit suggestion on the problem statement (C2). */
 export interface EditSuggestion {
   id: string;
@@ -176,25 +170,6 @@ export const DISCUSSION_COMMENTS: DeliberationComment[] = [
   },
 ];
 
-/** Everyone who has taken part (drives the flag cluster + "N from M countries"). */
-export const DELIBERATION_PARTICIPANTS: string[] = PERSONAS.map((p) => p.publicKey);
-
-/** A small subset shown as "here now" for the live co-presence pulse. */
-export const PRESENCE_NOW: string[] = [
-  'demo-user-ph-maria',
-  'demo-user-pl-marta',
-  'demo-user-de-anika',
-];
-
-/** Rotates through the live ticker (gated behind prefers-reduced-motion). */
-export const PRESENCE_TICKER: PresenceEvent[] = [
-  { author: 'demo-user-ph-maria', kind: 'joined' },
-  { author: 'demo-user-pl-marta', kind: 'viewing' },
-  { author: 'demo-user-br-lucas', kind: 'typing' },
-  { author: 'demo-user-kr-jiwoo', kind: 'joined' },
-  { author: 'demo-user-de-anika', kind: 'viewing' },
-];
-
 // ---------------------------------------------------------------------------
 // C2 — Track-changes co-authoring of the problem statement
 // ---------------------------------------------------------------------------
@@ -252,8 +227,6 @@ export const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
 // opens with the rich demo. RECAST — no new copy — from the data above:
 //   • statement ← PROBLEM_STATEMENT (description→body) + CO_AUTHORS
 //   • edits     ← EDIT_SUGGESTIONS (field description→body, suggestedText→text)
-//   • positions ← root DISCUSSION_COMMENTS (each top-level comment is a position)
-//   • anchored  ← reply DISCUSSION_COMMENTS, re-keyed under their root position
 //
 // 1p1v supporters are drawn ONLY from the eight people who took part in the
 // thread, so the participation snapshot stays a stable 8 and the hero edit (s1)
@@ -277,22 +250,6 @@ export interface SeedEdit {
   status: 'open' | 'accepted' | 'stale';
   createdAgo: number; // minutes (feeds utils/formatTimeAgo relativeTimeKey); 0 = just now
 }
-export interface SeedPosition {
-  id: string;
-  type: DeliberationCategory;
-  author: string;
-  text: string;
-  supporters: string[]; // pks — 1p1v (includes the author)
-  createdAgo: number;
-}
-export interface SeedAnchored {
-  id: string;
-  anchor: string; // 'statement' | positionId
-  author: string;
-  text: string;
-  parentId: string | null;
-  createdAgo: number;
-}
 export interface SeedComment {
   id: string;
   author: string;
@@ -304,30 +261,14 @@ export interface SeedComment {
 export interface DiscussionSeed {
   statement: SeedStatement;
   edits: SeedEdit[];
-  positions: SeedPosition[];
-  anchored: SeedAnchored[];
   comments: SeedComment[]; // threaded-chat seed (S2 discussion-as-chat)
 }
 
-// Supporter lists — every pk is one of the eight thread participants
-// (lucas, marta, anika, maria, amina, jiwoo, sofia, mei) so the distinct
-// participation snapshot stays exactly 8.
-const POSITION_SUPPORTERS: Record<string, string[]> = {
-  'pos-c1': ['demo-user-br-lucas', 'demo-user-pl-marta', 'demo-user-de-anika', 'demo-user-ph-maria', 'demo-user-ng-amina', 'demo-user-kr-jiwoo'],
-  'pos-c5': ['demo-user-ng-amina', 'demo-user-br-lucas', 'demo-user-pl-marta', 'demo-user-it-sofia', 'demo-user-cn-mei'],
-  'pos-c3': ['demo-user-de-anika', 'demo-user-kr-jiwoo', 'demo-user-cn-mei', 'demo-user-ph-maria'],
-  'pos-c2': ['demo-user-pl-marta', 'demo-user-it-sofia', 'demo-user-de-anika'],
-  'pos-c4': ['demo-user-ph-maria', 'demo-user-ng-amina'],
-  'pos-c6': ['demo-user-kr-jiwoo', 'demo-user-it-sofia'],
-};
 const EDIT_SUPPORTERS: Record<string, string[]> = {
   s1: ['demo-user-it-sofia', 'demo-user-pl-marta', 'demo-user-ph-maria'], // 3 = target(4) - 1 → one click folds in
   s2: ['demo-user-de-anika', 'demo-user-kr-jiwoo'],
   s3: ['demo-user-ng-amina', 'demo-user-br-lucas'],
 };
-// reply comment id → the root position it anchors under
-const ANCHOR_OF: Record<string, string> = { c1a: 'pos-c1', c1b: 'pos-c1', c3a: 'pos-c3', c5a: 'pos-c5' };
-
 // Threaded-chat seed (S2 discussion-as-chat). A realistic conversation on the
 // misinformation showcase so the redesigned Discussion stage opens alive rather
 // than empty. One branch (d1 → d1a → d1b → d1c → d1d) runs 5 deep so the
@@ -358,26 +299,6 @@ const DISCUSSION_THREAD: SeedComment[] = [
 ];
 
 function buildDiscussionSeed(): DiscussionSeed {
-  const roots = DISCUSSION_COMMENTS.filter((c) => c.parentId === null);
-  const replies = DISCUSSION_COMMENTS.filter((c) => c.parentId !== null);
-  const positions: SeedPosition[] = roots.map((c) => ({
-    id: `pos-${c.id}`,
-    type: c.category,
-    author: c.author,
-    text: c.text,
-    supporters: POSITION_SUPPORTERS[`pos-${c.id}`] ?? [c.author],
-    createdAgo: c.minutesAgo,
-  }));
-  const anchored: SeedAnchored[] = replies.map((c) => ({
-    id: c.id,
-    anchor: ANCHOR_OF[c.id] ?? 'statement',
-    author: c.author,
-    text: c.text,
-    // Keep the thread: a reply whose parent is itself a reply stays nested;
-    // a reply on a root comment anchors directly on that comment's position.
-    parentId: replies.some((r) => r.id === c.parentId) ? c.parentId : null,
-    createdAgo: c.minutesAgo,
-  }));
   const edits: SeedEdit[] = EDIT_SUGGESTIONS.map((e) => ({
     id: e.id,
     field: e.field === 'description' ? 'body' : 'title',
@@ -396,8 +317,6 @@ function buildDiscussionSeed(): DiscussionSeed {
       coAuthors: [...CO_AUTHORS],
     },
     edits,
-    positions,
-    anchored,
     comments: DISCUSSION_THREAD,
   };
 }
