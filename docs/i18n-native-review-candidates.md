@@ -1,6 +1,8 @@
 # fr / sw native-speaker review — candidate list
 
 **Status:** open · **Owner:** (assign a native fr + a native sw reviewer) · **Created:** Batch 14 (2026-06-14)
+· **Last verified against HEAD `27f24b3`:** 2026-06-29 (parity OK, fr = sw = 1032 keys; stale references
+struck through — see the Reviewer quick-start below)
 
 The French and Swahili UI overlays (`src/i18n/fr.ts`, `src/i18n/sw.ts`) were **model-translated**.
 They are live, verified for layout (360px, light + dark, no `{token}` artifacts) and at **full key +
@@ -11,6 +13,49 @@ least-reviewed key families and the specific concern per family, rather than dum
 > Scope note: this is *not* a request to rewrite the overlays wholesale. They read correctly. The goal is a
 > targeted polish pass on the families below plus the two cross-cutting decisions (sw vocab consistency, fr
 > register). If a string here is already good, leave it.
+
+---
+
+## Reviewer quick-start — read this first
+
+**Verified against `ui` HEAD `27f24b3` (2026-06-29):** key parity is clean — `fr.ts` and `sw.ts` each hold
+**1032 keys** with identical key sets and matching `{var}` tokens (`RESULT: PARITY OK`). `en.ts` is the small
+70-key base; everything else is the inline-default fallback (see Ground rule 3). The families below were
+auto-checked against HEAD: every key the worklist still asks you to review **exists in the live overlays**,
+*except* the small set of keys retired since this doc was first written — those are now struck through and
+labelled **[removed]** / **[relocated]** inline so you don't hunt for them.
+
+**Where to spend your time (highest signal first):**
+
+1. **The two cross-cutting decisions** (bottom of this doc) are the most leveraged — decide each *once*,
+   then apply consistently:
+   - **sw — one term per concept** (Cross-cutting decision 1). The biggest machine-translation risk. Confirm
+     the canonical-term table, with special attention to the **Suluhisho** noun-class concord (the Wave 2a
+     lexical swap that may have left wrong agreement).
+   - **fr — register & inclusive writing** (Cross-cutting decision 2): confirm **vous** throughout, and pick
+     one house style for *écriture inclusive* (currently standard forms, no midpoints).
+2. **Swahili noun-class agreement** — the recurring error class. Concentrated in: `communities.*`
+   (jumuiya / mpango concord), the three `*.howItWorks` subject prefixes, `stage.pipelineOverview`,
+   `mechanisms.approval.*` + `mechanisms.qv.*` (the *suluhisho* concord), and
+   `problems.thresholdHintShort`.
+3. **The named S6 doubts** (Session 6 section): sw `mandate.card.viewLess` = *Tazama chache* ("see fewer"
+   for a collapse control), sw `mandate.card.jurisdictionLabel` = *Mamlaka* (authority vs. territory), and
+   the fr `mandate.card.reachNote` phrasing/apostrophe.
+4. Everything else is per-family polish — work top-to-bottom through the sections as time allows.
+
+**Keys retired since this list was written (do NOT review — they no longer exist):**
+
+| cited key(s) | status |
+|---|---|
+| `dashboard.stage.{proposals,vote}.desc`, `dashboard.proposals.summary.*` | **[removed]** — the dashboard pipeline view was retired |
+| `pipeline.hint.{proposals,vote}` | **[removed]** — PipelineView deleted |
+| `currency.explainerBody1` | **[removed]** |
+| `country.quickAdd` | **[removed]** — only `country.add` / `country.remove` / `country.other` remain |
+| `region.*` (africa/asia/americas/europe/oceania) | **[relocated]** — continent labels now live in `src/utils/regions.ts` as data, not i18n keys; the only live region-label key is `mechanisms.qv.regionOther` |
+| `discussionFlow.category.solutions` | **[superseded]** — review `deliberation.category.solutions` instead (= fr *Idées* / sw *Mawazo* / en *Ideas*); it still exists and carries the "Ideas" category |
+
+> To re-verify parity after any edit, run the scanner (recreate it per Ground rule 4 if missing) and confirm
+> `RESULT: PARITY OK`.
 
 ---
 
@@ -50,15 +95,17 @@ stage key stays `proposals`). Per-locale terms, **decided by Eston 2026-06-20**:
   ("Suluhisho **yanawasilishwa**…"), `mechanisms.approval.noResults` ("Suluhisho **za** kuonyesha…"),
   `mechanisms.qv.*`. `mandate.recapPropose*` already used the **zi-/za-** concord for *suluhisho* — make
   the rest consistent with whichever class is correct.
-- Affected keys: `nav.proposals`, `stage.proposals`, `home.proposals`, `stagefeed.{sample.proposals,
-  proposals.info, discussion.info, vote.info}`, `dashboard.stage.{proposals,vote}.desc`,
-  `dashboard.proposals.summary.*`, `initiative.stages.{proposals,vote,mandate}.desc`,
-  `pipeline.hint.{proposals,vote}`, `deliberation.proposals.error`, `mechanisms.approval.*`,
-  `mechanisms.qv.*` (the votable-item words), plus the `createCommunity.why.mandates.body` /
-  `currency.explainerBody1` prose mentions.
+- Affected keys (live): `nav.proposals`, `stage.proposals`, `home.proposals`, `stagefeed.{sample.proposals,
+  proposals.info, discussion.info, vote.info}`, `initiative.stages.{proposals,vote,mandate}.desc`,
+  `deliberation.proposals.error`, `mechanisms.approval.*`, `mechanisms.qv.*` (the votable-item words), plus
+  the `createCommunity.why.mandates.body` prose mention.
+- ~~`dashboard.stage.{proposals,vote}.desc`, `dashboard.proposals.summary.*`,
+  `pipeline.hint.{proposals,vote}`, `currency.explainerBody1`~~ **[removed]** — these were retired with the
+  dashboard pipeline view; skip them.
 - **Category collision:** the discussion-board "Solutions" *category* was renamed to avoid clashing with
-  the stage — **fr Idées · sw Mawazo · en Ideas** (`deliberation.category.solutions`,
-  `discussionFlow.category.solutions`; internal key stays `solutions`). Confirm *Mawazo* reads as "Ideas".
+  the stage — **fr Idées · sw Mawazo · en Ideas** (`deliberation.category.solutions`; the old
+  `discussionFlow.category.solutions` duplicate is **[removed]**; internal key stays `solutions`). Confirm
+  *Mawazo* reads as "Ideas".
 - **Intentionally NOT renamed** (stay `pendekezo`/`proposition`): the **Merge** feature
   (`deliberation.merge.*`, `collab.tabMerges`), `collab.tabSuggestions` (edit *suggestions*), and the
   *propose* verb (`pendekeza`, `proposer`). Confirm these read as distinct from the Solutions stage.
@@ -154,13 +201,12 @@ technical term of art; there may be no better Swahili rendering).
 New model-translated keys added during Wave 3. Live, layout-verified (360px light/dark), at full fr/sw +
 `{var}` parity. The Swahili **noun-class agreement** items are the priority for the pass.
 
-- **`region.*`** (5: africa/asia/americas/europe/oceania) — continent labels for the country quick-picks.
-  - sw: `Afrika` / `Asia` / `Amerika` / `Ulaya` / `Oseania`. Confirm `Oseania` is the preferred sw form (vs
-    `Oceania`), and that `Amerika` reads as "the Americas" (not specifically the USA / `Marekani`).
-  - fr: `Afrique` / `Asie` / `Amériques` / `Europe` / `Océanie` — standard, low risk.
-- **`country.add` / `country.quickAdd` / `country.remove` / `country.other`** — CountryMultiSelect chrome.
-  - sw `country.quickAdd` = `Ongeza haraka` ("add quickly"); confirm it reads as a section label — an
-    alternative is `Chaguo za haraka` ("quick choices").
+- ~~**`region.*`** (5: africa/asia/americas/europe/oceania) — continent labels for the country
+  quick-picks.~~ **[relocated]** — these continent labels are no longer i18n keys; they now live in
+  `src/utils/regions.ts` as data and are out of scope for this overlay pass. (The only live region-label
+  i18n key is `mechanisms.qv.regionOther`, reviewed in the Session 5 section.)
+- **`country.add` / `country.remove` / `country.other`** — CountryMultiSelect chrome. (~~`country.quickAdd`~~
+  **[removed]** — the quick-add section label no longer exists.)
 - **`communities.*`** (23: the identity communities list/dashboard) — **Swahili noun-class agreement is the
   main concern.** Check the relative/possessive concord with *jumuiya* (N-class) and *mpango / mipango*
   (M/MI-class) in: `communities.hiddenCount.one/.many` (`Jumuiya 1 iliyofichwa` / `Jumuiya {n} zilizofichwa`),
