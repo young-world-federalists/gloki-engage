@@ -20,9 +20,6 @@ interface ApprovalProposal {
 
 export interface UseMandateResult {
   mandate: PublishedMandate;
-  loading: boolean;
-  /** true when articles/indicators came from the winning solution's spine (not the fixture). */
-  derived: boolean;
 }
 
 /**
@@ -53,13 +50,11 @@ export function useMandate(initiativeId: string | undefined): UseMandateResult {
 
   const [results, setResults] = useState<Record<string, number> | null>(null);
   const [proposals, setProposals] = useState<Record<string, ApprovalProposal> | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     if (!initiativeId || !serverUrl || !publicKey) return;
     if (!voteReady || !voteContractId || !proposalsReady || !proposalsContractId) return;
-    setLoading(true);
     (async () => {
       try {
         const [r, p] = await Promise.all([
@@ -71,8 +66,6 @@ export function useMandate(initiativeId: string | undefined): UseMandateResult {
         setProposals((p as Record<string, ApprovalProposal>) || {});
       } catch {
         if (!cancelled) { setResults({}); setProposals({}); }
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -97,5 +90,5 @@ export function useMandate(initiativeId: string | undefined): UseMandateResult {
     };
   }, [results, proposals, fixture]);
 
-  return { mandate, loading, derived: mandate !== fixture };
+  return { mandate };
 }
