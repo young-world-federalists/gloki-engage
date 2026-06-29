@@ -2,11 +2,10 @@
 //
 // Legacy threaded comments (add/get/delete_comment) back the collab
 // DiscussionFlow and stay UNTOUCHED. The co-authoring group — a co-owned
-// statement, track-changes edits, ranked positions, and anchored discussion —
-// backs the redesigned Stage 2 surface and self-seeds from the deliberation
-// fixture so any discussion sub-contract opens with the rich demo (today's
-// contract-backed flow starts empty; the redesigned surface needs the seed to
-// feel alive). Documented as mock seeding.
+// statement and track-changes edits — backs the redesigned Stage 2 surface
+// and self-seeds from the deliberation fixture so any discussion sub-contract
+// opens with the rich demo (today's contract-backed flow starts empty; the
+// redesigned surface needs the seed to feel alive). Documented as mock seeding.
 //
 // ONE PERSON, ONE VOTE: every support action appends the caller's pk with
 // dedup — never a weight. Eligibility is gated in the UI by StageGate.
@@ -25,9 +24,6 @@ interface DiscussionComment {
   likes: string[]; // 1p1v pubkeys — surfaces "top" replies; no advancement effect
 }
 
-type PositionType = 'evidence' | 'impact' | 'solutions' | 'concerns';
-const POSITION_TYPES: PositionType[] = ['evidence', 'impact', 'solutions', 'concerns'];
-
 interface Statement {
   title: string;
   body: string;
@@ -44,29 +40,10 @@ interface StoredEdit {
   status: 'open' | 'accepted' | 'stale';
   createdAgo: number;
 }
-interface StoredPosition {
-  id: string;
-  type: PositionType;
-  author: string;
-  text: string;
-  supporters: string[];
-  createdAgo: number;
-}
-interface StoredAnchored {
-  id: string;
-  anchor: string; // 'statement' | positionId
-  author: string;
-  text: string;
-  parentId: string | null;
-  createdAgo: number;
-}
-
 interface DiscussionState {
   comments: DiscussionComment[];
   statement: Statement;
   edits: Record<string, StoredEdit>;
-  positions: Record<string, StoredPosition>;
-  anchored: Record<string, StoredAnchored>;
 }
 
 function byId<T extends { id: string }>(items: readonly T[]): Record<string, T> {
@@ -85,8 +62,6 @@ function defaultState(): DiscussionState {
     comments: [],
     statement: { title: '', body: '', coAuthors: [] },
     edits: {},
-    positions: {},
-    anchored: {},
   };
 }
 
@@ -112,8 +87,6 @@ export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
     })),
     statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
     edits: byId(seed.edits),
-    positions: byId(seed.positions),
-    anchored: byId(seed.anchored),
   });
 }
 
@@ -152,16 +125,6 @@ export function discussionRead(contractId: string, method: IMethod, _caller: str
       return s.statement;
     case 'get_edits':
       return Object.values(s.edits);
-    case 'get_positions':
-      // replyCount is DERIVED from anchored under each position.
-      return Object.values(s.positions).map((p) => ({
-        ...p,
-        replyCount: Object.values(s.anchored).filter((a) => a.anchor === p.id).length,
-      }));
-    case 'get_anchored_comments': {
-      const anchor = str(method.values?.anchor);
-      return Object.values(s.anchored).filter((a) => a.anchor === anchor);
-    }
     default:
       return null;
   }
@@ -279,62 +242,6 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
       const supporters = e.supporters.filter((pk) => pk !== caller);
       writeState<DiscussionState>(contractId, { ...s, edits: { ...s.edits, [editId]: { ...e, supporters } } });
       return null;
-    }
-
-    // --- co-authoring: positions ---
-    case 'add_position': {
-      const rawType = str(method.values?.type) as PositionType;
-      const type: PositionType = POSITION_TYPES.includes(rawType) ? rawType : 'solutions';
-      const text = str(method.values?.text);
-      if (!text) return null;
-      const s = load(contractId);
-      const position: StoredPosition = {
-        id: newId(),
-        type,
-        author: caller,
-        text,
-        supporters: [caller],
-        createdAgo: 0,
-      };
-      writeState<DiscussionState>(contractId, { ...s, positions: { ...s.positions, [position.id]: position } });
-      return position;
-    }
-    case 'support_position': {
-      const id = str(method.values?.position_id);
-      const s = load(contractId);
-      const p = s.positions[id];
-      if (!p) return null;
-      const supporters = dedupPush(p.supporters, caller);
-      writeState<DiscussionState>(contractId, { ...s, positions: { ...s.positions, [id]: { ...p, supporters } } });
-      return null;
-    }
-    case 'withdraw_position_support': {
-      const id = str(method.values?.position_id);
-      const s = load(contractId);
-      const p = s.positions[id];
-      if (!p) return null;
-      const supporters = p.supporters.filter((pk) => pk !== caller);
-      writeState<DiscussionState>(contractId, { ...s, positions: { ...s.positions, [id]: { ...p, supporters } } });
-      return null;
-    }
-
-    // --- co-authoring: anchored discussion ---
-    case 'add_anchored_comment': {
-      const anchor = str(method.values?.anchor);
-      const text = str(method.values?.text);
-      if (!anchor || !text) return null;
-      const s = load(contractId);
-      const parentRaw = str(method.values?.parent_id);
-      const comment: StoredAnchored = {
-        id: newId(),
-        anchor,
-        author: caller,
-        text,
-        parentId: parentRaw || null,
-        createdAgo: 0,
-      };
-      writeState<DiscussionState>(contractId, { ...s, anchored: { ...s.anchored, [comment.id]: comment } });
-      return comment;
     }
 
     // Start a co-owned draft (Write Together, S3). NEW METHOD FOR OURI:
