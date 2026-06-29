@@ -51,6 +51,14 @@ export function useMandate(initiativeId: string | undefined): UseMandateResult {
   const [results, setResults] = useState<Record<string, number> | null>(null);
   const [proposals, setProposals] = useState<Record<string, ApprovalProposal> | null>(null);
 
+  // Clear derived state the instant the initiative changes so the memo falls back
+  // to the new id's fixture rather than flashing the previous mandate's spine
+  // until the fresh read-back lands.
+  useEffect(() => {
+    setResults(null);
+    setProposals(null);
+  }, [initiativeId]);
+
   useEffect(() => {
     let cancelled = false;
     if (!initiativeId || !serverUrl || !publicKey) return;

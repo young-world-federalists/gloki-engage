@@ -171,8 +171,15 @@
   @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
 }
 .liked {
-  color: $error;
-  &:hover { color: $error-dark; }
+  // $error (#dc2626) is only ~4.83:1 on white and fails AA on the dark surfaces
+  // (3.03:1 on $dark-bg). Use the documented AA-safe reds: $error-dark in light
+  // (6.47:1), $error-on-dark in dark (5.29:1+).
+  color: $error-dark;
+  &:hover { color: $error; }
+  @media (prefers-color-scheme: dark) {
+    color: $error-on-dark;
+    &:hover { color: $error-on-dark; }
+  }
 }
 .actionBtnDelete {
   &:hover { color: $error; }

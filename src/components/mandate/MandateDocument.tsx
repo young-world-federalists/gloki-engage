@@ -163,7 +163,9 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
               {mandate.indicators.map((ind) => (
                 <div key={ind.label} className={styles.indicator}>
                   <dt className={styles.indicatorLabel}>{ind.label}</dt>
-                  {ind.target && <dd className={styles.indicatorTarget}>{ind.target}</dd>}
+                  {/* Always emit the <dd> (empty when there's no target) so every
+                      <dt> has its required pair and the <dl> stays well-formed. */}
+                  <dd className={styles.indicatorTarget}>{ind.target}</dd>
                 </div>
               ))}
             </dl>
