@@ -137,14 +137,10 @@ export async function getComments(
 // ===========================================================================
 // Co-authoring group (Stage 2 redesign — Batch 5)
 //
-// The deliberation surface as one co-authoring space: a co-owned `Statement`,
-// track-changes `EditSuggestion`s, country-tagged `Position`s, and anchored
-// discussion. One person, one vote — every support call appends the caller's pk
-// (deduped in the contract). Country is resolved CLIENT-SIDE from the author's
-// profile (the contract stores only the author pk), so it isn't modelled here.
+// The deliberation surface as one co-authoring space: a co-owned `Statement`
+// and track-changes `EditSuggestion`s. One person, one vote — every support
+// call appends the caller's pk (deduped in the contract).
 // ===========================================================================
-
-export type PositionType = CommentCategory; // 'evidence' | 'impact' | 'solutions' | 'concerns'
 
 export interface Statement {
   title: string;
@@ -163,27 +159,6 @@ export interface EditSuggestion {
   status: 'open' | 'accepted' | 'stale';
   createdAgo: number; // minutes (feeds relativeTimeKey); 0 = just now
 }
-
-export interface Position {
-  id: string;
-  type: PositionType;
-  author: string; // pk
-  text: string;
-  supporters: string[]; // pks — 1p1v
-  replyCount: number; // derived by the contract from anchored under this position
-  createdAgo: number;
-}
-
-export interface AnchoredComment {
-  id: string;
-  anchor: string; // 'statement' | positionId
-  author: string; // pk
-  text: string;
-  parentId: string | null;
-  createdAgo: number;
-}
-
-const POSITION_TYPES: PositionType[] = ['evidence', 'impact', 'solutions', 'concerns'];
 
 function asObject(raw: unknown): Record<string, unknown> {
   return raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
@@ -221,30 +196,6 @@ function normalizeEdit(raw: Record<string, unknown>): EditSuggestion {
     rationale: String(raw.rationale ?? ''),
     supporters: strArr(raw.supporters),
     status,
-    createdAgo: num(raw.createdAgo),
-  };
-}
-
-function normalizePosition(raw: Record<string, unknown>): Position {
-  const type = POSITION_TYPES.includes(raw.type as PositionType) ? (raw.type as PositionType) : 'solutions';
-  return {
-    id: String(raw.id ?? ''),
-    type,
-    author: String(raw.author ?? ''),
-    text: String(raw.text ?? ''),
-    supporters: strArr(raw.supporters),
-    replyCount: num(raw.replyCount),
-    createdAgo: num(raw.createdAgo),
-  };
-}
-
-function normalizeAnchored(raw: Record<string, unknown>): AnchoredComment {
-  return {
-    id: String(raw.id ?? ''),
-    anchor: String(raw.anchor ?? ''),
-    author: String(raw.author ?? ''),
-    text: String(raw.text ?? ''),
-    parentId: raw.parentId ? String(raw.parentId) : null,
     createdAgo: num(raw.createdAgo),
   };
 }
@@ -335,95 +286,5 @@ export async function withdrawEditSupport(
     publicKey,
     contractId,
     method: { name: 'withdraw_edit_support', values: { edit_id: editId } } as IMethod,
-  });
-}
-
-// --- positions ---
-export async function getPositions(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<Position[]> {
-  const raw = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_positions', values: {} } as IMethod,
-  });
-  return toList(raw).map(normalizePosition);
-}
-
-export async function addPosition(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  type: PositionType,
-  text: string,
-) {
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'add_position', values: { type, text } } as IMethod,
-  });
-}
-
-export async function supportPosition(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  positionId: string,
-) {
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'support_position', values: { position_id: positionId } } as IMethod,
-  });
-}
-
-export async function withdrawPositionSupport(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  positionId: string,
-) {
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'withdraw_position_support', values: { position_id: positionId } } as IMethod,
-  });
-}
-
-// --- anchored discussion ---
-export async function getAnchoredComments(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  anchor: string,
-): Promise<AnchoredComment[]> {
-  const raw = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_anchored_comments', values: { anchor } } as IMethod,
-  });
-  return toList(raw).map(normalizeAnchored);
-}
-
-export async function addAnchoredComment(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  anchor: string,
-  text: string,
-  parentId: string | null,
-) {
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'add_anchored_comment', values: { anchor, text, parent_id: parentId ?? '' } } as IMethod,
   });
 }
