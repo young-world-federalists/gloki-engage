@@ -13,6 +13,8 @@ Three-branch flow: **`main`** (live / upstream) → **`new-features`** (Ouri's l
 
 **The seam rule:** every component/page reads & writes through `src/services/api.ts` (`contractRead`/`contractWrite`/`deployContract`/`joinContract`), currently backed by the **`src/services/demo/` mock layer**. Never call a real server from a component. Keep the UI↔service boundary clean so swapping stubs → server calls is a localized change inside `src/services/` that never touches components.
 
+> Backend contract hand-off (every method/field the UI relies on): **[docs/FOR_OURI_seam.md](./docs/FOR_OURI_seam.md)**.
+
 ## Stack
 
 - React 19 + TypeScript + Vite + Redux Toolkit + SCSS Modules
