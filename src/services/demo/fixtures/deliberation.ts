@@ -425,7 +425,7 @@ export const EXPERT_REVIEWS: ExpertReview[] = [
 // ---------------------------------------------------------------------------
 // S4 — commitments + expert-metric seeds (keyed by initiative `key`, then by
 // the proposal's index in PROPOSALS_BY_KEY). The proposals-stage initiatives
-// (amr, jobs) open with real commitments + two distinct expert reviews so the
+// (amr, jobs, databroker) open with real commitments + two distinct expert reviews so the
 // redesigned card's threshold bars read mid-progress (Experts reviewed: 2/3).
 // ---------------------------------------------------------------------------
 export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]>> = {
