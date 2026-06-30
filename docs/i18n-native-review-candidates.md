@@ -635,6 +635,21 @@ Five keys changed or added to reconcile the 1p1v↔QV copy, fix the vouch/identi
 - **fr `deliberation.thread.likeCount`:** "J'aime ({count})" — confirm this reads naturally as a button label when announced by a screen reader with count (e.g. "J'aime (4), appuyé").
 - **sw `deliberation.thread.likeCount`:** "Penda ({count})" — confirm this reads as a natural button name for a screen reader announcement.
 
+### S9 — local multi-model panel concord flags (2026-06-30)
+
+A local review panel (qwen3:30b + qwen3:8b, Swahili/French-aware) flagged these specific points on the new
+S9 strings for a native speaker to confirm or correct. Treated as candidates, not corrections:
+
+- **sw `onboarding.rules.equal`** ("…masuala unayoyajali"): confirm the relative concord `unayoyajali` agrees
+  with `masuala` (ma-/class-6) — a reviewer flagged a possible concord mismatch.
+- **sw `mechanisms.qv.guide`** ("…unachokijali"): confirm the ki-/class-7 relative `unachokijali` is the right
+  agreement for the intended object ("what you care about").
+- **sw `mechanisms.qv.disclosure`**: "jumla ya wazi" for "public tally" — confirm the "tally/count" word choice.
+- **fr `mechanisms.qv.guide`**: "dispose du même nombre de cœurs" — confirm register; "dispose de" was flagged
+  as possibly over-formal for the audience.
+- **`mandate.country.one` vs `.other`**: fr `pays`/`pays` and sw `nchi`/`nchi` are intentionally identical
+  (both nouns are invariant for number) — NOT a bug; included only so the reviewer knows it's deliberate.
+
 ---
 
 ## How to deliver fixes
