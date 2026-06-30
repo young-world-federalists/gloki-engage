@@ -94,6 +94,9 @@ const Composer: React.FC<{
           </button>
         )}
       </div>
+      <span className={styles.count}>
+        {t('deliberation.thread.disclosure', 'Comments are public to the community and kept as part of the discussion record.')}
+      </span>
     </div>
   );
 };

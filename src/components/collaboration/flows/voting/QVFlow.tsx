@@ -227,7 +227,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
 
           <div className={styles.guide}>
             <p className={styles.guideText}>
-              {t('mechanisms.qv.guide', 'Tap ♥ to back what you care about — spreading your hearts across solutions costs less than piling them onto one.')}
+              {t('mechanisms.qv.guide', 'Everyone here has the same set of hearts. Tap ♥ to back what you care about — spreading them across solutions costs less than piling them onto one.')}
             </p>
             <div
               className={styles.track}
@@ -243,6 +243,10 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
               {t('mechanisms.qv.supportUsedPct', '{pct}% of your support used', { pct: Math.round(poolUsedPct) })}
             </span>
           </div>
+
+          <span className={styles.hint}>
+            {t('mechanisms.qv.disclosure', 'Your hearts are visible to the community and counted in the public tally.')}
+          </span>
 
           {ballot.map((s, i) => {
             const hearts = draft[s.id] || 0;

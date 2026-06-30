@@ -15,7 +15,7 @@ const RulesStep: React.FC<Props> = ({ onAgree, onSkip, onBack, headingRef }) => 
   const t = useT();
   const rules = [
     { icon: <MessagesSquare aria-hidden />, text: t('onboarding.rules.discuss', 'We discuss before we vote.') },
-    { icon: <Scale aria-hidden />, text: t('onboarding.rules.equal', "One person, one voice — you can't buy influence.") },
+    { icon: <Scale aria-hidden />, text: t('onboarding.rules.equal', "One person, one voice — everyone gets the same say, and no one can buy more. When you vote, you spread that equal say across the issues you care about.") },
     { icon: <HeartHandshake aria-hidden />, text: t('onboarding.rules.kind', 'Disagree kindly — challenge ideas, not people.') },
     { icon: <Lock aria-hidden />, text: t('onboarding.rules.data', 'Your data stays yours.') },
   ];

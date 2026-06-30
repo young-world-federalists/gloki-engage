@@ -58,7 +58,7 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
         <p>
           {t(
             'identityTrust.intro',
-            "Gloki uses a web of trust to verify community members. By scanning each other's QR codes and confirming real-world identity, you strengthen the trust network within your community. The more verified connections you have, the stronger your community's democratic foundation.",
+            "Gloki uses a web of trust to keep the community real people, not bots. By scanning each other's QR codes, members vouch that they know you're a real person — no ID papers, no face scan. The more vouches you have, the stronger your community's democratic foundation.",
           )}
         </p>
       </div>

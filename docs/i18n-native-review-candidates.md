@@ -585,6 +585,40 @@ metrics). All are machine-translated (fr + sw) and await a native-speaker pass. 
 
 ---
 
+---
+
+## Session 9 / Task 1 (2026-06-30) — claims-honesty copy reconciliation
+
+Five keys changed or added to reconcile the 1p1v↔QV copy, fix the vouch/identity story, and add ballot + composer disclosure lines.
+
+### Changed keys
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `onboarding.rules.equal` | Une personne, une voix — chacun a le même poids, et personne ne peut en acheter davantage. Au moment de voter, vous répartissez cette voix égale sur les sujets qui vous tiennent à cœur. | Mtu mmoja, sauti moja — kila mtu ana uzito sawa, na hakuna anayeweza kununua zaidi. Unapopiga kura, unagawanya sauti hiyo sawa kwenye masuala unayoyajali. | Onboarding Rules step — equal-voice rule now explains 1p1v+QV link |
+| `mechanisms.qv.guide` | Chacun ici dispose du même nombre de cœurs. Touchez ♥ pour soutenir ce qui compte pour vous — les répartir entre les solutions coûte moins cher que de tout miser sur une seule. | Kila mtu hapa ana mioyo sawa. Gusa ♥ kuunga mkono unachokijali — kuigawanya kwenye suluhisho mbalimbali kunagharimu kidogo kuliko kuiweka yote kwenye moja. | QV ballot guide — now leads with equal-budget framing |
+| `identityTrust.intro` | Gloki s'appuie sur un réseau de confiance pour garantir que la communauté est composée de vraies personnes, pas de robots. En scannant les QR codes des autres, les membres attestent qu'ils savent que vous êtes une personne réelle — sans papiers d'identité ni reconnaissance faciale. Plus vous avez de cautions, plus le socle démocratique de votre communauté est solide. | Gloki hutumia mtandao wa kuaminiana ili kuhakikisha jamii ina watu halisi, si roboti. Kwa kuskani misimbo ya QR ya wenzao, wanachama wanathibitisha kuwa wanakujua wewe ni mtu halisi — bila vitambulisho wala uchunguzi wa uso. Kadiri unavyokuwa na uthibitisho zaidi, ndivyo msingi wa kidemokrasia wa jamii yako unavyokuwa imara. | Identity & Trust page intro — now says social/peer vouch ("no ID papers, no face scan"), not formal identity verification |
+
+### New keys
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `mechanisms.qv.disclosure` | Vos cœurs sont visibles par la communauté et comptés dans le décompte public. | Mioyo yako inaonekana na jamii na inahesabiwa katika jumla ya wazi. | Muted disclosure line on QV ballot — votes are attributable/public in this demo |
+| `deliberation.thread.disclosure` | Les commentaires sont publics au sein de la communauté et conservés dans l'historique de la discussion. | Maoni ni ya wazi kwa jamii na yanahifadhiwa kama sehemu ya kumbukumbu ya majadiliano. | Muted disclosure line below thread composer — comments are public and kept |
+
+**Native-review concerns:**
+
+- **fr `onboarding.rules.equal`:** Long rule-list item — confirm it reads as a crisp civic promise, not a paragraph. "Vous répartissez" (present tense, you distribute) — natural for describing a mechanic? "Qui vous tiennent à cœur" — confirm register is appropriately warm/civic.
+- **sw `onboarding.rules.equal`:** "Unagawanya sauti hiyo sawa kwenye masuala unayoyajali" — confirm `unayoyajali` (the ones you care about) concord is correct for *masuala* (N-class plural).
+- **fr `mechanisms.qv.guide`:** "Chacun ici dispose du même nombre de cœurs" — confirm "dispose de" reads naturally (lit. "has at their disposal"). "coûte moins cher" — confirm this cost metaphor reads well vs. "coûte moins de cœurs".
+- **sw `mechanisms.qv.guide`:** "Unachokijali" — confirm `ki-` prefix agrees with `unachokijali` (the thing you care about; ki-class object pronoun). Should this be `unachoyajali` (ya-class)? The object is abstract so confirm the concord.
+- **fr `identityTrust.intro`:** "cautions" (vouches/guarantees) — confirm this civic usage is natural (vs. "parrainages" or "attestations"). "socle démocratique" — confirm this reads as "democratic foundation".
+- **sw `identityTrust.intro`:** Changed from `mtandao wa uaminifu` (trust network) to `mtandao wa kuaminiana` (network of mutual trust) — confirm the new form is more idiomatic. "kuskani" (to scan) — confirm this is an accepted Swahili loanword form of "scan".
+- **fr `mechanisms.qv.disclosure`:** "décompte public" — confirm "décompte" reads as "tally/count" in a voting context (vs. "résultat" or "comptage").
+- **sw `deliberation.thread.disclosure`:** "kumbukumbu ya majadiliano" (record of discussion) — confirm "kumbukumbu" reads as an archival record here, not just "memory".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
