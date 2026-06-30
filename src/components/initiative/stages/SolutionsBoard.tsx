@@ -127,14 +127,28 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const handleToggleApproval = async (proposalId: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
     setTogglingId(proposalId);
+
+    // Optimistic update: flip the approval immediately so the threshold bar
+    // animates on tap rather than waiting for the round-trip. We snapshot the
+    // current values so we can revert on error.
+    const wasApproved = myApprovals[proposalId] === true;
+    const prevCount = approvalCounts[proposalId] || 0;
+    const optimisticCount = wasApproved ? Math.max(prevCount - 1, 0) : prevCount + 1;
+    setMyApprovals((prev) => ({ ...prev, [proposalId]: !wasApproved }));
+    setApprovalCounts((prev) => ({ ...prev, [proposalId]: optimisticCount }));
+
     try {
-      if (myApprovals[proposalId] === true) {
+      if (wasApproved) {
         await api.withdrawApproval(serverUrl, publicKey, contractId, proposalId);
       } else {
         await api.approve(serverUrl, publicKey, contractId, proposalId);
       }
+      // Reconcile to server truth after the write lands.
       await fetchData();
     } catch (err) {
+      // Revert the optimistic change on error.
+      setMyApprovals((prev) => ({ ...prev, [proposalId]: wasApproved }));
+      setApprovalCounts((prev) => ({ ...prev, [proposalId]: prevCount }));
       console.error('Failed to toggle approval:', err);
     } finally {
       setTogglingId(null);
