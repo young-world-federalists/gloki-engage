@@ -97,11 +97,15 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
         <p className={styles.summaryBreakdown}>
           {t(
             'mandate.adoptionBreakdown',
-            '{endorsed} endorsing · {subscribed} subscribed and reporting · across {countries} countries',
+            '{endorsed} endorsing · {subscribed} subscribed and reporting · across {countries} {countryWord}',
             {
               endorsed: summary.endorsed,
               subscribed: summary.subscribed,
               countries: summary.countries,
+              countryWord: t(
+                summary.countries === 1 ? 'mandate.country.one' : 'mandate.country.other',
+                summary.countries === 1 ? 'country' : 'countries',
+              ),
             },
           )}
         </p>

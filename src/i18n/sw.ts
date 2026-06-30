@@ -25,6 +25,7 @@ const sw: Dictionary = {
   'common.optional': 'Si lazima',
 
   // App shell — loader, error boundary, 404
+  'app.title': 'Gloki — Utawala wa Kujitegemea Uliogatuliwa',
   'app.validatingSession': 'Inathibitisha kipindi…',
   'errorBoundary.message': 'Sehemu hii imekumbana na hitilafu. Kazi yako nyingine iko salama.',
   'errorBoundary.appMessage': 'Gloki imekumbana na hitilafu isiyotarajiwa. Tafadhali onyesha upya ukurasa.',
@@ -394,7 +395,9 @@ const sw: Dictionary = {
   'mandate.adoptionTitle': 'Kutoka agizo hadi hatua',
   'mandate.adoptionIntro': 'Mashirika yanaunga mkono agizo, yanajiandikisha kulitekeleza, na yanaripoti maendeleo yao kwa jumuiya.',
   'mandate.adoptionCount': 'Mashirika {n} yamelipokea agizo hili',
-  'mandate.adoptionBreakdown': '{endorsed} yanaunga mkono · {subscribed} yamejiandikisha na yanaripoti · katika nchi {countries}',
+  'mandate.adoptionBreakdown': '{endorsed} yanaunga mkono · {subscribed} yamejiandikisha na yanaripoti · katika {countryWord} {countries}',
+  'mandate.country.one': 'nchi',
+  'mandate.country.other': 'nchi',
   'mandate.adoptCta': 'Unga mkono / pokea',
   'mandate.adoptModalTitle': 'Simama nyuma ya agizo hili',
   'mandate.adoptModalIntro': 'Ongeza shirika lako kwenye rekodi ya umma ya uungwaji mkono — unga mkono agizo, au jiandikishe kulitekeleza na kuripoti maendeleo.',
@@ -699,6 +702,7 @@ const sw: Dictionary = {
   'deliberation.thread.replyPlaceholder': 'Mjibu {name}…',
   'deliberation.thread.delete': 'Futa',
   'deliberation.thread.like': 'Penda',
+  'deliberation.thread.likeCount': 'Penda ({count})',
   'deliberation.thread.expand': 'Onyesha majibu',
   'deliberation.thread.collapse': 'Ficha majibu',
   'deliberation.thread.sortLabel': 'Panga maoni',

@@ -63,8 +63,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, 
       <AppHeader
         showBack
         onBack={() => navigate(-1)}
-        title={communityName}
-        eyebrow={t('header.section.discussion', 'Discussion')}
+        title={`${t('header.section.discussion', 'Discussion')} — ${communityName}`}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>

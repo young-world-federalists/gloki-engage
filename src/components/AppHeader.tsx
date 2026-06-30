@@ -91,6 +91,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, 
               onClick={() => setMenuOpen(true)}
               aria-label={t('nav.openMenu', 'Open menu')}
               aria-expanded={menuOpen}
+              aria-haspopup="dialog"
             >
               <Menu size={22} strokeWidth={2.5} aria-hidden />
             </button>

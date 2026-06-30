@@ -26,6 +26,7 @@ const fr: Dictionary = {
   'common.optional': 'Facultatif',
 
   // ── App shell — loader, error boundary, 404 ────────────────────────────
+  'app.title': 'Gloki — Autogouvernance décentralisée',
   'app.validatingSession': 'Validation de la session…',
   'errorBoundary.message': 'Cette section a rencontré une erreur. Le reste de votre travail est protégé.',
   'errorBoundary.appMessage': 'Gloki a rencontré une erreur inattendue. Veuillez actualiser la page.',
@@ -395,7 +396,9 @@ const fr: Dictionary = {
   'mandate.adoptionTitle': 'Du mandat à l’action',
   'mandate.adoptionIntro': 'Les organisations soutiennent le mandat, s’abonnent pour agir, et rendent compte de leurs progrès à la communauté.',
   'mandate.adoptionCount': '{n} organisations ont adopté ce mandat',
-  'mandate.adoptionBreakdown': '{endorsed} soutiens · {subscribed} abonnées et rendant compte · dans {countries} pays',
+  'mandate.adoptionBreakdown': '{endorsed} soutiens · {subscribed} abonnées et rendant compte · dans {countries} {countryWord}',
+  'mandate.country.one': 'pays',
+  'mandate.country.other': 'pays',
   'mandate.adoptCta': 'Soutenir / adopter',
   'mandate.adoptModalTitle': 'Soutenez ce mandat',
   'mandate.adoptModalIntro': 'Ajoutez votre organisation au registre public de soutien — soutenez le mandat, ou abonnez-vous pour agir et rendre compte des progrès.',
@@ -700,6 +703,7 @@ const fr: Dictionary = {
   'deliberation.thread.replyPlaceholder': 'Répondre à {name}…',
   'deliberation.thread.delete': 'Supprimer',
   'deliberation.thread.like': 'J’aime',
+  'deliberation.thread.likeCount': 'J’aime ({count})',
   'deliberation.thread.expand': 'Afficher les réponses',
   'deliberation.thread.collapse': 'Masquer les réponses',
   'deliberation.thread.sortLabel': 'Trier les commentaires',

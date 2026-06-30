@@ -75,6 +75,11 @@ function AppContent() {
   const { t, locale } = useI18n();
   const [hydratingDemo, setHydratingDemo] = useState(true);
 
+  // Keep <title> in sync with the active locale (WCAG 2.4.2 / a11y).
+  useEffect(() => {
+    document.title = t('app.title', 'Gloki — Decentralized Self-Governance');
+  }, [t, locale]);
+
   // Hydrate demo state from URL hash before rendering routes so a shared demo
   // link lands straight on populated content.
   useEffect(() => {

@@ -619,6 +619,22 @@ Five keys changed or added to reconcile the 1p1v↔QV copy, fix the vouch/identi
 - **fr `deliberation.thread.posted`:** "Commentaire publié" — confirm this reads as a natural screen-reader announcement after posting (vs. "Votre commentaire a été publié").
 - **sw `deliberation.thread.posted`:** "Maoni yamechapishwa" — confirm `yamechapishwa` (ya-class passive perfect of *-chapisha* = publish/print) is natural for "comment posted" as an SR live-region announcement; `yametumwa` (sent) may be a more colloquial alternative.
 
+### S9 Task 5 — a11y micro-fixes (2026-06-30)
+
+| key | fr | sw | Intended meaning |
+|---|---|---|---|
+| `deliberation.thread.likeCount` | J'aime ({count}) | Penda ({count}) | Like button aria-label including the count — screen readers announce "Like (3)" etc. |
+| `app.title` | Gloki — Autogouvernance décentralisée | Gloki — Utawala wa Kujitegemea Uliogatuliwa | Document `<title>` set on locale change (WCAG 2.4.2) |
+| `mandate.country.one` | pays | nchi | Singular "country" for pluralization in adoption breakdown |
+| `mandate.country.other` | pays | nchi | Plural "countries" for pluralization in adoption breakdown |
+
+**Native-review concerns:**
+
+- **fr `app.title`:** "Autogouvernance décentralisée" — confirm this reads naturally as the app's subtitle; "autogouvernance" vs "gouvernance autonome" preference?
+- **sw `app.title`:** "Utawala wa Kujitegemea Uliogatuliwa" — confirm "uliogatuliwa" (decentralized, from -gatua) is idiomatic; "uliosambazwa" may be an alternative.
+- **fr `deliberation.thread.likeCount`:** "J'aime ({count})" — confirm this reads naturally as a button label when announced by a screen reader with count (e.g. "J'aime (4), appuyé").
+- **sw `deliberation.thread.likeCount`:** "Penda ({count})" — confirm this reads as a natural button name for a screen reader announcement.
+
 ---
 
 ## How to deliver fixes

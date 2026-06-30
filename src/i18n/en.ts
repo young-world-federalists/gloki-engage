@@ -27,6 +27,7 @@ const en: Dictionary = {
 
   // App shell — session loader, error boundary, 404 (rendered by App.tsx /
   // ErrorBoundary). Title + retry reuse common.errorTitle / common.retry.
+  'app.title': 'Gloki — Decentralized Self-Governance',
   'app.validatingSession': 'Validating session…',
   'errorBoundary.message': 'This section encountered an error. Your other work is safe.',
   'errorBoundary.appMessage': 'Gloki encountered an unexpected error. Please refresh the page.',

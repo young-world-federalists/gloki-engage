@@ -167,7 +167,7 @@ const CommentItem: React.FC<{
               className={`${styles.actionBtn} ${liked ? styles.liked : ''}`}
               onClick={() => onLike(node.id)}
               aria-pressed={liked}
-              aria-label={t('deliberation.thread.like', 'Like')}
+              aria-label={t('deliberation.thread.likeCount', 'Like ({count})', { count: likeCount })}
             >
               <Heart size={14} fill={liked ? 'currentColor' : 'none'} aria-hidden /> {likeCount > 0 && <span>{likeCount}</span>}
             </button>
