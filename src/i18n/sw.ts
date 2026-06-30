@@ -711,6 +711,7 @@ const sw: Dictionary = {
   'deliberation.thread.disclosure': 'Maoni ni ya wazi kwa jamii na yanahifadhiwa kama sehemu ya kumbukumbu ya majadiliano.',
   'deliberation.thread.count.one': 'Maoni 1',
   'deliberation.thread.count.many': 'Maoni {n}',
+  'deliberation.thread.posted': 'Maoni yamechapishwa',
   'deliberation.empty.title': 'Bado hakuna majadiliano',
   'deliberation.empty.body': 'Kuwa wa kwanza kutoa maoni kuhusu tatizo hili.',
   'deliberation.coauthor.heading': 'Tamko letu la pamoja',

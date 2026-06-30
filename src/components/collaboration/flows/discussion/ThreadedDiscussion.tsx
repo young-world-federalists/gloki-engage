@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Reply, Trash2, Heart, MessageSquare, CornerDownRight, ArrowLeft, ChevronDown, ChevronRight,
 } from 'lucide-react';
@@ -112,7 +112,9 @@ const CommentItem: React.FC<{
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
   onFocus: (id: string) => void;
-}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onFocus }) => {
+  newCommentId?: string | null;
+  newCommentRef?: React.RefCallback<HTMLDivElement>;
+}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onFocus, newCommentId, newCommentRef }) => {
   const { t, locale } = useI18n();
   const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -124,8 +126,14 @@ const CommentItem: React.FC<{
   const atCap = depth >= DEPTH_CAP;
   const hasChildren = node.children.length > 0;
 
+  const isNewComment = node.id === newCommentId;
+
   return (
-    <div className={`${styles.commentItem} ${depth > 0 ? styles.nested : ''}`}>
+    <div
+      className={`${styles.commentItem} ${depth > 0 ? styles.nested : ''}`}
+      ref={isNewComment && newCommentRef ? newCommentRef : undefined}
+      tabIndex={isNewComment ? -1 : undefined}
+    >
       {depth > 0 && <div className={styles.threadLine} aria-hidden />}
       <div className={styles.commentBody}>
         <div className={styles.commentHeader}>
@@ -209,6 +217,8 @@ const CommentItem: React.FC<{
                 onDelete={onDelete}
                 onLike={onLike}
                 onFocus={onFocus}
+                newCommentId={newCommentId}
+                newCommentRef={newCommentRef}
               />
             ))}
           </div>
@@ -245,6 +255,12 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const [flat, setFlat] = useState<Comment[]>([]);
   const [sort, setSort] = useState<SortMode>('top');
   const [focusRootId, setFocusRootId] = useState<string | null>(null);
+  const [postedStatus, setPostedStatus] = useState('');
+  const [newCommentId, setNewCommentId] = useState<string | null>(null);
+  const newCommentElRef = useRef<HTMLDivElement | null>(null);
+  const newCommentRefCallback: React.RefCallback<HTMLDivElement> = useCallback((el) => {
+    newCommentElRef.current = el;
+  }, []);
 
   const refresh = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -257,11 +273,44 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  // Move focus to the newly-posted comment after refresh settles.
+  // Double-rAF: first frame lets React commit the ref, second ensures the
+  // browser has painted so focus() on the scrolled-to element is reliable.
+  useEffect(() => {
+    if (!newCommentId) return;
+    let outer: number;
+    let inner: number;
+    outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => {
+        newCommentElRef.current?.focus();
+      });
+    });
+    return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+  }, [newCommentId]);
+
   const handleTopLevel = useCallback(async (text: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
-    await api.addComment(serverUrl, publicKey, contractId, text, null);
+    // Reset prior focus/status before posting
+    setNewCommentId(null);
+    setPostedStatus('');
+    const result = await api.addComment(serverUrl, publicKey, contractId, text, null);
     await refresh();
-  }, [serverUrl, publicKey, contractId, refresh]);
+    // Identify the new comment: use the returned id if available, else diff the list
+    const returnedId = result && typeof result === 'object' && 'id' in result
+      ? String((result as { id: unknown }).id)
+      : null;
+    if (returnedId) {
+      setNewCommentId(returnedId);
+    } else {
+      // Fallback: the newest root-level comment by timestamp is ours
+      setFlat((prev) => {
+        const latest = [...prev].filter((c) => !c.parentId).sort((a, b) => b.timestamp - a.timestamp)[0];
+        if (latest) setNewCommentId(latest.id);
+        return prev;
+      });
+    }
+    setPostedStatus(t('deliberation.thread.posted', 'Comment posted'));
+  }, [serverUrl, publicKey, contractId, refresh, t]);
 
   const handleReply = useCallback(async (parentId: string, text: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -299,6 +348,15 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
   return (
     <div className={styles.container}>
+      {/* Polite live region for screen-reader announcements (WCAG 4.1.3) */}
+      <span
+        className={styles.srOnly}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {postedStatus}
+      </span>
+
       {canParticipate && (
         <Composer
           placeholder={t('deliberation.thread.addPlaceholder', 'Add to the discussion…')}
@@ -360,6 +418,8 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
               onDelete={handleDelete}
               onLike={handleLike}
               onFocus={setFocusRootId}
+              newCommentId={newCommentId}
+              newCommentRef={newCommentRefCallback}
             />
           ))}
         </div>

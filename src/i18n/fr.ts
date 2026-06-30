@@ -712,6 +712,7 @@ const fr: Dictionary = {
   'deliberation.thread.disclosure': 'Les commentaires sont publics au sein de la communauté et conservés dans l’historique de la discussion.',
   'deliberation.thread.count.one': '1 commentaire',
   'deliberation.thread.count.many': '{n} commentaires',
+  'deliberation.thread.posted': 'Commentaire publié',
   'deliberation.empty.title': 'Pas encore de discussion',
   'deliberation.empty.body': 'Soyez le premier à donner votre avis sur ce problème.',
   'deliberation.coauthor.heading': 'Notre déclaration commune',

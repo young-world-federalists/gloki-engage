@@ -616,6 +616,8 @@ Five keys changed or added to reconcile the 1p1v↔QV copy, fix the vouch/identi
 - **sw `identityTrust.intro`:** Changed from `mtandao wa uaminifu` (trust network) to `mtandao wa kuaminiana` (network of mutual trust) — confirm the new form is more idiomatic. "kuskani" (to scan) — confirm this is an accepted Swahili loanword form of "scan".
 - **fr `mechanisms.qv.disclosure`:** "décompte public" — confirm "décompte" reads as "tally/count" in a voting context (vs. "résultat" or "comptage").
 - **sw `deliberation.thread.disclosure`:** "kumbukumbu ya majadiliano" (record of discussion) — confirm "kumbukumbu" reads as an archival record here, not just "memory".
+- **fr `deliberation.thread.posted`:** "Commentaire publié" — confirm this reads as a natural screen-reader announcement after posting (vs. "Votre commentaire a été publié").
+- **sw `deliberation.thread.posted`:** "Maoni yamechapishwa" — confirm `yamechapishwa` (ya-class passive perfect of *-chapisha* = publish/print) is natural for "comment posted" as an SR live-region announcement; `yametumwa` (sent) may be a more colloquial alternative.
 
 ---
 
