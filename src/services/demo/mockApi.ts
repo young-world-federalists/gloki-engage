@@ -14,7 +14,7 @@ import { routeRead, routeWrite } from './demoRouter';
 import { initCommunity } from './demoContracts/community';
 import { seedAllDemoCommunities } from './seedDemoCommunity';
 
-const DEMO_VERSION = 'global-v12';
+const DEMO_VERSION = 'global-v13';
 const DEMO_VERSION_KEY = 'gloki_demo_version';
 
 // Remove all demo-owned localStorage (registry, per-contract state, seed flags)

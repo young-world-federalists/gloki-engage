@@ -18,6 +18,11 @@ import { PERSONAS, type Persona } from './identity';
 // Keyed by initiative `key` (see problems.ts).
 // ---------------------------------------------------------------------------
 export const PROPOSALS_BY_KEY: Record<string, string[]> = {
+  databroker: [
+    'Require data brokers to register publicly, disclose the categories of data they hold, and give any person a free right to see, correct, and delete their profile.',
+    'Ban the sale of sensitive categories — health history, location trails, financial stress scores — without explicit, informed consent renewed annually.',
+    'Fund a cross-border enforcement body with audit powers and fines proportional to broker revenue, so the penalty outweighs the profit from non-compliance.',
+  ],
   water: [
     'Fund community-managed water points with local committees accountable for upkeep.',
     'Low-cost household filtration distributed through schools and clinics.',
@@ -327,11 +332,64 @@ export const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
 /**
  * Discussion seeds keyed by initiative `key`. The seeder pre-seeds a discussion
  * sub-contract ONLY for keys present here; every other initiative's discussion
- * deploys fresh and opens empty. Today only the misinformation showcase carries
- * the rich co-authoring demo (Unit 5 product decision).
+ * deploys fresh and opens empty. Today the misinformation showcase carries
+ * the rich co-authoring demo; databroker has a starter thread so the
+ * Digital Rights Coalition's proposals-stage opens with visible conversation.
  */
+const DATABROKER_DISCUSSION: DiscussionSeed = {
+  statement: {
+    title: 'Reining In Data Brokers',
+    body: 'A handful of data brokers quietly buy and resell detailed profiles of billions of people, with almost no oversight. Propose how communities and regulators should rein this in.',
+    coAuthors: [],
+  },
+  edits: [],
+  comments: [
+    {
+      id: 'db-c1',
+      author: 'demo-user-de-anika',
+      parentId: null,
+      minutesAgo: 380,
+      text: "I looked up my own profile on one of the big brokers last year. It had my home address, employer history, family connections, and an inferred income bracket — all without my knowledge. The idea that I 'consented' by clicking a cookie banner on some unrelated site is fiction.",
+      likes: ['demo-user-it-sofia', 'demo-user-kr-jiwoo', 'demo-user-br-lucas', 'demo-user-pl-marta'],
+    },
+    {
+      id: 'db-c2',
+      author: 'demo-user-in-priya',
+      parentId: null,
+      minutesAgo: 340,
+      text: "In markets where credit scoring is thin, data-broker profiles get used as proxies for creditworthiness. An error in your profile — or a profile built from someone with a similar name — can quietly close off housing and jobs.",
+      likes: ['demo-user-ng-amina', 'demo-user-eg-fatima'],
+    },
+    {
+      id: 'db-c1a',
+      author: 'demo-user-it-sofia',
+      parentId: 'db-c1',
+      minutesAgo: 310,
+      text: "The registry idea is the right starting point — you can't regulate what you can't see. But the registry needs to be machine-readable and updated in real time, not a PDF filed once a year.",
+      likes: ['demo-user-de-anika', 'demo-user-kr-jiwoo'],
+    },
+    {
+      id: 'db-c3',
+      author: 'demo-user-br-lucas',
+      parentId: null,
+      minutesAgo: 260,
+      text: "Enforcement is the weak link everywhere. GDPR has been on the books for years and the largest brokers still operate with near-impunity because fines are a rounding error on their revenue. The third proposal fixes that — make the penalty scale with profit.",
+      likes: ['demo-user-de-anika', 'demo-user-pl-marta', 'demo-user-in-priya'],
+    },
+    {
+      id: 'db-c1b',
+      author: 'demo-user-kr-jiwoo',
+      parentId: 'db-c1a',
+      minutesAgo: 200,
+      text: "Agreed on machine-readable. And the right to deletion has to come with a short deadline — 14 days maximum — or brokers just wait out complaints.",
+      likes: ['demo-user-it-sofia'],
+    },
+  ],
+};
+
 export const DISCUSSION_SEED_BY_KEY: Record<string, DiscussionSeed> = {
   misinfo: DISCUSSION_SEED,
+  databroker: DATABROKER_DISCUSSION,
 };
 
 // ---------------------------------------------------------------------------
@@ -371,6 +429,11 @@ export const EXPERT_REVIEWS: ExpertReview[] = [
 // redesigned card's threshold bars read mid-progress (Experts reviewed: 2/3).
 // ---------------------------------------------------------------------------
 export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]>> = {
+  databroker: {
+    0: ['A public broker registry is live and searchable', 'Every person can access their profile within 30 days', 'Correction and deletion requests are fulfilled within 14 days'],
+    1: ['Sensitive categories are defined in law and updated annually', 'Consent records are auditable by regulators on request'],
+    2: ['An enforcement body is funded at ≥0.1 % of the largest broker\'s annual revenue', 'Cross-border enforcement agreements are in place for the top 10 broker markets'],
+  },
   amr: {
     0: ['Health ministries make antibiotics prescription-only', 'Pharmacists are trained and funded as gatekeepers', 'Clinics adopt shared prescribing guidelines'],
     1: ['Donors fund rapid point-of-care test kits', 'Clinics are reimbursed for testing before prescribing'],
@@ -408,6 +471,19 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
 };
 
 export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalIndex: number; expert: string; metrics: string[]; note?: string }>> = {
+  databroker: [
+    {
+      proposalIndex: 0,
+      expert: 'demo-expert-lena',
+      metrics: ['Brokers registered on the public list', 'Subject-access requests fulfilled on time'],
+      note: 'Registration only works if the list is machine-readable and updated in real time — static PDFs become stale immediately.',
+    },
+    {
+      proposalIndex: 2,
+      expert: 'demo-expert-renata',
+      metrics: ['Fines issued as a share of broker revenue', 'Cross-border enforcement actions completed'],
+    },
+  ],
   amr: [
     { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of antibiotics sold without prescription', 'Districts with a trained stewardship lead'], note: 'Gatekeeping works only if the rapid tests (idea 2) are funded alongside — pair them.' },
     { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Clinics reporting prescribing data monthly', 'Regions with a published resistance trend'] },

@@ -26,6 +26,12 @@ export interface CommunityFixture {
   countries: string[];
   /** Deliberation phases for the journey line. */
   journey: JourneyPhase[];
+  /**
+   * Stages opened to 'anyone' (bypasses the web-of-trust gate for this
+   * community). Used for honest "open pilot" demos — the gate stays in place
+   * for communities without this field. Set on seeding via set_stage_permissions.
+   */
+  openStages?: import('../../trustModel').PipelineStage[];
 }
 
 function journey(active: 'codesign' | 'deliberation' | 'voting' | 'distribution'): JourneyPhase[] {
@@ -63,6 +69,10 @@ export const DEMO_COMMUNITIES: CommunityFixture[] = [
     mission: 'A fair, open internet, governed by the people who use it.',
     countries: ['DE', 'US', 'BR', 'JP', 'KR', 'IN'],
     journey: journey('voting'),
+    // Open the proposals + vote stages so a fresh (vouched-but-not-verified)
+    // user can reach the SolutionsBoard and QV ballot for a hands-on demo.
+    // Other communities stay gated (web-of-trust intact).
+    openStages: ['proposals', 'vote'],
   },
   {
     key: 'climate',

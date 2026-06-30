@@ -25,6 +25,7 @@ import {
 import { DEMO_COMMUNITIES, DEFAULT_COMMUNITY } from './fixtures/community';
 import { updateState } from './demoState';
 import type { IMethod } from '../interfaces';
+import type { PipelineStage, StageRule } from '../trustModel';
 
 const STAGE_ORDER = ['problem', 'discussion', 'proposals', 'vote', 'mandate'] as const;
 type Stage = typeof STAGE_ORDER[number];
@@ -484,6 +485,18 @@ export function seedAllDemoCommunities(publicKey: string): void {
     });
     const initiatives = INITIATIVES.filter((i) => i.community === community.key);
     seedDemoCommunity(id, publicKey, initiatives);
+
+    // Open configured stages to 'anyone' for pilot communities (honest "open pilot"
+    // — the gate stays intact for all other communities; web-of-trust is preserved).
+    if (community.openStages?.length) {
+      const open: Partial<Record<PipelineStage, StageRule>> = {};
+      for (const s of community.openStages) open[s] = 'anyone';
+      communityWrite(id, {
+        name: 'set_stage_permissions',
+        values: { permissions: open },
+      } as IMethod, publicKey);
+      console.log(`[DemoSeed] Opened stages ${community.openStages.join(', ')} for ${community.name}`);
+    }
   }
 }
 

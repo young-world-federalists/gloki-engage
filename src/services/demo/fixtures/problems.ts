@@ -111,6 +111,17 @@ export const INITIATIVES: SeedInitiative[] = [
 
   // ── Digital Rights Coalition ──────────────────────────────────────────────
   {
+    key: 'databroker',
+    community: 'digital',
+    title: 'Reining In Data Brokers',
+    description:
+      'A handful of data brokers quietly buy and resell detailed profiles of billions of people, with almost no oversight. Propose how communities and regulators should rein this in. Add and back the solutions that should lead.',
+    stage: 'proposals',
+    scope: 'global',
+    countries: ['US', 'DE', 'BR', 'KE', 'IN'],
+    evidence: ['https://www.ohchr.org/en/topic/digital-space-and-human-rights'],
+  },
+  {
     key: 'misinfo',
     community: 'digital',
     title: 'Algorithmic Misinformation & Election Integrity',
