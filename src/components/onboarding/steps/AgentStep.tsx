@@ -28,7 +28,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
   const t = useT();
   const [displayName, setDisplayName] = useState(agent?.displayName ?? '');
   const [photo, setPhoto] = useState(agent?.photo ?? '');
-  const [country, setCountry] = useState(agent?.country || voucher.country);
+  const [country, setCountry] = useState(agent?.country ?? '');
   // Single primary language (legacy multi-language agents collapse to their first).
   const [language, setLanguage] = useState(agent?.languages?.[0] || voucher.languages?.[0] || '');
 
@@ -69,7 +69,8 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
 
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="agent-country">
-          {t('onboarding.agent.country', 'Your country')}
+          {t('onboarding.agent.country', 'Your country')}{' '}
+          <span aria-hidden className={styles.required}>*</span>
         </label>
         <SearchableSelect
           options={[
@@ -95,7 +96,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
       </div>
 
       <div className={styles.actions}>
-        <Button fullWidth size="lg" onClick={submit}>
+        <Button fullWidth size="lg" onClick={submit} disabled={!country}>
           {t('common.continue', 'Continue')}
         </Button>
         <div className={styles.secondaryActions}>

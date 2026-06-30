@@ -112,6 +112,9 @@
   font-weight: $font-medium;
   color: $gray-700;
 }
+.required {
+  color: $error;
+}
 .input {
   height: 44px;
   border: 1px solid $gray-200;
