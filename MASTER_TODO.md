@@ -120,22 +120,108 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 
 ## 7. Roadmap
 
-**Done — Wave 1** (Foundation + lanes A–G + the 2026-05-31 review wave): the 5-stage pipeline,
-onboarding & identity, deliberation/co-authoring, the three mechanisms (QV + conviction; **liquid
-delegation D3 still pending**), mandate & impact, presence/multilingual, community home. Full detail
-and review findings: [docs/archive/WAVE_1_HISTORY.md](docs/archive/WAVE_1_HISTORY.md).
+### Done (the build so far)
 
-**Now — UX overhaul** (approved master plan; see project memory). Process reform first, then:
+- **Wave 1** (Foundation + lanes A–G + the 2026-05-31 review wave): the 5-stage pipeline, onboarding &
+  identity, deliberation/co-authoring, the three mechanisms (QV + conviction; **liquid delegation D3 still
+  pending**), mandate & impact, presence/multilingual, community home. Detail:
+  [docs/archive/WAVE_1_HISTORY.md](docs/archive/WAVE_1_HISTORY.md).
+- **UX-overhaul arc** (the old "Batch 1 + Phases 2–5" plan — now substantially shipped): global multi-topic
+  demo + cross-community Home; nav/IA pass + AppHeader; web-of-trust verification + per-stage permissions;
+  stage-UX redesigns (threaded discussion, SolutionsBoard, vote card, MandateCard); welcome guide;
+  whole-platform hierarchy/a11y review; full fr/sw + LanguageSwitcher.
+- **Design-consistency / pipeline roadmap (S1–S6)**: the commitments→metrics spine flows end-to-end
+  Solutions → Vote → Mandate. **S7** dead-code sweep + `docs/FOR_OURI_seam.md`. **S8** 3 a11y/contrast Minors
+  + i18n native-review packet refresh. Per-session detail lives in project memory.
 
-- **Batch 1 — Visual wins + global demo + cross-community home:**
-  - Global demo reframing — drop the "Young Africa / climate" exclusivity; seed several globally diverse, multi-topic communities.
-  - Visual / design-system fixes — proposal/vote toggle buttons, problem-title-vs-button hierarchy, whitespace, contrast.
-  - New cross-community `HomeView` mixing problems / discussions / proposals / votes across communities.
-- **Phase 2 — Navigation & IA:** one coherent menu model; promote "Start Initiative"; resolve the initiative-vs-problem overlap; prune the stepper to the create-initiative page only.
-- **Phase 3 — Verification & permissions:** mock platform-wide web-of-trust verification; browse freely, verify/join prompts on interaction; a community settings screen for per-stage interaction requirements.
-- **Phase 4 — Stage UX:** discussion-as-co-authoring (separate comments from contributions; kill the double "Join discussion" button); mandate card redesign (finite policy-style description + date + share + secondary actions; country data behind a button); vote demo content + button styling.
-- **Phase 5 — Hand-holding + accessibility:** in-depth per-section welcome guide; diverse-persona accessibility reviews (the §5 panel).
+> The redesign arc is **complete**. The roadmap below is the **next build**, ordered so foundations and
+> cheap high-trust fixes come first and each phase leaves `ui` runnable. It is driven by the
+> **2026-06-29 nine-persona review** (see §8 changelog); severities are that panel's.
 
-**Still pending from Wave 1** (fold into the phases above where they fit): liquid delegation (D3);
-the Wave 1.5 refactor lanes (design-system canonicalization, utils/types consolidation,
-shared-affordances extraction, voting-flow consolidation, i18n parity) — see archive.
+### Build order (next)
+
+**P0 — Pilot-readiness quick wins** *(do first: cheap, self-contained, highest trust/UX per effort; mostly
+copy + demo-fixtures + small component fixes — no architectural change).*
+- [BLOCKER] **Claims honesty.** Reconcile copy with the real mechanism everywhere: "one person, one vote" ↔
+  the quadratic ballot; "no ID papers / face scan" ↔ "confirming real-world identity"; qualify/substantiate
+  "blockchain-backed / transparent". Add a plain "what's public · private · permanent" line at the **ballot**
+  and the **comment composer**.
+- [BLOCKER] **Make the back half reachable (demo data).** Seed ≥1 un-gated initiative sitting at Solutions &
+  Vote so a fresh user can actually reach the QV ballot + interactive SolutionsBoard. Seed discussion threads
+  consistently (some are currently empty but for the user's own comment).
+- [BLOCKER] **A11y: announce comment posts.** Add `aria-live` status ("Comment posted") + move focus to the
+  new comment on the discussion thread (WCAG 4.1.3).
+- [MAJOR] **Inviter-country default bug.** Profile country pre-fills the *inviter's* country (🇮🇳) and rides
+  to the profile/mandate. Default empty (or locale-guess); required + visibly unset.
+- [MAJOR] **A11y micro-fixes.** Like button `aria-label` must include the count; extend the S8 `.liked` AA
+  contrast fix to the base `.actionBtn` (gray-500 ≈ 4.0:1 → AA). Localize `<title>`; fix "across 1 countries"
+  pluralization; add stage to the discussion `<h1>`; de-dupe the community heading; `aria-haspopup` on menu.
+- [MINOR] Threshold bar reacts to an upvote (momentum); whole card tappable (not only the inner button).
+
+**P1 — Navigation & IA** *(coherent unit; foundational to "follow one idea through its stages").*
+- [MAJOR] Make the per-initiative stage strip **follow the active initiative**; relabel/visually separate the
+  global stage footer as "Browse by stage" so it doesn't read as next-step nav.
+- [MAJOR] Add **Discussion** as a first-class stage in the footer (guide teaches 5 stages, footer shows 4).
+- [MAJOR] Tapping a Home/feed card opens that item **in focus** (stop dropping users on a generic feed).
+- [MINOR] Wire the mandate "View full" + provenance "Vote" links to their real targets (not the global stage).
+
+**P2 — Trust, privacy & consent depth** *(builds on P0 honesty copy).*
+- [BLOCKER→here] Read-only / teaser **ballot + "how this vote works" explainer** (QV cost curve; conviction's
+  time dimension) visible *before* the verification gate, so the mechanism is auditable without participating.
+- [MAJOR] Disclose vote visibility (secret vs attributable) at the ballot; reconcile with "open to the whole
+  community". Offer a **pseudonym / display-name** option for posts & votes.
+- [MAJOR] Real **consent step**: link actual privacy/data terms, list what's collected (public key, profile,
+  participation/votes, server); don't let core consent be "Skip for now". Drop the full public key from
+  shareable URLs.
+
+**P3 — Evidence & expertise loop.**
+- [MAJOR] Close the expert-review loop: a **"submit expert review"** flow (assessment + evidence/source +
+  indicator metrics), with reviewer name/credentials on the badge — today you can only *request* a review.
+- [MAJOR] Add a repeatable **Sources / citation** field to the solution, write-together, and comment
+  composers (render as the citation chips already shown on problems/mandates).
+- [MAJOR] Let solution authors / expert reviewers enter the **indicator metrics** (currently display-only).
+
+**P4 — Mandate rigor (institutional credibility).**
+- [MAJOR] Require **target + baseline + measurement cadence** per indicator before ratification (today
+  `indicators[].target` and `articles[].title` are empty strings).
+- [MAJOR] Add a **turnout denominator** (X of N eligible) + an explicit **Sybil-resistance / verification**
+  statement to the mandate artifact and its `spec.json` `provenance` block. Mark org endorsements
+  claimed-vs-verified.
+
+**P5 — Mission floor (pull forward from Wave 2 — north-star #1 gaps the pilot will hit).**
+- [BLOCKER-class, large] **Low-bandwidth / offline mode** — cache last view, defer images, an "offline"
+  state, a WhatsApp-shareable summary. (Thandiwe/Pascal on intermittent, expensive data.)
+- [MAJOR, large] **More UI locales** incl. Chichewa (and other widely-spoken African languages that exist as
+  *profile* tags but not UI locales). Wire the **localized country names** into `SearchableSelect`.
+- [MAJOR, coordinate w/ backend] **Content-translation strategy** — fixture/content text (problem titles,
+  comments, solutions, mandate body) is English in every locale; decide per-card translation vs a "traduire"
+  affordance. Backend-adjacent → coordinate with Ouri.
+
+**P6 — Remaining Wave-1 debt.**
+- Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
+- Wave 1.5 refactor lanes (design-system canonicalization, utils/types consolidation, shared-affordances
+  extraction, voting-flow consolidation) — see archive.
+
+### Blocked / coordination (not ours to drive on `ui`)
+- **A — land `ui` → `main`.** `origin/main` is Ouri's real-server layer (mid-QA, 341-vs-2 diverged). Per the
+  branch model he *derives* `new-features` from `ui` and pushes to `main`. Eston coordinates; not a merge we run.
+- **D-apply — fr/sw native review.** The packet is verified-current
+  ([docs/i18n-native-review-candidates.md](docs/i18n-native-review-candidates.md)); needs an actual native
+  fr + sw speaker, then apply confirmed fixes.
+
+---
+
+## 8. Changelog
+
+- **2026-06-29 — Nine-persona milestone review** (Amara, Chidi, Thandiwe, Pascal, Dr. Giorgia, Marie, James,
+  Tomás, Viktor) against the live preview after the S1–S8 arc. Top convergences → P0–P5 above: claims-honesty
+  contradictions (1p1v↔QV, no-ID↔real-world-ID, vote secrecy, blockchain) [3 personas]; the verification gate
+  hides the whole back half of the pipeline (QV ballot + SolutionsBoard unreachable for a fresh user)
+  [4 personas]; stage-footer breaks single-issue tracing + omits Discussion + Home-tap loses context
+  [4 personas]; inviter-country default bug [3 personas]; identity exposure / weak consent [2 personas]; no
+  low-bandwidth mode / no Chichewa [2 personas]; broken expert-review loop + no source fields [2 personas];
+  empty mandate KPI targets + no turnout denominator [James]; a11y live-region + Like-label + base-button
+  contrast [Tomás]. **Biggest wins to preserve:** the shareable onboarding guide; transnational presence that
+  is *felt* and screen-reader-labeled; the credible Mandate artifact (provenance + spec.json + adoption
+  framework); Write-Together co-production; the strong a11y foundation (skip link, landmarks, one h1, zero
+  unnamed controls).
