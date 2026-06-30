@@ -114,7 +114,8 @@ const CommentItem: React.FC<{
   onFocus: (id: string) => void;
   newCommentId?: string | null;
   newCommentRef?: React.RefCallback<HTMLDivElement>;
-}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onFocus, newCommentId, newCommentRef }) => {
+  onNewCommentBlur?: (id: string) => void;
+}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onFocus, newCommentId, newCommentRef, onNewCommentBlur }) => {
   const { t, locale } = useI18n();
   const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -133,6 +134,7 @@ const CommentItem: React.FC<{
       className={`${styles.commentItem} ${depth > 0 ? styles.nested : ''}`}
       ref={isNewComment && newCommentRef ? newCommentRef : undefined}
       tabIndex={isNewComment ? -1 : undefined}
+      onBlur={isNewComment && onNewCommentBlur ? () => onNewCommentBlur(node.id) : undefined}
     >
       {depth > 0 && <div className={styles.threadLine} aria-hidden />}
       <div className={styles.commentBody}>
@@ -219,6 +221,7 @@ const CommentItem: React.FC<{
                 onFocus={onFocus}
                 newCommentId={newCommentId}
                 newCommentRef={newCommentRef}
+                onNewCommentBlur={onNewCommentBlur}
               />
             ))}
           </div>
@@ -258,8 +261,14 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const [postedStatus, setPostedStatus] = useState('');
   const [newCommentId, setNewCommentId] = useState<string | null>(null);
   const newCommentElRef = useRef<HTMLDivElement | null>(null);
+  const announceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const newCommentRefCallback: React.RefCallback<HTMLDivElement> = useCallback((el) => {
     newCommentElRef.current = el;
+  }, []);
+
+  // Clear any pending announcement timer on unmount.
+  useEffect(() => () => {
+    if (announceTimer.current) clearTimeout(announceTimer.current);
   }, []);
 
   const refresh = useCallback(async () => {
@@ -273,25 +282,29 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  // Move focus to the newly-posted comment after refresh settles.
-  // Double-rAF: first frame lets React commit the ref, second ensures the
-  // browser has painted so focus() on the scrolled-to element is reliable.
+  // Move focus to the newly-posted comment after refresh settles. A short
+  // timeout (not rAF — rAF is throttled in backgrounded tabs) lets React commit
+  // the ref + paint before we focus the scrolled-to element.
   useEffect(() => {
     if (!newCommentId) return;
-    let outer: number;
-    let inner: number;
-    outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => {
-        newCommentElRef.current?.focus();
-      });
-    });
-    return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+    const id = setTimeout(() => {
+      newCommentElRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(id);
   }, [newCommentId]);
+
+  // When the new comment loses focus, drop newCommentId so it no longer carries
+  // tabIndex=-1 (no ordinary comment retains the attribute between posts). Only
+  // clear if THIS comment is still the target — a newer post may have already
+  // set a different id (its blur must not clobber the newer target).
+  const handleNewCommentBlur = useCallback((blurredId: string) => {
+    setNewCommentId((cur) => (cur === blurredId ? null : cur));
+  }, []);
 
   const handleTopLevel = useCallback(async (text: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
-    // Reset prior focus/status before posting
-    setNewCommentId(null);
+    // Clear any prior status/focus before posting.
+    if (announceTimer.current) clearTimeout(announceTimer.current);
     setPostedStatus('');
     const result = await api.addComment(serverUrl, publicKey, contractId, text, null);
     await refresh();
@@ -309,7 +322,11 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
         return prev;
       });
     }
-    setPostedStatus(t('deliberation.thread.posted', 'Comment posted'));
+    // Announce on a separate commit so AT re-fires even on identical repeat
+    // posts: the '' reset above and this set must land in distinct DOM commits.
+    announceTimer.current = setTimeout(() => {
+      setPostedStatus(t('deliberation.thread.posted', 'Comment posted'));
+    }, 60);
   }, [serverUrl, publicKey, contractId, refresh, t]);
 
   const handleReply = useCallback(async (parentId: string, text: string) => {
@@ -420,6 +437,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
               onFocus={setFocusRootId}
               newCommentId={newCommentId}
               newCommentRef={newCommentRefCallback}
+              onNewCommentBlur={handleNewCommentBlur}
             />
           ))}
         </div>
