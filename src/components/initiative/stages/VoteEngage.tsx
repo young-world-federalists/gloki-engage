@@ -1,6 +1,9 @@
 import React from 'react';
 import StageGate from '../../community/StageGate';
 import VoteStage from '../../stages/VoteStage';
+import VoteExplainer from './VoteExplainer';
+import VotePreview from './VotePreview';
+import { useCommunityTrust } from '../../../hooks/useCommunityTrust';
 import styles from './VoteEngage.module.scss';
 
 export interface VoteEngageProps {
@@ -14,20 +17,26 @@ export interface VoteEngageProps {
 
 /**
  * The Vote stage's **Engage** slot, rendered inside the shared
- * `InitiativeStageCard`. The card collapses to a "Cast your vote" teaser; on
- * expand, the full quadratic-voting ballot ({@link VoteStage}) renders inline —
- * no separate ballot page (Eston, 2026-06-23: card-only). The ballot is gated by
- * the community's per-stage trust rule ({@link StageGate}).
- *
- * Carries its own StageGate, so callers render it OUTSIDE any shared gate to
- * avoid double-gating (mirrors SolutionEngage / MandateEngage).
+ * `InitiativeStageCard`. S11 P2: the "how this vote works" explainer and a
+ * read-only ballot preview live OUTSIDE the `StageGate` so the mechanism is
+ * auditable before verifying. The interactive quadratic ballot ({@link VoteStage})
+ * stays gated by the community's per-stage trust rule. The preview renders only
+ * when the current user cannot participate — participants never see a duplicate —
+ * and does pure reads, so no write path leaks past the gate.
  */
 const VoteEngage: React.FC<VoteEngageProps> = ({ initiativeId, communityId, communityMemberCount }) => {
+  const { canCurrentUserParticipate, isReady } = useCommunityTrust(communityId);
+  // Mirror StageGate's loading grace (reads are harmless in the mock): assume
+  // participation while permissions load, so we don't flash the preview.
+  const canVote = !isReady || canCurrentUserParticipate('vote');
+
   return (
     <div className={styles.engage}>
+      <VoteExplainer />
       <StageGate communityId={communityId} stage="vote">
         <VoteStage initiativeId={initiativeId} communityMemberCount={communityMemberCount} />
       </StageGate>
+      {!canVote && <VotePreview initiativeId={initiativeId} communityMemberCount={communityMemberCount} />}
     </div>
   );
 };
