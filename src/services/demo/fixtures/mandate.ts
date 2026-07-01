@@ -42,7 +42,12 @@ export interface MandateArticle {
 /** A measurable success indicator ("how we'll know it's working"). */
 export interface MandateIndicator {
   label: string;
+  /** The value we're aiming for, e.g. "500 by end of 2028". */
   target: string;
+  /** Where we start from today, e.g. "About 40 communities funded in 2025". */
+  baseline?: string;
+  /** How often it's measured & reported, e.g. "Quarterly". */
+  cadence?: string;
 }
 
 /** The type of organization that can adopt a mandate. */
@@ -65,6 +70,12 @@ export interface MandateAdopter {
   progressNote?: string;
   /** Human "since" label, e.g. "Apr 2026". */
   since: string;
+  /**
+   * Claimed vs verified: `true` only when the adoption has been confirmed
+   * (stub = seeded data; FOR OURI: a real attestation). Viewer-added
+   * endorsements are always `false` (claimed).
+   */
+  verified: boolean;
 }
 
 /** Where the mandate's legitimacy comes from — shown as a provenance strip. */
@@ -76,6 +87,10 @@ export interface MandateProvenance {
   voteWinner: string;
   /** People who backed the mandate with conviction staking. */
   convictionBackers: number;
+  /** Turnout denominator N — eligible voters (community member count). */
+  eligible: number;
+  /** Turnout numerator X — members who cast a vote (allocated). */
+  voters: number;
 }
 
 /** A published, ratified Mandate — the collective output of an initiative. */
@@ -98,6 +113,23 @@ export interface PublishedMandate {
   adopters: MandateAdopter[];
   /** Machine-readable spec version. */
   specVersion: string;
+}
+
+/**
+ * Host/expert-entered ratification data, keyed by indicator label. Stored as a
+ * JSON `mandate_ratification` property on the initiative contract and merged
+ * onto the derived indicators by label (see `useMandate`).
+ * FOR OURI: a real mandate/ratification contract.
+ */
+export interface MandateRatification {
+  indicators: Record<string, { target: string; baseline: string; cadence: string }>;
+}
+
+/** A mandate is ratified only when every indicator carries target + baseline + cadence. */
+export function isMandateRatified(indicators: MandateIndicator[]): boolean {
+  return indicators.length > 0 && indicators.every(
+    (i) => !!i.target?.trim() && !!i.baseline?.trim() && !!i.cadence?.trim(),
+  );
 }
 
 /**
@@ -146,10 +178,30 @@ const ADAPTATION_MANDATE: PublishedMandate = {
     },
   ],
   indicators: [
-    { label: 'Frontline communities funded', target: '500 by end of 2028' },
-    { label: 'Funds reaching local control', target: '≥ 70% of every grant' },
-    { label: 'Projects with open progress reporting', target: '100%' },
-    { label: 'Application to first disbursement', target: 'Under 90 days' },
+    {
+      label: 'Frontline communities funded',
+      target: '500 by end of 2028',
+      baseline: 'About 40 communities funded in 2025',
+      cadence: 'Reported quarterly',
+    },
+    {
+      label: 'Funds reaching local control',
+      target: '≥ 70% of every grant',
+      baseline: 'Roughly 45% under current national-only channels',
+      cadence: 'Reported per grant, reviewed annually',
+    },
+    {
+      label: 'Projects with open progress reporting',
+      target: '100%',
+      baseline: '30% of comparable projects report publicly today',
+      cadence: 'Continuous public dashboard',
+    },
+    {
+      label: 'Application to first disbursement',
+      target: 'Under 90 days',
+      baseline: 'Typically 8–14 months through existing funds',
+      cadence: 'Reported quarterly',
+    },
   ],
   provenance: {
     participants: 1240,
@@ -157,6 +209,8 @@ const ADAPTATION_MANDATE: PublishedMandate = {
     deliberationMonths: 12,
     voteWinner: 'A community-governed adaptation fund frontline towns can apply to directly',
     convictionBackers: 760,
+    eligible: 1400,
+    voters: 1085,
   },
   adopters: [
     {
@@ -167,6 +221,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       progress: 0.32,
       progressNote: 'First 40 community projects funded across 9 countries.',
       since: '2026-04',
+      verified: true,
     },
     {
       id: 'adopt-bd-dm',
@@ -177,6 +232,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       progress: 0.21,
       progressNote: 'Co-funding drainage and shelters in 25 delta wards.',
       since: '2026-04',
+      verified: true,
     },
     {
       id: 'adopt-pif',
@@ -186,6 +242,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       progress: 0.44,
       progressNote: 'Channeling direct grants to 12 island communities.',
       since: '2026-05',
+      verified: true,
     },
     {
       id: 'adopt-mercycorps',
@@ -195,6 +252,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       progress: 0.5,
       progressNote: 'Mangrove restoration and early-warning pilots in three regions.',
       since: '2026-05',
+      verified: false,
     },
     {
       id: 'adopt-c40',
@@ -202,6 +260,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       type: 'ngo',
       level: 'endorsed',
       since: '2026-04',
+      verified: false,
     },
     {
       id: 'adopt-undrr',
@@ -209,6 +268,7 @@ const ADAPTATION_MANDATE: PublishedMandate = {
       type: 'intergov',
       level: 'endorsed',
       since: '2026-05',
+      verified: false,
     },
   ],
   specVersion: '1.0',

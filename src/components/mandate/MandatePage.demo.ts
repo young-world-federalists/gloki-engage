@@ -50,6 +50,7 @@ export function addEndorsement(mandateId: string, input: EndorsementInput): Mand
     progress: input.level === 'subscribed' ? 0 : undefined,
     progressNote: input.level === 'subscribed' ? input.progressNote?.trim() || undefined : undefined,
     since: 'Just now',
+    verified: false,
   };
   const list = sessionAdopters.get(mandate.id) ?? [];
   sessionAdopters.set(mandate.id, [adopter, ...list]);
