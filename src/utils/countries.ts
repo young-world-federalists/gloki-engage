@@ -243,13 +243,8 @@ export function getCountryName(code: string, locale?: string): string {
   return getCountryByCode(code).name;
 }
 
-const PILOT_COLORS: Record<string, string> = {
-  KE: '#006600',
-  NG: '#008751',
-  MW: '#ce1126',
-  CD: '#007fff',
-};
-
+// A deterministic, region-neutral colour per country: same hue every render, no
+// country privileged (S15 P5.5 — replaced the Africa-centric PILOT_COLORS set).
 function hashColor(code: string): string {
   let hash = 0;
   for (let i = 0; i < code.length; i++) {
@@ -261,7 +256,7 @@ function hashColor(code: string): string {
 
 export function getCountryColor(code: string): string {
   if (code === 'OTHER') return '#6b7280';
-  return PILOT_COLORS[code] || hashColor(code);
+  return hashColor(code);
 }
 
 export const COUNTRY_COLORS: Record<string, string> & { OTHER: string } = new Proxy(

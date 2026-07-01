@@ -761,6 +761,33 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
 
 ---
 
+## Session 15 (2026-07-02) — SolutionsBoard recomposition + P5.5 generalization
+
+**New keys (Phase 0 — SolutionsBoard):**
+- **fr/sw `mechanisms.approval.progressBacked`** — "solutions backed". fr "solutions soutenues", sw
+  "suluhisho zilizoungwa mkono". Short inline stat label under the "progress to vote" count — confirm it
+  reads naturally truncated (no verb).
+- **fr/sw `mechanisms.approval.progressReviewed`** — "experts reviewed". fr "experts ayant examiné", sw
+  "wataalam waliokagua". Same compact-stat context.
+- **fr/sw `mechanisms.approval.evidenceReviewToggle`** — "Evidence & expert review ({n})". fr "Preuves et
+  examen par un expert ({n})", sw "Ushahidi na ukaguzi wa mtaalam ({n})". Inline expand toggle label with a
+  count — confirm the `{n}` placement reads naturally.
+- **fr/sw `mechanisms.approval.evidenceToggle`** — "Evidence & indicators". fr "Preuves et indicateurs", sw
+  "Ushahidi na viashiria". Same toggle when there are no expert reviews.
+
+**Reframed keys (Phase 1 — P5.5 generalization, VftC/Africa → global):**
+- **fr/sw `onboarding.invite.lead`** — now "{name} invited you to Gloki — where people across the world
+  decide together what to do about the challenges they share." fr "{name} vous a invité·e à Gloki — où des
+  personnes du monde entier décident ensemble quoi faire face aux défis qu'elles partagent.", sw "{name}
+  amekualika kwenye Gloki — ambapo watu kote ulimwenguni huamua pamoja la kufanya kuhusu changamoto
+  wanazoshiriki." Confirm the neutralized (no campaign/region) invite still feels warm and welcoming.
+- **fr/sw `mandate.provenanceLine`** — dropped the youth framing → "Deliberated by {participants} people
+  across {countries} countries over {months} months." fr "Délibéré par {participants} personnes dans
+  {countries} pays pendant {months} mois.", sw "Limejadiliwa na watu {participants} kutoka nchi {countries}
+  kwa miezi {months}." Confirm "personnes"/"watu" read naturally in place of the former "jeunes"/"vijana".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

@@ -23,7 +23,7 @@ const InviteStep: React.FC<Props> = ({ voucher, onContinue, headingRef }) => {
       <p className={styles.lead}>
         {t(
           'onboarding.invite.lead',
-          '{name} invited you to Voices for the Climate — where young people across Africa decide what to do about the climate, together.',
+          '{name} invited you to Gloki — where people across the world decide together what to do about the challenges they share.',
           { name: voucher.firstName },
         )}
       </p>

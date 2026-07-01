@@ -12,7 +12,7 @@ Everything in this roadmap is judged against **two principles**, in this order:
 
 1. **Usability first.** A young person on a cheap Android with intermittent data and English as a
    third language must be able to participate *without anyone sitting next to them.* Our concrete
-   bar is the Voices-for-the-Climate KPI: **≥70% of participants complete the journey unaided.**
+   bar is the platform KPI: **≥70% of participants complete the journey unaided.**
    Plain language, low cognitive load, guided steps, generous defaults, forgiving errors.
 2. **A felt sense of transnational collaboration.** The product should make someone in Nairobi and
    someone in Lilongwe *feel they are building something together across borders* — through
@@ -25,10 +25,15 @@ If a task doesn't serve one of these, it is probably **Wave 2+** (deferred). See
 
 ## 2. The mission this UI must enable
 
-**Near-term, concrete:** Run **"Voices for the Climate"** — a 12-month transnational deliberation for
-500+ youth across **Kenya, Nigeria, Malawi, DRC**, producing a published **"Young Africa Climate
-Mandate."** The app must support its four phases end-to-end (all hardcoded UI for now; backend is
-Ouri's separate track):
+**The platform (primary):** Gloki is a **global direct-democracy platform** — any community,
+anywhere, turning shared problems into collective mandates through the pipeline below. The seeded
+demo reflects this: diverse communities and civic topics worldwide, no single campaign or region as
+the frame.
+
+**Near-term pilot (one concrete example):** Run **"Voices for the Climate"** — a 12-month
+transnational deliberation for 500+ youth across **Kenya, Nigeria, Malawi, DRC**, producing a
+published **"Young Africa Climate Mandate."** The app must support its four phases end-to-end (all
+hardcoded UI for now; backend is Ouri's separate track):
 
 | VftC Phase | What happens | Gloki surface |
 |---|---|---|
@@ -240,13 +245,18 @@ all 3 items narrower than framed — see project memory `project_session12_evide
   comments, solutions, mandate body) is English in every locale; decide per-card translation vs a "traduire"
   affordance. Backend-adjacent → coordinate with Ouri. **Still open.**
 
-**P5.5 — Generalize Gloki beyond the VftC/Africa pilot (Eston direction, 2026-07-01).** The app reads as the
-"Voices for the Climate / youth across Africa" campaign, not Gloki-the-global-platform. Scope a dedicated pass
-(brainstorm first) across four aspects: (1) **UI copy & mission framing** (onboarding/homepage/about/stage
-copy — e.g. the invitation "Voices for the Climate — jeunes de toute l'Afrique"); (2) **sample/fixture
-content** (climate-themed problems/solutions/mandates → varied civic topics); (3) **geographic assumptions**
-(`PILOT_COLORS` KE/NG/MW/CD, default/inviter country, pilot-country lists, region taxonomy defaults →
-globally neutral); (4) **docs & positioning** (this file's §1–2 mission, memory). Sizable; its own spec→plan.
+**P5.5 — Generalize Gloki beyond the VftC/Africa pilot (Eston direction, 2026-07-01). ✅ SHIPPED (S15,
+2026-07-02).** The audit found the app was **already ~90% generalized**: homepage/welcome copy already global,
+`PILOT_COUNTRIES` = all 197 countries, `regions.ts` already the global 6-region set, and the seeded communities
+already diverse (Global Health, Digital Rights, Climate Resilience, Fair Futures, …) — **"Voices for the
+Climate" survived only in the onboarding invite copy** (never a seeded community). Anchor = **surgical
+neutralization** (Eston): (1) onboarding `invite.lead` → cause/region-agnostic (en+fr+sw); (2)
+`mandate.provenanceLine` "young people" → "people" (en+fr+sw); (3) removed the Africa-centric `PILOT_COLORS`
+(KE/NG/MW/CD) so every country uses the neutral deterministic `hashColor`; (4) light-touch docs reframe (§1 KPI
+relabelled "platform KPI"; §2 now leads with the global-platform mission, VftC kept as *one named pilot
+example*). Climate stays **one balanced community among several** — no fixture reskin → **no `DEMO_VERSION`
+bump**. fr/sw parity held (2 changed keys, no new keys). Spec:
+`docs/superpowers/specs/2026-07-02-p55-generalize-gloki-design.md`.
 
 **P6 — Remaining Wave-1 debt.**
 - Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
@@ -264,6 +274,20 @@ globally neutral); (4) **docs & positioning** (this file's §1–2 mission, memo
 
 ## 8. Changelog
 
+- **2026-07-02 — S15: card-cohesion fix + P5.5 generalize-Gloki (both shipped).** Two linked pieces.
+  **Phase 0 — SolutionsBoard recomposition:** the card-cohesion audit (specs vs live code + 360px
+  light/dark preview) found accretion-dilution **concentrated in `SolutionsBoard`** (nothing deleted —
+  P0–P5 features stacked as ~9 co-equal blocks inside a card-in-a-card-in-a-card). Fix = **re-composition,
+  no feature reverts**: flush solution list items + hairline dividers; indicators/sources/expert-review
+  folded behind an inline **"Evidence & expert review"** expand (new local `SolutionEvidence`; expert
+  review renders flush, green box gone); two threshold bars → one compact "progress to vote" line;
+  text→commitments→byline hierarchy (~9 visible blocks → ~4). 4 new i18n keys at fr/sw parity.
+  **Phase 1 — P5.5 generalize (surgical):** app was already ~90% general; neutralized the onboarding
+  invite copy + the mandate "young people" line (en+fr+sw), removed Africa-centric `PILOT_COLORS`, and
+  light-touch docs reframe (§1–2). Climate kept as one balanced community; **no `DEMO_VERSION` bump** (no
+  fixtures touched). Both built directly (contained changes), `tsc -b` clean, preview-verified 360px
+  light+dark. Specs: `2026-07-01-solutionsboard-recomposition-design.md`,
+  `2026-07-02-p55-generalize-gloki-design.md`.
 - **2026-07-01 — P5 Mission floor: offline anchor + localized country names shipped (S14).** Made the app
   usable by the pilot cohort on cheap Androids / intermittent data — the north-star-#1 usability floor.
   **Premise correction:** offline was *not* greenfield — a complete but orphaned "Lane F connectivity kit"

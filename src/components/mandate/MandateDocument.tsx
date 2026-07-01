@@ -117,7 +117,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
         <p className={styles.provenanceLine}>
           {t(
             'mandate.provenanceLine',
-            'Deliberated by {participants} young people across {countries} countries over {months} months.',
+            'Deliberated by {participants} people across {countries} countries over {months} months.',
             {
               participants: mandate.provenance.participants,
               countries: mandate.provenance.countries,
