@@ -31,6 +31,9 @@ const COUNTRY_PREVIEW = 4;
 
 export interface MandateCardProps {
   mandate: PublishedMandate;
+  /** Route ids — used to build a clean, pubkey-free share link (S11 P2). */
+  communityId: string;
+  mandateId: string;
   /** Primary CTA → the initiative's mandate stage where conviction staking lives. */
   onShowSupport: () => void;
   /** "View full" → scroll/route to the full published document. */
@@ -43,14 +46,21 @@ export interface MandateCardProps {
  * jurisdiction, conviction). The primary action drives engagement (conviction),
  * not reading; the full document is one understated "View full" away.
  */
-const MandateCard: React.FC<MandateCardProps> = ({ mandate, onShowSupport, onViewFull }) => {
+const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandateId, onShowSupport, onViewFull }) => {
   const { t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
   const [showAllCountries, setShowAllCountries] = useState(false);
   const { provenance } = mandate;
 
   const share = async () => {
-    const url = window.location.href;
+    // Route by community + initiative ids only — never leak the pubkey that rides
+    // in the /initiative/:host/:agent/… path (S11 P2). BrowserRouter basename =
+    // import.meta.env.BASE_URL; the /mandate/:communityId/:mandateId route resolves
+    // without any key.
+    const base = import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL.slice(0, -1)
+      : import.meta.env.BASE_URL;
+    const url = `${window.location.origin}${base}/mandate/${communityId}/${mandateId}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({ title: mandate.title, text: mandate.problem, url });

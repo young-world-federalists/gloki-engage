@@ -40,7 +40,7 @@ const MandatePage: React.FC = () => {
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={cs.main}>
           <div className={styles.page}>
-            <MandateCard mandate={mandate} onShowSupport={onShowSupport} onViewFull={onViewFull} />
+            <MandateCard mandate={mandate} communityId={communityId ?? ''} mandateId={mandateId ?? ''} onShowSupport={onShowSupport} onViewFull={onViewFull} />
             <div id={MANDATE_DOC_ANCHOR_ID} className={styles.docAnchor}>
               <MandateDocument mandate={mandate} />
             </div>
