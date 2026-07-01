@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
-import { getProposals, getConfig, getResults } from '../../collaboration/flows/voting/qvApi';
+import { resolveInitiativeStageContract } from '../../../services/contracts/initiative';
+import { getProposals, getResults } from '../../collaboration/flows/voting/qvApi';
 import { getProposals as getApprovalProposals } from '../../collaboration/flows/voting/approvalApi';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
@@ -15,16 +15,15 @@ export interface VotePreviewProps { initiativeId: string; communityMemberCount?:
 
 /**
  * S11 P2 — read-only ballot preview shown OUTSIDE the StageGate, only when the
- * current user cannot participate. Pure reads (no `allocate` import) so no write
- * path leaks past the gate. Mirrors QVFlow's reviewed-only ballot build; renders
- * solution text + byline + live tally, with no steppers and no Cast button.
+ * current user cannot participate. Genuinely read-only: it resolves the already
+ * -registered vote/proposals sub-contracts via `resolveInitiativeStageContract`
+ * (a pure `contractRead` — never `useFlowContract`, which can deploy + register)
+ * and reads proposals/results. If the vote contract hasn't been initialized yet,
+ * there is nothing to preview and it renders null — no deploy, no write path past
+ * the gate. Mirrors QVFlow's reviewed-only ballot build; no steppers, no Cast.
  */
 const VotePreview: React.FC<VotePreviewProps> = ({ initiativeId }) => {
   const t = useT();
-  const instanceId = `${initiativeId}_vote`;
-  const { contractId, isReady } = useFlowContract(instanceId, 'quadratic_vote', 'qv_contract.py', '', initiativeId, 'voteContractId');
-  const { contractId: proposalsContractId, isReady: proposalsReady } =
-    useFlowContract(`${initiativeId}_proposals`, 'approval_voting', 'approval_contract.py', '', initiativeId, 'proposalsContractId');
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = useAppSelector((s) => s.communities.profiles);
@@ -34,21 +33,26 @@ const VotePreview: React.FC<VotePreviewProps> = ({ initiativeId }) => {
   const [results, setResults] = useState<Record<string, number>>({});
 
   const fetchData = useCallback(async () => {
-    if (!serverUrl || !publicKey || !contractId) return;
+    if (!serverUrl || !publicKey || !initiativeId) return;
     try {
-      const [p, , r, ap] = await Promise.all([
-        getProposals(serverUrl, publicKey, contractId),
-        getConfig(serverUrl, publicKey, contractId),
-        getResults(serverUrl, publicKey, contractId),
-        proposalsReady && proposalsContractId ? getApprovalProposals(serverUrl, publicKey, proposalsContractId) : Promise.resolve(null),
+      // Read-only: resolve the already-registered sub-contracts (no deploy/register).
+      const [voteRef, propRef] = await Promise.all([
+        resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'voteContractId'),
+        resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'proposalsContractId'),
+      ]);
+      if (!voteRef?.contractId) return; // nothing initialized yet → nothing to preview
+      const [p, r, ap] = await Promise.all([
+        getProposals(serverUrl, publicKey, voteRef.contractId),
+        getResults(serverUrl, publicKey, voteRef.contractId),
+        propRef?.contractId ? getApprovalProposals(serverUrl, publicKey, propRef.contractId) : Promise.resolve(null),
       ]);
       setQv((p as Record<string, QvProposal>) || {});
       setResults((r as Record<string, number>) || {});
       if (ap) setApproval(ap as Record<string, ApprovalProposal>);
     } catch (err) { console.error('VotePreview fetch failed:', err); }
-  }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady]);
+  }, [serverUrl, publicKey, initiativeId]);
 
-  useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const list = Object.values(qv).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   const merged = list.map((q) => {

@@ -182,7 +182,7 @@
   color: $gray-600;
 }
 .consentLink {
-  color: $primary;
+  color: $primary-dark; // AA on white (~4.77:1); dark-mode override below uses lighter $primary
   text-decoration: underline;
 }
 
@@ -249,6 +249,9 @@
   }
   .subheading {
     color: $dark-text;
+  }
+  .consentLink {
+    color: $primary; // lighter blue reads AA on the dark surface
   }
   .input,
   .rule {
