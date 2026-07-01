@@ -34,10 +34,14 @@ A solution is a **flush list item** (no border/box), separated from the next by 
 - **Commitments** — bulleted, muted/secondary, directly under the text. **Always visible** (S4 spine).
 - **Byline row** — `UserIdentity` (author) + a small **"expert reviewed"** tag when reviews exist
   (stays visible as the fold *teaser* — trust signal preserved).
-- **"Evidence & expert review" disclosure** (`InfoDisclosure`) — rendered **only when** there is
-  something to fold: author-proposed indicators OR sources OR expert reviews. Adaptive label with a
-  count when reviews exist (e.g. *"Evidence & expert review (2)"*, else *"Evidence"*). When open, its
-  contents render **flush — no filled green box**:
+- **"Evidence & expert review" inline expand** — rendered **only when** there is something to fold:
+  author-proposed indicators OR sources OR expert reviews. Adaptive label with a count when reviews
+  exist (e.g. *"Evidence & expert review (2)"*, else *"Evidence & indicators"*). **Mechanism note:**
+  the kit `InfoDisclosure` opens a *Modal* (built for rules/explainer prose), which is wrong for
+  per-solution content — so this is an **inline expand toggle** (button + `aria-expanded` +
+  `aria-controls` + chevron + conditional panel), the same dive-on-tap pattern `InitiativeStageCard`
+  uses. Extracted as a small local `SolutionEvidence` component so `SolutionsBoard` doesn't grow more
+  state. When open, its contents render **flush — no filled green box**:
   - Author-proposed indicators (labeled, per S13).
   - Sources (`SourceLinks`).
   - Each expert review as a flush attributed block — `UserIdentity` (verified) + credentials,
