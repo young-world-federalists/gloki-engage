@@ -12,6 +12,13 @@
   gap: $spacing-sm;
 }
 
+// Per-card wrapper. The deep-linked card is focused programmatically (tabIndex
+// -1, not keyboard-reachable) so we scroll it into view on `?initiative=` —
+// suppress the focus ring; the scroll is the cue.
+.cardWrap:focus {
+  outline: none;
+}
+
 .feedHeader {
   margin-bottom: $spacing-xs;
 }

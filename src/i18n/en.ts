@@ -42,6 +42,9 @@ const en: Dictionary = {
   'nav.vote': 'Vote',
   'nav.mandate': 'Mandate',
   'nav.skipToContent': 'Skip to content',
+  // Reframes the global StageFooter as cross-community discovery (P1) — distinct
+  // from the per-initiative stage strip's next-step nav.
+  'nav.browseByStage': 'Browse by stage',
 
   // AppHeader section eyebrows (Wave 1)
   'header.section.discussion': 'Discussion',
@@ -56,6 +59,9 @@ const en: Dictionary = {
   'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandate',
+  // Per-initiative stage strip (the follow-this-initiative control, P1).
+  'stage.initiativeStripLabel': 'Stages of this initiative',
+  'stage.goTo': 'Go to {stage}',
 
   // Language switcher (language names stay as endonyms across all locales)
   'lang.switch': 'Language',

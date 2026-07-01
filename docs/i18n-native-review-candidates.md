@@ -650,6 +650,20 @@ S9 strings for a native speaker to confirm or correct. Treated as candidates, no
 - **`mandate.country.one` vs `.other`**: fr `pays`/`pays` and sw `nchi`/`nchi` are intentionally identical
   (both nouns are invariant for number) — NOT a bug; included only so the reviewer knows it's deliberate.
 
+### S10 — Navigation & IA strings (2026-06-30)
+
+Three new keys from the P1 nav work. The new `{stage}` token in `stage.goTo` interpolates a stage label
+(Problem/Discussion/Solutions/Vote/Mandate) — confirm the preposition + word order read naturally for each.
+
+- **fr/sw `nav.browseByStage`** (the reframed global footer caption + aria): fr "Parcourir par étape", sw
+  "Vinjari kwa hatua". Confirm it reads as *cross-community discovery* ("browse initiatives by stage"), not
+  "advance through the stages".
+- **fr/sw `stage.initiativeStripLabel`** (the per-initiative strip's list aria-label): fr "Étapes de cette
+  initiative", sw "Hatua za mpango huu". Confirm "mpango" vs "mradi" for "initiative" (kept consistent with the
+  existing initiative vocabulary).
+- **fr/sw `stage.goTo`** (strip button aria, e.g. "Go to Mandate"): fr "Aller à {stage}", sw "Nenda kwa
+  {stage}". Confirm "Aller à" / "Nenda kwa" + the stage label reads naturally for a screen-reader announcement.
+
 ---
 
 ## How to deliver fixes

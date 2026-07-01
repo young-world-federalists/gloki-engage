@@ -158,12 +158,26 @@ copy + demo-fixtures + small component fixes — no architectural change).*
   pluralization; add stage to the discussion `<h1>`; de-dupe the community heading; `aria-haspopup` on menu.
 - [MINOR] Threshold bar reacts to an upvote (momentum); whole card tappable (not only the inner button).
 
-**P1 — Navigation & IA** *(coherent unit; foundational to "follow one idea through its stages").*
-- [MAJOR] Make the per-initiative stage strip **follow the active initiative**; relabel/visually separate the
-  global stage footer as "Browse by stage" so it doesn't read as next-step nav.
-- [MAJOR] Add **Discussion** as a first-class stage in the footer (guide teaches 5 stages, footer shows 4).
-- [MAJOR] Tapping a Home/feed card opens that item **in focus** (stop dropping users on a generic feed).
-- [MINOR] Wire the mandate "View full" + provenance "Vote" links to their real targets (not the global stage).
+**P1 — Navigation & IA** ✅ **DONE & verified (S10, 2026-06-30)** *(coherent unit; foundational to "follow
+one idea through its stages"). Spec: `docs/superpowers/specs/2026-06-30-s10-navigation-ia-design.md`.*
+- [MAJOR] ✅ New **`InitiativeStageStrip`** (router-aware sibling of the read-only `StageStrip` primitive)
+  rendered atop the expanded `InitiativeStageCard` panel — the *follow-this-initiative* control. Highlights the
+  initiative's current stage (`get_stage`); tappable **only where a real surface exists** — Discussion
+  (`/initiative/.../discussion`) and Mandate (`/mandate/cid/iid`); other stages are progress markers (the inline
+  dashboard exposes only the *current* stage, so there's no past-stage surface to link). Global `StageFooter`
+  relabelled **"Browse by stage"** + visually demoted (caption eyebrow, lighter weight) so it reads as
+  cross-community discovery, not next-step nav.
+- [MAJOR] ✅ **Discussion is first-class in the strip** (all 5 stages). Per the locked IA decision the global
+  *browse* footer stays 4 stages (honors S2's "discussion is per-post, not browsed" — no `/stage/discussion`
+  feed exists).
+- [MAJOR] ✅ Tapping a Home/feed card opens the item **in focus**. (Cards already deep-linked via
+  `?initiative=` which auto-expands; the real gap was **no scroll-into-view** — fixed: `CommunityHome` scrolls
+  the deep-linked card into view + moves focus to its stable wrapper, surviving the async `get_stage` remount.
+  Reduced-motion safe.)
+- [MINOR] ✅ **Verified MOOT — nothing dangling.** No `/stage/` nav exists anywhere outside
+  `StageFooter`/`StageFeedView`. The mandate "View full" already scrolls to the same-page doc anchor; there is
+  **no** provenance "Vote" link in the code (the S6 mandate redesign / S9 work removed the surfaces the persona
+  review flagged). The new strip additionally gives a per-initiative path to Discussion/Mandate.
 
 **P2 — Trust, privacy & consent depth** *(builds on P0 honesty copy).*
 - [BLOCKER→here] Read-only / teaser **ballot + "how this vote works" explainer** (QV cost curve; conviction's

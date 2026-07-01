@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
@@ -58,6 +58,8 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  const deepCardRef = useRef<HTMLDivElement | null>(null);
+  const didFocusDeepLink = useRef(false);
 
   // Fetch collaborations if not already loaded.
   useEffect(() => {
@@ -71,6 +73,22 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
       .filter((c) => c.type === 'initiative')
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [communityCollaborations, communityId]);
+
+  // Open the tapped card *in focus*: when arriving via `?initiative=`, scroll the
+  // matching (already-expanded) card into view and move keyboard focus to its
+  // control — so a tapped Home/feed card lands on that item, not the feed top.
+  useEffect(() => {
+    if (!deepLinked || didFocusDeepLink.current) return;
+    const el = deepCardRef.current;
+    if (!el) return;
+    didFocusDeepLink.current = true;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    // Focus the stable wrapper (tabIndex -1), not an inner control: the card
+    // remounts when its stage resolves async (get_stage), which would drop focus
+    // off an inner button. The wrapper survives that swap.
+    el.focus({ preventScroll: true });
+  }, [deepLinked, initiatives]);
 
   // Fetch each initiative's current stage.
   useEffect(() => {
@@ -151,20 +169,26 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
           const hostAgent = item.hostAgent || publicKey || 'local';
 
           return (
-            <ActivityCard
+            <div
               key={item.id}
-              item={item}
-              communityId={communityId}
-              stage={stage}
-              authorName={authorName}
-              authorKey={item.author}
-              trustState={trust.trustOf(item.author || '')}
-              vouchCount={trust.vouchCountOf(item.author || '')}
-              hostServer={hostServer}
-              hostAgent={hostAgent}
-              expanded={expandedIds.has(item.id)}
-              onToggle={() => toggleExpanded(item.id)}
-            />
+              ref={item.id === deepLinked ? deepCardRef : undefined}
+              tabIndex={item.id === deepLinked ? -1 : undefined}
+              className={styles.cardWrap}
+            >
+              <ActivityCard
+                item={item}
+                communityId={communityId}
+                stage={stage}
+                authorName={authorName}
+                authorKey={item.author}
+                trustState={trust.trustOf(item.author || '')}
+                vouchCount={trust.vouchCountOf(item.author || '')}
+                hostServer={hostServer}
+                hostAgent={hostAgent}
+                expanded={expandedIds.has(item.id)}
+                onToggle={() => toggleExpanded(item.id)}
+              />
+            </div>
           );
         })}
 

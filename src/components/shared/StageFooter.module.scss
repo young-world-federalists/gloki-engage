@@ -6,21 +6,38 @@
   left: 0;
   right: 0;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   background: white;
   border-top: 1px solid $gray-200;
-  padding: $spacing-xs 0;
-  padding-bottom: max($spacing-xs, env(safe-area-inset-bottom));
+  padding: 2px 0;
+  padding-bottom: max(2px, env(safe-area-inset-bottom));
   z-index: 100;
+}
+
+// Eyebrow that frames the bar as cross-community discovery, not next-step nav.
+.caption {
+  text-align: center;
+  font-size: 9px;
+  font-weight: $font-semibold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $gray-500;
+  padding: 1px 0 0;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .tab {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: $spacing-xs $spacing-sm;
+  gap: 1px;
+  padding: 2px $spacing-sm;
   min-width: 56px;
   background: none;
   border: none;
@@ -58,6 +75,10 @@
   .footer {
     background: $dark-bg;
     border-top-color: $dark-border;
+  }
+
+  .caption {
+    color: $dark-text-secondary;
   }
 
   .tab {

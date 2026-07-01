@@ -101,6 +101,7 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       collapsedTeaser={
         thresholdMet
           ? t('card.teaserAgreed', 'Agreed by your community')

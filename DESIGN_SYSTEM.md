@@ -234,9 +234,22 @@ Props: `label` (translated trigger aria-label), `title` (modal heading, defaults
 Mandate). A glanceable pipeline anchor — **not navigation, not the explainer**.
 Token-pure rainbow (five distinct stage fills, all tokens). Default `aria-label` =
 `stage.pipelineOverview` ("The 5 governance stages"), deliberately distinct from the
-`StageFooter`'s `nav.stagesLabel` ("Pipeline stages") so the two landmarks never
-share an accessible name. Used on the task-first create + login screens. Props:
-`ariaLabel`, `className`.
+two nav landmarks below so no two share an accessible name. Used on the task-first
+create + login screens. Props: `ariaLabel`, `className`.
+
+**`InitiativeStageStrip`** (`src/components/initiative/InitiativeStageStrip.tsx`) — the
+router-aware sibling of `StageStrip`: the **follow-this-initiative** control rendered
+atop the expanded `InitiativeStageCard` panel (P1). Same five-stage rainbow, but it
+**highlights the initiative's current stage** (`get_stage`, `aria-current="step"` +
+ring) and is **tappable only where a real per-initiative surface exists** — Discussion
+(`/initiative/.../discussion`) and Mandate (`/mandate/cid/iid`). Other stages are
+progress markers (done/upcoming), never misleading links — the inline dashboard
+exposes only the *current* stage, so there's no past-stage surface to navigate to.
+Tappable stages are `<button>`s (label `stage.goTo`); the rest are static `<span>`s.
+`aria-label` = `stage.initiativeStripLabel` ("Stages of this initiative"). Distinct
+from the global **"Browse by stage"** `StageFooter` (cross-community discovery, 4
+stages, demoted) — the two must never be conflated as one nav. Props: `current`,
+`communityId`, `initiativeId`, `hostServer`, `hostAgent`, `className`.
 
 **`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
 selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
@@ -320,6 +333,7 @@ scratch** — they already encode the tokens above.
 | `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). Bakes in `role` — `alert` for the error tone, `status` otherwise. |
 | `InfoDisclosure` | The `(i)` → focus-trapped `Modal` disclosure standard (prose behind the `(i)`, numbers stay inline). See **App shell, disclosure & pipeline primitives**. |
 | `StageStrip` | Read-only `<ol>` of the 5 governance stages; token rainbow; default `aria-label` `stage.pipelineOverview`. See the primitives subsection. |
+| `InitiativeStageStrip` | Router-aware sibling of `StageStrip`: the follow-this-initiative control atop the expanded `InitiativeStageCard`. Highlights the current stage; tappable only for Discussion/Mandate. See the primitives subsection. |
 | `UserIdentity` | Inline person identity — `[flag] Name [verified-shield]`. The verified-only shield renders as an exponent (small, raised, `$success` tint). Use in feed/card bylines and author lines. Replaces the text-based `TrustBadge` in those contexts. `TrustBadge` remains on the dedicated verification page (`IdentityTrust`). Props: `publicKey`, `size` (`sm`/`md`). |
 | `CountryMultiSelect` | Chips + search over all 197 countries. Use instead of hardcoded country chips. |
 | `Badge` | Small status or count label. |
@@ -327,7 +341,7 @@ scratch** — they already encode the tokens above.
 | `ErrorBoundary` | Wraps a subtree to catch render errors. |
 | `SearchableSelect` | Searchable dropdown. |
 | `Stepper` | Multi-step progress indicator — **onboarding / create-initiative only**, not stage views. |
-| `StageFooter` | Global fixed 5-stage bottom nav. |
+| `StageFooter` | Global fixed **"Browse by stage"** bottom nav — cross-community discovery (4 browseable stages: Problem/Solutions/Vote/Mandate; Discussion is per-post). Visually demoted (caption eyebrow + light weight) so it never reads as next-step nav for the open initiative — that's `InitiativeStageStrip`. |
 | `LanguageSwitcher` | i18n language picker. |
 | `NotificationsBell` | Notifications indicator. |
 | `CountryFlag` / `CountryParticipation` / `CountryPresence` | Country flag glyph / top-countries-with-counts / presence display. |

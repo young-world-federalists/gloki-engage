@@ -87,6 +87,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       collapsedTeaser={t('card.teaserSolution', 'Weigh in on the solutions')}
     >
       <SolutionEngage

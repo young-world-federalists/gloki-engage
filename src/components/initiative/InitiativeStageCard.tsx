@@ -6,6 +6,7 @@ import { STAGE_META } from '../community/stageMeta';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { useT } from '../../i18n';
 import type { PipelineStage } from '../../types/initiative';
+import InitiativeStageStrip from './InitiativeStageStrip';
 import styles from './InitiativeStageCard.module.scss';
 
 /** The read-zone data for one initiative card, independent of stage. */
@@ -39,6 +40,14 @@ export interface InitiativeStageCardProps {
   openLabel?: string;
   /** A single muted line shown when collapsed (e.g. "12 agree · weigh in"). */
   collapsedTeaser?: React.ReactNode;
+  /** Routing context for the per-initiative stage strip (the follow-this-initiative
+   *  control rendered atop the expanded panel). Omit to hide the strip. */
+  stageNav?: {
+    communityId: string;
+    initiativeId: string;
+    hostServer: string;
+    hostAgent: string;
+  };
   /** The per-stage Engage UI — rendered only when expanded, in the shaded panel. */
   children?: React.ReactNode;
 }
@@ -59,6 +68,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   onOpen,
   openLabel,
   collapsedTeaser,
+  stageNav,
   children,
 }) => {
   const t = useT();
@@ -104,6 +114,15 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
       {expanded ? (
         <div id={panelId} className={styles.panel}>
+          {stageNav && (
+            <InitiativeStageStrip
+              current={post.stage}
+              communityId={stageNav.communityId}
+              initiativeId={stageNav.initiativeId}
+              hostServer={stageNav.hostServer}
+              hostAgent={stageNav.hostAgent}
+            />
+          )}
           {(post.scope || post.sdg || post.countryCount || post.source) && (
             <div className={styles.metaLine}>
               {post.scope && (

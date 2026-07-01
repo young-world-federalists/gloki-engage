@@ -17,12 +17,12 @@ export interface MandateActivityCardProps {
   trustState: UserIdentityProps['trustState'];
   vouchCount: number;
   /**
-   * Host coordinates — accepted for prop-bag symmetry with the other stage cards
-   * (ActivityCard passes the same set), but unused here: the mandate page route
-   * is `/mandate/:communityId/:initiativeId`, host-agnostic.
+   * Host coordinates (ActivityCard passes the same set to every stage card). The
+   * mandate page route itself is host-agnostic (`/mandate/:communityId/:id`), but
+   * the per-initiative stage strip's Discussion link needs them.
    */
-  hostServer?: string;
-  hostAgent?: string;
+  hostServer: string;
+  hostAgent: string;
   expanded: boolean;
   onToggle: () => void;
 }
@@ -42,6 +42,8 @@ const MandateActivityCard: React.FC<MandateActivityCardProps> = ({
   authorKey,
   trustState,
   vouchCount,
+  hostServer,
+  hostAgent,
   expanded,
   onToggle,
 }) => {
@@ -91,6 +93,7 @@ const MandateActivityCard: React.FC<MandateActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       onOpen={openMandate}
       openLabel={t('card.viewMandate', 'View the published mandate')}
       collapsedTeaser={t('card.teaserMandate', 'Community mandate')}

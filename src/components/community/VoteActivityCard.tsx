@@ -87,6 +87,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       collapsedTeaser={t('card.teaserVote', 'Cast your vote')}
     >
       <VoteEngage initiativeId={item.id} communityId={communityId} communityMemberCount={activeMemberCount} />

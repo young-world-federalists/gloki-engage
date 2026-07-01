@@ -95,6 +95,7 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
       vouchCount={vouchCount}
       expanded={expanded}
       onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       onOpen={openDiscussion}
       openLabel={t('deliberation.discussion.open', 'Open the discussion')}
       collapsedTeaser={t('card.teaserDiscussion', 'Join the discussion')}
