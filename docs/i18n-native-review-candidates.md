@@ -666,6 +666,33 @@ Three new keys from the P1 nav work. The new `{stage}` token in `stage.goTo` int
 
 ---
 
+## S11 (2026-07-01) — Trust, Privacy & Consent (P2)
+
+New/changed strings from the P2 work. The consent copy and the vote-visibility line are trust-sensitive —
+they must read as *honest and non-alarming*, and must not over-claim a secrecy or data guarantee.
+
+- **fr/sw `mechanisms.qv.disclosure`** (CHANGED — ballot + read-only preview): now states the vote is
+  *attributable, not secret*. fr "…votre vote est attribuable, pas secret.", sw "…kura yako inahusishwa nawe,
+  si ya siri." Confirm "attribuable"/"inahusishwa nawe" reads as *"linked to you / visible to your community"*
+  without implying surveillance.
+- **fr/sw `mechanisms.qv.explainer.*`** (`inline`, `label`, `title`, `equalSay`, `cost`, `conviction`) — the
+  "How this vote works" explainer. `cost` contains the quadratic numbers (1→1, 2→4, 3→9); confirm the number
+  phrasing and the "goes further than shouting for one" idiom translate naturally (fr "réclamer", sw "kupigia
+  kelele"). `conviction` describes support building over time.
+- **fr/sw `mechanisms.qv.preview.header`** — "Preview — sign in and get verified to take part." fr "Aperçu —
+  connectez-vous et faites-vous vérifier pour participer.", sw "Onyesho la awali — ingia na uthibitishwe ili
+  kushiriki." Confirm "get verified" = the web-of-trust verification, not email/identity verification.
+- **fr/sw `profile.displayName.label` / `profile.displayName.hint`** — the profile name field, relabelled
+  "Display name" with a hint that it's public and may be a pseudonym. Confirm "nom affiché" / "jina la
+  kuonyesha" and "pseudonyme" / "jina bandia" are the natural terms.
+- **fr/sw `onboarding.consent.*`** (`collectTitle`, `collect.key`, `collect.profile`, `collect.votes`,
+  `collect.server`, `pilotNote`, `privacyLink`, `dataLink`, `placeholder`, `agree`) — the non-skippable consent
+  screen. `collect.key` = public key; `pilotNote` = "nothing leaves your browser yet"; confirm the tone is
+  plain-language and reassuring, and that "placeholders for the pilot" reads as *not-yet-real terms*, not a
+  legal disclaimer.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
