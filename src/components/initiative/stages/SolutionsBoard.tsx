@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ThumbsUp, Microscope, GitMerge } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useId } from 'react';
+import { ThumbsUp, Microscope, GitMerge, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 import * as api from '../../collaboration/flows/voting/approvalApi';
@@ -33,6 +33,89 @@ interface Proposal {
   expertReviews?: ExpertReview[];
   mergeSuggestions?: MergeSuggestion[];
 }
+
+/**
+ * The folded "Evidence & expert review" for one solution (S15 recomposition).
+ * Inline expand (button + aria-expanded + chevron + panel) — the same dive-on-tap
+ * pattern InitiativeStageCard uses — NOT the kit InfoDisclosure, which opens a
+ * Modal (built for rules/explainer prose, wrong for per-solution content). Renders
+ * only when there's something to fold: author indicators, sources, or reviews.
+ * Its own open-state keeps SolutionsBoard from growing per-solution state.
+ */
+const SolutionEvidence: React.FC<{
+  indicators: string[];
+  sources: SourceLink[];
+  reviews: ExpertReview[];
+  authorName: (key: string) => string;
+  profiles: Record<string, { country?: string } | undefined>;
+  t: ReturnType<typeof useT>;
+}> = ({ indicators, sources, reviews, authorName, profiles, t }) => {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const reviewed = reviews.length > 0;
+  const label = reviewed
+    ? t('mechanisms.approval.evidenceReviewToggle', 'Evidence & expert review ({n})', { n: reviews.length })
+    : t('mechanisms.approval.evidenceToggle', 'Evidence & indicators');
+
+  return (
+    <div className={styles.evidence}>
+      <button
+        type="button"
+        className={styles.evidenceToggle}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {open ? <ChevronUp size={15} aria-hidden /> : <ChevronDown size={15} aria-hidden />}
+        {label}
+      </button>
+      {open && (
+        <div id={panelId} className={styles.evidencePanel}>
+          {indicators.length > 0 && (
+            <div className={styles.metrics}>
+              <p className={styles.metricsLabel}>{t('mechanisms.approval.authorMetricsLabel', 'Indicators proposed by the author')}</p>
+              <ul>{indicators.map((m, i) => <li key={i}>{m}</li>)}</ul>
+            </div>
+          )}
+          {sources.length > 0 && (
+            <SourceLinks
+              className={styles.sourceBlock}
+              sources={sources}
+              heading={t('mechanisms.approval.solutionSources', 'Sources')}
+            />
+          )}
+          {reviewed && (
+            <div className={styles.reviews}>
+              <p className={styles.reviewsLabel}>{t('mechanisms.approval.expertReviewHeading', 'Expert review')}</p>
+              {reviews.map((r) => (
+                <div key={r.expert} className={styles.review}>
+                  <div className={styles.reviewByline}>
+                    <UserIdentity name={authorName(r.expert)} countryCode={profiles[r.expert]?.country} trustState="verified" size="sm" />
+                    {r.credentials && <span className={styles.credentials}>{r.credentials}</span>}
+                  </div>
+                  {r.assessment && <p className={styles.assessment}>{r.assessment}</p>}
+                  {r.metrics.length > 0 && (
+                    <div className={styles.metrics}>
+                      <p className={styles.metricsLabel}>{t('mechanisms.approval.metricsLabel', "How we’ll know it’s working")}</p>
+                      <ul>{r.metrics.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                    </div>
+                  )}
+                  {(r.sources?.length ?? 0) > 0 && (
+                    <SourceLinks
+                      className={styles.sourceBlock}
+                      sources={r.sources!}
+                      heading={t('mechanisms.approval.reviewSourcesHeading', 'Evidence')}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, communityMemberCount = 0 }) => {
   const t = useT();
@@ -245,18 +328,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </InfoDisclosure>
       </div>
 
-      <div className={styles.thresholds}>
-        <div className={styles.threshold}>
-          <div className={styles.thresholdHead}>
-            <span>{t('mechanisms.approval.thresholdSolutions', 'Solutions backed by half the community')}</span>
-            <span className={styles.thresholdCount}>{backedCount} / {T1_TARGET}</span>
+      <div className={styles.progress}>
+        <div className={styles.progressStat}>
+          <div className={styles.progressTop}>
+            <span className={styles.progressCount}>{backedCount}/{T1_TARGET}</span>
+            <span className={styles.progressLabel}>{t('mechanisms.approval.progressBacked', 'solutions backed')}</span>
           </div>
           <div className={styles.track}><div className={styles.fill} style={{ width: pct(backedCount, T1_TARGET) }} /></div>
         </div>
-        <div className={styles.threshold}>
-          <div className={styles.thresholdHead}>
-            <span>{t('mechanisms.approval.thresholdExperts', 'Experts reviewed')}</span>
-            <span className={styles.thresholdCount}>{expertsReviewed} / {T2_TARGET}</span>
+        <div className={styles.progressStat}>
+          <div className={styles.progressTop}>
+            <span className={styles.progressCount}>{expertsReviewed}/{T2_TARGET}</span>
+            <span className={styles.progressLabel}>{t('mechanisms.approval.progressReviewed', 'experts reviewed')}</span>
           </div>
           <div className={styles.track}><div className={`${styles.fill} ${styles.fillSuccess}`} style={{ width: pct(expertsReviewed, T2_TARGET) }} /></div>
         </div>
@@ -398,8 +481,8 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
           {proposalList.map((p) => {
             const reviews = p.expertReviews ?? [];
             const reviewed = reviews.length > 0;
-            const reviewerNames = reviews.map((r) => authorName(r.expert));
             const requestCount = p.expertReviewRequests?.length ?? 0;
+            const hasEvidence = (p.metrics?.length ?? 0) > 0 || (p.sources?.length ?? 0) > 0 || reviewed;
             return (
               <div
                 key={p.id}
@@ -423,63 +506,27 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     {p.commitments!.map((c, i) => <li key={i}>{c}</li>)}
                   </ul>
                 )}
-                {(p.metrics?.length ?? 0) > 0 && (
-                  <div className={styles.metrics}>
-                    <p className={styles.metricsLabel}>{t('mechanisms.approval.authorMetricsLabel', 'Indicators proposed by the author')}</p>
-                    <ul>
-                      {p.metrics!.map((m, i) => <li key={i}>{m}</li>)}
-                    </ul>
-                  </div>
-                )}
-                {(p.sources?.length ?? 0) > 0 && (
-                  <SourceLinks
-                    className={styles.sourceBlock}
-                    sources={p.sources!}
-                    heading={t('mechanisms.approval.solutionSources', 'Sources')}
-                  />
-                )}
-                {reviewed && (
-                  <div className={styles.reviews}>
-                    <p className={styles.reviewsLabel}>{t('mechanisms.approval.expertReviewHeading', 'Expert review')}</p>
-                    {reviews.map((r) => (
-                      <div key={r.expert} className={styles.review}>
-                        <div className={styles.reviewByline}>
-                          <UserIdentity name={authorName(r.expert)} countryCode={profiles[r.expert]?.country} trustState="verified" size="sm" />
-                          {r.credentials && <span className={styles.credentials}>{r.credentials}</span>}
-                        </div>
-                        {r.assessment && <p className={styles.assessment}>{r.assessment}</p>}
-                        {r.metrics.length > 0 && (
-                          <div className={styles.metrics}>
-                            <p className={styles.metricsLabel}>{t('mechanisms.approval.metricsLabel', "How we’ll know it’s working")}</p>
-                            <ul>
-                              {r.metrics.map((m, i) => <li key={i}>{m}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {(r.sources?.length ?? 0) > 0 && (
-                          <SourceLinks
-                            className={styles.sourceBlock}
-                            sources={r.sources!}
-                            heading={t('mechanisms.approval.reviewSourcesHeading', 'Evidence')}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {requestCount > 0 && (
-                  <p className={styles.reviewStatus}>
-                    {reviewed
-                      ? t('mechanisms.approval.reviewResolved', 'Review requested by {count} · reviewed by {names}', { count: requestCount, names: reviewerNames.join(', ') })
-                      : t('mechanisms.approval.reviewPending', 'Review requested by {count} — awaiting an expert', { count: requestCount })}
-                  </p>
-                )}
                 <div className={styles.byline}>
                   <UserIdentity name={authorName(p.author)} countryCode={profiles[p.author]?.country} size="sm" />
                   {reviewed && (
                     <span className={styles.reviewedTag}>{t('mechanisms.approval.expertReviewed', 'expert reviewed')}</span>
                   )}
                 </div>
+                {requestCount > 0 && !reviewed && (
+                  <p className={styles.reviewStatus}>
+                    {t('mechanisms.approval.reviewPending', 'Review requested by {count} — awaiting an expert', { count: requestCount })}
+                  </p>
+                )}
+                {hasEvidence && (
+                  <SolutionEvidence
+                    indicators={p.metrics ?? []}
+                    sources={p.sources ?? []}
+                    reviews={reviews}
+                    authorName={authorName}
+                    profiles={profiles}
+                    t={t}
+                  />
+                )}
                 {!mergeSource && (
                   <div className={styles.actionRow}>
                     <button

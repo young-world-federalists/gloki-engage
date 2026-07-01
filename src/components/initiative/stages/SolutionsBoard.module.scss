@@ -5,11 +5,13 @@
 .noData { font-size: $text-sm; color: $gray-600; font-style: italic; padding: $spacing-lg 0; }
 .helpSection { margin-bottom: $spacing-xs; }
 
-// ─── Threshold bars (Task 7) ───────────────────────────────────────────
-.thresholds { display: flex; flex-direction: column; gap: $spacing-sm; }
-.threshold { display: flex; flex-direction: column; gap: 4px; }
-.thresholdHead { display: flex; justify-content: space-between; font-size: $text-sm; color: $gray-600; }
-.thresholdCount { font-weight: $font-bold; color: $gray-800; }
+// ─── Combined "progress to vote" line (S15: was two stacked bars) ───────
+// Two metrics side-by-side instead of stacked — same numbers, half the height.
+.progress { display: flex; gap: $spacing-md; }
+.progressStat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.progressTop { display: flex; align-items: baseline; gap: $spacing-xs; }
+.progressCount { font-weight: $font-bold; color: $gray-800; font-size: $text-sm; }
+.progressLabel { font-size: $text-xs; color: $gray-600; }
 .track { height: 6px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
 .fill { height: 100%; background: $primary; border-radius: $radius-full; transition: width 0.3s ease; }
 .fillSuccess { background: $success; }
@@ -36,36 +38,45 @@
 .commitPrompt { margin: $spacing-xs 0 0; font-size: $text-sm; font-weight: $font-medium; color: $gray-800; }
 .commitHint { margin: 0 0 $spacing-xs; font-size: $text-xs; color: $gray-600; }
 
-// ─── Solution list (Tasks 5/8/10) ──────────────────────────────────────
-.list { display: flex; flex-direction: column; gap: $spacing-md; }
-.solution { border: 1.5px solid $gray-200; border-radius: $radius-md; padding: $spacing-md; background: white; }
-.text { margin: 0 0 $spacing-sm; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
+// ─── Solution list — flush items, hairline divider (S15: no card-in-a-card) ─
+.list { display: flex; flex-direction: column; gap: $spacing-lg; }
+.solution { display: flex; flex-direction: column; }
+.solution + .solution { border-top: 1px solid $gray-100; padding-top: $spacing-lg; }
+.text { margin: 0 0 $spacing-sm; font-size: $text-base; line-height: 1.5; color: $gray-800; font-weight: $font-medium; }
 .commitments {
   margin: 0 0 $spacing-sm; padding-left: $spacing-md;
   font-size: $text-xs; color: $gray-600; line-height: 1.6;
   li { margin: 0; }
 }
-.metrics { margin: 0 0 $spacing-sm; font-size: $text-xs; color: $gray-600;
+.metrics { margin: 0; font-size: $text-xs; color: $gray-600;
   ul { margin: 2px 0 0; padding-left: $spacing-md; line-height: 1.6; }
 }
 .metricsLabel { margin: 0; font-weight: $font-medium; color: $gray-800; font-size: $text-xs; }
-.sourceBlock { margin: 0 0 $spacing-sm; }
-// ─── Expert review attribution (S12) ───────────────────────────────────
-.reviews {
-  display: flex; flex-direction: column; gap: $spacing-sm;
-  margin: 0 0 $spacing-sm; padding: $spacing-sm;
-  border: 1px solid $gray-200; border-left: 3px solid $success;
-  border-radius: $radius-sm; background: rgba($success, 0.04);
+.sourceBlock { margin: 0; }
+
+.byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
+.reviewedTag { font-size: $text-xs; color: $success; }
+.reviewStatus { margin: $spacing-xs 0 0; font-size: $text-xs; color: $gray-600; }
+
+// ─── Evidence & expert review — inline expand (S15: was nested green box) ─
+.evidence { margin-top: $spacing-xs; }
+.evidenceToggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 0;
+  background: none; border: none; cursor: pointer;
+  font-size: $text-sm; font-weight: $font-medium; color: $primary;
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
 }
-.reviewsLabel { margin: 0; font-size: $text-xs; font-weight: $font-semibold; color: $success-dark; text-transform: uppercase; letter-spacing: 0.03em; }
+.evidencePanel { display: flex; flex-direction: column; gap: $spacing-sm; padding-bottom: $spacing-xs; }
+
+// Expert reviews now render flush inside the panel (no filled panel / no green box).
+.reviews { display: flex; flex-direction: column; gap: $spacing-sm; margin: 0; }
+.reviewsLabel { margin: 0; font-size: $text-xs; font-weight: $font-semibold; color: $gray-700; }
 .review { display: flex; flex-direction: column; gap: 4px; }
-.review + .review { border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
+.review + .review { border-top: 1px solid $gray-100; padding-top: $spacing-sm; }
 .reviewByline { display: flex; align-items: baseline; gap: $spacing-xs; flex-wrap: wrap; }
 .credentials { font-size: $text-xs; color: $gray-600; font-style: italic; }
 .assessment { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
-.reviewStatus { margin: 0 0 $spacing-sm; font-size: $text-xs; color: $gray-600; }
-.byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
-.reviewedTag { font-size: $text-xs; color: $success; }
 
 .actionRow { display: flex; gap: $spacing-xs; margin-top: $spacing-sm; border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
 .actionBtn {
@@ -88,6 +99,8 @@
 }
 
 // ─── Merge "pick a target" mode (Task 9) ───────────────────────────────
+// Merge is a transient interaction; boxing the tap targets here aids the
+// affordance and does not violate the default-state "no card-in-a-card" rule.
 .mergeBanner {
   display: flex; align-items: center; gap: 8px;
   padding: $spacing-sm $spacing-md; border-radius: $radius-sm;
@@ -100,7 +113,7 @@
 }
 .mergeSourceCard { opacity: 0.5; }
 .mergeTargetCard {
-  border: 2px solid $primary; cursor: pointer;
+  border: 2px solid $primary; border-radius: $radius-md; padding: $spacing-md; cursor: pointer;
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
   animation: mergeRingPulse 1.6s ease-in-out infinite;
 }
@@ -110,20 +123,19 @@
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
-  .loading, .noData, .thresholdHead, .commitHint, .commitments, .metrics { color: $dark-text-secondary; }
-  .thresholdCount, .text, .commitPrompt, .metricsLabel { color: $dark-text; }
+  .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
+  .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
   .track { background: $dark-border; }
-  .solution { background: $dark-bg; border-color: $dark-border; }
+  .solution + .solution { border-top-color: $dark-border; }
+  .review + .review { border-top-color: $dark-border; }
+  .reviewsLabel { color: $dark-text-secondary; }
+  .credentials { color: $dark-text-secondary; }
   .addBtn { border-color: $dark-border; color: $dark-text-secondary; &:hover { color: $dark-text; } }
   .addTextarea, .commitInput {
     background: $dark-bg; border-color: $dark-border; color: $dark-text;
     &::placeholder { color: $dark-text-secondary; }
   }
+  .actionRow { border-top-color: $dark-border; }
   .actionBtn { border-color: $dark-border; color: $dark-text-secondary; }
   .mergeSourceCard { opacity: 0.5; }
-  .reviews { background: rgba($success, 0.12); border-color: $dark-border; border-left-color: $success; }
-  .reviewsLabel { color: $success; }
-  .review + .review { border-top-color: $dark-border; }
-  .assessment { color: $dark-text; }
-  .credentials, .reviewStatus { color: $dark-text-secondary; }
 }
