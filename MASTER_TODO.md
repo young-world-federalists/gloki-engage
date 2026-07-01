@@ -140,8 +140,9 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 
 ### Build order (next)
 
-**P0 — Pilot-readiness quick wins** *(do first: cheap, self-contained, highest trust/UX per effort; mostly
-copy + demo-fixtures + small component fixes — no architectural change).*
+**P0 — Pilot-readiness quick wins** ✅ **DONE (S9, 2026-06-30)** *(shipped `origin/ui`; claims-honesty copy,
+`digital` community opened for reachability + `databroker` initiative seeded, aria-live comment announce,
+inviter-country fix, a11y micro-fixes. Detail: project memory `project_session9_jun2026`.)*
 - [BLOCKER] **Claims honesty.** Reconcile copy with the real mechanism everywhere: "one person, one vote" ↔
   the quadratic ballot; "no ID papers / face scan" ↔ "confirming real-world identity"; qualify/substantiate
   "blockchain-backed / transparent". Add a plain "what's public · private · permanent" line at the **ballot**
@@ -179,7 +180,10 @@ one idea through its stages"). Spec: `docs/superpowers/specs/2026-06-30-s10-navi
   **no** provenance "Vote" link in the code (the S6 mandate redesign / S9 work removed the surfaces the persona
   review flagged). The new strip additionally gives a per-initiative path to Discussion/Mandate.
 
-**P2 — Trust, privacy & consent depth** *(builds on P0 honesty copy).*
+**P2 — Trust, privacy & consent depth** ✅ **DONE (S11, 2026-07-01)** *(shipped `origin/ui` @ `a112893`;
+pre-gate vote explainer + read-only `VotePreview`, attributable-vote disclosure + opt-in `displayName`,
+non-skippable consent w/ what-we-collect, share drops pubkey. Detail: project memory
+`project_session11_trust_privacy_jul2026`).* *(builds on P0 honesty copy).*
 - [BLOCKER→here] Read-only / teaser **ballot + "how this vote works" explainer** (QV cost curve; conviction's
   time dimension) visible *before* the verification gate, so the mechanism is auditable without participating.
 - [MAJOR] Disclose vote visibility (secret vs attributable) at the ballot; reconcile with "open to the whole
@@ -188,12 +192,22 @@ one idea through its stages"). Spec: `docs/superpowers/specs/2026-06-30-s10-navi
   participation/votes, server); don't let core consent be "Skip for now". Drop the full public key from
   shareable URLs.
 
-**P3 — Evidence & expertise loop.**
-- [MAJOR] Close the expert-review loop: a **"submit expert review"** flow (assessment + evidence/source +
-  indicator metrics), with reviewer name/credentials on the badge — today you can only *request* a review.
-- [MAJOR] Add a repeatable **Sources / citation** field to the solution, write-together, and comment
-  composers (render as the citation chips already shown on problems/mandates).
-- [MAJOR] Let solution authors / expert reviewers enter the **indicator metrics** (currently display-only).
+**P3 — Evidence & expertise loop** ✅ **DONE & verified (S12, 2026-07-01)** *(shipped `origin/ui` @ `796a620`;
+tsc+vite clean, preview-verified 360px light+dark, Opus whole-branch review + 5 fixes). Premise re-check found
+all 3 items narrower than framed — see project memory `project_session12_evidence_expertise_jul2026`.*
+- [MAJOR] ✅ Expert-review loop **enriched** (it was *enrich*, not build — the isExpert-gated submit modal
+  already existed). `add_expert_review` gains **assessment + credentials + sources**; each review renders an
+  attributed block (`UserIdentity` name + country + verified-shield + credentials + assessment + that
+  reviewer's metrics + evidence links), and a requested review visibly **resolves** ("requested by N ·
+  reviewed by {names}" / "…awaiting an expert"). Reviewer credentials captured **on the review submission**
+  (decision ①). ★ Attributing a seeded reviewer needed 3 coordinated seam edits (`profileRead` expert
+  fallback + community `get_partners` profile pointer + scoped `become_member`) or the byline shows the raw key.
+- [MAJOR] ✅ Repeatable **Sources** field (URL + optional label, decision ②) on the solution, write-together,
+  and comment composers, via new shared `src/utils/sources.ts` + `SourceLinks`/`SourcesInput` primitives;
+  threaded through `add_proposal` / write-together / `add_comment` (re-fetch after write).
+- [MAJOR] ✅ **Author-proposed indicator metrics** (decision ③): new `Proposal.metrics`, rendered
+  "Indicators proposed by the author" — kept **out of `useMandate`** so mandate indicators stay derived from
+  `expertReviews[].metrics` (expert-first spine untouched). DEMO_VERSION `v14→v15`; 27 new fr+sw keys.
 
 **P4 — Mandate rigor (institutional credibility).**
 - [MAJOR] Require **target + baseline + measurement cadence** per indicator before ratification (today
@@ -226,6 +240,19 @@ one idea through its stages"). Spec: `docs/superpowers/specs/2026-06-30-s10-navi
 ---
 
 ## 8. Changelog
+
+- **2026-07-01 — P3 Evidence & expertise loop shipped (S12).** Closed the review's evidence/expertise
+  convergence: credited expert reviews (name + verified-shield + credentials + structured assessment +
+  evidence links, replacing the old anonymous metric flatten), a repeatable Sources field (URL + optional
+  label) on the solution/write-together/comment composers via new shared `SourceLinks`/`SourcesInput`, and
+  author-proposed indicators kept distinct from — and out of — the expert-first mandate derivation. Additive
+  on the S4 spine (exact method names). Shipped `origin/ui` @ `796a620`; DEMO_VERSION `v14→v15`. Premise
+  re-check found all 3 items narrower than the persona review framed them; Opus whole-branch review → 5 fixes
+  (top: scoped expert community membership so it no longer inflates member counts / 50% gates on unrelated
+  communities). ★ Learning: attributing a *seeded* reviewer needs 3 coordinated seam edits or the byline
+  falls back to the raw key.
+- **2026-06-30 → 07-01 — P0/P1/P2 shipped** (S9 pilot-readiness, S10 navigation & IA, S11 trust/privacy/
+  consent). Detail in the respective project-memory files. The build order below is now at **P4**.
 
 - **2026-06-29 — Nine-persona milestone review** (Amara, Chidi, Thandiwe, Pascal, Dr. Giorgia, Marie, James,
   Tomás, Viktor) against the live preview after the S1–S8 arc. Top convergences → P0–P5 above: claims-honesty
