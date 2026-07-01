@@ -1,0 +1,158 @@
+@use '../../styles/variables' as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.headIcon {
+  flex: none;
+  color: $primary;
+}
+
+.heading {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.rows {
+  list-style: none;
+  margin: $spacing-xs 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.rowLabel {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-sm;
+  font-size: $text-sm;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 1px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+}
+
+.status {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.saved {
+  margin-top: $spacing-xs;
+}
+
+.spin {
+  animation: ratify-spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
+@keyframes ratify-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
