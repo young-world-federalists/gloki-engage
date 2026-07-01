@@ -220,7 +220,26 @@ export function getCountryFlag(code: string): string {
   return getCountryByCode(code).flag;
 }
 
-export function getCountryName(code: string): string {
+// Cache one Intl.DisplayNames instance per locale — constructing it per call is wasteful.
+const REGION_NAMES = new Map<string, Intl.DisplayNames>();
+
+function regionNames(locale: string): Intl.DisplayNames | null {
+  const hit = REGION_NAMES.get(locale);
+  if (hit) return hit;
+  try {
+    const dn = new Intl.DisplayNames([locale], { type: 'region' });
+    REGION_NAMES.set(locale, dn);
+    return dn;
+  } catch {
+    return null;
+  }
+}
+
+export function getCountryName(code: string, locale?: string): string {
+  if (locale && code !== 'OTHER') {
+    const localized = regionNames(locale)?.of(code);
+    if (localized && localized !== code) return localized;
+  }
   return getCountryByCode(code).name;
 }
 

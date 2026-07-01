@@ -2,20 +2,12 @@ import React, { useState } from 'react';
 import { ShieldCheck, Heart, Share2, ArrowRight } from 'lucide-react';
 import { Button, Badge } from '../shared';
 import { useI18n } from '../../i18n';
+import { getCountryName } from '../../utils/countries';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateCard.module.scss';
 
 /** The scroll target id MandatePage puts on the full document. */
 export const MANDATE_DOC_ANCHOR_ID = 'mandate-document';
-
-/** ISO alpha-2 → display name in the active locale (raw code on failure). */
-function countryName(code: string, locale: string): string {
-  try {
-    return new Intl.DisplayNames([locale], { type: 'region' }).of(code) ?? code;
-  } catch {
-    return code;
-  }
-}
 
 /** ISO alpha-2 → flag emoji (regional indicator pair). */
 function flagOf(code: string): string {
@@ -132,7 +124,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
               {shown.map((c) => (
                 <li key={c} className={styles.country}>
                   <span className={styles.flag} aria-hidden>{flagOf(c)}</span>
-                  {countryName(c, locale)}
+                  {getCountryName(c, locale)}
                 </li>
               ))}
             </ul>
