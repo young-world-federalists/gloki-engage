@@ -6,6 +6,7 @@ import * as api from '../../collaboration/flows/voting/approvalApi';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
 import { Button, UserIdentity, InfoDisclosure, Modal } from '../../shared';
+import { displayNameFor } from '../../../utils/displayName';
 import { useT } from '../../../i18n';
 import styles from './SolutionsBoard.module.scss';
 
@@ -180,11 +181,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     }
   };
 
-  const authorName = (key: string): string => {
-    const p = profiles[key];
-    const name = p ? `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() : '';
-    return name || `${key.slice(0, 8)}…`;
-  };
+  const authorName = (key: string): string => displayNameFor(profiles[key], key);
 
   if (hasError) return (
     <div className={styles.loading}>

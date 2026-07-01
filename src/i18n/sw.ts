@@ -222,6 +222,8 @@ const sw: Dictionary = {
   'onboarding.agent.lead': 'Wasifu wako unakuwakilisha kwenye majadiliano. Unaweza kubadilisha yoyote kati ya haya baadaye.',
   'onboarding.agent.name': 'Jina lako',
   'onboarding.agent.namePlaceholder': 'Tukuite nani?',
+  'profile.displayName.label': 'Jina la kuonyesha',
+  'profile.displayName.hint': 'Jina hili ni la umma — linaonekana kwenye machapisho na kura zako. Unaweza kutumia jina bandia badala ya jina lako halisi.',
   'onboarding.agent.country': 'Nchi yako',
   'onboarding.agent.countryPlaceholder': 'Chagua nchi yako',
   'onboarding.agent.language': 'Lugha yako',

@@ -20,6 +20,7 @@ export function profileRead(contractId: string, method: IMethod): unknown {
       userPhoto: persona.userPhoto,
       userBio: persona.userBio,
       country: persona.country,
+      displayName: persona.displayName,
     };
   }
   return null;

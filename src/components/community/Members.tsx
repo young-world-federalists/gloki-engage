@@ -7,6 +7,7 @@ import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import { UserIdentity, Button } from '../shared';
+import { displayNameFor } from '../../utils/displayName';
 import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
@@ -31,7 +32,7 @@ const MemberItem: React.FC<MemberItemProps> = ({
   trustState,
 }) => {
   const t = useT();
-  const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
+  const fullName = displayNameFor(profile);
   const displayName = fullName || t('members.unknown', 'Unknown Member');
   const profileImage = profile?.userPhoto;
 
@@ -116,7 +117,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
 
   const handleApproveClick = (agentId: string) => {
     const profile = profiles[agentId];
-    const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
+    const fullName = displayNameFor(profile);
     const displayName = fullName || t('members.unknown', 'Unknown Member');
     const profileImage = profile?.userPhoto;
 

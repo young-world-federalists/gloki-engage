@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown, CheckCircle, XCircle } from 'lucide-react';
 import { useAppSelector } from '../../../../store/hooks';
 import { voteOnMerge, authorDecideMerge, type MergeProposal } from './mergeApi';
+import { displayNameFor } from '../../../../utils/displayName';
 import { useT, type TFunction } from '../../../../i18n';
 import styles from './MergeProposalCard.module.scss';
 
@@ -40,10 +41,7 @@ const MergeProposalCard: React.FC<MergeProposalCardProps> = ({
   const [voting, setVoting] = useState(false);
   const [deciding, setDeciding] = useState(false);
 
-  const proposerProfile = profiles[proposal.proposer];
-  const proposerName = proposerProfile
-    ? `${proposerProfile.firstName ?? ''} ${proposerProfile.lastName ?? ''}`.trim() || proposal.proposer.slice(0, 8)
-    : proposal.proposer.slice(0, 8);
+  const proposerName = displayNameFor(profiles[proposal.proposer], proposal.proposer);
 
   const totalVotes = proposal.forCount + proposal.againstCount;
   const supportPct = totalVotes === 0 ? 0 : Math.round((proposal.forCount / totalVotes) * 100);

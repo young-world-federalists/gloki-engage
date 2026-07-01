@@ -29,6 +29,9 @@ export interface IContract {
     openaiApiKey?: string;
     // ISO 3166-1 alpha-2 country code (e.g. 'KE', 'NG', 'MW', 'CD') or 'OTHER'
     country?: string;
+    // Optional public display name / pseudonym; when set, bylines show this
+    // instead of first+last (see src/utils/displayName.ts).
+    displayName?: string;
   }
 
   export interface IPartner {

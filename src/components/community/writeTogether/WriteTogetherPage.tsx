@@ -3,6 +3,7 @@ import { PlusCircle } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
 import { Badge, Button, EmptyState, InfoDisclosure, UserIdentity } from '../../shared';
+import { displayNameFor } from '../../../utils/displayName';
 import { useCommunityTrust } from '../../../hooks/useCommunityTrust';
 import StartDraftForm from './StartDraftForm';
 import DraftEditor from './DraftEditor';
@@ -59,10 +60,7 @@ const WriteTogetherPage: React.FC<{ communityId: string }> = ({ communityId }) =
     );
   }
 
-  const nameOf = (pk: string) => {
-    const p = profiles[pk];
-    return (p ? `${p.firstName || ''} ${p.lastName || ''}`.trim() : '') || `${pk.slice(0, 8)}…`;
-  };
+  const nameOf = (pk: string) => displayNameFor(profiles[pk], pk);
 
   return (
     <div className={styles.page}>

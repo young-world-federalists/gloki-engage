@@ -12,6 +12,7 @@
 // the "Youth Employment & the Skills Gap" initiative (proposals stage).
 
 import { PERSONAS, type Persona } from './identity';
+import { displayNameFor } from '../../../utils/displayName';
 
 // ---------------------------------------------------------------------------
 // Proposals per initiative (consumed by the seed orchestrator).
@@ -534,7 +535,7 @@ export interface ParticipantInfo {
 export function deliberationParticipant(key: string): ParticipantInfo {
   const persona = PERSONA_BY_KEY[key];
   if (persona) {
-    const name = `${persona.firstName} ${persona.lastName}`.trim();
+    const name = displayNameFor(persona, key);
     return {
       name,
       country: persona.country,

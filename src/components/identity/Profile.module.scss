@@ -77,6 +77,12 @@
   font-weight: $font-medium;
   color: $gray-700;
 }
+.fieldHint {
+  margin: $spacing-xs 0 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-600;
+}
 .input {
   height: 44px;
   border: 1px solid $gray-200;
@@ -114,6 +120,9 @@
   }
   .fieldLabel {
     color: $dark-text;
+  }
+  .fieldHint {
+    color: $dark-text-secondary;
   }
 }
 

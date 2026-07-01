@@ -5,6 +5,7 @@ import { useAppSelector } from '../../store/hooks';
 import { useI18n } from '../../i18n';
 import AppHeader from '../AppHeader';
 import { EmptyState, UserIdentity } from '../shared';
+import { displayNameFor } from '../../utils/displayName';
 import { useFlowContract } from './flows/shared/useFlowContract';
 import { getMessages, addMessage } from '../community/chat/chatApi';
 import type { ChatMessage } from '../community/chat/chatApi';
@@ -66,7 +67,7 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
   const authorProfile = authorKey ? profiles?.[authorKey] : undefined;
   const authorDisplay =
     authorName ||
-    (authorProfile ? `${authorProfile.firstName || ''} ${authorProfile.lastName || ''}`.trim() : '') ||
+    displayNameFor(authorProfile) ||
     t('suggest.author', 'the author');
 
   const handleSend = async () => {
@@ -108,7 +109,7 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
               const p = profiles?.[m.author];
               const nm = isOwn
                 ? t('deliberation.you', 'You')
-                : (p ? `${p.firstName || ''} ${p.lastName || ''}`.trim() : '') || authorDisplay;
+                : displayNameFor(p) || authorDisplay;
               return (
                 <div key={m.id} className={`${styles.message} ${isOwn ? styles.mine : ''}`}>
                   <div className={styles.meta}>

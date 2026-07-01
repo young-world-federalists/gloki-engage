@@ -120,9 +120,12 @@ const Profile: React.FC = () => {
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-name">
-              {t('onboarding.agent.name', 'Your name')}
+              {t('profile.displayName.label', 'Display name')}
             </label>
-            <input id="edit-name" className={styles.input} type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+            <input id="edit-name" className={styles.input} type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} aria-describedby="edit-name-hint" />
+            <p id="edit-name-hint" className={styles.fieldHint}>
+              {t('profile.displayName.hint', 'This name is public — it shows on your posts and votes. You can use a pseudonym instead of your real name.')}
+            </p>
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-country">

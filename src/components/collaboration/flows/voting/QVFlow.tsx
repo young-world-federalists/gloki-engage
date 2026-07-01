@@ -7,6 +7,7 @@ import * as approvalApi from './approvalApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT } from '../../../../i18n';
 import { Button, UserIdentity } from '../../../shared';
+import { displayNameFor } from '../../../../utils/displayName';
 import { REGIONS, regionOf, regionColorVar, type RegionId } from '../../../../utils/regions';
 import styles from './QVFlow.module.scss';
 
@@ -166,11 +167,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     return out;
   };
 
-  const authorName = (key: string): string => {
-    const p = profiles[key];
-    const n = p ? `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() : '';
-    return n || `${key.slice(0, 8)}…`;
-  };
+  const authorName = (key: string): string => displayNameFor(profiles[key], key);
 
   const turnoutFooter = (
     <div className={styles.turnout}>
@@ -245,7 +242,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
           </div>
 
           <span className={styles.hint}>
-            {t('mechanisms.qv.disclosure', 'Your hearts are visible to the community and counted in the public tally.')}
+            {t('mechanisms.qv.disclosure', 'Your hearts are visible to the community and counted in the public tally — your vote is attributable, not secret.')}
           </span>
 
           {ballot.map((s, i) => {

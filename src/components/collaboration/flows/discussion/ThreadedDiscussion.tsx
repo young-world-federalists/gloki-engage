@@ -7,6 +7,7 @@ import { useI18n, useT } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
 import { EmptyState, UserIdentity } from '../../../shared';
+import { displayNameFor } from '../../../../utils/displayName';
 import * as api from './discussionApi';
 import type { Comment } from './discussionApi';
 import styles from './ThreadedDiscussion.module.scss';
@@ -17,7 +18,7 @@ const DEPTH_CAP = 3;
 
 type SortMode = 'top' | 'newest';
 type CommentNode = Comment & { children: CommentNode[] };
-type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string }>;
+type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string; displayName?: string }>;
 
 function buildTree(flat: Comment[], sort: SortMode): CommentNode[] {
   const map = new Map<string, CommentNode>();
@@ -50,9 +51,7 @@ const displayName = (
   youLabel: string,
 ): string => {
   if (isOwn) return youLabel;
-  const p = profiles[authorKey];
-  const full = p ? `${p.firstName || ''} ${p.lastName || ''}`.trim() : '';
-  return full || `${authorKey.slice(0, 12)}…`;
+  return displayNameFor(profiles[authorKey], authorKey);
 };
 
 const Composer: React.FC<{

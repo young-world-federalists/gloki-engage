@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { PenLine, Users, Check, ThumbsUp, Eye, MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge, Banner, Button, Modal, EmptyState } from '../../../shared';
 import UserIdentity from '../../../shared/UserIdentity';
+import { displayNameFor } from '../../../../utils/displayName';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT, type TFunction } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
@@ -119,7 +120,7 @@ const SuggestEditModal: React.FC<{
   );
 };
 
-type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string }>;
+type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string; displayName?: string }>;
 
 /** One open edit — track-changes diff + a 1p1v support bar toward fold-in. */
 const EditCard: React.FC<{
@@ -230,9 +231,7 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
   const trust = useCommunityTrust(communityId);
   const nameOf = (key: string) => {
     if (key === currentUserKey) return t('deliberation.you', 'You');
-    const p = profiles[key];
-    const full = p ? `${p.firstName || ''} ${p.lastName || ''}`.trim() : '';
-    return full || `${key.slice(0, 8)}…`;
+    return displayNameFor(profiles[key], key);
   };
   const [showModal, setShowModal] = useState(false);
   const [showDiscussion, setShowDiscussion] = useState(false);

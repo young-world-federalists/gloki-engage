@@ -7,6 +7,7 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 const chatContractCode = '';import { getMessages, addMessage, getTopics } from './chatApi';
 import type { ChatMessage, ChatTopic as ChatTopicType } from './chatApi';
 import { useI18n } from '../../../i18n';
+import { displayNameFor } from '../../../utils/displayName';
 import styles from './ChatTopic.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -194,12 +195,9 @@ const ChatTopic: React.FC = () => {
         {messages.map(msg => {
           const isOwn = msg.author === publicKey;
           const profile = profiles?.[msg.author];
-          const fullName = profile
-            ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
-            : null;
           const displayName = isOwn
             ? t('deliberation.you', 'You')
-            : fullName || msg.author.slice(0, 12) + '…';
+            : displayNameFor(profile, msg.author);
           const countryCode = profile?.country;
 
           return (

@@ -5,6 +5,7 @@ import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
 import type { IMethod } from '../../services/interfaces';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
+import { displayNameFor } from '../../utils/displayName';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { Card, Badge } from '../shared';
@@ -160,11 +161,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
         {initiatives.map((item) => {
           const stage = stages[item.id] || 'problem';
           const authorProfile = item.author ? profiles[item.author] : undefined;
-          const authorName = authorProfile
-            ? `${authorProfile.firstName} ${authorProfile.lastName}`.trim()
-            : item.author
-              ? item.author.slice(0, 8) + '…'
-              : '';
+          const authorName = item.author ? displayNameFor(authorProfile, item.author) : '';
           const hostServer = item.hostServer || serverUrl || 'local';
           const hostAgent = item.hostAgent || publicKey || 'local';
 

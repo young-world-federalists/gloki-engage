@@ -5,6 +5,7 @@ import * as api from './modificationApi';
 import { useAppSelector } from '../../../../store/hooks';
 const modificationCode = '';import styles from './ModificationSuggestions.module.scss';
 import { addCoAuthor } from '../../../../services/initiativeRoles';
+import { displayNameFor } from '../../../../utils/displayName';
 
 interface Suggestion {
   id: string;
@@ -138,14 +139,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
     finally { setDecidingId(null); }
   };
 
-  const getAuthorName = (key: string): string => {
-    const profile = profiles ? profiles[key] : undefined;
-    if (profile) {
-      const name = `${profile.firstName} ${profile.lastName}`.trim();
-      if (name) return name;
-    }
-    return key.slice(0, 8) + '...';
-  };
+  const getAuthorName = (key: string): string => displayNameFor(profiles ? profiles[key] : undefined, key);
 
   if (hasError) {
     return (

@@ -223,6 +223,8 @@ const fr: Dictionary = {
   'onboarding.agent.lead': 'Votre profil vous représente dans les délibérations. Vous pourrez modifier tout cela plus tard.',
   'onboarding.agent.name': 'Votre nom',
   'onboarding.agent.namePlaceholder': 'Comment devons-nous vous appeler ?',
+  'profile.displayName.label': 'Nom affiché',
+  'profile.displayName.hint': 'Ce nom est public — il apparaît sur vos publications et vos votes. Vous pouvez utiliser un pseudonyme plutôt que votre vrai nom.',
   'onboarding.agent.country': 'Votre pays',
   'onboarding.agent.countryPlaceholder': 'Sélectionnez votre pays',
   'onboarding.agent.language': 'Votre langue',

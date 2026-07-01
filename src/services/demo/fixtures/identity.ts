@@ -12,6 +12,7 @@ export interface Persona {
   languages: string[]; // ISO 639-1 (+ local) codes the person speaks
   userBio: string;
   userPhoto: string; // empty → UI renders initials
+  displayName?: string; // opt-in public pseudonym; overrides first+last in bylines
 }
 
 export const PERSONAS: Persona[] = [
@@ -22,7 +23,7 @@ export const PERSONAS: Persona[] = [
   { publicKey: 'demo-user-it-sofia', firstName: 'Sofia', lastName: 'Rossi', country: 'IT', languages: ['it', 'en'], userBio: 'Digital-rights lawyer, Bologna', userPhoto: '' },
   { publicKey: 'demo-user-gh-kwame', firstName: 'Kwame', lastName: 'Mensah', country: 'GH', languages: ['en', 'tw'], userBio: 'Renewable-energy engineer, Accra', userPhoto: '' },
   { publicKey: 'demo-user-jp-yuki', firstName: 'Yuki', lastName: 'Tanaka', country: 'JP', languages: ['ja', 'en'], userBio: 'Ocean-conservation volunteer, Fukuoka', userPhoto: '' },
-  { publicKey: 'demo-user-de-anika', firstName: 'Anika', lastName: 'Bauer', country: 'DE', languages: ['de', 'en'], userBio: 'Privacy advocate, Leipzig', userPhoto: '' },
+  { publicKey: 'demo-user-de-anika', firstName: 'Anika', lastName: 'Bauer', country: 'DE', languages: ['de', 'en'], userBio: 'Privacy advocate, Leipzig', userPhoto: '', displayName: 'Anon Fox' },
   { publicKey: 'demo-user-mx-diego', firstName: 'Diego', lastName: 'Hernández', country: 'MX', languages: ['es', 'en'], userBio: 'Housing-cooperative organiser, Guadalajara', userPhoto: '' },
   { publicKey: 'demo-user-eg-fatima', firstName: 'Fatima', lastName: 'Hassan', country: 'EG', languages: ['ar', 'en'], userBio: 'Youth-employment trainer, Cairo', userPhoto: '' },
   { publicKey: 'demo-user-kr-jiwoo', firstName: 'Ji-woo', lastName: 'Park', country: 'KR', languages: ['ko', 'en'], userBio: 'Misinformation researcher, Seoul', userPhoto: '' },

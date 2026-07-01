@@ -8,6 +8,7 @@ const chatContractCode = '';import { getTopics, createTopic } from './chatApi';
 import type { ChatTopic } from './chatApi';
 import { useI18n } from '../../../i18n';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
+import { displayNameFor } from '../../../utils/displayName';
 import styles from './ChatTopicList.module.scss';
 
 interface ChatTopicListProps {
@@ -150,10 +151,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
         <div className={styles.topicList}>
           {topics.map(topic => {
             const profile = profiles?.[topic.author];
-            const fullName = profile
-              ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
-              : null;
-            const displayName = fullName || topic.author.slice(0, 12) + '…';
+            const displayName = displayNameFor(profile, topic.author);
             const countryCode = profile?.country;
 
             return (
