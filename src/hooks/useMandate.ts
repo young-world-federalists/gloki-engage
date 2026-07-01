@@ -122,7 +122,9 @@ export function useMandate(
     const commitments = winner?.commitments ?? [];
     if (commitments.length === 0) return fixture; // graceful fallback — no spine
     const articles: MandateArticle[] = commitments.map((body, i) => ({ id: `art-${i + 1}`, title: '', body }));
-    const metrics = (winner?.expertReviews ?? []).flatMap((rv) => rv.metrics);
+    // De-dupe labels: two reviews on the winner could name the same metric,
+    // which would collide on React keys and map many→one in the ratification merge.
+    const metrics = [...new Set((winner?.expertReviews ?? []).flatMap((rv) => rv.metrics))];
     // Merge host/expert-entered target/baseline/cadence onto each derived
     // indicator by label; unfilled indicators keep empty strings (pending).
     const indicators: MandateIndicator[] = metrics.length

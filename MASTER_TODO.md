@@ -209,12 +209,20 @@ all 3 items narrower than framed — see project memory `project_session12_evide
   "Indicators proposed by the author" — kept **out of `useMandate`** so mandate indicators stay derived from
   `expertReviews[].metrics` (expert-first spine untouched). DEMO_VERSION `v14→v15`; 27 new fr+sw keys.
 
-**P4 — Mandate rigor (institutional credibility).**
-- [MAJOR] Require **target + baseline + measurement cadence** per indicator before ratification (today
-  `indicators[].target` and `articles[].title` are empty strings).
-- [MAJOR] Add a **turnout denominator** (X of N eligible) + an explicit **Sybil-resistance / verification**
-  statement to the mandate artifact and its `spec.json` `provenance` block. Mark org endorsements
-  claimed-vs-verified.
+**P4 — Mandate rigor (institutional credibility)** ✅ **DONE & verified (S13, 2026-07-01)** *(built on `ui`,
+7 commits `271d15a..a5e664a`; DEMO_VERSION `v15→v16`; Opus whole-branch review; push pending Eston)*
+- [MAJOR] ✅ Require **target + baseline + measurement cadence** per indicator before ratification. `MandateIndicator`
+  gains `baseline`/`cadence`; new host/expert-gated **"Prepare for ratification"** panel (`RatificationPanel`,
+  gated via `getInitiativeRoles`) writes a `mandate_ratification` JSON property on the initiative contract (new
+  additive `set_property`/`get_properties`, mirroring the community contract); `useMandate` merges per-indicator
+  by label and reads `status:'ratified'` only when every indicator is complete (else `'published'` + a "pending
+  ratification" badge on card/document). (`articles[].title` stays derived-empty — out of P4 scope.)
+- [MAJOR] ✅ **Turnout denominator** (X of N eligible, Y%) — `MandateProvenance.eligible` (N = community member
+  count, the vote-stage denominator) + `voters` (X = distinct QV allocators), rendered on the document + in
+  `spec.json` `provenance.turnout`. ✅ Static, honest **Sybil / verification** block (web-of-trust, 1p1v, no
+  ID/biometrics — matches the P0/P2 copy) on the document + `provenance.verification` in `spec.json`. ✅ Org
+  endorsements marked **claimed vs verified** (`MandateAdopter.verified` + distinct badge + `adoption.{claimed,
+  verified}` in spec).
 
 **P5 — Mission floor (pull forward from Wave 2 — north-star #1 gaps the pilot will hit).**
 - [BLOCKER-class, large] **Low-bandwidth / offline mode** — cache last view, defer images, an "offline"
@@ -241,6 +249,22 @@ all 3 items narrower than framed — see project memory `project_session12_evide
 
 ## 8. Changelog
 
+- **2026-07-01 — P4 Mandate rigor shipped (S13).** Made the published mandate defensible as an institution.
+  Indicators now carry **target + baseline + measurement cadence**, entered on a new **host/expert-gated
+  "Prepare for ratification" panel** (`RatificationPanel`, gated via `getInitiativeRoles`) that writes a
+  `mandate_ratification` JSON property on the **initiative** contract — a NEW additive `set_property`/
+  `get_properties` seam mirroring the community contract (the premise re-check found the initiative contract
+  lacked those methods; the `wtdraft_` pattern runs on the *community* contract — Eston confirmed adding them).
+  `useMandate` merges ratification per-indicator by label and derives `status:'ratified'` only when every
+  indicator is complete (else `'published'` + a "pending ratification" badge). The artifact now states its
+  **turnout denominator** ("X of N eligible members voted, Y%" — N = community member count, X = distinct QV
+  allocators) and a static **Sybil/verification** statement (web-of-trust, 1p1v, no ID/biometrics — reconciled
+  with the P0/P2 honesty copy), both also in `spec.json` `provenance`. Org endorsements marked **claimed vs
+  verified** (`MandateAdopter.verified` + distinct badge + `adoption.{claimed,verified}` in spec; seeded 3+3).
+  DEMO_VERSION `v15→v16`; fr/sw +22 keys at parity. Built on `ui` (7 commits `271d15a..a5e664a`); preview-
+  verified 360px light+dark incl. the host-gated panel save→persist→re-fetch roundtrip. **★★ The 2026-06-29
+  persona review's mandate findings (empty KPI targets, no turnout denominator, no Sybil statement,
+  claimed-vs-verified ambiguity) are all closed.** Next: P5 mission floor.
 - **2026-07-01 — P3 Evidence & expertise loop shipped (S12).** Closed the review's evidence/expertise
   convergence: credited expert reviews (name + verified-shield + credentials + structured assessment +
   evidence links, replacing the old anonymous metric flatten), a repeatable Sources field (URL + optional
