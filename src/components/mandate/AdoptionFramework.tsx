@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { HeartHandshake, Globe, Plus } from 'lucide-react';
+import { HeartHandshake, Globe, Plus, ShieldCheck } from 'lucide-react';
 import { Badge, Banner, Button, Modal } from '../shared';
 import { useI18n } from '../../i18n';
 import type { TFunction } from '../../i18n';
@@ -187,6 +187,15 @@ const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t, locale }) => {
           {isViewer && (
             <Badge tone="primary" size="sm">
               {t('mandate.you', 'You')}
+            </Badge>
+          )}
+          {adopter.verified ? (
+            <Badge tone="success" size="sm">
+              <ShieldCheck size={12} aria-hidden /> {t('mandate.verifiedAdopter', 'Verified')}
+            </Badge>
+          ) : (
+            <Badge tone="neutral" size="sm">
+              {t('mandate.claimedAdopter', 'Claimed')}
             </Badge>
           )}
           <Badge tone={isSubscribed ? 'success' : 'info'} size="sm">

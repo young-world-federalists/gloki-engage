@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Heart, Share2, ArrowRight } from 'lucide-react';
-import { Button } from '../shared';
+import { Button, Badge } from '../shared';
 import { useI18n } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateCard.module.scss';
@@ -86,6 +86,11 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
       <div className={styles.eyebrow}>
         <ShieldCheck size={15} aria-hidden className={styles.eyebrowIcon} />
         <span className={styles.brand}>{t('mandate.card.brand', 'Gloki Mandate')}</span>
+        {mandate.status !== 'ratified' && (
+          <Badge tone="warning" size="sm" className={styles.pending}>
+            {t('mandate.statusPending', 'Pending ratification')}
+          </Badge>
+        )}
       </div>
 
       <h1 className={styles.title}>{mandate.title}</h1>
