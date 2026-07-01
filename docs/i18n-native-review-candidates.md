@@ -713,6 +713,31 @@ they must read as *honest and non-alarming*, and must not over-claim a secrecy o
   `deliberation.thread.addSources`** — the same sources field on the write-together + comment composers.
   `addSources` is a "+ Add sources" toggle; confirm the "+ " prefix + phrasing.
 
+### S13 — mandate rigor (added 2026-07-01)
+- **fr/sw `mandate.statusPending`** — "Pending ratification", the badge on a mandate whose indicators aren't
+  yet complete. Confirm "Ratification en attente" / "Inasubiri kuidhinishwa" reads as *not-yet-ratified*, not
+  *rejected*.
+- **fr/sw `mandate.turnoutLine`** — "{voters} of {eligible} eligible members voted ({pct}%)". Carries three
+  tokens; keep them. Confirm "membres sur … ont voté" / "kati ya … walipiga kura" is the natural turnout
+  phrasing, and the `%` placement reads right.
+- **fr/sw `mandate.verification.title` / `mandate.verification.body`** — the static Sybil-resistance
+  statement. **Highest-value review item**: the body must stay honest and match the app's existing
+  web-of-trust / one-person-one-vote copy (no ID papers, no biometrics, no face scans, no one can buy
+  influence). Confirm "toile de confiance communautaire" / "mtandao wa kuaminiana wa jamii" and the
+  biometric/face-scan disclaimers land accurately and don't overclaim.
+- **fr/sw `mandate.indicatorPending`** ("Target not yet set"), **`mandate.indicatorBaseline`** ("From
+  {baseline}"), **`mandate.indicatorCadence`** ("Measured {cadence}") — the indicator target/baseline/cadence
+  render. Confirm "À partir de" / "Kutoka" (baseline) and "Mesuré" / "Hupimwa" (cadence) read naturally with
+  the interpolated value.
+- **fr/sw `mandate.verifiedAdopter`** ("Verified") / **`mandate.claimedAdopter`** ("Claimed") — the
+  endorsement badges. Confirm "Vérifié"/"Déclaré" and "Imethibitishwa"/"Imedaiwa" convey *confirmed* vs
+  *self-asserted*, not *approved* vs *rejected*.
+- **fr/sw `mandate.ratify.*`** (`title`, `intro`, `target`, `targetPlaceholder`, `baseline`,
+  `baselinePlaceholder`, `cadence`, `cadencePlaceholder`, `ready`, `incomplete`, `save`, `saving`, `saved`) —
+  the host/expert "Prepare for ratification" panel. `intro` explains the host/expert sets each indicator's
+  target/baseline/cadence; confirm "hôte ou expert" / "mwenyeji au mtaalamu" and the placeholders' example
+  values read naturally.
+
 ---
 
 ## How to deliver fixes
