@@ -158,6 +158,34 @@
   flex-shrink: 0;
 }
 
+/* Consent — "what we collect" + pilot terms (S11 P2) */
+.subheading {
+  margin: $spacing-lg 0 0;
+  font-size: $text-base;
+  font-weight: $font-bold;
+  color: $gray-800;
+}
+.collectList {
+  margin: $spacing-sm 0 0;
+  padding-left: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-700;
+}
+.consentNote {
+  margin: $spacing-md 0 0;
+  font-size: $text-xs;
+  line-height: 1.6;
+  color: $gray-600;
+}
+.consentLink {
+  color: $primary;
+  text-decoration: underline;
+}
+
 /* Ready */
 .readyIcon {
   display: flex;
@@ -214,8 +242,13 @@
     color: $dark-text;
   }
   .lead,
-  .vouchedBy {
+  .vouchedBy,
+  .collectList,
+  .consentNote {
     color: $dark-text-secondary;
+  }
+  .subheading {
+    color: $dark-text;
   }
   .input,
   .rule {

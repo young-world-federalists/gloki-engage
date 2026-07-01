@@ -115,7 +115,6 @@ const OnboardingFlow: React.FC = () => {
             headingRef={headingRef}
             onBack={() => go(3)}
             onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(5); }}
-            onSkip={() => go(5)}
           />
         )}
         {step === 5 && (
