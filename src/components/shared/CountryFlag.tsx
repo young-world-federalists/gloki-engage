@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { getCountryFlag, getCountryName } from '../../utils/countries';
+import { useI18n } from '../../i18n';
 import styles from './CountryFlag.module.scss';
 
 export interface CountryFlagProps {
@@ -13,7 +14,8 @@ export interface CountryFlagProps {
 
 /** Atomic country flag with accessible label. The flag emoji is announced as the country name. */
 const CountryFlag: React.FC<CountryFlagProps> = ({ code, showName, size = 'md', className }) => {
-  const name = getCountryName(code);
+  const { locale } = useI18n();
+  const name = getCountryName(code, locale);
   return (
     <span className={clsx(styles.flag, styles[size], className)} title={name}>
       <span className={styles.emoji} role="img" aria-label={name}>

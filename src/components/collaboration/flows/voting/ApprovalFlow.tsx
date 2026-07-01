@@ -10,7 +10,7 @@ import { getCountryColor, getCountryName } from '../../../../utils/countries';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../../services/initiativeRoles';
 import ExpertEndorseButton from '../../../shared/ExpertEndorseButton';
 import { SegmentedControl, Button, InfoDisclosure } from '../../../shared';
-import { useT } from '../../../../i18n';
+import { useI18n } from '../../../../i18n';
 const approvalContractCode = '';import styles from './ApprovalFlow.module.scss';
 
 interface Proposal {
@@ -21,7 +21,7 @@ interface Proposal {
 }
 
 const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parentContractId, stageKey }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId,
     'approval_voting',
@@ -314,7 +314,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
                               width: `${(count / maxApprovals) * 100}%`,
                               backgroundColor: getCountryColor(country),
                             }}
-                            title={`${getCountryName(country)}: ${count}`}
+                            title={`${getCountryName(country, locale)}: ${count}`}
                           />
                         ))}
                       </div>

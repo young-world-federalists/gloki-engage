@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { useT } from '../../i18n';
+import { useI18n } from '../../i18n';
 import {
   COUNTRIES,
   OTHER_COUNTRY,
@@ -38,7 +38,7 @@ const CountryMultiSelect: React.FC<CountryMultiSelectProps> = ({
   includeOther = true,
   disabled = false,
 }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
 
   const add = (code: string) => {
     if (code && !value.includes(code)) onChange([...value, code]);
@@ -46,7 +46,7 @@ const CountryMultiSelect: React.FC<CountryMultiSelectProps> = ({
   const remove = (code: string) => onChange(value.filter((c) => c !== code));
 
   const label = (code: string) =>
-    code === 'OTHER' ? t('country.other', 'Other') : getCountryName(code);
+    code === 'OTHER' ? t('country.other', 'Other') : getCountryName(code, locale);
 
   // Searchable list = all 197 (+ OTHER), minus already-selected.
   const baseOptions = includeOther ? [...COUNTRIES, OTHER_COUNTRY] : COUNTRIES;

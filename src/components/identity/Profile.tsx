@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
 import { Key, Server, ChevronDown, ChevronUp, UserPlus } from 'lucide-react';
 import { Button, Card, Modal, EmptyState, Banner, SearchableSelect } from '../shared';
-import { useT } from '../../i18n';
+import { useT, useI18n } from '../../i18n';
 import DigitalAgentCard from './DigitalAgentCard';
 import PhotoPicker from './PhotoPicker';
 import { useDigitalAgent } from './agent/useDigitalAgent';
-import { COUNTRIES, OTHER_COUNTRY } from '../../utils/countries';
+import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../utils/languages';
 import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
 import styles from './Profile.module.scss';
 
 const Profile: React.FC = () => {
   const t = useT();
+  const { locale } = useI18n();
   const navigate = useNavigate();
   const user = useAppSelector((s) => s.user);
   const { agent, hasAgent, isOnboarded, saveAgent } = useDigitalAgent();
@@ -133,7 +134,7 @@ const Profile: React.FC = () => {
             </label>
             <SearchableSelect
               options={[
-                ...COUNTRIES.map((c) => ({ value: c.code, label: c.name, icon: c.flag })),
+                ...COUNTRIES.map((c) => ({ value: c.code, label: getCountryName(c.code, locale), icon: c.flag })),
                 { value: OTHER_COUNTRY.code, label: OTHER_COUNTRY.name, icon: OTHER_COUNTRY.flag },
               ]}
               value={country}

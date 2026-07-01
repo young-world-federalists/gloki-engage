@@ -4,7 +4,7 @@ import { useFlowContract } from '../shared/useFlowContract';
 import * as api from './convictionApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor, getCountryName, getCountryFlag } from '../../../../utils/countries';
-import { useT } from '../../../../i18n';
+import { useI18n } from '../../../../i18n';
 import styles from './ConvictionStaking.module.scss';
 
 const convictionCode = '';
@@ -39,7 +39,7 @@ const DURATIONS = [
 const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   instanceId, parentContractId, stageKey, compact = false,
 }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId, 'conviction_staking', 'conviction_contract.py', convictionCode, parentContractId, stageKey,
   );
@@ -216,7 +216,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
                 <div key={country} className={styles.countryRow}>
                   <span className={styles.countryName}>
                     <span className={styles.countryFlag} aria-hidden="true">{getCountryFlag(country)}</span>
-                    {getCountryName(country)}
+                    {getCountryName(country, locale)}
                   </span>
                   <div className={styles.countryBar}>
                     <div

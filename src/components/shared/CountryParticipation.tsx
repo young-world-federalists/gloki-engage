@@ -1,5 +1,6 @@
 import React from 'react';
 import { getCountryName, getCountryColor, getCountryFlag } from '../../utils/countries';
+import { useI18n } from '../../i18n';
 import styles from './CountryParticipation.module.scss';
 
 interface CountryParticipationProps {
@@ -10,6 +11,7 @@ interface CountryParticipationProps {
 }
 
 const CountryParticipation: React.FC<CountryParticipationProps> = ({ data, maxDisplay = 5 }) => {
+  const { locale } = useI18n();
   const sorted = Object.entries(data).sort(([, a], [, b]) => b - a);
   if (sorted.length === 0) return null;
 
@@ -22,7 +24,7 @@ const CountryParticipation: React.FC<CountryParticipationProps> = ({ data, maxDi
         <span
           key={code}
           className={styles.flag}
-          title={`${getCountryName(code)}: ${count}`}
+          title={`${getCountryName(code, locale)}: ${count}`}
           style={{ borderColor: getCountryColor(code) }}
         >
           {getCountryFlag(code)} {count}

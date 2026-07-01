@@ -174,7 +174,7 @@ const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t, locale }) => {
             {adopter.country ? (
               <span className={styles.orgLoc}>
                 <span aria-hidden>{getCountryFlag(adopter.country)}</span>{' '}
-                {getCountryName(adopter.country)}
+                {getCountryName(adopter.country, locale)}
               </span>
             ) : (
               <span className={styles.orgLoc}>

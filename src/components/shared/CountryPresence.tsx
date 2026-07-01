@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { getCountryFlag, getCountryName } from '../../utils/countries';
+import { useI18n } from '../../i18n';
 import styles from './CountryPresence.module.scss';
 
 export interface CountryPresenceProps {
@@ -26,6 +27,7 @@ const CountryPresence: React.FC<CountryPresenceProps> = ({
   size = 'md',
   className,
 }) => {
+  const { locale } = useI18n();
   const unique = Array.from(new Set(countries));
   if (unique.length === 0) return null;
 
@@ -36,8 +38,8 @@ const CountryPresence: React.FC<CountryPresenceProps> = ({
     <div className={clsx(styles.presence, styles[size], className)}>
       <div className={styles.cluster}>
         {shown.map((code) => (
-          <span key={code} className={styles.chip} title={getCountryName(code)}>
-            <span role="img" aria-label={getCountryName(code)}>
+          <span key={code} className={styles.chip} title={getCountryName(code, locale)}>
+            <span role="img" aria-label={getCountryName(code, locale)}>
               {getCountryFlag(code)}
             </span>
           </span>
