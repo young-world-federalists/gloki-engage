@@ -7,6 +7,7 @@ import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import { UserIdentity, Button } from '../shared';
+import { SmartImage } from '../shared/connectivity';
 import { displayNameFor } from '../../utils/displayName';
 import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
@@ -40,9 +41,12 @@ const MemberItem: React.FC<MemberItemProps> = ({
     <div className={styles.memberCard}>
       <div className={styles.memberAvatar}>
         {profileImage ? (
-          <img
+          <SmartImage
             src={profileImage}
             alt={displayName}
+            fallbackLabel={displayName}
+            size={56}
+            rounded
             className={styles.avatarImage}
           />
         ) : (

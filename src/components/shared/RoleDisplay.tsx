@@ -3,6 +3,7 @@ import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import type { InitiativeRoles } from '../../services/initiativeRoles';
 import RoleChip from './RoleChip';
+import { SmartImage } from './connectivity';
 import styles from './RoleDisplay.module.scss';
 
 interface RoleDisplayProps {
@@ -28,7 +29,11 @@ const RoleDisplay: React.FC<RoleDisplayProps> = ({ roles, maxCoAuthors = 3, maxE
     const photo = p?.userPhoto;
     return (
       <div key={key} className={styles.avatar} title={title}>
-        {photo ? <img src={photo} alt={title} /> : <span>{init}</span>}
+        {photo ? (
+          <SmartImage src={photo} alt={title} fallbackLabel={title} size={22} rounded />
+        ) : (
+          <span>{init}</span>
+        )}
       </div>
     );
   };

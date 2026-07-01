@@ -5,6 +5,7 @@ import { useT } from '../../i18n';
 import { getInitials, type DigitalAgent } from './agent/digitalAgentStore';
 import { getPersona, DEMO_PARTICIPATION } from '../../services/demo/fixtures/identity';
 import { getLanguageNative } from '../../utils/languages';
+import { SmartImage } from '../shared/connectivity';
 import styles from './DigitalAgentCard.module.scss';
 
 interface Props {
@@ -23,7 +24,11 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
     <Card className={styles.card}>
       <div className={styles.top}>
         <div className={styles.avatar} aria-hidden>
-          {agent.photo ? <img src={agent.photo} alt="" /> : <span>{getInitials(agent.displayName)}</span>}
+          {agent.photo ? (
+            <SmartImage src={agent.photo} alt="" fallbackLabel={agent.displayName} size={64} rounded />
+          ) : (
+            <span>{getInitials(agent.displayName)}</span>
+          )}
         </div>
         <div className={styles.identity}>
           <h2 className={styles.name}>{name}</h2>

@@ -4,6 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { useT } from '../../../i18n';
 import { getInitials, type DigitalAgent } from '../../identity/agent/digitalAgentStore';
 import { getLanguageNative } from '../../../utils/languages';
+import { SmartImage } from '../../shared/connectivity';
 import styles from './steps.module.scss';
 
 interface Props {
@@ -28,7 +29,11 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
       </h1>
       <Card className={styles.recapCard}>
         <div className={styles.recapAvatar} aria-hidden>
-          {agent?.photo ? <img src={agent.photo} alt="" /> : <span>{getInitials(name || '')}</span>}
+          {agent?.photo ? (
+            <SmartImage src={agent.photo} alt="" fallbackLabel={name || ''} size={56} rounded />
+          ) : (
+            <span>{getInitials(name || '')}</span>
+          )}
         </div>
         <div className={styles.recapInfo}>
           <span className={styles.recapName}>{name || t('onboarding.ready.anon', 'Your profile')}</span>
