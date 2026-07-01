@@ -1,5 +1,6 @@
 import { contractRead, contractWrite } from '../../../../services/api';
 import type { IMethod } from '../../../../services/interfaces';
+import { normalizeSources, type SourceLink } from '../../../../utils/sources';
 
 export type CommentCategory = 'evidence' | 'impact' | 'solutions' | 'concerns';
 
@@ -12,6 +13,7 @@ export interface Comment {
   category?: CommentCategory;
   deleted?: boolean;
   likes: string[];
+  sources?: SourceLink[];
 }
 
 interface RawComment {
@@ -23,6 +25,7 @@ interface RawComment {
   category?: CommentCategory | '' | null;
   deleted?: boolean;
   likes?: unknown;
+  sources?: unknown;
 }
 
 function normalizeTimestamp(raw: number | string | undefined): number {
@@ -62,6 +65,7 @@ function normalizeComment(raw: RawComment): Comment {
     category: raw.category ? (raw.category as CommentCategory) : undefined,
     deleted,
     likes: Array.isArray(raw.likes) ? raw.likes.map((x) => String(x)).filter(Boolean) : [],
+    sources: deleted ? undefined : normalizeSources(raw.sources),
   };
 }
 
@@ -72,6 +76,7 @@ export async function addComment(
   text: string,
   parentId: string | null,
   category?: CommentCategory,
+  sources: SourceLink[] = [],
 ) {
   return await contractWrite({
     serverUrl,
@@ -83,6 +88,7 @@ export async function addComment(
         text,
         parent_id: parentId ?? '',
         category: category ?? '',
+        sources,
       },
     } as IMethod,
   });

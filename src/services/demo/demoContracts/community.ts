@@ -2,6 +2,7 @@
 import type { IMethod } from '../../interfaces';
 import { readState, writeState, updateState } from '../demoState';
 import { getPersona, getVouchGraph } from '../fixtures/identity';
+import { expertProfile } from '../fixtures/deliberation';
 import { DEFAULT_STAGE_PERMISSIONS, type StageRule } from '../../trustModel';
 
 interface Collaboration {
@@ -102,14 +103,14 @@ export function communityRead(contractId: string, method: IMethod, caller: strin
     case 'get_all_people':
       return { tasks: {}, members: state.members, nominates: [] };
     case 'get_partners':
-      // Expose each member as a partner. Personas carry a `profile` pointer
-      // (their own key, served by the gloki_contract.py demo handler) so the
-      // real fetchMemberProfile flow resolves their names; non-personas (e.g.
-      // the demo user) get no profile pointer and are simply skipped.
+      // Expose each member as a partner. Personas AND seeded experts carry a
+      // `profile` pointer (their own key, served by the gloki_contract.py demo
+      // handler) so the real fetchMemberProfile flow resolves their names;
+      // non-profiles (e.g. the demo user) get no pointer and are simply skipped.
       return Object.keys(state.members).map((agent) => ({
         address: 'demo',
         agent,
-        profile: getPersona(agent) ? agent : '',
+        profile: (getPersona(agent) || expertProfile(agent)) ? agent : '',
       }));
     case 'get_tasks':
       return {};

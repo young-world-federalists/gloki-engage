@@ -6,8 +6,9 @@ import { useAppSelector } from '../../../../store/hooks';
 import { useI18n, useT } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
-import { EmptyState, UserIdentity } from '../../../shared';
+import { EmptyState, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
+import type { SourceLink } from '../../../../utils/sources';
 import * as api from './discussionApi';
 import type { Comment } from './discussionApi';
 import styles from './ThreadedDiscussion.module.scss';
@@ -57,17 +58,21 @@ const displayName = (
 const Composer: React.FC<{
   placeholder: string;
   submitLabel: string;
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string, sources: SourceLink[]) => void;
   onCancel?: () => void;
   autoFocus?: boolean;
 }> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus }) => {
   const t = useT();
   const [text, setText] = useState('');
+  const [sources, setSources] = useState<SourceLink[]>([{ url: '' }]);
+  const [showSources, setShowSources] = useState(false);
   const submit = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    onSubmit(trimmed);
+    onSubmit(trimmed, sources);
     setText('');
+    setSources([{ url: '' }]);
+    setShowSources(false);
   };
   return (
     <div className={styles.composeBox}>
@@ -79,10 +84,19 @@ const Composer: React.FC<{
         autoFocus={autoFocus}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
+          // Enter in the comment body posts (shift+Enter = newline). Source rows
+          // are separate inputs; whatever is entered there rides along on submit.
           if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
           if (e.key === 'Escape' && onCancel) onCancel();
         }}
       />
+      {showSources
+        ? <SourcesInput value={sources} onChange={setSources} label={t('deliberation.thread.sourcesLabel', 'Sources')} />
+        : (
+          <button type="button" className={styles.addSourcesBtn} onClick={() => setShowSources(true)}>
+            {t('deliberation.thread.addSources', '+ Add sources')}
+          </button>
+        )}
       <div className={styles.composeActions}>
         <button type="button" className={styles.btnSubmit} onClick={submit} disabled={!text.trim()}>
           {submitLabel}
@@ -107,7 +121,7 @@ const CommentItem: React.FC<{
   profiles: ProfileMap;
   trustOf: (pk: string) => TrustState;
   canParticipate: boolean;
-  onReply: (parentId: string, text: string) => void | Promise<void>;
+  onReply: (parentId: string, text: string, sources: SourceLink[]) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
   onFocus: (id: string) => void;
@@ -159,6 +173,10 @@ const CommentItem: React.FC<{
 
         <p className={styles.commentText}>{node.text}</p>
 
+        {!node.deleted && (node.sources?.length ?? 0) > 0 && (
+          <SourceLinks sources={node.sources!} className={styles.commentSources} />
+        )}
+
         {!node.deleted && (
           <div className={styles.commentActions}>
             <button
@@ -193,7 +211,7 @@ const CommentItem: React.FC<{
             submitLabel={t('deliberation.thread.reply', 'Reply')}
             autoFocus
             onCancel={() => setReplying(false)}
-            onSubmit={async (text) => { await onReply(node.id, text); setReplying(false); }}
+            onSubmit={async (text, sources) => { await onReply(node.id, text, sources); setReplying(false); }}
           />
         )}
       </div>
@@ -300,12 +318,12 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     setNewCommentId((cur) => (cur === blurredId ? null : cur));
   }, []);
 
-  const handleTopLevel = useCallback(async (text: string) => {
+  const handleTopLevel = useCallback(async (text: string, sources: SourceLink[]) => {
     if (!serverUrl || !publicKey || !contractId) return;
     // Clear any prior status/focus before posting.
     if (announceTimer.current) clearTimeout(announceTimer.current);
     setPostedStatus('');
-    const result = await api.addComment(serverUrl, publicKey, contractId, text, null);
+    const result = await api.addComment(serverUrl, publicKey, contractId, text, null, undefined, sources);
     await refresh();
     // Identify the new comment: use the returned id if available, else diff the list
     const returnedId = result && typeof result === 'object' && 'id' in result
@@ -328,9 +346,9 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     }, 60);
   }, [serverUrl, publicKey, contractId, refresh, t]);
 
-  const handleReply = useCallback(async (parentId: string, text: string) => {
+  const handleReply = useCallback(async (parentId: string, text: string, sources: SourceLink[]) => {
     if (!serverUrl || !publicKey || !contractId) return;
-    await api.addComment(serverUrl, publicKey, contractId, text, parentId);
+    await api.addComment(serverUrl, publicKey, contractId, text, parentId, undefined, sources);
     await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 

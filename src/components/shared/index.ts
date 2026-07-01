@@ -42,6 +42,12 @@ export type { TrustBadgeProps } from './TrustBadge';
 export { default as UserIdentity } from './UserIdentity';
 export type { UserIdentityProps } from './UserIdentity';
 
+export { default as SourceLinks } from './SourceLinks';
+export type { SourceLinksProps } from './SourceLinks';
+
+export { default as SourcesInput } from './SourcesInput';
+export type { SourcesInputProps } from './SourcesInput';
+
 export { default as CountryFlag } from './CountryFlag';
 export type { CountryFlagProps } from './CountryFlag';
 

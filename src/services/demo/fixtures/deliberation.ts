@@ -13,6 +13,7 @@
 
 import { PERSONAS, type Persona } from './identity';
 import { displayNameFor } from '../../../utils/displayName';
+import type { SourceLink } from '../../../utils/sources';
 
 // ---------------------------------------------------------------------------
 // Proposals per initiative (consumed by the seed orchestrator).
@@ -471,18 +472,32 @@ export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]
   },
 };
 
-export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalIndex: number; expert: string; metrics: string[]; note?: string }>> = {
+export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{
+  proposalIndex: number;
+  expert: string;
+  metrics: string[];
+  note?: string;
+  assessment?: string;   // S12: structured expert judgement
+  credentials?: string;  // S12: self-described affiliation shown on the badge
+  sources?: SourceLink[]; // S12: citations backing the review
+}>> = {
   databroker: [
     {
       proposalIndex: 0,
       expert: 'demo-expert-lena',
+      credentials: 'Data-protection researcher, Max Planck Institute',
+      assessment: 'A public registry is the right foundation and is technically feasible today — several jurisdictions already run one. The binding constraint is upkeep, not creation: an out-of-date list is worse than none because it lends false assurance.',
       metrics: ['Brokers registered on the public list', 'Subject-access requests fulfilled on time'],
+      sources: [{ url: 'https://www.ohchr.org/en/topic/digital-space-and-human-rights', label: 'OHCHR — data protection & privacy' }],
       note: 'Registration only works if the list is machine-readable and updated in real time — static PDFs become stale immediately.',
     },
     {
       proposalIndex: 2,
       expert: 'demo-expert-renata',
+      credentials: 'Competition economist, OECD',
+      assessment: 'Enforcement funded as a share of broker revenue is credible and self-scaling. The weak point is cross-border reach: without mutual-assistance agreements, the largest brokers simply relocate their processing.',
       metrics: ['Fines issued as a share of broker revenue', 'Cross-border enforcement actions completed'],
+      sources: [{ url: 'https://www.oecd.org/digital/', label: 'OECD — digital economy policy' }],
     },
   ],
   amr: [
@@ -503,15 +518,39 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{ proposalInde
     {
       proposalIndex: 2,
       expert: 'demo-expert-renata',
+      credentials: 'Climate-adaptation economist, Adaptation Fund',
+      assessment: 'Direct-access funding demonstrably reaches frontline communities faster than intermediated grants, but only where disbursement timelines and local-control shares are measured openly. Fund this with the reporting dashboard, not without it.',
       metrics: [
         'Frontline communities funded each year',
         'Share of each grant reaching local control',
         'Funded projects with open progress reporting',
         'Days from application to first disbursement',
       ],
+      sources: [{ url: 'https://www.adaptation-fund.org/', label: 'Adaptation Fund — direct access' }],
       note: 'Direct-access funding works only if disbursement stays fast and local control is measured — track both.',
     },
   ],
+};
+
+// S12: author-PROPOSED indicators + author-attached citations, keyed like the
+// review seed. Distinct from expert-validated metrics: these render under
+// "Indicators proposed by the author" and are NOT fed to useMandate (expert
+// metrics remain the mandate's source of truth). Seeded on a solution WITHOUT an
+// expert review so the author-first path is visible on its own.
+// `requests` seeds expertReviewRequests (1p1v member signals) so the reader-facing
+// loop is legible: a request that HAS a review renders as "requested by N · reviewed
+// by {names}" (resolved); one WITHOUT renders "requested by N — awaiting an expert".
+export const PROPOSAL_AUTHOR_EXTRAS_BY_KEY: Record<string, Record<number, { metrics?: string[]; sources?: SourceLink[]; requests?: string[] }>> = {
+  databroker: {
+    // p0 HAS an expert review → the request resolves to the reviewer's name.
+    0: { requests: ['demo-user-de-anika', 'demo-user-kr-jiwoo'] },
+    // p1 has author-proposed indicators + a source, and an OPEN request (no review yet).
+    1: {
+      metrics: ['Sensitive data categories reviewed each year', 'Share of consent records passing audit'],
+      sources: [{ url: 'https://www.ohchr.org/en/topic/digital-space-and-human-rights', label: 'OHCHR — data & human rights' }],
+      requests: ['demo-user-br-lucas'],
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------

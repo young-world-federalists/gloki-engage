@@ -9,19 +9,35 @@
 // leaking any demo knowledge into the UI/hook layer.
 import type { IMethod } from '../../interfaces';
 import { getPersona } from '../fixtures/identity';
+import { expertProfile } from '../fixtures/deliberation';
 
 export function profileRead(contractId: string, method: IMethod): unknown {
   if (method.name === 'get_profile') {
     const persona = getPersona(contractId);
-    if (!persona) return null;
-    return {
-      firstName: persona.firstName,
-      lastName: persona.lastName,
-      userPhoto: persona.userPhoto,
-      userBio: persona.userBio,
-      country: persona.country,
-      displayName: persona.displayName,
-    };
+    if (persona) {
+      return {
+        firstName: persona.firstName,
+        lastName: persona.lastName,
+        userPhoto: persona.userPhoto,
+        userBio: persona.userBio,
+        country: persona.country,
+        displayName: persona.displayName,
+      };
+    }
+    // S12: seeded experts (demo-expert-*) resolve too, so an attributed expert
+    // review shows a real name + country. `field` doubles as their bio/credential.
+    const expert = expertProfile(contractId);
+    if (expert) {
+      const [firstName, ...rest] = expert.name.split(' ');
+      return {
+        firstName,
+        lastName: rest.join(' '),
+        userPhoto: '',
+        userBio: expert.field,
+        country: expert.country,
+      };
+    }
+    return null;
   }
   return null;
 }

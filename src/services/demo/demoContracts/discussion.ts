@@ -10,6 +10,7 @@
 // ONE PERSON, ONE VOTE: every support action appends the caller's pk with
 // dedup — never a weight. Eligibility is gated in the UI by StageGate.
 import type { IMethod } from '../../interfaces';
+import { normalizeSources, type SourceLink } from '../../../utils/sources';
 import { readState, writeState, updateState } from '../demoState';
 import type { DiscussionSeed } from '../fixtures/deliberation';
 
@@ -22,6 +23,7 @@ interface DiscussionComment {
   category?: 'evidence' | 'impact' | 'solutions' | 'concerns';
   deleted?: boolean;
   likes: string[]; // 1p1v pubkeys — surfaces "top" replies; no advancement effect
+  sources?: SourceLink[]; // S12: citations attached to the comment
 }
 
 interface Statement {
@@ -136,6 +138,7 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
     case 'add_comment': {
       const text = method.values?.text as string | undefined;
       if (!text) return null;
+      const sources = normalizeSources(method.values?.sources);
       const comment: DiscussionComment = {
         id: newId(),
         author: caller,
@@ -144,6 +147,7 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         timestamp: Date.now(),
         category: method.values?.category as DiscussionComment['category'],
         likes: [],
+        ...(sources.length > 0 ? { sources } : {}),
       };
       updateState<DiscussionState>(contractId, (s) => ({
         ...defaultState(),
@@ -159,7 +163,9 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         ...defaultState(),
         ...s,
         comments: (s.comments ?? []).map((c) =>
-          c.id === id && c.author === caller ? { ...c, deleted: true, text: '' } : c,
+          // Scrub the body AND its citations on delete — a deleted comment must not
+          // retain its source URLs at rest (FOR OURI: mirror in the real contract).
+          c.id === id && c.author === caller ? { ...c, deleted: true, text: '', sources: undefined } : c,
         ),
       }));
       return null;

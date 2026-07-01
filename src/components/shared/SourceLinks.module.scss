@@ -1,0 +1,25 @@
+@use '../../styles/variables' as *;
+
+.sources { display: flex; flex-direction: column; gap: 4px; }
+
+.heading { margin: 0; font-size: $text-xs; font-weight: $font-medium; color: $gray-800; }
+
+.list {
+  margin: 0; padding: 0; list-style: none;
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+.link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: $text-xs; color: $primary; text-decoration: none;
+  word-break: break-word;
+  &:hover .linkText { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+}
+
+.icon { flex-shrink: 0; }
+
+@media (prefers-color-scheme: dark) {
+  .heading { color: $dark-text; }
+  // Links inherit $primary in dark, matching the existing evidence-link pattern.
+}

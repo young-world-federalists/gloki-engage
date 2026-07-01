@@ -14,7 +14,7 @@ import { initModification } from './demoContracts/modification';
 import { initDiscussion } from './demoContracts/discussion';
 import { PERSONAS, pick } from './fixtures/identity';
 import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
-import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed, PROPOSAL_COMMITMENTS_BY_KEY, PROPOSAL_EXPERT_REVIEWS_BY_KEY } from './fixtures/deliberation';
+import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed, PROPOSAL_COMMITMENTS_BY_KEY, PROPOSAL_EXPERT_REVIEWS_BY_KEY, PROPOSAL_AUTHOR_EXTRAS_BY_KEY, EXPERTS } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
   votePattern,
@@ -85,6 +85,24 @@ export function seedDemoCommunity(
     communityWrite(communityId, {
       name: 'become_member',
       values: { key: p.publicKey, value: [] },
+    } as IMethod, publicKey);
+  }
+
+  // S12: seeded experts join as members ONLY of communities that actually host an
+  // expert-reviewed initiative, so an attributed review resolves to a real name +
+  // country (profileRead serves EXPERTS as profiles) WITHOUT inflating member
+  // counts / country tallies / 50%-support gates on unrelated communities.
+  const reviewingExperts = new Set(
+    initiatives.flatMap((seed) => (PROPOSAL_EXPERT_REVIEWS_BY_KEY[seed.key] ?? []).map((r) => r.expert)),
+  );
+  for (const e of EXPERTS) {
+    if (!reviewingExperts.has(e.key)) continue;
+    if (!getDemoContract(e.key)) {
+      registerDemoContract({ id: e.key, name: e.name, contract: 'gloki_contract.py', createdAt: Date.now() });
+    }
+    communityWrite(communityId, {
+      name: 'become_member',
+      values: { key: e.key, value: [] },
     } as IMethod, publicKey);
   }
 
@@ -160,16 +178,25 @@ export function seedDemoCommunity(
     // Proposals (approval voting)
     const commitmentsByIndex = PROPOSAL_COMMITMENTS_BY_KEY[seed.key] ?? {};
     const reviewSeeds = PROPOSAL_EXPERT_REVIEWS_BY_KEY[seed.key] ?? [];
+    const authorExtras = PROPOSAL_AUTHOR_EXTRAS_BY_KEY[seed.key] ?? {};
     const propProposals = proposals.map((text, i) => {
       const reviews = reviewSeeds
         .filter((r) => r.proposalIndex === i)
-        .map((r) => ({ expert: r.expert, metrics: r.metrics, note: r.note, timestamp: Date.now() - (proposals.length - i) * 3_600_000 }));
+        .map((r) => ({
+          expert: r.expert, metrics: r.metrics, note: r.note,
+          assessment: r.assessment, credentials: r.credentials, sources: r.sources,
+          timestamp: Date.now() - (proposals.length - i) * 3_600_000,
+        }));
+      const extras = authorExtras[i] ?? {};
       return {
         id: 'p' + i,
         text,
         author: voters[i % voters.length].publicKey,
         timestamp: Date.now() - (proposals.length - i) * 3_600_000,
         commitments: commitmentsByIndex[i] ?? [],
+        ...(extras.metrics ? { metrics: extras.metrics } : {}),
+        ...(extras.sources ? { sources: extras.sources } : {}),
+        ...(extras.requests ? { expertReviewRequests: extras.requests } : {}),
         ...(reviews.length > 0 ? { expertReviews: reviews } : {}),
       };
     });

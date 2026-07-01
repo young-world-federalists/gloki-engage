@@ -4,6 +4,7 @@ import { normalizeStageContract } from '../../../services/contracts/initiative';
 import { setStatement, getStatement, type Statement } from '../../collaboration/flows/discussion/discussionApi';
 import { addProposal } from '../../collaboration/flows/voting/approvalApi';
 import { proposeCandidateIssue } from '../../stages/ProblemStage.demo';
+import { normalizeSources, type SourceLink } from '../../../utils/sources';
 
 export type DraftMode = 'problem' | 'solution';
 export interface DraftTag { problemId: string; title: string; community: string; }
@@ -15,6 +16,7 @@ export interface DraftEntry {
   targetName: string;    // cached community display name
   tag?: DraftTag;        // solution only
   title: string;         // cached statement title for the list
+  sources?: SourceLink[]; // S12: citations carried to the submitted problem/solution
   status: 'draft' | 'submitted';
   submittedRef?: string; // created initiative id (problem) or problem id (solution)
   author: string;        // starter pk
@@ -54,6 +56,7 @@ export interface StartDraftInput {
   tag?: DraftTag;
   title: string;
   body: string;
+  sources?: SourceLink[];
 }
 
 export async function startDraft(
@@ -64,7 +67,8 @@ export async function startDraft(
   await setStatement(serverUrl, publicKey, contractId, input.title, input.body);
   const entry: DraftEntry = {
     id: contractId, contractId, mode: input.mode, target: input.target, targetName: input.targetName,
-    tag: input.tag, title: input.title, status: 'draft', author: publicKey, createdAt: Date.now(),
+    tag: input.tag, title: input.title, sources: normalizeSources(input.sources),
+    status: 'draft', author: publicKey, createdAt: Date.now(),
   };
   await saveDraft(serverUrl, publicKey, communityId, entry);
   return entry;
@@ -96,17 +100,20 @@ export async function submitDraft(
   serverUrl: string, publicKey: string, communityId: string, entry: DraftEntry,
 ): Promise<DraftEntry> {
   const statement: Statement = await getStatement(serverUrl, publicKey, entry.contractId);
+  const sources = normalizeSources(entry.sources);
   let submittedRef: string;
   if (entry.mode === 'problem') {
     submittedRef = proposeCandidateIssue({
       publicKey, communityId: entry.target,
       title: statement.title || entry.title, description: statement.body,
-      countries: [], evidence: [], coAuthors: statement.coAuthors,
+      // Problem evidence is the legacy bare-URL string[]; carry the source URLs
+      // (labels drop at this boundary — FOR OURI: enrich when evidence gains labels).
+      countries: [], evidence: sources.map((s) => s.url), coAuthors: statement.coAuthors,
     });
   } else {
     if (!entry.tag) throw new Error('A solution draft must be tagged to a problem before it can be submitted.');
     const solutionsId = await resolveSolutionsContract(serverUrl, publicKey, entry.tag.problemId);
-    await addProposal(serverUrl, publicKey, solutionsId, statement.body || statement.title, statement.coAuthors);
+    await addProposal(serverUrl, publicKey, solutionsId, statement.body || statement.title, statement.coAuthors, [], sources);
     submittedRef = entry.tag.problemId;
   }
   const updated: DraftEntry = { ...entry, status: 'submitted', submittedRef };

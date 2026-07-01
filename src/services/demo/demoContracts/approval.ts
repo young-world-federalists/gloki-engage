@@ -1,11 +1,15 @@
 // Mock approval_contract.py
 import type { IMethod } from '../../interfaces';
+import { normalizeSources, type SourceLink } from '../../../utils/sources';
 import { readState, writeState } from '../demoState';
 
 interface ExpertReview {
-  expert: string;     // public key of the reviewing expert
-  metrics: string[];  // "how we'll know it's working" — consumed by S6 as indicators
-  note?: string;      // optional short review note
+  expert: string;         // public key of the reviewing expert
+  metrics: string[];      // "how we'll know it's working" — consumed by S6 as indicators
+  note?: string;          // optional short review note
+  assessment?: string;    // S12: structured expert assessment (verdict/reasoning)
+  credentials?: string;   // S12: self-described affiliation shown on the badge (e.g. "Epidemiologist, WHO")
+  sources?: SourceLink[]; // S12: citations backing the review
   timestamp: number;
 }
 
@@ -23,6 +27,8 @@ interface Proposal {
   coAuthors?: string[];
   // --- S4 commitments/metrics spine (all optional, backward-compatible) ---
   commitments?: string[];           // authored in the add-solution popup (≥1)
+  metrics?: string[];               // S12: author-PROPOSED indicators (distinct from expert-validated); NOT fed to useMandate
+  sources?: SourceLink[];           // S12: citations the author attached to the solution
   expertReviewRequests?: string[];  // public keys of members who requested review (1p1v)
   expertReviews?: ExpertReview[];   // experts who reviewed, each attaching metrics
   mergeSuggestions?: MergeSuggestion[]; // solution→solution merge suggestions (suggest-only)
@@ -117,7 +123,12 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       const rawCo = method.values?.co_authors;
       const coAuthors = Array.isArray(rawCo) ? rawCo.map((x) => String(x)).filter(Boolean) : [];
       const commitments = cleanStringList(method.values?.commitments, 3, 280);
-      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors, commitments };
+      // S12: author may propose indicator metrics + attach citations. Author metrics
+      // are kept DISTINCT from expert-validated metrics (useMandate reads only the
+      // latter). FOR OURI: `add_proposal` gains optional `metrics` + `sources`.
+      const metrics = cleanStringList(method.values?.metrics, 3, 280);
+      const sources = normalizeSources(method.values?.sources);
+      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors, commitments, metrics, sources };
       s.count += 1;
       writeState(contractId, s);
       return id;
@@ -166,9 +177,17 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       if (metrics.length === 0) return { error: 'At least one metric is required' };
       const rawNote = method.values?.note;
       const note = typeof rawNote === 'string' && rawNote.trim() ? rawNote.trim().slice(0, 500) : undefined;
+      // S12: an expert also attaches a structured assessment, self-described
+      // credentials, and citations. FOR OURI: `add_expert_review` gains optional
+      // `assessment` + `credentials` + `sources`.
+      const rawAssessment = method.values?.assessment;
+      const assessment = typeof rawAssessment === 'string' && rawAssessment.trim() ? rawAssessment.trim().slice(0, 700) : undefined;
+      const rawCredentials = method.values?.credentials;
+      const credentials = typeof rawCredentials === 'string' && rawCredentials.trim() ? rawCredentials.trim().slice(0, 120) : undefined;
+      const sources = normalizeSources(method.values?.sources);
       const p = s.proposals[pid];
       const reviews = Array.isArray(p.expertReviews) ? p.expertReviews.filter((r) => r.expert !== caller) : [];
-      reviews.push({ expert: caller, metrics, note, timestamp: Date.now() });
+      reviews.push({ expert: caller, metrics, note, assessment, credentials, sources, timestamp: Date.now() });
       p.expertReviews = reviews;
       writeState(contractId, s);
       return null;

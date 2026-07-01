@@ -163,6 +163,16 @@
   }
 }
 
+.hint {
+  margin: 0;
+  font-size: $text-xs;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
 // -------------------------------------------------------------------------
 // Text input — ≥44px height, matches app input standard from
 // CreateInitiativePage.module.scss (.inputField) and ProblemTagPicker (.codeInput)

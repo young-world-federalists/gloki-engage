@@ -40,6 +40,14 @@
     &::placeholder { color: $dark-text-secondary; }
   }
 }
+.addSourcesBtn {
+  align-self: flex-start; min-height: 44px;
+  background: none; border: none; color: $primary; cursor: pointer;
+  font-size: $text-sm; padding: 0 $spacing-xs;
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+}
+.commentSources { margin: 4px 0 $spacing-xs; }
 .composeActions { display: flex; gap: $spacing-sm; }
 .btnSubmit {
   min-height: 44px;

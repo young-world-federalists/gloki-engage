@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
-import { Button, SearchableSelect } from '../../shared';
+import { Button, SearchableSelect, SourcesInput } from '../../shared';
+import type { SourceLink } from '../../../utils/sources';
 import { useAlert } from '../../shared/useAlert';
 import ProblemTagPicker from './ProblemTagPicker';
 import { startDraft, type DraftEntry, type DraftMode, type DraftTag } from './writeTogetherApi';
@@ -27,6 +28,7 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
   const [tag, setTag] = useState<DraftTag | undefined>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [sources, setSources] = useState<SourceLink[]>([{ url: '' }]);
   const [busy, setBusy] = useState(false);
 
   const targetName = communities.find((c) => c.id === target)?.name ?? '';
@@ -37,7 +39,7 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
     setBusy(true);
     try {
       const entry = await startDraft(serverUrl, publicKey, communityId, {
-        mode, target, targetName, tag: mode === 'solution' ? tag : undefined, title: title.trim(), body: body.trim(),
+        mode, target, targetName, tag: mode === 'solution' ? tag : undefined, title: title.trim(), body: body.trim(), sources,
       });
       onStarted(entry);
     } catch (e) {
@@ -105,6 +107,10 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
         onChange={(e) => setBody(e.target.value)}
         placeholder={t('writeTogether.bodyPlaceholder', 'Write the first version — others can suggest edits.')}
       />
+
+      <label className={styles.label}>{t('writeTogether.sourcesLabel', 'Sources')}</label>
+      <p className={styles.hint}>{t('writeTogether.sourcesHint', 'Link to evidence that backs up your draft (optional).')}</p>
+      <SourcesInput value={sources} onChange={setSources} />
 
       <Button fullWidth size="lg" loading={busy} disabled={!canStart} onClick={handleStart}>
         {t('writeTogether.start', 'Start draft')}

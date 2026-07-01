@@ -1,5 +1,6 @@
 import { contractRead, contractWrite } from '../../../../services/api';
 import type { IMethod } from '../../../../services/interfaces';
+import type { SourceLink } from '../../../../utils/sources';
 
 function throwIfContractError(response: unknown) {
   if (
@@ -20,12 +21,14 @@ export async function addProposal(
   text: string,
   coAuthors: string[] = [],
   commitments: string[] = [],
+  sources: SourceLink[] = [],
+  metrics: string[] = [],
 ) {
   return throwIfContractError(await contractWrite({
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'add_proposal', values: { text, co_authors: coAuthors, commitments } } as IMethod,
+    method: { name: 'add_proposal', values: { text, co_authors: coAuthors, commitments, sources, metrics } } as IMethod,
   }));
 }
 
@@ -161,12 +164,15 @@ export async function addExpertReview(
   proposalId: string,
   metrics: string[],
   note?: string,
+  assessment?: string,
+  sources: SourceLink[] = [],
+  credentials?: string,
 ) {
   return throwIfContractError(await contractWrite({
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'add_expert_review', values: { proposal_id: proposalId, metrics, note } } as IMethod,
+    method: { name: 'add_expert_review', values: { proposal_id: proposalId, metrics, note, assessment, sources, credentials } } as IMethod,
   }));
 }
 

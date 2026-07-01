@@ -5,8 +5,9 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
-import { Button, UserIdentity, InfoDisclosure, Modal } from '../../shared';
+import { Button, UserIdentity, InfoDisclosure, Modal, SourceLinks, SourcesInput } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
+import type { SourceLink } from '../../../utils/sources';
 import { useT } from '../../../i18n';
 import styles from './SolutionsBoard.module.scss';
 
@@ -17,7 +18,7 @@ export interface SolutionsBoardProps {
   communityMemberCount?: number;
 }
 
-interface ExpertReview { expert: string; metrics: string[]; note?: string; timestamp: number }
+interface ExpertReview { expert: string; metrics: string[]; note?: string; assessment?: string; credentials?: string; sources?: SourceLink[]; timestamp: number }
 interface MergeSuggestion { target: string; suggester: string; timestamp: number }
 interface Proposal {
   id: string;
@@ -26,6 +27,8 @@ interface Proposal {
   timestamp: number | string;
   coAuthors?: string[];
   commitments?: string[];
+  metrics?: string[];        // author-proposed indicators (distinct from expert-validated)
+  sources?: SourceLink[];    // author-attached citations
   expertReviewRequests?: string[];
   expertReviews?: ExpertReview[];
   mergeSuggestions?: MergeSuggestion[];
@@ -56,6 +59,8 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [addOpen, setAddOpen] = useState(false);
   const [newText, setNewText] = useState('');
   const [newCommitments, setNewCommitments] = useState<string[]>(['', '', '']);
+  const [newMetrics, setNewMetrics] = useState<string[]>(['', '']);
+  const [newSources, setNewSources] = useState<SourceLink[]>([{ url: '' }]);
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = newText.trim().length > 0 && newCommitments.some((c) => c.trim().length > 0);
@@ -72,16 +77,30 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [reviewFor, setReviewFor] = useState<string | null>(null);
   const [reviewMetrics, setReviewMetrics] = useState<string[]>(['', '']);
   const [reviewNote, setReviewNote] = useState('');
+  const [reviewAssessment, setReviewAssessment] = useState('');
+  const [reviewCredentials, setReviewCredentials] = useState('');
+  const [reviewSources, setReviewSources] = useState<SourceLink[]>([{ url: '' }]);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const canSubmitReview = reviewMetrics.some((m) => m.trim().length > 0);
+
+  const resetReview = () => {
+    setReviewFor(null); setReviewMetrics(['', '']); setReviewNote('');
+    setReviewAssessment(''); setReviewCredentials(''); setReviewSources([{ url: '' }]);
+  };
 
   const handleAddReview = async () => {
     if (!serverUrl || !publicKey || !contractId || !reviewFor || !canSubmitReview) return;
     setReviewSubmitting(true);
     try {
       const metrics = reviewMetrics.map((m) => m.trim()).filter(Boolean);
-      await api.addExpertReview(serverUrl, publicKey, contractId, reviewFor, metrics, reviewNote.trim() || undefined);
-      setReviewFor(null); setReviewMetrics(['', '']); setReviewNote('');
+      await api.addExpertReview(
+        serverUrl, publicKey, contractId, reviewFor, metrics,
+        reviewNote.trim() || undefined,
+        reviewAssessment.trim() || undefined,
+        reviewSources,
+        reviewCredentials.trim() || undefined,
+      );
+      resetReview();
       await fetchData();
     } catch (err) {
       console.error('Failed to add expert review:', err);
@@ -90,13 +109,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     }
   };
 
+  const resetAdd = () => {
+    setNewText(''); setNewCommitments(['', '', '']); setNewMetrics(['', '']); setNewSources([{ url: '' }]); setAddOpen(false);
+  };
+
   const handleAdd = async () => {
     if (!serverUrl || !publicKey || !contractId || !canSubmit) return;
     setSubmitting(true);
     try {
       const commitments = newCommitments.map((c) => c.trim()).filter(Boolean);
-      await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments);
-      setNewText(''); setNewCommitments(['', '', '']); setAddOpen(false);
+      const metrics = newMetrics.map((m) => m.trim()).filter(Boolean);
+      await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments, newSources, metrics);
+      resetAdd();
       await fetchData();
     } catch (err) {
       console.error('Failed to add solution:', err);
@@ -244,7 +268,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
 
       <Modal
         isOpen={addOpen}
-        onClose={() => setAddOpen(false)}
+        onClose={resetAdd}
         title={t('mechanisms.approval.addSolutionTitle', 'Add a solution')}
         closeLabel={t('common.close', 'Close')}
         footer={
@@ -275,12 +299,31 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
               onChange={(e) => setNewCommitments((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
             />
           ))}
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.authorMetricsPrompt', 'Indicators you’d propose (optional)')}</p>
+          <p className={styles.commitHint}>{t('mechanisms.approval.authorMetricsHint', 'How would you measure success? Experts can validate or add to these.')}</p>
+          {newMetrics.map((m, i) => (
+            <input
+              key={i}
+              className={styles.commitInput}
+              type="text"
+              placeholder={t('mechanisms.approval.metricPlaceholder', 'A measurable indicator')}
+              value={m}
+              maxLength={280}
+              onChange={(e) => setNewMetrics((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+          ))}
+          <SourcesInput
+            value={newSources}
+            onChange={setNewSources}
+            label={t('mechanisms.approval.sourcesLabel', 'Sources (optional)')}
+            hint={t('mechanisms.approval.sourcesHint', 'Link to evidence that supports this solution.')}
+          />
         </div>
       </Modal>
 
       <Modal
         isOpen={reviewFor !== null}
-        onClose={() => setReviewFor(null)}
+        onClose={resetReview}
         title={t('mechanisms.approval.addExpertReview', 'Add expert review')}
         closeLabel={t('common.close', 'Close')}
         footer={
@@ -290,6 +333,25 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         }
       >
         <div className={styles.addForm}>
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.credentialsPrompt', 'Your credentials')}</p>
+          <p className={styles.commitHint}>{t('mechanisms.approval.credentialsHint', 'Shown with your review, e.g. “Epidemiologist, WHO”.')}</p>
+          <input
+            className={styles.commitInput}
+            type="text"
+            placeholder={t('mechanisms.approval.credentialsPlaceholder', 'Your role and affiliation')}
+            value={reviewCredentials}
+            maxLength={120}
+            onChange={(e) => setReviewCredentials(e.target.value)}
+          />
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.assessmentPrompt', 'Your assessment')}</p>
+          <textarea
+            className={styles.addTextarea}
+            placeholder={t('mechanisms.approval.assessmentPlaceholder', 'What is your expert judgement of this solution?')}
+            value={reviewAssessment}
+            onChange={(e) => setReviewAssessment(e.target.value)}
+            maxLength={700}
+            rows={3}
+          />
           <p className={styles.commitPrompt}>{t('mechanisms.approval.metricsPrompt', 'How will we know this is working?')}</p>
           {reviewMetrics.map((m, i) => (
             <input
@@ -302,6 +364,12 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
               onChange={(e) => setReviewMetrics((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
             />
           ))}
+          <SourcesInput
+            value={reviewSources}
+            onChange={setReviewSources}
+            label={t('mechanisms.approval.reviewSourcesLabel', 'Evidence (optional)')}
+            hint={t('mechanisms.approval.reviewSourcesHint', 'Link to the research or data behind your assessment.')}
+          />
           <textarea
             className={styles.addTextarea}
             placeholder={t('mechanisms.approval.reviewNotePlaceholder', 'A short review note (optional)')}
@@ -328,7 +396,10 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       ) : (
         <div className={styles.list}>
           {proposalList.map((p) => {
-            const reviewed = (p.expertReviews?.length ?? 0) > 0;
+            const reviews = p.expertReviews ?? [];
+            const reviewed = reviews.length > 0;
+            const reviewerNames = reviews.map((r) => authorName(r.expert));
+            const requestCount = p.expertReviewRequests?.length ?? 0;
             return (
               <div
                 key={p.id}
@@ -352,13 +423,56 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     {p.commitments!.map((c, i) => <li key={i}>{c}</li>)}
                   </ul>
                 )}
-                {(p.expertReviews?.length ?? 0) > 0 && (
+                {(p.metrics?.length ?? 0) > 0 && (
                   <div className={styles.metrics}>
-                    <p className={styles.metricsLabel}>{t('mechanisms.approval.metricsLabel', "How we’ll know it’s working")}</p>
+                    <p className={styles.metricsLabel}>{t('mechanisms.approval.authorMetricsLabel', 'Indicators proposed by the author')}</p>
                     <ul>
-                      {p.expertReviews!.flatMap((r) => r.metrics).map((m, i) => <li key={i}>{m}</li>)}
+                      {p.metrics!.map((m, i) => <li key={i}>{m}</li>)}
                     </ul>
                   </div>
+                )}
+                {(p.sources?.length ?? 0) > 0 && (
+                  <SourceLinks
+                    className={styles.sourceBlock}
+                    sources={p.sources!}
+                    heading={t('mechanisms.approval.solutionSources', 'Sources')}
+                  />
+                )}
+                {reviewed && (
+                  <div className={styles.reviews}>
+                    <p className={styles.reviewsLabel}>{t('mechanisms.approval.expertReviewHeading', 'Expert review')}</p>
+                    {reviews.map((r) => (
+                      <div key={r.expert} className={styles.review}>
+                        <div className={styles.reviewByline}>
+                          <UserIdentity name={authorName(r.expert)} countryCode={profiles[r.expert]?.country} trustState="verified" size="sm" />
+                          {r.credentials && <span className={styles.credentials}>{r.credentials}</span>}
+                        </div>
+                        {r.assessment && <p className={styles.assessment}>{r.assessment}</p>}
+                        {r.metrics.length > 0 && (
+                          <div className={styles.metrics}>
+                            <p className={styles.metricsLabel}>{t('mechanisms.approval.metricsLabel', "How we’ll know it’s working")}</p>
+                            <ul>
+                              {r.metrics.map((m, i) => <li key={i}>{m}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {(r.sources?.length ?? 0) > 0 && (
+                          <SourceLinks
+                            className={styles.sourceBlock}
+                            sources={r.sources!}
+                            heading={t('mechanisms.approval.reviewSourcesHeading', 'Evidence')}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {requestCount > 0 && (
+                  <p className={styles.reviewStatus}>
+                    {reviewed
+                      ? t('mechanisms.approval.reviewResolved', 'Review requested by {count} · reviewed by {names}', { count: requestCount, names: reviewerNames.join(', ') })
+                      : t('mechanisms.approval.reviewPending', 'Review requested by {count} — awaiting an expert', { count: requestCount })}
+                  </p>
                 )}
                 <div className={styles.byline}>
                   <UserIdentity name={authorName(p.author)} countryCode={profiles[p.author]?.country} size="sm" />

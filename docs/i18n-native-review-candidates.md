@@ -691,6 +691,28 @@ they must read as *honest and non-alarming*, and must not over-claim a secrecy o
   plain-language and reassuring, and that "placeholders for the pilot" reads as *not-yet-real terms*, not a
   legal disclaimer.
 
+### S12 — evidence & expertise loop (added 2026-07-01)
+- **fr/sw `sources.*`** (`urlPlaceholder`, `urlLabel`, `labelPlaceholder`, `labelFieldLabel`, `remove`, `add`)
+  — the repeatable citation composer (URL + optional label). Confirm "Lien source" / "Kiungo cha chanzo" and
+  "Libellé (facultatif)" / "Lebo (hiari)" read naturally as form-field labels.
+- **fr/sw `mechanisms.approval.credentialsPrompt` / `credentialsHint` / `credentialsPlaceholder`** — an
+  expert's self-described affiliation on their review (e.g. "Epidemiologist, WHO"). Confirm "qualifications" /
+  "sifa" and "rôle et affiliation" / "wadhifa na taasisi" are natural, and the WHO example reads right.
+- **fr/sw `mechanisms.approval.assessmentPrompt` / `assessmentPlaceholder`** — the expert's structured
+  judgement. Confirm "évaluation" / "tathmini" and "jugement d'expert" / "hukumu ya kitaalamu".
+- **fr/sw `mechanisms.approval.authorMetricsPrompt` / `authorMetricsHint` / `authorMetricsLabel`** — indicators
+  a solution *author* proposes (distinct from expert-validated). `authorMetricsLabel` ("Indicators proposed by
+  the author") is the on-card heading — confirm it reads as author-proposed, not expert-confirmed.
+- **fr/sw `mechanisms.approval.sourcesLabel/Hint`, `reviewSourcesLabel/Hint`, `solutionSources`,
+  `reviewSourcesHeading`, `expertReviewHeading`** — evidence/source labels + card headings. "Sources" vs
+  "Preuves/Ushahidi" (Evidence) are used deliberately (solution sources vs review evidence); confirm both fit.
+- **fr/sw `mechanisms.approval.reviewResolved` / `reviewPending`** — carry `{count}` and (resolved) `{names}`.
+  reviewResolved = "Review requested by {count} · reviewed by {names}"; reviewPending = "…awaiting an expert".
+  Keep the tokens; confirm the middot/dash punctuation is natural.
+- **fr/sw `writeTogether.sourcesLabel/Hint`, `deliberation.thread.sourcesLabel`,
+  `deliberation.thread.addSources`** — the same sources field on the write-together + comment composers.
+  `addSources` is a "+ Add sources" toggle; confirm the "+ " prefix + phrasing.
+
 ---
 
 ## How to deliver fixes

@@ -49,6 +49,21 @@
   ul { margin: 2px 0 0; padding-left: $spacing-md; line-height: 1.6; }
 }
 .metricsLabel { margin: 0; font-weight: $font-medium; color: $gray-800; font-size: $text-xs; }
+.sourceBlock { margin: 0 0 $spacing-sm; }
+// ─── Expert review attribution (S12) ───────────────────────────────────
+.reviews {
+  display: flex; flex-direction: column; gap: $spacing-sm;
+  margin: 0 0 $spacing-sm; padding: $spacing-sm;
+  border: 1px solid $gray-200; border-left: 3px solid $success;
+  border-radius: $radius-sm; background: rgba($success, 0.04);
+}
+.reviewsLabel { margin: 0; font-size: $text-xs; font-weight: $font-semibold; color: $success-dark; text-transform: uppercase; letter-spacing: 0.03em; }
+.review { display: flex; flex-direction: column; gap: 4px; }
+.review + .review { border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
+.reviewByline { display: flex; align-items: baseline; gap: $spacing-xs; flex-wrap: wrap; }
+.credentials { font-size: $text-xs; color: $gray-600; font-style: italic; }
+.assessment { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
+.reviewStatus { margin: 0 0 $spacing-sm; font-size: $text-xs; color: $gray-600; }
 .byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
 .reviewedTag { font-size: $text-xs; color: $success; }
 
@@ -106,4 +121,9 @@
   }
   .actionBtn { border-color: $dark-border; color: $dark-text-secondary; }
   .mergeSourceCard { opacity: 0.5; }
+  .reviews { background: rgba($success, 0.12); border-color: $dark-border; border-left-color: $success; }
+  .reviewsLabel { color: $success; }
+  .review + .review { border-top-color: $dark-border; }
+  .assessment { color: $dark-text; }
+  .credentials, .reviewStatus { color: $dark-text-secondary; }
 }
