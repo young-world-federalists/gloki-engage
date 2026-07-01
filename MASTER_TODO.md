@@ -225,13 +225,28 @@ all 3 items narrower than framed — see project memory `project_session12_evide
   verified}` in spec).
 
 **P5 — Mission floor (pull forward from Wave 2 — north-star #1 gaps the pilot will hit).**
-- [BLOCKER-class, large] **Low-bandwidth / offline mode** — cache last view, defer images, an "offline"
-  state, a WhatsApp-shareable summary. (Thandiwe/Pascal on intermittent, expensive data.)
-- [MAJOR, large] **More UI locales** incl. Chichewa (and other widely-spoken African languages that exist as
-  *profile* tags but not UI locales). Wire the **localized country names** into `SearchableSelect`.
+- [BLOCKER-class] **Low-bandwidth / offline mode** — ✅ **partly shipped (S14, offline anchor):** adopted the
+  orphaned "Lane F connectivity kit" into the real app (`SmartImage` data-saver placeholder + native lazy-load
+  at 4 avatar sites; `DataSaverToggle` surfaced in Profile), + new `useOnline` hook + global `OfflineBanner`
+  (`role="status"`, mounted in the App shell). *Remaining (deferred):* last-view cache + WhatsApp-shareable
+  summary extension (mandate already has S11's share); service-worker/PWA path deliberately NOT taken (lighter
+  in-app approach). (Thandiwe/Pascal on intermittent, expensive data.)
+- [MAJOR] **Localized country names** — ✅ **shipped (S14):** `getCountryName(code, locale)` via
+  `Intl.DisplayNames`, threaded through ~11 country render/select sites (incl. onboarding + Profile pickers).
+- [MAJOR, large] **More UI locales incl. Chichewa** (and other widely-spoken African languages that exist as
+  *profile* tags but not UI locales) — **still open** (deferred from S14; a new `src/i18n/ny.ts` ≈1109 keys +
+  `Locale` union + `LanguageSwitcher`; widens the human-gated native-review backlog).
 - [MAJOR, coordinate w/ backend] **Content-translation strategy** — fixture/content text (problem titles,
   comments, solutions, mandate body) is English in every locale; decide per-card translation vs a "traduire"
-  affordance. Backend-adjacent → coordinate with Ouri.
+  affordance. Backend-adjacent → coordinate with Ouri. **Still open.**
+
+**P5.5 — Generalize Gloki beyond the VftC/Africa pilot (Eston direction, 2026-07-01).** The app reads as the
+"Voices for the Climate / youth across Africa" campaign, not Gloki-the-global-platform. Scope a dedicated pass
+(brainstorm first) across four aspects: (1) **UI copy & mission framing** (onboarding/homepage/about/stage
+copy — e.g. the invitation "Voices for the Climate — jeunes de toute l'Afrique"); (2) **sample/fixture
+content** (climate-themed problems/solutions/mandates → varied civic topics); (3) **geographic assumptions**
+(`PILOT_COLORS` KE/NG/MW/CD, default/inviter country, pilot-country lists, region taxonomy defaults →
+globally neutral); (4) **docs & positioning** (this file's §1–2 mission, memory). Sizable; its own spec→plan.
 
 **P6 — Remaining Wave-1 debt.**
 - Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
@@ -249,6 +264,25 @@ all 3 items narrower than framed — see project memory `project_session12_evide
 
 ## 8. Changelog
 
+- **2026-07-01 — P5 Mission floor: offline anchor + localized country names shipped (S14).** Made the app
+  usable by the pilot cohort on cheap Androids / intermittent data — the north-star-#1 usability floor.
+  **Premise correction:** offline was *not* greenfield — a complete but orphaned "Lane F connectivity kit"
+  (`useDataSaver`/`SmartImage`/`DataSaverToggle`/`SyncBadge`/`ChannelBadge`, i18n-wired) lived only in the
+  `/lab/presence` dev route; this session **adopted it into the real app** rather than rebuilding. Shipped:
+  `SmartImage` (data-saver initials placeholder + native lazy-load + async decode) at 4 avatar sites (Members,
+  DigitalAgentCard, RoleDisplay, ReadyStep); `DataSaverToggle` in Profile preferences; a new provider-free
+  `useOnline` hook + global `OfflineBanner` (shared `Banner` `tone="warning"` → `role="status"`, announced,
+  mounted once in the App shell with **no route change**); and locale-aware `getCountryName(code, locale)` via
+  `Intl.DisplayNames` (folding MandateCard's local helper) threaded through ~11 render/select sites incl. the
+  onboarding + Profile country pickers. **Lighter in-app approach — no service worker/PWA** (avoids owning SW
+  cache-invalidation against the GitHub-Pages basename + `404.html` shim + `DEMO_VERSION` reseed). No
+  `DEMO_VERSION` bump (UI-only). 2 new banner keys + `profile.prefs` at fr/sw parity (fr=sw=1112), appended to
+  the native-review packet. Built subagent-driven on `ui` (6 code commits `f0b4dbe..479ffdd`); each task +
+  the whole branch reviewed (Opus final: **READY TO MERGE, 0 Crit / 0 Imp**, 3 non-blocking Minors);
+  preview-verified 360px light+dark under en/fr/sw incl. offline banner, data-saver placeholder toggle
+  (0 image fetches), and localized names ("Inde"/"Nigeria"). **Deferred (P5 tail):** last-view cache,
+  WhatsApp-summary extension, Chichewa locale, content-translation strategy. **New:** Eston directed a
+  **P5.5 "generalize Gloki beyond VftC/Africa"** workstream (see §7) — its own brainstorm next.
 - **2026-07-01 — P4 Mandate rigor shipped (S13).** Made the published mandate defensible as an institution.
   Indicators now carry **target + baseline + measurement cadence**, entered on a new **host/expert-gated
   "Prepare for ratification" panel** (`RatificationPanel`, gated via `getInitiativeRoles`) that writes a
