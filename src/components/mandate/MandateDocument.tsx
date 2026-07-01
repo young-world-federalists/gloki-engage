@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { FileText, Code2, Copy, Check, Globe, Users, TrendingUp, CalendarCheck } from 'lucide-react';
+import { FileText, Code2, Copy, Check, Globe, Users, TrendingUp, CalendarCheck, ShieldCheck, Vote } from 'lucide-react';
 import { Badge, CountryPresence, SegmentedControl } from '../shared';
 import { useI18n } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
@@ -14,6 +14,18 @@ function formatRatifiedDate(iso: string, locale: string): string {
   return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+/** Static, honest platform-level Sybil-resistance statement (English in the spec;
+ *  the on-screen copy is i18n'd — see mandate.verification.* keys). Mirrors the
+ *  web-of-trust / one-person-one-vote copy in IdentityTrust + VoteExplainer. */
+const VERIFICATION_STATEMENT =
+  'One person, one vote. Gloki keeps the electorate real through a community web of trust — ' +
+  'members vouch for one another in person by scanning QR codes. No ID papers, no biometrics, ' +
+  'no face scans are collected, and no one can buy extra influence.';
+
+function turnoutPct(voters: number, eligible: number): number {
+  return eligible > 0 ? Math.round((voters / eligible) * 100) : 0;
+}
+
 /** The structured, machine-readable projection of the mandate. */
 function buildSpec(mandate: PublishedMandate) {
   return {
@@ -24,17 +36,30 @@ function buildSpec(mandate: PublishedMandate) {
     ratified_on: mandate.ratifiedOn,
     jurisdictions: mandate.countries,
     articles: mandate.articles.map((a) => ({ id: a.id, title: a.title, commitment: a.body })),
-    indicators: mandate.indicators.map((i) => ({ metric: i.label, target: i.target })),
+    indicators: mandate.indicators.map((i) => ({
+      metric: i.label,
+      target: i.target,
+      baseline: i.baseline ?? '',
+      cadence: i.cadence ?? '',
+    })),
     provenance: {
       participants: mandate.provenance.participants,
       countries: mandate.provenance.countries,
       deliberation_months: mandate.provenance.deliberationMonths,
       vote_winner: mandate.provenance.voteWinner,
       conviction_backers: mandate.provenance.convictionBackers,
+      turnout: {
+        voters: mandate.provenance.voters,
+        eligible: mandate.provenance.eligible,
+        percent: turnoutPct(mandate.provenance.voters, mandate.provenance.eligible),
+      },
+      verification: VERIFICATION_STATEMENT,
     },
     adoption: {
       endorsements: mandate.adopters.filter((a) => a.level === 'endorsed').length,
       subscriptions: mandate.adopters.filter((a) => a.level === 'subscribed').length,
+      claimed: mandate.adopters.filter((a) => !a.verified).length,
+      verified: mandate.adopters.filter((a) => a.verified).length,
     },
   };
 }
@@ -74,9 +99,11 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
         <p className={styles.eyebrow}>{mandate.subtitle}</p>
         <h2 className={styles.title}>{mandate.title}</h2>
         <div className={styles.metaRow}>
-          <Badge tone="success" size="sm">
-            {t('mandate.statusRatified', 'Ratified')}
-          </Badge>
+          {mandate.status === 'ratified' ? (
+            <Badge tone="success" size="sm">{t('mandate.statusRatified', 'Ratified')}</Badge>
+          ) : (
+            <Badge tone="warning" size="sm">{t('mandate.statusPending', 'Pending ratification')}</Badge>
+          )}
           <span className={styles.ratified}>
             <CalendarCheck size={14} aria-hidden />
             {t('mandate.ratifiedOn', 'Ratified {date}', { date: ratified })}
@@ -117,6 +144,29 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
           <span className={styles.statLabel}>{t('mandate.statBackers', 'conviction backers')}</span>
         </li>
       </ul>
+
+      <div className={styles.turnout}>
+        <Vote size={16} aria-hidden className={styles.turnoutIcon} />
+        <p className={styles.turnoutText}>
+          {t('mandate.turnoutLine', '{voters} of {eligible} eligible members voted ({pct}%)', {
+            voters: mandate.provenance.voters.toLocaleString(),
+            eligible: mandate.provenance.eligible.toLocaleString(),
+            pct: turnoutPct(mandate.provenance.voters, mandate.provenance.eligible),
+          })}
+        </p>
+      </div>
+
+      <section className={styles.verification} aria-labelledby="mandate-verification">
+        <h3 id="mandate-verification" className={styles.verificationTitle}>
+          <ShieldCheck size={15} aria-hidden /> {t('mandate.verification.title', 'How we keep the vote real')}
+        </h3>
+        <p className={styles.verificationBody}>
+          {t(
+            'mandate.verification.body',
+            'One person, one vote. Gloki keeps the electorate real through a community web of trust — members vouch for one another in person by scanning QR codes. No ID papers, no biometrics, no face scans are collected, and no one can buy extra influence.',
+          )}
+        </p>
+      </section>
 
       <SegmentedControl<MandateView>
         ariaLabel={t('mandate.viewToggle', 'Mandate view')}
@@ -163,9 +213,26 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
               {mandate.indicators.map((ind) => (
                 <div key={ind.label} className={styles.indicator}>
                   <dt className={styles.indicatorLabel}>{ind.label}</dt>
-                  {/* Always emit the <dd> (empty when there's no target) so every
-                      <dt> has its required pair and the <dl> stays well-formed. */}
-                  <dd className={styles.indicatorTarget}>{ind.target}</dd>
+                  {/* Always emit the <dd> (a pending placeholder when there's no
+                      target) so every <dt> has its required pair and the <dl>
+                      stays well-formed. */}
+                  <dd className={styles.indicatorTarget}>
+                    {ind.target || t('mandate.indicatorPending', 'Target not yet set')}
+                    {(ind.baseline || ind.cadence) && (
+                      <span className={styles.indicatorMeta}>
+                        {ind.baseline && (
+                          <span className={styles.indicatorMetaItem}>
+                            {t('mandate.indicatorBaseline', 'From {baseline}', { baseline: ind.baseline })}
+                          </span>
+                        )}
+                        {ind.cadence && (
+                          <span className={styles.indicatorMetaItem}>
+                            {t('mandate.indicatorCadence', 'Measured {cadence}', { cadence: ind.cadence })}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </dd>
                 </div>
               ))}
             </dl>

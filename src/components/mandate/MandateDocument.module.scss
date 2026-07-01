@@ -271,6 +271,10 @@
 
 .indicatorTarget {
   margin: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   font-size: $text-sm;
   font-weight: $font-semibold;
   text-align: right;
@@ -278,6 +282,92 @@
 
   @media (prefers-color-scheme: dark) {
     color: $dark-text;
+  }
+}
+
+.indicatorMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.indicatorMetaItem {
+  font-size: $text-xs;
+  font-weight: $font-normal;
+  color: $gray-500;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- Turnout + verification (institutional credibility) ----- */
+.turnout {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.turnoutIcon {
+  flex: none;
+  color: $primary;
+}
+
+.turnoutText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-700;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
+  }
+}
+
+.verification {
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @media (prefers-color-scheme: dark) {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.verificationTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin: 0 0 $spacing-xs;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text;
+  }
+}
+
+.verificationBody {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
   }
 }
 
