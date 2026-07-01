@@ -92,6 +92,8 @@ const en: Dictionary = {
   'connectivity.viaWhatsapp': 'via WhatsApp',
   'connectivity.viaSms': 'via SMS',
   'connectivity.viaUssd': 'via USSD',
+  'connectivity.offlineBanner.title': "You're offline",
+  'connectivity.offlineBanner.body': 'Some content may not load until you reconnect.',
 
   // Transnational presence motifs (Lane F)
   'presence.participantsFrom': '{people} participants from {countries} countries',

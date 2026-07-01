@@ -740,6 +740,21 @@ they must read as *honest and non-alarming*, and must not over-claim a secrecy o
 
 ---
 
+## Session 14 (2026-07-01) — Offline banner (`connectivity.offlineBanner.*`)
+
+Two new keys for the global `OfflineBanner` (shown app-wide, `role="status"`, only while the browser reports
+no connection). Distinct from the pre-existing `connectivity.offline` (SyncBadge's short "Offline" pill) — this
+is the fuller banner title + body.
+
+- **fr/sw `connectivity.offlineBanner.title`** — "You're offline". fr "Vous êtes hors ligne", sw "Uko nje ya
+  mtandao". Confirm this reads as a neutral status statement, not an error/alarm.
+- **fr/sw `connectivity.offlineBanner.body`** — "Some content may not load until you reconnect." fr "Certains
+  contenus peuvent ne pas se charger tant que vous n'êtes pas reconnecté.", sw "Baadhi ya maudhui yanaweza
+  yasipakie hadi utakapounganishwa tena." Confirm the tone stays reassuring/informational rather than
+  implying data loss.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

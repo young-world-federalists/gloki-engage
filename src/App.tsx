@@ -4,6 +4,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
+import { OfflineBanner } from './components/shared/connectivity';
 import NotFound from './pages/NotFound';
 import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
@@ -106,6 +107,7 @@ function AppContent() {
   return (
     <ErrorBoundary locale={locale} fallbackMessage={t('errorBoundary.appMessage', 'Gloki encountered an unexpected error. Please refresh the page.')}>
       <Router basename={getBasename()}>
+        <OfflineBanner />
         <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
           <Routes>
             <Route path="/" element={<RootRoute />} />

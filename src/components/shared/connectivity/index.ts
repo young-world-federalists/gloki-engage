@@ -14,3 +14,6 @@ export { default as ChannelBadge } from './ChannelBadge';
 export type { ChannelBadgeProps } from './ChannelBadge';
 
 export { useDataSaver, setDataSaver } from './useDataSaver';
+
+export { default as OfflineBanner } from './OfflineBanner';
+export { useOnline } from './useOnline';

@@ -1052,6 +1052,8 @@ const fr: Dictionary = {
   'connectivity.viaWhatsapp': 'via WhatsApp',
   'connectivity.viaSms': 'via SMS',
   'connectivity.viaUssd': 'via USSD',
+  'connectivity.offlineBanner.title': 'Vous êtes hors ligne',
+  'connectivity.offlineBanner.body': 'Certains contenus peuvent ne pas se charger tant que vous n’êtes pas reconnecté.',
 
   // ── Transnational presence motifs ──────────────────────────────────────
   'presence.participantsFrom': '{people} participants de {countries} pays',

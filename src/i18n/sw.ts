@@ -1051,6 +1051,8 @@ const sw: Dictionary = {
   'connectivity.viaWhatsapp': 'kupitia WhatsApp',
   'connectivity.viaSms': 'kupitia SMS',
   'connectivity.viaUssd': 'kupitia USSD',
+  'connectivity.offlineBanner.title': 'Uko nje ya mtandao',
+  'connectivity.offlineBanner.body': 'Baadhi ya maudhui yanaweza yasipakie hadi utakapounganishwa tena.',
 
   // ── Transnational presence motifs ──────────────────────────────────────
   'presence.participantsFrom': 'washiriki {people} kutoka nchi {countries}',
