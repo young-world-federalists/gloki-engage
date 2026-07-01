@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
 import { Key, Server, ChevronDown, ChevronUp, UserPlus } from 'lucide-react';
 import { Button, Card, Modal, EmptyState, Banner, SearchableSelect } from '../shared';
+import { DataSaverToggle } from '../shared/connectivity';
 import { useT, useI18n } from '../../i18n';
 import DigitalAgentCard from './DigitalAgentCard';
 import PhotoPicker from './PhotoPicker';
@@ -99,6 +100,11 @@ const Profile: React.FC = () => {
           </div>
         </Card>
       )}
+
+      {/* Preferences — device-local, apply immediately */}
+      <section className={styles.prefs} aria-label={t('profile.prefs', 'Preferences')}>
+        <DataSaverToggle />
+      </section>
 
       {/* Edit modal */}
       <Modal

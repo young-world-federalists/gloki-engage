@@ -82,6 +82,9 @@ const en: Dictionary = {
   'translate.generatingSummary': 'Generating summary…',
   'translate.summaryFailed': 'Summary generation failed. Please try again.',
 
+  // Profile
+  'profile.prefs': 'Preferences',
+
   // Connectivity — low-bandwidth & offline (Lane F)
   'connectivity.dataSaver': 'Data saver',
   'connectivity.dataSaverHint': 'Use less data — hide heavy images',

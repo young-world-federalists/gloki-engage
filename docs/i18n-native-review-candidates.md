@@ -753,6 +753,12 @@ is the fuller banner title + body.
   yasipakie hadi utakapounganishwa tena." Confirm the tone stays reassuring/informational rather than
   implying data loss.
 
+One new key for the Profile page's new preferences section (wraps the `DataSaverToggle`, which reuses
+existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already reviewed):
+
+- **fr/sw `profile.prefs`** — "Preferences". fr "Préférences", sw "Mapendeleo". Section `aria-label` only
+  (not visibly rendered as a heading) — confirm it still reads naturally as an accessible section name.
+
 ---
 
 ## How to deliver fixes

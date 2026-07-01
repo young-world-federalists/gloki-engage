@@ -58,6 +58,10 @@
   border-radius: $radius-sm;
 }
 
+.prefs {
+  margin-top: $spacing-lg;
+}
+
 .editForm {
   display: flex;
   flex-direction: column;

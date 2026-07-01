@@ -148,6 +148,7 @@ const fr: Dictionary = {
   'agent.editProfile': 'Modifier le profil',
   'photo.add': 'Ajouter une photo',
   'profile.title': 'Profil',
+  'profile.prefs': 'Préférences',
   'agent.networkIdentity': 'Identité réseau',
   'agent.publicKey': 'Clé publique',
   'agent.serverUrl': 'Serveur',

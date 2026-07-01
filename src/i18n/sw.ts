@@ -147,6 +147,7 @@ const sw: Dictionary = {
   'agent.editProfile': 'Hariri wasifu',
   'photo.add': 'Ongeza picha',
   'profile.title': 'Wasifu',
+  'profile.prefs': 'Mapendeleo',
   'agent.networkIdentity': 'Utambulisho wa mtandao',
   'agent.publicKey': 'Ufunguo wa umma',
   'agent.serverUrl': 'Seva',
