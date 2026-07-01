@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Button, SearchableSelect } from '../../shared';
-import { useT } from '../../../i18n';
+import { useI18n } from '../../../i18n';
 import PhotoPicker from '../../identity/PhotoPicker';
 import { type DigitalAgent } from '../../identity/agent/digitalAgentStore';
 import { type Persona } from '../../../services/demo/fixtures/identity';
-import { COUNTRIES, OTHER_COUNTRY } from '../../../utils/countries';
+import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../../utils/languages';
 import styles from './steps.module.scss';
 
@@ -25,7 +25,7 @@ interface Props {
 }
 
 const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack, headingRef }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const [displayName, setDisplayName] = useState(agent?.displayName ?? '');
   const [photo, setPhoto] = useState(agent?.photo ?? '');
   const [country, setCountry] = useState(agent?.country ?? '');
@@ -74,7 +74,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
         </label>
         <SearchableSelect
           options={[
-            ...COUNTRIES.map((c) => ({ value: c.code, label: c.name, icon: c.flag })),
+            ...COUNTRIES.map((c) => ({ value: c.code, label: getCountryName(c.code, locale), icon: c.flag })),
             { value: OTHER_COUNTRY.code, label: OTHER_COUNTRY.name, icon: OTHER_COUNTRY.flag },
           ]}
           value={country}

@@ -4,8 +4,8 @@ import { useFlowContract } from '../shared/useFlowContract';
 import * as api from './problemVoteApi';
 import { useAppSelector } from '../../../../store/hooks';
 const problemVoteCode = '';import { sanitizeExternalUrl } from '../../../../utils/urlSafety';
-import { getCountryByCode } from '../../../../utils/countries';
-import { useT } from '../../../../i18n';
+import { getCountryByCode, getCountryName } from '../../../../utils/countries';
+import { useI18n } from '../../../../i18n';
 import styles from './ProblemVoteFlow.module.scss';
 
 interface ProblemVoteFlowProps {
@@ -33,7 +33,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   parentContractId,
   stageKey,
 }) => {
-  const t = useT();
+  const { t, locale } = useI18n();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId, 'problem_vote', 'problem_vote_contract.py', problemVoteCode, parentContractId, stageKey,
   );
@@ -151,8 +151,8 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
           {countries.map((code) => {
             const country = getCountryByCode(code);
             return (
-              <span key={code} className={styles.chip} title={country.name}>
-                {country.flag} {country.name}
+              <span key={code} className={styles.chip} title={getCountryName(code, locale)}>
+                {country.flag} {getCountryName(code, locale)}
               </span>
             );
           })}
