@@ -24,6 +24,7 @@ interface InitiativeState {
   members: unknown[];
   gaps: unknown[];
   steps: unknown[];
+  properties: Record<string, unknown>;
 }
 
 function defaultState(): InitiativeState {
@@ -37,6 +38,7 @@ function defaultState(): InitiativeState {
     members: [],
     gaps: [],
     steps: [],
+    properties: {},
   };
 }
 
@@ -91,6 +93,8 @@ export function initiativeRead(contractId: string, method: IMethod, _caller: str
         proposal_votes: s.proposal_votes,
         members: s.members,
       };
+    case 'get_properties':
+      return s.properties;
     default:
       return null;
   }
@@ -201,6 +205,16 @@ export function initiativeWrite(contractId: string, method: IMethod, caller: str
     case 'add_step': {
       const step = method.values?.step;
       updateState<InitiativeState>(contractId, (s) => ({ ...s, steps: [...s.steps, step] }));
+      return null;
+    }
+    case 'set_property': {
+      const key = method.values?.key as string | undefined;
+      const value = method.values?.value;
+      if (!key) return { error: 'Invalid property key' };
+      updateState<InitiativeState>(contractId, (s) => ({
+        ...s,
+        properties: { ...s.properties, [key]: value },
+      }));
       return null;
     }
     default:
