@@ -67,11 +67,16 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
   // S19 M2: the how-hearts-work prose folds behind an inline expand — open on a
   // user's very first ballot (north star 1), collapsed on every later one.
   const [guideOpen, setGuideOpen] = useState(() => !getHintSeen('qvGuide'));
-  useEffect(() => { markHintSeen('qvGuide'); }, []);
 
   // "Voted" = this member already has an allocation (hard-lock once cast). FOR OURI:
   // derived client-side from get_my_allocation; no new contract method needed.
   const hasVoted = Object.keys(myAllocation).length > 0;
+
+  // The one-time hint burns only once a ballot actually renders — a mount that
+  // dies in the deploy/error path must not cost the user their one expanded read.
+  useEffect(() => {
+    if (isReady && !hasError && !hasVoted) markHintSeen('qvGuide');
+  }, [isReady, hasError, hasVoted]);
 
   const fetchData = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;

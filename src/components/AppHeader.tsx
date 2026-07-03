@@ -14,9 +14,9 @@ export interface AppHeaderProps {
   /** Back handler. Defaults to `navigate(-1)`. */
   onBack?: () => void;
   /**
-   * The page's single `<h1>` — the community name on community-scoped pages.
-   * Omit on top-level pages (Home/Stage/Identity) and standalone artifact pages
-   * (the published mandate), where an in-content heading is the `<h1>`.
+   * The page's single `<h1>`, rendered in the title block below the bar (D3).
+   * Omit only on pages whose content owns the h1: the published mandate
+   * document, the login/404 heroes, and the onboarding step heroes.
    */
   title?: string;
   /** A small, quiet line above the title (e.g. a stage/section name). */
