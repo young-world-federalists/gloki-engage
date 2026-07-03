@@ -158,7 +158,9 @@
   letter-spacing: 0;
 
   // ≥44px touch target without inflating the compact document rows (project
-  // ≥44px bar / WCAG 2.5.5) — same pseudo-element pattern as the AppHeader bell.
+  // ≥44px bar / WCAG 2.5.5) — invisible ::after hit-area extension. It reaches
+  // ~22px past the visible link into non-interactive row text; accepted
+  // target-enlargement tradeoff (S16 review).
   &::after {
     content: '';
     position: absolute;

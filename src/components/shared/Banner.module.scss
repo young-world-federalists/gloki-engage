@@ -56,7 +56,7 @@
   cursor: pointer;
 
   // ≥44px touch target without enlarging the visual icon (project ≥44px bar /
-  // WCAG 2.5.5) — same pseudo-element pattern as the AppHeader bell.
+  // WCAG 2.5.5) — invisible ::after hit-area extension.
   &::after {
     content: '';
     position: absolute;
