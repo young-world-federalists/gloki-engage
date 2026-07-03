@@ -1008,7 +1008,7 @@ const sw: Dictionary = {
   'mechanisms.qv.yourVote': 'Kura yako',
   'mechanisms.qv.leading': 'inaongoza',
   'mechanisms.qv.turnoutLabel': 'Ushiriki wa jamii',
-  'mechanisms.qv.turnoutValue': 'Asilimia {pct} kati ya {target} zinazohitajika',
+  'mechanisms.qv.turnoutValue': 'Asilimia {pct} wamepiga kura',
   'mechanisms.qv.turnoutNote': 'Upigaji kura unakamilika wakati asilimia {target} ya wanachama wameshiriki.',
   'mechanisms.qv.regionOther': 'Nyingine',
   'mechanisms.qv.expertReviewed': 'imekaguliwa na mtaalam',

@@ -820,6 +820,18 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
 
 ---
 
+## Session 17 (2026-07-03) — turnout plain language
+
+**Changed key (QV vote footer):**
+- **fr/sw `mechanisms.qv.turnoutValue`** — was "{pct}% of {target}% needed" (fr "{pct} % sur {target} %
+  requis", sw "Asilimia {pct} kati ya {target} zinazohitajika"); now plain "{pct}% have voted". fr
+  "{pct} % ont voté", sw "Asilimia {pct} wamepiga kura". The `{target}` token moved out of this string
+  entirely — the note below it (`mechanisms.qv.turnoutNote`, unchanged) still explains "the vote
+  completes when {target}% of members have taken part". Confirm the sw subject agreement ("wamepiga
+  kura" with an implicit "wanachama") reads naturally in the compact footer.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

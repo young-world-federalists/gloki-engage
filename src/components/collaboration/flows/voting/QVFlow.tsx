@@ -173,7 +173,8 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     <div className={styles.turnout}>
       <div className={styles.turnoutHead}>
         <span>{t('mechanisms.qv.turnoutLabel', 'Community turnout')}</span>
-        <span>{t('mechanisms.qv.turnoutValue', '{pct}% of {target}% needed', { pct: turnoutPct, target: TURNOUT_TARGET })}</span>
+        {/* Plain language (S17): the turnoutNote below owns the {target}% explanation. */}
+        <span>{t('mechanisms.qv.turnoutValue', '{pct}% have voted', { pct: turnoutPct })}</span>
       </div>
       <div
         className={styles.track}

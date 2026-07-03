@@ -1009,7 +1009,7 @@ const fr: Dictionary = {
   'mechanisms.qv.yourVote': 'Votre vote',
   'mechanisms.qv.leading': 'en tête',
   'mechanisms.qv.turnoutLabel': 'Participation de la communauté',
-  'mechanisms.qv.turnoutValue': '{pct} % sur {target} % requis',
+  'mechanisms.qv.turnoutValue': '{pct} % ont voté',
   'mechanisms.qv.turnoutNote': 'Le vote se termine lorsque {target} % des membres ont participé.',
   'mechanisms.qv.regionOther': 'Autre',
   'mechanisms.qv.expertReviewed': 'examiné par un expert',
