@@ -53,7 +53,6 @@ const fr: Dictionary = {
   'stage.mandate': 'Mandat',
   'stage.pipelineOverview': 'Les étapes de gouvernance',
   'stage.initiativeStripLabel': 'Étapes de cette initiative',
-  'stage.goTo': 'Aller à {stage}',
   'stage.discussionPill': 'Discussion',
   'stage.discussionPillActive': 'En discussion',
   'stage.discussionPillCount': '{label} — {n} commentaires',

@@ -52,7 +52,6 @@ const sw: Dictionary = {
   'stage.mandate': 'Agizo',
   'stage.pipelineOverview': 'Hatua za utawala',
   'stage.initiativeStripLabel': 'Hatua za mpango huu',
-  'stage.goTo': 'Nenda kwa {stage}',
   'stage.discussionPill': 'Majadiliano',
   'stage.discussionPillActive': 'Katika majadiliano',
   'stage.discussionPillCount': '{label} — maoni {n}',

@@ -130,11 +130,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
         <div id={panelId} className={styles.panel}>
           {stageNav && (
             <div className={styles.stageNavRow}>
-              <InitiativeStageStrip
-                current={post.stage}
-                communityId={stageNav.communityId}
-                initiativeId={stageNav.initiativeId}
-              />
+              <InitiativeStageStrip current={post.stage} />
               <DiscussionPill
                 initiativeId={stageNav.initiativeId}
                 communityId={stageNav.communityId}

@@ -59,9 +59,8 @@ const en: Dictionary = {
   'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandate',
-  // Per-initiative stage strip (the follow-this-initiative control, P1).
+  // Per-initiative stage strip (the where-is-this-initiative marker).
   'stage.initiativeStripLabel': 'Stages of this initiative',
-  'stage.goTo': 'Go to {stage}',
 
   // Language switcher (language names stay as endonyms across all locales)
   'lang.switch': 'Language',

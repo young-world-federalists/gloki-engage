@@ -1,129 +1,76 @@
 @use '../../styles/variables' as *;
 
-// The follow-this-initiative strip: five stage markers, current one highlighted,
-// Discussion/Mandate tappable. Visual language mirrors the read-only StageStrip
-// primitive; interactive + progress states are layered on top.
+// The where-is-this-initiative marker: four compact stage pills, current one
+// tinted — a pure progress indicator, nothing navigates (S19 W2). Stage colour
+// rides an 8px dot; the label carries the name. Flush in the card flow (no
+// container box) so the strip stops out-shouting the content around it.
 .strip {
   display: flex;
-  align-items: flex-start;
-  gap: $spacing-sm;
+  flex-wrap: wrap; // the four pills fit 360px in en; longer fr/sw labels wrap
+  align-items: center;
+  gap: $spacing-xs;
   margin: 0 0 $spacing-md;
-  padding: $spacing-md $spacing-xs;
+  padding: 0;
   list-style: none;
-  background: $gray-50;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
 }
 
 .stage {
-  flex: 1 1 0;
   min-width: 0;
 }
 
-// Shared marker layout for both the static <span> and the navigable <button>.
-.marker,
-.go {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+.pill {
+  display: inline-flex;
   align-items: center;
   gap: $spacing-xs;
-  text-align: center;
-  background: none;
-  border: none;
-  padding: $spacing-xs 0;
-  border-radius: $radius-md;
-  color: inherit;
-}
-
-.go {
-  cursor: pointer;
-  transition: background $transition-base;
-
-  &:hover {
-    background: $gray-100;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 1px;
-  }
-
-  // A subtle affordance that this stage is a real destination.
-  .label {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-}
-
-.circle {
-  width: 32px;
-  height: 32px;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid transparent;
   border-radius: $radius-full;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  flex-shrink: 0;
-  transition: transform $transition-base;
-}
-
-.go:hover .circle {
-  transform: scale(1.05);
-}
-
-.label {
   font-size: $text-xs;
   font-weight: $font-medium;
   line-height: 1.3;
   color: $gray-700;
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
+}
+
+.dot {
+  width: $spacing-sm;
+  height: $spacing-sm;
+  border-radius: $radius-full;
+  flex-shrink: 0;
 }
 
 // Four distinct stage colours from the canonical $stage-* set (variables.scss).
-.stage_problem .circle    { background: $stage-problem; }
-.stage_proposals .circle  { background: $stage-solutions; }
-.stage_vote .circle       { background: $stage-vote; }
-.stage_mandate .circle    { background: $stage-mandate; }
+.stage_problem .dot   { background: $stage-problem; }
+.stage_proposals .dot { background: $stage-solutions; }
+.stage_vote .dot      { background: $stage-vote; }
+.stage_mandate .dot   { background: $stage-mandate; }
 
-// Progress states: upcoming stages read as "not yet" (muted); the current stage
-// gets a ring + bold label so "you are here" is unambiguous.
+// Progress states: done keeps a full-colour dot; upcoming reads as "not yet";
+// the current stage gets a stage-tinted pill + darker label — "you are here".
 .upcoming {
-  .circle { opacity: 0.4; }
-  .label { color: $gray-500; }
+  .dot { opacity: 0.35; }
+  .pill { color: $gray-500; }
 }
 
-.current {
-  .circle {
-    box-shadow: 0 0 0 3px $gray-50, 0 0 0 5px $primary;
-  }
-  .label {
-    color: $gray-900;
-    font-weight: $font-semibold;
-  }
+.current .pill {
+  color: $gray-900;
+  font-weight: $font-semibold;
 }
+
+.stage_problem.current .pill   { background: rgba($stage-problem, 0.12); border-color: rgba($stage-problem, 0.4); }
+.stage_proposals.current .pill { background: rgba($stage-solutions, 0.12); border-color: rgba($stage-solutions, 0.4); }
+.stage_vote.current .pill      { background: rgba($stage-vote, 0.12); border-color: rgba($stage-vote, 0.4); }
+.stage_mandate.current .pill   { background: rgba($stage-mandate, 0.12); border-color: rgba($stage-mandate, 0.4); }
 
 @media (prefers-color-scheme: dark) {
-  .strip {
-    background: $dark-bg;
-    border-color: $dark-border;
-  }
-  .label { color: $dark-text-secondary; }
-  .go:hover { background: $dark-surface; }
-  .upcoming .label { color: $dark-text-secondary; opacity: 0.7; }
-  .current {
-    .circle { box-shadow: 0 0 0 3px $dark-bg, 0 0 0 5px $primary; }
-    .label { color: $dark-text; }
-  }
-}
+  // De-emphasis rides the dot alone — an opacity'd 12px label fails AA (3.56:1
+  // measured), and order relative to the current pill already says done/upcoming.
+  .pill,
+  .upcoming .pill { color: $dark-text-secondary; }
+  .current .pill { color: $dark-text; }
 
-@media (prefers-reduced-motion: reduce) {
-  .circle,
-  .go {
-    transition: none;
-  }
-  .go:hover .circle {
-    transform: none;
-  }
+  .stage_problem.current .pill   { background: rgba($stage-problem, 0.18); }
+  .stage_proposals.current .pill { background: rgba($stage-solutions, 0.18); }
+  .stage_vote.current .pill      { background: rgba($stage-vote, 0.18); }
+  .stage_mandate.current .pill   { background: rgba($stage-mandate, 0.18); }
 }
