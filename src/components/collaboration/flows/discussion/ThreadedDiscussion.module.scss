@@ -151,8 +151,10 @@
 .collapseBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: $spacing-xs;
   min-height: 44px;
+  min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 22 wide)
   padding: 0 $spacing-xs;
   background: none;
   border: none;
@@ -177,8 +179,10 @@
 .actionBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: $spacing-xs;
   min-height: 44px;
+  min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 34 wide)
   padding: $spacing-xs;
   background: none;
   border: none;

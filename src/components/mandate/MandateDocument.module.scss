@@ -35,6 +35,10 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: $primary-dark;
+
+  @media (prefers-color-scheme: dark) {
+    color: $primary-on-dark; // $primary-dark was 2.83:1 on the dark card (S16)
+  }
 }
 
 .title {

@@ -35,7 +35,7 @@
 .sol { border: 1.5px solid $gray-200; border-radius: $radius-md; padding: $spacing-md; background: white; }
 .solHead { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; margin-bottom: $spacing-sm; }
 .solNum { font-size: $text-xs; font-weight: $font-bold; text-transform: uppercase; letter-spacing: 0.04em; color: $gray-500; }
-.reviewed { font-size: $text-xs; font-weight: $font-medium; color: $success; }
+.reviewed { font-size: $text-xs; font-weight: $font-medium; color: $success-on-surface; } // AA on the white sol card (S16: $success was 2.54:1)
 
 .solText { margin: 0 0 $spacing-sm; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
 .solByline { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; }
@@ -81,7 +81,7 @@
 .dinner ul { margin: 0; padding-left: $spacing-md; }
 .dinner li { font-size: $text-xs; line-height: 1.6; color: $gray-600; }
 .metricsCard { border-color: rgba($success, 0.4); }
-.metricsCard .dsummary { color: $success; }
+.metricsCard .dsummary { color: $success-on-surface; } // AA on white (S16: $success was 2.54:1); dark block overrides below
 
 // ─── Your vote (locked) ────────────────────────────────────────────────
 .yourVote {
@@ -120,6 +120,7 @@
   .sol { background: $dark-bg; border-color: $dark-border; }
   .dcard { border-color: $dark-border; }
   .dsummary { color: $dark-text; }
+  .reviewed { color: $success; } // the light green IS the AA choice on dark cards
   .plus { border-color: $dark-border; }
   .stepper {
     background: $dark-surface; border-color: $dark-border; color: $dark-text;

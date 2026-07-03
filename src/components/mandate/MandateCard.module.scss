@@ -23,7 +23,7 @@
   color: $primary-dark;
 
   @media (prefers-color-scheme: dark) {
-    color: $primary; // $primary-light not defined; substituted with $primary
+    color: $primary-on-dark; // the dark-scheme text blue (S16 token)
   }
 }
 
@@ -143,6 +143,7 @@
 }
 
 .linkBtn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -156,10 +157,22 @@
   text-transform: none;
   letter-spacing: 0;
 
+  // ≥44px touch target without inflating the compact document rows (project
+  // ≥44px bar / WCAG 2.5.5) — same pseudo-element pattern as the AppHeader bell.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
   &:hover { text-decoration: underline; }
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
 
-  @media (prefers-color-scheme: dark) { color: $primary; } // $primary-light not defined; substituted with $primary
+  @media (prefers-color-scheme: dark) { color: $primary-on-dark; } // the dark-scheme text blue (S16 token)
 }
 
 .countries {

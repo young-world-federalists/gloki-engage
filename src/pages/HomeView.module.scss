@@ -269,6 +269,10 @@
     color: $dark-text;
   }
 
+  .seeAll {
+    color: $primary-on-dark; // $primary-dark was 3.45:1 on $dark-surface (S16)
+  }
+
   .introSubtitle {
     color: $dark-text-secondary;
   }

@@ -55,6 +55,18 @@
   opacity: 0.7;
   cursor: pointer;
 
+  // ≥44px touch target without enlarging the visual icon (project ≥44px bar /
+  // WCAG 2.5.5) — same pseudo-element pattern as the AppHeader bell.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
   &:hover {
     opacity: 1;
   }

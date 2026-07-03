@@ -55,7 +55,7 @@
 .sourceBlock { margin: 0; }
 
 .byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
-.reviewedTag { font-size: $text-xs; color: $success; }
+.reviewedTag { font-size: $text-xs; color: $success-on-surface; } // AA on white (S16: $success was 2.54:1)
 .reviewStatus { margin: $spacing-xs 0 0; font-size: $text-xs; color: $gray-600; }
 
 // ─── Evidence & expert review — inline expand (S15: was nested green box) ─
@@ -125,6 +125,7 @@
 @media (prefers-color-scheme: dark) {
   .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
   .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
+  .reviewedTag { color: $success; } // the light green IS the AA choice on dark cards
   .track { background: $dark-border; }
   .solution + .solution { border-top-color: $dark-border; }
   .review + .review { border-top-color: $dark-border; }
