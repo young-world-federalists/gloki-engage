@@ -274,16 +274,23 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
-- **S17 — small fix tail from the S16 findings log:** C4/C5 (slate captions on tinted/blue
-  surfaces, 4.0–4.3:1), N3 (duplicate visible page titles on Community/Mandate — pick one owner),
-  N4 (vote-stage activity card shows the problem description where the initiative *title* should
-  be + "Cast your vote" affordance reads as plain text), T5–T7 ("See all" 25px, StageFooter item
-  height 37px, source-chip tap areas), turnout phrasing "84% of 75% needed" → plain language.
-  Optional budget-permitting: the 9-persona walk (Phase 4) as a final pre-handoff sample.
-- **S16 push** through the standing gates (Opus whole-branch review → Eston's explicit green light).
+- ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
+  label → `$gray-700`; C5 dark adoption breakdown → `$dark-text`; N3 verified already fixed in
+  S16 `a7aa652` — Mandate doc-title h2 stays the documented sanctioned exception; N4 vote card
+  gained the initiative title line + "Cast your vote" affordance styling — Eston's call; T5
+  See-all `::after` extension; T6 StageFooter documented sanctioned exception; T7 source-chip
+  24px floor; turnout → "{pct}% have voted"; 4-persona sample ran (Thandiwe/Pascal/Tomás/James)
+  — one blocker found & fixed (pending mandate showed a ratification date). Spec:
+  `docs/superpowers/specs/2026-07-03-s17-fix-tail-design.md`.)
+- ✅ **S16 push — DONE** (green-lit and deployed; `ui == origin/ui` verified at S17 open).
+- **S17 push** through the standing gates (whole-branch review done, 0 Critical / 0 Important →
+  Eston's explicit green light). **After it lands: tell Ouri `ui` is ready to derive.**
 
 ### Post-handoff (explicitly parked until after the handoff)
 
+- **In-app UI-language switcher** (S17 persona finding, Thandiwe, major): after login the only
+  language control is on LoginPage — the slide-out menu has no entry, so switching means logging
+  out. Add a LanguageSwitcher entry to the app menu (small; product call on placement).
 - Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
 - More UI locales incl. **Chichewa** (`ny.ts`); the fr/sw **native review** stays human-gated.
 - **Content-translation strategy** for user-generated/fixture text (needs Ouri).
@@ -292,7 +299,10 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 - Points/currency depth, leaderboards (also §6).
 - Wave 1.5 refactor lanes — design-system canonicalization (incl. the 10 baseline rgba scrims and
   the S16 kit-adoption leads: FundingFlow empty-state/tabs, bespoke dialogs), utils/types
-  consolidation, shared-affordances extraction, voting-flow consolidation — see archive.
+  consolidation, shared-affordances extraction (S17 note: the 44px `::after` hit-area recipe now
+  appears 4× — Banner, MandateCard, NotificationsBell area, HomeView — extract a mixin; consider
+  `teaserTone` enum over the `teaserAction` boolean to match Badge/Banner conventions),
+  voting-flow consolidation — see archive.
 
 ### Blocked / coordination (not ours to drive on `ui`)
 - **A — land `ui` → `main`.** `origin/main` is Ouri's real-server layer (mid-QA, 341-vs-2 diverged). Per the
@@ -304,6 +314,23 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 ---
 
 ## 8. Changelog
+
+- **2026-07-03 — S17: S16 fix tail + persona sample + freeze for handoff (BUILT; push pending
+  Eston).** Re-grounding shrank scope again (7th consecutive session): S16 was already pushed
+  (`ui == origin/ui`) and N3 was already fixed in S16 `a7aa652` — no-op'd with citation. Shipped:
+  C4 SegmentedControl unselected label `$gray-600`→`$gray-700` (4.34→8.7:1, lifts all 4 consumers);
+  C5 dark adoption breakdown → `$dark-text` (4.04→12:1); N4 vote card gained the initiative title
+  line above the demoted problem statement + `teaserAction` affordance styling for "Cast your vote"
+  (Eston's call); T5 See-all 44px `::after` extension; T6 StageFooter recorded as sanctioned
+  density exception; T7 meta-link 24px floor (both documented in DESIGN_SYSTEM Mobile Patterns);
+  turnout footer → "{pct}% have voted" (en+fr+sw at parity, packet appended). 4-persona sample
+  (Thandiwe/Pascal/Tomás/James, sequential, 360px): one blocker found & fixed — pending mandate
+  rendered "Ratified {date}" beside the "Pending ratification" badge; one major filed to
+  Post-handoff (no in-app language switcher after login); Pascal/Tomás clean. Whole-branch review
+  (8 finder angles + verify): 0 Critical / 0 Important; one confirmed cleanup applied (dead
+  duplicate `::after` in Banner) and two cleanup notes logged to Wave-1.5. All verified live at
+  360px light+dark; parity fr=sw=1120; gates clean; build green. NO DEMO_VERSION bump (no fixture
+  changes). Spec: `docs/superpowers/specs/2026-07-03-s17-fix-tail-design.md`.
 
 - **2026-07-03 — S16: UI handoff readiness — review campaign + Discussion-as-function + fix wave +
   handoff docs (BUILT; push pending Eston).** Ran the full UI-review campaign (Phases 0–3+5:
