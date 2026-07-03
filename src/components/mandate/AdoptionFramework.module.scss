@@ -79,7 +79,8 @@
   color: $info-on-surface;
 
   @media (prefers-color-scheme: dark) {
-    color: $dark-text-secondary;
+    // $dark-text-secondary on $info-surface-dark was 4.04:1 (S16 C5)
+    color: $dark-text;
   }
 }
 
