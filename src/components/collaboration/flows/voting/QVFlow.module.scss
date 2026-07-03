@@ -7,44 +7,65 @@
   padding: $spacing-xl; color: $gray-600; font-size: $text-sm;
 }
 
-// ─── Auto status line ──────────────────────────────────────────────────
-.status {
-  display: flex; align-items: center; gap: $spacing-sm;
-  font-size: $text-sm; font-weight: $font-medium; color: $primary;
-}
-.dot { width: 8px; height: 8px; border-radius: $radius-full; background: currentColor; flex: 0 0 auto; }
-.dotDone { color: $success; }
-.statusSub { font-size: $text-xs; color: $gray-600; margin: 0; }
-
-// ─── Merged guide + support meter ──────────────────────────────────────
+// ─── Ballot header: status + live support meter + folded guide (S19 M2) ─
+// One tinted block owns the ballot chrome; the how-hearts-work prose and the
+// privacy line live behind the inline expand (first ballot: open by default).
 .guide {
-  display: flex; flex-direction: column; gap: $spacing-xs;
+  display: flex; flex-direction: column; gap: $spacing-sm;
   padding: $spacing-md; border-radius: $radius-md;
   background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.2);
 }
-.guideText { margin: 0 0 $spacing-xs; font-size: $text-sm; line-height: 1.5; color: $gray-700; }
+.status {
+  display: flex; align-items: center; gap: $spacing-sm;
+  font-size: $text-sm; font-weight: $font-medium;
+  color: $info-on-surface; // on the tinted box — $primary itself sits at ~3.5:1 here
+}
+.dot { width: 8px; height: 8px; border-radius: $radius-full; background: $primary; flex: 0 0 auto; }
+.dotDone { background: $success; }
+.votedHead { display: flex; flex-direction: column; gap: $spacing-xs; }
+.votedHead .status { color: $gray-700; }
+.statusSub { font-size: $text-xs; color: $gray-600; margin: 0; }
+
+.guideMeta { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; }
 .hint { font-size: $text-xs; color: $gray-600; }
+.guideToggle {
+  display: inline-flex; align-items: center; gap: $spacing-xs;
+  min-height: 44px; padding: 0 $spacing-xs; margin: -$spacing-sm 0; // full tap height without growing the row
+  background: none; border: none; cursor: pointer;
+  font-size: $text-xs; font-weight: $font-medium; color: $info-on-surface;
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+  .chev { transition: transform $transition-base; }
+  &[aria-expanded='true'] .chev { transform: rotate(180deg); }
+}
+.guideBody { display: flex; flex-direction: column; gap: $spacing-xs; }
+.guideText { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-700; }
+.guidePrivacy { margin: 0; font-size: $text-xs; line-height: 1.5; color: $gray-600; }
 
 .track { height: 8px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
 .fill { height: 100%; border-radius: $radius-full; transition: width 0.3s ease; }
 .fillSupport { background: $primary; }
 .fillTurnout { background: $gray-500; }
-@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .fill, .guideToggle .chev, .dcard .chev { transition: none; }
+}
 
-// ─── Solution card ─────────────────────────────────────────────────────
+// ─── Ballot list + solution card ───────────────────────────────────────
+.ballot {
+  display: flex; flex-direction: column; gap: $spacing-md;
+  margin: 0; padding: 0; list-style: none;
+}
 .sol { border: 1.5px solid $gray-200; border-radius: $radius-md; padding: $spacing-md; background: white; }
 .solHead { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; margin-bottom: $spacing-sm; }
 .solNum { font-size: $text-xs; font-weight: $font-bold; text-transform: uppercase; letter-spacing: 0.04em; color: $gray-500; }
 .reviewed { font-size: $text-xs; font-weight: $font-medium; color: $success-on-surface; } // AA on the white sol card (S16: $success was 2.54:1)
 
 .solText { margin: 0 0 $spacing-sm; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
-.solByline { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; }
+.solByline { display: flex; align-items: center; gap: $spacing-sm; }
 
-// ─── Hearts bar (on top) ───────────────────────────────────────────────
+// ─── Hearts row — flush (S19 M2: the boxed bar-in-card was nesting depth 3) ─
 .heartsBar {
   display: flex; align-items: center; justify-content: center; gap: $spacing-md;
-  padding: $spacing-sm; margin-bottom: $spacing-sm;
-  background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.22); border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
 }
 .stepper {
   padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
@@ -61,48 +82,36 @@
 .heartFilled { color: $primary; }
 .heartEmpty { color: $gray-500; opacity: 0.5; }
 
-// ─── Detail cards (commitments / metrics) ──────────────────────────────
-.dcard { border: 1px solid $gray-200; border-radius: $radius-md; margin-top: $spacing-xs; overflow: hidden; }
+// ─── Inline content fold (commitments & metrics / region key) ──────────
+// Flush row + chevron — the S15 fold vocabulary; the bordered box went (depth).
+.dcard { margin-top: $spacing-xs; }
 .dsummary {
   list-style: none; cursor: pointer; min-height: 44px;
   display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm;
-  padding: 0 $spacing-md; font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
+  font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
   &::-webkit-details-marker { display: none; }
   &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
 }
-.plus {
-  width: 24px; height: 24px; flex: 0 0 auto;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid $gray-200; border-radius: $radius-sm; font-size: $text-lg; line-height: 1;
-  transition: transform $transition-base;
-}
-.dcard[open] .plus { transform: rotate(45deg); }
-@media (prefers-reduced-motion: reduce) { .plus { transition: none; } }
-.dinner { padding: 0 $spacing-md $spacing-md; }
-.dinner ul { margin: 0; padding-left: $spacing-md; }
+.chev { flex: 0 0 auto; transition: transform $transition-base; }
+.dcard[open] > .dsummary .chev { transform: rotate(180deg); }
+.dinner { padding: 0 0 $spacing-sm; }
+.dinner ul { margin: 0; padding-left: $spacing-lg; }
 .dinner li { font-size: $text-xs; line-height: 1.6; color: $gray-600; }
-.metricsCard { border-color: rgba($success, 0.4); }
-.metricsCard .dsummary { color: $success-on-surface; } // AA on white (S16: $success was 2.54:1); dark block overrides below
 
-// ─── Your vote (locked) ────────────────────────────────────────────────
-.yourVote {
-  display: flex; align-items: center; gap: $spacing-sm;
-  padding: $spacing-xs $spacing-sm; margin-bottom: $spacing-sm;
-  background: rgba($primary, 0.08); border: 1px solid rgba($primary, 0.22); border-radius: $radius-sm;
-}
+// ─── Your vote (locked) — flush line, no third box ──────────────────────
+.yourVote { display: flex; align-items: center; gap: $spacing-sm; margin-bottom: $spacing-sm; }
 .yourVoteLbl { font-size: $text-xs; font-weight: $font-bold; color: $gray-700; }
 .yourVoteHearts { display: flex; align-items: center; gap: 2px; color: $primary; }
-.yourVoteNone { opacity: 0.6; }
 
 // ─── Region results bar ────────────────────────────────────────────────
 .regbar { display: flex; height: 20px; border-radius: $radius-sm; overflow: hidden; background: $gray-100; margin-bottom: $spacing-xs; }
 .regbar > span { height: 100%; display: block; }
 .rescount { font-size: $text-xs; color: $gray-500; }
 
-// ─── Region key ────────────────────────────────────────────────────────
+// ─── Region key (inside its fold) ──────────────────────────────────────
 .keygrid {
   display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-xs $spacing-md;
-  padding-top: $spacing-md; border-top: 1px solid $gray-200;
+  padding-bottom: $spacing-sm;
 }
 .keyitem { display: flex; align-items: center; gap: $spacing-sm; font-size: $text-xs; color: $gray-600; }
 .sw { width: 12px; height: 12px; border-radius: $radius-sm; flex: 0 0 auto; }
@@ -114,19 +123,20 @@
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
-  .loading, .statusSub, .hint, .turnoutHead, .turnoutNote, .rescount, .keyitem, .dinner li { color: $dark-text-secondary; }
+  .loading, .statusSub, .hint, .guidePrivacy, .turnoutHead, .turnoutNote, .rescount, .keyitem, .dinner li { color: $dark-text-secondary; }
   .guideText, .solText { color: $dark-text; }
+  .status { color: $primary-on-dark; }
+  .votedHead .status { color: $dark-text; }
+  .guideToggle { color: $primary-on-dark; }
   .solNum { color: $dark-text-secondary; }
   .track, .regbar { background: $dark-border; }
   .sol { background: $dark-bg; border-color: $dark-border; }
-  .dcard { border-color: $dark-border; }
   .dsummary { color: $dark-text; }
   .reviewed { color: $success; } // the light green IS the AA choice on dark cards
-  .plus { border-color: $dark-border; }
   .stepper {
     background: $dark-surface; border-color: $dark-border; color: $dark-text;
     &:hover:not(:disabled) { background: $dark-border; color: $dark-text; }
   }
-  .keygrid, .turnout { border-color: $dark-border; }
+  .turnout { border-color: $dark-border; }
   .yourVoteLbl { color: $dark-text; }
 }

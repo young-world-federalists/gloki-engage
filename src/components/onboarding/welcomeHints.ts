@@ -6,7 +6,7 @@
 
 const KEY = 'gloki.welcomeHints';
 
-export type WelcomeHintId = 'stageFeedIntro';
+export type WelcomeHintId = 'stageFeedIntro' | 'qvGuide';
 
 function read(): string[] {
   try {

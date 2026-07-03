@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, Plus, Minus } from 'lucide-react';
+import { Heart, Plus, Minus, ChevronDown } from 'lucide-react';
 import type { FlowProps } from '../types';
 import { useFlowContract } from '../shared/useFlowContract';
+import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './qvApi';
 import * as approvalApi from './approvalApi';
 import { useAppSelector } from '../../../../store/hooks';
@@ -63,6 +64,10 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
   const draftInitialized = useRef(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // S19 M2: the how-hearts-work prose folds behind an inline expand — open on a
+  // user's very first ballot (north star 1), collapsed on every later one.
+  const [guideOpen, setGuideOpen] = useState(() => !getHintSeen('qvGuide'));
+  useEffect(() => { markHintSeen('qvGuide'); }, []);
 
   // "Voted" = this member already has an allocation (hard-lock once cast). FOR OURI:
   // derived client-side from get_my_allocation; no new contract method needed.
@@ -192,15 +197,23 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     </div>
   );
 
+  // Folded by default (S19 M2): the per-solution bars stay visible — the key is
+  // reference material, not the signal itself.
   const regionKey = (
-    <div className={styles.keygrid}>
-      {REGIONS.map((rg) => (
-        <div key={rg.id} className={styles.keyitem}>
-          <span className={styles.sw} style={{ backgroundColor: regionColorVar(rg.id) }} aria-hidden="true" />
-          {rg.label}
-        </div>
-      ))}
-    </div>
+    <details className={styles.dcard}>
+      <summary className={styles.dsummary}>
+        <span>{t('mechanisms.qv.regionKeyToggle', 'Region colour key')}</span>
+        <ChevronDown size={16} className={styles.chev} aria-hidden />
+      </summary>
+      <div className={styles.keygrid}>
+        {REGIONS.map((rg) => (
+          <div key={rg.id} className={styles.keyitem}>
+            <span className={styles.sw} style={{ backgroundColor: regionColorVar(rg.id) }} aria-hidden="true" />
+            {rg.label}
+          </div>
+        ))}
+      </div>
+    </details>
   );
 
   if (hasError) return (
@@ -218,15 +231,13 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     <div className={styles.container}>
       {!hasVoted ? (
         <>
-          <div className={styles.status} role="status">
-            <span className={styles.dot} aria-hidden="true" />
-            {t('mechanisms.qv.statusOpen', 'Voting open · {n} solutions', { n: ballot.length })}
-          </div>
-
+          {/* One ballot-header block: open-status line, live support meter, and the
+              folded how-hearts-work prose + privacy line (S19 M2 recomposition). */}
           <div className={styles.guide}>
-            <p className={styles.guideText}>
-              {t('mechanisms.qv.guide', 'Everyone here has the same set of hearts. Tap ♥ to back what you care about — spreading them across solutions costs less than piling them onto one.')}
-            </p>
+            <div className={styles.status} role="status">
+              <span className={styles.dot} aria-hidden="true" />
+              {t('mechanisms.qv.statusOpen', 'Voting open · {n} solutions', { n: ballot.length })}
+            </div>
             <div
               className={styles.track}
               role="progressbar"
@@ -237,19 +248,38 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
             >
               <div className={`${styles.fill} ${styles.fillSupport}`} style={{ width: `${poolUsedPct}%` }} />
             </div>
-            <span className={styles.hint}>
-              {t('mechanisms.qv.supportUsedPct', '{pct}% of your support used', { pct: Math.round(poolUsedPct) })}
-            </span>
+            <div className={styles.guideMeta}>
+              <span className={styles.hint}>
+                {t('mechanisms.qv.supportUsedPct', '{pct}% of your support used', { pct: Math.round(poolUsedPct) })}
+              </span>
+              <button
+                type="button"
+                className={styles.guideToggle}
+                aria-expanded={guideOpen}
+                onClick={() => setGuideOpen((o) => !o)}
+              >
+                {t('mechanisms.qv.guideToggle', 'How hearts work')}
+                <ChevronDown size={16} className={styles.chev} aria-hidden />
+              </button>
+            </div>
+            {guideOpen && (
+              <div className={styles.guideBody}>
+                <p className={styles.guideText}>
+                  {t('mechanisms.qv.guide', 'Everyone here has the same set of hearts. Tap ♥ to back what you care about — spreading them across solutions costs less than piling them onto one.')}
+                </p>
+                <p className={styles.guidePrivacy}>
+                  {t('mechanisms.qv.disclosure', 'Your hearts are visible to the community and counted in the public tally — your vote is attributable, not secret.')}
+                </p>
+              </div>
+            )}
           </div>
 
-          <span className={styles.hint}>
-            {t('mechanisms.qv.disclosure', 'Your hearts are visible to the community and counted in the public tally — your vote is attributable, not secret.')}
-          </span>
-
+          <ul className={styles.ballot}>
           {ballot.map((s, i) => {
             const hearts = draft[s.id] || 0;
+            const detailCount = s.commitments.length + s.metrics.length;
             return (
-              <div key={s.id} className={styles.sol}>
+              <li key={s.id} className={styles.sol}>
                 <div className={styles.solHead}>
                   <span className={styles.solNum}>{t('mechanisms.qv.solutionN', 'Solution {i} of {n}', { i: i + 1, n: ballot.length })}</span>
                   {s.reviewed && <span className={styles.reviewed}>{t('mechanisms.qv.expertReviewed', 'expert reviewed')}</span>}
@@ -283,27 +313,19 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                 <div className={styles.solByline}>
                   <UserIdentity name={authorName(s.author)} countryCode={profiles[s.author]?.country} size="sm" />
                 </div>
-                {s.commitments.length > 0 && (
+                {detailCount > 0 && (
                   <details className={styles.dcard}>
                     <summary className={styles.dsummary}>
-                      <span>{t('mechanisms.qv.commitsLabel', 'What this commits to ({n})', { n: s.commitments.length })}</span>
-                      <span className={styles.plus} aria-hidden="true">+</span>
+                      <span>{t('mechanisms.qv.commitsMetricsN', 'Commitments & metrics ({n})', { n: detailCount })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
                     </summary>
-                    <div className={styles.dinner}><ul>{s.commitments.map((c, k) => <li key={k}>{c}</li>)}</ul></div>
+                    <div className={styles.dinner}><ul>{[...s.commitments, ...s.metrics].map((x, k) => <li key={k}>{x}</li>)}</ul></div>
                   </details>
                 )}
-                {s.metrics.length > 0 && (
-                  <details className={`${styles.dcard} ${styles.metricsCard}`}>
-                    <summary className={styles.dsummary}>
-                      <span>{t('mechanisms.qv.metricsLabel', 'How we’ll know it’s working ({n})', { n: s.metrics.length })}</span>
-                      <span className={styles.plus} aria-hidden="true">+</span>
-                    </summary>
-                    <div className={styles.dinner}><ul>{s.metrics.map((m, k) => <li key={k}>{m}</li>)}</ul></div>
-                  </details>
-                )}
-              </div>
+              </li>
             );
           })}
+          </ul>
 
           <Button variant="primary" size="lg" fullWidth onClick={handleSubmitAllocation} loading={submitting} disabled={spent === 0}>
             {t('mechanisms.qv.cast', 'Cast my votes')}
@@ -313,29 +335,32 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
         </>
       ) : (
         <>
-          <div className={styles.status} role="status">
-            <span className={`${styles.dot} ${styles.dotDone}`} aria-hidden="true" />
-            {t('mechanisms.qv.statusVoted', 'You’ve voted')}
+          <div className={styles.votedHead}>
+            <div className={styles.status} role="status">
+              <span className={`${styles.dot} ${styles.dotDone}`} aria-hidden="true" />
+              {t('mechanisms.qv.statusVoted', 'You’ve voted')}
+            </div>
+            <p className={styles.statusSub}>{t('mechanisms.qv.votedSub', 'Live results below · votes can’t be changed')}</p>
           </div>
-          <p className={styles.statusSub}>{t('mechanisms.qv.votedSub', 'Live results below · votes can’t be changed')}</p>
 
+          <ul className={styles.ballot}>
           {[...ballot].sort((a, b) => (results[b.id] || 0) - (results[a.id] || 0)).map((s, idx) => {
             const total = results[s.id] || 0;
             const breakdown = regionBreakdown(s.id);
             const sumVotes = Object.values(breakdown).reduce((x, y) => x + (y || 0), 0) || 1;
             const myHearts = draft[s.id] || 0;
             return (
-              <div key={s.id} className={styles.sol}>
+              <li key={s.id} className={styles.sol}>
                 <div className={styles.solHead}>
                   <span className={styles.solNum}>{t('mechanisms.qv.solutionN', 'Solution {i} of {n}', { i: idx + 1, n: ballot.length })}</span>
                   {s.reviewed && <span className={styles.reviewed}>{t('mechanisms.qv.expertReviewed', 'expert reviewed')}</span>}
                 </div>
                 <p className={styles.solText}>{s.text}</p>
-                <div className={`${styles.yourVote} ${myHearts === 0 ? styles.yourVoteNone : ''}`}>
+                <div className={styles.yourVote}>
                   <span className={styles.yourVoteLbl}>{t('mechanisms.qv.yourVote', 'Your vote')}</span>
                   <span className={styles.yourVoteHearts} role="img" aria-label={t('mechanisms.qv.heartsAria', '{n} hearts of support', { n: myHearts })}>
                     {myHearts === 0 ? '—' : Array.from({ length: myHearts }).map((_, k) => (
-                      <Heart key={k} size={13} fill="currentColor" aria-hidden="true" />
+                      <Heart key={k} size={16} fill="currentColor" aria-hidden="true" />
                     ))}
                   </span>
                 </div>
@@ -353,17 +378,18 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                   {t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(total) })}{idx === 0 ? ` · ${t('mechanisms.qv.leading', 'leading')}` : ''}
                 </div>
                 {(s.commitments.length > 0 || s.metrics.length > 0) && (
-                  <details className={`${styles.dcard} ${styles.metricsCard}`}>
+                  <details className={styles.dcard}>
                     <summary className={styles.dsummary}>
-                      <span>{t('mechanisms.qv.commitsMetrics', 'Commitments & metrics')}</span>
-                      <span className={styles.plus} aria-hidden="true">+</span>
+                      <span>{t('mechanisms.qv.commitsMetricsN', 'Commitments & metrics ({n})', { n: s.commitments.length + s.metrics.length })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
                     </summary>
                     <div className={styles.dinner}><ul>{[...s.commitments, ...s.metrics].map((x, k) => <li key={k}>{x}</li>)}</ul></div>
                   </details>
                 )}
-              </div>
+              </li>
             );
           })}
+          </ul>
 
           {regionKey}
           {turnoutFooter}
