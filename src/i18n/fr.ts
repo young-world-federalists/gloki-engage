@@ -520,6 +520,10 @@ const fr: Dictionary = {
   'community.menu.leave': 'Quitter la communauté',
   'community.menu.close': 'Fermer le menu',
   'community.startedBy': 'Lancée par {name}',
+  'community.loading': 'Chargement de la communauté…',
+  'community.notFound.title': 'Communauté introuvable',
+  'community.notFound.body': 'Cette communauté n’existe pas ou n’a pas encore été chargée.',
+  'community.notFound.back': 'Retour aux communautés',
   'community.openDiscussion': 'Ouvrir la discussion',
 
   // ── Create community page ──────────────────────────────────────────────

@@ -41,8 +41,8 @@
   h1 {
     flex: 1;
     min-width: 0;
-    font-size: $text-xl;
-    font-weight: $font-bold;
+    font-size: $page-title-size;
+    font-weight: $page-title-weight;
     color: $gray-800;
     margin: 0;
   }

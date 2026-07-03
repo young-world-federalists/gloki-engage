@@ -158,13 +158,19 @@ const CommunityView: React.FC = () => {
     }
   }, [serverUrl, publicKey, communityId, communityProperties]);
 
+  // Loading / not-found stay inside the page model: the AppHeader banner and
+  // the `main#main` skip-link target render on EVERY branch (S16 audit: the
+  // bare error card left the page with no banner, no main and no h1).
   if (fetching) {
     return (
       <div className={styles.page}>
-        <div className={styles.loadingState}>
-          <div className={styles.spinner} />
-          <p>Loading community...</p>
-        </div>
+        <AppHeader />
+        <main id="main" tabIndex={-1}>
+          <div className={styles.loadingState}>
+            <div className={styles.spinner} />
+            <p>{t('community.loading', 'Loading community…')}</p>
+          </div>
+        </main>
       </div>
     );
   }
@@ -172,11 +178,16 @@ const CommunityView: React.FC = () => {
   if (!contract || !props || !props.name) {
     return (
       <div className={styles.page}>
-        <div className={styles.errorState}>
-          <h2>Community Not Found</h2>
-          <p>The community doesn&apos;t exist or hasn&apos;t loaded yet.</p>
-          <button onClick={() => navigate('/identity/communities')}>Back to Communities</button>
-        </div>
+        <AppHeader />
+        <main id="main" tabIndex={-1}>
+          <div className={styles.errorState}>
+            <h1>{t('community.notFound.title', 'Community not found')}</h1>
+            <p>{t('community.notFound.body', "The community doesn't exist or hasn't loaded yet.")}</p>
+            <button onClick={() => navigate('/identity/communities')}>
+              {t('community.notFound.back', 'Back to Communities')}
+            </button>
+          </div>
+        </main>
       </div>
     );
   }

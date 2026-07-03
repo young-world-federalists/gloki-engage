@@ -519,6 +519,10 @@ const sw: Dictionary = {
   'community.menu.leave': 'Ondoka kwenye jumuiya',
   'community.menu.close': 'Funga menyu',
   'community.startedBy': 'Ilianzishwa na {name}',
+  'community.loading': 'Inapakia jumuiya…',
+  'community.notFound.title': 'Jumuiya haipatikani',
+  'community.notFound.body': 'Jumuiya hii haipo au bado haijapakiwa.',
+  'community.notFound.back': 'Rudi kwenye jumuiya',
   'community.openDiscussion': 'Fungua mjadala',
 
   // ── Create community page ──────────────────────────────────────────────

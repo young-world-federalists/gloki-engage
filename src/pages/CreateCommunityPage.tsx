@@ -8,6 +8,7 @@ import { seedDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { fetchContracts } from '../store/slices/userSlice';
 import { useT } from '../i18n';
 import { Button, InfoDisclosure, StageStrip } from '../components/shared';
+import AppHeader from '../components/AppHeader';
 import styles from './CreateCommunityPage.module.scss';
 
 // English here is the source copy; the render wires each field through t()
@@ -96,7 +97,11 @@ const CreateCommunityPage: React.FC = () => {
   };
 
   return (
-    <main id="main" tabIndex={-1} className={styles.page}>
+    <>
+      {/* The page's one banner landmark + skip link (S16: every page renders
+          AppHeader; the in-content h1 below stays the page title). */}
+      <AppHeader />
+      <main id="main" tabIndex={-1} className={styles.page}>
       <div className={styles.header}>
         <button
           className={styles.backButton}
@@ -228,7 +233,8 @@ const CreateCommunityPage: React.FC = () => {
           <p className={styles.submitHint}>{t('createCommunity.submitHint', 'Enter a community name to continue.')}</p>
         )}
       </div>
-    </main>
+      </main>
+    </>
   );
 };
 

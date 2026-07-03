@@ -69,9 +69,12 @@
   padding: $spacing-3xl;
   text-align: center;
 
+  h1,
   h2 {
     margin-bottom: $spacing-sm;
     color: $gray-800;
+    font-size: $page-title-size;
+    font-weight: $page-title-weight;
   }
 
   p {
@@ -94,7 +97,7 @@
   }
 }
 
-.errorState h2 {
+.errorState h1 {
   color: $error;
 }
 
@@ -133,7 +136,7 @@
 
   .loadingState,
   .errorState {
-    h2 { color: $dark-text; }
+    h1 { color: $dark-text; }
     p { color: $dark-text-secondary; }
   }
 }
