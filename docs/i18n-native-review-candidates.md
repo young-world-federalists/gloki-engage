@@ -786,6 +786,38 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
   {countries} pays pendant {months} mois.", sw "Limejadiliwa na watu {participants} kutoka nchi {countries}
   kwa miezi {months}." Confirm "personnes"/"watu" read naturally in place of the former "jeunes"/"vijana".
 
+## Session 16 (2026-07-03) — Discussion-as-function + page-model repairs
+
+**New keys (DiscussionPill — the persistent per-initiative Discussion button):**
+- **fr/sw `stage.discussionPill`** — "Discussion". fr "Discussion", sw "Majadiliano". Compact pill button
+  label beside the 4-stage strip.
+- **fr/sw `stage.discussionPillActive`** — "In discussion". fr "En discussion", sw "Katika majadiliano".
+  The pill's active state when the initiative currently sits in its discussion phase — confirm it reads as
+  a state ("currently being discussed"), not a command.
+- **fr/sw `stage.discussionPillCount`** — "{label} — {n} comments" (aria-label). fr "{label} — {n}
+  commentaires", sw "{label} — maoni {n}". Screen-reader only; confirm the sw noun-number order.
+
+**New keys (CommunityView loading/not-found branches — previously hardcoded English):**
+- **fr/sw `community.loading`** — "Loading community…". fr "Chargement de la communauté…", sw "Inapakia
+  jumuiya…".
+- **fr/sw `community.notFound.title`** — "Community not found". fr "Communauté introuvable", sw "Jumuiya
+  haipatikani".
+- **fr/sw `community.notFound.body`** — "The community doesn't exist or hasn't loaded yet." fr "Cette
+  communauté n’existe pas ou n’a pas encore été chargée.", sw "Jumuiya hii haipo au bado haijapakiwa."
+- **fr/sw `community.notFound.back`** — "Back to Communities". fr "Retour aux communautés", sw "Rudi
+  kwenye jumuiya".
+
+**Changed keys (5-stage → 4-stage / count-neutral copy after the Discussion IA change):**
+- **fr/sw `stage.pipelineOverview`** — now "The governance stages". fr "Les étapes de gouvernance" (was
+  "Les cinq étapes…"), sw "Hatua za utawala" (was "Hatua tano…").
+- **fr/sw `howGloki.pointer.body`** — "five steps" → "four steps". fr "Ces quatre étapes…", sw "Hatua hizi
+  nne…".
+- **fr/sw `createCommunity.feature.governance.desc`** — "5-stage" → staged. fr "Processus démocratique par
+  étapes…", sw "Mchakato wa kidemokrasia wa hatua kwa hatua…". Confirm "hatua kwa hatua" (step-by-step)
+  carries the intended "staged process" sense.
+- **fr/sw `createCommunity.whatBody2`** — same "5 étapes"/"hatua 5" → "par étapes"/"hatua kwa hatua" swap
+  inside the longer tools sentence.
+
 ---
 
 ## How to deliver fixes
