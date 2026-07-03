@@ -15,6 +15,11 @@ export type StagePost = {
   stage: PipelineStage;
   /** The content shown as the headline — e.g. a problem statement, not a topic title. */
   headline: string;
+  /** The initiative's name, shown above the headline where recognising WHICH
+   *  initiative matters (the vote card — S17 N4, Eston 2026-07-03). Hidden when
+   *  it equals the headline (the fallback case). Other stages omit it:
+   *  content-as-headline stays the card model. */
+  title?: string;
   /** e.g. "Started by Mei Chen". */
   byline?: string;
   /** Author public key — drives the trust badge (when present). */
@@ -41,6 +46,9 @@ export interface InitiativeStageCardProps {
   openLabel?: string;
   /** A single muted line shown when collapsed (e.g. "12 agree · weigh in"). */
   collapsedTeaser?: React.ReactNode;
+  /** Style the collapsed teaser as a tappable affordance (primary + semibold)
+   *  instead of muted info — for CTA teasers like "Cast your vote". */
+  teaserAction?: boolean;
   /** Routing context for the per-initiative stage strip (the follow-this-initiative
    *  control rendered atop the expanded panel). Omit to hide the strip. */
   stageNav?: {
@@ -69,6 +77,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   onOpen,
   openLabel,
   collapsedTeaser,
+  teaserAction,
   stageNav,
   children,
 }) => {
@@ -76,6 +85,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   const meta = STAGE_META[post.stage] || STAGE_META.problem;
   const Icon = meta.icon;
   const panelId = useId();
+  const showTitle = !!post.title && post.title !== post.headline;
 
   return (
     <Card as="article" className={styles.card}>
@@ -96,7 +106,10 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
           {expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
         </span>
 
-        <span className={styles.headline}>{post.headline}</span>
+        {showTitle && <span className={styles.titleLine}>{post.title}</span>}
+        <span className={`${styles.headline} ${showTitle ? styles.headlineWithTitle : ''}`}>
+          {post.headline}
+        </span>
 
         {post.byline && (
           <span className={styles.byline}>
@@ -176,7 +189,11 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
           </div>
         </div>
       ) : (
-        collapsedTeaser ? <div className={styles.teaser}>{collapsedTeaser}</div> : null
+        collapsedTeaser ? (
+          <div className={`${styles.teaser} ${teaserAction ? styles.teaserAction : ''}`}>
+            {collapsedTeaser}
+          </div>
+        ) : null
       )}
     </Card>
   );

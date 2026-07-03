@@ -38,11 +38,27 @@
   gap: 4px;
 }
 
+// The initiative name, when a stage needs identity above the content (vote card).
+.titleLine {
+  font-size: $text-base;
+  font-weight: $font-bold;
+  color: $gray-900;
+  line-height: 1.35;
+}
+
 .headline {
   font-size: $text-base;
   font-weight: $font-semibold;
   color: $gray-800;
   line-height: 1.4;
+}
+
+// With a title line above it, the content demotes to supporting text.
+.headlineWithTitle {
+  font-size: $text-sm;
+  font-weight: $font-normal;
+  color: $gray-700;
+  margin-top: -#{$spacing-xs}; // tighten the summary's $spacing-sm gap under the title
 }
 
 .byline {
@@ -146,8 +162,15 @@
   line-height: 1.6;
 }
 
+// CTA teasers ("Cast your vote") read as an affordance, not muted info.
+.teaserAction {
+  color: $primary-dark;
+  font-weight: $font-semibold;
+}
+
 // ─── Dark mode ────────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
+  .titleLine,
   .headline {
     color: $dark-text;
   }
@@ -157,8 +180,13 @@
   .date,
   .metaLine,
   .metaItem,
-  .teaser {
+  .teaser,
+  .headlineWithTitle {
     color: $dark-text-secondary;
+  }
+
+  .teaserAction {
+    color: $primary-on-dark;
   }
 
   .engage {

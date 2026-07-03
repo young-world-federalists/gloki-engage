@@ -24,9 +24,10 @@ export interface VoteActivityCardProps {
 
 /**
  * The Vote-stage community-page card: the shared two-part
- * {@link InitiativeStageCard} wired to the initiative post. The initiative
- * statement is the headline; the byline shows the author once; the collapsed card
- * shows a "Cast your vote" teaser, and expanding reveals the full ballot inline
+ * {@link InitiativeStageCard} wired to the initiative post. The initiative title
+ * rides above the problem-statement headline (voters recognise the ballot by
+ * name — S17 N4); the byline shows the author once; the collapsed card
+ * shows a "Cast your vote" teaser styled as an affordance, and expanding reveals the full ballot inline
  * ({@link VoteEngage}, gated) plus the author/co-author advance control
  * ({@link StageAdvanceBar}, vote → mandate). Card-only stage (no dedicated ballot
  * page — Eston, 2026-06-23): no Open button.
@@ -69,6 +70,10 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
 
   const fullPost: StagePost = {
     stage: 'vote',
+    // Voters need to recognise WHICH initiative this ballot belongs to (S17 N4):
+    // the title rides above the problem-statement headline. The card hides it
+    // when the headline already fell back to the title.
+    title: item.title || undefined,
     headline: post.headline || item.title || t('community.untitled', 'Untitled Initiative'),
     byline: authorName ? t('community.startedBy', 'Started by {name}', { name: authorName }) : undefined,
     authorKey,
@@ -89,6 +94,7 @@ const VoteActivityCard: React.FC<VoteActivityCardProps> = ({
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       collapsedTeaser={t('card.teaserVote', 'Cast your vote')}
+      teaserAction
     >
       <VoteEngage initiativeId={item.id} communityId={communityId} communityMemberCount={activeMemberCount} />
       {/* Vote → mandate. Readiness is ungated for vote, so omit ready/notReadyReason. */}
