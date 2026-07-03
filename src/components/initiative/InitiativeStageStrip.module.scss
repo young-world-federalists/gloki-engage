@@ -81,9 +81,8 @@
   word-break: break-word;
 }
 
-// Five distinct stage colours from the canonical $stage-* set (variables.scss).
+// Four distinct stage colours from the canonical $stage-* set (variables.scss).
 .stage_problem .circle    { background: $stage-problem; }
-.stage_discussion .circle { background: $stage-discussion; }
 .stage_proposals .circle  { background: $stage-solutions; }
 .stage_vote .circle       { background: $stage-vote; }
 .stage_mandate .circle    { background: $stage-mandate; }

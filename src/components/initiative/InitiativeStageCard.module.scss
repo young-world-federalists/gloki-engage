@@ -65,6 +65,21 @@
   flex-direction: column;
 }
 
+// Strip over the persistent Discussion pill (S16: discussion is a function
+// reachable at every stage, so the pill accompanies the 4-stage strip instead
+// of occupying a slot in it). Stacked so the strip keeps its full width at
+// 360px — squeezing them onto one row breaks the stage labels mid-word.
+.stageNavRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  > :last-child {
+    align-self: flex-start;
+    margin: 0 $spacing-lg;
+  }
+}
+
 .metaLine {
   display: flex;
   align-items: center;

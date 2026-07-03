@@ -163,7 +163,7 @@ const StageFeedView: React.FC = () => {
           >
             {t(
               'howGloki.pointer.body',
-              'These five steps are how every idea travels — from spotting a Problem to a community Mandate. You’re on {stage}.',
+              'These four steps are how every idea travels — from spotting a Problem to a community Mandate. You’re on {stage}.',
               { stage: t(`nav.${stage}`, config.label) },
             )}
           </Banner>

@@ -7,6 +7,7 @@ import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { useT } from '../../i18n';
 import type { PipelineStage } from '../../types/initiative';
 import InitiativeStageStrip from './InitiativeStageStrip';
+import DiscussionPill from './DiscussionPill';
 import styles from './InitiativeStageCard.module.scss';
 
 /** The read-zone data for one initiative card, independent of stage. */
@@ -115,13 +116,20 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
       {expanded ? (
         <div id={panelId} className={styles.panel}>
           {stageNav && (
-            <InitiativeStageStrip
-              current={post.stage}
-              communityId={stageNav.communityId}
-              initiativeId={stageNav.initiativeId}
-              hostServer={stageNav.hostServer}
-              hostAgent={stageNav.hostAgent}
-            />
+            <div className={styles.stageNavRow}>
+              <InitiativeStageStrip
+                current={post.stage}
+                communityId={stageNav.communityId}
+                initiativeId={stageNav.initiativeId}
+              />
+              <DiscussionPill
+                initiativeId={stageNav.initiativeId}
+                communityId={stageNav.communityId}
+                hostServer={stageNav.hostServer}
+                hostAgent={stageNav.hostAgent}
+                active={post.stage === 'discussion'}
+              />
+            </div>
           )}
           {(post.scope || post.sdg || post.countryCount || post.source) && (
             <div className={styles.metaLine}>

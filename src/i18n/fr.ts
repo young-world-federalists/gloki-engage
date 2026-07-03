@@ -51,9 +51,12 @@ const fr: Dictionary = {
   'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandat',
-  'stage.pipelineOverview': 'Les cinq étapes de gouvernance',
+  'stage.pipelineOverview': 'Les étapes de gouvernance',
   'stage.initiativeStripLabel': 'Étapes de cette initiative',
   'stage.goTo': 'Aller à {stage}',
+  'stage.discussionPill': 'Discussion',
+  'stage.discussionPillActive': 'En discussion',
+  'stage.discussionPillCount': '{label} — {n} commentaires',
 
   'lang.switch': 'Langue',
 
@@ -175,7 +178,7 @@ const fr: Dictionary = {
   'howGloki.state.vouched': 'Parrainé (1–{max}) — participez à {open}.',
   'howGloki.state.verified': 'Vérifié ({threshold}+) — vous pouvez participer à {gated}.',
   'howGloki.pointer.title': 'Comment Gloki fonctionne',
-  'howGloki.pointer.body': 'Ces cinq étapes sont le parcours de chaque idée — du Problème repéré au Mandat de la communauté. Vous êtes sur {stage}.',
+  'howGloki.pointer.body': 'Ces quatre étapes sont le parcours de chaque idée — du Problème repéré au Mandat de la communauté. Vous êtes sur {stage}.',
 
   // ── Login ──────────────────────────────────────────────────────────────
   'login.title': 'Bienvenue sur Gloki',
@@ -524,7 +527,7 @@ const fr: Dictionary = {
   'createCommunity.howItWorks': 'Comment fonctionnent les communautés',
   'createCommunity.whatTitle': 'Qu’est-ce qu’une communauté sur Gloki ?',
   'createCommunity.whatBody': 'Une communauté est un groupe de personnes unies par un intérêt, un lieu, une cause ou un objectif communs. Sur Gloki, les communautés sont des espaces de décision collective — où les membres peuvent identifier des problèmes, proposer des solutions et voter des actions ensemble.',
-  'createCommunity.whatBody2': 'Chaque communauté sur Gloki dispose des mêmes outils démocratiques : un processus de gouvernance en 5 étapes, une monnaie communautaire, des espaces de collaboration et la vérification d’identité.',
+  'createCommunity.whatBody2': 'Chaque communauté sur Gloki dispose des mêmes outils démocratiques : un processus de gouvernance par étapes, une monnaie communautaire, des espaces de collaboration et la vérification d’identité.',
   'createCommunity.whyTitle': 'Pourquoi créer une communauté ?',
   'createCommunity.why.democracy.lead': 'Apportez la démocratie directe à votre groupe.',
   'createCommunity.why.democracy.body': 'Que vous soyez une association de quartier, un syndicat étudiant, une équipe de travail ou un collectif militant — Gloki donne à votre groupe les outils pour décider de façon transparente et équitable.',
@@ -534,7 +537,7 @@ const fr: Dictionary = {
   'createCommunity.why.voice.body': 'Le vote quadratique garantit qu’aucune personne seule ne domine le résultat. Les seuils garantissent un vrai soutien de la communauté avant d’avancer.',
   'createCommunity.featuresTitle': 'Ce que Gloki apporte à votre communauté',
   'createCommunity.feature.governance.name': 'Pipeline de gouvernance',
-  'createCommunity.feature.governance.desc': 'Processus démocratique en 5 étapes, du problème reconnu à l’action mandatée',
+  'createCommunity.feature.governance.desc': 'Processus démocratique par étapes, du problème reconnu à l’action mandatée',
   'createCommunity.feature.currency.name': 'Monnaie communautaire',
   'createCommunity.feature.currency.desc': 'Émettez, envoyez et gérez une monnaie appartenant à votre communauté',
   'createCommunity.feature.collab.name': 'Outils de collaboration',

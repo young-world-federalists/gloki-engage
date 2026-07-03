@@ -17,7 +17,7 @@ const FEATURES = [
     id: 'governance',
     name: 'Governance Pipeline',
     icon: GitBranch,
-    description: '5-stage democratic process from problem recognition to mandated action',
+    description: 'Staged democratic process from problem recognition to mandated action',
   },
   {
     id: 'currency',
@@ -125,7 +125,7 @@ const CreateCommunityPage: React.FC = () => {
               <p>
                 {t(
                   'createCommunity.whatBody2',
-                  'Every community on Gloki has access to the same democratic tools: a 5-stage governance pipeline, community currency, collaboration workspaces, and identity verification.',
+                  'Every community on Gloki has access to the same democratic tools: a staged governance pipeline, community currency, collaboration workspaces, and identity verification.',
                 )}
               </p>
             </section>

@@ -50,9 +50,12 @@ const sw: Dictionary = {
   'stage.proposals': 'Suluhisho',
   'stage.vote': 'Kura',
   'stage.mandate': 'Agizo',
-  'stage.pipelineOverview': 'Hatua tano za utawala',
+  'stage.pipelineOverview': 'Hatua za utawala',
   'stage.initiativeStripLabel': 'Hatua za mpango huu',
   'stage.goTo': 'Nenda kwa {stage}',
+  'stage.discussionPill': 'Majadiliano',
+  'stage.discussionPillActive': 'Katika majadiliano',
+  'stage.discussionPillCount': '{label} — maoni {n}',
 
   'lang.switch': 'Lugha',
 
@@ -174,7 +177,7 @@ const sw: Dictionary = {
   'howGloki.state.vouched': 'Umedhaminiwa (1–{max}) — shiriki katika {open}.',
   'howGloki.state.verified': 'Umethibitishwa ({threshold}+) — unaweza kushiriki katika {gated}.',
   'howGloki.pointer.title': 'Jinsi Gloki inavyofanya kazi',
-  'howGloki.pointer.body': 'Hatua hizi tano ndizo safari ya kila wazo — kuanzia kubaini Tatizo hadi Agizo la jumuiya. Uko kwenye {stage}.',
+  'howGloki.pointer.body': 'Hatua hizi nne ndizo safari ya kila wazo — kuanzia kubaini Tatizo hadi Agizo la jumuiya. Uko kwenye {stage}.',
 
   // ── Login ──────────────────────────────────────────────────────────────
   'login.title': 'Karibu Gloki',
@@ -523,7 +526,7 @@ const sw: Dictionary = {
   'createCommunity.howItWorks': 'Jinsi jumuiya zinavyofanya kazi',
   'createCommunity.whatTitle': 'Jumuiya ni nini kwenye Gloki?',
   'createCommunity.whatBody': 'Jumuiya ni kundi la watu walioungana kwa maslahi, eneo, dhamira au lengo la pamoja. Kwenye Gloki, jumuiya ni nafasi za kufanya maamuzi ya pamoja — ambapo wanachama wanaweza kubaini matatizo, kupendekeza suluhisho, na kupigia kura hatua kwa pamoja.',
-  'createCommunity.whatBody2': 'Kila jumuiya kwenye Gloki ina zana zilezile za kidemokrasia: mchakato wa utawala wa hatua 5, sarafu ya jumuiya, nafasi za ushirikiano, na uthibitisho wa utambulisho.',
+  'createCommunity.whatBody2': 'Kila jumuiya kwenye Gloki ina zana zilezile za kidemokrasia: mchakato wa utawala wa hatua kwa hatua, sarafu ya jumuiya, nafasi za ushirikiano, na uthibitisho wa utambulisho.',
   'createCommunity.whyTitle': 'Kwa nini uanzishe jumuiya?',
   'createCommunity.why.democracy.lead': 'Leta demokrasia ya moja kwa moja kwenye kikundi chako.',
   'createCommunity.why.democracy.body': 'Iwe ni chama cha mtaa, umoja wa wanafunzi, timu ya kazini, au kikundi cha wanaharakati — Gloki inakipa kikundi chako zana za kufanya maamuzi kwa uwazi na haki.',
@@ -533,7 +536,7 @@ const sw: Dictionary = {
   'createCommunity.why.voice.body': 'Upigaji kura wa quadratic unahakikisha hakuna mtu mmoja anayetawala matokeo. Viwango vinahakikisha maamuzi yana uungwaji mkono halisi wa jumuiya kabla ya kusonga mbele.',
   'createCommunity.featuresTitle': 'Gloki inaipa nini jumuiya yako',
   'createCommunity.feature.governance.name': 'Mchakato wa Utawala',
-  'createCommunity.feature.governance.desc': 'Mchakato wa kidemokrasia wa hatua 5, kutoka kutambua tatizo hadi hatua iliyoagizwa',
+  'createCommunity.feature.governance.desc': 'Mchakato wa kidemokrasia wa hatua kwa hatua, kutoka kutambua tatizo hadi hatua iliyoagizwa',
   'createCommunity.feature.currency.name': 'Sarafu ya Jumuiya',
   'createCommunity.feature.currency.desc': 'Tengeneza, tuma na simamia sarafu inayomilikiwa na jumuiya yako',
   'createCommunity.feature.collab.name': 'Zana za Ushirikiano',

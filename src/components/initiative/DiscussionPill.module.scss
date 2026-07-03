@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+
+// The persistent per-initiative Discussion button (S16: discussion is a
+// function, not a pipeline step). Neutral outline at rest; warning-toned
+// "In discussion" active state matching the Discussion badge tone.
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px; // touch-target law (DESIGN_SYSTEM Mobile Patterns)
+  padding: 0 $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $gray-700;
+  font-size: $text-sm;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: $stage-discussion;
+  }
+}
+
+.active {
+  border-color: $stage-discussion;
+  background: $warning-surface;
+  color: $warning-on-surface;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 $spacing-xs;
+  border-radius: $radius-full;
+  background: $warning-surface;
+  color: $warning-on-surface;
+  font-size: $text-xs;
+  font-weight: 700;
+}
+
+.active .count {
+  background: $stage-discussion;
+  color: $gray-900;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pill {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      border-color: $stage-discussion;
+    }
+  }
+
+  .active {
+    background: $warning-surface-dark;
+    color: $dark-text;
+  }
+
+  .count {
+    background: $warning-surface-dark;
+    color: $dark-text;
+  }
+
+  .active .count {
+    background: $stage-discussion;
+    color: $gray-900;
+  }
+}
