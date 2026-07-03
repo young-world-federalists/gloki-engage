@@ -92,9 +92,11 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
   };
 
   return (
-    <div className={cs.container}>
+    // Full-height flex column so the composer anchors at the bottom (ChatTopic
+    // pattern) instead of floating mid-page under the empty state (S18 W1, M4).
+    <div className={`${cs.container} ${styles.dm}`}>
       <AppHeader showBack onBack={() => navigate(-1)} title={authorDisplay} eyebrow={t('suggest.eyebrow', 'Suggestion')} />
-      <main id="main" tabIndex={-1} className={cs.content}>
+      <main id="main" tabIndex={-1} className={`${cs.content} ${styles.dmMain}`}>
         <div className={styles.thread}>
           {messages.length === 0 ? (
             <EmptyState
@@ -129,7 +131,7 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
       <div className={styles.inputBar}>
         <textarea
           className={styles.textarea}
-          rows={1}
+          rows={3}
           placeholder={t('suggest.placeholder', 'Write your suggestion…')}
           value={input}
           onChange={(e) => setInput(e.target.value)}

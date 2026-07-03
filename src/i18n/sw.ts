@@ -313,6 +313,7 @@ const sw: Dictionary = {
   'initiative.error.descRequired': 'Tafadhali eleza kwa nini hili ni muhimu',
   'initiative.error.badEvidenceUrl': 'Viungo vya ushahidi lazima vitumie URL halali ya http au https',
   'initiative.error.submitFailed': 'Hitilafu imetokea. Tafadhali jaribu tena.',
+  'initiative.createdConfirmation': 'Mpango wako umeundwa — utaonekana juu ya orodha mara tu utakapokuwa tayari.',
   'initiative.submitting': 'Inawasilisha…',
 
   // ── Journey phases (community mission banner) ──────────────────────────

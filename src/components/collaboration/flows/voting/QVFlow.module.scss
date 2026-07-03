@@ -47,6 +47,7 @@
   background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.22); border-radius: $radius-md;
 }
 .stepper {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
   width: 44px; height: 44px; flex: 0 0 auto;
   display: flex; align-items: center; justify-content: center;
   background: $gray-100; border: 1px solid $gray-200; border-radius: $radius-md; color: $gray-700; cursor: pointer;

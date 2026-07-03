@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Stepper, Button, Card } from '../shared';
+import AppHeader from '../AppHeader';
 import { useT } from '../../i18n';
 import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
 import { getVoucher, defaultVouchers } from '../../services/demo/fixtures/identity';
@@ -48,21 +49,26 @@ const OnboardingFlow: React.FC = () => {
   // Return state: already onboarded → compact "all set" with Start over.
   if (isOnboarded) {
     return (
+      // Banner + main#main keep the entry route inside the page model — skip
+      // link, landmark, and the step hero as the page's h1 (S18 W1, campaign M1).
       <div className={styles.flow}>
-        <Card className={styles.doneCard}>
-          <h1 className={styles.doneTitle}>{t('onboarding.alreadyDone.title', "You're all set up")}</h1>
-          <p className={styles.doneLead}>
-            {t('onboarding.alreadyDone.lead', 'Your profile is ready. Jump back into the deliberation, or start the welcome guide over.')}
-          </p>
-          <div className={styles.doneActions}>
-            <Button fullWidth onClick={() => navigate('/stage/problem')}>
-              {t('onboarding.cta.explore', 'Explore Gloki')}
-            </Button>
-            <Button variant="ghost" fullWidth onClick={() => { startOver(); setStep(0); }}>
-              {t('onboarding.cta.startOver', 'Start over')}
-            </Button>
-          </div>
-        </Card>
+        <AppHeader />
+        <main id="main" tabIndex={-1} className={styles.flowMain}>
+          <Card className={styles.doneCard}>
+            <h1 className={styles.doneTitle}>{t('onboarding.alreadyDone.title', "You're all set up")}</h1>
+            <p className={styles.doneLead}>
+              {t('onboarding.alreadyDone.lead', 'Your profile is ready. Jump back into the deliberation, or start the welcome guide over.')}
+            </p>
+            <div className={styles.doneActions}>
+              <Button fullWidth onClick={() => navigate('/stage/problem')}>
+                {t('onboarding.cta.explore', 'Explore Gloki')}
+              </Button>
+              <Button variant="ghost" fullWidth onClick={() => { startOver(); setStep(0); }}>
+                {t('onboarding.cta.startOver', 'Start over')}
+              </Button>
+            </div>
+          </Card>
+        </main>
       </div>
     );
   }
@@ -79,55 +85,60 @@ const OnboardingFlow: React.FC = () => {
   const consented = !!agent?.consentedAt;
 
   return (
+    // Same page-model wrapper as the done branch (S18 W1, campaign M1); the
+    // active step's hero heading is the page's h1.
     <div className={styles.flow}>
-      <div className={styles.stepperWrap}>
-        <Stepper steps={steps} current={step} onStepClick={(i) => go(i)} />
-      </div>
-      <p className={styles.srOnly} role="status" aria-live="polite">
-        {t('onboarding.announce', 'Step {n} of {total}: {label}', { n: step + 1, total: steps.length, label: steps[step].label })}
-      </p>
+      <AppHeader />
+      <main id="main" tabIndex={-1} className={styles.flowMain}>
+        <div className={styles.stepperWrap}>
+          <Stepper steps={steps} current={step} onStepClick={(i) => go(i)} />
+        </div>
+        <p className={styles.srOnly} role="status" aria-live="polite">
+          {t('onboarding.announce', 'Step {n} of {total}: {label}', { n: step + 1, total: steps.length, label: steps[step].label })}
+        </p>
 
-      <div className={styles.stepBody}>
-        {step === 0 && <InviteStep headingRef={headingRef} voucher={voucher} onContinue={() => go(1)} />}
-        {step === 1 && (
-          <VouchStep headingRef={headingRef} voucher={voucher} vouchCount={vouchCount} onBack={() => go(0)} onContinue={() => go(2)} />
-        )}
-        {step === 2 && (
-          <HowItWorksStep
-            headingRef={headingRef}
-            vouchCount={agent?.vouchedBy?.length ?? ONBOARDING_SEED}
-            onBack={() => go(1)}
-            onContinue={() => go(3)}
-          />
-        )}
-        {step === 3 && (
-          <AgentStep
-            headingRef={headingRef}
-            agent={agent}
-            voucher={voucher}
-            onBack={() => go(2)}
-            onContinue={(fields) => { saveAgent(fields); go(4); }}
-            onSkip={() => go(4)}
-          />
-        )}
-        {step === 4 && (
-          <RulesStep
-            headingRef={headingRef}
-            onBack={() => go(3)}
-            onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(5); }}
-          />
-        )}
-        {step === 5 && (
-          <ReadyStep
-            headingRef={headingRef}
-            agent={agent}
-            consented={consented}
-            onConsentNudge={() => go(4)}
-            onExplore={() => { saveProgress({ completed: true }); navigate('/stage/problem'); }}
-            onViewAgent={() => { saveProgress({ completed: true }); navigate('/identity/profile'); }}
-          />
-        )}
-      </div>
+        <div className={styles.stepBody}>
+          {step === 0 && <InviteStep headingRef={headingRef} voucher={voucher} onContinue={() => go(1)} />}
+          {step === 1 && (
+            <VouchStep headingRef={headingRef} voucher={voucher} vouchCount={vouchCount} onBack={() => go(0)} onContinue={() => go(2)} />
+          )}
+          {step === 2 && (
+            <HowItWorksStep
+              headingRef={headingRef}
+              vouchCount={agent?.vouchedBy?.length ?? ONBOARDING_SEED}
+              onBack={() => go(1)}
+              onContinue={() => go(3)}
+            />
+          )}
+          {step === 3 && (
+            <AgentStep
+              headingRef={headingRef}
+              agent={agent}
+              voucher={voucher}
+              onBack={() => go(2)}
+              onContinue={(fields) => { saveAgent(fields); go(4); }}
+              onSkip={() => go(4)}
+            />
+          )}
+          {step === 4 && (
+            <RulesStep
+              headingRef={headingRef}
+              onBack={() => go(3)}
+              onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(5); }}
+            />
+          )}
+          {step === 5 && (
+            <ReadyStep
+              headingRef={headingRef}
+              agent={agent}
+              consented={consented}
+              onConsentNudge={() => go(4)}
+              onExplore={() => { saveProgress({ completed: true }); navigate('/stage/problem'); }}
+              onViewAgent={() => { saveProgress({ completed: true }); navigate('/identity/profile'); }}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 };

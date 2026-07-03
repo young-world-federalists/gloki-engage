@@ -14,6 +14,7 @@
   margin-bottom: $spacing-xl;
 
   .backButton {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
     display: flex;
     align-items: center;
     justify-content: center;
@@ -240,6 +241,7 @@
 }
 
 .removeButton {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
   display: flex;
   align-items: center;
   justify-content: center;

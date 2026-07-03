@@ -1,5 +1,10 @@
 @use '../../styles/variables' as *;
 
+// Full-height flex column: main grows, the composer anchors at the bottom
+// above the fixed StageFooter (S18 W1, campaign finding M4).
+.dm { display: flex; flex-direction: column; min-height: 100dvh; }
+.dmMain { flex: 1; padding-bottom: 0; }
+
 .thread { display: flex; flex-direction: column; gap: $spacing-md; padding: $spacing-md 0; }
 
 .message { display: flex; flex-direction: column; gap: $spacing-xs; max-width: 85%; }
@@ -25,10 +30,21 @@
 }
 .mine .text { color: white; background: $primary; }
 
-.inputBar { display: flex; gap: $spacing-sm; align-items: flex-end; padding: $spacing-sm 0; }
+.inputBar {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: flex-end;
+  // In-flow bottom composer: side padding matches the content column; bottom
+  // padding clears the fixed StageFooter; a top rule separates it from the thread.
+  padding: $spacing-md $spacing-xl calc(#{$footer-height} + #{$spacing-md});
+  border-top: 1.5px solid $gray-200;
+
+  @media (prefers-color-scheme: dark) { border-top-color: $dark-border; }
+}
 .textarea {
   flex: 1;
   box-sizing: border-box;
+  min-height: 88px; // ~3 lines — the composer is this page's primary act (S18 W1)
   padding: $spacing-sm $spacing-md;
   font: inherit;
   font-size: $text-sm;
@@ -44,6 +60,7 @@
   @media (prefers-color-scheme: dark) { color: $dark-text; background: $dark-bg; border-color: $dark-border; &::placeholder { color: $dark-text-secondary; } }
 }
 .sendBtn {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
   display: inline-flex;
   align-items: center;
   justify-content: center;

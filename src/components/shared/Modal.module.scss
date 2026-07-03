@@ -52,6 +52,7 @@
 }
 
 .close {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
   display: inline-flex;
   align-items: center;
   justify-content: center;

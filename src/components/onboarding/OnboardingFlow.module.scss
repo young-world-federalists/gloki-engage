@@ -1,14 +1,22 @@
 @use '../../styles/variables' as *;
 
 .flow {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $gray-50;
+}
+
+// The content column — AppHeader above it stays full-bleed (S18 W1, campaign M1).
+.flowMain {
+  flex: 1;
+  width: 100%;
   max-width: $content-max-width;
   margin: 0 auto;
-  min-height: 100vh;
   padding: $spacing-xl $spacing-lg calc(#{$footer-height} + #{$spacing-xl});
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
-  background-color: $gray-50;
 }
 
 .stepperWrap {

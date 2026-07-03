@@ -832,6 +832,17 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
 
 ---
 
+## Session 18 / Wave 1 (2026-07-03) — create-initiative confirmation
+
+**New key (community feed, one-shot success banner after starting an initiative):**
+- **fr/sw `initiative.createdConfirmation`** — "Your initiative was created — it appears at the
+  top of the feed as soon as it's ready." fr "Votre initiative a été créée — elle apparaîtra en
+  haut du fil dès qu'elle sera prête.", sw "Mpango wako umeundwa — utaonekana juu ya orodha mara
+  tu utakapokuwa tayari." Confirm the sw subject: the banner refers to the *mpango* (initiative)
+  appearing, not the person — "utaonekana" should read as "it will appear".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

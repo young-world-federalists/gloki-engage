@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
@@ -8,7 +8,7 @@ import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { displayNameFor } from '../../utils/displayName';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
-import { Card, Badge } from '../shared';
+import { Card, Badge, Banner } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import CommunityCard from './CommunityCard';
 import { STAGE_META } from './stageMeta';
@@ -61,6 +61,16 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
     });
   const deepCardRef = useRef<HTMLDivElement | null>(null);
   const didFocusDeepLink = useRef(false);
+
+  // One-shot "initiative created" confirmation (S18 W1, m3): the new card only
+  // appears after its contract deploy resolves, which otherwise reads as silence.
+  const location = useLocation();
+  const [showCreated, setShowCreated] = useState(
+    () => !!(location.state as { initiativeCreated?: boolean } | null)?.initiativeCreated,
+  );
+  useEffect(() => {
+    if (showCreated) window.history.replaceState({}, ''); // don't re-show on refresh
+  }, [showCreated]);
 
   // Fetch collaborations if not already loaded.
   useEffect(() => {
@@ -148,6 +158,18 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
       />
 
       <div className={styles.feed}>
+        {showCreated && (
+          <Banner
+            tone="success"
+            onDismiss={() => setShowCreated(false)}
+            dismissLabel={t('common.dismiss', 'Dismiss')}
+          >
+            {t(
+              'initiative.createdConfirmation',
+              'Your initiative was created — it appears at the top of the feed as soon as it’s ready.',
+            )}
+          </Banner>
+        )}
         <div className={styles.feedHeader}>
           <h2 className={styles.feedTitle}>{t('community.activityTitle', 'Community Activity')}</h2>
           <p className={styles.feedDescription}>

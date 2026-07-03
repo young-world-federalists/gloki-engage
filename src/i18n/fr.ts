@@ -314,6 +314,7 @@ const fr: Dictionary = {
   'initiative.error.descRequired': 'Veuillez expliquer pourquoi c’est important',
   'initiative.error.badEvidenceUrl': 'Les liens de preuve doivent être des URL http ou https valides',
   'initiative.error.submitFailed': 'Une erreur s’est produite. Veuillez réessayer.',
+  'initiative.createdConfirmation': 'Votre initiative a été créée — elle apparaîtra en haut du fil dès qu’elle sera prête.',
   'initiative.submitting': 'Envoi…',
 
   // ── Journey phases (community mission banner) ──────────────────────────

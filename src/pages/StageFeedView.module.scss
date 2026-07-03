@@ -18,7 +18,7 @@
   border: 1px solid rgba($primary, 0.15);
   border-radius: $radius-md;
   font-size: $text-sm;
-  color: $gray-600;
+  color: $gray-700; // $gray-600 on the tint measured 4.26:1 (S18 campaign m1)
   line-height: 1.4;
 
   svg {
@@ -67,7 +67,7 @@
   position: relative;
   z-index: 1; // stay clickable above the title's stretched-link overlay
   background: rgba($primary, 0.1);
-  color: $primary;
+  color: $info-on-surface; // $primary on the tint measured 3.28:1 (S18 campaign M5)
   font-size: $text-xs;
   font-weight: $font-semibold;
   padding: 2px $spacing-sm;
@@ -208,7 +208,9 @@
   }
 
   .communityBadge {
-    background: rgba($primary, 0.2);
+    // 0.2 tint left $primary-on-dark at 4.43:1 for the 12px label; 0.12 clears AA (S18 campaign M5)
+    background: rgba($primary, 0.12);
+    color: $primary-on-dark;
   }
 
   .author,

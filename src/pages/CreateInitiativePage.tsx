@@ -120,7 +120,9 @@ const CreateInitiativePage: React.FC = () => {
         countries,
       });
       dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
-      navigate(`/community/${communityId}`);
+      // The feed shows a one-shot confirmation — the new card appears only after
+      // the contract deploy resolves, which reads as silence otherwise (S18 W1, m3).
+      navigate(`/community/${communityId}`, { state: { initiativeCreated: true } });
     } catch {
       setError(t('initiative.error.submitFailed', 'Something went wrong. Please try again.'));
     } finally {

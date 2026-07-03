@@ -86,6 +86,6 @@
   }
 
   .active {
-    color: $primary;
+    color: $primary-on-dark; // $primary on $dark-bg measured 3.98:1 at 10px (S18 campaign m2)
   }
 }

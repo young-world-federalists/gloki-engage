@@ -17,6 +17,7 @@
 }
 
 .remove {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
   flex-shrink: 0; min-width: 44px; min-height: 44px;
   display: inline-flex; align-items: center; justify-content: center;
   background: none; border: 1px solid $gray-200; border-radius: $radius-md;
