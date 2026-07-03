@@ -104,10 +104,15 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
           ) : (
             <Badge tone="warning" size="sm">{t('mandate.statusPending', 'Pending ratification')}</Badge>
           )}
-          <span className={styles.ratified}>
-            <CalendarCheck size={14} aria-hidden />
-            {t('mandate.ratifiedOn', 'Ratified {date}', { date: ratified })}
-          </span>
+          {/* The date only exists once ratification has happened — showing it next
+              to a "Pending ratification" badge contradicted the badge (S17 persona
+              sample, James). */}
+          {mandate.status === 'ratified' && (
+            <span className={styles.ratified}>
+              <CalendarCheck size={14} aria-hidden />
+              {t('mandate.ratifiedOn', 'Ratified {date}', { date: ratified })}
+            </span>
+          )}
         </div>
         <CountryPresence
           countries={mandate.countries}
