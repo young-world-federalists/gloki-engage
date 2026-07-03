@@ -33,7 +33,7 @@ Severities rank against the two north stars (MASTER_TODO §1), per the campaign 
 
 | # | Sev | Control | Measured | Notes |
 |---|---|---|---|---|
-| T1 | **major** | AppHeader Notifications bell (every page) | **30×30**, icon 18px | the single most-repeated violation |
+| T1 | ~~major~~ **FALSE POSITIVE** (corrected during fix wave) | AppHeader Notifications bell | box 30×30 but a 44×44 `::after` pseudo-target already extends the hit area (WCAG 2.5.5 pattern) — bounding-box sweeps miss pseudo-targets | no action; the same pattern was reused for T2/T4 fixes |
 | T2 | **major** | MandatePage "View full" / "View all" | 84×14 / 59×14, icon 11px | smallest controls in the app |
 | T3 | **major** | Discussion thread: Like (34×44), Collapse replies (22×44) | width < 44, icons 14px | heights OK, widths fail |
 | T4 | major | Banner "Dismiss" (stage feeds) | 24×24, icon 16px | |
@@ -59,7 +59,7 @@ Severities rank against the two north stars (MASTER_TODO §1), per the campaign 
 | Route | h1 | size/weight/margin-bottom |
 |---|---|---|
 | HomeView | "Across your communities" | 20px/600/0 |
-| StageFeedView | "Problem" etc. | **32px/700/−1px** |
+| StageFeedView | "Problem" etc. | ~~32px/700/−1px~~ CORRECTED: that h1 is sr-only (clipped; the −1px margin is the sr-only recipe) — stage feeds have no visible h1, which is deliberate |
 | CommunityView | AppHeader title | **18px/600/0** |
 | Discussion | AppHeader title | 18px/600/0 |
 | MandatePage | doc title | **24px/700/0** |
@@ -71,10 +71,11 @@ Five distinct renderings. Fix: one h1 scale token pair (size+weight+margin) appl
 app-wide; per-page hero text may stay larger *as a styled h2* or the token gets two
 sanctioned steps — recommend-then-confirm framing already covered by Eston's decision 2.
 
-### N2 (major): heading margins ~all 0px
+### N2 (~~major~~ downgraded minor after code check): heading margins ~all 0px
 
-h2/h3 margin-bottom is 0 on HomeView/stage feeds/community (spacing done by flex gap on
-some parents, absent on others) → the "cramped" feel. Fix as one pass with spacing tokens.
+Measured margin-bottom 0 is mostly spacing-by-flex-gap (e.g. HomeView `.section` has
+`gap: $spacing-md`) — real cramping confirmed only on IdentityView pageTitle (4px).
+Fixed via `$heading-gap` token; broader padding taste calls go to Eston in S17.
 
 ### N3 (minor): duplicate page titles
 
