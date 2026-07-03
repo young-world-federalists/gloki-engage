@@ -272,7 +272,15 @@ nouns render canonical-English (only the chrome is `t()`-wired). Props: `value`
 
 ## Mobile Patterns
 
-- **Touch targets:** minimum 44x44px (Apple HIG)
+- **Touch targets:** minimum 44x44px (Apple HIG). Compact controls reach it with an
+  invisible `::after` hit-area extension (`MandateCard .linkBtn`, HomeView `.seeAll`) or
+  a real 44×44 box (AppHeader icon buttons). **Sanctioned exceptions (S17):**
+  - `StageFooter` tabs (~57×37): the fixed global bar is density-deliberate at 360px —
+    forcing 44px-tall tabs adds ~10px of chrome to every screen. Passes the WCAG 2.5.8 AA
+    24px floor with honest whole-tab hit areas; do not "fix" without a new product decision.
+  - Inline links in running text and card meta lines (source chips, community/initiative
+    name links): the WCAG inline exception applies; meta-line links additionally keep a
+    ≥24px min-height floor (`InitiativeStageCard .metaItem`).
 - **Primary actions:** bottom-anchored when possible (thumb zone)
 - **Content padding:** 16px from screen edges
 - **No hover-only interactions:** everything must be tap-accessible

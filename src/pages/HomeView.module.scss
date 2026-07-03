@@ -68,6 +68,7 @@
 }
 
 .seeAll {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: $spacing-xs;
@@ -82,6 +83,18 @@
   cursor: pointer;
   white-space: nowrap;
   transition: background-color $transition-base;
+
+  // ≥44px touch target without inflating the section-header row (S17 T5) —
+  // the MandateCard .linkBtn invisible ::after hit-area extension.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
 
   &:hover {
     background: rgba($primary, 0.08);
