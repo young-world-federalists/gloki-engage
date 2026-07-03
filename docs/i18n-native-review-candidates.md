@@ -843,6 +843,35 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
 
 ---
 
+## Session 19 / Wave 2 (2026-07-04) — vote-card recomposition + identity eyebrow
+
+**Merged/renamed keys (vote ballot — the two per-solution accordions became one fold):**
+- **fr/sw `mechanisms.qv.commitsMetricsN`** — "Commitments & metrics ({n})". fr "Engagements et
+  indicateurs ({n})", sw "Ahadi na vipimo ({n})". Replaces the removed `commitsLabel`
+  ("What this commits to ({n})"), `metricsLabel` ("How we'll know it's working ({n})") and the
+  un-counted `commitsMetrics` — one label now covers both lists with a combined count. Confirm
+  the sw pairing "Ahadi na vipimo" still reads naturally when the list mixes commitments AND
+  indicators.
+
+**New keys (vote ballot header + results):**
+- **fr/sw `mechanisms.qv.guideToggle`** — "How hearts work" (the inline expand that now holds the
+  hearts explainer + privacy line; open on a user's first ballot, collapsed after). fr
+  "Comment fonctionnent les cœurs", sw "Jinsi mioyo inavyofanya kazi". Short button label — check
+  it doesn't wrap awkwardly at 360px next to "{pct}% of your support used".
+- **fr/sw `mechanisms.qv.regionKeyToggle`** — "Region colour key" (the fold hiding the region
+  legend under the results). fr "Légende des couleurs par région", sw "Ufunguo wa rangi za
+  maeneo". Confirm sw "ufunguo" (key/legend) is the natural word here rather than "maelezo".
+
+**New key (identity pages eyebrow):**
+- **fr/sw `identity.eyebrow`** — "Account" (the small line above the page title on
+  Communities/Profile/Join pages). fr "Compte", sw "Akaunti".
+
+**Removed keys (removed from en+fr+sw together):** `stage.goTo` (the stage strip no longer
+navigates), `mechanisms.qv.commitsLabel`, `mechanisms.qv.metricsLabel`,
+`mechanisms.qv.commitsMetrics`.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

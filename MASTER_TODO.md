@@ -315,6 +315,26 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
+- **2026-07-04 — S19: campaign Wave 2 shipped — card recomposition + title standard + sizing floors
+  (BUILT, push pending Eston's gate; W3 stage-feed inline + W4 theme toggle remain).** Spec
+  `docs/superpowers/specs/2026-07-03-s19-w2-card-recomposition-design.md`. Four decisions locked
+  (Eston): strip = dotted pills as a PURE MARKER (nothing navigates), CommunityView keeps its
+  hidden-h1 hero exception (title block non-sticky app-wide), hearts explainer first-visit-expanded
+  (`welcomeHints` `qvGuide`), ballot items fold to ONE merged commitments+metrics expand with
+  post-vote region bars staying visible. **M3**: InitiativeStageStrip 86px circles → 27px pills,
+  zero buttons, `stage.goTo` retired. **M2**: vote engage panel 8 blocks/1,704px → 4 blocks/1,313px
+  steady-state (first-visit 1,463px), boxed-surface depth 3→2; ballot items 384→~310px; write
+  re-fetch verified; problem/solutions/mandate panels measured against the same bars — all pass,
+  untouched. **D3**: sticky bar keeps only brand; eyebrow+h1 title block (S16 20px/700 pair) below
+  a full-width rule, scrolling with content; adopted by Home/StageFeed/5 identity pages/
+  CreateCommunity; fixed the pre-existing currency double-h1 (funds h1→h2 ×3). **D4/D5**: Button
+  `md` 40→44px bare; interactive icons floored at 16px across ~20 files (badges/captions stay
+  proportionate — m7 scopes to actions); ProblemVoteFlow icon squeeze fixed (svg flex-shrink 0).
+  Parity fr=sw (scanner OK), gates clean, build green. Learnings: an inherited 0.7-text-opacity
+  de-emphasis measured 3.56:1 (sub-AA) — de-emphasize via the dot, not label alpha; after flipping
+  preview colorScheme on a loaded page RELOAD before screenshotting (computed styles read correctly
+  while the compositor holds hybrid light/dark frames); DiscussionPill "13px icon" premise was
+  stale (already 16) — 8th straight session the re-verify table caught rot.
 - **2026-07-03 — S18 (in flight): full UI review campaign + Wave 1 mechanical fixes (PUSHED
   `5979ea7..21ccd4d` with the S17 range; Eston green-lit).** Eston declined the handoff freeze —
   cards messy, stage-feed teleport, suggestion-page spacing, rampant padding/icon issues, and a
