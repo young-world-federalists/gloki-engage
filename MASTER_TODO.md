@@ -239,11 +239,11 @@ all 3 items narrower than framed — see project memory `project_session12_evide
 - [MAJOR] **Localized country names** — ✅ **shipped (S14):** `getCountryName(code, locale)` via
   `Intl.DisplayNames`, threaded through ~11 country render/select sites (incl. onboarding + Profile pickers).
 - [MAJOR, large] **More UI locales incl. Chichewa** (and other widely-spoken African languages that exist as
-  *profile* tags but not UI locales) — **still open** (deferred from S14; a new `src/i18n/ny.ts` ≈1109 keys +
+  *profile* tags but not UI locales) — **moved to Post-handoff (S16)** (a new `src/i18n/ny.ts` ≈1120 keys +
   `Locale` union + `LanguageSwitcher`; widens the human-gated native-review backlog).
 - [MAJOR, coordinate w/ backend] **Content-translation strategy** — fixture/content text (problem titles,
   comments, solutions, mandate body) is English in every locale; decide per-card translation vs a "traduire"
-  affordance. Backend-adjacent → coordinate with Ouri. **Still open.**
+  affordance. Backend-adjacent → coordinate with Ouri. **Moved to Post-handoff (S16).**
 
 **P5.5 — Generalize Gloki beyond the VftC/Africa pilot (Eston direction, 2026-07-01). ✅ SHIPPED (S15,
 2026-07-02).** The audit found the app was **already ~90% generalized**: homepage/welcome copy already global,
@@ -258,10 +258,41 @@ example*). Climate stays **one balanced community among several** — no fixture
 bump**. fr/sw parity held (2 changed keys, no new keys). Spec:
 `docs/superpowers/specs/2026-07-02-p55-generalize-gloki-design.md`.
 
-**P6 — Remaining Wave-1 debt.**
+**P6 — UI handoff readiness ✅ BUILT (S16, 2026-07-03; push pending Eston's gate).** Full UI-review
+campaign phases 0–3+5 (findings log:
+[docs/superpowers/specs/2026-07-03-s16-ui-review-findings.md](docs/superpowers/specs/2026-07-03-s16-ui-review-findings.md))
++ problem→mandate coherence walk (en+fr, QV math & post-vote re-fetch verified live). Shipped:
+**Discussion recast as a function, not a pipeline step** (4-stage strips matching the StageFooter +
+persistent `DiscussionPill` with live comment count, read-only resolver); measured a11y fixes (44px
+tap targets via the bell's pseudo-target pattern; `$success-on-surface` for green text-on-white;
+new `$primary-on-dark` token for dark-scheme blue text); page-title tokens
+(`$page-title-size/-weight`, `$heading-gap`); CreateCommunityPage gained its AppHeader banner;
+CommunityView loading/not-found branches joined the page model (+ fr/sw keys). Handoff docs:
+FOR_OURI addendum (S13 `set_property`/`get_properties` + `mandate_ratification`, S16 pill read
+path); ARCHITECTURE StageFooter/landing fixed; DESIGN_SYSTEM typography + primitives updated.
+Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.md`.
+
+### Handoff-blocking (finish before Ouri derives `new-features`)
+
+- **S17 — small fix tail from the S16 findings log:** C4/C5 (slate captions on tinted/blue
+  surfaces, 4.0–4.3:1), N3 (duplicate visible page titles on Community/Mandate — pick one owner),
+  N4 (vote-stage activity card shows the problem description where the initiative *title* should
+  be + "Cast your vote" affordance reads as plain text), T5–T7 ("See all" 25px, StageFooter item
+  height 37px, source-chip tap areas), turnout phrasing "84% of 75% needed" → plain language.
+  Optional budget-permitting: the 9-persona walk (Phase 4) as a final pre-handoff sample.
+- **S16 push** through the standing gates (Opus whole-branch review → Eston's explicit green light).
+
+### Post-handoff (explicitly parked until after the handoff)
+
 - Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
-- Wave 1.5 refactor lanes (design-system canonicalization, utils/types consolidation, shared-affordances
-  extraction, voting-flow consolidation) — see archive.
+- More UI locales incl. **Chichewa** (`ny.ts`); the fr/sw **native review** stays human-gated.
+- **Content-translation strategy** for user-generated/fixture text (needs Ouri).
+- **Offline last-view cache** + WhatsApp-shareable summary (S14 deliberately shipped the lighter
+  in-app anchor; no service worker).
+- Points/currency depth, leaderboards (also §6).
+- Wave 1.5 refactor lanes — design-system canonicalization (incl. the 10 baseline rgba scrims and
+  the S16 kit-adoption leads: FundingFlow empty-state/tabs, bespoke dialogs), utils/types
+  consolidation, shared-affordances extraction, voting-flow consolidation — see archive.
 
 ### Blocked / coordination (not ours to drive on `ui`)
 - **A — land `ui` → `main`.** `origin/main` is Ouri's real-server layer (mid-QA, 341-vs-2 diverged). Per the
@@ -274,6 +305,31 @@ bump**. fr/sw parity held (2 changed keys, no new keys). Spec:
 
 ## 8. Changelog
 
+- **2026-07-03 — S16: UI handoff readiness — review campaign + Discussion-as-function + fix wave +
+  handoff docs (BUILT; push pending Eston).** Ran the full UI-review campaign (Phases 0–3+5:
+  grep gates all at baseline, computed-style contrast sweeps light+dark, touch-target boxes,
+  per-route h1/landmark checks; findings log
+  `docs/superpowers/specs/2026-07-03-s16-ui-review-findings.md`) + the problem→mandate coherence
+  walk (en+fr; QV heart math and post-vote re-fetch verified against the live preview).
+  **Measure-before-fix paid again:** the header bell "30×30" was a false positive (a 44px
+  `::after` pseudo-target already existed), the "32px h1" on stage feeds was the sr-only h1, and
+  most "0 margins" were flex-gap spacing. **Shipped (7 feat/fix commits):** Discussion recast as a
+  function — both strips now 4 stages matching the StageFooter, with a persistent `DiscussionPill`
+  (live comment count via read-only `resolveInitiativeStageContract`, never `useFlowContract`;
+  "In discussion" active state; in-discussion initiatives render in the Problem→Solutions gap);
+  44px tap targets for Banner dismiss / MandateCard View-full/View-all / thread Like+Collapse;
+  `$success-on-surface` for green text-on-white (was 2.54:1) with dark-mode overrides; new
+  `$primary-on-dark` token (dark-scheme blue text; `$primary-dark` measured 2.83–3.45:1 in dark —
+  two sites carried "$primary-light not defined" comments waiting for it); page-title tokens
+  (`$page-title-size`/`-weight`/`$heading-gap`) applied to the four in-content page h1s;
+  CreateCommunityPage gained the AppHeader banner; CommunityView loading/not-found branches
+  joined the page model with translated strings (9 new + 5 changed fr/sw keys total, parity
+  fr=sw=1120; **no `DEMO_VERSION` bump** — no fixture changes). **Handoff docs (Track D):**
+  FOR_OURI_seam.md addendum (S13 `set_property`/`get_properties` + `mandate_ratification`
+  property, S16 pill read path — closing the S13 doc gap); ARCHITECTURE.md StageFooter/landing
+  corrected; DESIGN_SYSTEM.md typography standard + `$primary-on-dark` + DiscussionPill; §7
+  restructured into **Handoff-blocking vs Post-handoff**. S17 = the small fix tail (C4/C5, N3,
+  N4, T5–T7, turnout phrasing) then the push/handoff.
 - **2026-07-02 — S15: card-cohesion fix + P5.5 generalize-Gloki (both shipped).** Two linked pieces.
   **Phase 0 — SolutionsBoard recomposition:** the card-cohesion audit (specs vs live code + 360px
   light/dark preview) found accretion-dilution **concentrated in `SolutionsBoard`** (nothing deleted —

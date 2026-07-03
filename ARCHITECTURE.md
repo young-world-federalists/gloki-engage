@@ -6,9 +6,9 @@ the design system is [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).)
 
 ## App Structure
 
-**Navigation**: Global footer (`StageFooter.tsx`) — fixed bottom bar with 5 stage icons (Problem, Discussion, Proposals, Vote, Mandate), navigates to `/stage/:stageId`, appears on all authenticated pages. `HomepageMenu` (slide-out) provides access to Profile, Communities, Join, Create, About, Contact.
+**Navigation**: Global footer (`StageFooter.tsx`) — fixed bottom "Browse by stage" bar with the **4 browseable stage icons** (Problem, Solutions, Vote, Mandate), navigates to `/stage/:stageId`, appears on all authenticated pages. **Discussion is a function, not a pipeline step** (S16): it has no stage feed; each initiative carries a persistent Discussion button (`DiscussionPill`) beside its 4-stage strip, reachable at every stage. `HomepageMenu` (slide-out) provides access to Profile, Communities, Join, Create, About, Contact.
 
-**Stage Feed Mini-Apps** (`StageFeedView.tsx`): Default landing page at `/stage/problem`. Each stage is a purpose-built participation interface. Problem: inline up/down voting with optimistic UI + threshold bars. Discussion: tap-through cards to initiative discussion view. Proposals: inline `ApprovalFlow` with approve/withdraw per card. Vote: inline `QVFlow` with credit allocation per card. Mandate: inline `ConvictionStaking` with conviction staking per card. Sample data shown as empty-state fallback only.
+**Stage Feed Mini-Apps** (`StageFeedView.tsx`): Per-stage browse surfaces behind the footer (the app lands on **HomeView at `/`**; first-run users redirect to `/welcome`). Each stage is a purpose-built participation interface. Problem: inline up/down voting with optimistic UI + threshold bars. Proposals ("Solutions" in the UI): inline `ApprovalFlow` with approve/withdraw per card. Vote: inline `QVFlow` with credit allocation per card. Mandate: inline `ConvictionStaking` with conviction staking per card. Sample data shown as empty-state fallback only.
 
 **Community** (`CommunityView.tsx`): Dark header with name, description, member count. No inline tab bar — all navigation through slide-out hamburger menu (Home, Create Initiative, Collab, Chat, Currency, Members, Identity & Trust, Share, Invite, Leave). Default view is the activity feed with "Community Activity" section header showing initiatives with stage badges.
 

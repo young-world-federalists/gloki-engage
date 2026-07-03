@@ -100,3 +100,23 @@ names stay `proposal`. (e.g. the add-solution popup calls `add_proposal`.)
 - **Production:** implement as a real 1:1 contract keyed by the **unordered
   `{author, requester}` pair** so both parties see the same thread regardless of
   who opens it first.
+
+### S13 addendum — initiative property bag (`demoContracts/initiative.ts`)
+
+Added in S13 for mandate ratification, previously missing from this doc:
+
+- `get_properties` (read, no args) → the initiative's string-keyed property map.
+- `set_property` (write, `{ key, value }`) → upserts one property. The stub is
+  permissive; **the real contract must gate this to the initiative host /
+  authorised experts** (it stores ratification decisions).
+- Property in use: **`mandate_ratification`** — a JSON string written/read by
+  `src/services/mandateRatification.ts` (indicator targets/baselines/cadence,
+  ratification state for the RatificationPanel).
+
+### S16 addendum — Discussion pill (read-only, no new methods)
+
+The per-initiative Discussion button (`src/components/initiative/DiscussionPill.tsx`)
+only READS: `initiative.get_stage_contract { stage_key: 'discussionContractId' }`,
+then `discussion.get_comments` for the live count. It never deploys or writes —
+the discussion page itself remains the deploy-on-intent surface. No contract work
+needed beyond what already exists.

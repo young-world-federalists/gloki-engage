@@ -45,6 +45,7 @@ modules layer their own dark treatments using these tokens.
 | `$dark-border` | Borders/dividers on dark |
 | `$dark-text` | Primary text on dark |
 | `$dark-text-secondary` | Muted text on dark |
+| `$primary-on-dark` | Blue TEXT in dark mode (links, eyebrows). `$primary-dark` is a light-mode hover tone — as dark-scheme text it measured 2.8–3.5:1 (S16); this blue-400 clears AA on both dark surfaces. |
 
 ### Semantic surfaces
 
@@ -109,7 +110,7 @@ These are deployed as SCSS tokens in `src/styles/variables.scss` and as CSS cust
 
 | Level | Token | Weight | Use |
 |-------|-------|--------|-----|
-| Page title | `$text-xl` (20px) | `$font-semibold` | Top-level page headings |
+| Page title | `$page-title-size` (= `$text-xl`, 20px) | `$page-title-weight` (700) | Every in-content page `<h1>`, with `$heading-gap` (8px) below it (S16 normalisation). Sanctioned exceptions: the AppHeader bar title (18px/600), onboarding step heroes (`$text-2xl` centered), the MandateCard document title. |
 | Section header | `$text-lg` (18px) | `$font-medium` | Section dividers within a page |
 | Body | `$text-sm` (14px) | `$font-normal` | Default text, form labels |
 | Caption | `$text-xs` (12px) | `$font-normal` | Metadata, timestamps, helper text. Use **`$gray-500`** (≈4.8:1 on white). **Do not use `$gray-400` for text** — it is `#9ca3af` = **2.54:1 on white**, below the AA floor; reserve it for non-text/decorative use only. |
@@ -230,26 +231,36 @@ Props: `label` (translated trigger aria-label), `title` (modal heading, defaults
 `label`), `children` (the prose), `size`, `className`.
 
 **`StageStrip`** (`src/components/shared/StageStrip.tsx`) — a compact, read-only
-`<ol>` of the five governance stages (Problem → Discussion → Solutions → Vote →
-Mandate). A glanceable pipeline anchor — **not navigation, not the explainer**.
-Token-pure rainbow (five distinct stage fills, all tokens). Default `aria-label` =
-`stage.pipelineOverview` ("The 5 governance stages"), deliberately distinct from the
-two nav landmarks below so no two share an accessible name. Used on the task-first
-create + login screens. Props: `ariaLabel`, `className`.
+`<ol>` of the **four** governance stages (Problem → Solutions → Vote → Mandate;
+Discussion left the strips in S16 — it is a function, not a pipeline step). A
+glanceable pipeline anchor — **not navigation, not the explainer**. Token-pure
+stage fills. Default `aria-label` = `stage.pipelineOverview` ("The governance
+stages"), deliberately distinct from the two nav landmarks below so no two share
+an accessible name. Used on the task-first create + login screens. Props:
+`ariaLabel`, `className`.
 
 **`InitiativeStageStrip`** (`src/components/initiative/InitiativeStageStrip.tsx`) — the
 router-aware sibling of `StageStrip`: the **follow-this-initiative** control rendered
-atop the expanded `InitiativeStageCard` panel (P1). Same five-stage rainbow, but it
+atop the expanded `InitiativeStageCard` panel (P1). Same four-stage set, but it
 **highlights the initiative's current stage** (`get_stage`, `aria-current="step"` +
-ring) and is **tappable only where a real per-initiative surface exists** — Discussion
-(`/initiative/.../discussion`) and Mandate (`/mandate/cid/iid`). Other stages are
-progress markers (done/upcoming), never misleading links — the inline dashboard
-exposes only the *current* stage, so there's no past-stage surface to navigate to.
+ring) and is **tappable only where a real per-initiative surface exists** — Mandate
+(`/mandate/cid/iid`). Other stages are progress markers (done/upcoming), never
+misleading links — the inline dashboard exposes only the *current* stage, so
+there's no past-stage surface to navigate to. An initiative whose data stage is
+`discussion` renders in the Problem→Solutions gap (Problem done, nothing current).
 Tappable stages are `<button>`s (label `stage.goTo`); the rest are static `<span>`s.
 `aria-label` = `stage.initiativeStripLabel` ("Stages of this initiative"). Distinct
 from the global **"Browse by stage"** `StageFooter` (cross-community discovery, 4
 stages, demoted) — the two must never be conflated as one nav. Props: `current`,
-`communityId`, `initiativeId`, `hostServer`, `hostAgent`, `className`.
+`communityId`, `initiativeId`, `className`.
+
+**`DiscussionPill`** (`src/components/initiative/DiscussionPill.tsx`, S16) — the
+persistent per-initiative **Discussion** button rendered under the strip in the
+`InitiativeStageCard` panel: discussion is reachable at EVERY stage. ≥44px target,
+live comment count (read-only `resolveInitiativeStageContract` + `get_comments` —
+NEVER `useFlowContract`, which deploys), warning-toned "In discussion" active
+state when the initiative's data stage is `discussion`. Props: `initiativeId`,
+`communityId`, `hostServer`, `hostAgent`, `active`, `className`.
 
 **`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
 selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
