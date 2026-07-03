@@ -315,8 +315,25 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
-- **2026-07-03 — S17: S16 fix tail + persona sample + freeze for handoff (BUILT; push pending
-  Eston).** Re-grounding shrank scope again (7th consecutive session): S16 was already pushed
+- **2026-07-03 — S18 (in flight): full UI review campaign + Wave 1 mechanical fixes (PUSHED
+  `5979ea7..21ccd4d` with the S17 range; Eston green-lit).** Eston declined the handoff freeze —
+  cards messy, stage-feed teleport, suggestion-page spacing, rampant padding/icon issues, and a
+  dark/light toggle request. Campaign ran (findings log
+  `docs/superpowers/specs/2026-07-03-s18-ui-campaign-findings.md`: 6 majors, 7 minors) and
+  measured all four complaints; decisions locked: D1 problem/solutions/vote expand inline in
+  stage feeds, D3 app-wide title block + rule under the AppHeader, D4 buttons ≥44px, D5 icon
+  floor 16/20, D6 four waves. **W1 shipped** (spec
+  `2026-07-03-s18-wave1-mechanical-fixes.md`): the icon-button padding bug class (global
+  `button { padding: 0.6em 1.2em }` reset crushed 11 fixed-box icon buttons — the suggestion
+  send icon rendered 5.6px); SuggestionDmView recomposed (3-row composer, bottom-anchored bar);
+  stage-feed chip/banner + dark footer-tab contrast (3.06–4.26 → 4.94–9.22); /welcome brought
+  into the page model; one-shot creation confirmation (en+fr+sw, packet appended). Verified live
+  360px both schemes; W1 diff reviewed 0 Crit / 0 Imp. **Remaining: W2 card recomposition
+  (engage-panel ~12 blocks → ≤5, stage-strip circles) + D3/D4/D5; W3 stage-feed inline
+  expansion; W4 theme toggle (297 media blocks / 104 files codemod) + menu language switcher.**
+
+- **2026-07-03 — S17: S16 fix tail + persona sample + freeze for handoff (PUSHED with W1, see
+  above).** Re-grounding shrank scope again (7th consecutive session): S16 was already pushed
   (`ui == origin/ui`) and N3 was already fixed in S16 `a7aa652` — no-op'd with citation. Shipped:
   C4 SegmentedControl unselected label `$gray-600`→`$gray-700` (4.34→8.7:1, lifts all 4 consumers);
   C5 dark adoption breakdown → `$dark-text` (4.04→12:1); N4 vote card gained the initiative title
