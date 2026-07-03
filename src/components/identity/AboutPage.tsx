@@ -16,7 +16,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
         <ArrowLeft size={18} />
       </button>
       <div className={styles.content}>
-        <h1 className={styles.title}>{t('about.title', 'About Gloki')}</h1>
+        {/* The title renders in the AppHeader block (D3). */}
         <HowGlokiWorks variant="full" />
         <p className={`${styles.text} ${styles.afterBlock}`}>
           {t(

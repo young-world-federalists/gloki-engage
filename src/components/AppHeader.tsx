@@ -32,8 +32,10 @@ export interface AppHeaderProps {
 /**
  * The single, global, light app header. One banner landmark per screen:
  * a constant brand anchor (the wordmark renders exactly once), an optional back
- * button + page title (the page's only `<h1>`), and the always-present
- * notifications bell + account menu. It supersedes the former dual-header setup.
+ * button, and the always-present notifications bell + account menu. The page
+ * title (the page's only `<h1>`, with its quiet eyebrow) renders as a separate
+ * block below the bar — divided from it by the bar's full-width rule and
+ * scrolling away with content while the bar stays sticky (D3, S19).
  *
  * The menu (`HomepageMenu`), bell and brand are self-managed — callers never
  * pass them, and never render their own copy. There is deliberately no
@@ -98,13 +100,17 @@ const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, 
           </div>
         </div>
 
-        {title && (
-          <div className={`${styles.titleBlock} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
-            {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
-            <h1 className={styles.title}>{title}</h1>
-          </div>
-        )}
       </header>
+
+      {/* Page-title block (D3 standard): below the sticky bar, separated from it
+          by the header's full-width rule, scrolling away with content — only the
+          brand bar stays pinned. Still the page's single <h1>. */}
+      {title && (
+        <div className={`${styles.titleBlock} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
+          {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
+          <h1 className={styles.title}>{title}</h1>
+        </div>
+      )}
 
       <HomepageMenu
         isOpen={menuOpen}

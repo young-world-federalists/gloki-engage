@@ -15,16 +15,6 @@
   align-items: stretch;
 }
 
-.pageTitle {
-  margin: 0;
-  font-size: $text-xl;
-  font-weight: $font-semibold;
-  color: $gray-800;
-
-  @media (prefers-color-scheme: dark) {
-    color: $dark-text;
-  }
-}
 
 .introLine {
   margin: 0 0 $spacing-xs 0;

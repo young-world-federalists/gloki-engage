@@ -27,13 +27,6 @@
   }
 
   .content {
-    .title {
-      font-size: $text-2xl;
-      font-weight: $font-bold;
-      color: $gray-800;
-      margin-bottom: $spacing-xl;
-    }
-
     .text {
       color: $gray-600;
       font-size: $text-base;
@@ -73,10 +66,6 @@
     }
 
     .content {
-      .title {
-        color: $dark-text;
-      }
-
       .text {
         color: $dark-text-secondary;
       }

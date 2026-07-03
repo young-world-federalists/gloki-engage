@@ -9,20 +9,7 @@
 }
 
 // ─── Intro ──────────────────────────────────────────────────────────────
-.intro {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.introTitle {
-  margin: 0;
-  font-size: $page-title-size;
-  font-weight: $page-title-weight;
-  color: $gray-800;
-  line-height: 1.2;
-}
-
+// The page title lives in the AppHeader block (D3); only the subtitle remains.
 .introSubtitle {
   margin: 0;
   font-size: $text-sm;
@@ -275,7 +262,6 @@
 
 // ─── Dark mode ──────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
-  .introTitle,
   .sectionTitle,
   .cardTitle,
   .mandateTitle {

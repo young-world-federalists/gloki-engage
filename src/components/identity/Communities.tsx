@@ -135,11 +135,15 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
   if (showHidden) {
     return (
       <div className={styles.container}>
+        {/* The title renders in the AppHeader block (D3) — only the back affordance lives here. */}
         <div className={styles.hiddenHeader}>
-          <button className={styles.hiddenBackBtn} onClick={() => navigate('/identity/communities')}>
+          <button
+            className={styles.hiddenBackBtn}
+            onClick={() => navigate('/identity/communities')}
+            aria-label={t('common.back', 'Back')}
+          >
             <ArrowLeft size={18} />
           </button>
-          <h1 className={styles.hiddenTitle}>{t('communities.hiddenTitle', 'Hidden Communities')}</h1>
         </div>
         {sortedContracts.length === 0 ? (
           <p className={styles.emptyNote}>{t('communities.hiddenEmpty', 'No hidden communities.')}</p>
@@ -166,9 +170,8 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
 
   return (
     <div className={styles.container}>
-      {/* Page header */}
+      {/* The title renders in the AppHeader block (D3); the description leads the content. */}
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>{t('communities.title', 'Your Communities')}</h1>
         <p className={styles.pageDescription}>
           {t('communities.description', "Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need right now.")}
         </p>

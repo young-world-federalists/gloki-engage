@@ -141,7 +141,7 @@ const JoinCommunity: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <h1 className={styles.pageTitle}>{t('join.title', 'Join a community')}</h1>
+        {/* The title renders in the AppHeader block (D3); the intro leads the content. */}
         <p className={styles.introLine}>{t('join.intro', 'To join a community, ask a member to share their invite QR code or credential JSON with you. You can scan the code or paste the JSON below.')}</p>
         <div className={styles.scanSection}>
           <div className={styles.scanArea}>

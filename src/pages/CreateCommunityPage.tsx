@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, GitBranch, Coins, Users2, Shield, Globe, AlertCircle } from 'lucide-react';
+import { GitBranch, Coins, Users2, Shield, Globe, AlertCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { createCommunity } from '../services/contracts/community';
 import { isDemoContract } from '../services/demo/demoRegistry';
@@ -98,21 +98,14 @@ const CreateCommunityPage: React.FC = () => {
 
   return (
     <>
-      {/* The page's one banner landmark + skip link (S16: every page renders
-          AppHeader; the in-content h1 below stays the page title). */}
-      <AppHeader />
+      {/* The page's one banner landmark + skip link; the title renders in the
+          AppHeader block (D3) and back lives in the bar. */}
+      <AppHeader showBack onBack={() => navigate('/identity/communities')} title={t('createCommunity.title', 'Create a Community')} />
       <main id="main" tabIndex={-1} className={styles.page}>
       <div className={styles.header}>
-        <button
-          className={styles.backButton}
-          onClick={() => navigate('/identity/communities')}
-          aria-label={t('common.back', 'Back')}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1>{t('createCommunity.title', 'Create a Community')}</h1>
         {/* Task-first: the "what is a community / why / features" explainer
             prose lives behind the (i); the form below is the primary content. */}
+        <span className={styles.infoLabel}>{t('createCommunity.howItWorks', 'How communities work')}</span>
         <InfoDisclosure
           className={styles.infoTrigger}
           size="md"

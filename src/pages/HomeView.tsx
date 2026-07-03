@@ -204,15 +204,13 @@ const HomeView: React.FC = () => {
 
   return (
     <div className={cs.container}>
-      <AppHeader />
+      <AppHeader title={t('home.title', 'Across your communities')} />
 
       <main id="main" tabIndex={-1} className={styles.home}>
-        <header className={styles.intro}>
-          <h1 className={styles.introTitle}>{t('home.title', 'Across your communities')}</h1>
-          <p className={styles.introSubtitle}>
-            {t('home.subtitle', 'A live look at what people are working on — from problems to decisions.')}
-          </p>
-        </header>
+        {/* The title renders in the AppHeader block (D3); the subtitle leads the content. */}
+        <p className={styles.introSubtitle}>
+          {t('home.subtitle', 'A live look at what people are working on — from problems to decisions.')}
+        </p>
 
         {isLoading && !hasReal && (
           <div className={styles.notice}>{t('home.loading', 'Gathering activity from your communities…')}</div>

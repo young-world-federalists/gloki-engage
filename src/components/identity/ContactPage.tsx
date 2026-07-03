@@ -15,7 +15,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onBack }) => {
         <ArrowLeft size={18} />
       </button>
       <div className={styles.content}>
-        <h1 className={styles.title}>{t('contact.title', 'Contact Gloki')}</h1>
+        {/* The title renders in the AppHeader block (D3). */}
         <p className={styles.text}>
           {t('contact.lead', 'Have questions, feedback, or want to get involved?')}
         </p>

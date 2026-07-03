@@ -1,8 +1,10 @@
 // AppHeader.module.scss
-// The single global app header — light, sticky, one banner landmark per screen.
-// Row 1: [back?] [brand anchor] … [bell] [menu]. Row 2 (optional): the page's
-// single <h1> (community name) with a quiet eyebrow. Supersedes the former
-// dual-header setup. Tokens only; no page CTA lives here by design.
+// The single global app header — light, sticky, one banner landmark per screen:
+// [back?] [brand anchor] … [bell] [menu]. The page-title block (the single
+// <h1> + quiet eyebrow) sits BELOW the sticky bar as a normal-flow sibling,
+// separated by the bar's full-width rule (D3, S19) — it scrolls away with
+// content. Supersedes the former dual-header setup. Tokens only; no page CTA
+// lives here by design.
 @use '../styles/variables' as *;
 
 // "Skip to content" link — the first focusable element on the page. Hidden
@@ -34,12 +36,9 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
   padding: $spacing-sm $spacing-md;
   background-color: white;
-  border-bottom: 0.5px solid $gray-200;
+  border-bottom: 1px solid $gray-200; // the full-width bar↔page rule (D3)
 
   @media (prefers-color-scheme: dark) {
     background-color: $dark-bg;
@@ -47,7 +46,6 @@
   }
 }
 
-// Row 1
 .bar {
   display: flex;
   align-items: center;
@@ -173,12 +171,19 @@
   }
 }
 
-// Row 2 — the page title block (the single <h1>).
+// The page-title block (the single <h1>) — a normal-flow sibling below the
+// sticky bar, so it scrolls away with content while the bar stays pinned.
 .titleBlock {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0; // allow the h1 to truncate instead of pushing the row
+  padding: $spacing-md $spacing-md $spacing-xs;
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: $dark-bg;
+  }
 }
 
 // Keep the <h1> for assistive tech but hide it on screen — for pages whose
@@ -210,8 +215,8 @@
 .title {
   margin: 0;
   min-width: 0;
-  font-size: $text-lg;
-  font-weight: $font-semibold;
+  font-size: $page-title-size; // the S16 in-content h1 pair — one title treatment app-wide (D3)
+  font-weight: $page-title-weight;
   line-height: 1.25;
   color: $gray-900;
   // Single line — a long community/initiative name (or the longer fr/sw string)

@@ -474,6 +474,7 @@ const sw: Dictionary = {
 
   // ── Communities (identity list / dashboard view) ───────────────────────
   'communities.loading': 'Inapakia jumuiya…',
+  'identity.eyebrow': 'Akaunti',
   'communities.title': 'Jumuiya zako',
   'communities.description': 'Jumuiya ulizojiunga nazo kwenye Gloki. Weka nyota kwenye pendwa zako ili zibaki juu, au ficha zile usizohitaji kwa sasa.',
   'communities.communityFallback': 'Jumuiya',

@@ -104,10 +104,10 @@ $font-medium: 500;
 $font-semibold: 600;
 $font-bold: 700;
 
-// Page-title standard (S16 heading normalisation): every in-content page <h1>
-// uses this pair, with $heading-gap below it. Sanctioned exceptions
-// (DESIGN_SYSTEM § Typography): the AppHeader bar title (18px/600) and
-// full-bleed guided flows (onboarding steps, the MandateCard document title).
+// Page-title standard (S16 heading normalisation, D3/S19): every page <h1> —
+// including the AppHeader title block — uses this pair, with $heading-gap
+// below it. Sanctioned exceptions (DESIGN_SYSTEM § Typography): full-bleed
+// guided flows (onboarding steps, the MandateCard document title).
 $page-title-size: $text-xl; // 20px
 $page-title-weight: $font-bold; // 700 — keeps h1 distinct from 600-weight section h2s
 $heading-gap: $spacing-sm; // 8px minimum air under a page title

@@ -7,49 +7,25 @@
   padding-bottom: 100px;
 }
 
+// The explainer row under the title block (D3: the title + back live in the
+// AppHeader): a quiet label + the (i) modal trigger, task-first.
 .header {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
-  margin-bottom: $spacing-xl;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
 
-  .backButton {
-  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: white;
-    border: 1px solid $gray-200;
-    border-radius: $radius-full;
-    color: $gray-700;
-    cursor: pointer;
-    transition: all $transition-base;
-    flex-shrink: 0;
+.infoLabel {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-600;
 
-    &:hover {
-      background: $gray-100;
-      color: $gray-900;
-    }
-
-    &:focus-visible {
-      outline: 2px solid $primary;
-      outline-offset: 2px;
-    }
-  }
-
-  h1 {
-    flex: 1;
-    min-width: 0;
-    font-size: $page-title-size;
-    font-weight: $page-title-weight;
-    color: $gray-800;
-    margin: 0;
+  @media (prefers-color-scheme: dark) {
+    color: $dark-text-secondary;
   }
 }
 
-// The (i) trigger sits at the end of the header row, after the title.
 .infoTrigger {
   flex-shrink: 0;
 }
@@ -255,20 +231,6 @@
     color: $dark-text-secondary;
   }
 
-  .header h1 {
-    color: $dark-text;
-  }
-
-  .header .backButton {
-    background: $dark-surface;
-    border-color: $dark-border;
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
-  }
 
   .card {
     background: $dark-bg;

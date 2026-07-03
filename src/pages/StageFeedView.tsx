@@ -150,10 +150,12 @@ const StageFeedView: React.FC = () => {
 
   return (
     <div className={cs.container}>
-      <AppHeader />
+      <AppHeader
+        title={t(`nav.${stage}`, config.label)}
+        eyebrow={t('nav.browseByStage', 'Browse by stage')}
+      />
 
       <main id="main" tabIndex={-1} className={styles.feedContainer}>
-        <h1 className={styles.srOnly}>{t(`nav.${stage}`, config.label)}</h1>
         {showStageIntro && (
           <Banner
             tone="info"

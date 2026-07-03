@@ -358,7 +358,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>{t('funds.title', 'Community Funds')}</h1>
+          <h2>{t('funds.title', 'Community Funds')}</h2>
           <p>
             {isMembersLoading
               ? t('currency.loadingMembers', 'Loading community members...')
@@ -373,7 +373,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>{t('funds.title', 'Community Funds')}</h1>
+          <h2>{t('funds.title', 'Community Funds')}</h2>
           <p>{t('currency.notMember', 'You are not yet a member of this community.')}</p>
         </div>
       </div>
@@ -384,7 +384,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.titleRow}>
-          <h1>{t('funds.title', 'Community Funds')}</h1>
+          <h2>{t('funds.title', 'Community Funds')}</h2>
           <InfoDisclosure
             label={t('funds.explainerTitle', 'How Community Funds Work')}
             title={t('funds.explainerTitle', 'How Community Funds Work')}

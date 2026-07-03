@@ -475,6 +475,7 @@ const fr: Dictionary = {
 
   // ── Communities (identity list / dashboard view) ───────────────────────
   'communities.loading': 'Chargement des communautés…',
+  'identity.eyebrow': 'Compte',
   'communities.title': 'Vos communautés',
   'communities.description': "Les communautés que vous avez rejointes sur Gloki. Mettez vos favorites en avant pour les garder en haut, ou masquez celles dont vous n'avez pas besoin pour l'instant.",
   'communities.communityFallback': 'Communauté',
