@@ -182,12 +182,12 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
           {
             value: 'plain',
             label: t('mandate.viewPlain', 'Plain language'),
-            icon: <FileText size={15} />,
+            icon: <FileText size={16} />,
           },
           {
             value: 'spec',
             label: t('mandate.viewSpec', 'Machine-readable spec'),
-            icon: <Code2 size={15} />,
+            icon: <Code2 size={16} />,
           },
         ]}
       />
@@ -252,7 +252,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
               <Code2 size={14} aria-hidden /> mandate.spec.json · v{mandate.specVersion}
             </span>
             <button type="button" className={styles.copyBtn} onClick={handleCopy}>
-              {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
+              {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
               {copied ? t('mandate.copied', 'Copied') : t('mandate.copyJson', 'Copy JSON')}
             </button>
           </div>

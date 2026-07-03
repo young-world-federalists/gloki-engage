@@ -98,7 +98,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
             <span>{t('mandate.card.mandateLabel', 'Mandate')}</span>
             <button type="button" className={styles.linkBtn} onClick={onViewFull}>
               {t('mandate.card.viewFull', 'View full')}
-              <ArrowRight size={11} aria-hidden />
+              <ArrowRight size={16} aria-hidden />
             </button>
           </dt>
           <dd className={styles.rowValue}>
@@ -133,7 +133,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
                 {showAllCountries
                   ? t('mandate.card.viewLess', 'View less')
                   : t('mandate.card.viewAll', 'View all')}
-                <ArrowRight size={11} aria-hidden />
+                <ArrowRight size={16} aria-hidden />
               </button>
             )}
           </dd>

@@ -24,7 +24,7 @@ const SourceLinks: React.FC<SourceLinksProps> = ({ sources, heading, className }
         {clean.map((s, i) => (
           <li key={i}>
             <a href={s.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-              <ExternalLink size={13} aria-hidden className={styles.icon} />
+              <ExternalLink size={16} aria-hidden className={styles.icon} />
               <span className={styles.linkText}>{s.label || s.url}</span>
             </a>
           </li>

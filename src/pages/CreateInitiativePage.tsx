@@ -271,7 +271,7 @@ const CreateInitiativePage: React.FC = () => {
             onClick={handleAddEvidence}
             disabled={isSubmitting}
           >
-            <Plus size={14} />
+            <Plus size={16} />
             {t('initiative.form.addLink', 'Add link')}
           </button>
         </div>

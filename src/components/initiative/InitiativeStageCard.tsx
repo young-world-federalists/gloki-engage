@@ -167,7 +167,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <ExternalLink size={13} aria-hidden />
+                  <ExternalLink size={16} aria-hidden />
                   {post.source.label}
                 </a>
               )}

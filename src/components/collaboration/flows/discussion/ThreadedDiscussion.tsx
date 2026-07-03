@@ -166,7 +166,7 @@ const CommentItem: React.FC<{
               onClick={() => setCollapsed((v) => !v)}
               aria-label={collapsed ? t('deliberation.thread.expand', 'Expand replies') : t('deliberation.thread.collapse', 'Collapse replies')}
             >
-              {collapsed ? <><ChevronRight size={14} aria-hidden /> {node.children.length}</> : <ChevronDown size={14} aria-hidden />}
+              {collapsed ? <><ChevronRight size={16} aria-hidden /> {node.children.length}</> : <ChevronDown size={16} aria-hidden />}
             </button>
           )}
         </div>
@@ -186,11 +186,11 @@ const CommentItem: React.FC<{
               aria-pressed={liked}
               aria-label={t('deliberation.thread.likeCount', 'Like ({count})', { count: likeCount })}
             >
-              <Heart size={14} fill={liked ? 'currentColor' : 'none'} aria-hidden /> {likeCount > 0 && <span>{likeCount}</span>}
+              <Heart size={16} fill={liked ? 'currentColor' : 'none'} aria-hidden /> {likeCount > 0 && <span>{likeCount}</span>}
             </button>
             {canParticipate && (
               <button type="button" className={styles.actionBtn} onClick={() => setReplying((v) => !v)}>
-                <Reply size={14} aria-hidden /> {t('deliberation.thread.reply', 'Reply')}
+                <Reply size={16} aria-hidden /> {t('deliberation.thread.reply', 'Reply')}
               </button>
             )}
             {isOwn && (
@@ -199,7 +199,7 @@ const CommentItem: React.FC<{
                 className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
                 onClick={() => onDelete(node.id)}
               >
-                <Trash2 size={14} aria-hidden /> {t('deliberation.thread.delete', 'Delete')}
+                <Trash2 size={16} aria-hidden /> {t('deliberation.thread.delete', 'Delete')}
               </button>
             )}
           </div>
@@ -219,7 +219,7 @@ const CommentItem: React.FC<{
       {!collapsed && hasChildren && (
         atCap ? (
           <button type="button" className={styles.continueBtn} onClick={() => onFocus(node.id)}>
-            <CornerDownRight size={14} aria-hidden /> {t('deliberation.thread.continue', 'Continue this thread ({n}) →', { n: node.children.length })}
+            <CornerDownRight size={16} aria-hidden /> {t('deliberation.thread.continue', 'Continue this thread ({n}) →', { n: node.children.length })}
           </button>
         ) : (
           <div className={styles.children}>
@@ -426,7 +426,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
       {focusRootId && (
         <button type="button" className={styles.backBtn} onClick={() => setFocusRootId(null)}>
-          <ArrowLeft size={14} aria-hidden /> {t('deliberation.thread.back', 'Back to full discussion')}
+          <ArrowLeft size={16} aria-hidden /> {t('deliberation.thread.back', 'Back to full discussion')}
         </button>
       )}
 

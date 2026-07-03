@@ -55,7 +55,7 @@ const ExpertEndorseButton: React.FC<ExpertEndorseButtonProps> = ({
       title={label}
       type="button"
     >
-      {iEndorse ? <Check size={12} /> : <Award size={12} />}
+      {iEndorse ? <Check size={16} /> : <Award size={16} />}
       <span>{endorsementCount}</span>
     </button>
   );

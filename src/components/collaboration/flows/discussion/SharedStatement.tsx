@@ -60,7 +60,7 @@ const SuggestEditModal: React.FC<{
           <Button
             variant="primary"
             disabled={!canSubmit}
-            leftIcon={<PenLine size={15} />}
+            leftIcon={<PenLine size={16} />}
             onClick={() => onSubmit(field, text.trim(), rationale.trim())}
           >
             {t('deliberation.coauthor.submit', 'Propose change')}
@@ -181,7 +181,7 @@ const EditCard: React.FC<{
             onClick={() => onToggleSupport(edit)}
             aria-pressed={mine}
           >
-            <ThumbsUp size={14} fill={mine ? 'currentColor' : 'none'} aria-hidden />
+            <ThumbsUp size={16} fill={mine ? 'currentColor' : 'none'} aria-hidden />
             {mine ? t('deliberation.coauthor.supporting', 'Supporting') : t('deliberation.coauthor.support', 'Support')}
           </button>
         )}
@@ -309,8 +309,8 @@ const SharedStatement: React.FC<SharedStatementProps> = ({
             onClick={() => setShowDiscussion((v) => !v)}
             aria-expanded={showDiscussion}
           >
-            <MessageCircle size={14} aria-hidden /> {t('deliberation.coauthor.discuss', 'Discuss the statement')}
-            {showDiscussion ? <ChevronDown size={14} aria-hidden /> : <ChevronRight size={14} aria-hidden />}
+            <MessageCircle size={16} aria-hidden /> {t('deliberation.coauthor.discuss', 'Discuss the statement')}
+            {showDiscussion ? <ChevronDown size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
           </button>
           {showDiscussion && <div className={styles.statementThread}>{discussionSlot}</div>}
         </div>

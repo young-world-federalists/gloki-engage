@@ -75,7 +75,7 @@ const RoleCard: React.FC<{
               onClick={() => act(() => api.leaveRole(instanceId, role.id))}
               title={t('roles.leaveTitle', 'Leave this role')}
             >
-              <UserMinus size={13} /> {t('roles.leave', 'Leave')}
+              <UserMinus size={16} /> {t('roles.leave', 'Leave')}
             </button>
           ) : (
             <button
@@ -83,7 +83,7 @@ const RoleCard: React.FC<{
               onClick={() => act(() => api.joinRole(instanceId, role.id))}
               title={t('roles.joinTitle', 'Join this role')}
             >
-              <UserPlus size={13} /> {t('roles.join', 'Join')}
+              <UserPlus size={16} /> {t('roles.join', 'Join')}
             </button>
           )}
           {api.canDelete(role) && (
@@ -93,7 +93,7 @@ const RoleCard: React.FC<{
               title={t('roles.deleteTitle', 'Delete role')}
               aria-label={t('roles.deleteTitle', 'Delete role')}
             >
-              <Trash2 size={13} />
+              <Trash2 size={16} />
             </button>
           )}
         </div>
@@ -151,7 +151,7 @@ const RolesFlow: React.FC<FlowProps> = ({ instanceId }) => {
         />
       ) : (
         <button className={styles.addBtn} onClick={() => setAdding(true)}>
-          <Plus size={15} /> {t('roles.add', 'Add Role')}
+          <Plus size={16} /> {t('roles.add', 'Add Role')}
         </button>
       )}
 

@@ -83,7 +83,7 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
       >
         <span className={styles.codeLabel}>{t('writeTogether.problemCodeLabel', 'Problem code')}</span>
         <code className={styles.codeValue}>{codeForId(initiativeId)}</code>
-        <Copy size={14} aria-hidden />
+        <Copy size={16} aria-hidden />
       </button>
 
       <div className={styles.actions}>

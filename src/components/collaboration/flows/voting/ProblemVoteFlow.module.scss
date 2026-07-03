@@ -128,6 +128,16 @@
   min-width: 80px;
   justify-content: center;
 
+  // D5 (S19): text pressure at 360px was squeezing the 18px icons to ~16.3px —
+  // the icon keeps its box and the label wraps instead.
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: normal;
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;

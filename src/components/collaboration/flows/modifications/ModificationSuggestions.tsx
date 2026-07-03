@@ -239,7 +239,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
                   onClick={() => handleVote(s.id, 'approve')}
                   disabled={isVoting}
                 >
-                  <ThumbsUp size={14} />
+                  <ThumbsUp size={16} />
                   {s.votes_for}
                 </button>
                 <button
@@ -247,7 +247,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
                   onClick={() => handleVote(s.id, 'reject')}
                   disabled={isVoting}
                 >
-                  <ThumbsDown size={14} />
+                  <ThumbsDown size={16} />
                   {s.votes_against}
                 </button>
               </div>
@@ -259,7 +259,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
                     onClick={() => handleDecide(s.id, 'accept')}
                     disabled={isDeciding}
                   >
-                    <CheckCircle size={14} />
+                    <CheckCircle size={16} />
                     Accept
                   </button>
                   <button
@@ -267,7 +267,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
                     onClick={() => handleDecide(s.id, 'reject')}
                     disabled={isDeciding}
                   >
-                    <XCircle size={14} />
+                    <XCircle size={16} />
                     Reject
                   </button>
                 </div>

@@ -54,9 +54,9 @@ const CommunitySettings: React.FC<Props> = ({ communityId }) => {
   }, [serverUrl, publicKey, communityId]);
 
   const ruleOptions: SegmentOption<StageRule>[] = [
-    { value: 'anyone', label: t('perm.anyone', 'Anyone'), icon: <Globe size={14} /> },
-    { value: 'members', label: t('perm.members', 'Members'), icon: <Users size={14} /> },
-    { value: 'verified', label: t('perm.verified', 'Verified'), icon: <ShieldCheck size={14} /> },
+    { value: 'anyone', label: t('perm.anyone', 'Anyone'), icon: <Globe size={16} /> },
+    { value: 'members', label: t('perm.members', 'Members'), icon: <Users size={16} /> },
+    { value: 'verified', label: t('perm.verified', 'Verified'), icon: <ShieldCheck size={16} /> },
   ];
 
   const onChange = async (stage: PipelineStage, rule: StageRule) => {

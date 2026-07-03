@@ -106,23 +106,23 @@ const MergeProposalCard: React.FC<MergeProposalCardProps> = ({
               onClick={() => handleVote('for')}
               disabled={voting}
             >
-              <ThumbsUp size={12} /> {t('deliberation.merge.card.voteFor', 'Vote For')}
+              <ThumbsUp size={16} /> {t('deliberation.merge.card.voteFor', 'Vote For')}
             </button>
             <button
               className={`${styles.voteBtn} ${myVote === 'against' ? styles.voted : ''}`}
               onClick={() => handleVote('against')}
               disabled={voting}
             >
-              <ThumbsDown size={12} /> {t('deliberation.merge.card.voteAgainst', 'Vote Against')}
+              <ThumbsDown size={16} /> {t('deliberation.merge.card.voteAgainst', 'Vote Against')}
             </button>
           </div>
           {canDecide && (
             <div className={styles.decideButtons}>
               <button className={styles.acceptBtn} onClick={() => handleDecide('accept')} disabled={deciding}>
-                <CheckCircle size={12} /> {t('deliberation.merge.card.accept', 'Accept Merge')}
+                <CheckCircle size={16} /> {t('deliberation.merge.card.accept', 'Accept Merge')}
               </button>
               <button className={styles.rejectBtn} onClick={() => handleDecide('reject')} disabled={deciding}>
-                <XCircle size={12} /> {t('deliberation.merge.card.reject', 'Reject')}
+                <XCircle size={16} /> {t('deliberation.merge.card.reject', 'Reject')}
               </button>
             </div>
           )}

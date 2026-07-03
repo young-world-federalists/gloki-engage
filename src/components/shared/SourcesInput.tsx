@@ -71,7 +71,7 @@ const SourcesInput: React.FC<SourcesInputProps> = ({ value, onChange, max = 5, l
       ))}
       {rows.length < max && (
         <button type="button" className={styles.add} onClick={add}>
-          <Plus size={14} aria-hidden />
+          <Plus size={16} aria-hidden />
           <span>{t('sources.add', 'Add another source')}</span>
         </button>
       )}

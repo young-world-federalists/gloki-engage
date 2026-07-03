@@ -66,7 +66,7 @@ const SolutionEvidence: React.FC<{
         aria-controls={panelId}
         onClick={() => setOpen((o) => !o)}
       >
-        {open ? <ChevronUp size={15} aria-hidden /> : <ChevronDown size={15} aria-hidden />}
+        {open ? <ChevronUp size={16} aria-hidden /> : <ChevronDown size={16} aria-hidden />}
         {label}
       </button>
       {open && (

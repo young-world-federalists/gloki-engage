@@ -184,7 +184,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               navigate(`/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${item.id}/discussion`)
             }
           >
-            {t('community.openDiscussion', 'Open discussion')} <ExternalLink size={14} aria-hidden />
+            {t('community.openDiscussion', 'Open discussion')} <ExternalLink size={16} aria-hidden />
           </button>
         </div>
       )}

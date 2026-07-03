@@ -120,7 +120,7 @@ const ProposalMergePanel: React.FC = () => {
                   <p className={styles.pairText}>{target.text}</p>
                 </div>
                 <div className={styles.pairConnector} aria-hidden>
-                  <GitMerge size={14} />
+                  <GitMerge size={16} />
                 </div>
                 <div className={styles.pairProposal}>
                   <AuthorTag authorKey={source.author} t={t} currentUserKey={currentUserKey} />
@@ -130,7 +130,7 @@ const ProposalMergePanel: React.FC = () => {
                   size="sm"
                   variant="primary"
                   fullWidth
-                  leftIcon={<GitMerge size={14} />}
+                  leftIcon={<GitMerge size={16} />}
                   onClick={() => doMerge(s.sourceId, s.targetId)}
                 >
                   {t('deliberation.merge.combine', 'Combine into one proposal')}
@@ -181,7 +181,7 @@ const ProposalMergePanel: React.FC = () => {
                   {review ? (
                     <>
                       <Badge tone="success" size="sm">
-                        <Award size={11} aria-hidden /> {t('deliberation.merge.reviewed', 'Expert reviewed')}
+                        <Award size={12} aria-hidden /> {t('deliberation.merge.reviewed', 'Expert reviewed')}
                       </Badge>
                       <button
                         type="button"
@@ -189,7 +189,7 @@ const ProposalMergePanel: React.FC = () => {
                         aria-expanded={isExpanded}
                         onClick={() => setExpanded((prev) => ({ ...prev, [p.id]: !prev[p.id] }))}
                       >
-                        {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         {isExpanded
                           ? t('deliberation.merge.hideReview', 'Hide review')
                           : t('deliberation.merge.readReview', 'Read review')}
@@ -205,7 +205,7 @@ const ProposalMergePanel: React.FC = () => {
                       className={styles.requestBtn}
                       onClick={() => setRequested((prev) => ({ ...prev, [p.id]: true }))}
                     >
-                      <Award size={13} aria-hidden /> {t('deliberation.merge.requestReview', 'Request expert review')}
+                      <Award size={16} aria-hidden /> {t('deliberation.merge.requestReview', 'Request expert review')}
                     </button>
                   )}
                 </div>

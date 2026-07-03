@@ -31,7 +31,8 @@
   }
 }
 
-/* Sizes — md/lg clear the 44px touch target with vertical padding in context. */
+/* Sizes — md/lg meet the 44px touch floor bare (D4, S19); sm keeps its
+   documented DESIGN_SYSTEM exceptions. */
 .sm {
   height: 32px;
   padding: 0 $spacing-md;
@@ -39,7 +40,7 @@
 }
 
 .md {
-  height: 40px;
+  height: 44px;
   padding: 0 $spacing-lg;
   font-size: $text-sm;
 }

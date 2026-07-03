@@ -101,7 +101,7 @@ export const TranslateButton: React.FC<TranslateButtonProps> = ({ text }) => {
         onClick={() => navigate('/identity/profile')}
         title={t('translate.keyHintTitle', 'Add an API key in your profile to enable translation')}
       >
-        <Languages size={14} />
+        <Languages size={16} />
         <span>{t('translate.translate', 'Translate')}</span>
         <Key size={10} className={styles.keyHint} />
       </button>
@@ -111,9 +111,9 @@ export const TranslateButton: React.FC<TranslateButtonProps> = ({ text }) => {
   return (
     <div className={styles.translateWrapper}>
       <button className={styles.toolButton} onClick={() => setOpen(!open)}>
-        <Languages size={14} />
+        <Languages size={16} />
         <span>{t('translate.translate', 'Translate')}</span>
-        <ChevronDown size={12} />
+        <ChevronDown size={16} />
       </button>
 
       {open && (
@@ -145,7 +145,7 @@ export const TranslateButton: React.FC<TranslateButtonProps> = ({ text }) => {
               <Languages size={12} /> {selectedLang}
             </span>
             <button className={styles.aiDismiss} onClick={handleDismiss}>
-              <X size={12} />
+              <X size={16} />
             </button>
           </div>
           <p className={styles.aiResultText}>{translated}</p>
@@ -191,7 +191,7 @@ export const SummaryButton: React.FC<SummaryButtonProps> = ({ content }) => {
   return (
     <div className={styles.summaryWrapper}>
       <button className={styles.toolButton} onClick={handleSummarize}>
-        <Sparkles size={14} />
+        <Sparkles size={16} />
         <span>
           {summary ? t('translate.hideSummary', 'Hide Summary') : t('translate.aiSummary', 'AI Summary')}
         </span>
@@ -211,7 +211,7 @@ export const SummaryButton: React.FC<SummaryButtonProps> = ({ content }) => {
               <Sparkles size={12} /> {t('translate.aiSummary', 'AI Summary')}
             </span>
             <button className={styles.aiDismiss} onClick={() => setSummary(null)}>
-              <X size={12} />
+              <X size={16} />
             </button>
           </div>
           <p className={styles.aiResultText}>{summary}</p>

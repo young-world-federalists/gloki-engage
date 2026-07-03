@@ -48,7 +48,7 @@ const AddConcernForm: React.FC<{
   if (!open) {
     return (
       <button className={styles.addBtn} onClick={() => setOpen(true)}>
-        <Plus size={15} /> {t('concerns.raise', 'Raise a concern')}
+        <Plus size={16} /> {t('concerns.raise', 'Raise a concern')}
       </button>
     );
   }
@@ -162,7 +162,7 @@ const ConcernCard: React.FC<{
             </button>
             {isAuthor && (
               <button className={`${styles.voteBtn} ${styles.voteBtn_resolved}`} onClick={onResolve}>
-                <Check size={14} /> {t('concerns.markResolved', 'Mark Resolved')}
+                <Check size={16} /> {t('concerns.markResolved', 'Mark Resolved')}
               </button>
             )}
           </div>
@@ -206,7 +206,7 @@ const CollapsibleSection: React.FC<{
   return (
     <div className={styles.section}>
       <button className={`${styles.sectionToggle} ${colorClass}`} onClick={() => setOpen((v) => !v)}>
-        {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+        {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         {label}
         <span className={styles.sectionCount}>{count}</span>
       </button>

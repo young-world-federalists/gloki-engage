@@ -104,7 +104,7 @@ const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
       <div className={styles.header}>
         <h3 className={styles.title}>{t('deliberation.merge.list.title', 'Merge Proposals')}</h3>
         <button className={styles.proposeBtn} onClick={() => setShowSubmit(true)}>
-          <Plus size={14} /> {t('deliberation.merge.list.propose', 'Propose Merge')}
+          <Plus size={16} /> {t('deliberation.merge.list.propose', 'Propose Merge')}
         </button>
       </div>
 

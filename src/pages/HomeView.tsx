@@ -235,7 +235,7 @@ const HomeView: React.FC = () => {
                 </h2>
                 <button className={styles.seeAll} onClick={() => navigate(`/stage/${section.stage}`)}>
                   {t('home.seeAll', 'See all')}
-                  <ArrowRight size={14} aria-hidden />
+                  <ArrowRight size={16} aria-hidden />
                 </button>
               </div>
               <div className={styles.cards}>{cards.map(renderCard)}</div>
@@ -252,7 +252,7 @@ const HomeView: React.FC = () => {
               </h2>
               <button className={styles.seeAll} onClick={() => navigate('/stage/mandate')}>
                 {t('home.seeAll', 'See all')}
-                <ArrowRight size={14} aria-hidden />
+                <ArrowRight size={16} aria-hidden />
               </button>
             </div>
             <div className={styles.mandateStrip}>
