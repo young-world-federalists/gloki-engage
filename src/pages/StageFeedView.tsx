@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
@@ -76,8 +76,9 @@ const StageFeedCard: React.FC<{
   const inDiscussion = item.stage === 'discussion';
   const DiscussionIcon = STAGE_META.discussion.icon;
   const panelId = `stagefeed-panel-${item.id}`;
-  // Only expandable stages reach the panel; anything unresolved renders as the
-  // feed's own stage.
+  // Only discussion/proposals/vote items need a remap; everything else in an
+  // expandable feed is problem-stage by the feed filter (the fallback is
+  // hardcoded 'problem', NOT the feed's stage).
   const panelStage =
     item.stage === 'discussion' || item.stage === 'proposals' || item.stage === 'vote'
       ? item.stage
@@ -115,7 +116,7 @@ const StageFeedCard: React.FC<{
           className={styles.cardTitleButton}
           onClick={() => (expandable ? onToggle(item) : onOpen(item))}
           aria-expanded={expandable ? expanded : undefined}
-          aria-controls={expandable ? panelId : undefined}
+          aria-controls={expandable && expanded ? panelId : undefined}
         >
           {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
         </button>
@@ -174,6 +175,12 @@ const StageFeedView: React.FC = () => {
   // published mandate is a read-only artifact page (S18 D1).
   const expandable = stage !== 'mandate';
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  // One route element serves all four feeds — reset expansion when the stage
+  // param changes so a card expanded in one feed can't auto-mount its engage
+  // stack when the same initiative surfaces in another.
+  useEffect(() => {
+    setExpandedIds(new Set());
+  }, [stage]);
   const toggleExpanded = (item: InitiativeWithMeta) =>
     setExpandedIds((prev) => {
       const next = new Set(prev);

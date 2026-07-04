@@ -122,10 +122,14 @@ export function useAllInitiatives(): UseAllInitiativesResult {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUrl, publicKey, baseInitiatives]);
 
-  // Attach the resolved stage to each initiative for convenient consumption.
+  // Attach the resolved stage to each initiative. Redux `initiativeStages`
+  // (written by StageAdvanceBar on advance) overlays the local cache so an
+  // in-feed advance is reflected live — the local map is guarded per-id and
+  // never re-reads.
+  const reduxStages = useAppSelector((s) => s.communities.initiativeStages);
   const initiatives = useMemo(
-    () => baseInitiatives.map((i) => ({ ...i, stage: stages[i.id] })),
-    [baseInitiatives, stages],
+    () => baseInitiatives.map((i) => ({ ...i, stage: reduxStages[i.id] ?? stages[i.id] })),
+    [baseInitiatives, stages, reduxStages],
   );
 
   const isLoading = baseInitiatives.length > 0 && Object.keys(stages).length < baseInitiatives.length;

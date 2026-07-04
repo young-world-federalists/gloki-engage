@@ -27,6 +27,71 @@ export interface FeedEngagePanelProps {
   authorName?: string;
 }
 
+/** Problem-stage engage + advance, isolated so its tally/threshold reads
+ *  (useInitiativePost) fire only when a problem card actually expands. */
+const ProblemFeedBlock: React.FC<{
+  initiativeId: string;
+  title: string;
+  communityId: string;
+  hostServer: string;
+  hostAgent: string;
+  authorKey?: string;
+  authorName?: string;
+  activeMemberCount: number;
+  /** False until the member reads land — readiness must not be judged against a
+   *  zero denominator (needed would collapse to 1 and enable a premature advance). */
+  membersLoaded: boolean;
+}> = ({
+  initiativeId,
+  title,
+  communityId,
+  hostServer,
+  hostAgent,
+  authorKey,
+  authorName,
+  activeMemberCount,
+  membersLoaded,
+}) => {
+  const t = useT();
+  const { up, thresholdMet } = useInitiativePost(initiativeId, activeMemberCount, title);
+
+  const needed = Math.max(Math.ceil(activeMemberCount * 0.5), 1);
+  const remaining = Math.max(needed - up, 0);
+  const notReadyReason = !membersLoaded
+    ? t('common.loading', 'Loading…')
+    : remaining === 1
+      ? t('dashboard.readiness.upvotes.one', '1 more upvote needed ({up}/{threshold})', { up, threshold: needed })
+      : t('dashboard.readiness.upvotes.many', '{remaining} more upvotes needed ({up}/{threshold})', {
+          remaining,
+          up,
+          threshold: needed,
+        });
+
+  return (
+    <>
+      <ProblemEngage
+        initiativeId={initiativeId}
+        communityId={communityId}
+        communityMemberCount={activeMemberCount}
+        up={up}
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        authorKey={authorKey}
+        authorName={authorName}
+      />
+      <StageAdvanceBar
+        initiativeId={initiativeId}
+        communityId={communityId}
+        stage="problem"
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        ready={membersLoaded && thresholdMet}
+        notReadyReason={notReadyReason}
+      />
+    </>
+  );
+};
+
 /**
  * The expanded body of a global stage-feed card (S20 W3): the same engage stack
  * the community feed's activity cards host, re-hosted under the feed's compact
@@ -69,21 +134,10 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
     }
   }, [serverUrl, publicKey, communityId, communityMembers, communityActiveMembers, dispatch]);
 
+  const membersLoaded =
+    Array.isArray(communityMembers[communityId]) && communityActiveMembers[communityId] !== undefined;
   const memberCount = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId].length : 0;
   const activeMemberCount = communityActiveMembers[communityId] ?? memberCount;
-
-  const { up, thresholdMet } = useInitiativePost(initiativeId, activeMemberCount, title);
-
-  const needed = Math.max(Math.ceil(activeMemberCount * 0.5), 1);
-  const remaining = Math.max(needed - up, 0);
-  const notReadyReason =
-    remaining === 1
-      ? t('dashboard.readiness.upvotes.one', '1 more upvote needed ({up}/{threshold})', { up, threshold: needed })
-      : t('dashboard.readiness.upvotes.many', '{remaining} more upvotes needed ({up}/{threshold})', {
-          remaining,
-          up,
-          threshold: needed,
-        });
 
   return (
     <div className={styles.panel}>
@@ -99,27 +153,17 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
       </div>
 
       {stage === 'problem' && (
-        <>
-          <ProblemEngage
-            initiativeId={initiativeId}
-            communityId={communityId}
-            communityMemberCount={activeMemberCount}
-            up={up}
-            hostServer={hostServer}
-            hostAgent={hostAgent}
-            authorKey={authorKey}
-            authorName={authorName}
-          />
-          <StageAdvanceBar
-            initiativeId={initiativeId}
-            communityId={communityId}
-            stage="problem"
-            hostServer={hostServer}
-            hostAgent={hostAgent}
-            ready={thresholdMet}
-            notReadyReason={notReadyReason}
-          />
-        </>
+        <ProblemFeedBlock
+          initiativeId={initiativeId}
+          title={title}
+          communityId={communityId}
+          hostServer={hostServer}
+          hostAgent={hostAgent}
+          authorKey={authorKey}
+          authorName={authorName}
+          activeMemberCount={activeMemberCount}
+          membersLoaded={membersLoaded}
+        />
       )}
 
       {stage === 'proposals' && (

@@ -63,6 +63,8 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
     }
   }, [serverUrl, publicKey, communityId, communityMembers, communityActiveMembers, dispatch]);
 
+  const membersLoaded =
+    Array.isArray(communityMembers[communityId]) && communityActiveMembers[communityId] !== undefined;
   const memberCount = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId].length : 0;
   const activeMemberCount = communityActiveMembers[communityId] ?? memberCount;
 
@@ -80,10 +82,13 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
     source: post.source,
   };
 
+  // Readiness is judged only once the member reads land — against a zero
+  // denominator `needed` collapses to 1 and the advance would enable early.
   const needed = Math.max(Math.ceil(activeMemberCount * 0.5), 1);
   const remaining = Math.max(needed - up, 0);
-  const notReadyReason =
-    remaining === 1
+  const notReadyReason = !membersLoaded
+    ? t('common.loading', 'Loading…')
+    : remaining === 1
       ? t('dashboard.readiness.upvotes.one', '1 more upvote needed ({up}/{threshold})', { up, threshold: needed })
       : t('dashboard.readiness.upvotes.many', '{remaining} more upvotes needed ({up}/{threshold})', {
           remaining,
@@ -103,7 +108,7 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       collapsedTeaser={
-        thresholdMet
+        membersLoaded && thresholdMet
           ? t('card.teaserAgreed', 'Agreed by your community')
           : t('card.teaserWeighIn', '{n} agree · weigh in', { n: up })
       }
@@ -124,7 +129,7 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
         stage="problem"
         hostServer={hostServer}
         hostAgent={hostAgent}
-        ready={thresholdMet}
+        ready={membersLoaded && thresholdMet}
         notReadyReason={notReadyReason}
       />
     </InitiativeStageCard>

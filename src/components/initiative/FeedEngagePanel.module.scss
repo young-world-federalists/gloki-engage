@@ -39,14 +39,23 @@
   color: $primary;
   font-weight: $font-medium;
   text-decoration: none;
+  min-height: 44px;
 
   &:hover {
     text-decoration: underline;
+  }
+
+  &:focus-visible {
+    text-decoration: underline;
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
   }
 }
 
 // ── Dark mode ──────────────────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
   .panel { border-top-color: $dark-border; }
-  .openLink { color: $primary; }
+  // $primary text on $dark-bg is 3.97:1 — below AA; the on-dark token clears it.
+  .openLink { color: $primary-on-dark; }
 }

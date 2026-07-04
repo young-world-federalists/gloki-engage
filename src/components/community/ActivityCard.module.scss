@@ -108,5 +108,6 @@
 
   .panel { border-top-color: $dark-border; }
 
-  .deepLink { color: $primary; }
+  // $primary text on $dark-bg is 3.97:1 — below AA; the on-dark token clears it.
+  .deepLink { color: $primary-on-dark; }
 }
