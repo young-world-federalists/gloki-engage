@@ -120,7 +120,6 @@ const sw: Dictionary = {
   'stagefeed.sample.vote': 'Jiunge na jumuiya ili kugawa pointi zako za kura',
   'stagefeed.sample.mandate': 'Jiunge na jumuiya ili kuweka dhamira yako',
   'stagefeed.problem.info': 'Husonga mbele 25% washiriki na 50% wakubali.',
-  'stagefeed.discussion.info': 'Husonga mbele 33% watoapo mtazamo.',
   'stagefeed.proposals.info': 'Pendekeza suluhisho na uunge mkono unazopenda — bora zaidi hufika kwenye kura.',
   'stagefeed.vote.info': 'Gawa pointi zako za kura kwa suluhisho unazounga mkono.',
   'stagefeed.mandate.info': 'Maamuzi ambayo jumuiya zimejitolea, kuvuka mipaka.',

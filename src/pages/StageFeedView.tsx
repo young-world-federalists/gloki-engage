@@ -239,12 +239,6 @@ const StageFeedView: React.FC = () => {
             <span>{t('stagefeed.problem.info', 'Advances when 25% take part and 50% approve.')}</span>
           </div>
         )}
-        {stage === 'discussion' && (
-          <div className={styles.thresholdBanner}>
-            <MessageCircle size={16} />
-            <span>{t('stagefeed.discussion.info', 'Advances once 33% share a perspective.')}</span>
-          </div>
-        )}
         {stage === 'proposals' && (
           <div className={styles.thresholdBanner}>
             <Lightbulb size={16} />

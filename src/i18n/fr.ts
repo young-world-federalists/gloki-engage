@@ -121,7 +121,6 @@ const fr: Dictionary = {
   'stagefeed.sample.vote': 'Rejoignez une communauté pour répartir vos crédits de vote',
   'stagefeed.sample.mandate': 'Rejoignez une communauté pour engager votre conviction',
   'stagefeed.problem.info': 'Avance quand 25 % participent et 50 % approuvent.',
-  'stagefeed.discussion.info': 'Avance quand 33 % donnent leur avis.',
   'stagefeed.proposals.info': 'Proposez des solutions et soutenez celles de votre choix — les meilleures passent au vote.',
   'stagefeed.vote.info': 'Répartissez vos crédits de vote entre les solutions que vous soutenez.',
   'stagefeed.mandate.info': 'Décisions adoptées par les communautés, par-delà les frontières.',
