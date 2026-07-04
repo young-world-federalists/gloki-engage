@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText } from 'lucide-react';
+import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
-import { UserIdentity, Banner } from '../components/shared';
+import { UserIdentity, Banner, Badge } from '../components/shared';
+import { STAGE_META } from '../components/community/stageMeta';
+import FeedEngagePanel from '../components/initiative/FeedEngagePanel';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
@@ -50,25 +52,50 @@ const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ 
   mandate: { label: 'Mandate', icon: ScrollText },
 };
 
-// One initiative card in the per-stage browse feed. Compact + tap-through: the
-// title is the real control and a stretched ::after makes the whole card the hit
-// area (the community badge stays clickable above it via z-index). The heavy
-// per-stage participation UI lives on the initiative's own page — this feed is
-// for *browsing*, matching the cross-community Home.
+// One initiative card in the per-stage browse feed. The compact summary
+// (community badge + author + title + description) stays the collapsed state —
+// it was designed for cross-community scanning (Eston, 2026-07-04). The title is
+// the real control and a stretched ::after makes the whole card its hit area
+// (community badge and expanded panel sit above it via z-index). For
+// problem/discussion/proposals/vote the control expands the S19 engage panel IN
+// PLACE ({@link FeedEngagePanel}); mandate keeps navigating to the published
+// artifact (S18 D1).
 const StageFeedCard: React.FC<{
   item: InitiativeWithMeta;
+  hostServer: string;
+  hostAgent: string;
+  expandable: boolean;
+  expanded: boolean;
+  onToggle: (item: InitiativeWithMeta) => void;
   onOpen: (item: InitiativeWithMeta) => void;
   onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
-}> = ({ item, onOpen, onCommunityClick }) => {
+}> = ({ item, hostServer, hostAgent, expandable, expanded, onToggle, onOpen, onCommunityClick }) => {
   const trust = useCommunityTrust(item.communityId);
   const profiles = useAppSelector((s) => s.communities.profiles);
   const t = useT();
+  const inDiscussion = item.stage === 'discussion';
+  const DiscussionIcon = STAGE_META.discussion.icon;
+  const panelId = `stagefeed-panel-${item.id}`;
+  // Only expandable stages reach the panel; anything unresolved renders as the
+  // feed's own stage.
+  const panelStage =
+    item.stage === 'discussion' || item.stage === 'proposals' || item.stage === 'vote'
+      ? item.stage
+      : 'problem';
   return (
     <div className={styles.card}>
       <div className={styles.cardMeta}>
         <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
           {item.communityName}
         </button>
+        {inDiscussion && (
+          <Badge tone={STAGE_META.discussion.tone}>
+            <span className={styles.badgeInner}>
+              <DiscussionIcon size={12} />
+              {t('stage.discussionPillActive', 'In discussion')}
+            </span>
+          </Badge>
+        )}
         {item.authorName && item.author ? (
           <UserIdentity
             name={item.authorName}
@@ -83,11 +110,34 @@ const StageFeedCard: React.FC<{
       </div>
 
       <h3 className={styles.cardTitle}>
-        <button type="button" className={styles.cardTitleButton} onClick={() => onOpen(item)}>
+        <button
+          type="button"
+          className={styles.cardTitleButton}
+          onClick={() => (expandable ? onToggle(item) : onOpen(item))}
+          aria-expanded={expandable ? expanded : undefined}
+          aria-controls={expandable ? panelId : undefined}
+        >
           {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
         </button>
+        {expandable &&
+          (expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />)}
       </h3>
       {item.description && <p className={styles.cardDescription}>{item.description}</p>}
+
+      {expandable && expanded && (
+        <div id={panelId} className={styles.panelWrap}>
+          <FeedEngagePanel
+            initiativeId={item.id}
+            title={item.title || ''}
+            stage={panelStage}
+            communityId={item.communityId}
+            hostServer={hostServer}
+            hostAgent={hostAgent}
+            authorKey={item.author}
+            authorName={item.authorName}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -107,27 +157,33 @@ const StageFeedView: React.FC = () => {
   const { initiatives, isLoading } = useAllInitiatives();
 
   // Filter initiatives to the current stage (excludes unresolved / _unknown).
+  // Discussion-stage initiatives surface in the Problem feed with an "In
+  // discussion" state (Eston, 2026-07-04) — discussion has no feed of its own,
+  // and without this they'd vanish from stage browsing for the whole phase.
   const stageInitiatives = useMemo(
-    () => initiatives.filter((item) => item.stage === stage),
+    () =>
+      initiatives.filter(
+        (item) => item.stage === stage || (stage === 'problem' && item.stage === 'discussion'),
+      ),
     [initiatives, stage],
   );
 
-  // Tap-through: browse here, participate on the initiative's own surface.
-  // Discussion opens the co-authoring view; a published mandate opens its
-  // read-only artifact; everything else opens the initiative inline on its
-  // community page (auto-expands the card).
-  const handleCardClick = (item: InitiativeWithMeta) => {
-    if (stage === 'discussion') {
-      const hostServer = item.hostServer || serverUrl || 'local';
-      const hostAgent = item.hostAgent || publicKey || 'local';
-      navigate(
-        `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${item.communityId}/${item.id}/discussion`,
-      );
-    } else if (stage === 'mandate') {
-      navigate(`/mandate/${item.communityId}/${item.id}`);
-    } else {
-      navigate(`/community/${item.communityId}?initiative=${item.id}`);
-    }
+  // Expand in place (S20 W3): problem/discussion/proposals/vote cards reveal the
+  // community feed's engage panel right here — browsing a stage never teleports
+  // the visitor into an unfamiliar community. Mandate keeps navigating: a
+  // published mandate is a read-only artifact page (S18 D1).
+  const expandable = stage !== 'mandate';
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const toggleExpanded = (item: InitiativeWithMeta) =>
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(item.id)) next.delete(item.id);
+      else next.add(item.id);
+      return next;
+    });
+
+  const handleCardOpen = (item: InitiativeWithMeta) => {
+    navigate(`/mandate/${item.communityId}/${item.id}`);
   };
 
   const handleCommunityClick = (e: React.MouseEvent, communityId: string) => {
@@ -217,7 +273,12 @@ const StageFeedView: React.FC = () => {
           <StageFeedCard
             key={item.id}
             item={item}
-            onOpen={handleCardClick}
+            hostServer={item.hostServer || serverUrl || 'local'}
+            hostAgent={item.hostAgent || publicKey || 'local'}
+            expandable={expandable}
+            expanded={expandedIds.has(item.id)}
+            onToggle={toggleExpanded}
+            onOpen={handleCardOpen}
             onCommunityClick={handleCommunityClick}
           />
         ))}

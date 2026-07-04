@@ -97,6 +97,24 @@
   color: $gray-800;
   margin: 0;
   line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  // Expand/collapse chevron (decorative — the title button is the control).
+  > svg {
+    flex-shrink: 0;
+    color: $gray-500;
+    margin-top: 1px;
+  }
+}
+
+// Icon + label inside the "In discussion" badge.
+.badgeInner {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
 }
 
 // The title is a keyboard-accessible tap-through: it's the real control, and a
@@ -138,6 +156,15 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+// The expanded engage panel sits ABOVE the title's stretched-link overlay (same
+// z-index trick as .cardMeta) so its controls stay interactive; clicking the
+// summary zone still toggles the card.
+.panelWrap {
+  position: relative;
+  z-index: 1;
+  cursor: default;
 }
 
 // ─── Sample data ─────────────────────────────
@@ -188,6 +215,10 @@
 
   .cardTitle {
     color: $dark-text;
+
+    > svg {
+      color: $dark-text-secondary;
+    }
   }
 
   .cardDescription {
