@@ -303,6 +303,17 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
   appears 4× — Banner, MandateCard, NotificationsBell area, HomeView — extract a mixin; consider
   `teaserTone` enum over the `teaserAction` boolean to match Badge/Banner conventions),
   voting-flow consolidation — see archive.
+- **Engage-stack wiring dedup (S20 review):** the member-fetch + threshold wiring now has 4 copies
+  (Problem/Solution/Vote ActivityCards + `FeedEngagePanel`) and the engage+advance composition is
+  hand-wired in 4 hosts — extract `useCommunityMemberCounts` + a `StageEngageStack`; same pass
+  should share the panel/deepLink SCSS (`FeedEngagePanel.module.scss` duplicates ActivityCard/
+  InitiativeStageCard blocks) and give CommunityHome the same redux stage overlay + `membersLoaded`
+  patterns S20 added to the feed path.
+- **StageGate loading-grace deploy gap (pre-existing, S20-review-confirmed):** `StageGate` renders
+  children while trust is loading, so shared-mode `useFlowContract` consumers (QVFlow,
+  SolutionsBoard) can start a deploy for a user the gate is about to block. Needs a deliberate fix
+  (hold children until `isReady`, or make shared-mode mount lazily) — touches vote UX, so product
+  care required.
 
 ### Blocked / coordination (not ours to drive on `ui`)
 - **A — land `ui` → `main`.** `origin/main` is Ouri's real-server layer (mid-QA, 341-vs-2 diverged). Per the
@@ -315,6 +326,25 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
+- **2026-07-04 — S20: campaign Wave 3 shipped — stage-feed inline expansion (D1) (BUILT, push
+  pending Eston's gate; W4 theme toggle + menu switcher remains).** Spec
+  `docs/superpowers/specs/2026-07-04-s20-stage-feed-inline-expansion-design.md`. Three decisions
+  locked (Eston): collapsed feed card stays the compact cross-community summary; discussion-stage
+  initiatives surface in the Problem feed ("In discussion" badge, active DiscussionPill as their
+  only engage — the re-verify table caught the prompt premise wrong: they previously appeared in
+  NO global feed); expanded panels keep a quiet "Open in community" link. New `FeedEngagePanel`
+  re-hosts the S19 engage stacks (ProblemEngage/SolutionEngage/VoteEngage + StageAdvanceBar +
+  strip/pill row) under the feed summary with per-card community context; mandate keeps navigating
+  (S18 D1). Vote panel re-measured in-feed: the same 4 QVFlow blocks as S19 M2. Review (8 angles,
+  12/12 candidates CONFIRMED) fix wave: on-dark link token + 44px/focus ring (also fixed
+  ActivityCard's deepLink dark colour, 3.97:1 → AA); `membersLoaded` readiness gate killing a
+  zero-denominator premature-advance race (feed + ProblemActivityCard); per-feed expansion reset;
+  live stage overlay in `useAllInitiatives` (redux `initiativeStages` over the local cache) so an
+  in-feed advance updates the card; aria-controls only while expanded; problem-only reads scoped
+  into `ProblemFeedBlock`; dead `/stage/discussion` banner + orphaned fr/sw key dropped. Parity
+  fr=sw 1121 (scanner OK), gates clean, build green, no DEMO_VERSION bump. Learnings: 9th straight
+  stale-premise catch; "Rendered more hooks" right after HMR-editing a mounted hook is the known
+  ghost — restart the dev server before debugging it (lore #6 held).
 - **2026-07-04 — S19: campaign Wave 2 shipped — card recomposition + title standard + sizing floors
   (BUILT, push pending Eston's gate; W3 stage-feed inline + W4 theme toggle remain).** Spec
   `docs/superpowers/specs/2026-07-03-s19-w2-card-recomposition-design.md`. Four decisions locked

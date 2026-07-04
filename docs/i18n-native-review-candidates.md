@@ -870,6 +870,22 @@ existing `connectivity.dataSaver`/`connectivity.dataSaverHint` strings already r
 navigates), `mechanisms.qv.commitsLabel`, `mechanisms.qv.metricsLabel`,
 `mechanisms.qv.commitsMetrics`.
 
+## Session 20 / Wave 3 (2026-07-04) — stage-feed inline expansion
+
+**New key (expanded feed-card footer link):**
+- **fr/sw `stagefeed.openInCommunity`** — "Open in community" (the quiet link at the foot of an
+  expanded stage-feed card, routing to the hosting community's feed). fr "Ouvrir dans la
+  communauté", sw "Fungua katika jumuiya". Confirm sw "Fungua katika" reads naturally for
+  "open (this) inside the community" vs e.g. "Fungua kwenye jumuiya".
+
+**Reused (no new translation, new placement):** `stage.discussionPillActive` ("In discussion")
+now also appears as a badge on discussion-stage cards in the Problem feed — check fr "En
+discussion" / sw the existing value still read as a status label in that meta-row position.
+
+**Removed key (removed from fr+sw together):** `stagefeed.discussion.info` ("Advances once 33%
+share a perspective.") — its banner was unreachable dead code since the /stage/discussion
+redirect; no user-facing change.
+
 ---
 
 ## How to deliver fixes
