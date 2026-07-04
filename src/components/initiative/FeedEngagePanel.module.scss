@@ -1,0 +1,52 @@
+@use '../../styles/variables' as *;
+
+// The expanded body of a stage-feed card — visually the ActivityCard panel
+// (separated engage zone under the read summary), hosted inside StageFeedView's
+// compact card.
+.panel {
+  border-top: 0.5px solid $gray-200;
+  padding-top: $spacing-md;
+  margin-top: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+// Strip + Discussion pill, mirroring InitiativeStageCard's stageNavRow.
+.stageNavRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  > :last-child {
+    align-self: flex-start;
+    margin: 0 $spacing-lg;
+  }
+}
+
+// "Open in community ↗" — the quiet right-aligned text link (ActivityCard's
+// deepLink pattern) preserving the old tap-through path.
+.openLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  align-self: flex-end;
+  background: none;
+  border: none;
+  padding: $spacing-xs 0;
+  cursor: pointer;
+  font-size: $text-sm;
+  color: $primary;
+  font-weight: $font-medium;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ── Dark mode ──────────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  .panel { border-top-color: $dark-border; }
+  .openLink { color: $primary; }
+}

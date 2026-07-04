@@ -113,6 +113,7 @@ const fr: Dictionary = {
   'stagefeed.loading.title': 'Chargement des initiatives…',
   'stagefeed.loading.body': 'Récupération des données des communautés…',
   'stagefeed.untitled': 'Initiative sans titre',
+  'stagefeed.openInCommunity': 'Ouvrir dans la communauté',
   'stagefeed.sample.banner': 'Initiatives d’exemple — rejoignez ou créez une communauté pour participer',
   'stagefeed.sample.problem': 'Rejoignez une communauté pour voter sur les problèmes',
   'stagefeed.sample.discussion': 'Touchez pour rejoindre la discussion',

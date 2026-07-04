@@ -112,6 +112,7 @@ const sw: Dictionary = {
   'stagefeed.loading.title': 'Inapakia mipango…',
   'stagefeed.loading.body': 'Inapata data kutoka kwa jumuiya...',
   'stagefeed.untitled': 'Mpango bila jina',
+  'stagefeed.openInCommunity': 'Fungua katika jumuiya',
   'stagefeed.sample.banner': 'Mipango ya mfano — jiunge au anzisha jumuiya ili kushiriki',
   'stagefeed.sample.problem': 'Jiunge na jumuiya ili kupigia kura matatizo',
   'stagefeed.sample.discussion': 'Gusa ili kujiunga na majadiliano',
