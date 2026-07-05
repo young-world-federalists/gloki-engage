@@ -149,3 +149,50 @@ $overlay-bg: rgba(15, 23, 42, 0.55);
 $footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
 $content-max-width: 640px; // single-column mobile-first content column
 
+// ---------------------------------------------------------------------------
+// Theme (S21, D2) — the ONLY way to write dark-mode styles.
+// `<html>` carries data-theme="light" | "dark" | (absent = Auto, the default).
+// The attribute is set before first paint by the index.html head snippet and
+// managed by src/hooks/useTheme.ts (localStorage key `gloki.theme`).
+//
+// `@include dark { … }` replaces `@media (prefers-color-scheme: dark) { … }`
+// app-wide: in Auto it applies exactly when the OS scheme is dark; a forced
+// theme overrides the OS. `:where()` carries zero specificity, so in Auto the
+// cascade is identical to the old raw media query. Never write a raw
+// `prefers-color-scheme` block — the S21 codemod swept them all.
+// ---------------------------------------------------------------------------
+@mixin dark {
+  @if & {
+    @media (prefers-color-scheme: dark) {
+      :where(html:not([data-theme='light'])) & {
+        @content;
+      }
+    }
+    :where(html[data-theme='dark']) & {
+      @content;
+    }
+  } @else {
+    @media (prefers-color-scheme: dark) {
+      :where(html:not([data-theme='light'])) {
+        @content;
+      }
+    }
+    :where(html[data-theme='dark']) {
+      @content;
+    }
+  }
+}
+
+// For blocks whose subject IS the root element (e.g. :root custom-property
+// overrides) — the descendant form in `dark` can never match `:root` itself.
+@mixin dark-self {
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme='light'])) {
+      @content;
+    }
+  }
+  &:where([data-theme='dark']) {
+    @content;
+  }
+}
+

@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gloki - Decentralized Self-Governance</title>
+    <!-- Apply the persisted theme before first paint (S21, D2). Auto = no
+         attribute: CSS falls through to the prefers-color-scheme media query
+         inside the `dark` mixin. Kept in sync with src/hooks/useTheme.ts. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('gloki.theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { /* storage blocked — stay on Auto */ }
+      })();
+    </script>
     <!-- GitHub Pages SPA redirect handler -->
     <script type="text/javascript">
       (function(l) {
