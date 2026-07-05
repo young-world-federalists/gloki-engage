@@ -220,3 +220,24 @@ resets on navigation — reload after every flip before reading.
 
 `color-scheme` property, theme-aware `theme-color` meta, per-community themes,
 Chichewa locale (P5 tail, unchanged), community-menu settings duplication.
+
+## Addendum (same session, at Chunk B) — the color-scheme premise was wrong
+
+The premise "nothing sets the CSS `color-scheme` property" was **false**: the
+verification grep covered TS/TSX/HTML but not SCSS, and `src/styles/index.scss:14`
+sets `color-scheme: light dark` on `:root`. That flips the design the right way up:
+native widgets/scrollbars *already follow the OS scheme* today, so a forced theme
+MUST override `color-scheme` or form controls would contradict the forced app
+styles. Shipped accordingly (in the codemod commit, since it surfaced there):
+
+```scss
+:root {
+  color-scheme: light dark;
+  &[data-theme='light'] { color-scheme: light; }
+  &[data-theme='dark'] { color-scheme: dark; }
+}
+```
+
+"Explicitly out of scope: color-scheme property" above is superseded by this
+addendum. Lesson for the premise table: grep ALL file classes a property can
+live in — `color-scheme` is CSS, and the sweep only searched markup and code.
