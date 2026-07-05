@@ -1,7 +1,7 @@
 # fr / sw native-speaker review — candidate list
 
 **Status:** open · **Owner:** (assign a native fr + a native sw reviewer) · **Created:** Batch 14 (2026-06-14)
-· **Last verified against HEAD `27f24b3`:** 2026-06-29 (parity OK, fr = sw = 1032 keys; stale references
+· **Last verified against HEAD `5e96d20`:** 2026-07-05 / S21 (parity OK, fr = sw = 1126 keys; stale references
 struck through — see the Reviewer quick-start below)
 
 The French and Swahili UI overlays (`src/i18n/fr.ts`, `src/i18n/sw.ts`) were **model-translated**.
@@ -18,8 +18,8 @@ least-reviewed key families and the specific concern per family, rather than dum
 
 ## Reviewer quick-start — read this first
 
-**Verified against `ui` HEAD `27f24b3` (2026-06-29):** key parity is clean — `fr.ts` and `sw.ts` each hold
-**1032 keys** with identical key sets and matching `{var}` tokens (`RESULT: PARITY OK`). `en.ts` is the small
+**Verified against `ui` HEAD `5e96d20` (2026-07-05, S21):** key parity is clean — `fr.ts` and `sw.ts` each hold
+**1126 keys** with identical key sets and matching `{var}` tokens (`RESULT: PARITY OK`). `en.ts` is the small
 70-key base; everything else is the inline-default fallback (see Ground rule 3). The families below were
 auto-checked against HEAD: every key the worklist still asks you to review **exists in the live overlays**,
 *except* the small set of keys retired since this doc was first written — those are now struck through and
@@ -885,6 +885,24 @@ discussion" / sw the existing value still read as a status label in that meta-ro
 **Removed key (removed from fr+sw together):** `stagefeed.discussion.info` ("Advances once 33%
 share a perspective.") — its banner was unreachable dead code since the /stage/discussion
 redirect; no user-facing change.
+
+## Session 21 / Wave 4 (2026-07-05) — menu theme toggle + language switcher
+
+**New keys (global-menu settings footer — the theme control and its labels sit in the
+hamburger menu on every screen):**
+- **fr/sw `menu.theme`** — "Theme" (caption above the Auto/Light/Dark control). fr "Thème",
+  sw "Mandhari". Confirm "Mandhari" is the natural word for a UI colour theme (Android uses it).
+- **fr/sw `menu.themeAuto`** — "Auto" (segment label; follows the phone's light/dark setting).
+  fr "Auto", sw "Otomatiki". Segments are ~72px wide at 360px — flag if a better sw word
+  can't fit (e.g. "Kiotomatiki" may clip; we chose the shorter form).
+- **fr/sw `menu.themeLight`** — "Light". fr "Clair", sw "Mwangaza". Confirm "Mwangaza"
+  (brightness/light) reads as a THEME name here, not a lamp. Candidates the reviewer should
+  weigh: **"Angavu"** (bright — Android pairs "Mandhari angavu" with "Mandhari ya giza", so it
+  is the platform-conventional counterpart and fits the segment) vs "Mwangaza"; "Nyeupe" felt wrong.
+- **fr/sw `menu.themeDark`** — "Dark". fr "Sombre", sw "Giza". Android convention is
+  "mandhari ya giza" — confirm bare "Giza" works as the segment label.
+- **fr/sw `menu.language`** — "Language" (caption above the en/fr/sw selector; the selector
+  itself keeps endonyms English/Français/Kiswahili). fr "Langue", sw "Lugha".
 
 ---
 

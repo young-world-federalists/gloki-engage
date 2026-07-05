@@ -241,3 +241,24 @@ styles. Shipped accordingly (in the codemod commit, since it surfaced there):
 "Explicitly out of scope: color-scheme property" above is superseded by this
 addendum. Lesson for the premise table: grep ALL file classes a property can
 live in — `color-scheme` is CSS, and the sweep only searched markup and code.
+
+## Addendum 2 (same session, at verification + review)
+
+- **SlideOutMenu lifted to the modal layer (z-index 100 → 1000, `fe2f70d`).** The 3-mode
+  walk found the StageFooter (also z:100, later in the DOM) painting over the panel's
+  bottom strip, fully occluding the new settings footer. The lift matches
+  Modal.module.scss and applies to EVERY SlideOutMenu consumer — so "CommunityView's
+  menu: unchanged" above should read "unchanged except inherited layering" (its menu now
+  correctly covers the StageFooter too). Companion hardening: CommunityView's Reset-Demo
+  handler now closes the menu before opening the confirm dialog, so two modal-layer
+  overlays never coexist.
+- **Whole-diff review (5-lens panel): 0 blockers / 0 majors / 4 minors — all four fixed
+  same-session**: (1) `useTheme` snapshot now reads the applied `data-theme` attribute
+  instead of localStorage, so the segmented control stays truthful when storage is
+  blocked; (2) the language select regained a picker affordance (token-colored chevron —
+  `appearance: none` had stripped the native arrow and `hideIcon` removed the globe);
+  (3) select font 14px → 16px (iOS Safari focus-zoom threshold); (4) the packet/§7
+  closeout docs land in the closeout commit below. Accepted notes, no action: forced-dark
+  rules also apply in print media (printing is not a designed journey); `:where()` sets a
+  ~Chrome 88 floor (repo already ships `inset:`, ~Chrome 87); no cross-tab theme sync
+  (single-tab by design, documented in the hook).

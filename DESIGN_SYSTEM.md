@@ -35,8 +35,17 @@ Use SCSS tokens from `src/styles/variables.scss`. Never hardcode hex values.
 
 ### Dark mode palette
 
-The app shell themes itself in `prefers-color-scheme: dark` (see `index.scss`); component
-modules layer their own dark treatments using these tokens.
+**Write dark-mode styles ONLY through the `dark` mixin** (`@include dark { … }`,
+defined in `variables.scss` — S21): never a raw `prefers-color-scheme` media query.
+The mixin honours the 3-state Auto/Light/Dark theme control in the global menu
+(`data-theme` on `<html>`, absent = Auto = follow the OS; localStorage
+`gloki.theme`; managed by `src/hooks/useTheme.ts` + the zero-flash `index.html`
+head snippet). Its `:where()` wrappers add zero specificity, so in Auto the
+cascade behaves exactly like a raw media query. For blocks whose subject IS the
+root element (`:root` custom-property overrides) use `dark-self`. Forced themes
+also override `color-scheme` on `:root` (`index.scss`) so native widgets follow.
+
+Component modules layer their dark treatments using these tokens:
 
 | Token | Usage |
 |-------|-------|

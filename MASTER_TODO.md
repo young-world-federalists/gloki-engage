@@ -288,9 +288,10 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ### Post-handoff (explicitly parked until after the handoff)
 
-- **In-app UI-language switcher** (S17 persona finding, Thandiwe, major): after login the only
-  language control is on LoginPage — the slide-out menu has no entry, so switching means logging
-  out. Add a LanguageSwitcher entry to the app menu (small; product call on placement).
+- ✅ **In-app UI-language switcher — DONE 2026-07-05 (S21**, pulled forward into campaign W4
+  because the menu work overlapped): `MenuSettings` in the global menu's footer hosts the
+  LanguageSwitcher + the D2 Auto/Light/Dark theme control — switching language no longer
+  requires logging out.
 - Liquid delegation (**D3**) — the one named-but-missing core mechanism (only a fixture stub today).
 - More UI locales incl. **Chichewa** (`ny.ts`); the fr/sw **native review** stays human-gated.
 - **Content-translation strategy** for user-generated/fixture text (needs Ouri).
@@ -326,6 +327,29 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
+- **2026-07-05 — S21: campaign Wave 4 shipped — Auto/Light/Dark theme toggle (D2) + menu
+  LanguageSwitcher (M6). S18 UI CAMPAIGN COMPLETE (BUILT, push pending Eston's gate).** Spec
+  `docs/superpowers/specs/2026-07-05-s21-theme-toggle-design.md` (+2 addenda). Mechanism:
+  `data-theme` on `<html>` (absent = Auto) + `gloki.theme` localStorage + zero-flash head
+  snippet + `dark`/`dark-self` mixins in `variables.scss` whose `:where()` wrappers keep the
+  Auto cascade identical to the old raw media queries; forced themes also override
+  `color-scheme`. **Premise correction:** "nothing sets color-scheme" was false —
+  `index.scss:14` already set it (the sweep grepped TS/HTML but not CSS). Codemod: all
+  **300** raw `prefers-color-scheme` blocks across **105** scss files → `@include dark` as a
+  machine-verified pure header swap (0 declaration bytes changed; CSS +7KB gzipped). Menu:
+  shared `SlideOutMenu` footer slot + `MenuSettings` (SegmentedControl + LanguageSwitcher)
+  in the global menu — **language switching no longer requires logout** (S17 Thandiwe major,
+  pulled forward from Post-handoff). Found+fixed live: StageFooter painted over the menu
+  panel (tied z:100, later in DOM; menu lifted to the modal layer z:1000). +5 fr/sw keys
+  (parity 1126; packet appended + stale 1032-key header stamp refreshed). **No
+  `DEMO_VERSION` bump** (no fixtures). Built directly on `ui` (8 commits: `dc6dbc1..5e96d20` + the closeout docs commit);
+  5-lens whole-diff review **0 Critical / 0 Important** (4 minors fixed same-session, incl.
+  a storage-blocked toggle desync verified by simulation; accepted notes: forced-dark prints
+  dark, `:where()` ≈Chrome-88 floor, single-tab sync); 3-mode × system-scheme matrix
+  preview-verified at 360px on the S19/S20 surfaces; en/fr/sw menu walk live; DESIGN_SYSTEM
+  dark-mixin law added. ★ Learning: a codemod must EXCLUDE the file that defines its
+  replacement (it rewrote its own mixin internals into recursion — caught by the count
+  drifting 300→303); grep ALL file classes when verifying a premise.
 - **2026-07-04 — S20: campaign Wave 3 shipped — stage-feed inline expansion (D1) (BUILT, push
   pending Eston's gate; W4 theme toggle + menu switcher remains).** Spec
   `docs/superpowers/specs/2026-07-04-s20-stage-feed-inline-expansion-design.md`. Three decisions
