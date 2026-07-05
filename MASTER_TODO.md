@@ -328,7 +328,7 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 ## 8. Changelog
 
 - **2026-07-05 — S21: campaign Wave 4 shipped — Auto/Light/Dark theme toggle (D2) + menu
-  LanguageSwitcher (M6). S18 UI CAMPAIGN COMPLETE (BUILT, push pending Eston's gate).** Spec
+  LanguageSwitcher (M6). S18 UI CAMPAIGN COMPLETE — SHIPPED+PUSHED `0ba50e8..daf3fac`, deploy green, theme snippet + :where selectors verified in the live bundle.** Spec
   `docs/superpowers/specs/2026-07-05-s21-theme-toggle-design.md` (+2 addenda). Mechanism:
   `data-theme` on `<html>` (absent = Auto) + `gloki.theme` localStorage + zero-flash head
   snippet + `dark`/`dark-self` mixins in `variables.scss` whose `:where()` wrappers keep the
