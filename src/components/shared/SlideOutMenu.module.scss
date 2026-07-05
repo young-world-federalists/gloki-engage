@@ -4,7 +4,10 @@
   position: fixed;
   inset: 0;
   background-color: $overlay-bg;
-  z-index: 100;
+  // Modal layer (matches Modal.module.scss). At the old 100 it TIED the
+  // StageFooter (also 100), which comes later in the DOM and so painted over
+  // the panel's bottom strip — occluding the S21 settings footer entirely.
+  z-index: 1000;
   animation: slideOutMenuFade $transition-base ease-out;
 }
 
