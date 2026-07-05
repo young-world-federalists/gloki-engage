@@ -71,7 +71,7 @@
 }
 
 // Dark mode styles
-@media (prefers-color-scheme: dark) {
+@include dark {
   .overlay {
     .dialog {
       background: $dark-bg;

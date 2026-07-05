@@ -22,7 +22,7 @@
   font-weight: $font-semibold;
   color: $gray-800;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -33,7 +33,7 @@
   line-height: 1.55;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -63,7 +63,7 @@
   border: 1px solid $primary;
   border-radius: $radius-lg;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $info-surface-dark;
   }
 }
@@ -76,7 +76,7 @@
   font-weight: $font-semibold;
   color: $primary-dark;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -89,7 +89,7 @@
   background: white;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
   }
 }
@@ -100,7 +100,7 @@
   line-height: 1.5;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -121,7 +121,7 @@
   font-weight: $font-semibold;
   color: $gray-800;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -139,7 +139,7 @@
   align-items: center;
   justify-content: center;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
     color: $dark-text;
   }
@@ -162,7 +162,7 @@
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -174,7 +174,7 @@
   line-height: 1.55;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -188,7 +188,7 @@
   font-weight: $font-medium;
   color: $success-on-surface;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $success;
   }
 }
@@ -238,7 +238,7 @@
     background: transparent;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
     color: $dark-text-secondary;
   }
@@ -253,7 +253,7 @@
   background: $success-surface;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $success-surface-dark;
   }
 }
@@ -266,7 +266,7 @@
   font-size: $text-sm;
   color: $success-on-surface;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -284,7 +284,7 @@
   line-height: 1.55;
   color: $gray-800;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -294,7 +294,7 @@
   color: $success-on-surface;
   opacity: 0.8;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }

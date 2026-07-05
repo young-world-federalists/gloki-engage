@@ -197,7 +197,7 @@
   border-radius: $radius-full;
   overflow: visible;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }
@@ -221,7 +221,7 @@
   background: $gray-600;
   transform: translateX(-1px);
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-text-secondary;
   }
 }
@@ -249,7 +249,7 @@
 }
 
 // Dark mode
-@media (prefers-color-scheme: dark) {
+@include dark {
   .description {
     color: $dark-text;
   }

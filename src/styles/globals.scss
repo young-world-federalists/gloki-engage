@@ -218,7 +218,7 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
+@include dark {
   .loading-spinner {
     border: 3px solid $dark-border;
     border-top: 3px solid $primary;

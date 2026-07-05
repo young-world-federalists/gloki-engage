@@ -10,7 +10,7 @@
   border-radius: $radius-xl;
   box-shadow: $shadow-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -22,7 +22,7 @@
   gap: $spacing-xs;
   color: $primary-dark;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $primary-on-dark; // the dark-scheme text blue (S16 token)
   }
 }
@@ -45,7 +45,7 @@
   line-height: 1.25;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -65,7 +65,7 @@
   & + & {
     border-top: 1px solid $gray-100;
 
-    @media (prefers-color-scheme: dark) {
+    @include dark {
       border-top-color: $dark-border;
     }
   }
@@ -79,7 +79,7 @@
   letter-spacing: 0.04em;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -91,7 +91,7 @@
   line-height: 1.4;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -99,7 +99,7 @@
 .problem {
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -110,7 +110,7 @@
   font-size: $text-xs;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -135,7 +135,7 @@
   line-height: 1.36;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: rgba($primary, 0.16);
     border-color: rgba($primary, 0.4);
     color: $dark-text;
@@ -174,7 +174,7 @@
   &:hover { text-decoration: underline; }
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
 
-  @media (prefers-color-scheme: dark) { color: $primary-on-dark; } // the dark-scheme text blue (S16 token)
+  @include dark { color: $primary-on-dark; } // the dark-scheme text blue (S16 token)
 }
 
 .countries {

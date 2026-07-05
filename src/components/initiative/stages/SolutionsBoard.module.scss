@@ -122,7 +122,7 @@
 @media (prefers-reduced-motion: reduce) { .mergeTargetCard { animation: none; } }
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
   .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
   .reviewedTag { color: $success; } // the light green IS the AA choice on dark cards

@@ -45,7 +45,7 @@
     cursor: not-allowed;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
     background: rgba($primary, 0.25);
     border-color: $primary;

@@ -90,7 +90,7 @@
   margin-top: $spacing-md;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .verifyTitle { color: $dark-text; }
   .verifyStatus { color: $dark-text-secondary; }
   .verifyBar { background: rgba(255, 255, 255, 0.1); }

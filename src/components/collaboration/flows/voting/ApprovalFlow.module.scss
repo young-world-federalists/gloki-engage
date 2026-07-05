@@ -189,7 +189,7 @@
 }
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .addInput {
     background: $dark-bg;
     border-color: $dark-border;

@@ -86,7 +86,7 @@
   pointer-events: none;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .empty {
     border-color: rgba($primary, 0.6);
     background: rgba($primary, 0.16);

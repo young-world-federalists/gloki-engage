@@ -135,7 +135,7 @@
   &:disabled { opacity: 0.5; cursor: default; }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .modal {
     background: $dark-bg;
     color: $dark-text;

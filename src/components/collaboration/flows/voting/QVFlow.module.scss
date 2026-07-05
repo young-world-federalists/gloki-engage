@@ -122,7 +122,7 @@
 .turnoutNote { font-size: $text-xs; color: $gray-500; margin-top: 2px; }
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .loading, .statusSub, .hint, .guidePrivacy, .turnoutHead, .turnoutNote, .rescount, .keyitem, .dinner li { color: $dark-text-secondary; }
   .guideText, .solText { color: $dark-text; }
   .status { color: $primary-on-dark; }

@@ -13,6 +13,16 @@
 
   color-scheme: light dark;
 
+  // Forced themes (S21, D2): native widgets/scrollbars must follow the forced
+  // scheme, not the OS — only this property is overridden here; everything
+  // else routes through the `dark` mixin.
+  &[data-theme='light'] {
+    color-scheme: light;
+  }
+  &[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
   // Region colours (consumed by the vote-results bars via regionColorVar()).
   --region-africa: #{$region-africa};
   --region-asia-pacific: #{$region-asia-pacific};
@@ -101,7 +111,7 @@ button {
 
 // Dark mode: theme the app shell so every page inherits a dark surface.
 // Component modules layer their own dark treatments on top of this.
-@media (prefers-color-scheme: dark) {
+@include dark {
   body {
     background-color: $dark-surface;
     color: $dark-text;
@@ -124,8 +134,10 @@ button {
 }
 
 // Dark mode region colour overrides (slightly lightened for AA on dark surfaces).
-@media (prefers-color-scheme: dark) {
-  :root {
+// `dark-self`, not `dark`: the subject here IS the root element, which the
+// descendant-combinator form of the mixin can never match.
+:root {
+  @include dark-self {
     --region-africa: #e8a33d;
     --region-asia-pacific: #2bb8ac;
     --region-europe: #6f81e8;

@@ -63,7 +63,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .title { color: $dark-text; }
 
   .loading, .emptyText { color: $dark-text-secondary; }

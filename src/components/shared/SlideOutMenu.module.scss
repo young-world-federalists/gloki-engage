@@ -186,7 +186,7 @@
   to { transform: translateX(0); }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .panel {
     background-color: $dark-bg;
   }

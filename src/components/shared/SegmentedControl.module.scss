@@ -90,7 +90,7 @@
   align-items: center;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .root {
     background: $dark-surface;
   }

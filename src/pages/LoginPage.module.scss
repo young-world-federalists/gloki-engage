@@ -266,7 +266,7 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
   // Portaled Modal content — top-level, sibling to .container.
   .helpBody p {
     color: $dark-text-secondary;

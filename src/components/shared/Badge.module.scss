@@ -57,7 +57,7 @@
   color: $error-on-surface;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .neutral {
     background: rgba(255, 255, 255, 0.08);
     color: $dark-text-secondary;

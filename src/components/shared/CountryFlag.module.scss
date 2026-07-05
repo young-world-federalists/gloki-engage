@@ -27,7 +27,7 @@
   font-size: $text-xl;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .name {
     color: $dark-text;
   }

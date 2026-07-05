@@ -21,7 +21,7 @@
   font-weight: $font-medium;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -221,7 +221,7 @@
   margin: $spacing-xs 0 0 0;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .errorMessage {
     background: rgba($error, 0.15);
     border-color: rgba($error, 0.4);

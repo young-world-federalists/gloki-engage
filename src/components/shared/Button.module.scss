@@ -110,7 +110,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .secondary:hover:not(:disabled) {
     background-color: rgba($primary, 0.16);
   }

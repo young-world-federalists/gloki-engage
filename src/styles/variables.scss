@@ -155,7 +155,7 @@ $content-max-width: 640px; // single-column mobile-first content column
 // The attribute is set before first paint by the index.html head snippet and
 // managed by src/hooks/useTheme.ts (localStorage key `gloki.theme`).
 //
-// `@include dark { … }` replaces `@media (prefers-color-scheme: dark) { … }`
+// `@include dark { … }` replaces the raw prefers-color-scheme media block
 // app-wide: in Auto it applies exactly when the OS scheme is dark; a forced
 // theme overrides the OS. `:where()` carries zero specificity, so in Auto the
 // cascade is identical to the old raw media query. Never write a raw

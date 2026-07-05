@@ -140,7 +140,7 @@
   text-align: right;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .card {
     background: $dark-bg;
     border-color: $dark-border;

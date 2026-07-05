@@ -694,7 +694,7 @@
 }
 
 // ─── Dark mode ──────────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .label { color: $dark-text-secondary; }
   .optional,
   .symbol,

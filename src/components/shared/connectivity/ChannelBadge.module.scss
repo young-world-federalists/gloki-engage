@@ -20,7 +20,7 @@
   align-items: center;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .chip {
     border-color: $dark-border;
     color: $dark-text-secondary;

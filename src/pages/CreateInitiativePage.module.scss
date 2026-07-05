@@ -290,7 +290,7 @@
   margin-top: $spacing-sm;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .header h2 {
     color: $dark-text;
   }

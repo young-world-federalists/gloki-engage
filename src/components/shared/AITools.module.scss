@@ -175,7 +175,7 @@
 
 // ── Dark mode ───────────────────────────────────────────────────────────────
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .toolButton {
     background: rgba($primary, 0.12);
     border-color: rgba($primary, 0.25);

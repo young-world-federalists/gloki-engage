@@ -182,7 +182,7 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
   .container {
     background-color: $dark-surface;
 

@@ -261,7 +261,7 @@
 }
 
 // ─── Dark mode ──────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .sectionTitle,
   .cardTitle,
   .mandateTitle {

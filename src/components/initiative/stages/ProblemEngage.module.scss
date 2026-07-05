@@ -13,7 +13,7 @@
   line-height: 1.5;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -38,7 +38,7 @@
     color: $gray-700;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
     color: $dark-text-secondary;
 
@@ -52,7 +52,7 @@
 .codeLabel {
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -61,7 +61,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }

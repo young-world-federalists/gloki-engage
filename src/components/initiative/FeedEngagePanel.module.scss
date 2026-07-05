@@ -54,7 +54,7 @@
 }
 
 // ── Dark mode ──────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .panel { border-top-color: $dark-border; }
   // $primary text on $dark-bg is 3.97:1 — below AA; the on-dark token clears it.
   .openLink { color: $primary-on-dark; }

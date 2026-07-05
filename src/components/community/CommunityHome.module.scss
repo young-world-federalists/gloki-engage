@@ -105,7 +105,7 @@
   border-color: rgba($primary, 0.25);
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .feedTitle { color: $dark-text; }
   .feedDescription { color: $dark-text-secondary; }
   .cardTitle { color: $dark-text; }

@@ -103,7 +103,7 @@
     border-color: $primary;
   }
 }
-@media (prefers-color-scheme: dark) {
+@include dark {
   .identityToggle {
     color: $dark-text-secondary;
     &:hover {

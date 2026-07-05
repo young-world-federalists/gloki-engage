@@ -21,7 +21,7 @@
     box-shadow: $shadow-lg;
     overflow: hidden;
 
-    @media (prefers-color-scheme: dark) {
+    @include dark {
       background: $dark-bg;
       color: $dark-text;
     }
@@ -34,7 +34,7 @@
       border-bottom: 1px solid $gray-200;
       margin-bottom: $spacing-xl;
 
-      @media (prefers-color-scheme: dark) {
+      @include dark {
         border-bottom-color: $dark-border;
       }
 
@@ -44,7 +44,7 @@
         color: $gray-800;
         margin: 0;
 
-        @media (prefers-color-scheme: dark) {
+        @include dark {
           color: $dark-text;
         }
       }
@@ -63,7 +63,7 @@
           background-color: $gray-100;
           color: $gray-700;
 
-          @media (prefers-color-scheme: dark) {
+          @include dark {
             background-color: $dark-surface;
             color: $dark-text;
           }
@@ -84,7 +84,7 @@
           color: $gray-700;
           margin-bottom: $spacing-sm;
 
-          @media (prefers-color-scheme: dark) {
+          @include dark {
             color: $dark-text-secondary;
           }
         }
@@ -100,7 +100,7 @@
           background: white;
           color: $gray-800;
 
-          @media (prefers-color-scheme: dark) {
+          @include dark {
             background: $dark-surface;
             border-color: $dark-border;
             color: $dark-text;
@@ -117,7 +117,7 @@
             color: $gray-500;
             cursor: not-allowed;
 
-            @media (prefers-color-scheme: dark) {
+            @include dark {
               background-color: $dark-border;
             }
           }
@@ -145,7 +145,7 @@
             text-align: left;
             transition: border-color $transition-base, background-color $transition-base;
 
-            @media (prefers-color-scheme: dark) {
+            @include dark {
               background: $dark-surface;
               border-color: $dark-border;
             }
@@ -154,7 +154,7 @@
               border-color: $primary;
               background-color: $gray-50;
 
-              @media (prefers-color-scheme: dark) {
+              @include dark {
                 background-color: $dark-bg;
               }
             }
@@ -163,7 +163,7 @@
               border-color: $primary;
               background-color: rgba($primary, 0.05);
 
-              @media (prefers-color-scheme: dark) {
+              @include dark {
                 background-color: rgba($primary, 0.1);
               }
             }
@@ -178,7 +178,7 @@
               font-weight: $font-semibold;
               color: $gray-800;
 
-              @media (prefers-color-scheme: dark) {
+              @include dark {
                 color: $dark-text;
               }
             }
@@ -188,7 +188,7 @@
               color: $gray-500;
               line-height: 1.4;
 
-              @media (prefers-color-scheme: dark) {
+              @include dark {
                 color: $dark-text-secondary;
               }
             }
@@ -215,7 +215,7 @@
       background-color: $gray-50;
       border-top: 1px solid $gray-200;
 
-      @media (prefers-color-scheme: dark) {
+      @include dark {
         background-color: $dark-surface;
         border-top-color: $dark-border;
       }
@@ -252,7 +252,7 @@
         cursor: pointer;
         transition: all $transition-base;
 
-        @media (prefers-color-scheme: dark) {
+        @include dark {
           background-color: $dark-bg;
           color: $dark-text;
           border-color: $dark-border;
@@ -262,7 +262,7 @@
           background-color: $gray-50;
           border-color: $gray-400;
 
-          @media (prefers-color-scheme: dark) {
+          @include dark {
             background-color: $dark-surface;
           }
         }

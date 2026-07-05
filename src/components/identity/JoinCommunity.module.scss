@@ -136,7 +136,7 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
   .introLine {
     color: $dark-text-secondary;
   }

@@ -15,7 +15,7 @@
     padding: $spacing-lg;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -36,7 +36,7 @@
   letter-spacing: 0.08em;
   color: $primary-dark;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $primary-on-dark; // $primary-dark was 2.83:1 on the dark card (S16)
   }
 }
@@ -52,7 +52,7 @@
     font-size: $text-3xl;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -71,7 +71,7 @@
   font-size: $text-xs;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -82,7 +82,7 @@
   line-height: 1.5;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -109,7 +109,7 @@
   border: 1px solid $gray-100;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -125,7 +125,7 @@
   line-height: 1.1;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -135,7 +135,7 @@
   line-height: 1.2;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -157,7 +157,7 @@
   line-height: 1.6;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -174,7 +174,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -209,7 +209,7 @@
     font-size: $text-sm;
     font-weight: $font-bold;
 
-    @media (prefers-color-scheme: dark) {
+    @include dark {
       background: rgba($primary, 0.25);
       color: $dark-text;
     }
@@ -223,7 +223,7 @@
   line-height: 1.35;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -234,7 +234,7 @@
   line-height: 1.6;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -256,7 +256,7 @@
   border: 1px solid $gray-100;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -268,7 +268,7 @@
   font-weight: $font-medium;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -284,7 +284,7 @@
   text-align: right;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -301,7 +301,7 @@
   font-weight: $font-normal;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -316,7 +316,7 @@
   border: 1px solid $gray-100;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -333,7 +333,7 @@
   line-height: 1.4;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -344,7 +344,7 @@
   border: 1px solid $gray-100;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -359,7 +359,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -370,7 +370,7 @@
   line-height: 1.5;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -399,7 +399,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -428,7 +428,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
     background: rgba($primary, 0.25);
   }
@@ -454,7 +454,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
   }
 }
@@ -465,7 +465,7 @@
   line-height: 1.5;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }

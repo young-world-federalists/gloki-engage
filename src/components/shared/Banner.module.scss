@@ -99,7 +99,7 @@
   color: $error-on-surface;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .info {
     background-color: $info-surface-dark;
     color: $dark-text;

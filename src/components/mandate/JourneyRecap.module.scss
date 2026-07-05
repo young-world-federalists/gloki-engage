@@ -10,7 +10,7 @@
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -22,7 +22,7 @@
   font-weight: $font-bold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -60,7 +60,7 @@
   background: rgba($primary, 0.1);
   color: $primary-dark;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: rgba($primary, 0.25);
     color: $dark-text;
   }
@@ -73,7 +73,7 @@
   margin: 2px 0;
   background: $gray-200;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }
@@ -90,7 +90,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -100,7 +100,7 @@
   line-height: 1.5;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -138,7 +138,7 @@
   position: relative;
   z-index: 1;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: rgba($primary, 0.25);
     color: $dark-text;
   }
@@ -152,7 +152,7 @@
   overflow-wrap: anywhere;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -167,7 +167,7 @@
   background: $gray-200;
   z-index: 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }

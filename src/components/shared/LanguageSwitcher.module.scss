@@ -42,7 +42,7 @@
   border: 0;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .switcher {
     color: $dark-text-secondary;
   }

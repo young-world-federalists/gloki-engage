@@ -21,7 +21,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .trigger {
     color: $dark-text-secondary;
 

@@ -135,7 +135,7 @@ button.marker {
   padding-bottom: $spacing-lg;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .marker {
     background: $dark-bg;
     border-color: $dark-border;

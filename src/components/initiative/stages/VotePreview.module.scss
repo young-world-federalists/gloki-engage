@@ -16,7 +16,7 @@
 .solText { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
 .count { font-size: $text-xs; color: $gray-500; }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .explainerLabel, .previewHead, .disclosure, .count { color: $dark-text-secondary; }
   .solText { color: $dark-text; }
   .preview { border-top-color: $dark-border; }

@@ -21,7 +21,7 @@
   color: $warning-on-surface;
   text-align: center;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $warning-surface-dark;
     border-color: $warning;
     color: $dark-text;
@@ -37,7 +37,7 @@
   margin: 0 0 $spacing-xs;
   font-size: $text-sm;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }

@@ -19,7 +19,7 @@
 
 .icon { flex-shrink: 0; }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .heading { color: $dark-text; }
   // Links inherit $primary in dark, matching the existing evidence-link pattern.
 }

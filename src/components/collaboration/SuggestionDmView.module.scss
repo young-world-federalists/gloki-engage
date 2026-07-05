@@ -14,7 +14,7 @@
 .time {
   font-size: $text-xs;
   color: $gray-500;
-  @media (prefers-color-scheme: dark) { color: $dark-text-secondary; }
+  @include dark { color: $dark-text-secondary; }
 }
 .text {
   padding: $spacing-sm $spacing-md;
@@ -26,7 +26,7 @@
   white-space: pre-wrap;
   word-break: break-word;
 
-  @media (prefers-color-scheme: dark) { color: $dark-text; background: $dark-surface; }
+  @include dark { color: $dark-text; background: $dark-surface; }
 }
 .mine .text { color: white; background: $primary; }
 
@@ -39,7 +39,7 @@
   padding: $spacing-md $spacing-xl calc(#{$footer-height} + #{$spacing-md});
   border-top: 1.5px solid $gray-200;
 
-  @media (prefers-color-scheme: dark) { border-top-color: $dark-border; }
+  @include dark { border-top-color: $dark-border; }
 }
 .textarea {
   flex: 1;
@@ -57,7 +57,7 @@
 
   &::placeholder { color: $gray-500; }
   &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
-  @media (prefers-color-scheme: dark) { color: $dark-text; background: $dark-bg; border-color: $dark-border; &::placeholder { color: $dark-text-secondary; } }
+  @include dark { color: $dark-text; background: $dark-bg; border-color: $dark-border; &::placeholder { color: $dark-text-secondary; } }
 }
 .sendBtn {
   padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)

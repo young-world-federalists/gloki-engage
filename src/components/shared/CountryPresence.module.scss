@@ -55,7 +55,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .chip {
     background: $dark-bg;
     border-color: $dark-bg;

@@ -34,7 +34,7 @@
   border-color: rgba($warning-on-surface, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .btn {
     background: rgba($dark-text, 0.06);
     color: $dark-text-secondary;

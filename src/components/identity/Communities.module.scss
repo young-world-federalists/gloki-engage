@@ -314,7 +314,7 @@
 }
 
 // Dark mode
-@media (prefers-color-scheme: dark) {
+@include dark {
   .container {
     .pageDescription {
       color: $dark-text-secondary;

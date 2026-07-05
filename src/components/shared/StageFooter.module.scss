@@ -71,7 +71,7 @@
 }
 
 // Dark mode
-@media (prefers-color-scheme: dark) {
+@include dark {
   .footer {
     background: $dark-bg;
     border-top-color: $dark-border;

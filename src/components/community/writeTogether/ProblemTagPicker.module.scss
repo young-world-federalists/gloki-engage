@@ -46,7 +46,7 @@
     border-color: $error;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
     color: $dark-text;
@@ -87,7 +87,7 @@
     cursor: not-allowed;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $primary;
 
     &:hover:not(:disabled) {
@@ -112,7 +112,7 @@
   color: $gray-500;
   margin: 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }

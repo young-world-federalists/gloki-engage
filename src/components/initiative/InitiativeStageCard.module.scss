@@ -170,7 +170,7 @@
 }
 
 // ─── Dark mode ────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .titleLine,
   .headline {
     color: $dark-text;

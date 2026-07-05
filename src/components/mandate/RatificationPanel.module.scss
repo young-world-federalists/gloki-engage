@@ -10,7 +10,7 @@
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -33,7 +33,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -44,7 +44,7 @@
   line-height: 1.5;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -67,7 +67,7 @@
   border: 1px solid $gray-100;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -78,7 +78,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -93,7 +93,7 @@
   font-size: $text-xs;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -113,7 +113,7 @@
     outline-offset: 1px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
     background: $dark-bg;
     border-color: $dark-border;
@@ -132,7 +132,7 @@
   font-size: $text-sm;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }

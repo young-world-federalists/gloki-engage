@@ -30,7 +30,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .card {
     background-color: $dark-bg;
     border-color: $dark-border;

@@ -54,7 +54,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .container {
     .backButton {
       color: $dark-text-secondary;

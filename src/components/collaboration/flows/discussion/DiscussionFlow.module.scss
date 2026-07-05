@@ -200,7 +200,7 @@
 }
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .composeTextarea {
     background: $dark-bg;
     color: $dark-text;

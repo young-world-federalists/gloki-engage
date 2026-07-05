@@ -117,7 +117,7 @@
 }
 
 // ─── Dark mode ───────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .page {
     background: $dark-surface;
   }

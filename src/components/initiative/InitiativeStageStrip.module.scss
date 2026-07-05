@@ -62,7 +62,7 @@
 .stage_vote.current .pill      { background: rgba($stage-vote, 0.12); border-color: rgba($stage-vote, 0.4); }
 .stage_mandate.current .pill   { background: rgba($stage-mandate, 0.12); border-color: rgba($stage-mandate, 0.4); }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   // De-emphasis rides the dot alone — an opacity'd 12px label fails AA (3.56:1
   // measured), and order relative to the current pill already says done/upcoming.
   .pill,

@@ -27,7 +27,7 @@
   border-radius: $radius-full;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .img {
     background: $dark-border;
   }

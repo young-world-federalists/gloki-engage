@@ -40,7 +40,7 @@
   background-color: white;
   border-bottom: 1px solid $gray-200; // the full-width bar↔page rule (D3)
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background-color: $dark-bg;
     border-bottom-color: $dark-border;
   }
@@ -70,7 +70,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -107,7 +107,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
     color: $dark-text-secondary;
 
@@ -156,7 +156,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
     color: $dark-text-secondary;
 
@@ -181,7 +181,7 @@
   padding: $spacing-md $spacing-md $spacing-xs;
   background-color: white;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background-color: $dark-bg;
   }
 }
@@ -207,7 +207,7 @@
   line-height: 1.2;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -225,7 +225,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }

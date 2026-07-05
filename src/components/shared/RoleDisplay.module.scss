@@ -58,7 +58,7 @@
   font-weight: $font-semibold;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .avatar {
     background: $dark-border;
     color: $dark-text;

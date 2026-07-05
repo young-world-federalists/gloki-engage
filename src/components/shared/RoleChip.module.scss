@@ -42,7 +42,7 @@
   border: 1px solid rgba($warning-on-surface, 0.25);
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .author {
     background: $info-surface-dark;
     color: $dark-text;

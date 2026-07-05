@@ -51,7 +51,7 @@
 .stage_vote .circle       { background: $stage-vote; }
 .stage_mandate .circle    { background: $stage-mandate; }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .strip {
     background: $dark-bg;
     border-color: $dark-border;

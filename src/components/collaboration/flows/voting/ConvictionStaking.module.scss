@@ -72,7 +72,7 @@
 
   svg { flex-shrink: 0; color: $primary; }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -84,7 +84,7 @@
   border-radius: $radius-lg;
   padding: $spacing-lg;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -96,7 +96,7 @@
   line-height: 1.5;
   margin: 0 0 $spacing-lg 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -128,7 +128,7 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
     color: $dark-text;
@@ -141,7 +141,7 @@
   color: $primary;
   font-weight: $font-semibold;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: rgba($primary, 0.18);
     color: $dark-text;
   }
@@ -161,7 +161,7 @@
   border-radius: $radius-full;
   overflow: hidden;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }
@@ -179,7 +179,7 @@
   font-weight: $font-semibold;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -214,7 +214,7 @@
   border-radius: $radius-lg;
   padding: $spacing-lg;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: rgba($success, 0.08);
     border-color: rgba($success, 0.3);
     border-left-color: $success;
@@ -226,7 +226,7 @@
   color: $gray-700;
   margin: 0 0 $spacing-md 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -236,7 +236,7 @@
   color: $gray-500;
   margin: $spacing-sm 0 0 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -273,7 +273,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -303,7 +303,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -320,7 +320,7 @@
   border-radius: $radius-full;
   overflow: hidden;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }
@@ -340,7 +340,7 @@
   text-align: right;
   flex-shrink: 0;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }

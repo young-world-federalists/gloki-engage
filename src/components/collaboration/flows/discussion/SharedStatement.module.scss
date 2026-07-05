@@ -23,7 +23,7 @@
   font-weight: $font-semibold;
   color: $gray-800;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -38,7 +38,7 @@
   border: 1px solid $gray-200;
   border-radius: $radius-lg;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -57,7 +57,7 @@
   font-weight: $font-semibold;
   color: $gray-900;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -68,7 +68,7 @@
   line-height: 1.6;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -84,7 +84,7 @@
   font-size: $text-xs;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     border-color: $dark-border;
     color: $dark-text-secondary;
   }
@@ -97,7 +97,7 @@
   font-weight: $font-medium;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -134,7 +134,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -144,7 +144,7 @@
   background: $gray-50;
   border-radius: $radius-lg;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
   }
 }
@@ -176,7 +176,7 @@
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-bg;
     border-color: $dark-border;
   }
@@ -202,7 +202,7 @@
   align-items: center;
   justify-content: center;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
     color: $dark-text;
   }
@@ -216,7 +216,7 @@
   font-weight: $font-semibold;
   color: $gray-800;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -234,7 +234,7 @@
   line-height: 1.6;
   color: $gray-700;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
   }
 }
@@ -246,7 +246,7 @@
   border-radius: $radius-sm;
   padding: 0 2px;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $success-surface-dark;
     color: $dark-text;
   }
@@ -259,7 +259,7 @@
   border-radius: $radius-sm;
   padding: 0 2px;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $error-surface-dark;
     color: $dark-text;
   }
@@ -271,7 +271,7 @@
   font-style: italic;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -293,7 +293,7 @@
   border-radius: $radius-full;
   overflow: hidden;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-border;
   }
 }
@@ -316,7 +316,7 @@
   color: $gray-500;
   font-variant-numeric: tabular-nums;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -350,7 +350,7 @@
     transform: scale(0.96);
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
     border-color: $dark-border;
 
@@ -374,7 +374,7 @@
   font-size: $text-xs;
   color: $gray-500;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -409,7 +409,7 @@
     outline-offset: 2px;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
     border-color: $dark-border;
   }
@@ -426,7 +426,7 @@
   font-weight: $font-semibold;
   color: $gray-600;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text-secondary;
   }
 }
@@ -449,7 +449,7 @@
     border-color: $primary;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     color: $dark-text;
     border-color: $dark-border;
@@ -464,7 +464,7 @@
   background: $gray-50;
   border-radius: $radius-md;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
   }
 }

@@ -65,7 +65,7 @@
   gap: $spacing-sm;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .flow {
     background-color: $dark-surface;
   }

@@ -210,7 +210,7 @@
 }
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .topBar {
     border-bottom-color: $dark-border;
   }

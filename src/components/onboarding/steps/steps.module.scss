@@ -234,7 +234,7 @@
   gap: $spacing-xs;
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .heading,
   .voucherName,
   .recapName,

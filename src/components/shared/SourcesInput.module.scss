@@ -35,7 +35,7 @@
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
 }
 
-@media (prefers-color-scheme: dark) {
+@include dark {
   .label { color: $dark-text; }
   .hint { color: $dark-text-secondary; }
   .url, .name {

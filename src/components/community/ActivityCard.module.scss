@@ -100,7 +100,7 @@
 }
 
 // ── Dark mode ──────────────────────────────────────────────────────────────
-@media (prefers-color-scheme: dark) {
+@include dark {
   .title { color: $dark-text; }
   .byline { color: $dark-text-secondary; }
 

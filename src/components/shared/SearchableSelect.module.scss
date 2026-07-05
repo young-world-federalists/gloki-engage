@@ -23,7 +23,7 @@
     cursor: not-allowed;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
     color: $dark-text;
@@ -45,7 +45,7 @@
   box-shadow: $shadow-md;
   z-index: 50;
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-color: $dark-border;
   }
@@ -64,7 +64,7 @@
     border-bottom-color: $primary;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     background: $dark-surface;
     border-bottom-color: $dark-border;
     color: $dark-text;
@@ -98,7 +98,7 @@
     color: $primary;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @include dark {
     color: $dark-text;
 
     &:hover {

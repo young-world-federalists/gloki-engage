@@ -134,7 +134,7 @@
 }
 
 // Dark mode
-@media (prefers-color-scheme: dark) {
+@include dark {
   .header {
     h2 { color: $dark-text; }
     p { color: $dark-text-secondary; }
