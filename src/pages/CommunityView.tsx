@@ -210,6 +210,10 @@ const CommunityView: React.FC = () => {
 
   const handleResetDemo = async () => {
     if (!publicKey) return;
+    // Close the menu BEFORE the confirm opens: both overlays sit on the modal
+    // layer (z-index 1000), so never let them coexist — stacking would rest on
+    // DOM order and one Escape press would dismiss both.
+    setShowMenu(false);
     const ok = await showConfirm(
       t('community.resetBody', 'This wipes all demo interactions and restores the seeded state.'),
       {
@@ -220,7 +224,6 @@ const CommunityView: React.FC = () => {
     );
     if (!ok) return;
     resetDemoCommunity(communityId, publicKey);
-    setShowMenu(false);
     window.location.reload();
   };
 

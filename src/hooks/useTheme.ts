@@ -17,15 +17,14 @@ function isForcedTheme(v: string | null): v is 'light' | 'dark' {
   return v === 'light' || v === 'dark';
 }
 
-/** Read the persisted preference outside React. Absent/invalid → 'auto'. */
-export function getStoredTheme(): ThemePreference {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (isForcedTheme(stored)) return stored;
-  } catch {
-    /* localStorage unavailable — fall through to auto */
-  }
-  return 'auto';
+/**
+ * The APPLIED preference — read from the data-theme attribute, not storage, so
+ * the hook stays truthful even when localStorage is blocked (setTheme still
+ * applies the attribute; persistence is best-effort). Absent/invalid → 'auto'.
+ */
+function getAppliedTheme(): ThemePreference {
+  const attr = document.documentElement.getAttribute('data-theme');
+  return isForcedTheme(attr) ? attr : 'auto';
 }
 
 const listeners = new Set<() => void>();
@@ -48,9 +47,13 @@ export function setTheme(pref: ThemePreference): void {
   listeners.forEach((l) => l());
 }
 
-/** Current preference + setter, re-rendering on change from any caller. */
+/**
+ * Current preference + setter, re-rendering on change from any caller in this
+ * tab. (Deliberately single-tab: no `storage`-event listener — another tab's
+ * change applies there immediately and here on the next load via the snippet.)
+ */
 export function useTheme(): { theme: ThemePreference; setTheme: (pref: ThemePreference) => void } {
-  const theme = useSyncExternalStore(subscribe, getStoredTheme);
+  const theme = useSyncExternalStore(subscribe, getAppliedTheme);
   const set = useCallback((pref: ThemePreference) => setTheme(pref), []);
   return { theme, setTheme: set };
 }

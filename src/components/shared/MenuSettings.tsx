@@ -24,7 +24,9 @@ const MenuSettings: React.FC = () => {
   return (
     <div className={styles.settings}>
       <div className={styles.row}>
-        <span className={styles.caption}>{t('menu.theme', 'Theme')}</span>
+        {/* aria-hidden: the control group carries the same accessible name —
+            without it screen readers announce each caption twice. */}
+        <span className={styles.caption} aria-hidden="true">{t('menu.theme', 'Theme')}</span>
         <SegmentedControl
           options={themeOptions}
           value={theme}
@@ -35,7 +37,7 @@ const MenuSettings: React.FC = () => {
       </div>
       <div className={styles.row}>
         {/* Visual caption only — the switcher's own (sr-only) label names the select. */}
-        <span className={styles.caption}>{t('menu.language', 'Language')}</span>
+        <span className={styles.caption} aria-hidden="true">{t('menu.language', 'Language')}</span>
         <LanguageSwitcher hideIcon className={styles.language} />
       </div>
     </div>
