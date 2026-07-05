@@ -75,6 +75,11 @@ const sw: Dictionary = {
   'menu.about': 'Kuhusu',
   'menu.contact': 'Wasiliana nasi',
   'menu.logout': 'Toka',
+  'menu.theme': 'Mandhari',
+  'menu.themeAuto': 'Otomatiki',
+  'menu.themeLight': 'Mwangaza',
+  'menu.themeDark': 'Giza',
+  'menu.language': 'Lugha',
 
   // ── Notifications ──────────────────────────────────────────────────────
   'notifications.title': 'Arifa',

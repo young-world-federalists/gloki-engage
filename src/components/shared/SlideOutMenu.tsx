@@ -27,6 +27,12 @@ export interface SlideOutMenuProps {
   side?: 'left' | 'right';
   /** Accessible label for the close button. */
   closeLabel?: string;
+  /**
+   * Optional settings/footer block pinned below the scrolling item list,
+   * separated by the panel's divider treatment (e.g. the global menu's
+   * theme + language controls). Rendered inside the dialog's focus trap.
+   */
+  footer?: React.ReactNode;
 }
 
 /**
@@ -43,6 +49,7 @@ const SlideOutMenu: React.FC<SlideOutMenuProps> = ({
   items,
   side = 'right',
   closeLabel = 'Close menu',
+  footer,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -125,6 +132,8 @@ const SlideOutMenu: React.FC<SlideOutMenuProps> = ({
             );
           })}
         </div>
+
+        {footer && <div className={styles.footer}>{footer}</div>}
       </div>
     </div>
   );

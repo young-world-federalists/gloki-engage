@@ -76,6 +76,11 @@ const fr: Dictionary = {
   'menu.about': 'À propos',
   'menu.contact': 'Contact',
   'menu.logout': 'Se déconnecter',
+  'menu.theme': 'Thème',
+  'menu.themeAuto': 'Auto',
+  'menu.themeLight': 'Clair',
+  'menu.themeDark': 'Sombre',
+  'menu.language': 'Langue',
 
   // ── Notifications ──────────────────────────────────────────────────────
   'notifications.title': 'Notifications',

@@ -30,6 +30,8 @@ export type { EmptyStateProps } from './EmptyState';
 export { default as SlideOutMenu } from './SlideOutMenu';
 export type { SlideOutMenuProps, SlideOutMenuItem } from './SlideOutMenu';
 
+export { default as MenuSettings } from './MenuSettings';
+
 export { default as Banner } from './Banner';
 export type { BannerProps, BannerTone } from './Banner';
 

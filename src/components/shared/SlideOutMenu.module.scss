@@ -157,6 +157,12 @@
   margin: $spacing-md $spacing-xl;
 }
 
+.footer {
+  flex-shrink: 0;
+  border-top: 1px solid $gray-200;
+  padding: $spacing-lg $spacing-xl;
+}
+
 .badge {
   display: flex;
   align-items: center;
@@ -256,6 +262,10 @@
 
   .divider {
     background-color: $dark-border;
+  }
+
+  .footer {
+    border-color: $dark-border;
   }
 
   .badge {
