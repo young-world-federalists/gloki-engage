@@ -579,6 +579,7 @@ const fr: Dictionary = {
   'members.unknown': 'Membre inconnu',
   'members.join': 'Rejoindre la communauté',
   'members.joinFailed': 'Impossible de rejoindre la communauté. Veuillez réessayer.',
+  'members.joinErrorTitle': 'Adhésion impossible',
   'join.failed': 'Impossible de rejoindre cette communauté : {error}',
   'join.title': 'Rejoindre une communauté',
   'join.intro': 'Pour rejoindre une communauté, demandez à un membre de partager son QR code d’invitation ou son identifiant JSON. Vous pouvez scanner le code ou coller le JSON ci-dessous.',

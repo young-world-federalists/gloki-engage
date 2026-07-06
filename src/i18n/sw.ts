@@ -578,6 +578,7 @@ const sw: Dictionary = {
   'members.unknown': 'Mwanachama asiyejulikana',
   'members.join': 'Jiunge na jumuiya',
   'members.joinFailed': 'Imeshindwa kujiunga na jumuiya. Tafadhali jaribu tena.',
+  'members.joinErrorTitle': 'Imeshindwa kujiunga',
   'join.failed': 'Imeshindwa kujiunga na jumuiya hii: {error}',
   'join.title': 'Jiunge na jumuiya',
   'join.intro': 'Ili kujiunga na jumuiya, mwombe mwanachama ashiriki msimbo wa QR wa mwaliko au kitambulisho cha JSON. Unaweza kuchanganua msimbo au kubandika JSON hapa chini.',

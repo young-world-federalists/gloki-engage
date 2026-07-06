@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useAppSelector } from '../../store/hooks';
 import type { IProfile } from '../../services/interfaces';
 import ApprovalDialog from './dialogs/ApprovalDialog';
-import MessageDialog from './dialogs/MessageDialog';
+import { useAlert } from '../shared/useAlert';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
@@ -97,13 +97,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
   const taskAgents: string[] = Object.keys(tasks);
   const nominates: string[] = Array.isArray(communityNominates[communityId]) ? communityNominates[communityId] : [];
   const [isJoining, setIsJoining] = useState(false);
-  const [messageDialog, setMessageDialog] = useState<{
-    isOpen: boolean;
-    message: string;
-  }>({
-    isOpen: false,
-    message: ''
-  });
+  const { showAlert, alertElement } = useAlert();
 
   const members: string[] = allMembers.filter(member => !taskAgents.includes(member));
 
@@ -195,10 +189,10 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
       if (event.contract === communityId && joinRequestResponseRef.current) {
         if (event.request === joinRequestResponseRef.current) {
           if (event.reply === false) {
-            setMessageDialog({
-              isOpen: true,
-              message: t('members.tooManyNominates', 'There are currently too many nominates in the community. Please try again later.')
-            });
+            void showAlert(
+              t('members.tooManyNominates', 'There are currently too many nominates in the community. Please try again later.'),
+              { title: t('members.joinErrorTitle', "Couldn't join") },
+            );
           }
           cleanupJoinListener();
         }
@@ -213,10 +207,10 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
       joinRequestResponseRef.current = response;
     } catch (error) {
       console.error('Failed to join community:', error);
-      setMessageDialog({
-        isOpen: true,
-        message: t('members.joinFailed', 'Failed to join community. Please try again.'),
-      });
+      void showAlert(
+        t('members.joinFailed', 'Failed to join community. Please try again.'),
+        { title: t('members.joinErrorTitle', "Couldn't join") },
+      );
       cleanupJoinListener();
     }
   };
@@ -271,11 +265,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
         communityId={communityId}
       />
 
-      <MessageDialog
-        isOpen={messageDialog.isOpen}
-        message={messageDialog.message}
-        onClose={() => setMessageDialog({ isOpen: false, message: '' })}
-      />
+      {alertElement}
     </>
   );
 };
