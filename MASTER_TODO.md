@@ -334,7 +334,36 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
-- **2026-07-05 — S21: campaign Wave 4 shipped — Auto/Light/Dark theme toggle (D2) + menu
+- **2026-07-06 — S22: Wave-1.5 living remainder — kit convergence + token-debt zero (BUILT;
+  whole-diff review 0 Critical / 0 Important / 3 minors fixed same-session; the first four
+  commits are already live via Eston's parallel push, see note).** Spec
+  `docs/superpowers/specs/2026-07-06-s22-wave15-kit-convergence-design.md` — its re-grounding
+  table retired ~70% of the 2026-05-31 lane prompts (PageHeader/PipelineView already deleted,
+  i18n lane already at parity, Modal focus trap already shipped, MASTER_TODO §10/§11 gone).
+  Shipped: **SegmentedControl → WAI-ARIA radio-group** (S21 review note; roving tabindex +
+  arrow keys, preview-verified); **Modal `aria-labelledby`** wiring (T1a — the one live remnant
+  of the old lane-3 WCAG claim); **shared `<ProgressBar>`** (S18 m6) converging QVFlow (×2,
+  incl. the fillPct-toward-target turnout bar), AdoptionFramework, SharedStatement — dark
+  track canonicalized `$dark-surface`→`$dark-border` (visibility fix); **all 5 hand-rolled
+  dialogs onto the Modal/Button/Banner kit** (MessageDialog deleted for `useAlert`;
+  ApprovalDialog + QRScannerDialog also lost their raw-English strings — **+15 fr/sw keys,
+  parity 1141**, packet appended); **raw-rgba debt → 0** (new `$dark-tint-subtle/-raised/
+  -strong`, `$scrim-light`, `$shadow-xl` — byte-identical swaps; the no-ad-hoc-values law is
+  now fully grep-enforceable); **utils/initials + utils/formatDateTime** consolidation (4→1,
+  2→1 copies); **CountryFlag** `showName` double-announcement fix + ConvictionStaking/
+  AdoptionFramework raw-flag swaps. DESIGN_SYSTEM gained the Modal law, ProgressBar spec (with
+  honest exceptions), token rows; stale `$secondary` row deleted. **No DEMO_VERSION bump**
+  (no seed-content change). Also at S22 open: Eston ratified the three S21 theme/language
+  decisions; §7's stale S17-push line closed; Ouri ready-to-derive ping held at Eston's
+  discretion. **Mid-session note:** Eston's parallel session pushed at 09:11 (favicon rebrand
+  `ce0251a`) carrying the first four S22 commits to production mid-build — all were tsc-clean;
+  ship-grade-every-commit held. ★ Learnings: (1) with a second writer in the same working
+  tree the git INDEX is shared — a foreign staged deletion got swept into an S22 commit
+  (caught, surgically rebuilt); `git status` before every commit, stage explicit paths only;
+  (2) barrel imports defeat path-based consumer greps — grep the SYMBOL, not the path (a
+  "Modal has zero consumers" false alarm nearly relaunched an adoption lane); (3) editing
+  JSX before its import triggers an HMR ReferenceError ghost that survives reload — restart
+  the dev server before debugging.
   LanguageSwitcher (M6). S18 UI CAMPAIGN COMPLETE — SHIPPED+PUSHED `0ba50e8..daf3fac`, deploy green, theme snippet + :where selectors verified in the live bundle.** Spec
   `docs/superpowers/specs/2026-07-05-s21-theme-toggle-design.md` (+2 addenda). Mechanism:
   `data-theme` on `<html>` (absent = Auto) + `gloki.theme` localStorage + zero-flash head

@@ -25,8 +25,15 @@ Direct execution (no subagents — cross-cutting shared-kit work; slow-drive rul
   initials everywhere)
 - [x] **Step 7 — T6 docs** (DESIGN_SYSTEM $secondary out / ProgressBar + Modal laws + tokens
   + radio semantics in; MASTER_TODO §7 supersession entry; i18n packet Session-22 section)
-- [ ] **Step 8 — whole-session verification sweep** (recipe in spec) then whole-diff review
-  (0 Crit / 0 Imp) → present to Eston for the push gate
+- [x] **Step 8 — verification sweep + review DONE.** Sweep: `npm run build` clean, gates
+  clean, parity 1141, chat `formatDateTime` verified live ("Jul 6, 2026, 9:54 AM" after a
+  real post), QR dialog verified in fr AND sw + forced-light + 360px (screenshot), theme
+  reset to Auto. Not preview-reachable in the seed (honest gaps, tsc-clean on the verified
+  kit path): ApprovalDialog (no nominates), SharedStatement bar (no collabs), camera scan
+  itself. Whole-diff review (independent agent, 14 commits): **0 Critical / 0 Important /
+  3 Minor — all 3 fixed same-session** in `093fdcf` (dead `.countryFlag` class; ProgressBar-law
+  exceptions + §7 line for ProblemVoteFlow's bar; ApprovalDialog loading guard + error Banner,
+  +1 key). Awaiting Eston's push gate for the remaining local commits.
 
 **Mid-session note:** Eston's parallel session pushed `origin/ui` at 09:11 (favicon rebrand
 `ce0251a`), carrying the first four S22 commits to production mid-build. Everything pushed was
