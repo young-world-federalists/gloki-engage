@@ -22,6 +22,12 @@ export interface AppHeaderProps {
   /** A small, quiet line above the title (e.g. a stage/section name). */
   eyebrow?: string;
   /**
+   * The page's intro line, rendered inside the title block directly under the
+   * h1 — one box, tight spacing. Page intros live HERE, never as a floating
+   * paragraph at the top of the content (S23).
+   */
+  subtitle?: string;
+  /**
    * Keep `title` as the page's programmatic `<h1>` but hide it visually — for
    * pages whose content already shows the name (e.g. the community card), so the
    * name isn't duplicated on screen while one h1 per page is preserved.
@@ -45,7 +51,7 @@ export interface AppHeaderProps {
  * Also renders the app's "Skip to content" link (the first focusable element),
  * which targets the `<main id="main">` landmark each page wraps its content in.
  */
-const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, eyebrow, titleVisuallyHidden }) => {
+const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, eyebrow, subtitle, titleVisuallyHidden }) => {
   const navigate = useNavigate();
   const t = useT();
   const { logout } = useAuth();
@@ -109,6 +115,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, 
         <div className={`${styles.titleBlock} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
           {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
           <h1 className={styles.title}>{title}</h1>
+          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
       )}
 

@@ -233,9 +233,13 @@ wordmark (rendered once), the notifications bell, and the account menu. Props:
 `showBack`/`onBack` (icon back button; `onBack` defaults to `navigate(-1)`),
 `title` (the page's single `<h1>` — **omit** on top-level pages and standalone
 artifact pages like the published mandate, where an in-content heading is the `<h1>`),
-`eyebrow` (a quiet line above the title, e.g. the stage name). **No page-CTA prop by
-design** — primary actions live in content / the thumb zone, never the header. Each
-page wraps its content in `<main id="main" tabIndex={-1}>` (the skip-link target).
+`eyebrow` (a quiet line above the title, e.g. the stage name), `subtitle` (the page's
+intro line, inside the same title block directly under the `<h1>` — S23). **The
+subtitle law (S23):** a page's intro/description renders in the AppHeader title
+block via `subtitle`, never as a floating paragraph or info card at the top of the
+content. **No page-CTA prop by design** — primary actions live in content / the
+thumb zone, never the header. Each page wraps its content in
+`<main id="main" tabIndex={-1}>` (the skip-link target).
 
 **`InfoDisclosure`** (`src/components/shared/InfoDisclosure.tsx`) — the `(i)` →
 focus-trapped `Modal` disclosure standard. A ≥44px `(i)` icon-button (tap-only, no

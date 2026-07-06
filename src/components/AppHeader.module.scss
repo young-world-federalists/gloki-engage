@@ -212,6 +212,19 @@
   }
 }
 
+// The page intro, inside the same title block as the h1 (S23) — one box,
+// tight spacing; wraps freely (unlike the single-line h1).
+.subtitle {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
 .title {
   margin: 0;
   min-width: 0;

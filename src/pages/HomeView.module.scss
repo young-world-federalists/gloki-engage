@@ -8,15 +8,6 @@
   gap: $spacing-xl;
 }
 
-// ─── Intro ──────────────────────────────────────────────────────────────
-// The page title lives in the AppHeader block (D3); only the subtitle remains.
-.introSubtitle {
-  margin: 0;
-  font-size: $text-sm;
-  color: $gray-500;
-  line-height: 1.45;
-}
-
 .notice {
   font-size: $text-xs;
   color: $gray-500;
@@ -270,10 +261,6 @@
 
   .seeAll {
     color: $primary-on-dark; // $primary-dark was 3.45:1 on $dark-surface (S16)
-  }
-
-  .introSubtitle {
-    color: $dark-text-secondary;
   }
 
   .notice,

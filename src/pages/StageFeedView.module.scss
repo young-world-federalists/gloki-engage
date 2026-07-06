@@ -8,26 +8,6 @@
   gap: $spacing-sm;
 }
 
-// ─── Threshold banner ────────────────────────────
-.thresholdBanner {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
-  background: rgba($primary, 0.06);
-  border: 1px solid rgba($primary, 0.15);
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  color: $gray-700; // $gray-600 on the tint measured 4.26:1 (S18 campaign m1)
-  line-height: 1.4;
-
-  svg {
-    flex-shrink: 0;
-    color: $primary;
-    margin-top: 1px;
-  }
-}
-
 // ─── Cards ────────────────────────────────────
 .card {
   position: relative;
@@ -233,12 +213,6 @@
 
   .author,
   .time {
-    color: $dark-text-secondary;
-  }
-
-  .thresholdBanner {
-    background: rgba($primary, 0.1);
-    border-color: rgba($primary, 0.2);
     color: $dark-text-secondary;
   }
 
