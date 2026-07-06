@@ -607,6 +607,9 @@ const fr: Dictionary = {
   'members.tooManyNominates': 'Il y a trop de nominations en cours dans la communauté. Veuillez réessayer plus tard.',
   'members.approve': 'Approuver',
   'members.approved': 'Approuvé',
+  'members.approveTitle': "Confirmer l'identité",
+  'members.approveBody': 'Confirmez-vous que la personne avec la clé publique ci-dessous se nomme {name} et ressemble à ceci ?',
+  'members.disapprove': 'Désapprouver',
 
   // ── Trust / verification ───────────────────────────────────────────────
   'trust.verified': 'Vérifié',

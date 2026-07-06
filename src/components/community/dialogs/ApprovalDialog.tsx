@@ -1,6 +1,8 @@
 import React from 'react';
 import { approveAgent, disapproveAgent } from '../../../services/contracts/community';
 import { useAppSelector } from '../../../store/hooks';
+import { useT } from '../../../i18n';
+import { Button, Modal } from '../../shared';
 import styles from './ApprovalDialog.module.scss';
 
 interface ApprovalDialogProps {
@@ -20,11 +22,12 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
   agentProfileImage,
   communityId
 }) => {
+  const t = useT();
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
 
   const handleApprove = async () => {
     if (!publicKey || !serverUrl) return;
-    
+
     try {
       await approveAgent(
         serverUrl,
@@ -40,7 +43,7 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
 
   const handleDisapprove = async () => {
     if (!publicKey || !serverUrl) return;
-    
+
     try {
       await disapproveAgent(
         serverUrl,
@@ -54,50 +57,45 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.dialog}>
-        <div className={styles.content}>
-          <div className={styles.profileSection}>
-            <div className={styles.profileImage}>
-              {agentProfileImage ? (
-                <img src={agentProfileImage} alt="Profile" />
-              ) : (
-                <div className={styles.placeholder}>
-                  <span>?</span>
-                </div>
-              )}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={t('members.approveTitle', 'Confirm identity')}
+      closeLabel={t('common.close', 'Close')}
+      footer={
+        <>
+          <Button variant="destructive" onClick={handleDisapprove}>
+            {t('members.disapprove', 'Disapprove')}
+          </Button>
+          <Button variant="primary" onClick={handleApprove}>
+            {t('members.approve', 'Approve')}
+          </Button>
+        </>
+      }
+    >
+      <div className={styles.profileSection}>
+        <div className={styles.profileImage}>
+          {agentProfileImage ? (
+            <img src={agentProfileImage} alt={agentName} />
+          ) : (
+            <div className={styles.placeholder} aria-hidden="true">
+              <span>?</span>
             </div>
-          </div>
-          
-          <div className={styles.messageSection}>
-            <p className={styles.message}>
-              Do you confirm that the person with public key{' '}
-              <span className={styles.publicKey}>{agentPublicKey}</span>{' '}
-              is named <span className={styles.name}>{agentName}</span>{' '}
-              and looks like this?
-            </p>
-          </div>
-          
-          <div className={styles.actions}>
-            <button 
-              className={styles.disapproveButton}
-              onClick={handleDisapprove}
-            >
-              Disapprove
-            </button>
-            <button 
-              className={styles.approveButton}
-              onClick={handleApprove}
-            >
-              Approve
-            </button>
-          </div>
+          )}
         </div>
       </div>
-    </div>
+
+      <p className={styles.message}>
+        {t(
+          'members.approveBody',
+          'Do you confirm that the person with the public key below is named {name} and looks like this?',
+          { name: agentName },
+        )}
+      </p>
+      <p className={styles.publicKey}>{agentPublicKey}</p>
+    </Modal>
   );
 };
 

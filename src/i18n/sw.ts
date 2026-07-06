@@ -606,6 +606,9 @@ const sw: Dictionary = {
   'members.tooManyNominates': 'Kwa sasa kuna wateule wengi mno katika jumuiya. Tafadhali jaribu tena baadaye.',
   'members.approve': 'Idhinisha',
   'members.approved': 'Ameidhinishwa',
+  'members.approveTitle': 'Thibitisha utambulisho',
+  'members.approveBody': 'Je, unathibitisha kwamba mtu mwenye ufunguo wa umma ulio hapa chini anaitwa {name} na anafanana na hivi?',
+  'members.disapprove': 'Kataa',
 
   // ── Trust / verification ───────────────────────────────────────────────
   'trust.verified': 'Amethibitishwa',

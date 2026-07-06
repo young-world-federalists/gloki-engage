@@ -1,169 +1,74 @@
 @use '../../../styles/variables' as *;
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: $overlay-bg;
+// Dialog chrome (overlay, panel, actions) comes from the shared <Modal> +
+// <Button> kit (S22 dialog convergence); only the identity content lives here.
+
+.profileSection {
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000;
+  margin-bottom: $spacing-lg;
+}
 
-  .dialog {
-    background: $gray-50;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-lg;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+.profileImage {
+  width: 288px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 3px solid $gray-300;
 
-    .content {
-      padding: $spacing-xl;
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-lg;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-      .profileSection {
-        display: flex;
-        justify-content: center;
-
-        .profileImage {
-          width: 288px;
-          height: 288px;
-          border-radius: $radius-lg;
-          overflow: hidden;
-          border: 3px solid $gray-300;
-          
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-
-          .placeholder {
-            width: 100%;
-            height: 100%;
-            background: $gray-200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4.8rem;
-            color: $gray-600;
-            font-weight: bold;
-          }
-        }
-      }
-
-      .messageSection {
-        text-align: center;
-
-        .message {
-          font-size: $text-lg;
-          line-height: 1.6;
-          color: $gray-800;
-          margin: 0;
-
-          .publicKey {
-            font-family: monospace;
-            background: $gray-200;
-            padding: $spacing-xs $spacing-sm;
-            border-radius: $radius-sm;
-            font-size: $text-sm;
-            word-break: break-all;
-          }
-
-          .name {
-            font-weight: bold;
-            color: $primary;
-          }
-        }
-      }
-
-      .actions {
-        display: flex;
-        gap: $spacing-md;
-        justify-content: center;
-
-        .approveButton,
-        .disapproveButton {
-          padding: $spacing-md $spacing-xl;
-          border-radius: $radius-md;
-          font-size: $text-base;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: none;
-          min-width: 120px;
-        }
-
-        .approveButton {
-          background: $success;
-          color: white;
-          
-          &:hover {
-            background: $success-dark;
-          }
-          
-          &:active {
-            transform: translateY(1px);
-          }
-        }
-
-        .disapproveButton {
-          background: $error;
-          color: white;
-          
-          &:hover {
-            background: $error-dark;
-          }
-          
-          &:active {
-            transform: translateY(1px);
-          }
-        }
-      }
-    }
+  @include dark {
+    border-color: $dark-border;
   }
 }
 
-// Dark mode styles
-@include dark {
-  .overlay {
-    .dialog {
-      background: $dark-bg;
-      border: 1px solid $dark-border;
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: $gray-200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $text-3xl;
+  color: $gray-600;
+  font-weight: bold;
 
-      .content {
-        .profileSection {
-          .profileImage {
-            border-color: $dark-border;
+  @include dark {
+    background: $dark-surface;
+    color: $dark-text-secondary;
+  }
+}
 
-            .placeholder {
-              background: $dark-surface;
-              color: $dark-text-secondary;
-            }
-          }
-        }
+.message {
+  font-size: $text-lg;
+  line-height: 1.6;
+  color: $gray-800;
+  margin: 0 0 $spacing-sm;
+  text-align: center;
 
-        .messageSection {
-          .message {
-            color: $dark-text;
+  @include dark {
+    color: $dark-text;
+  }
+}
 
-            .publicKey {
-              background: $dark-surface;
-              color: $dark-text;
-            }
+.publicKey {
+  font-family: monospace;
+  background: $gray-200;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $text-sm;
+  word-break: break-all;
+  text-align: center;
+  margin: 0;
 
-            .name {
-              color: $primary;
-            }
-          }
-        }
-      }
-    }
+  @include dark {
+    background: $dark-surface;
+    color: $dark-text;
   }
 }
