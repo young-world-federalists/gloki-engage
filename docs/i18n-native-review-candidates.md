@@ -906,6 +906,47 @@ hamburger menu on every screen):**
 
 ---
 
+## Session 22 (2026-07-06) — dialog convergence (+14 keys, parity 1140)
+
+Two hand-rolled dialogs had raw untranslated English; they gained `t()` during the S22
+shared-Modal ports.
+
+- **fr/sw `members.joinErrorTitle`** — "Couldn't join" (alert title for join failures).
+  fr "Adhésion impossible", sw "Imeshindwa kujiunga".
+- **fr/sw `members.approveTitle`** — "Confirm identity" (approve-member dialog title).
+  fr "Confirmer l'identité", sw "Thibitisha utambulisho".
+- **fr/sw `members.approveBody`** — "Do you confirm that the person with the public key below
+  is named {name} and looks like this?" fr "Confirmez-vous que la personne avec la clé publique
+  ci-dessous se nomme {name} et ressemble à ceci ?", sw "Je, unathibitisha kwamba mtu mwenye
+  ufunguo wa umma ulio hapa chini anaitwa {name} na anafanana na hivi?" — confirm the sw
+  register for a face/photo comparison ("anafanana na hivi").
+- **fr/sw `members.disapprove`** — "Disapprove" (destructive button). fr "Désapprouver",
+  sw "Kataa" — confirm "Kataa" (refuse/reject) fits declining an identity confirmation.
+- **fr/sw `identityTrust.scanTitle`** — "Scan Identity Card". fr "Scanner une carte d'identité",
+  sw "Changanua kadi ya utambulisho" — matches the existing `identityTrust.scanMember`
+  "Changanua"; confirm it reads naturally for QR scanning (vs the loanword "skani").
+- **fr/sw `identityTrust.scanValidating`** — "Validating identity card…". fr "Validation de la
+  carte d'identité…", sw "Inathibitisha kadi ya utambulisho…".
+- **fr/sw `identityTrust.scanAuthenticated`** — "Authenticated Member". fr "Membre authentifié",
+  sw "Mwanachama aliyethibitishwa".
+- **fr/sw `identityTrust.scanAgent`** — "Agent: {key}". fr "Agent : {key}", sw "Wakala: {key}".
+- **fr/sw `identityTrust.scanContract`** — "Contract: {id}". fr "Contrat : {id}",
+  sw "Mkataba: {id}".
+- **fr/sw `identityTrust.scanInvalid`** — "Invalid Identity". fr "Identité non valide",
+  sw "Utambulisho si halali".
+- **fr/sw `identityTrust.scanInvalidFormat`** — "Invalid QR code format". fr "Format de QR code
+  non valide", sw "Muundo wa msimbo wa QR si halali".
+- **fr/sw `identityTrust.scanNotMember`** — "This agent is not a member of this community".
+  fr "Cet agent n'est pas membre de cette communauté", sw "Wakala huyu si mwanachama wa
+  jumuiya hii".
+- **fr/sw `identityTrust.scanInstructions`** — "Point your camera at a printed identity card QR
+  code to verify membership." fr "Pointez votre caméra vers le QR code d'une carte d'identité
+  imprimée pour vérifier l'adhésion.", sw "Elekeza kamera yako kwenye msimbo wa QR wa kadi ya
+  utambulisho iliyochapishwa ili kuthibitisha uanachama."
+- **fr/sw `identityTrust.scanAgain`** — "Scan Again". fr "Scanner à nouveau", sw "Changanua tena".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

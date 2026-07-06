@@ -28,8 +28,9 @@ Use SCSS tokens from `src/styles/variables.scss`. Never hardcode hex values.
 | `$success` | Positive outcomes, thresholds met, completion |
 | `$warning` | Caution states, unresolved concerns, pending actions |
 | `$error` | Destructive actions, failures, blocking errors |
-| `$secondary` | Muted accents |
 | `$gray-50` … `$gray-900` | Secondary content, borders, disabled states |
+| `$dark-tint-subtle/-raised/-strong` | White-alpha hover/raised surfaces on dark backgrounds (S22) |
+| `$overlay-bg` / `$scrim-light` | Modal backdrop / lighter sheet-dimmer scrim |
 
 **Rule:** If it's not interactive, it's not blue. If it's not an error, it's not red.
 
@@ -194,6 +195,12 @@ exceptions listed above are intentional departures, not remnants of these remove
 - Padding: `$spacing-xl`
 - Max width: 480px
 - Structure: header (title + close) → body → footer (actions, right-aligned)
+- **Law (S22): every dialog uses the shared `<Modal>`** — no hand-rolled
+  overlays. It carries the focus trap, Escape, focus-restore, body-scroll lock,
+  `aria-modal`, `aria-labelledby` (from `title`), and the `$overlay-bg`
+  backdrop; alerts/confirms go through `useAlert`. (The one sanctioned
+  non-Modal overlay is CommunityView's bottom-sheet `.optionsOverlay`,
+  dimmed with `$scrim-light`.)
 
 ### Loading States
 - Centered in container
@@ -297,12 +304,19 @@ nouns render canonical-English (only the chrome is `t()`-wired). Props: `value`
 
 ## Progress Bars
 
-Used in voting flows for threshold visualization:
-- Height: 8px
-- Border radius: `$radius-full`
-- Background: `$gray-100`
-- Fill: `$primary` (in progress) or `$success` (threshold met)
-- Transition: width `$transition-base`
+**Law (S22): all determinate bars render through the shared `<ProgressBar>`**
+(`src/components/shared/ProgressBar.tsx` — the m6 kit extraction; QVFlow,
+AdoptionFramework, and SharedStatement converged onto it):
+- `value`/`max` drive `aria-valuenow/max`; `label` (translated) is required
+- `fillPct` overrides the visual fill when it differs from value/max
+  (e.g. QV turnout fills progress toward the interim target)
+- Sizes: `sm` 6px (default), `md` 8px; radius `$radius-full`
+- Track: `$gray-100`, dark `$dark-border`
+- Variants: `primary`, `success`, `neutral` ($gray-500); callers flip
+  `primary → success` on completion and the background transition animates it
+- Transition: width/background `$transition-base`; reduced-motion aware
+- (QVFlow's `.regbar` stacked results strip is a different primitive — a
+  `role="img"` composition, not a progress bar)
 
 ## Token reference
 
@@ -324,6 +338,7 @@ The remaining scales, for completeness. Use the token, not the value.
 | `$shadow-base` | Default card resting shadow |
 | `$shadow-md` | Card hover / raised |
 | `$shadow-lg` | Modals, popovers, sheets |
+| `$shadow-xl` | Hero cards (login card) |
 
 ### Transitions
 | Token | Value | Use |
@@ -355,9 +370,10 @@ scratch** — they already encode the tokens above.
 | Component | Use |
 |-----------|-----|
 | `Button` | The canonical *action* button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Use for CTAs and dialog actions; a few themed / icon-only / list-row buttons stay bespoke — see Buttons → "When to reach for `<Button>`". |
-| `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. |
+| `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. WAI-ARIA radio-group semantics (S22): one tab stop, arrow keys move selection, `aria-checked`. |
 | `Card` | Content container (padding, radius, shadow per the Cards spec). |
-| `Modal` | Centered overlay dialog (header → body → footer). |
+| `Modal` | Centered overlay dialog (header → body → footer). The mandatory shell for EVERY dialog — see Components → Modals for the S22 law. |
+| `ProgressBar` | Canonical determinate bar (see Progress Bars). |
 | `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). Bakes in `role` — `alert` for the error tone, `status` otherwise. |
 | `InfoDisclosure` | The `(i)` → focus-trapped `Modal` disclosure standard (prose behind the `(i)`, numbers stay inline). See **App shell, disclosure & pipeline primitives**. |
 | `StageStrip` | Read-only `<ol>` of the 5 governance stages; token rainbow; default `aria-label` `stage.pipelineOverview`. See the primitives subsection. |

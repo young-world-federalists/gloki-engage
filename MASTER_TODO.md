@@ -300,12 +300,15 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 - **Offline last-view cache** + WhatsApp-shareable summary (S14 deliberately shipped the lighter
   in-app anchor; no service worker).
 - Points/currency depth, leaderboards (also §6).
-- Wave 1.5 refactor lanes — design-system canonicalization (incl. the 10 baseline rgba scrims and
-  the S16 kit-adoption leads: FundingFlow empty-state/tabs, bespoke dialogs), utils/types
-  consolidation, shared-affordances extraction (S17 note: the 44px `::after` hit-area recipe now
-  appears 4× — Banner, MandateCard, NotificationsBell area, HomeView — extract a mixin; consider
-  `teaserTone` enum over the `teaserAction` boolean to match Badge/Banner conventions),
-  voting-flow consolidation — see archive.
+- ✅ **Wave 1.5 refactor lanes — living remainder DONE in S22 (2026-07-06)**; the 2026-05-31 lane
+  prompts are superseded by `docs/superpowers/specs/2026-07-06-s22-wave15-kit-convergence-design.md`
+  (its re-grounding table records what was already dead). Shipped: dialog convergence onto shared
+  Modal (5 dialogs; MessageDialog deleted for useAlert), `<ProgressBar>` kit (m6), SegmentedControl
+  radio-group semantics, raw-rgba debt → 0 (new `$dark-tint-*`/`$scrim-light`/`$shadow-xl` tokens),
+  `utils/initials` + `utils/formatDateTime` consolidation, CountryFlag convergence + its
+  double-announcement fix. Lane 4's D3 half stays below; still open from the old lane notes:
+  the 44px `::after` hit-area mixin (4×), `teaserTone` enum, FundingFlow empty-state/tabs
+  kit adoption, VotingFlowShell extraction.
 - **Engage-stack wiring dedup (S20 review):** the member-fetch + threshold wiring now has 4 copies
   (Problem/Solution/Vote ActivityCards + `FeedEngagePanel`) and the engage+advance composition is
   hand-wired in 4 hosts — extract `useCommunityMemberCounts` + a `StageEngageStack`; same pass
