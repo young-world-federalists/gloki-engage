@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
@@ -16,6 +16,8 @@ export interface ModalProps {
   closeOnBackdrop?: boolean;
   /** Accessible label for the close button — pass a translated string. */
   closeLabel?: string;
+  /** Accessible name for the dialog when no `title` is rendered. */
+  ariaLabel?: string;
 }
 
 /**
@@ -32,9 +34,11 @@ const Modal: React.FC<ModalProps> = ({
   size = 'md',
   closeOnBackdrop = true,
   closeLabel = 'Close',
+  ariaLabel,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
 
   // Move focus into the dialog on open; restore it to the trigger on close.
   useEffect(() => {
@@ -96,10 +100,16 @@ const Modal: React.FC<ModalProps> = ({
         className={clsx(styles.modal, styles[size])}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={title != null ? titleId : undefined}
+        aria-label={title == null ? ariaLabel : undefined}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.header}>
-          {title != null && <h2 className={styles.title}>{title}</h2>}
+          {title != null && (
+            <h2 id={titleId} className={styles.title}>
+              {title}
+            </h2>
+          )}
           <button type="button" className={styles.close} onClick={onClose} aria-label={closeLabel}>
             <X size={20} />
           </button>
