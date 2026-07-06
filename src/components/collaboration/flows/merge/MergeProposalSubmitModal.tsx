@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
 import { useAppSelector } from '../../../../store/hooks';
 import { contractRead } from '../../../../services/api';
 import type { IMethod } from '../../../../services/interfaces';
 import { proposeMerge } from './mergeApi';
 import { useT } from '../../../../i18n';
+import { Banner, Button, Modal } from '../../../shared';
 import styles from './MergeProposalSubmitModal.module.scss';
 
 interface MergeProposalSubmitModalProps {
@@ -90,65 +90,70 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
     }
   };
 
+  const hasEligible = eligibleSources !== null && eligibleSources.length > 0;
+
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h3>{t('deliberation.merge.submit.title', 'Propose a merge into “{title}”', { title: targetTitle })}</h3>
-          <button className={styles.closeBtn} onClick={onClose} aria-label={t('common.close', 'Close')}><X size={16} /></button>
-        </div>
-
-        {eligibleSources === null ? (
-          <div className={styles.emptyState}>
-            <p>{t('deliberation.merge.submit.loading', 'Loading your initiatives…')}</p>
-          </div>
-        ) : eligibleSources.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>{t('deliberation.merge.submit.noEligible', 'You need an initiative you authored in Problem, Discussion, or Proposals stage to propose a merge.')}</p>
-            <p className={styles.hint}>{t('deliberation.merge.submit.noEligibleHint', 'Vote- and Mandate-stage initiatives can’t be merged.')}</p>
-          </div>
-        ) : (
+    <Modal
+      isOpen
+      onClose={onClose}
+      title={t('deliberation.merge.submit.title', 'Propose a merge into “{title}”', { title: targetTitle })}
+      closeLabel={t('common.close', 'Close')}
+      footer={
+        hasEligible ? (
           <>
-            <label className={styles.label}>
-              {t('deliberation.merge.submit.sourceLabel', 'Which of your initiatives should be merged into this one?')}
-              <select
-                className={styles.select}
-                value={sourceId}
-                onChange={(e) => setSourceId(e.target.value)}
-              >
-                <option value="">{t('deliberation.merge.submit.chooseOne', 'Choose one…')}</option>
-                {eligibleSources.map((c) => (
-                  <option key={c.id} value={c.id}>{c.title}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.label}>
-              {t('deliberation.merge.submit.rationaleLabel', 'Rationale (why should these merge?)')}
-              <textarea
-                className={styles.textarea}
-                value={rationale}
-                onChange={(e) => setRationale(e.target.value)}
-                placeholder={t('deliberation.merge.submit.rationalePlaceholder', 'Explain the overlap and the benefits of consolidating.')}
-                rows={5}
-              />
-              <span className={styles.charCount}>
-                {rationale.trim().length} / {MIN_RATIONALE} min
-              </span>
-            </label>
-
-            {error && <p className={styles.error}>{error}</p>}
-
-            <div className={styles.actions}>
-              <button className={styles.cancelBtn} onClick={onClose} disabled={submitting}>{t('common.cancel', 'Cancel')}</button>
-              <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
-                {submitting ? t('deliberation.merge.submit.submitting', 'Submitting…') : t('deliberation.merge.submit.submit', 'Submit Merge Proposal')}
-              </button>
-            </div>
+            <Button variant="secondary" onClick={onClose} disabled={submitting}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button variant="primary" onClick={handleSubmit} loading={submitting}>
+              {submitting ? t('deliberation.merge.submit.submitting', 'Submitting…') : t('deliberation.merge.submit.submit', 'Submit Merge Proposal')}
+            </Button>
           </>
-        )}
-      </div>
-    </div>
+        ) : undefined
+      }
+    >
+      {eligibleSources === null ? (
+        <div className={styles.emptyState}>
+          <p>{t('deliberation.merge.submit.loading', 'Loading your initiatives…')}</p>
+        </div>
+      ) : eligibleSources.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p>{t('deliberation.merge.submit.noEligible', 'You need an initiative you authored in Problem, Discussion, or Proposals stage to propose a merge.')}</p>
+          <p className={styles.hint}>{t('deliberation.merge.submit.noEligibleHint', 'Vote- and Mandate-stage initiatives can’t be merged.')}</p>
+        </div>
+      ) : (
+        <>
+          <label className={styles.label}>
+            {t('deliberation.merge.submit.sourceLabel', 'Which of your initiatives should be merged into this one?')}
+            <select
+              className={styles.select}
+              value={sourceId}
+              onChange={(e) => setSourceId(e.target.value)}
+            >
+              <option value="">{t('deliberation.merge.submit.chooseOne', 'Choose one…')}</option>
+              {eligibleSources.map((c) => (
+                <option key={c.id} value={c.id}>{c.title}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className={styles.label}>
+            {t('deliberation.merge.submit.rationaleLabel', 'Rationale (why should these merge?)')}
+            <textarea
+              className={styles.textarea}
+              value={rationale}
+              onChange={(e) => setRationale(e.target.value)}
+              placeholder={t('deliberation.merge.submit.rationalePlaceholder', 'Explain the overlap and the benefits of consolidating.')}
+              rows={5}
+            />
+            <span className={styles.charCount}>
+              {rationale.trim().length} / {MIN_RATIONALE} min
+            </span>
+          </label>
+
+          {error && <Banner tone="error">{error}</Banner>}
+        </>
+      )}
+    </Modal>
   );
 };
 

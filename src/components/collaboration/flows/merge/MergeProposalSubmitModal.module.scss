@@ -1,50 +1,8 @@
 @use '../../../../styles/variables' as *;
 
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background: $overlay-bg;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.modal {
-  background: white;
-  color: $gray-800;
-  border-radius: $radius-lg;
-  padding: 20px;
-  max-width: 520px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: auto;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  h3 { margin: 0; font-size: 16px; }
-}
-
-.closeBtn {
-  background: transparent;
-  border: none;
-  color: $gray-500;
-  cursor: pointer;
-  padding: 4px;
-
-  &:hover { color: $gray-700; }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-    border-radius: $radius-sm;
-  }
-}
+// Dialog chrome (backdrop, panel, header, actions) comes from the shared
+// <Modal> + <Button> kit and errors from <Banner> (S22 dialog convergence);
+// only the merge form lives here.
 
 .label {
   display: flex;
@@ -89,64 +47,7 @@
   font-size: 11px;
 }
 
-.error {
-  background: $error-surface;
-  color: $error-on-surface;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-bottom: 10px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.cancelBtn, .submitBtn {
-  padding: 8px 14px;
-  border-radius: $radius-md;
-  font-size: 13px;
-  font-weight: $font-semibold;
-  border: 1px solid transparent;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
-
-.cancelBtn {
-  background: transparent;
-  color: $gray-600;
-  border-color: $gray-200;
-
-  &:hover { background: $gray-50; }
-}
-
-.submitBtn {
-  background: $primary;
-  color: white;
-
-  &:hover { background: $primary-dark; }
-  &:disabled { opacity: 0.5; cursor: default; }
-}
-
 @include dark {
-  .modal {
-    background: $dark-bg;
-    color: $dark-text;
-  }
-
-  .closeBtn {
-    color: $dark-text-secondary;
-
-    &:hover { color: $dark-text; }
-  }
-
   .select, .textarea {
     background: $dark-surface;
     color: $dark-text;
@@ -156,16 +57,4 @@
   .charCount, .hint { color: $dark-text-secondary; }
 
   .emptyState { color: $dark-text-secondary; }
-
-  .error {
-    background: $error-surface-dark;
-    color: $dark-text;
-  }
-
-  .cancelBtn {
-    color: $dark-text-secondary;
-    border-color: $dark-border;
-
-    &:hover { background: rgba($dark-text, 0.06); }
-  }
 }
