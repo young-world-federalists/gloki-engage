@@ -1,302 +1,127 @@
 @use '../../../styles/variables' as *;
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: $overlay-bg;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: $spacing-lg;
+// Dialog chrome (overlay, panel, header, actions) comes from the shared
+// <Modal> + <Button> kit and errors from <Banner> (S22 dialog convergence);
+// only the form content lives here.
 
-  .dialog {
-    background: white;
-    border-radius: $radius-lg;
-    width: 100%;
-    max-width: 520px;
-    box-shadow: $shadow-lg;
-    overflow: hidden;
+.formGroup {
+  margin-bottom: $spacing-xl;
+}
 
-    @include dark {
-      background: $dark-bg;
-      color: $dark-text;
-    }
+.label {
+  display: block;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  margin-bottom: $spacing-sm;
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: $spacing-xl $spacing-xl 0 $spacing-xl;
-      border-bottom: 1px solid $gray-200;
-      margin-bottom: $spacing-xl;
-
-      @include dark {
-        border-bottom-color: $dark-border;
-      }
-
-      .title {
-        font-size: $text-xl;
-        font-weight: $font-semibold;
-        color: $gray-800;
-        margin: 0;
-
-        @include dark {
-          color: $dark-text;
-        }
-      }
-
-      .closeButton {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: $gray-500;
-        cursor: pointer;
-        padding: $spacing-xs;
-        border-radius: $radius-sm;
-        transition: all $transition-base;
-
-        &:hover {
-          background-color: $gray-100;
-          color: $gray-700;
-
-          @include dark {
-            background-color: $dark-surface;
-            color: $dark-text;
-          }
-        }
-      }
-    }
-
-    .content {
-      padding: 0 $spacing-xl;
-
-      .formGroup {
-        margin-bottom: $spacing-xl;
-
-        .label {
-          display: block;
-          font-size: $text-sm;
-          font-weight: $font-medium;
-          color: $gray-700;
-          margin-bottom: $spacing-sm;
-
-          @include dark {
-            color: $dark-text-secondary;
-          }
-        }
-
-        .inputField {
-          width: 100%;
-          padding: $spacing-md;
-          border: 1px solid $gray-300;
-          border-radius: $radius-md;
-          font-size: $text-sm;
-          transition: border-color $transition-base, box-shadow $transition-base;
-          box-sizing: border-box;
-          background: white;
-          color: $gray-800;
-
-          @include dark {
-            background: $dark-surface;
-            border-color: $dark-border;
-            color: $dark-text;
-          }
-
-          &:focus {
-            outline: none;
-            border-color: $primary;
-            box-shadow: 0 0 0 3px rgba($primary, 0.1);
-          }
-
-          &:disabled {
-            background-color: $gray-50;
-            color: $gray-500;
-            cursor: not-allowed;
-
-            @include dark {
-              background-color: $dark-border;
-            }
-          }
-
-          &::placeholder {
-            color: $gray-500;
-          }
-        }
-
-        .templateGrid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: $spacing-md;
-
-          .templateCard {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: $spacing-xs;
-            padding: $spacing-md;
-            border: 2px solid $gray-200;
-            border-radius: $radius-md;
-            background: white;
-            cursor: pointer;
-            text-align: left;
-            transition: border-color $transition-base, background-color $transition-base;
-
-            @include dark {
-              background: $dark-surface;
-              border-color: $dark-border;
-            }
-
-            &:hover:not(:disabled) {
-              border-color: $primary;
-              background-color: $gray-50;
-
-              @include dark {
-                background-color: $dark-bg;
-              }
-            }
-
-            &.selected {
-              border-color: $primary;
-              background-color: rgba($primary, 0.05);
-
-              @include dark {
-                background-color: rgba($primary, 0.1);
-              }
-            }
-
-            &:disabled {
-              opacity: 0.6;
-              cursor: not-allowed;
-            }
-
-            .templateLabel {
-              font-size: $text-sm;
-              font-weight: $font-semibold;
-              color: $gray-800;
-
-              @include dark {
-                color: $dark-text;
-              }
-            }
-
-            .templateDescription {
-              font-size: $text-xs;
-              color: $gray-500;
-              line-height: 1.4;
-
-              @include dark {
-                color: $dark-text-secondary;
-              }
-            }
-          }
-        }
-      }
-
-      .errorMessage {
-        background-color: $error-surface;
-        border: 1px solid rgba($error, 0.3);
-        color: $error-on-surface;
-        padding: $spacing-md;
-        border-radius: $radius-md;
-        font-size: $text-sm;
-        margin-bottom: $spacing-lg;
-      }
-    }
-
-    .actions {
-      display: flex;
-      gap: $spacing-md;
-      justify-content: flex-end;
-      padding: $spacing-xl;
-      background-color: $gray-50;
-      border-top: 1px solid $gray-200;
-
-      @include dark {
-        background-color: $dark-surface;
-        border-top-color: $dark-border;
-      }
-
-      .createButton {
-        background-color: $primary;
-        color: white;
-        border: none;
-        padding: $spacing-md $spacing-xl;
-        border-radius: $radius-md;
-        font-size: $text-sm;
-        font-weight: $font-medium;
-        cursor: pointer;
-        transition: background-color $transition-base;
-
-        &:hover:not(:disabled) {
-          background-color: $primary-dark;
-        }
-
-        &:disabled {
-          background-color: $gray-400;
-          cursor: not-allowed;
-        }
-      }
-
-      .cancelButton {
-        background-color: white;
-        color: $gray-700;
-        border: 1px solid $gray-300;
-        padding: $spacing-md $spacing-xl;
-        border-radius: $radius-md;
-        font-size: $text-sm;
-        font-weight: $font-medium;
-        cursor: pointer;
-        transition: all $transition-base;
-
-        @include dark {
-          background-color: $dark-bg;
-          color: $dark-text;
-          border-color: $dark-border;
-        }
-
-        &:hover:not(:disabled) {
-          background-color: $gray-50;
-          border-color: $gray-400;
-
-          @include dark {
-            background-color: $dark-surface;
-          }
-        }
-
-        &:disabled {
-          color: $gray-500;
-          cursor: not-allowed;
-        }
-      }
-    }
+  @include dark {
+    color: $dark-text-secondary;
   }
 }
 
-@media (max-width: $breakpoint-sm) {
-  .overlay {
-    padding: $spacing-sm;
+.inputField {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  transition: border-color $transition-base, box-shadow $transition-base;
+  box-sizing: border-box;
+  background: white;
+  color: $gray-800;
 
-    .dialog {
-      .content {
-        .formGroup {
-          .templateGrid {
-            grid-template-columns: 1fr 1fr;
-          }
-        }
-      }
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
 
-      .actions {
-        flex-direction: column;
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
 
-        .createButton,
-        .cancelButton {
-          width: 100%;
-        }
-      }
+  &:disabled {
+    background-color: $gray-50;
+    color: $gray-500;
+    cursor: not-allowed;
+
+    @include dark {
+      background-color: $dark-border;
     }
+  }
+
+  &::placeholder {
+    color: $gray-500;
+  }
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  border: 2px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color $transition-base, background-color $transition-base;
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: $primary;
+    background-color: $gray-50;
+
+    @include dark {
+      background-color: $dark-bg;
+    }
+  }
+
+  &.selected {
+    border-color: $primary;
+    background-color: rgba($primary, 0.05);
+
+    @include dark {
+      background-color: rgba($primary, 0.1);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.templateLabel {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.templateDescription {
+  font-size: $text-xs;
+  color: $gray-500;
+  line-height: 1.4;
+
+  @include dark {
+    color: $dark-text-secondary;
   }
 }
