@@ -1,350 +1,204 @@
 @use '../../../styles/variables' as *;
 
+// Dialog chrome (overlay, panel, header, actions) comes from the shared
+// <Modal> + <Button> kit (S22 dialog convergence); only the scanner content
+// lives here.
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+.scannerContainer {
+  margin-bottom: $spacing-lg;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-base;
+}
 
-  .dialog {
+.instructions {
+  text-align: center;
+  padding: $spacing-md;
+  background: $gray-100;
+  border-radius: $radius-md;
+
+  p {
+    color: $gray-600;
+    margin: 0;
+    font-size: $text-sm;
+    line-height: 1.5;
+  }
+
+  @include dark {
+    background: $dark-surface;
+
+    p {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+.validating {
+  text-align: center;
+  padding: $spacing-2xl 0;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid $gray-200;
+    border-top: 4px solid $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto $spacing-lg;
+  }
+
+  p {
+    color: $gray-600;
+    font-size: $text-base;
+  }
+
+  @include dark {
+    p {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+.result {
+  text-align: center;
+  padding: $spacing-lg 0;
+}
+
+.successResult {
+  .successIcon {
+    color: $success;
+    margin-bottom: $spacing-lg;
+  }
+
+  h3 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-lg 0;
+  }
+
+  .memberInfo {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
     background: $gray-50;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-lg;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-lg;
+    text-align: left;
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: $spacing-xl;
-      border-bottom: 1px solid $gray-200;
-
-      h2 {
-        font-size: $text-xl;
-        font-weight: $font-bold;
-        color: $gray-800;
-        margin: 0;
-      }
-
-      .closeButton {
-  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        background: transparent;
-        border: none;
-        border-radius: $radius-md;
-        color: $gray-500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: $gray-100;
-          color: $gray-700;
-        }
-      }
+    .memberPhoto {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid $success;
     }
 
-    .content {
-      padding: $spacing-xl;
+    .memberDetails {
+      flex: 1;
 
-      .scannerContainer {
-        margin-bottom: $spacing-lg;
-        border-radius: $radius-lg;
-        overflow: hidden;
-        box-shadow: $shadow-base;
+      h4 {
+        font-size: $text-base;
+        font-weight: $font-semibold;
+        color: $gray-800;
+        margin: 0 0 $spacing-xs 0;
       }
 
-      .instructions {
-        text-align: center;
-        padding: $spacing-md;
-        background: $gray-100;
-        border-radius: $radius-md;
-        margin-bottom: $spacing-lg;
+      .agentKey {
+        font-size: $text-sm;
+        color: $gray-600;
+        margin: 0;
+        font-family: monospace;
+        word-break: break-all;
+      }
+    }
+  }
 
-        p {
-          color: $gray-600;
-          margin: 0;
-          font-size: $text-sm;
-          line-height: 1.5;
-        }
+  .vouchConfirm {
+    margin: $spacing-sm 0 $spacing-lg;
+    color: $success;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+  }
+
+  @include dark {
+    h3 {
+      color: $dark-text;
+    }
+
+    .memberInfo {
+      background: $dark-surface;
+
+      h4 {
+        color: $dark-text;
       }
 
-      .validating {
-        text-align: center;
-        padding: $spacing-2xl 0;
-
-        .spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid $gray-200;
-          border-top: 4px solid $primary;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto $spacing-lg;
-        }
-
-        p {
-          color: $gray-600;
-          font-size: $text-base;
-        }
-      }
-
-      .result {
-        text-align: center;
-        padding: $spacing-lg 0;
-      }
-
-      .successResult {
-        .successIcon {
-          color: $success;
-          margin-bottom: $spacing-lg;
-        }
-
-        h3 {
-          font-size: $text-lg;
-          font-weight: $font-semibold;
-          color: $gray-800;
-          margin: 0 0 $spacing-lg 0;
-        }
-
-        .memberInfo {
-          display: flex;
-          align-items: center;
-          gap: $spacing-md;
-          background: $gray-50;
-          border-radius: $radius-md;
-          padding: $spacing-lg;
-          margin-bottom: $spacing-lg;
-          text-align: left;
-
-          .memberPhoto {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid $success;
-          }
-
-          .memberDetails {
-            flex: 1;
-
-            h4 {
-              font-size: $text-base;
-              font-weight: $font-semibold;
-              color: $gray-800;
-              margin: 0 0 $spacing-xs 0;
-            }
-
-            .agentKey {
-              font-size: $text-sm;
-              color: $gray-600;
-              margin: 0;
-              font-family: monospace;
-              word-break: break-all;
-            }
-          }
-        }
-
-        .vouchConfirm {
-          margin: $spacing-sm 0 0;
-          color: $success;
-          font-size: $text-sm;
-          font-weight: $font-medium;
-        }
-      }
-
-      .errorResult {
-        .errorIcon {
-          color: $error;
-          margin-bottom: $spacing-lg;
-        }
-
-        h3 {
-          font-size: $text-lg;
-          font-weight: $font-semibold;
-          color: $gray-800;
-          margin: 0 0 $spacing-md 0;
-        }
-
-        p {
-          color: $gray-600;
-          margin: 0 0 $spacing-lg 0;
-          line-height: 1.5;
-        }
-
-        .details {
-          background: $gray-50;
-          border-radius: $radius-md;
-          padding: $spacing-md;
-          margin-bottom: $spacing-lg;
-          text-align: left;
-
-          p {
-            font-size: $text-sm;
-            color: $gray-600;
-            margin: 0 0 $spacing-xs 0;
-            font-family: monospace;
-            word-break: break-all;
-
-            &:last-child {
-              margin: 0;
-            }
-          }
-        }
-      }
-
-      .actions {
-        display: flex;
-        gap: $spacing-md;
-        justify-content: center;
-
-        .scanAgainButton {
-          padding: $spacing-md $spacing-xl;
-          background: $primary;
-          color: white;
-          border: none;
-          border-radius: $radius-md;
-          font-size: $text-base;
-          font-weight: $font-medium;
-          cursor: pointer;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: $primary-dark;
-          }
-        }
-
-        .closeButton {
-          padding: $spacing-md $spacing-xl;
-          background: $gray-200;
-          color: $gray-700;
-          border: none;
-          border-radius: $radius-md;
-          font-size: $text-base;
-          font-weight: $font-medium;
-          cursor: pointer;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: $gray-300;
-            color: $gray-800;
-          }
-        }
+      .agentKey {
+        color: $dark-text-secondary;
       }
     }
   }
 }
 
-// Dark mode styles
-@include dark {
-  .overlay {
-    .dialog {
-      background: $dark-bg;
-      border: 1px solid $dark-border;
+.errorResult {
+  .errorIcon {
+    color: $error;
+    margin-bottom: $spacing-lg;
+  }
 
-      .header {
-        border-bottom-color: $dark-border;
+  h3 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
 
-        h2 {
-          color: $dark-text;
-        }
+  p {
+    color: $gray-600;
+    margin: 0 0 $spacing-lg 0;
+    line-height: 1.5;
+  }
 
-        .closeButton {
-          color: $dark-text-secondary;
+  .details {
+    background: $gray-50;
+    border-radius: $radius-md;
+    padding: $spacing-md;
+    margin-bottom: $spacing-lg;
+    text-align: left;
 
-          &:hover {
-            background: $dark-surface;
-            color: $dark-text;
-          }
-        }
+    p {
+      font-size: $text-sm;
+      color: $gray-600;
+      margin: 0 0 $spacing-xs 0;
+      font-family: monospace;
+      word-break: break-all;
+
+      &:last-child {
+        margin: 0;
       }
+    }
+  }
 
-      .content {
-        .instructions {
-          background: $dark-surface;
+  @include dark {
+    h3 {
+      color: $dark-text;
+    }
 
-          p {
-            color: $dark-text-secondary;
-          }
-        }
+    p {
+      color: $dark-text-secondary;
+    }
 
-        .validating p {
-          color: $dark-text-secondary;
-        }
+    .details {
+      background: $dark-surface;
 
-        .successResult {
-          h3 {
-            color: $dark-text;
-          }
-
-          .memberInfo {
-            background: $dark-surface;
-
-            h4 {
-              color: $dark-text;
-            }
-
-            .agentKey {
-              color: $dark-text-secondary;
-            }
-          }
-        }
-
-        .errorResult {
-          h3 {
-            color: $dark-text;
-          }
-
-          p {
-            color: $dark-text-secondary;
-          }
-
-          .details {
-            background: $dark-surface;
-
-            p {
-              color: $dark-text-secondary;
-            }
-          }
-        }
-
-        .actions {
-          .scanAgainButton {
-            background: $primary;
-            color: white;
-
-            &:hover {
-              background: $primary-dark;
-            }
-          }
-
-          .closeButton {
-            background: $dark-border;
-            color: $dark-text;
-
-            &:hover {
-              background: $dark-text-secondary;
-              color: $dark-text;
-            }
-          }
-        }
+      p {
+        color: $dark-text-secondary;
       }
     }
   }
