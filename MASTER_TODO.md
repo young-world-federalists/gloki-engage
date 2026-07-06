@@ -334,9 +334,10 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
-- **2026-07-06 — S22: Wave-1.5 living remainder — kit convergence + token-debt zero (BUILT;
-  whole-diff review 0 Critical / 0 Important / 3 minors fixed same-session; the first four
-  commits are already live via Eston's parallel push, see note).** Spec
+- **2026-07-06 — S22: Wave-1.5 living remainder — kit convergence + token-debt zero
+  (SHIPPED+PUSHED `ce0251a..1d47118`, deploy green, live site 200; whole-diff review
+  0 Critical / 0 Important / 3 minors fixed same-session; the first four commits had
+  already gone live via Eston's parallel push, see note).** Spec
   `docs/superpowers/specs/2026-07-06-s22-wave15-kit-convergence-design.md` — its re-grounding
   table retired ~70% of the 2026-05-31 lane prompts (PageHeader/PipelineView already deleted,
   i18n lane already at parity, Modal focus trap already shipped, MASTER_TODO §10/§11 gone).
