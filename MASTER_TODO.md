@@ -283,8 +283,10 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
   — one blocker found & fixed (pending mandate showed a ratification date). Spec:
   `docs/superpowers/specs/2026-07-03-s17-fix-tail-design.md`.)
 - ✅ **S16 push — DONE** (green-lit and deployed; `ui == origin/ui` verified at S17 open).
-- **S17 push** through the standing gates (whole-branch review done, 0 Critical / 0 Important →
-  Eston's explicit green light). **After it lands: tell Ouri `ui` is ready to derive.**
+- ✅ **S17 push — DONE** (landed with S18-W1; pushes have since landed through S21 + the
+  404-title fix — `ui == origin/ui` @ `142f83b`, deploy green, live-site theme toggle
+  spot-checked 2026-07-06). The "tell Ouri `ui` is ready to derive" ping is **held at Eston's
+  discretion** (Eston, 2026-07-06 — timing is his call).
 
 ### Post-handoff (explicitly parked until after the handoff)
 
@@ -349,7 +351,10 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
   preview-verified at 360px on the S19/S20 surfaces; en/fr/sw menu walk live; DESIGN_SYSTEM
   dark-mixin law added. ★ Learning: a codemod must EXCLUDE the file that defines its
   replacement (it rewrote its own mixin internals into recursion — caught by the count
-  drifting 300→303); grep ALL file classes when verifying a premise.
+  drifting 300→303); grep ALL file classes when verifying a premise. **Ratified 2026-07-06
+  (Eston, at S22 open):** the three adopted S21 decisions — segmented Auto/Light/Dark control
+  in the global-menu footer (Auto default), LanguageSwitcher in the same MenuSettings section,
+  Auto = no `data-theme` attribute (falls through to the OS scheme) — are now locked.
 - **2026-07-04 — S20: campaign Wave 3 shipped — stage-feed inline expansion (D1) (BUILT, push
   pending Eston's gate; W4 theme toggle + menu switcher remains).** Spec
   `docs/superpowers/specs/2026-07-04-s20-stage-feed-inline-expansion-design.md`. Three decisions
