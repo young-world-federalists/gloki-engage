@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import clsx from 'clsx';
 import styles from './SegmentedControl.module.scss';
 
@@ -31,6 +31,9 @@ export interface SegmentedControlProps<T extends string> {
  * hover states in light and dark, focus-visible ring, ≥44px touch targets.
  * The selected segment reads like a primary button so it stays consistent with
  * the rest of the button system. Pass translated strings in via `options`.
+ *
+ * Semantics: WAI-ARIA radio-group pattern (exactly one of N) — the group is a
+ * single tab stop, arrow keys move selection, `aria-checked` marks the choice.
  */
 function SegmentedControl<T extends string>({
   options,
@@ -41,22 +44,47 @@ function SegmentedControl<T extends string>({
   size = 'md',
   className,
 }: SegmentedControlProps<T>) {
+  const segmentRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const selectedIndex = options.findIndex((opt) => opt.value === value);
+  // Roving tabindex: the checked segment is the group's one tab stop (first
+  // segment when `value` matches no option, e.g. during initial hydration).
+  const stopIndex = selectedIndex >= 0 ? selectedIndex : 0;
+
+  const onKeyDown = (e: React.KeyboardEvent, index: number) => {
+    let next: number | null = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (index + 1) % options.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp')
+      next = (index - 1 + options.length) % options.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = options.length - 1;
+    if (next === null || next === index) return;
+    e.preventDefault();
+    onChange(options[next].value);
+    segmentRefs.current[next]?.focus();
+  };
+
   return (
     <div
       className={clsx(styles.root, styles[size], fullWidth && styles.fullWidth, className)}
-      role="group"
+      role="radiogroup"
       aria-label={ariaLabel}
     >
-      {options.map((opt) => {
+      {options.map((opt, index) => {
         const selected = opt.value === value;
         return (
           <button
             key={opt.value}
+            ref={(el) => {
+              segmentRefs.current[index] = el;
+            }}
             type="button"
+            role="radio"
             className={clsx(styles.segment, selected && styles.segmentActive)}
-            aria-pressed={selected}
+            aria-checked={selected}
             aria-label={opt.ariaLabel}
+            tabIndex={index === stopIndex ? 0 : -1}
             onClick={() => onChange(opt.value)}
+            onKeyDown={(e) => onKeyDown(e, index)}
           >
             {opt.icon && (
               <span className={styles.icon} aria-hidden>
