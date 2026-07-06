@@ -906,7 +906,7 @@ hamburger menu on every screen):**
 
 ---
 
-## Session 22 (2026-07-06) — dialog convergence (+14 keys, parity 1140)
+## Session 22 (2026-07-06) — dialog convergence (+15 keys, parity 1141)
 
 Two hand-rolled dialogs had raw untranslated English; they gained `t()` during the S22
 shared-Modal ports.
@@ -922,6 +922,10 @@ shared-Modal ports.
   register for a face/photo comparison ("anafanana na hivi").
 - **fr/sw `members.disapprove`** — "Disapprove" (destructive button). fr "Désapprouver",
   sw "Kataa" — confirm "Kataa" (refuse/reject) fits declining an identity confirmation.
+- **fr/sw `members.approveFailed`** — "Couldn't save your decision. Please try again."
+  (error banner in the approve dialog; added in the S22 review fix wave — makes the section's
+  total 15 keys, parity 1141). fr "Impossible d'enregistrer votre décision. Veuillez
+  réessayer.", sw "Imeshindwa kuhifadhi uamuzi wako. Tafadhali jaribu tena.".
 - **fr/sw `identityTrust.scanTitle`** — "Scan Identity Card". fr "Scanner une carte d'identité",
   sw "Changanua kadi ya utambulisho" — matches the existing `identityTrust.scanMember`
   "Changanua"; confirm it reads naturally for QR scanning (vs the loanword "skani").

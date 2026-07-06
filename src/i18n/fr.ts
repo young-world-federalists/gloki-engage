@@ -620,6 +620,7 @@ const fr: Dictionary = {
   'members.approveTitle': "Confirmer l'identité",
   'members.approveBody': 'Confirmez-vous que la personne avec la clé publique ci-dessous se nomme {name} et ressemble à ceci ?',
   'members.disapprove': 'Désapprouver',
+  'members.approveFailed': 'Impossible d’enregistrer votre décision. Veuillez réessayer.',
 
   // ── Trust / verification ───────────────────────────────────────────────
   'trust.verified': 'Vérifié',

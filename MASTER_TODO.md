@@ -308,7 +308,9 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
   `utils/initials` + `utils/formatDateTime` consolidation, CountryFlag convergence + its
   double-announcement fix. Lane 4's D3 half stays below; still open from the old lane notes:
   the 44px `::after` hit-area mixin (4×), `teaserTone` enum, FundingFlow empty-state/tabs
-  kit adoption, VotingFlowShell extraction.
+  kit adoption, VotingFlowShell extraction. From the S22 review: ProblemVoteFlow's threshold
+  bar → `<ProgressBar>` (needs marker-overlay support) — it also lacks `role="progressbar"`
+  today.
 - **Engage-stack wiring dedup (S20 review):** the member-fetch + threshold wiring now has 4 copies
   (Problem/Solution/Vote ActivityCards + `FeedEngagePanel`) and the engage+advance composition is
   hand-wired in 4 hosts — extract `useCommunityMemberCounts` + a `StageEngageStack`; same pass

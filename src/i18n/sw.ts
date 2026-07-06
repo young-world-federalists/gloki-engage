@@ -619,6 +619,7 @@ const sw: Dictionary = {
   'members.approveTitle': 'Thibitisha utambulisho',
   'members.approveBody': 'Je, unathibitisha kwamba mtu mwenye ufunguo wa umma ulio hapa chini anaitwa {name} na anafanana na hivi?',
   'members.disapprove': 'Kataa',
+  'members.approveFailed': 'Imeshindwa kuhifadhi uamuzi wako. Tafadhali jaribu tena.',
 
   // ── Trust / verification ───────────────────────────────────────────────
   'trust.verified': 'Amethibitishwa',

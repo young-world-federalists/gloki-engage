@@ -315,8 +315,11 @@ AdoptionFramework, and SharedStatement converged onto it):
 - Variants: `primary`, `success`, `neutral` ($gray-500); callers flip
   `primary → success` on completion and the background transition animates it
 - Transition: width/background `$transition-base`; reduced-motion aware
-- (QVFlow's `.regbar` stacked results strip is a different primitive — a
-  `role="img"` composition, not a progress bar)
+- Sanctioned exceptions (S22 review): QVFlow's `.regbar` stacked results strip
+  and ConvictionStaking's `.countryBar` share bars are `role="img"`-style
+  distribution visuals, not progress bars; ProblemVoteFlow's threshold bar
+  needs a marker overlay `<ProgressBar>` can't express yet — its convergence
+  (plus its missing `role="progressbar"`) is logged in MASTER_TODO §7
 
 ## Token reference
 
