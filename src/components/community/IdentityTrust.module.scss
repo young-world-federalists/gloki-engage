@@ -93,7 +93,7 @@
 @include dark {
   .verifyTitle { color: $dark-text; }
   .verifyStatus { color: $dark-text-secondary; }
-  .verifyBar { background: rgba(255, 255, 255, 0.1); }
+  .verifyBar { background: $dark-tint-strong; }
 
   .pageHeader {
     h2 { color: $dark-text; }

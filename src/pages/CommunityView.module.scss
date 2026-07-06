@@ -21,7 +21,7 @@
 .optionsOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: $scrim-light;
   z-index: 200;
   display: flex;
   align-items: flex-end;

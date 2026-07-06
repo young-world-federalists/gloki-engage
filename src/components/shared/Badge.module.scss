@@ -59,7 +59,7 @@
 
 @include dark {
   .neutral {
-    background: rgba(255, 255, 255, 0.08);
+    background: $dark-tint-raised;
     color: $dark-text-secondary;
   }
 

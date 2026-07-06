@@ -100,7 +100,7 @@
 
     &:hover:not(.segmentActive) {
       color: $dark-text;
-      background: rgba(255, 255, 255, 0.06);
+      background: $dark-tint-subtle;
     }
   }
 
