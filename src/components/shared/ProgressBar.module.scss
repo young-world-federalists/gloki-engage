@@ -1,0 +1,46 @@
+@use '../../styles/variables' as *;
+
+.track {
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.sm {
+  height: 6px;
+}
+
+.md {
+  height: 8px;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: $radius-full;
+  transition:
+    width $transition-base ease,
+    background $transition-base ease;
+}
+
+.primary {
+  background: $primary;
+}
+
+.success {
+  background: $success;
+}
+
+.neutral {
+  background: $gray-500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

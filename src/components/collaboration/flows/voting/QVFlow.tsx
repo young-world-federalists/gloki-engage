@@ -7,7 +7,7 @@ import * as api from './qvApi';
 import * as approvalApi from './approvalApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT } from '../../../../i18n';
-import { Button, UserIdentity } from '../../../shared';
+import { Button, ProgressBar, UserIdentity } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
 import { REGIONS, regionOf, regionColorVar, type RegionId } from '../../../../utils/regions';
 import styles from './QVFlow.module.scss';
@@ -186,16 +186,13 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
         {/* Plain language (S17): the turnoutNote below owns the {target}% explanation. */}
         <span>{t('mechanisms.qv.turnoutValue', '{pct}% have voted', { pct: turnoutPct })}</span>
       </div>
-      <div
-        className={styles.track}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={turnoutPct}
-        aria-label={t('mechanisms.qv.turnoutLabel', 'Community turnout')}
-      >
-        <div className={`${styles.fill} ${styles.fillTurnout}`} style={{ width: `${turnoutFillPct}%` }} />
-      </div>
+      <ProgressBar
+        size="md"
+        variant="neutral"
+        value={turnoutPct}
+        fillPct={turnoutFillPct}
+        label={t('mechanisms.qv.turnoutLabel', 'Community turnout')}
+      />
       <div className={styles.turnoutNote}>
         {t('mechanisms.qv.turnoutNote', 'The vote completes when {target}% of members have taken part.', { target: TURNOUT_TARGET })}
       </div>
@@ -243,16 +240,11 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
               <span className={styles.dot} aria-hidden="true" />
               {t('mechanisms.qv.statusOpen', 'Voting open · {n} solutions', { n: ballot.length })}
             </div>
-            <div
-              className={styles.track}
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(poolUsedPct)}
-              aria-label={t('mechanisms.qv.supportUsed', 'Support used')}
-            >
-              <div className={`${styles.fill} ${styles.fillSupport}`} style={{ width: `${poolUsedPct}%` }} />
-            </div>
+            <ProgressBar
+              size="md"
+              value={poolUsedPct}
+              label={t('mechanisms.qv.supportUsed', 'Support used')}
+            />
             <div className={styles.guideMeta}>
               <span className={styles.hint}>
                 {t('mechanisms.qv.supportUsedPct', '{pct}% of your support used', { pct: Math.round(poolUsedPct) })}

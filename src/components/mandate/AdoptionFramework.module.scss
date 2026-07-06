@@ -178,23 +178,10 @@
   gap: $spacing-sm;
 }
 
+// Bar visuals live in the shared <ProgressBar> kit (S22 m6 extraction);
+// this class only sizes it within the row.
 .progressTrack {
   flex: 1;
-  height: 6px;
-  background: $gray-100;
-  border-radius: $radius-full;
-  overflow: hidden;
-
-  @include dark {
-    background: $dark-surface;
-  }
-}
-
-.progressFill {
-  height: 100%;
-  background: $success;
-  border-radius: $radius-full;
-  transition: width $transition-slow ease;
 }
 
 .progressPct {

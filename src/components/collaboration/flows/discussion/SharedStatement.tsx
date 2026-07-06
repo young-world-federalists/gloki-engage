@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { PenLine, Users, Check, ThumbsUp, Eye, MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
-import { Badge, Banner, Button, Modal, EmptyState } from '../../../shared';
+import { Badge, Banner, Button, Modal, EmptyState, ProgressBar } from '../../../shared';
 import UserIdentity from '../../../shared/UserIdentity';
 import { displayNameFor } from '../../../../utils/displayName';
 import { useAppSelector } from '../../../../store/hooks';
@@ -137,7 +137,6 @@ const EditCard: React.FC<{
   const rt = relativeTimeKey(edit.createdAgo);
   const count = edit.supporters.length;
   const mine = edit.supporters.includes(currentUserKey);
-  const pct = Math.min(100, Math.round((count / Math.max(1, target)) * 100));
 
   return (
     <div className={styles.suggestion}>
@@ -161,16 +160,13 @@ const EditCard: React.FC<{
 
       {/* 1p1v support toward the fold-in target */}
       <div className={styles.supportRow}>
-        <div
+        <ProgressBar
           className={styles.bar}
-          role="progressbar"
-          aria-valuenow={count}
-          aria-valuemin={0}
-          aria-valuemax={target}
-          aria-label={t('deliberation.coauthor.supportProgress', '{count} of {target} supporters needed to fold in', { count, target })}
-        >
-          <span className={`${styles.barFill} ${count >= target ? styles.barFillFull : ''}`} style={{ width: `${pct}%` }} />
-        </div>
+          variant={count >= target ? 'success' : 'primary'}
+          value={count}
+          max={target}
+          label={t('deliberation.coauthor.supportProgress', '{count} of {target} supporters needed to fold in', { count, target })}
+        />
         <span className={styles.supportCount}>
           {t('deliberation.coauthor.supportCount', '{count} / {target}', { count, target })}
         </span>

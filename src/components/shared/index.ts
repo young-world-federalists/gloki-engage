@@ -38,6 +38,9 @@ export type { BannerProps, BannerTone } from './Banner';
 export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeTone } from './Badge';
 
+export { default as ProgressBar } from './ProgressBar';
+export type { ProgressBarProps, ProgressBarVariant } from './ProgressBar';
+
 export { default as TrustBadge } from './TrustBadge';
 export type { TrustBadgeProps } from './TrustBadge';
 

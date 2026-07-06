@@ -285,29 +285,11 @@
   margin-top: $spacing-xs;
 }
 
+// Bar visuals live in the shared <ProgressBar> kit (S22 m6 extraction);
+// this class only sizes it within the row.
 .bar {
   flex: 1 1 80px;
-  height: 6px;
   min-width: 80px;
-  background: $gray-100;
-  border-radius: $radius-full;
-  overflow: hidden;
-
-  @include dark {
-    background: $dark-border;
-  }
-}
-
-.barFill {
-  display: block;
-  height: 100%;
-  background: $primary;
-  border-radius: $radius-full;
-  transition: width $transition-base, background $transition-base;
-}
-
-.barFillFull {
-  background: $success;
 }
 
 .supportCount {

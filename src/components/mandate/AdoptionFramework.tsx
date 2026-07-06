@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HeartHandshake, Globe, Plus, ShieldCheck } from 'lucide-react';
-import { Badge, Banner, Button, Modal } from '../shared';
+import { Badge, Banner, Button, Modal, ProgressBar } from '../shared';
 import { useI18n } from '../../i18n';
 import type { TFunction } from '../../i18n';
 import { getCountryFlag, getCountryName } from '../../utils/countries';
@@ -206,16 +206,12 @@ const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t, locale }) => {
 
       {isSubscribed && (
         <div className={styles.progress}>
-          <div
+          <ProgressBar
             className={styles.progressTrack}
-            role="progressbar"
-            aria-valuenow={pct}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={t('mandate.progressLabel', 'Reported progress')}
-          >
-            <div className={styles.progressFill} style={{ width: `${pct}%` }} />
-          </div>
+            variant="success"
+            value={pct}
+            label={t('mandate.progressLabel', 'Reported progress')}
+          />
           <span className={styles.progressPct}>
             {t('mandate.progressPct', '{pct}% reported', { pct })}
           </span>

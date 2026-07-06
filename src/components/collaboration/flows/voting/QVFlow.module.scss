@@ -41,12 +41,9 @@
 .guideText { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-700; }
 .guidePrivacy { margin: 0; font-size: $text-xs; line-height: 1.5; color: $gray-600; }
 
-.track { height: 8px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
-.fill { height: 100%; border-radius: $radius-full; transition: width 0.3s ease; }
-.fillSupport { background: $primary; }
-.fillTurnout { background: $gray-500; }
+// Progress bars live in the shared <ProgressBar> kit (S22 m6 extraction).
 @media (prefers-reduced-motion: reduce) {
-  .fill, .guideToggle .chev, .dcard .chev { transition: none; }
+  .guideToggle .chev, .dcard .chev { transition: none; }
 }
 
 // ─── Ballot list + solution card ───────────────────────────────────────
@@ -129,7 +126,7 @@
   .votedHead .status { color: $dark-text; }
   .guideToggle { color: $primary-on-dark; }
   .solNum { color: $dark-text-secondary; }
-  .track, .regbar { background: $dark-border; }
+  .regbar { background: $dark-border; }
   .sol { background: $dark-bg; border-color: $dark-border; }
   .dsummary { color: $dark-text; }
   .reviewed { color: $success; } // the light green IS the AA choice on dark cards
