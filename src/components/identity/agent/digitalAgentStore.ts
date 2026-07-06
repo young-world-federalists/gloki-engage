@@ -122,14 +122,7 @@ export function startOver(): void {
   notify();
 }
 
-/** Derive initials from a name, e.g. "Amani Otieno" → "AO". */
-export function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
-}
+// (getInitials moved to src/utils/initials.ts — S22 consolidation.)
 
 // Cross-tab sync: invalidate caches when another tab writes, then notify.
 if (typeof window !== 'undefined') {

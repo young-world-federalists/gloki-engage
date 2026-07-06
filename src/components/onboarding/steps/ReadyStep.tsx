@@ -2,7 +2,8 @@ import React from 'react';
 import { Button, Card, CountryFlag, Badge, Banner } from '../../shared';
 import { CheckCircle2 } from 'lucide-react';
 import { useT } from '../../../i18n';
-import { getInitials, type DigitalAgent } from '../../identity/agent/digitalAgentStore';
+import { type DigitalAgent } from '../../identity/agent/digitalAgentStore';
+import { initialsOf } from '../../../utils/initials';
 import { getLanguageNative } from '../../../utils/languages';
 import { SmartImage } from '../../shared/connectivity';
 import styles from './steps.module.scss';
@@ -32,7 +33,7 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
           {agent?.photo ? (
             <SmartImage src={agent.photo} alt="" fallbackLabel={name || ''} size={56} rounded />
           ) : (
-            <span>{getInitials(name || '')}</span>
+            <span>{initialsOf(name || '')}</span>
           )}
         </div>
         <div className={styles.recapInfo}>

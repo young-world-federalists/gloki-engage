@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { ImageOff } from 'lucide-react';
 import { useDataSaver } from './useDataSaver';
+import { initialsOf } from '../../../utils/initials';
 import styles from './SmartImage.module.scss';
 
 export interface SmartImageProps {
@@ -15,13 +16,6 @@ export interface SmartImageProps {
   /** Circular crop (avatars). */
   rounded?: boolean;
   className?: string;
-}
-
-function initials(label: string): string {
-  const parts = label.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 /**
@@ -40,7 +34,7 @@ const SmartImage: React.FC<SmartImageProps> = ({
   const { dataSaver } = useDataSaver();
 
   if (dataSaver) {
-    const text = initials(fallbackLabel ?? alt);
+    const text = initialsOf(fallbackLabel ?? alt);
     return (
       <span
         className={clsx(styles.placeholder, rounded && styles.rounded, className)}

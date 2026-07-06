@@ -3,8 +3,9 @@ import { Clock, TrendingUp, Check } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
 import * as api from './convictionApi';
 import { useAppSelector } from '../../../../store/hooks';
-import { getCountryColor, getCountryName, getCountryFlag } from '../../../../utils/countries';
+import { getCountryColor } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
+import { CountryFlag } from '../../../shared';
 import styles from './ConvictionStaking.module.scss';
 
 const convictionCode = '';
@@ -39,7 +40,7 @@ const DURATIONS = [
 const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   instanceId, parentContractId, stageKey, compact = false,
 }) => {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     instanceId, 'conviction_staking', 'conviction_contract.py', convictionCode, parentContractId, stageKey,
   );
@@ -215,8 +216,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
               .map(([country, weight]) => (
                 <div key={country} className={styles.countryRow}>
                   <span className={styles.countryName}>
-                    <span className={styles.countryFlag} aria-hidden="true">{getCountryFlag(country)}</span>
-                    {getCountryName(country, locale)}
+                    <CountryFlag code={country} showName size="sm" />
                   </span>
                   <div className={styles.countryBar}>
                     <div

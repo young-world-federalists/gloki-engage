@@ -8,18 +8,8 @@ const chatContractCode = '';import { getMessages, addMessage, getTopics } from '
 import type { ChatMessage, ChatTopic as ChatTopicType } from './chatApi';
 import { useI18n } from '../../../i18n';
 import { displayNameFor } from '../../../utils/displayName';
+import { formatDateTime } from '../../../utils/formatDateTime';
 import styles from './ChatTopic.module.scss';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatTime(ts: number, locale: string): string {
-  return new Date(ts).toLocaleString(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-}
 
 const POLL_INTERVAL_MS = 5_000;
 
@@ -210,7 +200,7 @@ const ChatTopic: React.FC = () => {
                   {displayName}
                   <CountryBadge countryCode={countryCode} />
                 </span>
-                <span className={styles.timestamp}>{formatTime(msg.timestamp, locale)}</span>
+                <span className={styles.timestamp}>{formatDateTime(msg.timestamp, locale)}</span>
               </div>
               <div className={styles.messageText}>{msg.text}</div>
             </div>

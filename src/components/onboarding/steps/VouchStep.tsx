@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Card, CountryFlag } from '../../shared';
 import { ShieldCheck } from 'lucide-react';
 import { useT } from '../../../i18n';
-import { getInitials } from '../../identity/agent/digitalAgentStore';
+import { initialsOf } from '../../../utils/initials';
 import type { Persona } from '../../../services/demo/fixtures/identity';
 import styles from './steps.module.scss';
 
@@ -24,7 +24,7 @@ const VouchStep: React.FC<Props> = ({ voucher, vouchCount, onContinue, onBack, h
       </h1>
       <Card className={styles.voucherCard}>
         <div className={styles.voucherAvatar} aria-hidden>
-          {getInitials(`${voucher.firstName} ${voucher.lastName}`)}
+          {initialsOf(`${voucher.firstName} ${voucher.lastName}`)}
         </div>
         <div className={styles.voucherInfo}>
           <span className={styles.voucherName}>

@@ -12,15 +12,25 @@ export interface CountryFlagProps {
   className?: string;
 }
 
-/** Atomic country flag with accessible label. The flag emoji is announced as the country name. */
+/**
+ * Atomic country flag with accessible label. Flag-only renders announce the
+ * country name on the emoji; with `showName` the visible name carries the
+ * accessible content and the emoji goes decorative (no double announcement).
+ */
 const CountryFlag: React.FC<CountryFlagProps> = ({ code, showName, size = 'md', className }) => {
   const { locale } = useI18n();
   const name = getCountryName(code, locale);
   return (
     <span className={clsx(styles.flag, styles[size], className)} title={name}>
-      <span className={styles.emoji} role="img" aria-label={name}>
-        {getCountryFlag(code)}
-      </span>
+      {showName ? (
+        <span className={styles.emoji} aria-hidden="true">
+          {getCountryFlag(code)}
+        </span>
+      ) : (
+        <span className={styles.emoji} role="img" aria-label={name}>
+          {getCountryFlag(code)}
+        </span>
+      )}
       {showName && <span className={styles.name}>{name}</span>}
     </span>
   );

@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, Button, Badge, CountryFlag, CountryPresence } from '../shared';
 import { Pencil, History } from 'lucide-react';
 import { useT } from '../../i18n';
-import { getInitials, type DigitalAgent } from './agent/digitalAgentStore';
+import { type DigitalAgent } from './agent/digitalAgentStore';
+import { initialsOf } from '../../utils/initials';
 import { getPersona, DEMO_PARTICIPATION } from '../../services/demo/fixtures/identity';
 import { getLanguageNative } from '../../utils/languages';
 import { SmartImage } from '../shared/connectivity';
@@ -27,7 +28,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
           {agent.photo ? (
             <SmartImage src={agent.photo} alt="" fallbackLabel={agent.displayName} size={64} rounded />
           ) : (
-            <span>{getInitials(agent.displayName)}</span>
+            <span>{initialsOf(agent.displayName)}</span>
           )}
         </div>
         <div className={styles.identity}>

@@ -8,6 +8,7 @@ import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
 import { EmptyState, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
+import { formatDateTime } from '../../../../utils/formatDateTime';
 import type { SourceLink } from '../../../../utils/sources';
 import * as api from './discussionApi';
 import type { Comment } from './discussionApi';
@@ -41,9 +42,6 @@ function buildTree(flat: Comment[], sort: SortMode): CommentNode[] {
   sortRec(roots);
   return roots;
 }
-
-const formatTime = (ts: number, locale: string) =>
-  new Date(ts).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
 
 const displayName = (
   authorKey: string,
@@ -158,7 +156,7 @@ const CommentItem: React.FC<{
             trustState={node.deleted ? undefined : trustOf(node.author)}
             size="sm"
           />
-          <span className={styles.timestamp}>{formatTime(node.timestamp, locale)}</span>
+          <span className={styles.timestamp}>{formatDateTime(node.timestamp, locale)}</span>
           {hasChildren && !atCap && (
             <button
               type="button"

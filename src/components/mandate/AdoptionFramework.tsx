@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { HeartHandshake, Globe, Plus, ShieldCheck } from 'lucide-react';
-import { Badge, Banner, Button, Modal, ProgressBar } from '../shared';
+import { Badge, Banner, Button, CountryFlag, Modal, ProgressBar } from '../shared';
 import { useI18n } from '../../i18n';
 import type { TFunction } from '../../i18n';
-import { getCountryFlag, getCountryName } from '../../utils/countries';
 import {
   getAdopters,
   addEndorsement,
@@ -173,8 +172,7 @@ const AdopterCard: React.FC<AdopterCardProps> = ({ adopter, t, locale }) => {
             </span>
             {adopter.country ? (
               <span className={styles.orgLoc}>
-                <span aria-hidden>{getCountryFlag(adopter.country)}</span>{' '}
-                {getCountryName(adopter.country, locale)}
+                <CountryFlag code={adopter.country} showName size="sm" />
               </span>
             ) : (
               <span className={styles.orgLoc}>

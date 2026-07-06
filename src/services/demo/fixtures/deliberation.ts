@@ -13,6 +13,7 @@
 
 import { PERSONAS, type Persona } from './identity';
 import { displayNameFor } from '../../../utils/displayName';
+import { initialsOf } from '../../../utils/initials';
 import type { SourceLink } from '../../../utils/sources';
 
 // ---------------------------------------------------------------------------
@@ -578,7 +579,7 @@ export function deliberationParticipant(key: string): ParticipantInfo {
     return {
       name,
       country: persona.country,
-      initials: initialsOf(persona.firstName, persona.lastName),
+      initials: initialsOf(`${persona.firstName} ${persona.lastName}`),
       isExpert: false,
     };
   }
@@ -588,7 +589,7 @@ export function deliberationParticipant(key: string): ParticipantInfo {
     return {
       name: expert.name,
       country: expert.country,
-      initials: initialsOf(first, rest[rest.length - 1] ?? ''),
+      initials: initialsOf(`${first} ${rest[rest.length - 1] ?? ''}`),
       isExpert: true,
     };
   }
@@ -597,12 +598,6 @@ export function deliberationParticipant(key: string): ParticipantInfo {
 
 export function expertProfile(key: string): ExpertProfile | undefined {
   return EXPERT_BY_KEY[key];
-}
-
-function initialsOf(first: string, last: string): string {
-  const a = first?.[0] ?? '';
-  const b = last?.[0] ?? '';
-  return (a + b || first.slice(0, 2)).toUpperCase();
 }
 
 // relativeTimeKey moved to `src/utils/formatTimeAgo.ts` (the canonical
