@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { FileText, Code2, Copy, Check, Globe, Users, TrendingUp, CalendarCheck, ShieldCheck, Vote } from 'lucide-react';
-import { Badge, CountryPresence, SegmentedControl } from '../shared';
+import { FileText, Code2, Copy, Check, CalendarCheck, ShieldCheck, Vote } from 'lucide-react';
+import { Badge, SegmentedControl } from '../shared';
 import { useI18n } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateDocument.module.scss';
@@ -95,8 +95,14 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
 
   return (
     <article className={styles.document} aria-label={t('mandate.docLabel', 'Published mandate')}>
+      {/* One brand label everywhere (S23): the same "Gloki Mandate" the hero
+          card leads with — not a second name ("A global community mandate"). The
+          participants / countries / conviction stats + the provenance line lived
+          here AND in the hero card above; dropped as dups so the document reads as
+          the formal text (title → who ratified → the commitments), not a second
+          stats card. */}
       <header className={styles.masthead}>
-        <p className={styles.eyebrow}>{mandate.subtitle}</p>
+        <p className={styles.eyebrow}>{t('mandate.card.brand', 'Gloki Mandate')}</p>
         <h2 className={styles.title}>{mandate.title}</h2>
         <div className={styles.metaRow}>
           {mandate.status === 'ratified' ? (
@@ -114,41 +120,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
             </span>
           )}
         </div>
-        <CountryPresence
-          countries={mandate.countries}
-          size="sm"
-          label={t('mandate.jurisdictions', '{n} countries', { n: mandate.countries.length })}
-        />
-        <p className={styles.provenanceLine}>
-          {t(
-            'mandate.provenanceLine',
-            'Deliberated by {participants} people across {countries} countries over {months} months.',
-            {
-              participants: mandate.provenance.participants,
-              countries: mandate.provenance.countries,
-              months: mandate.provenance.deliberationMonths,
-            },
-          )}
-        </p>
       </header>
-
-      <ul className={styles.legitimacy} aria-label={t('mandate.legitimacyLabel', 'How this mandate was earned')}>
-        <li className={styles.stat}>
-          <Users size={16} aria-hidden className={styles.statIcon} />
-          <span className={styles.statValue}>{mandate.provenance.participants}</span>
-          <span className={styles.statLabel}>{t('mandate.statParticipants', 'participants')}</span>
-        </li>
-        <li className={styles.stat}>
-          <Globe size={16} aria-hidden className={styles.statIcon} />
-          <span className={styles.statValue}>{mandate.provenance.countries}</span>
-          <span className={styles.statLabel}>{t('mandate.statCountries', 'countries')}</span>
-        </li>
-        <li className={styles.stat}>
-          <TrendingUp size={16} aria-hidden className={styles.statIcon} />
-          <span className={styles.statValue}>{mandate.provenance.convictionBackers}</span>
-          <span className={styles.statLabel}>{t('mandate.statBackers', 'conviction backers')}</span>
-        </li>
-      </ul>
 
       <div className={styles.turnout}>
         <Vote size={16} aria-hidden className={styles.turnoutIcon} />

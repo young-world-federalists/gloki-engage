@@ -76,69 +76,8 @@
   }
 }
 
-.provenanceLine {
-  margin: 0;
-  font-size: $text-sm;
-  line-height: 1.5;
-  color: $gray-600;
-
-  @include dark {
-    color: $dark-text-secondary;
-  }
-}
-
-/* ----- Legitimacy strip: how the mandate was earned ----- */
-.legitimacy {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: $spacing-sm;
-}
-
-.stat {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: $spacing-md $spacing-sm;
-  text-align: center;
-  background: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-md;
-
-  @include dark {
-    background: $dark-surface;
-    border-color: $dark-border;
-  }
-}
-
-.statIcon {
-  color: $primary;
-}
-
-.statValue {
-  font-size: $text-xl;
-  font-weight: $font-bold;
-  line-height: 1.1;
-  color: $gray-900;
-
-  @include dark {
-    color: $dark-text;
-  }
-}
-
-.statLabel {
-  font-size: $text-xs;
-  line-height: 1.2;
-  color: $gray-500;
-
-  @include dark {
-    color: $dark-text-secondary;
-  }
-}
+/* The provenance line + the participants/countries/conviction stat trio moved
+   out (S23) — they duplicated the hero MandateCard's Reach + Conviction rows. */
 
 /* View toggle (plain / spec) uses the shared SegmentedControl. */
 

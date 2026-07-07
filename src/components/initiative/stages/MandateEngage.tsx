@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ShieldCheck } from 'lucide-react';
 import StageGate from '../../community/StageGate';
 import MandateStage from '../../stages/MandateStage';
 import JourneyRecap from '../../mandate/JourneyRecap';
 import { useMandateJourney } from '../useMandateJourney';
+import { useT } from '../../../i18n';
 import styles from './MandateEngage.module.scss';
 
 export interface MandateEngageProps {
@@ -39,10 +41,26 @@ const MandateEngage: React.FC<MandateEngageProps> = ({
   showViewMandate = true,
 }) => {
   const navigate = useNavigate();
+  const t = useT();
   const { problemUp, discussion, proposals, vote } = useMandateJourney(initiativeId);
 
   return (
     <div className={styles.engage}>
+      {/* Mandate identity, mirroring the published-mandate hero (S23): the same
+          "Gloki Mandate" label + the winning solution as the title, so arriving
+          here from the mandate page's "Show your support" clearly lands on the
+          SAME mandate (the card headline shows the problem, not the mandate). The
+          winner text comes from the read-only journey read — no extra contract. */}
+      {vote?.winnerText && (
+        <div className={styles.mandateSummary}>
+          <span className={styles.brand}>
+            <ShieldCheck size={14} aria-hidden />
+            {t('mandate.card.brand', 'Gloki Mandate')}
+          </span>
+          <p className={styles.mandateTitle}>{vote.winnerText}</p>
+        </div>
+      )}
+
       <JourneyRecap
         problemUp={problemUp}
         discussion={discussion}

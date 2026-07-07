@@ -98,7 +98,6 @@ export interface PublishedMandate {
   /** Matches the initiative `key`. */
   id: string;
   title: string;
-  subtitle: string;
   /** One-line problem the mandate answers (card lead-in; hand-authored, not derived). */
   problem: string;
   status: 'ratified' | 'published';
@@ -142,7 +141,6 @@ export function isMandateRatified(indicators: MandateIndicator[]): boolean {
 const ADAPTATION_MANDATE: PublishedMandate = {
   id: 'adaptation',
   title: 'A Universal Climate Adaptation Fund',
-  subtitle: 'A global community mandate',
   problem: 'Frontline communities face climate disasters without the resources to adapt.',
   status: 'ratified',
   ratifiedOn: '2026-04-18',

@@ -8,3 +8,39 @@
   flex-direction: column;
   gap: $spacing-lg;
 }
+
+/* Mandate identity block (S23): the "Gloki Mandate" brand + winning-solution
+   title, echoing the published-mandate hero so the community card and the
+   mandate page read as the same mandate. */
+.mandateSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $primary-dark;
+
+  @include dark {
+    color: $primary-on-dark; // $primary-dark falls below AA on the dark card (S16)
+  }
+}
+
+.mandateTitle {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-bold;
+  line-height: 1.35;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
