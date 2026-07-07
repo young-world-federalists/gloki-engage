@@ -26,7 +26,7 @@ interface DiscussionStageViewProps {
  * initiative, all one person, one vote. Viewing is always visible; actions gate
  * on the community's per-stage trust rule.
  */
-const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, initiativeId }) => {
+const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, communityId, initiativeId }) => {
   const navigate = useNavigate();
   const t = useT();
   const dispatch = useAppDispatch();
@@ -60,10 +60,13 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ communityId, 
 
   return (
     <div className={cs.container}>
+      {/* The discussed item is the headline (S23): h1 = the initiative title,
+          with "Discussion — community" demoted to the quiet eyebrow. */}
       <AppHeader
         showBack
         onBack={() => navigate(-1)}
-        title={`${t('header.section.discussion', 'Discussion')} — ${communityName}`}
+        eyebrow={`${t('header.section.discussion', 'Discussion')} — ${communityName}`}
+        title={title}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>
