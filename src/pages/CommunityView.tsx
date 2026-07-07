@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
-import { Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, useParams, useNavigate, Navigate, useLocation, matchPath } from 'react-router-dom';
 import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, PlusCircle, Shield, Link2, RotateCcw, Settings, PenLine } from 'lucide-react';
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
 import AppHeader from '../components/AppHeader';
@@ -39,7 +39,6 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
   const collabsLoaded = Array.isArray(communityCollaborations[communityId]);
   const collabs = communityCollaborations[communityId] ?? [];
   const collab = collabs.find((c) => c.id === collabId);
-  const title = collab?.title || t('collab.defaultTitle', 'Collab');
 
   if (!collabId) {
     return (
@@ -63,12 +62,49 @@ const CollabPage: React.FC<{ communityId: string }> = ({ communityId }) => {
     <Suspense fallback={<div className={styles.loadingState}><p>{t('collab.loading', 'Loading collab…')}</p></div>}>
       <CollaborationPage
         type="collab"
-        title={title}
         collaborationId={collabId}
         communityId={communityId}
       />
     </Suspense>
   );
+};
+
+// S23 — per-section header config. Each community mini-app renders its title +
+// intro in the AppHeader title block (one box: eyebrow = community name, h1 =
+// section title, subtitle = section intro) instead of an in-content header.
+// [i18n key, English default] pairs; the copy is unchanged from the old headers.
+const SECTION_HEADS: Record<string, { title: [string, string]; subtitle?: [string, string] }> = {
+  collab: {
+    title: ['collab.listTitle', 'Collabs'],
+    subtitle: ['collab.listSubtitle', 'Template-based workspaces for teamwork'],
+  },
+  chat: {
+    title: ['chat.title', 'Chat'],
+    subtitle: ['chat.intro', 'Open conversations about anything in your community.'],
+  },
+  members: {
+    title: ['members.title', 'Members'],
+    subtitle: ['members.intro', 'People in this community. Members can propose initiatives, vote on decisions, and participate in governance.'],
+  },
+  currency: {
+    title: ['funds.title', 'Community Funds'],
+    subtitle: ['funds.subtitle', 'Manage shared funds and signal what matters'],
+  },
+  identity: {
+    title: ['identityTrust.title', 'Identity & Trust'],
+    subtitle: ['identityTrust.intro', "Gloki uses a web of trust to keep the community real people, not bots. By scanning each other's QR codes, members vouch that they know you're a real person — no ID papers, no face scan. The more vouches you have, the stronger your community's democratic foundation."],
+  },
+  settings: {
+    title: ['settings.title', 'Community settings'],
+    subtitle: ['settings.lead', 'Choose who can take part at each stage. Read-only viewing is always open.'],
+  },
+  'write-together': {
+    title: ['writeTogether.title', 'Write together'],
+    subtitle: ['writeTogether.subtitle', 'Co-author a problem or solution, then submit it to the feed.'],
+  },
+  'create-initiative': {
+    title: ['initiative.start', 'Start an initiative'],
+  },
 };
 
 // ─── Main community view ─────────────────────
@@ -77,8 +113,9 @@ const CommunityView: React.FC = () => {
   const navigate = useNavigate();
   const t = useT();
   const { showAlert, showConfirm, alertElement } = useAlert();
+  const location = useLocation();
   const { contracts, publicKey, serverUrl } = useAppSelector((state) => state.user);
-  const { communityProperties = {}, communityMembers = {} } = useAppSelector((state) => state.communities);
+  const { communityProperties = {}, communityMembers = {}, communityCollaborations = {} } = useAppSelector((state) => state.communities);
   const [fetching, setFetching] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const dispatch = useAppDispatch();
@@ -254,11 +291,45 @@ const CommunityView: React.FC = () => {
     { key: 'leave', icon: LogOut, label: t('community.menu.leave', 'Leave Community'), onClick: closeAfter(() => navigate('/identity/communities')), variant: 'danger' },
   ];
 
+  // S23 — universal back for the community area: pop in-app history when it
+  // exists (matches the hardware back), else fall back one level up the hierarchy.
+  const backTo = (fallback: string) => () => {
+    if (location.key !== 'default') navigate(-1);
+    else navigate(fallback);
+  };
+
+  // Derive the active section + deep views from the URL; the header renders
+  // outside <Routes>, so it can't read route params directly.
+  const section = matchPath({ path: '/community/:cid/:section', end: false }, location.pathname)?.params.section;
+  const collabId = matchPath('/community/:cid/collab/:collabId', location.pathname)?.params.collabId;
+  const inChatTopic = !!matchPath('/community/:cid/chat/:topicId', location.pathname);
+  const sectionHead = section ? SECTION_HEADS[section] : undefined;
+  const collabTitle = collabId
+    ? communityCollaborations[communityId]?.find((c) => c.id === collabId)?.title || t('collab.defaultTitle', 'Collab')
+    : undefined;
+
+  const header = sectionHead ? (
+    <AppHeader
+      showBack
+      onBack={backTo(
+        collabId ? `/community/${communityId}/collab`
+        : inChatTopic ? `/community/${communityId}/chat`
+        : `/community/${communityId}`,
+      )}
+      eyebrow={props.name}
+      title={collabTitle ?? t(...sectionHead.title)}
+      // The intro line belongs to the section's list page, not its deep views.
+      subtitle={collabId || inChatTopic || !sectionHead.subtitle ? undefined : t(...sectionHead.subtitle)}
+    />
+  ) : (
+    // Community home — the community name is the page's single <h1>, kept for
+    // assistive tech but hidden on screen (the community card shows it visibly).
+    <AppHeader showBack onBack={backTo('/')} title={props.name} titleVisuallyHidden />
+  );
+
   return (
     <div className={styles.page}>
-      {/* Global app header — the community name is the page's single <h1>, kept for
-          assistive tech but hidden on screen (the community card shows it visibly). */}
-      <AppHeader title={props.name} titleVisuallyHidden />
+      {header}
 
       {/* Slide-out community menu — opens from the right via CommunityCard "Menu" button */}
       <SlideOutMenu

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, MessageSquare, FileText, Vote, ScrollText, Plus, X } from 'lucide-react';
+import { AlertTriangle, MessageSquare, FileText, Vote, ScrollText, Plus, X } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
@@ -132,84 +132,75 @@ const CreateInitiativePage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <button
-          className={styles.backButton}
-          onClick={() => navigate(`/community/${communityId}`)}
-          aria-label={t('common.back', 'Back')}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        {/* Nested under CommunityView's AppHeader (community name = the page's
-            single <h1>), so this title is an <h2>. */}
-        <h2>{t('initiative.start', 'Start an initiative')}</h2>
-        {/* Task-first: the "what is an initiative / 5 stages / tips" explainer
-            prose lives behind the (i); the form below is the primary content. */}
-        <InfoDisclosure
-          className={styles.infoTrigger}
-          size="md"
-          label={t('initiative.howItWorks', 'How initiatives work')}
-        >
-          <div className={styles.explainer}>
-            <section className={styles.explainerSection}>
-              <h3>{t('initiative.whatTitle', 'What is an initiative?')}</h3>
-              <p>
-                {t(
-                  'initiative.whatBody',
-                  "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
-                )}
-              </p>
-              <p>
-                {t(
-                  'initiative.whatBody2',
-                  'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
-                )}
-              </p>
-            </section>
-
-            <section className={styles.explainerSection}>
-              <h3>{t('initiative.stagesTitle', 'The 5 Stages')}</h3>
-              <div className={styles.stepper}>
-                {STAGES.map((stage, index) => {
-                  const StageIcon = stage.icon;
-                  return (
-                    <div key={stage.id} className={styles.step}>
-                      <div className={styles.stepIndicator}>
-                        <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
-                          <StageIcon size={16} />
-                        </div>
-                        {index < STAGES.length - 1 && <div className={styles.stepLine} />}
-                      </div>
-                      <div className={styles.stepContent}>
-                        <h4>{t(`stage.${stage.id}`, stage.name)}</h4>
-                        <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* Tips — each tip is a bold lead + body sentence. No <Trans>
-                mechanism exists, so lead/body are split into sibling keys. */}
-            <section className={`${styles.explainerSection} ${styles.tips}`}>
-              <h3>{t('initiative.tipsTitle', 'What Makes a Good Initiative?')}</h3>
-              <p><strong>{t('initiative.tips.specific.lead', 'Be specific.')}</strong> {t('initiative.tips.specific.body', '"Climate change is bad" won\'t get traction. "Our neighbourhood lacks recycling infrastructure" will.')}</p>
-              <p><strong>{t('initiative.tips.why.lead', 'Explain why it matters.')}</strong> {t('initiative.tips.why.body', 'Help your community understand the impact. Who is affected? What happens if nothing changes?')}</p>
-              <p><strong>{t('initiative.tips.evidence.lead', 'Provide evidence.')}</strong> {t('initiative.tips.evidence.body', 'Link to articles, reports, data, or personal accounts that support your case. Evidence builds trust and accelerates consensus.')}</p>
-              <p><strong>{t('initiative.tips.local.lead', 'Think locally.')}</strong> {t('initiative.tips.local.body', 'The best initiatives are ones your community can actually act on.')}</p>
-            </section>
-          </div>
-        </InfoDisclosure>
-      </div>
+      {/* The page title + back button render in the AppHeader title block (S23). */}
 
       {/* Compact, read-only pipeline strip — keeps the 5-stage context visible
-          even though the explainer prose is now behind the (i). */}
+          even though the explainer prose is behind the (i). */}
       <StageStrip />
 
       {/* Form */}
       <div className={styles.card}>
-        <h2>{t('initiative.formTitle', 'Your Initiative')}</h2>
+        <div className={styles.formTitleRow}>
+          <h2>{t('initiative.formTitle', 'Your Initiative')}</h2>
+          {/* Task-first: the "what is an initiative / 5 stages / tips" explainer
+              prose lives behind the (i), next to the form it explains. */}
+          <InfoDisclosure
+            className={styles.infoTrigger}
+            size="md"
+            label={t('initiative.howItWorks', 'How initiatives work')}
+          >
+            <div className={styles.explainer}>
+              <section className={styles.explainerSection}>
+                <h3>{t('initiative.whatTitle', 'What is an initiative?')}</h3>
+                <p>
+                  {t(
+                    'initiative.whatBody',
+                    "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'initiative.whatBody2',
+                    'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
+                  )}
+                </p>
+              </section>
+
+              <section className={styles.explainerSection}>
+                <h3>{t('initiative.stagesTitle', 'The 5 Stages')}</h3>
+                <div className={styles.stepper}>
+                  {STAGES.map((stage, index) => {
+                    const StageIcon = stage.icon;
+                    return (
+                      <div key={stage.id} className={styles.step}>
+                        <div className={styles.stepIndicator}>
+                          <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
+                            <StageIcon size={16} />
+                          </div>
+                          {index < STAGES.length - 1 && <div className={styles.stepLine} />}
+                        </div>
+                        <div className={styles.stepContent}>
+                          <h4>{t(`stage.${stage.id}`, stage.name)}</h4>
+                          <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Tips — each tip is a bold lead + body sentence. No <Trans>
+                  mechanism exists, so lead/body are split into sibling keys. */}
+              <section className={`${styles.explainerSection} ${styles.tips}`}>
+                <h3>{t('initiative.tipsTitle', 'What Makes a Good Initiative?')}</h3>
+                <p><strong>{t('initiative.tips.specific.lead', 'Be specific.')}</strong> {t('initiative.tips.specific.body', '"Climate change is bad" won\'t get traction. "Our neighbourhood lacks recycling infrastructure" will.')}</p>
+                <p><strong>{t('initiative.tips.why.lead', 'Explain why it matters.')}</strong> {t('initiative.tips.why.body', 'Help your community understand the impact. Who is affected? What happens if nothing changes?')}</p>
+                <p><strong>{t('initiative.tips.evidence.lead', 'Provide evidence.')}</strong> {t('initiative.tips.evidence.body', 'Link to articles, reports, data, or personal accounts that support your case. Evidence builds trust and accelerates consensus.')}</p>
+                <p><strong>{t('initiative.tips.local.lead', 'Think locally.')}</strong> {t('initiative.tips.local.body', 'The best initiatives are ones your community can actually act on.')}</p>
+              </section>
+            </div>
+          </InfoDisclosure>
+        </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="initiativeTitle" className={styles.label}>{t('initiative.form.titleLabel', "What's the problem?")}</label>

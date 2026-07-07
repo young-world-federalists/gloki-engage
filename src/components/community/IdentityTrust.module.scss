@@ -5,22 +5,12 @@
   margin: 0 auto;
 }
 
-.pageHeader {
-  margin-bottom: $spacing-2xl;
-
-  h2 {
-    font-size: $text-2xl;
-    font-weight: $font-bold;
-    color: $gray-800;
-    margin: 0 0 $spacing-sm 0;
-  }
-
-  p {
-    font-size: $text-sm;
-    color: $gray-600;
-    line-height: 1.6;
-    margin: 0;
-  }
+// Not-a-member page state (the page header renders in the AppHeader title
+// block — S23).
+.stateMessage {
+  font-size: $text-sm;
+  color: $gray-600;
+  padding: $spacing-xl 0;
 }
 
 .trustSection {
@@ -95,10 +85,7 @@
   .verifyStatus { color: $dark-text-secondary; }
   .verifyBar { background: $dark-tint-strong; }
 
-  .pageHeader {
-    h2 { color: $dark-text; }
-    p { color: $dark-text-secondary; }
-  }
+  .stateMessage { color: $dark-text-secondary; }
 
   .trustSection {
     background: $dark-surface;

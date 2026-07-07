@@ -161,16 +161,8 @@ const ChatTopic: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Top bar */}
+      {/* Topic title bar — the back button lives in the AppHeader (S23). */}
       <div className={styles.topBar}>
-        <button
-          className={styles.backBtn}
-          onClick={() => navigate(`/community/${communityId}/chat`)}
-          title={t('chat.backTitle', 'Back to Chat')}
-          aria-label={t('chat.backAria', 'Back to chat topics')}
-        >
-          <ArrowLeft size={18} />
-        </button>
         <span className={styles.topicTitle}>{topic.title}</span>
       </div>
 

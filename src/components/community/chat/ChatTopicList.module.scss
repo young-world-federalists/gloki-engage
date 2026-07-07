@@ -5,24 +5,6 @@
   max-width: 720px;
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-.header {
-  margin-bottom: $spacing-xl;
-
-  h2 {
-    font-size: $text-2xl;
-    font-weight: $font-bold;
-    color: $gray-800;
-    margin-bottom: $spacing-xs;
-  }
-
-  p {
-    font-size: $text-sm;
-    color: $gray-500;
-    margin: 0;
-  }
-}
-
 .caveat {
   margin-top: $spacing-xs !important;
   font-size: $text-xs !important;
@@ -165,16 +147,6 @@
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────
 @include dark {
-  .header {
-    h2 {
-      color: $dark-text;
-    }
-
-    p {
-      color: $dark-text-secondary;
-    }
-  }
-
   .titleInput {
     background: $dark-bg;
     border-color: $dark-border;

@@ -354,17 +354,16 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     }
   };
 
+  // The section title + intro render in the AppHeader title block (S23); only
+  // page states and the (i) explainer remain in content.
   if (isMembersLoading || balanceLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>{t('funds.title', 'Community Funds')}</h2>
-          <p>
-            {isMembersLoading
-              ? t('currency.loadingMembers', 'Loading community members...')
-              : t('currency.loadingBalance', 'Loading balance...')}
-          </p>
-        </div>
+        <p className={styles.stateMessage}>
+          {isMembersLoading
+            ? t('currency.loadingMembers', 'Loading community members...')
+            : t('currency.loadingBalance', 'Loading balance...')}
+        </p>
       </div>
     );
   }
@@ -372,46 +371,37 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   if (!isMember) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>{t('funds.title', 'Community Funds')}</h2>
-          <p>{t('currency.notMember', 'You are not yet a member of this community.')}</p>
-        </div>
+        <p className={styles.stateMessage}>{t('currency.notMember', 'You are not yet a member of this community.')}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.titleRow}>
-          <h2>{t('funds.title', 'Community Funds')}</h2>
-          <InfoDisclosure
-            label={t('funds.explainerTitle', 'How Community Funds Work')}
-            title={t('funds.explainerTitle', 'How Community Funds Work')}
-          >
-            <p>
-              {t(
-                'funds.explainerBody1',
-                'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
-              )}
-            </p>
-            <p>
-              {t(
-                'funds.explainerBody2',
-                'The community also pools points into funds. Set your preferred minting rates, choose how much of the commons each fund should receive, and pay the commons out when it builds up.',
-              )}
-            </p>
-          </InfoDisclosure>
-        </div>
-        <p>{t('funds.subtitle', 'Manage shared funds and signal what matters')}</p>
-      </div>
-
       <div className={styles.content}>
         <div className={styles.balanceSection}>
           <div className={styles.balanceCard}>
             <div className={styles.balanceHeader}>
               <Coins size={24} />
               <h2>{t('currency.yourBalance', 'Your Support Points')}</h2>
+              <InfoDisclosure
+                className={styles.balanceInfo}
+                label={t('funds.explainerTitle', 'How Community Funds Work')}
+                title={t('funds.explainerTitle', 'How Community Funds Work')}
+              >
+                <p>
+                  {t(
+                    'funds.explainerBody1',
+                    'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'funds.explainerBody2',
+                    'The community also pools points into funds. Set your preferred minting rates, choose how much of the commons each fund should receive, and pay the commons out when it builds up.',
+                  )}
+                </p>
+              </InfoDisclosure>
             </div>
             <div className={styles.balanceAmount}>
               <span className={styles.amount}>{userBalance !== null ? userBalance : '-'}</span>

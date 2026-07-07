@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users2, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { addCollaboration, type Collaboration } from '../../services/contracts/community';
@@ -84,27 +84,18 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
     );
   }
 
+  // The section title + intro render in the AppHeader title block (S23) — no
+  // in-content header here.
   if (!isMember) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>{t('collab.listTitle', 'Collabs')}</h2>
-          <p>{t('collab.notMember', 'You are not yet a member of this community.')}</p>
-        </div>
+        <p className={styles.empty}>{t('collab.notMember', 'You are not yet a member of this community.')}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerIcon}><Users2 size={20} /></div>
-        <div>
-          <h2>{t('collab.listTitle', 'Collabs')}</h2>
-          <p>{t('collab.listSubtitle', 'Template-based workspaces for teamwork')}</p>
-        </div>
-      </div>
-
       {collabs.length === 0 ? (
         <p className={styles.empty}>{t('collab.empty', 'No collabs yet. Start one from a template.')}</p>
       ) : (

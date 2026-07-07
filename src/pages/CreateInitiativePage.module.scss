@@ -7,44 +7,19 @@
   padding-bottom: 100px;
 }
 
-.header {
+// Form title + the (i) explainer trigger on one row (the page title itself
+// renders in the AppHeader title block — S23).
+.formTitleRow {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
-  margin-bottom: $spacing-xl;
-
-  .backButton {
-  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: transparent;
-    border: none;
-    border-radius: $radius-full;
-    color: $gray-500;
-    cursor: pointer;
-    transition: all $transition-base;
-    flex-shrink: 0;
-
-    &:hover {
-      background: $gray-100;
-      color: $gray-800;
-    }
-  }
+  justify-content: space-between;
+  gap: $spacing-sm;
 
   h2 {
-    flex: 1;
-    min-width: 0;
-    font-size: $text-xl;
-    font-weight: $font-bold;
-    color: $gray-800;
     margin: 0;
   }
 }
 
-// The (i) trigger sits at the end of the header row, after the title.
 .infoTrigger {
   flex-shrink: 0;
 }
@@ -291,22 +266,9 @@
 }
 
 @include dark {
-  .header h2 {
-    color: $dark-text;
-  }
-
   .explainerSection {
     h3 { color: $dark-text; }
     p { color: $dark-text-secondary; }
-  }
-
-  .header .backButton {
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
   }
 
   .card {

@@ -75,11 +75,7 @@ const CommunitySettings: React.FC<Props> = ({ communityId }) => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h2>{t('settings.title', 'Community settings')}</h2>
-        <p>{t('settings.lead', 'Choose who can take part at each stage. Read-only viewing is always open.')}</p>
-      </header>
-
+      {/* The section title + lead render in the AppHeader title block (S23). */}
       <Banner tone="info" title={t('settings.adminTitle', 'Admin settings')} className={styles.adminBanner}>
         {t(
           'settings.adminBody',

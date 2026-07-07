@@ -6,25 +6,10 @@
   max-width: 800px;
   margin: 0 auto;
 
-  .header {
-    margin-bottom: $spacing-2xl;
-
-    h2 {
-      font-size: $text-2xl;
-      font-weight: $font-bold;
-      color: $gray-800;
-      margin-bottom: $spacing-sm;
-    }
-
-    p {
-      color: $gray-600;
-    }
-
-    .memberCount {
-      font-size: $text-xs;
-      color: $gray-500;
-      margin-top: $spacing-xs;
-    }
+  .memberCount {
+    font-size: $text-xs;
+    color: $gray-500;
+    margin-bottom: $spacing-lg;
   }
 
   .joinSection {
@@ -174,18 +159,8 @@
 // Dark mode support
 @include dark {
   .container {
-    .header {
-      h2 {
-        color: $dark-text;
-      }
-
-      p {
-        color: $dark-text-secondary;
-      }
-
-      .memberCount {
-        color: $dark-text-secondary;
-      }
+    .memberCount {
+      color: $dark-text-secondary;
     }
 
     .section {

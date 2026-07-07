@@ -19,39 +19,13 @@
 }
 
 // -------------------------------------------------------------------------
-// Header block — h2 + InfoDisclosure + subtitle
+// Action row — "Start a draft" + its (i) explainer (the page header renders
+// in the AppHeader title block — S23)
 // -------------------------------------------------------------------------
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.titleRow {
+.actionRow {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-
-  h2 {
-    font-size: $text-xl;
-    font-weight: $font-bold;
-    color: $gray-800;
-    margin: 0;
-
-    @include dark {
-      color: $dark-text;
-    }
-  }
-}
-
-.subtitle {
-  font-size: $text-sm;
-  color: $gray-500;
-  margin: 0;
-
-  @include dark {
-    color: $dark-text-secondary;
-  }
 }
 
 // -------------------------------------------------------------------------

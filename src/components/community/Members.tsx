@@ -218,13 +218,11 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>{t('members.title', 'Members')}</h2>
-          <p>{t('members.intro', 'People in this community. Members can propose initiatives, vote on decisions, and participate in governance.')}</p>
-          <p className={styles.memberCount}>{allMembers.length === 1
-            ? t('members.count.one', '1 community member')
-            : t('members.count.many', '{n} community members', { n: allMembers.length })}</p>
-        </div>
+        {/* Title + intro render in the AppHeader title block (S23); only the live
+            member count stays in content. */}
+        <p className={styles.memberCount}>{allMembers.length === 1
+          ? t('members.count.one', '1 community member')
+          : t('members.count.many', '{n} community members', { n: allMembers.length })}</p>
 
         {!currentUserInList && publicKey && (
           <div className={styles.joinSection}>

@@ -40,29 +40,17 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
     if (candidate) addUserVouch(candidate);
   };
 
+  // The section title + web-of-trust intro render in the AppHeader title block (S23).
   if (!isMember) {
     return (
       <div className={styles.container}>
-        <div className={styles.pageHeader}>
-          <h2>{t('identityTrust.title', 'Identity & Trust')}</h2>
-          <p>{t('identityTrust.nonMember', 'You must be a member of this community to access identity features.')}</p>
-        </div>
+        <p className={styles.stateMessage}>{t('identityTrust.nonMember', 'You must be a member of this community to access identity features.')}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.pageHeader}>
-        <h2>{t('identityTrust.title', 'Identity & Trust')}</h2>
-        <p>
-          {t(
-            'identityTrust.intro',
-            "Gloki uses a web of trust to keep the community real people, not bots. By scanning each other's QR codes, members vouch that they know you're a real person — no ID papers, no face scan. The more vouches you have, the stronger your community's democratic foundation.",
-          )}
-        </p>
-      </div>
-
       <Card className={styles.verifyCard}>
         <div className={styles.verifyHeader}>
           <span className={styles.verifyTitle}>{t('trust.your.title', 'Your verification')}</span>

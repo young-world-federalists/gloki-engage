@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, PackageOpen, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Plus, PackageOpen, AlertTriangle } from 'lucide-react';
 import ErrorBoundary from '../../components/shared/ErrorBoundary';
 import { Button } from '../../components/shared';
 import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaboration/flows/registry';
@@ -65,19 +64,15 @@ function loadValidTabs(collaborationId: string): CollaborationTab[] {
 
 interface CollaborationPageProps {
   type: CollaborationType;
-  title: string;
-  subtitle?: string;
   collaborationId: string;
   communityId: string;
 }
 
 const CollaborationPage: React.FC<CollaborationPageProps> = ({
   type,
-  title,
   collaborationId,
   communityId,
 }) => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const t = useT();
   const labelOf = (flow: FlowDefinition) => t(`collab.flow.${flow.id}`, flow.label);
@@ -149,21 +144,10 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
 
   return (
     <div className={cs.container}>
-      {/* CollaborationPage always renders inside CommunityView, which provides the
-          single AppHeader (community name) + <main> landmark. So this is a
-          header-less sub-route: just a back affordance + the collab title. */}
+      {/* CollaborationPage always renders inside CommunityView, whose AppHeader
+          carries the collab title, the back button and the <main> landmark (S23)
+          — so this is a chrome-less sub-route: just the tab bar + active flow. */}
       <div className={cs.content}>
-        <div className={styles.collabHeader}>
-          <button
-            type="button"
-            className={styles.collabBack}
-            onClick={() => navigate(`/community/${communityId}/collab`)}
-            aria-label={t('common.back', 'Back')}
-          >
-            <ArrowLeft size={20} aria-hidden />
-          </button>
-          <h2 className={styles.collabTitle}>{title}</h2>
-        </div>
         <nav className={cs.nav}>
           {tabs.map((tab) => {
             const flow = getFlow(tab.flowId);

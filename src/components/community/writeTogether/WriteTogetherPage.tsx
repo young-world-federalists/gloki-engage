@@ -64,19 +64,16 @@ const WriteTogetherPage: React.FC<{ communityId: string }> = ({ communityId }) =
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.titleRow}>
-          <h2>{t('writeTogether.title', 'Write together')}</h2>
-          <InfoDisclosure label={t('writeTogether.explainerTitle', 'How writing together works')}>
-            <p>{t('writeTogether.explainerBody', 'Draft a problem or solution as a community — write a first version, let others suggest edits that fold in by vote, then submit it to a community\'s feed.')}</p>
-          </InfoDisclosure>
-        </div>
-        <p className={styles.subtitle}>{t('writeTogether.subtitle', 'Co-author a problem or solution, then submit it to the feed.')}</p>
+      {/* The section title + intro render in the AppHeader title block (S23);
+          the (i) explainer sits beside the action it explains. */}
+      <div className={styles.actionRow}>
+        <Button leftIcon={<PlusCircle size={18} />} onClick={() => setView({ mode: 'start' })} disabled={!canParticipate}>
+          {t('writeTogether.startDraft', 'Start a draft')}
+        </Button>
+        <InfoDisclosure label={t('writeTogether.explainerTitle', 'How writing together works')}>
+          <p>{t('writeTogether.explainerBody', 'Draft a problem or solution as a community — write a first version, let others suggest edits that fold in by vote, then submit it to a community\'s feed.')}</p>
+        </InfoDisclosure>
       </div>
-
-      <Button leftIcon={<PlusCircle size={18} />} onClick={() => setView({ mode: 'start' })} disabled={!canParticipate}>
-        {t('writeTogether.startDraft', 'Start a draft')}
-      </Button>
 
       {drafts.length === 0 ? (
         <EmptyState icon={<PlusCircle size={32} aria-hidden />} title={t('writeTogether.emptyTitle', 'No drafts yet')}

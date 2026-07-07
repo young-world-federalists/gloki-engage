@@ -1,68 +1,7 @@
 @use '../../styles/variables' as *;
 
-// In-content back + collab title row. CollaborationPage renders inside
-// CommunityView (which owns the single AppHeader + community-name <h1>), so the
-// collab title is a subordinate <h2> here — not a second header bar.
-.collabHeader {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-md;
-}
-
-.collabBack {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  padding: 0;
-  background: none;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  color: $gray-700;
-  cursor: pointer;
-  transition: background-color $transition-base, color $transition-base, border-color $transition-base;
-
-  &:hover {
-    background-color: $gray-100;
-    color: $gray-900;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  @include dark {
-    border-color: $dark-border;
-    color: $dark-text-secondary;
-
-    &:hover {
-      background-color: $dark-surface;
-      color: $dark-text;
-    }
-  }
-}
-
-.collabTitle {
-  margin: 0;
-  min-width: 0;
-  font-size: $text-lg;
-  font-weight: $font-semibold;
-  line-height: 1.25;
-  color: $gray-900;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  @include dark {
-    color: $dark-text;
-  }
-}
-
 // Tab item: wraps the shared navItem to position the remove (×) button.
+// (The collab title + back button render in CommunityView's AppHeader — S23.)
 .tabItem {
   padding-right: $spacing-lg !important; // make room for × button
 

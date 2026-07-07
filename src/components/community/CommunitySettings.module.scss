@@ -7,19 +7,6 @@
   margin: 0 auto;
 }
 
-.header {
-  h2 {
-    font-size: $text-xl;
-    font-weight: $font-semibold;
-  }
-
-  p {
-    margin-top: $spacing-xs;
-    color: $gray-500;
-    font-size: $text-sm;
-  }
-}
-
 .adminBanner {
   margin-top: $spacing-lg;
 }
@@ -41,16 +28,6 @@
 }
 
 @include dark {
-  .header {
-    h2 {
-      color: $dark-text;
-    }
-
-    p {
-      color: $dark-text-secondary;
-    }
-  }
-
   .stageLabel {
     color: $dark-text;
   }

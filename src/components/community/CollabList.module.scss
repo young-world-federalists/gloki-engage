@@ -6,38 +6,6 @@
   margin: 0 auto;
 }
 
-.header {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-md;
-  margin-bottom: $spacing-2xl;
-
-  .headerIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: $radius-lg;
-    background: rgba($primary, 0.1);
-    color: $primary;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  h2 {
-    font-size: $text-2xl;
-    font-weight: $font-bold;
-    color: $gray-800;
-    margin-bottom: $spacing-xs;
-  }
-
-  p {
-    color: $gray-600;
-    font-size: $text-sm;
-  }
-}
-
 .loading {
   display: flex;
   flex-direction: column;
@@ -135,11 +103,6 @@
 
 // Dark mode
 @include dark {
-  .header {
-    h2 { color: $dark-text; }
-    p { color: $dark-text-secondary; }
-  }
-
   .empty {
     color: $dark-text-secondary;
   }

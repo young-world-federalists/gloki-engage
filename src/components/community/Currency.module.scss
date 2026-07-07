@@ -21,30 +21,11 @@
   max-width: 800px;
   margin: 0 auto;
 
-  .header {
-    margin-bottom: $spacing-2xl;
-
-    .titleRow {
-      display: flex;
-      align-items: center;
-      gap: $spacing-xs;
-      margin-bottom: $spacing-sm;
-
-      h2 {
-        margin-bottom: 0;
-      }
-    }
-
-    h2 {
-      font-size: $text-2xl;
-      font-weight: $font-bold;
-      color: $gray-800;
-      margin-bottom: $spacing-sm;
-    }
-
-    p {
-      color: $gray-600;
-    }
+  // Loading / not-a-member page states (the page header renders in the
+  // AppHeader title block — S23).
+  .stateMessage {
+    color: $gray-600;
+    padding: $spacing-xl 0;
   }
 
   .content {
@@ -71,6 +52,11 @@
             font-weight: $font-semibold;
             color: $gray-800;
             margin: 0;
+          }
+
+          // The relocated funds (i) explainer (S23) — quiet, at the row's end.
+          .balanceInfo {
+            flex-shrink: 0;
           }
         }
 
@@ -472,14 +458,8 @@
 // Dark mode support
 @include dark {
   .container {
-    .header {
-      h2 {
-        color: $dark-text;
-      }
-
-      p {
-        color: $dark-text-secondary;
-      }
+    .stateMessage {
+      color: $dark-text-secondary;
     }
 
     .content {

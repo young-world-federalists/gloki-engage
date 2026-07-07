@@ -115,11 +115,7 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h2>{t('chat.title', 'Chat')}</h2>
-        <p>{t('chat.intro', 'Open conversations about anything in your community.')}</p>
-      </div>
+      {/* The section title + intro render in the AppHeader title block (S23). */}
 
       {/* New topic input */}
       <div className={styles.inputBar}>
