@@ -14,7 +14,12 @@
 
 // Per-card wrapper. The deep-linked card is focused programmatically (tabIndex
 // -1, not keyboard-reachable) so we scroll it into view on `?initiative=` —
-// suppress the focus ring; the scroll is the cue.
+// suppress the focus ring; the scroll is the cue. The scroll-margin keeps the
+// card title clear of the sticky AppHeader bar (S23).
+.cardWrap {
+  scroll-margin-top: $sticky-scroll-offset;
+}
+
 .cardWrap:focus {
   outline: none;
 }

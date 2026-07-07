@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { useUrlExpandedSet } from '../hooks/useUrlExpandedSet';
 import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllInitiatives';
@@ -182,21 +183,11 @@ const StageFeedView: React.FC = () => {
   // community feed's engage panel right here — browsing a stage never teleports
   // the visitor into an unfamiliar community. Mandate keeps navigating: a
   // published mandate is a read-only artifact page (S18 D1).
+  // Expansion lives in the URL (S23): leaving for a discussion and coming back
+  // restores it, and switching stage via the footer drops the param naturally
+  // (one route element serves all four feeds — no reset effect needed).
   const expandable = stage !== 'mandate';
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  // One route element serves all four feeds — reset expansion when the stage
-  // param changes so a card expanded in one feed can't auto-mount its engage
-  // stack when the same initiative surfaces in another.
-  useEffect(() => {
-    setExpandedIds(new Set());
-  }, [stage]);
-  const toggleExpanded = (item: InitiativeWithMeta) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(item.id)) next.delete(item.id);
-      else next.add(item.id);
-      return next;
-    });
+  const { expandedIds, toggleExpanded } = useUrlExpandedSet();
 
   const handleCardOpen = (item: InitiativeWithMeta) => {
     navigate(`/mandate/${item.communityId}/${item.id}`);
@@ -263,7 +254,7 @@ const StageFeedView: React.FC = () => {
             hostAgent={item.hostAgent || publicKey || 'local'}
             expandable={expandable}
             expanded={expandedIds.has(item.id)}
-            onToggle={toggleExpanded}
+            onToggle={(it) => toggleExpanded(it.id)}
             onOpen={handleCardOpen}
             onCommunityClick={handleCommunityClick}
           />

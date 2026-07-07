@@ -6,7 +6,8 @@
   gap: $spacing-xl;
 }
 
-/* "Read the full mandate" scroll target — clears the sticky header. */
+/* "Read the full mandate" scroll target — clears the sticky header.
+   ($spacing-2xl = 32px was shorter than the ~61px bar: titles landed cut off — S23.) */
 .docAnchor {
-  scroll-margin-top: $spacing-2xl;
+  scroll-margin-top: $sticky-scroll-offset;
 }

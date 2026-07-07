@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useUrlExpandedSet } from '../../hooks/useUrlExpandedSet';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { contractRead } from '../../services/api';
@@ -50,15 +51,12 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
   const trust = useCommunityTrust(communityId);
   const [stages, setStages] = useState<Record<string, string>>({});
   const deepLinked = searchParams.get('initiative');
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    () => new Set(deepLinked ? [deepLinked] : []),
-  );
-  const toggleExpanded = (id: string) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  // Expansion lives in the URL (S23) so it survives the discussion round-trip;
+  // the `?initiative=` deep link seeds it below (idempotent add — StrictMode-safe).
+  const { expandedIds, toggleExpanded, expand } = useUrlExpandedSet();
+  useEffect(() => {
+    if (deepLinked) expand(deepLinked);
+  }, [deepLinked, expand]);
   const deepCardRef = useRef<HTMLDivElement | null>(null);
   const didFocusDeepLink = useRef(false);
 

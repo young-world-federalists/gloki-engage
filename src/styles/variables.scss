@@ -156,6 +156,10 @@ $dark-tint-strong: rgba(255, 255, 255, 0.1); // stronger tracks/wells on dark
 // Layout
 $footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
 $content-max-width: 640px; // single-column mobile-first content column
+// Scroll anchoring: any scrollIntoView / deep-link target needs this much
+// scroll-margin-top or its title lands hidden under the sticky AppHeader bar
+// (~61px: 44px controls + 2×8px padding + 1px rule) (S23).
+$sticky-scroll-offset: 76px;
 
 // ---------------------------------------------------------------------------
 // Theme (S21, D2) — the ONLY way to write dark-mode styles.
