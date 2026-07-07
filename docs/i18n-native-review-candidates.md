@@ -951,6 +951,20 @@ shared-Modal ports.
 
 ---
 
+## Session 23 (2026-07-06) — header/nav cohesion (no new strings; −6 keys, parity 1134)
+
+**No new fr/sw strings to review.** The header/nav cohesion work relocated existing copy
+(page titles/intros into the AppHeader title block, per-section community headers) but added
+no new keys — every string reused an existing key.
+
+**Removed keys (removed from fr + sw together, parity holds 1134 = 1134):** the mandate
+document's stat trio + provenance line were dropped as duplicates of the hero card, orphaning
+`mandate.statParticipants`, `mandate.statCountries`, `mandate.statBackers`,
+`mandate.legitimacyLabel`, `mandate.provenanceLine`, `mandate.jurisdictions`. No user-facing
+copy change beyond the de-duplication.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

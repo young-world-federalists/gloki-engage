@@ -334,6 +334,51 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
+- **2026-07-06 — S23: header/nav cohesion & stage↔community seams (BUILT + reviewed
+  0 Crit / 0 Imp; commit range `b02ef9b..7ef0dac`; PUSH HELD for Eston's green light).**
+  Eston-directed pre-handoff UI polish; the prepared S23 kit-convergence prompt was
+  superseded and **liquid delegation D3 was PAUSED by Eston** ("will happen later"). Spec
+  `docs/superpowers/specs/2026-07-06-s23-header-nav-cohesion-design.md`. UI-only class →
+  **no DEMO_VERSION bump**. Shipped, all against the seam, zero contract/wire changes:
+  (1) **AppHeader gains `subtitle`** — a page's intro renders inside the title block under
+  the h1 (one box, tight spacing); new DESIGN_SYSTEM law: no floating intro paragraphs below
+  the header. HomeView `.introSubtitle` + StageFeedView's four blue `.thresholdBanner` info
+  cards folded in; the stage-feed "Browse by stage" eyebrow dropped (the StageFooter already
+  says it). (2) **Community mini-app headers → AppHeader + universal back** — `CommunityView`
+  derives a per-section header from the URL (`matchPath`): a back button on every community
+  route (history-pop when `location.key !== 'default'`, else a hierarchical fallback),
+  eyebrow = community name, h1 = section title, subtitle = section intro. Eight mini-apps
+  (Collab/Members/Funds/Chat/Identity/Settings/WriteTogether/CreateInitiative) dropped their
+  duplicated in-content `<h2>+<p>` headers and private back buttons; CollaborationPage lost
+  dead `title`/`subtitle` props + its in-content back header; ChatTopic lost its own back
+  button. (3) **Card actions anchored to the footer** — `DiscussionPill` left the top
+  `stageNavRow` and joined a bottom actions row beside "Open in community" / the blue open
+  button in both card shells; SolutionsBoard's floating (i) moved beside the "Add a solution"
+  control. (4) **Card expansion survives back-nav** — new `useUrlExpandedSet` hook keeps
+  expanded-card ids in a `?open=` search param (replace-writes), so tapping Discussion and
+  coming back restores the expansion (StageFeedView + CommunityHome; the `?initiative=` deep
+  link seeds it). (5) **Anchor landings clear the sticky bar** — new `$sticky-scroll-offset`
+  (76px) on CommunityHome's deep-linked card + MandatePage's doc anchor (was 32px < the ~61px
+  bar; titles landed cut off). (6) **Discussion page headlines the discussed item** —
+  DiscussionStageView h1 = the initiative title, "Discussion — {community}" demoted to the
+  eyebrow. (7) **One mandate identity across the page + community card** — MandateDocument's
+  masthead eyebrow unified to the "Gloki Mandate" brand (was "A global community mandate");
+  the document shed its participants/countries/conviction stat trio + provenance line as dups
+  of the hero card; MandateEngage (community card) now leads with the same "Gloki Mandate" +
+  winning-solution title so "Show your support" → community page lands on a recognisably
+  identical mandate — winner text from the **read-only** `useMandateJourney`, NOT `useMandate`
+  (which deploys). Fixture `PublishedMandate.subtitle` field + 6 orphaned mandate i18n keys
+  removed; **fr/sw parity 1134 = 1134**. Review: an adversarial 3-dimension whole-branch pass
+  (correctness / a11y+structure / dead-code+design-system, Opus, 127 tool calls) returned
+  **zero findings**. ★ Learnings: (1) removing a JSX usage *and* its import together STILL
+  throws a stale HMR `ReferenceError` ghost at old line numbers that survives reload — restart
+  the dev server; tsc-clean is the truth. (2) `useMandate` is NOT read-only — it calls
+  `useFlowContract` (shared mode deploys if the sub-contract is absent); for a display-only
+  mandate summary use `useMandateJourney`'s `vote.winnerText`. (3) universal back = history-pop
+  with a hierarchical fallback, gated on `location.key !== 'default'` so a fresh deep-link still
+  goes UP, not to a foreign site; hub tabs (Home/stage feeds/Identity) keep no back button.
+  (4) all 9 of Eston's reported issues reproduced against HEAD — no stale premises this session.
+
 - **2026-07-06 — S22: Wave-1.5 living remainder — kit convergence + token-debt zero
   (SHIPPED+PUSHED `ce0251a..1d47118`, deploy green, live site 200; whole-diff review
   0 Critical / 0 Important / 3 minors fixed same-session; the first four commits had
