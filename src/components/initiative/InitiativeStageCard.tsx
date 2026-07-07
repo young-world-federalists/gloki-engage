@@ -131,13 +131,6 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
           {stageNav && (
             <div className={styles.stageNavRow}>
               <InitiativeStageStrip current={post.stage} />
-              <DiscussionPill
-                initiativeId={stageNav.initiativeId}
-                communityId={stageNav.communityId}
-                hostServer={stageNav.hostServer}
-                hostAgent={stageNav.hostAgent}
-                active={post.stage === 'discussion'}
-              />
             </div>
           )}
           {(post.scope || post.sdg || post.countryCount || post.source) && (
@@ -176,11 +169,27 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
           <div className={styles.engage}>
             {children}
-            {onOpen && openLabel && (
-              <button type="button" className={styles.openBtn} onClick={onOpen}>
-                {openLabel}
-                <ArrowRight size={16} aria-hidden />
-              </button>
+            {/* Card actions live together at the bottom (S23): the persistent
+                Discussion pill (S16: a function reachable at every stage) beside
+                the blue open action. */}
+            {(stageNav || (onOpen && openLabel)) && (
+              <div className={styles.actionsRow}>
+                {stageNav && (
+                  <DiscussionPill
+                    initiativeId={stageNav.initiativeId}
+                    communityId={stageNav.communityId}
+                    hostServer={stageNav.hostServer}
+                    hostAgent={stageNav.hostAgent}
+                    active={post.stage === 'discussion'}
+                  />
+                )}
+                {onOpen && openLabel && (
+                  <button type="button" className={styles.openBtn} onClick={onOpen}>
+                    {openLabel}
+                    <ArrowRight size={16} aria-hidden />
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

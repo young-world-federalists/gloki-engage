@@ -319,15 +319,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
 
   return (
     <div className={styles.container}>
-      <div className={styles.helpSection}>
-        <InfoDisclosure
-          label={t('mechanisms.approval.helpShow', 'How does choosing solutions work?')}
-          title={t('mechanisms.approval.helpShow', 'How does choosing solutions work?')}
-        >
-          <p>{t('mechanisms.approval.helpBody', 'Add a solution and the commitments it needs. Upvote the ones you support, ask for expert review, or suggest two be merged. The strongest rise to the vote.')}</p>
-        </InfoDisclosure>
-      </div>
-
       <div className={styles.progress}>
         <div className={styles.progressStat}>
           <div className={styles.progressTop}>
@@ -345,9 +336,19 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </div>
       </div>
 
-      <button type="button" className={styles.addBtn} onClick={() => setAddOpen(true)}>
-        + {t('mechanisms.approval.addSolutionCta', 'Add a solution to this problem')}
-      </button>
+      {/* The (i) sits beside the action it explains (S23) — not a lone icon
+          floating above the board. */}
+      <div className={styles.addRow}>
+        <button type="button" className={styles.addBtn} onClick={() => setAddOpen(true)}>
+          + {t('mechanisms.approval.addSolutionCta', 'Add a solution to this problem')}
+        </button>
+        <InfoDisclosure
+          label={t('mechanisms.approval.helpShow', 'How does choosing solutions work?')}
+          title={t('mechanisms.approval.helpShow', 'How does choosing solutions work?')}
+        >
+          <p>{t('mechanisms.approval.helpBody', 'Add a solution and the commitments it needs. Upvote the ones you support, ask for expert review, or suggest two be merged. The strongest rise to the vote.')}</p>
+        </InfoDisclosure>
+      </div>
 
       <Modal
         isOpen={addOpen}

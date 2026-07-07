@@ -143,13 +143,6 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
     <div className={styles.panel}>
       <div className={styles.stageNavRow}>
         <InitiativeStageStrip current={stage} />
-        <DiscussionPill
-          initiativeId={initiativeId}
-          communityId={communityId}
-          hostServer={hostServer}
-          hostAgent={hostAgent}
-          active={stage === 'discussion'}
-        />
       </div>
 
       {stage === 'problem' && (
@@ -203,13 +196,24 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
         </>
       )}
 
-      <button
-        type="button"
-        className={styles.openLink}
-        onClick={() => navigate(`/community/${communityId}?initiative=${initiativeId}`)}
-      >
-        {t('stagefeed.openInCommunity', 'Open in community')} <ExternalLink size={16} aria-hidden />
-      </button>
+      {/* Card actions live together at the bottom (S23): the persistent
+          Discussion pill beside "Open in community". */}
+      <div className={styles.actionsRow}>
+        <DiscussionPill
+          initiativeId={initiativeId}
+          communityId={communityId}
+          hostServer={hostServer}
+          hostAgent={hostAgent}
+          active={stage === 'discussion'}
+        />
+        <button
+          type="button"
+          className={styles.openLink}
+          onClick={() => navigate(`/community/${communityId}?initiative=${initiativeId}`)}
+        >
+          {t('stagefeed.openInCommunity', 'Open in community')} <ExternalLink size={16} aria-hidden />
+        </button>
+      </div>
     </div>
   );
 };

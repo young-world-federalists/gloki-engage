@@ -12,16 +12,21 @@
   gap: $spacing-md;
 }
 
-// Strip + Discussion pill, mirroring InitiativeStageCard's stageNavRow.
+// The 4-stage strip alone atop the panel, mirroring InitiativeStageCard.
+// The Discussion pill moved to the actions row at the bottom (S23).
 .stageNavRow {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+}
 
-  > :last-child {
-    align-self: flex-start;
-    margin: 0 $spacing-lg;
-  }
+// Bottom actions row (S23): Discussion pill + "Open in community" together.
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
 }
 
 // "Open in community ↗" — the quiet right-aligned text link (ActivityCard's
