@@ -334,8 +334,8 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
-- **2026-07-06 — S23: header/nav cohesion & stage↔community seams (BUILT + reviewed
-  0 Crit / 0 Imp; commit range `b02ef9b..7ef0dac`; PUSH HELD for Eston's green light).**
+- **2026-07-06 — S23: header/nav cohesion & stage↔community seams (SHIPPED + PUSHED
+  `865819e..d9170d4`, deploy run 28855877263 green, live site 200; reviewed 0 Crit / 0 Imp).**
   Eston-directed pre-handoff UI polish; the prepared S23 kit-convergence prompt was
   superseded and **liquid delegation D3 was PAUSED by Eston** ("will happen later"). Spec
   `docs/superpowers/specs/2026-07-06-s23-header-nav-cohesion-design.md`. UI-only class →
