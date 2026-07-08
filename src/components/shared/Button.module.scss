@@ -111,6 +111,13 @@
 }
 
 @include dark {
+  // Resting secondary: $primary text/border is only ≈3.98:1 on the dark surface —
+  // lift to the on-dark brand tint (≈5.75:1). NOT the locked white-on-$primary fill.
+  .secondary {
+    color: $primary-on-dark;
+    border-color: $primary-on-dark;
+  }
+
   .secondary:hover:not(:disabled) {
     background-color: rgba($primary, 0.16);
   }

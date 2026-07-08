@@ -273,5 +273,27 @@
     border-color: $dark-border;
   }
 
+  // The .voteBtn re-theme above swaps the surface but not the semantic text — so
+  // re-declare it (dark-authoring rule): $success/$error-on-surface are dark-green/
+  // dark-red for light chips (≈1.9:1 / ≈2.3:1 on $dark-bg). The -on-dark tints clear AA.
+  .upBtn,
+  .upBtn.active {
+    color: $success-on-dark;
+  }
 
+  .downBtn,
+  .downBtn.active {
+    color: $error-on-dark;
+  }
+
+  .voteCount {
+    color: inherit; // follow the parent button's on-dark colour
+  }
+
+  // Captions were $gray-500 (≈3.0:1 on the dark surface) with no dark override.
+  .thresholdLabels,
+  .yourVote,
+  .undoHint {
+    color: $dark-text-secondary;
+  }
 }
