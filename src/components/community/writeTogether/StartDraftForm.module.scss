@@ -11,9 +11,8 @@
   flex-direction: column;
   gap: $spacing-md;
   width: 100%;
-  max-width: $content-max-width;
-  margin: 0 auto;
-  padding: $spacing-xl $spacing-lg $spacing-2xl;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+  padding: $spacing-xl 0 $spacing-2xl;
   box-sizing: border-box;
 }
 

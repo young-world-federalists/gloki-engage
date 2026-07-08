@@ -2,7 +2,7 @@
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 .container {
-  max-width: 720px;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 }
 
 .caveat {

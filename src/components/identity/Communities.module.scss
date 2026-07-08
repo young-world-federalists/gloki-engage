@@ -2,8 +2,7 @@
 @use '../../styles/animations';
 
 .container {
-  max-width: 600px;
-  margin: 0 auto;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 
   .pageHeader {
     margin-bottom: $spacing-lg;

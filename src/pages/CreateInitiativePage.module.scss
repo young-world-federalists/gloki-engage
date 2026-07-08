@@ -1,9 +1,8 @@
 @use '../styles/variables' as *;
 
 .page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: $spacing-xl;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+  padding: $spacing-xl 0; // vertical air; horizontal gutter from the parent column
   padding-bottom: 100px;
 }
 

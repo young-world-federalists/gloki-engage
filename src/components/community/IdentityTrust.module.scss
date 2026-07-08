@@ -1,8 +1,7 @@
 @use '../../styles/variables' as *;
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 }
 
 // Not-a-member page state (the page header renders in the AppHeader title

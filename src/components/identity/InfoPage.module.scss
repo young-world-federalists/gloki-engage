@@ -1,9 +1,7 @@
 @use '../../styles/variables' as *;
 
 .container {
-  padding: $spacing-xl;
-  max-width: 600px;
-  margin: 0 auto;
+  padding-block: $spacing-xl; // vertical air; horizontal gutter + width from the parent column
 
   .backButton {
   padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)

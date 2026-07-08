@@ -5,11 +5,9 @@
   flex-direction: column;
   gap: $spacing-2xl;
   width: 100%;
-  max-width: $content-max-width;
-  margin: 0 auto;
-  // Horizontal gutter is owned by the parent .content ($content-gutter) — this
-  // inner column adds top air + footer clearance only (was double-padded: 16+16).
-  padding: $spacing-lg 0 calc(#{$footer-height} + #{$spacing-2xl});
+  // The parent .content is now the canonical page column (width + gutter +
+  // $footer-clearance bottom); this inner wrapper adds top air only.
+  padding-top: $spacing-lg;
   box-sizing: border-box;
 }
 
