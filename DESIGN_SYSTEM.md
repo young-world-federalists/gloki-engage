@@ -167,6 +167,19 @@ S24.) Where an inner content wrapper is nested inside a column that already prov
 gutter (e.g. `DiscussionStageView .main` inside `Container .content`), the inner wrapper
 adds **zero** horizontal padding — the outer column is the sole gutter.
 
+**Canonical page column** (`@mixin page-column` in `variables.scss`, S24/W1b). The gutter
+law is enforced by ONE mixin — `max-width: $content-max-width` (640) + `margin-inline: auto`
++ `padding-inline: $content-gutter` — `@include`d by the AppHeader `.bar` + `.titleBlock`
+AND every page's outer scroll wrapper. So on desktop (>640px) the header and content share
+one **centred 640px column**; at 360px the `max-width` is a cap and nothing changes. Rules:
+- **The outer scroll wrapper under the AppHeader owns the column; inner wrappers fill it.**
+  An inner (a mini-app, a sub-view, a flow) must NOT re-declare `max-width` / `margin: auto` /
+  a horizontal gutter — one canonical width app-wide (no 600/680/720/800 divergence).
+- **The sticky brand bar's background + rule stay full-width;** only its `.bar` *content* is
+  constrained + centred, so the bar reads edge-to-edge while its controls align to the column.
+- **Scroll regions clear the fixed StageFooter with `$footer-clearance`** (one value; no
+  64/72/80 drift). A bespoke bottom is only for a page's own sticky action (e.g. CreateCommunity).
+
 **Title-block vertical rhythm** (`AppHeader.module.scss` `.titleBlock`): top air
 **`$spacing-lg` (16px)**, bottom **`$heading-gap` (8px)** so the `<h1>` clears the
 content it introduces, and the eyebrow→h1→subtitle gap on the spacing scale
@@ -403,6 +416,8 @@ Mobile-first. The flagship target is a **360px-wide** Android; every layout must
 | `$footer-height` | 64px | Global `StageFooter`; pad the bottom of scroll regions by this so content clears the bar |
 | `$content-max-width` | 640px | Single-column content column, centred on wider screens |
 | `$content-gutter` | 16px (`$spacing-lg`) | THE app-wide horizontal content edge — see the header-gutter law under Spacing |
+| `$footer-clearance` | 80px (`$footer-height` + `$spacing-lg`) | Unified bottom pad for any scroll region so content clears the fixed StageFooter (no 64/72/80 drift) |
+| `@mixin page-column` | — | `max-width: $content-max-width` + `margin-inline: auto` + `padding-inline: $content-gutter`; the AppHeader `.bar`/`.titleBlock` + every outer scroll wrapper `@include` it (canonical centred column on desktop) |
 
 ## Shared component inventory
 
