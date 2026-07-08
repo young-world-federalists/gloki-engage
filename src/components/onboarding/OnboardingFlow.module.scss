@@ -9,11 +9,9 @@
 
 // The content column — AppHeader above it stays full-bleed (S18 W1, campaign M1).
 .flowMain {
+  @include page-column;
   flex: 1;
-  width: 100%;
-  max-width: $content-max-width;
-  margin: 0 auto;
-  padding: $spacing-xl $spacing-lg calc(#{$footer-height} + #{$spacing-xl});
+  padding-block: $spacing-xl $footer-clearance;
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;

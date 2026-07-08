@@ -1,10 +1,9 @@
 @use '../styles/variables' as *;
 
 .page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: $spacing-xl;
-  padding-bottom: 100px;
+  @include page-column;
+  padding-block: $spacing-xl;
+  padding-bottom: 100px; // room for the sticky create action (bespoke, not the StageFooter)
 }
 
 // The explainer row under the title block (D3: the title + back live in the

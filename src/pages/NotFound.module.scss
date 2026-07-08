@@ -1,12 +1,12 @@
 @use '../styles/variables' as *;
 
 .main {
+  @include page-column;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: $spacing-3xl $spacing-lg;
-  padding-bottom: $footer-height;
+  padding-block: $spacing-3xl $footer-clearance;
 }
 
 .content {
