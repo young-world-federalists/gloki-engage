@@ -56,6 +56,23 @@ Component modules layer their dark treatments using these tokens:
 | `$dark-text` | Primary text on dark |
 | `$dark-text-secondary` | Muted text on dark |
 | `$primary-on-dark` | Blue TEXT in dark mode (links, eyebrows). `$primary-dark` is a light-mode hover tone — as dark-scheme text it measured 2.8–3.5:1 (S16); this blue-400 clears AA on both dark surfaces. |
+| `$success-on-dark` | Green TEXT on a plain dark surface (the vote "second it" button) — green-400 `#34d399` ≈7.6:1 on `$dark-bg`. |
+| `$warning-on-dark` | Amber TEXT on a plain dark surface — amber-400 `#fbbf24`. |
+| `$error-on-dark` | Red / destructive TEXT on a plain dark surface (Leave/Logout, the vote "oppose" button) — red-400 `#f87171`, AA on both dark surfaces. |
+
+**On-dark vs on-surface — do not confuse them.** Semantic TEXT sitting on a *plain
+dark surface* (`$dark-bg` / `$dark-surface`) MUST use a `*-on-dark` token. Never use
+a `*-on-surface` value (those are dark green/amber/red meant as text on the *light*
+tinted chips of the table below) and never the raw brand/semantic colour
+(`$primary`/`$success`/`$warning`/`$error`) — all of those fail AA as text on the
+dark app background.
+
+**Dark-authoring rule.** Any `@include dark` block that re-themes an element's
+*background* MUST also re-declare that element's *text/icon* colour on the new
+surface. Re-theming only the background silently strips contrast — this is exactly
+how the vote buttons shipped ≈1.9–2.3:1 (`.voteBtn` got `$dark-bg` while `.upBtn`/
+`.downBtn` kept their light-chip green/red) and `Button.secondary` shipped ≈3.98:1
+(S24).
 
 ### Semantic surfaces
 
@@ -137,6 +154,23 @@ Use the spacing scale from variables. No ad-hoc pixel values.
 | `$spacing-lg` | 16px | Between sibling components, card padding |
 | `$spacing-xl` | 24px | Between sections |
 | `$spacing-2xl` | 32px | Major section breaks |
+
+### Header-gutter law & title-block rhythm
+
+**One horizontal gutter, app-wide.** The AppHeader title block, the brand bar, and
+every page content column share ONE horizontal edge = **`$content-gutter` (16px)**.
+Set it once on each content column's base rule; **no ad-hoc per-file or per-breakpoint
+horizontal padding** — a mobile media query may tighten *vertical* padding only, never
+re-specify the horizontal gutter. (Root cause of the "every subpage header hangs left
+of its content" complaint: the header title block sat at 12px while bodies ran 12–24px.
+S24.) Where an inner content wrapper is nested inside a column that already provides the
+gutter (e.g. `DiscussionStageView .main` inside `Container .content`), the inner wrapper
+adds **zero** horizontal padding — the outer column is the sole gutter.
+
+**Title-block vertical rhythm** (`AppHeader.module.scss` `.titleBlock`): top air
+**`$spacing-lg` (16px)**, bottom **`$heading-gap` (8px)** so the `<h1>` clears the
+content it introduces, and the eyebrow→h1→subtitle gap on the spacing scale
+(**`$spacing-xs`**, 4px) — never a raw `2px`.
 
 ## Components
 
@@ -368,6 +402,7 @@ Mobile-first. The flagship target is a **360px-wide** Android; every layout must
 |-------|-------|-----|
 | `$footer-height` | 64px | Global `StageFooter`; pad the bottom of scroll regions by this so content clears the bar |
 | `$content-max-width` | 640px | Single-column content column, centred on wider screens |
+| `$content-gutter` | 16px (`$spacing-lg`) | THE app-wide horizontal content edge — see the header-gutter law under Spacing |
 
 ## Shared component inventory
 
