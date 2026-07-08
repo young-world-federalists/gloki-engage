@@ -272,6 +272,27 @@ FOR_OURI addendum (S13 `set_property`/`get_properties` + `mandate_ratification`,
 path); ARCHITECTURE StageFooter/landing fixed; DESIGN_SYSTEM typography + primitives updated.
 Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.md`.
 
+**P7 — UI polish & design-system enforcement (Eston walkthrough, 2026-07-08). 🔨 IN PROGRESS.**
+Read-only 14-agent review (83 findings) → [docs/ui-polish-campaign-2026-07.md](docs/ui-polish-campaign-2026-07.md).
+Six dependency-ordered waves; through-line: **codify the missing rules/tokens in DESIGN_SYSTEM.md**
+(campaign §5) so drift can't recur. Each wave = a normal spec→build→review→push session; 10 taste
+calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
+- ✅ **W1 — DS foundation (S24, 2026-07-08) — SHIPPED + PUSHED `5be46a2..8862197`, deploy run
+  28971810816 green, live 200; adversarial review 0 confirmed findings.** New tokens
+  `$content-gutter` (16px), `$success-on-dark`/`$warning-on-dark`; the **header-gutter law** (AppHeader
+  title block + brand bar + every content column share ONE 16px edge — mobile media queries tighten
+  vertical only); dark-mode contrast blocker cleared (vote buttons 7.6/5.3:1, captions 6.96:1,
+  secondary Button 5.75:1); codified in DESIGN_SYSTEM.md (header-gutter law + on-dark family +
+  dark-authoring rule). UI-only → **no DEMO_VERSION bump, no i18n**. Spec
+  `docs/superpowers/specs/2026-07-08-w1-ds-foundation-design.md`.
+- 📋 **W1b** — canonical page-container primitive + desktop (>640px) title↔content alignment +
+  640/720/800 width divergence + 72/80/64 footer-clearance tokenization (split from W1).
+- 📋 **W2** — card-chin separation (Solution + Vote footers; campaign §4 is the spec seed).
+- 📋 **W3** — discussion-as-function + redundancy removal.
+- 📋 **W4** — context restoration + mandate composition.
+- 📋 **W5** — kit-first normalization + spacing/touch floors.
+- 📋 **W6** — community chrome & collab polish.
+
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
 - ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
@@ -334,6 +355,30 @@ Spec: `docs/superpowers/specs/2026-07-03-s16-discussion-ia-and-fix-wave-design.m
 
 ## 8. Changelog
 
+- **2026-07-08 — S24: UI-polish campaign Wave 1 — DS foundation (SHIPPED + PUSHED
+  `5be46a2..8862197`, deploy run 28971810816 green, live site 200; adversarial review
+  0 confirmed findings across 5 dimensions).** First wave of the P7 UI-polish campaign
+  ([docs/ui-polish-campaign-2026-07.md](docs/ui-polish-campaign-2026-07.md)); tokens + SCSS + one
+  doc, **no product behaviour, no fixtures → no DEMO_VERSION bump, no i18n**. Spec
+  `docs/superpowers/specs/2026-07-08-w1-ds-foundation-design.md`. Shipped, all against existing tokens:
+  (1) **Dark-mode contrast blocker cleared** — new `$success-on-dark` (#34d399) / `$warning-on-dark`
+  (#fbbf24) complete the on-dark TEXT family; ProblemVoteFlow's dark `@include dark` re-themed the
+  vote-button *background* but not its text, so `.upBtn`/`.downBtn` were ≈1.9/2.3:1 — re-declared to
+  the on-dark tints (measured **7.6 / 5.3:1**), `.voteCount` inherits, captions
+  (`.thresholdLabels/.yourVote/.undoHint`) `$gray-500`→`$dark-text-secondary` (**6.96:1**);
+  `Button.secondary` resting state on dark `$primary`≈3.98:1 → `$primary-on-dark` (**5.75:1**).
+  (2) **Header-gutter law** — new `$content-gutter` (16px = `$spacing-lg`) is THE one horizontal edge:
+  AppHeader `.titleBlock` + brand `.header` 12→16, and every content column (Container `.content`
+  24→16, CommunityView `.body`/StageFeedView `.feedContainer` mobile 12→16, DiscussionStageView
+  `.main` double-pad collapsed to 0 so `.content` is the sole gutter). Mobile media queries no longer
+  re-specify horizontal (vertical-only). Header vertical rhythm: top air 12→16, bottom 4→`$heading-gap`
+  (8), eyebrow→h1 gap raw `2px`→`$spacing-xs`. Verified at 360px light+dark: header + body share the
+  16px edge on stage-feed/community/discussion. (3) **Codified in DESIGN_SYSTEM.md** — the header-gutter
+  law, the complete on-dark TEXT family + the on-dark-vs-on-surface rule, and the dark-authoring rule
+  (re-theme a bg → re-declare its text/icon colour). **Decisions (Eston, 2026-07-08):** gutter = 16px;
+  header top air = 16px; the D-stretch canonical page-container + desktop >640px alignment split to
+  **W1b**. Known accepted side-effect: Container's mobile `.content` now inherits the base 72px bottom
+  (more StageFooter clearance). CreateCommunity/CreateInitiative (24px) left for their Round-2 review.
 - **2026-07-06 — S23: header/nav cohesion & stage↔community seams (SHIPPED + PUSHED
   `865819e..d9170d4`, deploy run 28855877263 green, live site 200; reviewed 0 Crit / 0 Imp).**
   Eston-directed pre-handoff UI polish; the prepared S23 kit-convergence prompt was
