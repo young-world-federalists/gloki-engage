@@ -13,7 +13,7 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    padding: 0 $spacing-xl $spacing-xl;
+    padding: 0 $content-gutter $spacing-xl;
     padding-bottom: 72px; // room for fixed stage footer
 
     .nav {
@@ -155,8 +155,8 @@
   .container {
 
     .content {
-      padding: 0 $spacing-lg $spacing-lg;
-
+      // horizontal gutter + footer clearance inherited from base ($content-gutter,
+      // 72px bottom) — no per-breakpoint horizontal override (header-gutter law).
       .nav {
         padding: $spacing-sm;
         

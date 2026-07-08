@@ -1,7 +1,7 @@
 @use '../styles/variables' as *;
 
 .feedContainer {
-  padding: $spacing-lg;
+  padding: $content-gutter;
   padding-bottom: 80px; // room for fixed footer
   display: flex;
   flex-direction: column;
@@ -229,7 +229,7 @@
 // ─── Responsive ───────────────────────────────
 @media (max-width: $breakpoint-sm) {
   .feedContainer {
-    padding: $spacing-md;
+    padding-top: $spacing-md; // tighten vertical only; horizontal gutter stays $content-gutter (law)
     padding-bottom: 80px;
   }
 

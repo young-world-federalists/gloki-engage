@@ -162,6 +162,10 @@ $dark-tint-strong: rgba(255, 255, 255, 0.1); // stronger tracks/wells on dark
 // Layout
 $footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
 $content-max-width: 640px; // single-column mobile-first content column
+// THE app-wide horizontal content edge: the AppHeader title block, the brand bar,
+// and every page content column share this one gutter. No ad-hoc per-file /
+// per-breakpoint horizontal padding; mobile media queries may tighten vertical only.
+$content-gutter: $spacing-lg; // 16px
 // Scroll anchoring: any scrollIntoView / deep-link target needs this much
 // scroll-margin-top or its title lands hidden under the sticky AppHeader bar
 // (~61px: 44px controls + 2×8px padding + 1px rule) (S23).

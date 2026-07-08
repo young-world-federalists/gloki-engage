@@ -7,7 +7,9 @@
   width: 100%;
   max-width: $content-max-width;
   margin: 0 auto;
-  padding: $spacing-lg $spacing-lg calc(#{$footer-height} + #{$spacing-2xl});
+  // Horizontal gutter is owned by the parent .content ($content-gutter) — this
+  // inner column adds top air + footer clearance only (was double-padded: 16+16).
+  padding: $spacing-lg 0 calc(#{$footer-height} + #{$spacing-2xl});
   box-sizing: border-box;
 }
 
