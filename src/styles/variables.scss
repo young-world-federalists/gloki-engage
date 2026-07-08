@@ -166,10 +166,26 @@ $content-max-width: 640px; // single-column mobile-first content column
 // and every page content column share this one gutter. No ad-hoc per-file /
 // per-breakpoint horizontal padding; mobile media queries may tighten vertical only.
 $content-gutter: $spacing-lg; // 16px
+// Unified bottom pad for any scroll region so content clears the fixed StageFooter.
+// One value app-wide (was a 64/72/80/… drift across pages).
+$footer-clearance: calc(#{$footer-height} + #{$spacing-lg}); // 80px
 // Scroll anchoring: any scrollIntoView / deep-link target needs this much
 // scroll-margin-top or its title lands hidden under the sticky AppHeader bar
 // (~61px: 44px controls + 2×8px padding + 1px rule) (S23).
 $sticky-scroll-offset: 76px;
+
+// Canonical page column: ONE max-width, centred, with the app-wide horizontal
+// gutter. The AppHeader brand row + title block AND every page content column
+// @include this, so header and content share one edge AND one centred column on
+// desktop (>640px). Horizontal only — vertical padding (top air, $footer-clearance
+// bottom) stays per-context. `max-width` is a cap, so 360px is unaffected. (S24/W1b)
+@mixin page-column {
+  width: 100%;
+  max-width: $content-max-width;
+  margin-inline: auto;
+  padding-inline: $content-gutter;
+  box-sizing: border-box;
+}
 
 // ---------------------------------------------------------------------------
 // Theme (S21, D2) — the ONLY way to write dark-mode styles.

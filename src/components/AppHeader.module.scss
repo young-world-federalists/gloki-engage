@@ -36,7 +36,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: $spacing-sm $content-gutter; // brand bar shares the app-wide content edge
+  padding: $spacing-sm 0; // full-width sticky bg + rule; the .bar row owns the gutter
   background-color: white;
   border-bottom: 1px solid $gray-200; // the full-width bar↔page rule (D3)
 
@@ -47,6 +47,7 @@
 }
 
 .bar {
+  @include page-column; // back/brand/bell constrain + centre with content on desktop
   display: flex;
   align-items: center;
   gap: $spacing-sm;
@@ -178,9 +179,10 @@
   flex-direction: column;
   gap: $spacing-xs; // eyebrow→h1→subtitle rhythm on the spacing scale (was raw 2px)
   min-width: 0; // allow the h1 to truncate instead of pushing the row
-  // Header vertical rhythm: top air $spacing-lg (16px), sides $content-gutter,
-  // bottom $heading-gap (8px) so the title clears the content it introduces.
-  padding: $spacing-lg $content-gutter $heading-gap;
+  @include page-column; // centre + gutter with content on desktop
+  // Header vertical rhythm: top air $spacing-lg (16px), bottom $heading-gap (8px)
+  // so the title clears the content it introduces (horizontal gutter from the mixin).
+  padding-block: $spacing-lg $heading-gap;
   background-color: white;
 
   @include dark {

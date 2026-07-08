@@ -11,10 +11,10 @@
 
 // ─── Body ────────────────────────────────────
 .body {
+  @include page-column;
   flex: 1;
-  padding: $content-gutter;
   // Clear the fixed 64px StageFooter so the bottom of every sub-route stays visible.
-  padding-bottom: calc(#{$footer-height} + #{$spacing-lg});
+  padding-block: $content-gutter $footer-clearance;
 }
 
 // ─── Options popup ───────────────────────────

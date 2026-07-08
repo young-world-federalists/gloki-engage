@@ -1,8 +1,8 @@
 @use '../styles/variables' as *;
 
 .home {
-  padding: $spacing-lg;
-  padding-bottom: calc(#{$footer-height} + #{$spacing-lg}); // clear the fixed global StageFooter
+  @include page-column;
+  padding-block: $spacing-lg $footer-clearance; // top air; bottom clears the fixed global StageFooter
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
@@ -296,7 +296,7 @@
 // ─── Responsive — the 360px flagship must hold ──────────────────────────
 @media (max-width: $breakpoint-sm) {
   .home {
-    padding: $spacing-md;
+    padding-top: $spacing-md; // tighten vertical only; horizontal gutter stays $content-gutter (law)
     padding-bottom: calc(#{$footer-height} + #{$spacing-lg});
   }
 

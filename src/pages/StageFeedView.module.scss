@@ -1,8 +1,8 @@
 @use '../styles/variables' as *;
 
 .feedContainer {
-  padding: $content-gutter;
-  padding-bottom: 80px; // room for fixed footer
+  @include page-column;
+  padding-block: $content-gutter $footer-clearance;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;

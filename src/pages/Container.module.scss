@@ -10,11 +10,11 @@
   background-color: $gray-50;
 
   .content {
+    @include page-column;
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    padding: 0 $content-gutter $spacing-xl;
-    padding-bottom: 72px; // room for fixed stage footer
+    padding-block: 0 $footer-clearance; // top 0, bottom clears the fixed StageFooter
 
     .nav {
       display: flex;
