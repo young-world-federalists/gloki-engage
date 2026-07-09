@@ -169,29 +169,31 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
 
           <div className={styles.engage}>
             {children}
-            {/* Card actions live together at the bottom (S23): the persistent
-                Discussion pill (S16: a function reachable at every stage) beside
-                the blue open action. */}
-            {(stageNav || (onOpen && openLabel)) && (
-              <div className={styles.actionsRow}>
-                {stageNav && (
-                  <DiscussionPill
-                    initiativeId={stageNav.initiativeId}
-                    communityId={stageNav.communityId}
-                    hostServer={stageNav.hostServer}
-                    hostAgent={stageNav.hostAgent}
-                    active={post.stage === 'discussion'}
-                  />
-                )}
-                {onOpen && openLabel && (
-                  <button type="button" className={styles.openBtn} onClick={onOpen}>
-                    {openLabel}
-                    <ArrowRight size={16} aria-hidden />
-                  </button>
-                )}
-              </div>
-            )}
           </div>
+          {/* Card footer chin (S25): the persistent Discussion pill (S16: a
+              function reachable at every stage) beside the blue open action —
+              a sibling AFTER the engage body so the $gray-50 well + the
+              $footer-surface chin read as a two-tone footer, and the card's
+              overflow:hidden clips the chin's bottom corners. */}
+          {(stageNav || (onOpen && openLabel)) && (
+            <div className={styles.chin}>
+              {stageNav && (
+                <DiscussionPill
+                  initiativeId={stageNav.initiativeId}
+                  communityId={stageNav.communityId}
+                  hostServer={stageNav.hostServer}
+                  hostAgent={stageNav.hostAgent}
+                  active={post.stage === 'discussion'}
+                />
+              )}
+              {onOpen && openLabel && (
+                <button type="button" className={styles.openBtn} onClick={onOpen}>
+                  {openLabel}
+                  <ArrowRight size={16} aria-hidden />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         collapsedTeaser ? (

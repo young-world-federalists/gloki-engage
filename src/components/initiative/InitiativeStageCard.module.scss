@@ -122,13 +122,20 @@
   border-top: 1px solid $gray-100;
 }
 
-// Bottom actions row (S23): Discussion pill + the blue open action together in
-// the thumb zone. Wraps at 360px rather than crushing either control.
-.actionsRow {
+// Card footer chin (S25, campaign §4): the Discussion pill + blue open action
+// on a recessed $footer-surface strip behind a hairline rule — a footer, not
+// another content block. Terminal child of the overflow:hidden card, so the
+// radius clips its bottom corners. Wraps at 360px rather than crushing either
+// control.
+.chin {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: $spacing-sm;
   flex-wrap: wrap;
+  padding: $spacing-md $content-gutter;
+  background: $footer-surface;
+  border-top: 1px solid $footer-border;
 
   .openBtn {
     flex: 1;
@@ -202,6 +209,11 @@
     background: $dark-surface;
     border-top-color: $dark-border;
   }
+
+  .chin {
+    background: $footer-surface-dark;
+    border-top-color: $footer-border-dark;
+  }
 }
 
 // ─── Responsive — hold the 360px flagship ─────────────────────────────────
@@ -215,6 +227,10 @@
   }
 
   .engage {
+    padding: $spacing-md;
+  }
+
+  .chin {
     padding: $spacing-md;
   }
 
