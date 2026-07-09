@@ -285,8 +285,16 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   secondary Button 5.75:1); codified in DESIGN_SYSTEM.md (header-gutter law + on-dark family +
   dark-authoring rule). UI-only → **no DEMO_VERSION bump, no i18n**. Spec
   `docs/superpowers/specs/2026-07-08-w1-ds-foundation-design.md`.
-- 📋 **W1b** — canonical page-container primitive + desktop (>640px) title↔content alignment +
-  640/720/800 width divergence + 72/80/64 footer-clearance tokenization (split from W1).
+- ✅ **W1b — canonical page-container (S24, 2026-07-08) — SHIPPED + PUSHED `2aa4e4e..215a772`,
+  deploy run 28999082628 green, live 200; adversarial review found + fixed 2 desktop defects.**
+  New `@mixin page-column` (max-width `$content-max-width` + margin-inline auto + `$content-gutter`)
+  + `$footer-clearance` (80px). The AppHeader `.bar`/`.titleBlock` and every outer scroll wrapper
+  `@include page-column`, so on desktop (>640px) header + content share ONE centred 640px column;
+  inners fill it (dropped bespoke 600/680/720/800 widths). Full unification (Eston): the mobile
+  gutter is also normalized to 16px on the pages that were off it (12/24/32/40 → 16). Review caught
+  the suggest-composer full-width sibling + the collab-workspace double-column; both fixed. Codified
+  in DESIGN_SYSTEM.md. UI-only → **no DEMO_VERSION bump, no i18n**. Spec
+  `docs/superpowers/specs/2026-07-08-w1b-canonical-page-container-design.md`.
 - 📋 **W2** — card-chin separation (Solution + Vote footers; campaign §4 is the spec seed).
 - 📋 **W3** — discussion-as-function + redundancy removal.
 - 📋 **W4** — context restoration + mandate composition.
@@ -355,6 +363,29 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 
 ## 8. Changelog
 
+- **2026-07-08 — S24: UI-polish campaign Wave 1b — canonical page-container (SHIPPED + PUSHED
+  `2aa4e4e..215a772`, deploy run 28999082628 green, live site 200; adversarial 5-dimension review
+  found + fixed 2 desktop defects, 9 findings refuted).** Continuation of W1 (Eston asked to do the
+  deferred D-stretch same session). Tokens/SCSS/1 doc, **no product behaviour, no fixtures → no
+  DEMO_VERSION bump, no i18n**. Spec `docs/superpowers/specs/2026-07-08-w1b-canonical-page-container-design.md`.
+  (1) New **`@mixin page-column`** (`max-width: $content-max-width` + `margin-inline: auto` +
+  `padding-inline: $content-gutter`) + **`$footer-clearance`** (80px = `$footer-height` + `$spacing-lg`).
+  (2) The AppHeader `.bar` + `.titleBlock` and every outer scroll wrapper (Container `.content`,
+  CommunityView `.body`, StageFeedView `.feedContainer`, HomeView `.home`, NotFound `.main`,
+  CreateCommunityPage `.page`, OnboardingFlow `.flowMain`) `@include page-column` → on desktop
+  (>640px) the header and content share ONE centred 640px column (verified at 1024px: bar/title/
+  content all at the same left edge). (3) **Inner wrappers fill the column** — the bespoke
+  600/680/720/800 max-widths on identity pages, community mini-apps, chat, writeTogether, funding,
+  CreateInitiative, DiscussionStageView `.main` were dropped (the outer owns the column). (4) Footer
+  clearance unified to `$footer-clearance` (killed the 64/72/80 drift). **Decisions (Eston):** full
+  unification; canonical width 640; SCSS-mixin approach; **the mobile gutter is also normalized to
+  16px on pages that were off it (12/24/32/40 → 16)** — a correction to W1b's initial "360px
+  unchanged" framing: `max-width` caps are inert at 360px, but the inner-strip removed double-gutters,
+  which IS the gutter law applied at mobile (all verified: content at 16px, no overflow). **Review
+  fixes:** SuggestionDmView `.inputBar` (a full-width sibling of the centred `<main>`) → `@include
+  page-column`; CollaborationPage (nested `cs.content` inside `.body` → double-column) →
+  `styles.embedded` neutralizes the nested page-column. Codified the primitive + model in
+  DESIGN_SYSTEM.md. Deferred beyond W1b: none (D-stretch fully landed). Next: W2 card-chin.
 - **2026-07-08 — S24: UI-polish campaign Wave 1 — DS foundation (SHIPPED + PUSHED
   `5be46a2..8862197`, deploy run 28971810816 green, live site 200; adversarial review
   0 confirmed findings across 5 dimensions).** First wave of the P7 UI-polish campaign

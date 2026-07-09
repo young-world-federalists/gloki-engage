@@ -109,3 +109,17 @@ share/chat/settings/create-initiative/writeTogether), discussion, stage feed, ho
 ## Success criteria
 On desktop, header + content share one centred 640 column on every AppHeader page; the width and
 footer-clearance divergence is gone; 360px is unchanged; `tsc -b` green; `ui` runnable each phase.
+
+## Post-build corrections (2026-07-08, after the adversarial review)
+- **"360px is unchanged" was overstated.** `max-width` caps are inert at 360px, so pages already at
+  the 16px gutter are unchanged — but the inner-strip *removed double-gutters*, so pages that were off
+  the gutter normalize to 16px at mobile too: HomeView 12→16, About/Contact 40→16, CommunitySettings
+  & writeTogether 32→16, CreateInitiative/CreateCommunity 40/24→16, suggest composer inset→16. This is
+  the header-gutter law applied at mobile (Eston ratified). All verified: content at 16px, no overflow.
+- **Two desktop defects the review caught + fixed** (not anticipated in this spec):
+  - `SuggestionDmView .inputBar` is a **sibling** of the centred `<main>`, not a child — a per-element
+    gutter can't align a full-width sibling to a centred column. Fix: `@include page-column` on it.
+  - `CollaborationPage` renders `cs.content` (now a page-column) **nested inside** CommunityView `.body`
+    (also a page-column) → a double column on that one sub-route. Section B wrongly treated
+    `Container .content` as only a top-level outer; for the collab route it is nested. Fix:
+    `styles.embedded` (double-class specificity) neutralizes the nested page-column since `.body` owns it.

@@ -963,10 +963,11 @@ document's stat trio + provenance line were dropped as duplicates of the hero ca
 `mandate.legitimacyLabel`, `mandate.provenanceLine`, `mandate.jurisdictions`. No user-facing
 copy change beyond the de-duplication.
 
-## Session 24 (2026-07-08) — UI-polish Wave 1: DS foundation (no strings touched)
+## Session 24 (2026-07-08) — UI-polish Waves 1 + 1b (no strings touched)
 
-**Nothing to review.** Wave 1 was tokens + SCSS + `DESIGN_SYSTEM.md` only — no user-facing strings
-added, changed, or removed. fr/sw parity unchanged from S23.
+**Nothing to review.** Both Wave 1 (DS foundation) and Wave 1b (canonical page-container) were
+tokens + SCSS (+ one TSX className) + `DESIGN_SYSTEM.md` only — no user-facing strings added,
+changed, or removed. fr/sw parity unchanged from S23.
 
 ---
 
