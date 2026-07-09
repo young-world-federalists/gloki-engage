@@ -146,8 +146,10 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
     <div className={cs.container}>
       {/* CollaborationPage always renders inside CommunityView, whose AppHeader
           carries the collab title, the back button and the <main> landmark (S23)
-          — so this is a chrome-less sub-route: just the tab bar + active flow. */}
-      <div className={cs.content}>
+          — so this is a chrome-less sub-route: just the tab bar + active flow.
+          styles.embedded neutralizes Container .content's page-column here, since the
+          parent .body already owns the canonical column (W1b — avoid a double gutter). */}
+      <div className={`${cs.content} ${styles.embedded}`}>
         <nav className={cs.nav}>
           {tabs.map((tab) => {
             const flow = getFlow(tab.flowId);

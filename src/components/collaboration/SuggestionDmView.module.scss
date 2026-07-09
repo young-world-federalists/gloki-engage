@@ -31,12 +31,15 @@
 .mine .text { color: white; background: $primary; }
 
 .inputBar {
+  // The composer is a SIBLING of <main.dmMain> (a centred page-column), so it must
+  // @include the same column — otherwise it spans full-width and its left edge sits
+  // ~192px left of the centred thread on desktop.
+  @include page-column;
   display: flex;
   gap: $spacing-sm;
   align-items: flex-end;
-  // In-flow bottom composer: side padding matches the content column; bottom
-  // padding clears the fixed StageFooter; a top rule separates it from the thread.
-  padding: $spacing-md $content-gutter calc(#{$footer-height} + #{$spacing-md});
+  // bottom padding clears the fixed StageFooter; a top rule separates it from the thread.
+  padding-block: $spacing-md calc(#{$footer-height} + #{$spacing-md});
   border-top: 1.5px solid $gray-200;
 
   @include dark { border-top-color: $dark-border; }

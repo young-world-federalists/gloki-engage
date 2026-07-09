@@ -1,5 +1,17 @@
 @use '../../styles/variables' as *;
 
+// This sub-route renders nested inside CommunityView's .body, which already owns the
+// canonical page column. Container .content (reused here for its nav/main structure)
+// now @includes page-column too, so neutralize the column here — otherwise the collab
+// workspace double-gutters (32px) + double-clears the footer vs its stripped peers.
+// Double-class for specificity over the single-class .content page-column. (W1b)
+.embedded.embedded {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+  padding-bottom: 0;
+}
+
 // Tab item: wraps the shared navItem to position the remove (×) button.
 // (The collab title + back button render in CommunityView's AppHeader — S23.)
 .tabItem {
