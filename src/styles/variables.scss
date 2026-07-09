@@ -159,6 +159,15 @@ $dark-tint-subtle: rgba(255, 255, 255, 0.06); // hover on dark ghost/segment con
 $dark-tint-raised: rgba(255, 255, 255, 0.08); // raised chips/close buttons on dark
 $dark-tint-strong: rgba(255, 255, 255, 0.1); // stronger tracks/wells on dark
 
+// Card chin / footer — the recessed bottom action strip on stage cards
+// (DiscussionPill + open action; campaign §4 pattern). NOT the global
+// StageFooter ($footer-height / $footer-clearance in Layout below). Values
+// reuse existing tokens: this is naming/one-home, not new raw colour.
+$footer-surface: $gray-100; // #f1f5f9 — recessed card-footer well (light)
+$footer-surface-dark: $dark-tint-subtle; // raised footer strip on the dark card bg
+$footer-border: $gray-200; // #e2e8f0 — footer hairline top rule (light)
+$footer-border-dark: $dark-border; // #475569 — footer hairline top rule (dark)
+
 // Layout
 $footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
 $content-max-width: 640px; // single-column mobile-first content column
