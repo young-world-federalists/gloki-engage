@@ -20,13 +20,18 @@
   gap: $spacing-sm;
 }
 
-// Bottom actions row (S23): Discussion pill + "Open in community" together.
-.actionsRow {
+// Card footer chin (S25, campaign §4): Discussion pill + "Open in community"
+// behind a hairline top rule (the engage → footer divide). Rule ONLY, no
+// $footer-surface fill: the StageFeedView host card pads content 16px and has
+// no overflow:hidden, so a fill would float as an inset box (spec §1.3).
+.chin {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: $spacing-sm;
   flex-wrap: wrap;
+  padding-top: $spacing-md;
+  border-top: 1px solid $footer-border;
 }
 
 // "Open in community ↗" — the quiet right-aligned text link (ActivityCard's
@@ -41,7 +46,8 @@
   padding: $spacing-xs 0;
   cursor: pointer;
   font-size: $text-sm;
-  color: $primary;
+  // $primary on white is 3.68:1 (AA fail); $primary-dark clears it at 5.17:1.
+  color: $primary-dark;
   font-weight: $font-medium;
   text-decoration: none;
   min-height: 44px;
@@ -61,6 +67,7 @@
 // ── Dark mode ──────────────────────────────────────────────────────────────
 @include dark {
   .panel { border-top-color: $dark-border; }
+  .chin { border-top-color: $footer-border-dark; }
   // $primary text on $dark-bg is 3.97:1 — below AA; the on-dark token clears it.
   .openLink { color: $primary-on-dark; }
 }

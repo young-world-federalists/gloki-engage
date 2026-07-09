@@ -196,9 +196,9 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
         </>
       )}
 
-      {/* Card actions live together at the bottom (S23): the persistent
-          Discussion pill beside "Open in community". */}
-      <div className={styles.actionsRow}>
+      {/* Card footer chin (S25): the persistent Discussion pill beside
+          "Open in community", behind the hairline footer rule. */}
+      <div className={styles.chin}>
         <DiscussionPill
           initiativeId={initiativeId}
           communityId={communityId}
