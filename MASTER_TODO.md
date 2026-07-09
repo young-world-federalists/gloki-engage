@@ -296,6 +296,12 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   in DESIGN_SYSTEM.md. UI-only → **no DEMO_VERSION bump, no i18n**. Spec
   `docs/superpowers/specs/2026-07-08-w1b-canonical-page-container-design.md`.
 - 📋 **W2** — card-chin separation (Solution + Vote footers; campaign §4 is the spec seed).
+  **Spec written + decisions locked (S25, 2026-07-09), PAUSED pre-build** — spec
+  `docs/superpowers/specs/2026-07-09-w2-card-chin-design.md`. Locked (Eston): rule + `$gray-100` fill;
+  chin applies to all 5 community stage cards (shared `InitiativeStageCard` shell), not just
+  Solution+Vote; stage-feed (`FeedEngagePanel`) = hairline rule only (no fill — padded host, no
+  `overflow:hidden`). 3 plan-refinements in spec §2 (drop the teaser-move; all-5-cards scope;
+  hairline-only stage feed). Next: review spec → writing-plans → build.
 - 📋 **W3** — discussion-as-function + redundancy removal.
 - 📋 **W4** — context restoration + mandate composition.
 - 📋 **W5** — kit-first normalization + spacing/touch floors.
