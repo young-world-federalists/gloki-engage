@@ -194,6 +194,32 @@ content it introduces, and the eyebrow→h1→subtitle gap on the spacing scale
 - Border: 1px solid `$gray-100` (light) / `$dark-border` (dark)
 - Hover: `$shadow-md` transition `$transition-base`
 
+### Card chin / footer
+
+Any card that ends in a **DiscussionPill + open-action row** renders it as a `.chin` — a footer,
+not another content block (S25, campaign §4):
+
+- **Separator (always):** `border-top: 1px solid $footer-border` (dark: `$footer-border-dark`).
+- **Recessed fill (full-bleed chins only):** `background: $footer-surface` (dark:
+  `$footer-surface-dark`) when the chin is the terminal child of an `overflow: hidden` card so the
+  radius clips its corners; if a full-bleed host lacks `overflow: hidden`, add
+  `border-bottom-{left,right}-radius: $radius-lg`. Two-tone footer: `$gray-50` engage well →
+  `$gray-100` chin.
+- **Inset hosts get the rule only** — inside an already-padded host (the stage feed's
+  `FeedEngagePanel`) a fill would double-inset and float as a boxed rectangle. No
+  negative-margin full-bleed hacks.
+- **Padding (full-bleed chins):** `$spacing-md $content-gutter`; mobile tightens to `$spacing-md`.
+- **Tokens are the one home:** `$footer-surface(-dark)` / `$footer-border(-dark)` — never
+  re-hardcode `$gray-100`/`$gray-200` for a card footer. Distinct from the global StageFooter's
+  `$footer-height`/`$footer-clearance` layout tokens.
+- **Links on the fill:** `$primary-dark` (light) / `$primary-on-dark` (dark) — plain `$primary`
+  fails AA on white (3.68:1) and on `$gray-100` (3.36:1).
+- **Dark-authoring rule applies:** a chin that sets a background re-declares background AND
+  border in `@include dark`.
+
+Implemented: `InitiativeStageCard` (full chin — shared shell of all five community stage cards),
+`FeedEngagePanel` (rule only).
+
 ### Buttons
 
 | Variant | Background | Text | Border |
