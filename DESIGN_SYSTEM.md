@@ -212,10 +212,13 @@ not another content block (S25, campaign §4):
 - **Tokens are the one home:** `$footer-surface(-dark)` / `$footer-border(-dark)` — never
   re-hardcode `$gray-100`/`$gray-200` for a card footer. Distinct from the global StageFooter's
   `$footer-height`/`$footer-clearance` layout tokens.
-- **Links on the fill:** `$primary-dark` (light) / `$primary-on-dark` (dark) — plain `$primary`
-  fails AA on white (3.68:1) and on `$gray-100` (3.36:1).
+- **Links in a chin (fill or rule-only):** `$primary-dark` (light) / `$primary-on-dark` (dark) —
+  plain `$primary` fails AA on white (3.68:1) and on `$gray-100` (3.36:1), so the rule holds even
+  when the chin has no fill (e.g. FeedEngagePanel's rule-only chin on the white host card).
 - **Dark-authoring rule applies:** a chin that sets a background re-declares background AND
-  border in `@include dark`.
+  border in `@include dark`. `$footer-surface-dark` must stay the `.06` tint
+  (`$dark-tint-subtle`): `$dark-text-secondary` on the composited strip is ≈4.76:1 — the sibling
+  `.08`/`.10` tints drop chin text below AA.
 
 Implemented: `InitiativeStageCard` (full chin — shared shell of all five community stage cards),
 `FeedEngagePanel` (rule only).

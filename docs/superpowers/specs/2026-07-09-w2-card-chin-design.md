@@ -51,8 +51,11 @@ components + a DESIGN_SYSTEM entry. No fixtures (no `DEMO_VERSION` bump), no str
 
 ## 3. Tokens (`src/styles/variables.scss`)
 
-Add a `// Card-chin / footer` block co-located with the layout/gutter tokens (near `$content-gutter`),
-reusing proven values — this is naming/one-home, **not** new raw colour:
+Add a `// Card-chin / footer` block reusing proven values — this is naming/one-home, **not** new raw
+colour. *(Build note, 2026-07-10: shipped after the `$dark-tint-*` block rather than the spec's
+original "near `$content-gutter`" suggestion — `$footer-surface-dark` references `$dark-tint-subtle`,
+and the Layout block already holds the unrelated StageFooter `$footer-height`/`$footer-clearance`
+tokens; co-locating colour tokens there would invite conflation.)*
 
 ```scss
 $footer-surface:      $gray-100;          // #f1f5f9 — recessed card-footer well (light)

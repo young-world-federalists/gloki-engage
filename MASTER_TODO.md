@@ -295,13 +295,18 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   the suggest-composer full-width sibling + the collab-workspace double-column; both fixed. Codified
   in DESIGN_SYSTEM.md. UI-only → **no DEMO_VERSION bump, no i18n**. Spec
   `docs/superpowers/specs/2026-07-08-w1b-canonical-page-container-design.md`.
-- 📋 **W2** — card-chin separation (Solution + Vote footers; campaign §4 is the spec seed).
-  **Spec written + decisions locked (S25, 2026-07-09), PAUSED pre-build** — spec
-  `docs/superpowers/specs/2026-07-09-w2-card-chin-design.md`. Locked (Eston): rule + `$gray-100` fill;
-  chin applies to all 5 community stage cards (shared `InitiativeStageCard` shell), not just
-  Solution+Vote; stage-feed (`FeedEngagePanel`) = hairline rule only (no fill — padded host, no
-  `overflow:hidden`). 3 plan-refinements in spec §2 (drop the teaser-move; all-5-cards scope;
-  hairline-only stage feed). Next: review spec → writing-plans → build.
+- ✅ **W2 — card-chin footer separation (S25, 2026-07-10) — BUILT + verified + adversarially
+  reviewed; push PENDING Eston's gate.** Commits `ccf0093..` (spec/plan docs + `bf17744` `$footer-*`
+  tokens, `74da3d6` InitiativeStageCard chin, `9e23de9` FeedEngagePanel chin, `a9a037e`
+  DESIGN_SYSTEM). One shared `.chin` (hairline `$footer-border` rule + recessed `$footer-surface`
+  fill) on the shared `InitiativeStageCard` shell → all 5 community stage cards; moved out of
+  `.engage` as the radius-clipped terminal child (two-tone `$gray-50`→`$gray-100` footer). Stage-feed
+  `FeedEngagePanel` = rule only (padded host, no `overflow:hidden`) + `.openLink` `$primary-dark`
+  (fixes a pre-existing 3.68:1 light AA fail → 5.17:1). Locked (Eston 2026-07-09): rule+fill; all-5
+  scope; stage-feed rule-only. UI-only → **no DEMO_VERSION bump, no i18n**. Verified 360px both
+  schemes + contrast sweep (zero chin-attributable fails). Review: inline 0/0/0 + Workflow fleet — 2
+  docs findings fixed; known cosmetic note: author-only double hairline (StageAdvanceBar rule 12px
+  above chin rule) → W5 candidate. Spec `docs/superpowers/specs/2026-07-09-w2-card-chin-design.md`.
 - 📋 **W3** — discussion-as-function + redundancy removal.
 - 📋 **W4** — context restoration + mandate composition.
 - 📋 **W5** — kit-first normalization + spacing/touch floors.
@@ -369,6 +374,31 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 
 ## 8. Changelog
 
+- **2026-07-10 — S25: UI-polish campaign Wave 2 — card-chin footer separation (BUILT + reviewed;
+  push HELD for Eston's gate).** Spec'd 2026-07-09 (paused at the spec gate for handoff prep),
+  resumed + built 2026-07-10. Tokens/SCSS/TSX-structure on 2 card components + docs, **no product
+  behaviour, no fixtures → no DEMO_VERSION bump, no i18n**. (1) **`$footer-*` token family**
+  (`$footer-surface`=`$gray-100`, `$footer-surface-dark`=`$dark-tint-subtle`,
+  `$footer-border`=`$gray-200`, `$footer-border-dark`=`$dark-border`) — placed by the dark-tint
+  block, deliberately NOT the Layout block (StageFooter `$footer-height` conflation). (2)
+  **InitiativeStageCard `.actionsRow`→`.chin`**: hairline rule + recessed fill, moved OUT of
+  `.engage` to be the `overflow:hidden` card's terminal child → two-tone footer
+  (`$gray-50` well → `$gray-100` chin), radius-clipped; lands on all 5 community stage cards
+  (shared shell). (3) **FeedEngagePanel `.actionsRow`→`.chin`**: separator rule ONLY (padded host,
+  no clip) + `.openLink` `$primary`→`$primary-dark`, fixing a **pre-existing light-mode AA fail**
+  (3.68:1→5.17:1; dark stays `$primary-on-dark` 5.75:1). (4) **DESIGN_SYSTEM "Card chin / footer"
+  pattern codified** (fill only on full-bleed terminal-child chins; rule-only in inset hosts; chin
+  link colours incl. rule-only chins; `$footer-surface-dark` locked to the `.06` tint — `.08`/`.10`
+  drop chin text below AA). **Verified:** `npm run build` clean; preview 360px light+dark (two-tone,
+  rule, flush/clipped corners, 44px controls, wrap-not-crush); live ratios (openLink 5.17 light/5.75
+  dark; dark pill on composited chin ≈4.74); sweep = zero chin-attributable fails; 1 h1 + 1 header
+  per route. **Review:** inline 0/0/0 + adversarial Workflow fleet (5 finders): 2 confirmed docs
+  findings (this ledger flip; DESIGN_SYSTEM link-rule scope) — both fixed; 2 refuted; adjudicated
+  notes: author-only double hairline (StageAdvanceBar rule + chin rule 12px apart) accepted as
+  header-body-footer rhythm, W5 candidate; DiscussionPill dark border on the chin fill 1.61:1
+  (was 2.36:1 — both sub-3:1; text 4.74:1 AA) surfaced to Eston as a taste call. Spec
+  `docs/superpowers/specs/2026-07-09-w2-card-chin-design.md`, plan
+  `docs/superpowers/plans/2026-07-09-w2-card-chin.md`.
 - **2026-07-08 — S24: UI-polish campaign Wave 1b — canonical page-container (SHIPPED + PUSHED
   `2aa4e4e..215a772`, deploy run 28999082628 green, live site 200; adversarial 5-dimension review
   found + fixed 2 desktop defects, 9 findings refuted).** Continuation of W1 (Eston asked to do the
