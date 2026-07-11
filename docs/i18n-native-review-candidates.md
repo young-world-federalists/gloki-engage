@@ -971,6 +971,37 @@ changed, or removed. fr/sw parity unchanged from S23.
 
 ---
 
+## Session 26 (2026-07-10) — W3 discussion-as-function + CTA vocabulary (−4 keys, 4 re-worded; parity 1135 → 1131)
+
+Wave 3 removed the "Discussion is a stage" holdovers and unified the support-CTA vocabulary.
+No new keys; four retired, four re-worded in place (same keys).
+
+**Keys retired (removed from fr + sw together; zero remaining consumers verified):**
+`stage.discussionPillActive` ("In discussion" — the pill now always reads the neutral
+"Discussion"), `home.discussions` (the HomeView section folded into Problems),
+`card.discussProblem` (duplicate button deleted), `deliberation.discussion.open` (duplicate
+open button deleted). Note `stage.discussion` itself is **kept** — three dynamic
+`` t(`stage.${id}`) `` consumers (StageAdvanceBar, InitiativeStagePanel, CreateInitiativePage)
+still describe the journey.
+
+**Re-worded keys (fr + sw updated with the new English defaults):**
+
+- **fr/sw `currency.sendTitle`** — now "Send points" (was "Send Support" — it moves community
+  points, not mandate support). fr "Envoyer des points", sw "Tuma pointi" — matches the
+  existing `currency.symbol` vocabulary ("points"/"pointi").
+- **fr/sw `currency.sendButton`** — now just "Send". fr "Envoyer", sw "Tuma".
+- **fr/sw `mandate.card.showSupport`** — now "Back this mandate" (individual conviction CTA).
+  fr "Soutenir ce mandat", sw "Unga mkono agizo hili" ("agizo" matches `stage.mandate`).
+  **⚠ fr register check:** the org-adoption modal title `mandate.adoptModalTitle` is already
+  "Soutenez ce mandat" — the individual CTA uses the infinitive to stay distinct. Confirm the
+  infinitive-vs-imperative pair reads as two different actions, or propose a sharper verb for
+  the individual CTA (e.g. "Appuyer ce mandat").
+- **fr/sw `mandate.adoptCta`** — now "Add your organization" (was "Endorse / adopt"). fr
+  "Ajoutez votre organisation", sw "Ongeza shirika lako" — confirm "shirika" covers the mixed
+  adopter types shown (youth networks, NGOs, government bodies).
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
