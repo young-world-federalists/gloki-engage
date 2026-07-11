@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
+import { MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
 import { Badge, Button } from '../../shared';
@@ -20,7 +20,6 @@ export interface DraftEditorProps {
   communityId: string;
   draft: DraftEntry;
   canParticipate: boolean;
-  onBack: () => void;
   onChanged: (draft: DraftEntry) => void;
 }
 
@@ -28,7 +27,6 @@ const DraftEditor: React.FC<DraftEditorProps> = ({
   communityId,
   draft,
   canParticipate,
-  onBack,
   onChanged,
 }) => {
   const t = useT();
@@ -96,15 +94,8 @@ const DraftEditor: React.FC<DraftEditorProps> = ({
 
   return (
     <div className={styles.editor}>
-      {/* Back button */}
-      <button
-        type="button"
-        className={styles.back}
-        onClick={onBack}
-        aria-label={t('common.back', 'Back')}
-      >
-        <ArrowLeft size={20} aria-hidden />
-      </button>
+      {/* No local back arrow (W3, §5 rule 19): this editor is URL-addressed
+          (?draft=<id>), so the global AppHeader back pops to the drafts list. */}
 
       {/* Compact setup header: mode pill · "for {community}" · tag chip */}
       <div className={styles.setup}>

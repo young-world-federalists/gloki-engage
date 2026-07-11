@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
 import { Button, SearchableSelect, SourcesInput } from '../../shared';
@@ -52,9 +51,8 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
 
   return (
     <div className={styles.form}>
-      <button className={styles.back} onClick={onCancel} aria-label={t('common.back', 'Back')}>
-        <ArrowLeft size={20} />
-      </button>
+      {/* No local back arrow (W3, §5 rule 19): the global AppHeader back pops
+          this URL-addressed sub-view; the labeled Cancel below is the escape. */}
       <h2 className={styles.heading}>{t('writeTogether.startHeading', 'Start a draft')}</h2>
 
       <div className={styles.modeToggle} role="radiogroup" aria-label={t('writeTogether.modeLabel', 'Draft type')}>
@@ -114,6 +112,9 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
 
       <Button fullWidth size="lg" loading={busy} disabled={!canStart} onClick={handleStart}>
         {t('writeTogether.start', 'Start draft')}
+      </Button>
+      <Button fullWidth variant="ghost" onClick={onCancel}>
+        {t('common.cancel', 'Cancel')}
       </Button>
       {alertElement}
     </div>

@@ -17,44 +17,6 @@
 }
 
 // -------------------------------------------------------------------------
-// Back button — ≥44px icon button (same pattern as CreateInitiativePage)
-// -------------------------------------------------------------------------
-.back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: transparent;
-  border: none;
-  border-radius: $radius-full;
-  color: $gray-500;
-  cursor: pointer;
-  transition: background-color $transition-base, color $transition-base;
-  flex-shrink: 0;
-  align-self: flex-start;
-
-  &:hover {
-    background: $gray-100;
-    color: $gray-800;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  @include dark {
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
-  }
-}
-
-// -------------------------------------------------------------------------
 // Heading
 // -------------------------------------------------------------------------
 .heading {

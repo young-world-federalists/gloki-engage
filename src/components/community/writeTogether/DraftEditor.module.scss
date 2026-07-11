@@ -1,7 +1,7 @@
 @use '../../../styles/variables' as *;
 
 // DraftEditor — compact B-style draft editing surface.
-// Token-only: no hardcoded hex. Back button + discuss toggle ≥44px.
+// Token-only: no hardcoded hex. Discuss toggle ≥44px.
 // Setup header uses $gray-50 surface (same secondary-surface pattern as the
 // rest of the writeTogether SCSS files).
 
@@ -16,44 +16,6 @@
   // fills the canonical page column (the parent under the AppHeader owns width + gutter)
   padding: $spacing-xl 0 $spacing-2xl;
   box-sizing: border-box;
-}
-
-// -------------------------------------------------------------------------
-// Back button — ≥44px icon button (matches StartDraftForm pattern)
-// -------------------------------------------------------------------------
-.back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: transparent;
-  border: none;
-  border-radius: $radius-full;
-  color: $gray-500;
-  cursor: pointer;
-  transition: background-color $transition-base, color $transition-base;
-  flex-shrink: 0;
-  align-self: flex-start;
-
-  &:hover {
-    background: $gray-100;
-    color: $gray-800;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  @include dark {
-    color: $dark-text-secondary;
-
-    &:hover {
-      background: $dark-border;
-      color: $dark-text;
-    }
-  }
 }
 
 // -------------------------------------------------------------------------
