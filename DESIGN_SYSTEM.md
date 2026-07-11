@@ -354,9 +354,30 @@ stages, demoted) — the two must never be conflated as one nav. Props: `current
 persistent per-initiative **Discussion** button rendered under the strip in the
 `InitiativeStageCard` panel: discussion is reachable at EVERY stage. ≥44px target,
 live comment count (read-only `resolveInitiativeStageContract` + `get_comments` —
-NEVER `useFlowContract`, which deploys), warning-toned "In discussion" active
-state when the initiative's data stage is `discussion`. Props: `initiativeId`,
-`communityId`, `hostServer`, `hostAgent`, `active`, `className`.
+NEVER `useFlowContract`, which deploys). The label is **always the neutral
+"Discussion"** — the live count, not a stage-styled skin, signals activity (W3;
+see *Discussion is a function, not a stage* below). Props: `initiativeId`,
+`communityId`, `hostServer`, `hostAgent`, `className`.
+
+**Discussion is a function, not a stage** (W3 / campaign §5 rule 10; IA locked
+S16). Discussion is a per-post capability available at every stage, never a
+browseable 5th pipeline step. Enforced rules — a component must not:
+- render the **banned status wordlist** ("In discussion") anywhere a user reads it;
+- key visible state, copy, or tone on `post.stage === 'discussion'` (the DiscussionPill
+  takes no `active` prop; cards show no stage badge for it);
+- give `STAGE_META` a `discussion` peer entry — a discussion-data card falls back to
+  the **Problem** badge (`|| STAGE_META.problem`), because an item in the
+  Problem→Solutions gap is still a problem being discussed;
+- surface a **Discussion admin-permission row** (`CommunitySettings` renders the four
+  pipeline stages only; the stored rule round-trips untouched) or a **"discussion"
+  sample-feed stage** (sample constants use `problem`);
+- add a duplicate discussion control — the card-chin `DiscussionPill` is the single
+  entry (no peer "Discuss this problem" button, no second blue open action).
+The `discussion` **data** stage stays real (StageAdvanceBar order, the
+`InitiativeStageStrip` 0.5 Problem→Solutions position, FeedEngagePanel's pill-only
+engage, the journey copy in HowGlokiWorks/CreateInitiativePage) — this rule governs
+*presentation*, not the pipeline model. The `stage.discussion` i18n key is kept for
+the dynamic `` t(`stage.${id}`) `` journey consumers.
 
 **`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
 selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
