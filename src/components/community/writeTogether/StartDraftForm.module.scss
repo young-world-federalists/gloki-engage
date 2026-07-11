@@ -34,76 +34,9 @@
 // Mode toggle — role="radiogroup" segmented control
 // Two buttons side-by-side, ≥44px height.
 // -------------------------------------------------------------------------
-.modeToggle {
-  display: flex;
-  gap: 0;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  overflow: hidden;
-
-  @include dark {
-    border-color: $dark-border;
-  }
-}
-
-.modeBtn {
-  flex: 1;
-  min-height: 44px;
-  padding: 0 $spacing-lg;
-  background: transparent;
-  border: none;
-  border-right: 1px solid $gray-200;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  font-family: inherit;
-  color: $gray-600;
-  cursor: pointer;
-  transition: background-color $transition-base, color $transition-base;
-
-  &:last-child {
-    border-right: none;
-  }
-
-  &:hover:not([aria-checked='true']) {
-    background: $gray-50;
-    color: $gray-800;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: -2px;
-  }
-
-  @include dark {
-    border-right-color: $dark-border;
-    color: $dark-text-secondary;
-
-    &:hover:not([aria-checked='true']) {
-      background: $dark-border;
-      color: $dark-text;
-    }
-  }
-}
-
-// Active mode button — brand primary tint background
-.modeBtnActive {
-  background: rgba($primary, 0.1);
-  color: $primary;
-  font-weight: $font-semibold;
-
-  &:hover {
-    background: rgba($primary, 0.15);
-  }
-
-  @include dark {
-    background: rgba($primary, 0.2);
-    color: $primary;
-
-    &:hover {
-      background: rgba($primary, 0.25);
-    }
-  }
-}
+// Mode toggle → shared <SegmentedControl> (W5 kit adoption); bespoke
+// .modeToggle/.modeBtn/.modeBtnActive deleted — the kit owns the track,
+// active-segment fill, 44px height, hover, focus ring, and dark mode.
 
 // -------------------------------------------------------------------------
 // Labels — AA caption color ($gray-500 ≈4.8:1 on white, NOT $gray-400)

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
-import { Button, SearchableSelect, SourcesInput } from '../../shared';
+import { Button, SearchableSelect, SegmentedControl, SourcesInput } from '../../shared';
 import type { SourceLink } from '../../../utils/sources';
 import { useAlert } from '../../shared/useAlert';
 import ProblemTagPicker from './ProblemTagPicker';
@@ -55,22 +55,16 @@ const StartDraftForm: React.FC<StartDraftFormProps> = ({ communityId, onStarted,
           this URL-addressed sub-view; the labeled Cancel below is the escape. */}
       <h2 className={styles.heading}>{t('writeTogether.startHeading', 'Start a draft')}</h2>
 
-      <div className={styles.modeToggle} role="radiogroup" aria-label={t('writeTogether.modeLabel', 'Draft type')}>
-        {(['problem', 'solution'] as DraftMode[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            role="radio"
-            aria-checked={mode === m}
-            className={`${styles.modeBtn} ${mode === m ? styles.modeBtnActive : ''}`}
-            onClick={() => { setMode(m); if (m === 'problem') setTag(undefined); }}
-          >
-            {m === 'problem'
-              ? t('writeTogether.modeProblem', 'Problem')
-              : t('writeTogether.modeSolution', 'Solution')}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<DraftMode>
+        options={[
+          { value: 'problem', label: t('writeTogether.modeProblem', 'Problem') },
+          { value: 'solution', label: t('writeTogether.modeSolution', 'Solution') },
+        ]}
+        value={mode}
+        onChange={(m) => { setMode(m); if (m === 'problem') setTag(undefined); }}
+        ariaLabel={t('writeTogether.modeLabel', 'Draft type')}
+        fullWidth
+      />
 
       <label className={styles.label}>{t('writeTogether.draftingFor', 'Drafting for')}</label>
       <SearchableSelect
