@@ -101,6 +101,12 @@
 
 // Dark mode
 @include dark {
+  // Dark-authoring rule (DS §241): $primary-dark (~3.4:1 on the dark tint) fails
+  // AA in dark → re-declare with $primary-on-dark (#60a5fa, ~6:1).
+  .createBtn {
+    color: $primary-on-dark;
+  }
+
   .item {
     background: $dark-bg;
     border-color: $dark-border;
