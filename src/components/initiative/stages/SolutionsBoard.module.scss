@@ -11,10 +11,10 @@
 .progressTop { display: flex; align-items: baseline; gap: $spacing-xs; }
 .progressCount { font-weight: $font-bold; color: $gray-800; font-size: $text-sm; }
 .progressLabel { font-size: $text-xs; color: $gray-600; }
-.track { height: 6px; background: $gray-100; border-radius: $radius-full; overflow: hidden; }
-.fill { height: 100%; background: $primary; border-radius: $radius-full; transition: width 0.3s ease; }
-.fillSuccess { background: $success; }
-@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+// The two threshold bars render through the shared <ProgressBar size="sm"> (W5 T3,
+// S22 law) — bespoke .track/.fill/.fillSuccess deleted; the kit owns the 6px track,
+// primary/success fill, dark track, and reduced-motion transition. The .progress
+// flex row + .progressStat flex:1 keep the S15 side-by-side "half the height" layout.
 
 // ─── Add solution (Task 6) ─────────────────────────────────────────────
 // Add button + its (i) explainer on one row (S23).
@@ -69,7 +69,7 @@
 // ─── Evidence & expert review — inline expand (S15: was nested green box) ─
 .evidence { margin-top: $spacing-xs; }
 .evidenceToggle {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: $spacing-sm; // icon→label floor (W5)
   min-height: 44px; padding: 0;
   background: none; border: none; cursor: pointer;
   font-size: $text-sm; font-weight: $font-medium; color: $primary;
@@ -89,7 +89,7 @@
 .actionRow { display: flex; gap: $spacing-xs; margin-top: $spacing-sm; border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
 .actionBtn {
   flex: 1; min-height: 44px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: $spacing-sm; // icon→label floor (W5)
   border: 1.5px solid $gray-200; border-radius: $radius-sm;
   background: none; color: $gray-600; cursor: pointer; font-size: $text-sm;
   transition: all $transition-base;

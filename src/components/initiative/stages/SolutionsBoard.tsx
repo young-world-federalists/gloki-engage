@@ -5,7 +5,7 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
-import { Button, UserIdentity, InfoDisclosure, Modal, SourceLinks, SourcesInput } from '../../shared';
+import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import type { SourceLink } from '../../../utils/sources';
 import { useT } from '../../../i18n';
@@ -43,19 +43,22 @@ interface Proposal {
  * Its own open-state keeps SolutionsBoard from growing per-solution state.
  */
 const SolutionEvidence: React.FC<{
+  commitments: string[];
   indicators: string[];
   sources: SourceLink[];
   reviews: ExpertReview[];
   authorName: (key: string) => string;
   profiles: Record<string, { country?: string } | undefined>;
   t: ReturnType<typeof useT>;
-}> = ({ indicators, sources, reviews, authorName, profiles, t }) => {
+}> = ({ commitments, indicators, sources, reviews, authorName, profiles, t }) => {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const reviewed = reviews.length > 0;
+  // W5 D1: commitments + evidence fold under one "Details" disclosure so the
+  // card holds ≤5 co-equal blocks (text · byline · Details · actions).
   const label = reviewed
-    ? t('mechanisms.approval.evidenceReviewToggle', 'Evidence & expert review ({n})', { n: reviews.length })
-    : t('mechanisms.approval.evidenceToggle', 'Evidence & indicators');
+    ? t('mechanisms.approval.detailsToggleReviewed', 'Details ({n})', { n: reviews.length })
+    : t('mechanisms.approval.detailsToggle', 'Details');
 
   return (
     <div className={styles.evidence}>
@@ -71,6 +74,11 @@ const SolutionEvidence: React.FC<{
       </button>
       {open && (
         <div id={panelId} className={styles.evidencePanel}>
+          {commitments.length > 0 && (
+            <ul className={styles.commitments}>
+              {commitments.map((c, i) => <li key={i}>{c}</li>)}
+            </ul>
+          )}
           {indicators.length > 0 && (
             <div className={styles.metrics}>
               <p className={styles.metricsLabel}>{t('mechanisms.approval.authorMetricsLabel', 'Indicators proposed by the author')}</p>
@@ -315,7 +323,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const expertsReviewed = reviewerSet.size;
   const T2_TARGET = 3;
 
-  const pct = (n: number, target: number) => `${Math.min(Math.round((n / target) * 100), 100)}%`;
 
   return (
     <div className={styles.container}>
@@ -325,14 +332,26 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             <span className={styles.progressCount}>{backedCount}/{T1_TARGET}</span>
             <span className={styles.progressLabel}>{t('mechanisms.approval.progressBacked', 'solutions backed')}</span>
           </div>
-          <div className={styles.track}><div className={styles.fill} style={{ width: pct(backedCount, T1_TARGET) }} /></div>
+          <ProgressBar
+            value={Math.min(backedCount, T1_TARGET)}
+            max={T1_TARGET}
+            size="sm"
+            variant="primary"
+            label={t('mechanisms.approval.progressBacked', 'solutions backed')}
+          />
         </div>
         <div className={styles.progressStat}>
           <div className={styles.progressTop}>
             <span className={styles.progressCount}>{expertsReviewed}/{T2_TARGET}</span>
             <span className={styles.progressLabel}>{t('mechanisms.approval.progressReviewed', 'experts reviewed')}</span>
           </div>
-          <div className={styles.track}><div className={`${styles.fill} ${styles.fillSuccess}`} style={{ width: pct(expertsReviewed, T2_TARGET) }} /></div>
+          <ProgressBar
+            value={Math.min(expertsReviewed, T2_TARGET)}
+            max={T2_TARGET}
+            size="sm"
+            variant="success"
+            label={t('mechanisms.approval.progressReviewed', 'experts reviewed')}
+          />
         </div>
       </div>
 
@@ -483,7 +502,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             const reviews = p.expertReviews ?? [];
             const reviewed = reviews.length > 0;
             const requestCount = p.expertReviewRequests?.length ?? 0;
-            const hasEvidence = (p.metrics?.length ?? 0) > 0 || (p.sources?.length ?? 0) > 0 || reviewed;
+            const hasDetails = (p.commitments?.length ?? 0) > 0 || (p.metrics?.length ?? 0) > 0 || (p.sources?.length ?? 0) > 0 || reviewed;
             return (
               <div
                 key={p.id}
@@ -502,11 +521,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                   <p className={styles.mergeHint}>{t('mechanisms.approval.mergeIntoThis', 'Tap to merge into this')}</p>
                 )}
                 <p className={styles.text}>{p.text}</p>
-                {(p.commitments?.length ?? 0) > 0 && (
-                  <ul className={styles.commitments}>
-                    {p.commitments!.map((c, i) => <li key={i}>{c}</li>)}
-                  </ul>
-                )}
                 <div className={styles.byline}>
                   <UserIdentity name={authorName(p.author)} countryCode={profiles[p.author]?.country} size="sm" />
                   {reviewed && (
@@ -518,8 +532,9 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     {t('mechanisms.approval.reviewPending', 'Review requested by {count} — awaiting an expert', { count: requestCount })}
                   </p>
                 )}
-                {hasEvidence && (
+                {hasDetails && (
                   <SolutionEvidence
+                    commitments={p.commitments ?? []}
                     indicators={p.metrics ?? []}
                     sources={p.sources ?? []}
                     reviews={reviews}
