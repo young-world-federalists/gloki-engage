@@ -324,6 +324,11 @@ the relevant wave) so nothing is silently assumed clean:
 - **SuggestionDmView** — only the entry button was reviewed (see Wave 4.3).
 - **VotePreview verified-gate flow + mandate share-link surfaces** — only partially covered.
 - **InitiativeStageStrip chrome** (beyond the cards) — its own spacing/contrast/active-state.
+- **Digital-agent participation-history badges** (`DigitalAgentCard` ← `identity.ts` DEMO_PARTICIPATION,
+  S26 review) — the profile activity list renders a "Discuss" stage badge per past-activity row. Ruled
+  out of W3 scope (a fixture, and a *history* record of past participation, not a current-status
+  peer-stage badge — defensible under "discussion is a data stage"). If a future wave wants full IA
+  consistency, fold discussion history into the neutral treatment; needs a fixture edit + DEMO_VERSION bump.
 - **i18n follow-through** — every copy change in this plan ("Menu"→"Community options",
   "Send Support"→"Send", dropping "In discussion", support-CTA disambiguation) touches en/fr/sw + the
   native-review packet. No finding tracks this; historically it goes stale silently. Route via
