@@ -29,7 +29,7 @@
 .guideMeta { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; }
 .hint { font-size: $text-xs; color: $gray-600; }
 .guideToggle {
-  display: inline-flex; align-items: center; gap: $spacing-xs;
+  display: inline-flex; align-items: center; gap: $spacing-sm; // icon→label floor (W5)
   min-height: 44px; padding: 0 $spacing-xs; margin: -$spacing-sm 0; // full tap height without growing the row
   background: none; border: none; cursor: pointer;
   font-size: $text-xs; font-weight: $font-medium; color: $info-on-surface;

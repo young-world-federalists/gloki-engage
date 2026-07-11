@@ -87,8 +87,8 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
       </button>
 
       <div className={styles.actions}>
-        <Button variant="secondary" onClick={openSuggest}>
-          <Send size={16} aria-hidden /> {t('card.suggestToAuthor', 'Send suggestion to author')}
+        <Button variant="secondary" onClick={openSuggest} leftIcon={<Send size={16} aria-hidden />}>
+          {t('card.suggestToAuthor', 'Send suggestion to author')}
         </Button>
       </div>
     </div>
