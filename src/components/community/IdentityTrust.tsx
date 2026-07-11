@@ -1,7 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { IdCard, QrCode, Share2 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
-import { Card, TrustBadge, Button } from '../shared';
+import { Card, TrustBadge, Button, ProgressBar } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
 import { VERIFIED_THRESHOLD, addUserVouch } from '../../services/trust';
@@ -56,18 +56,13 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
           <span className={styles.verifyTitle}>{t('trust.your.title', 'Your verification')}</span>
           <TrustBadge state={trust.currentUserTrust} vouchCount={trust.currentUserVouchCount} size="md" />
         </div>
-        <div
-          className={styles.verifyBar}
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={VERIFIED_THRESHOLD}
-          aria-valuenow={Math.min(trust.currentUserVouchCount, VERIFIED_THRESHOLD)}
-        >
-          <div
-            className={`${styles.verifyFill} ${trust.currentUserTrust === 'verified' ? styles.verifyFillDone : ''}`}
-            style={{ width: `${Math.min(100, (trust.currentUserVouchCount / VERIFIED_THRESHOLD) * 100)}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={Math.min(trust.currentUserVouchCount, VERIFIED_THRESHOLD)}
+          max={VERIFIED_THRESHOLD}
+          size="md"
+          variant={trust.currentUserTrust === 'verified' ? 'success' : 'primary'}
+          label={t('trust.your.barLabel', 'Verification progress')}
+        />
         <p className={styles.verifyStatus}>
           {trust.currentUserTrust === 'verified'
             ? t('trust.your.verified', "You're a verified member of this community.")

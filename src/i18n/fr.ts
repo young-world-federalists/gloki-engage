@@ -624,6 +624,7 @@ const fr: Dictionary = {
   'trust.your.title': 'Votre vérification',
   'trust.your.progress': 'Parrainé·e par {count} sur {threshold} requis pour être vérifié. Rencontrez plus de membres pour bâtir la confiance.',
   'trust.your.verified': 'Vous êtes membre vérifié de cette communauté.',
+  'trust.your.barLabel': 'Progression de la vérification',
 
   // ── Per-stage permission labels ────────────────────────────────────────
   'perm.anyone': 'Tout le monde',

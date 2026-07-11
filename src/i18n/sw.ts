@@ -623,6 +623,7 @@ const sw: Dictionary = {
   'trust.your.title': 'Uthibitisho wako',
   'trust.your.progress': 'Umedhaminiwa na {count} kati ya {threshold} wanaohitajika ili kuthibitishwa. Kutana na wanachama zaidi ili kujenga uaminifu.',
   'trust.your.verified': 'Wewe ni mwanachama aliyethibitishwa wa jumuiya hii.',
+  'trust.your.barLabel': 'Maendeleo ya uthibitisho',
 
   // ── Per-stage permission labels ────────────────────────────────────────
   'perm.anyone': 'Yeyote',

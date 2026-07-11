@@ -50,23 +50,9 @@
   color: $gray-800;
 }
 
-.verifyBar {
-  height: 8px;
-  border-radius: $radius-full;
-  background: $gray-100;
-  overflow: hidden;
-}
-
-.verifyFill {
-  height: 100%;
-  border-radius: $radius-full;
-  background: $primary;
-  transition: width $transition-base;
-}
-
-.verifyFillDone {
-  background: $success;
-}
+// Verify bar → shared <ProgressBar size="md"> (W5 T3); bespoke
+// .verifyBar/.verifyFill/.verifyFillDone deleted — the kit owns the track,
+// fill, primary→success flip, dark track, and reduced-motion transition.
 
 .verifyStatus {
   margin-top: $spacing-sm;
@@ -82,7 +68,6 @@
 @include dark {
   .verifyTitle { color: $dark-text; }
   .verifyStatus { color: $dark-text-secondary; }
-  .verifyBar { background: $dark-tint-strong; }
 
   .stateMessage { color: $dark-text-secondary; }
 
