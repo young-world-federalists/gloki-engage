@@ -160,9 +160,10 @@ const StageFeedView: React.FC = () => {
   const { initiatives, isLoading } = useAllInitiatives();
 
   // Filter initiatives to the current stage (excludes unresolved / _unknown).
-  // Discussion-stage initiatives surface in the Problem feed with an "In
-  // discussion" state (Eston, 2026-07-04) — discussion has no feed of its own,
-  // and without this they'd vanish from stage browsing for the whole phase.
+  // Discussion-stage initiatives surface in the Problem feed (Eston,
+  // 2026-07-04) — discussion has no feed of its own, and without this they'd
+  // vanish from stage browsing for the whole phase. They carry no distinct
+  // badge (W3: discussion is a function, not a stage) — they read as problems.
   const stageInitiatives = useMemo(
     () =>
       initiatives.filter(

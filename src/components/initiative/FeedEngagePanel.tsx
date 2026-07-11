@@ -101,8 +101,9 @@ const ProblemFeedBlock: React.FC<{
  *
  * Read-only on mount for non-participants: the engage components carry their own
  * StageGate, and the strip/pill are pure reads — expanding deploys nothing.
- * Discussion-stage initiatives (visible in the Problem feed) get the active
- * DiscussionPill as their only engage (Eston, 2026-07-04).
+ * Discussion-stage initiatives (visible in the Problem feed) get the neutral
+ * DiscussionPill as their only engage (Eston, 2026-07-04; W3 dropped the pill's
+ * "active" skin — discussion is a function, not a stage).
  */
 const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
   initiativeId,
