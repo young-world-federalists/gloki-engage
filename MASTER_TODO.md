@@ -333,7 +333,33 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   wrong cards — the hero was the flat one). Review: adversarial Opus fleet (5 dims × refute) 0
   findings + grep gates clean; one collapse bug caught in the 360px preview walk & fixed (`940b03a`).
   Spec `docs/superpowers/specs/2026-07-11-w4-context-mandate-design.md`.
-- 📋 **W5** — kit-first normalization + spacing/touch floors.
+- ✅ **W5 — kit-first normalization + spacing/touch floors — SHIPPED 2026-07-11, push pending
+  Eston's gate** (`786f5ba..651a1c9`, 17 commits). Kit adoption: `SegmentedControl` ← StartDraft
+  mode toggle + discussion sort; `ProgressBar` ← IdentityTrust verify bar + SolutionsBoard's two
+  threshold bars (S22 law); `EmptyState` ← chat (4 states) / members / collab empties (loading
+  stays bespoke — kit needs a title); `Button` ← stage-card open CTA + chat create/retry/back.
+  **D1 (Eston):** SolutionsBoard folds commitments+evidence into one "Details" disclosure → 4
+  co-equal blocks; S15 two-bars-combined intact. Floors: chat send 40→44, textarea/inputs 44,
+  mandate copyBtn 36→44; icon→label 8px (`$spacing-sm`) sweep across 8 files; ProblemEngage
+  rule-8 (`Send`→`leftIcon`, gate=0). **D3 (Eston): 5 controls the DS carves out stay BESPOKE**
+  (createBtn / chat+DM send / openLink / QV stepper / mandate copyBtn) — only floors/contrast
+  fixed, not swapped (the campaign's "swap to Button" was stale for all 5). Dead CSS deleted
+  (Members `.memberName`/`.section`). i18n +1 new (`trust.your.barLabel`) / 2 renamed
+  (`evidence*`→`details*`), parity 1136. UI-only → **no DEMO bump**. **Re-grounding: 14th straight
+  catch** — the campaign's kit-swap list mis-scoped 5 keep-bespoke controls, a phantom "collab ×",
+  a non-existent 800px literal, and Button `md`=44 (doc said 40); §6#7 already resolved in S27.
+  **360px preview walk caught + fixed a real dark-contrast bug** (createBtn `$primary-dark`
+  3.45:1 dark → `$primary-on-dark` 7.0:1). Review: adversarial Opus fleet (6 dims × refute) →
+  0 blocker/0 major, 3 minor (2 orphaned dark overrides + 1 stale doc exemplar) all fixed
+  (`651a1c9`); all 3 grep gates clean; full `tsc -b && vite build` green. **Deferred to the W5
+  tail (below):** Currency cluster, Members row→Card, BallotSolutionCard extraction. Spec
+  `docs/superpowers/specs/2026-07-11-w5-kit-floors-design.md`.
+  - 📋 **W5 tail (deferred, low priority):** (a) Currency — EmptyState + 44px input floors + 8px
+    gaps (entangled: shared `.stateMessage`, `<li>`-in-`<ul>` empties, non-reusable nested
+    `.inputField`); (b) Members rows → `Card` (consistency-only; deeply-nested surface + dark/mobile
+    overrides); (c) **BallotSolutionCard** — extract one card shared by QVFlow (unvoted+voted) +
+    VotePreview (partial dedup: only solHead/solText/details are shared, hearts/results/byline
+    diverge; risk concentrated in the voting core — do in a focused session with full preview verify).
 - 📋 **W6** — community chrome & collab polish.
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
@@ -398,6 +424,32 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 
 ## 8. Changelog
 
+- **2026-07-11 — S28: UI-polish campaign Wave 5 — kit-first normalization + spacing/touch floors
+  (SHIPPED, push pending Eston's gate; `786f5ba..651a1c9`, 17 commits).** One mechanical sweep
+  replacing bespoke controls with the shared kit + enforcing the DS floors. Kit adoption:
+  `SegmentedControl` (StartDraft mode toggle, discussion sort), `ProgressBar` (IdentityTrust verify
+  bar + SolutionsBoard's two threshold bars — the S22 all-determinate-bars law), `EmptyState` (chat
+  error/not-found/empty, members, collab — loading stays bespoke since the kit requires a title),
+  `Button` (stage-card open CTA, chat create/retry/back). **D1 (Eston):** SolutionsBoard folds
+  commitments + evidence under one "Details" inline disclosure → 4 co-equal blocks (S15 principle);
+  the two progress bars stay combined (no S15 regression). Floors: chat send 40→44, chat/topic
+  inputs 44, mandate copyBtn 36→44; icon→label 8px (`$spacing-sm`) across ThreadedDiscussion,
+  SolutionsBoard, MandateDocument, QVFlow, InitiativeStageCard; ProblemEngage rule-8 fix
+  (`Send`→`leftIcon`; icon-as-child gate = 0). **D3 (Eston):** 5 controls DESIGN_SYSTEM carves out
+  stay **bespoke** (CollabList `createBtn`, chat/DM `sendBtn`, `openLink`, QV stepper, mandate
+  `copyBtn`) — W5 fixed only their contrast/floors, not swapped to `<Button>` (no kit variant
+  matches without regressing). Dead CSS deleted (Members `.memberName`/`.section`). i18n: +1
+  (`trust.your.barLabel`, an a11y-gain accessible name), 2 renamed (`evidence*`→`details*`), parity
+  1136. **UI-only → no DEMO_VERSION bump.** Re-grounding (14th straight catch): the campaign kit list
+  mis-scoped the 5 keep-bespoke controls, a phantom "collab ×", a non-existent CollabList 800px, and
+  Button `md`=44 (doc said 40); §6#7 was already resolved in S27. The 360px preview walk caught + fixed
+  a real dark-contrast bug (`createBtn` `$primary-dark` 3.45:1 in dark → `$primary-on-dark` 7.0:1 —
+  the §241 dark-authoring trap). Review: adversarial Opus fleet (6 dimensions × refute-by-default) →
+  0 blocker / 0 major, 3 minor (2 orphaned dark overrides left by deletions + 1 stale DS exemplar),
+  all fixed (`651a1c9`); 3 grep gates clean; `tsc -b && vite build` green. Deferred (W5 tail, §7):
+  Currency cluster (entangled), Members row→Card (consistency-only), BallotSolutionCard extraction
+  (partial dedup, voting-core risk). Spec `docs/superpowers/specs/2026-07-11-w5-kit-floors-design.md`,
+  plan `.../plans/2026-07-11-w5-kit-floors.md`.
 - **2026-07-11 — S27: UI-polish campaign Wave 4 — context restoration + mandate composition
   (SHIPPED + PUSHED `929817e..940b03a`, deploy run 29153336157).** Gives acted-on sub-pages the item
   they act on, and composes the published mandate onto a coherent left edge with progressive
