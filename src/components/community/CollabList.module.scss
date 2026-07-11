@@ -31,11 +31,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.empty {
-  color: $gray-500;
-  font-size: $text-sm;
-  padding: $spacing-xl 0;
-}
+// Empty / not-member states → shared <EmptyState> (W5 T4); bespoke .empty deleted.
 
 .list {
   display: flex;
@@ -82,12 +78,15 @@
   flex-shrink: 0;
 }
 
+// Section-themed action — stays bespoke (DS §237-258); W5 fixes only its AA
+// contrast ($primary→$primary-dark on the tint, §5 r15) and the 44px floor.
 .createBtn {
   display: block;
   width: 100%;
+  min-height: 44px; // touch-target floor (W5)
   padding: $spacing-md;
   background: rgba($primary, 0.1);
-  color: $primary;
+  color: $primary-dark; // was $primary (3.68:1 on the tint, AA fail) → $primary-dark
   border: none;
   border-radius: $radius-md;
   font-size: $text-sm;
@@ -102,10 +101,6 @@
 
 // Dark mode
 @include dark {
-  .empty {
-    color: $dark-text-secondary;
-  }
-
   .item {
     background: $dark-bg;
     border-color: $dark-border;

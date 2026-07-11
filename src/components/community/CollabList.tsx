@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { EmptyState } from '../shared';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCollaborations } from '../../store/slices/communitiesSlice';
 import { addCollaboration, type Collaboration } from '../../services/contracts/community';
@@ -89,7 +90,7 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
   if (!isMember) {
     return (
       <div className={styles.container}>
-        <p className={styles.empty}>{t('collab.notMember', 'You are not yet a member of this community.')}</p>
+        <EmptyState title={t('collab.notMember', 'You are not yet a member of this community.')} />
       </div>
     );
   }
@@ -97,7 +98,7 @@ const CollabList: React.FC<CollabListProps> = ({ communityId }) => {
   return (
     <div className={styles.container}>
       {collabs.length === 0 ? (
-        <p className={styles.empty}>{t('collab.empty', 'No collabs yet. Start one from a template.')}</p>
+        <EmptyState title={t('collab.empty', 'No collabs yet. Start one from a template.')} />
       ) : (
         <div className={styles.list}>
           {collabs.map((item) => (
