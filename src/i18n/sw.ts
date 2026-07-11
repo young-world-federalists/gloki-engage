@@ -435,6 +435,8 @@ const sw: Dictionary = {
   'mandate.country.one': 'nchi',
   'mandate.country.other': 'nchi',
   'mandate.adoptCta': 'Ongeza shirika lako',
+  'mandate.adoption.showAll': 'Onyesha mashirika yote {n}',
+  'mandate.adoption.hideList': 'Ficha orodha',
   'mandate.adoptModalTitle': 'Simama nyuma ya agizo hili',
   'mandate.adoptModalIntro': 'Ongeza shirika lako kwenye rekodi ya umma ya uungwaji mkono — unga mkono agizo, au jiandikishe kulitekeleza na kuripoti maendeleo.',
   'mandate.adoptSubmit': 'Ongeza shirika lako',

@@ -436,6 +436,8 @@ const fr: Dictionary = {
   'mandate.country.one': 'pays',
   'mandate.country.other': 'pays',
   'mandate.adoptCta': 'Ajoutez votre organisation',
+  'mandate.adoption.showAll': 'Voir les {n} organisations',
+  'mandate.adoption.hideList': 'Masquer la liste',
   'mandate.adoptModalTitle': 'Soutenez ce mandat',
   'mandate.adoptModalIntro': 'Ajoutez votre organisation au registre public de soutien — soutenez le mandat, ou abonnez-vous pour agir et rendre compte des progrès.',
   'mandate.adoptSubmit': 'Ajouter votre organisation',

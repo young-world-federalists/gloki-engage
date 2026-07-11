@@ -89,6 +89,45 @@
 }
 
 /* ----- Adopters list ----- */
+/* Quiet inline toggle: the summary already gives the count, so the full list
+   is opt-in (W4 4.7). Full-width row, label left + chevron right. */
+.discloseToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+  text-align: left;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+.chevron {
+  flex: none;
+  transition: transform $transition-base;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
 .list {
   list-style: none;
   margin: 0;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { HeartHandshake, Globe, Plus, ShieldCheck } from 'lucide-react';
+import { HeartHandshake, Globe, Plus, ShieldCheck, ChevronDown } from 'lucide-react';
 import { Badge, Banner, Button, CountryFlag, Modal, ProgressBar } from '../shared';
 import { useI18n } from '../../i18n';
 import type { TFunction } from '../../i18n';
@@ -50,6 +50,7 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
   const [adopters, setAdopters] = useState<MandateAdopter[]>(() => getAdopters(mandateId));
   const [modalOpen, setModalOpen] = useState(false);
   const [justAddedName, setJustAddedName] = useState<string | null>(null);
+  const [showAdopters, setShowAdopters] = useState(false);
 
   // Re-sync if the mandate changes (e.g. navigating between mandates).
   useEffect(() => {
@@ -131,7 +132,26 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
         </Banner>
       )}
 
-      <ul className={styles.list}>
+      {/* The summary above already states the count + breakdown, so the full
+          list is one tap away rather than a standing wall (W4 4.7). */}
+      <button
+        type="button"
+        className={styles.discloseToggle}
+        aria-expanded={showAdopters}
+        aria-controls="adopters-panel"
+        onClick={() => setShowAdopters((v) => !v)}
+      >
+        {showAdopters
+          ? t('mandate.adoption.hideList', 'Hide the list')
+          : t('mandate.adoption.showAll', 'Show all {n} organizations', { n: adopters.length })}
+        <ChevronDown
+          size={18}
+          aria-hidden
+          className={`${styles.chevron}${showAdopters ? ` ${styles.chevronOpen}` : ''}`}
+        />
+      </button>
+
+      <ul id="adopters-panel" className={styles.list} hidden={!showAdopters}>
         {adopters.map((a) => (
           <AdopterCard key={a.id} adopter={a} t={t} locale={locale} />
         ))}
