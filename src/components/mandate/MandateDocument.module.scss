@@ -5,15 +5,11 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
-  padding: $spacing-xl;
+  padding: $spacing-lg; // unified card inset across the four mandate sections (W4 4.5)
   background: white;
   border: 1px solid $gray-200;
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
-
-  @media (max-width: $breakpoint-sm) {
-    padding: $spacing-lg;
-  }
 
   @include dark {
     background: $dark-bg;
@@ -246,6 +242,8 @@
 }
 
 /* ----- Turnout + verification (institutional credibility) ----- */
+/* The Sybil-resistance prose now lives behind the (i) at the end of the turnout
+   strip (W4 4.7); the standing .verification block was retired. */
 .turnout {
   display: flex;
   align-items: center;
@@ -277,41 +275,48 @@
   }
 }
 
-.verification {
-  padding: $spacing-md;
-  background: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-md;
-
-  @include dark {
-    background: $dark-surface;
-    border-color: $dark-border;
-  }
+/* The (i) explainer sits at the right end of the turnout strip. */
+.verifyInfo {
+  margin-left: auto;
+  flex: none;
 }
 
-.verificationTitle {
+/* Inline disclosure toggle used for a heading that collapses its own content
+   (indicators). Inherits the heading's type; chevron rotates on expand. */
+.discloseToggle {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
-  margin: 0 0 $spacing-xs;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  color: $gray-900;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
 
-  @include dark {
-    color: $dark-text;
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
   }
 }
 
-.verificationBody {
-  margin: 0;
-  font-size: $text-sm;
-  line-height: 1.5;
-  color: $gray-600;
+.chevron {
+  flex: none;
+  color: $gray-500;
+  transition: transform $transition-base;
 
   @include dark {
     color: $dark-text-secondary;
   }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
 }
 
 /* ----- Machine-readable spec view ----- */

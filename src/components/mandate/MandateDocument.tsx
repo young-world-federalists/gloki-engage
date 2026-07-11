@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { FileText, Code2, Copy, Check, CalendarCheck, ShieldCheck, Vote } from 'lucide-react';
-import { Badge, SegmentedControl } from '../shared';
+import { FileText, Code2, Copy, Check, CalendarCheck, Vote, ChevronDown } from 'lucide-react';
+import { Badge, SegmentedControl, InfoDisclosure } from '../shared';
 import { useI18n } from '../../i18n';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
 import styles from './MandateDocument.module.scss';
@@ -78,6 +78,7 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
   const { t, locale } = useI18n();
   const [view, setView] = useState<MandateView>('plain');
   const [copied, setCopied] = useState(false);
+  const [showIndicators, setShowIndicators] = useState(false);
 
   const specJson = useMemo(() => JSON.stringify(buildSpec(mandate), null, 2), [mandate]);
 
@@ -122,6 +123,8 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
         </div>
       </header>
 
+      {/* Turnout carries the "is this vote real?" moment; the Sybil-resistance
+          prose is one tap away on the (i) rather than a standing block (W4 4.7). */}
       <div className={styles.turnout}>
         <Vote size={16} aria-hidden className={styles.turnoutIcon} />
         <p className={styles.turnoutText}>
@@ -131,19 +134,13 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
             pct: turnoutPct(mandate.provenance.voters, mandate.provenance.eligible),
           })}
         </p>
+        <InfoDisclosure
+          label={t('mandate.verification.title', 'How we keep the vote real')}
+          className={styles.verifyInfo}
+        >
+          <p>{t('mandate.verification.body', VERIFICATION_STATEMENT)}</p>
+        </InfoDisclosure>
       </div>
-
-      <section className={styles.verification} aria-labelledby="mandate-verification">
-        <h3 id="mandate-verification" className={styles.verificationTitle}>
-          <ShieldCheck size={15} aria-hidden /> {t('mandate.verification.title', 'How we keep the vote real')}
-        </h3>
-        <p className={styles.verificationBody}>
-          {t(
-            'mandate.verification.body',
-            'One person, one vote. Gloki keeps the electorate real through a community web of trust — members vouch for one another in person by scanning QR codes. No ID papers, no biometrics, no face scans are collected, and no one can buy extra influence.',
-          )}
-        </p>
-      </section>
 
       <SegmentedControl<MandateView>
         ariaLabel={t('mandate.viewToggle', 'Mandate view')}
@@ -184,9 +181,23 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
 
           <section className={styles.section} aria-labelledby="mandate-indicators">
             <h2 id="mandate-indicators" className={styles.sectionTitle}>
-              {t('mandate.indicatorsTitle', 'How we’ll know it’s working')}
+              <button
+                type="button"
+                className={styles.discloseToggle}
+                aria-expanded={showIndicators}
+                aria-controls="mandate-indicators-panel"
+                onClick={() => setShowIndicators((v) => !v)}
+              >
+                {t('mandate.indicatorsTitle', 'How we’ll know it’s working')}
+                <ChevronDown
+                  size={18}
+                  aria-hidden
+                  className={`${styles.chevron}${showIndicators ? ` ${styles.chevronOpen}` : ''}`}
+                />
+              </button>
             </h2>
-            <dl className={styles.indicators}>
+            <div id="mandate-indicators-panel" hidden={!showIndicators}>
+              <dl className={styles.indicators}>
               {mandate.indicators.map((ind) => (
                 <div key={ind.label} className={styles.indicator}>
                   <dt className={styles.indicatorLabel}>{ind.label}</dt>
@@ -212,7 +223,8 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
                   </dd>
                 </div>
               ))}
-            </dl>
+              </dl>
+            </div>
           </section>
         </div>
       )}
