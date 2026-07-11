@@ -6,7 +6,7 @@ import { useAppSelector } from '../../../../store/hooks';
 import { useI18n, useT } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
-import { EmptyState, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
+import { EmptyState, SegmentedControl, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import type { SourceLink } from '../../../../utils/sources';
@@ -402,24 +402,15 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
           {t(liveCount === 1 ? 'deliberation.thread.count.one' : 'deliberation.thread.count.many',
             liveCount === 1 ? '1 comment' : '{n} comments', { n: liveCount })}
         </span>
-        <div className={styles.sortToggle} role="group" aria-label={t('deliberation.thread.sortLabel', 'Sort comments')}>
-          <button
-            type="button"
-            className={sort === 'top' ? styles.sortActive : styles.sortBtn}
-            aria-pressed={sort === 'top'}
-            onClick={() => setSort('top')}
-          >
-            {t('deliberation.thread.sortTop', 'Top')}
-          </button>
-          <button
-            type="button"
-            className={sort === 'newest' ? styles.sortActive : styles.sortBtn}
-            aria-pressed={sort === 'newest'}
-            onClick={() => setSort('newest')}
-          >
-            {t('deliberation.thread.sortNewest', 'Newest')}
-          </button>
-        </div>
+        <SegmentedControl<SortMode>
+          options={[
+            { value: 'top', label: t('deliberation.thread.sortTop', 'Top') },
+            { value: 'newest', label: t('deliberation.thread.sortNewest', 'Newest') },
+          ]}
+          value={sort}
+          onChange={setSort}
+          ariaLabel={t('deliberation.thread.sortLabel', 'Sort comments')}
+        />
       </div>
 
       {focusRootId && (

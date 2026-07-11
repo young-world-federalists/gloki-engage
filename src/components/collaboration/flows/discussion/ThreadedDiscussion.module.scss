@@ -85,31 +85,13 @@
   color: $gray-500;
   @include dark { color: $dark-text-secondary; }
 }
-.sortToggle { display: inline-flex; gap: $spacing-xs; }
-.sortBtn, .sortActive {
-  min-height: 44px;
-  padding: $spacing-xs $spacing-sm;
-  font-size: $text-xs;
-  font-weight: $font-medium;
-  border-radius: $radius-md;
-  border: 1px solid transparent;
-  background: none;
-  color: $gray-500;
-  cursor: pointer;
-
-  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
-  @include dark { color: $dark-text-secondary; }
-}
-.sortActive {
-  color: $primary;
-  background: rgba($primary, 0.1);
-  @include dark { color: $dark-text; background: rgba($primary, 0.25); }
-}
+// Sort control → shared <SegmentedControl> (W5 T2); bespoke
+// .sortToggle/.sortBtn/.sortActive deleted — the kit owns the track + states.
 
 .backBtn {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm; // icon→label floor (W5)
   align-self: flex-start;
   min-height: 44px;
   padding: $spacing-xs $spacing-sm;
@@ -152,7 +134,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm; // icon→label floor (W5)
   min-height: 44px;
   min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 22 wide)
   padding: 0 $spacing-xs;
@@ -180,7 +162,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm; // icon→label floor (W5)
   min-height: 44px;
   min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 34 wide)
   padding: $spacing-xs;
@@ -216,7 +198,7 @@
 .continueBtn {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm; // icon→label floor (W5)
   margin-left: $spacing-md;
   min-height: 44px;
   padding: $spacing-xs $spacing-sm;
