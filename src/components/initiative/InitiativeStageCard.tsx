@@ -183,7 +183,6 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
                   communityId={stageNav.communityId}
                   hostServer={stageNav.hostServer}
                   hostAgent={stageNav.hostAgent}
-                  active={post.stage === 'discussion'}
                 />
               )}
               {onOpen && openLabel && (

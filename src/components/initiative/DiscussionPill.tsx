@@ -12,9 +12,6 @@ export interface DiscussionPillProps {
   communityId: string;
   hostServer: string;
   hostAgent: string;
-  /** True while the initiative's data stage is `discussion` — renders the
-   *  "In discussion" active state (the Problem→Solutions gap). */
-  active?: boolean;
   className?: string;
 }
 
@@ -35,7 +32,6 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   communityId,
   hostServer,
   hostAgent,
-  active = false,
   className,
 }) => {
   const t = useT();
@@ -62,9 +58,9 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
     };
   }, [serverUrl, publicKey, initiativeId]);
 
-  const label = active
-    ? t('stage.discussionPillActive', 'In discussion')
-    : t('stage.discussionPill', 'Discussion');
+  // Always the neutral function label (W3, campaign §5 rule 10): the live
+  // comment count — not a stage-styled skin — signals activity.
+  const label = t('stage.discussionPill', 'Discussion');
   const ariaLabel =
     count != null && count > 0
       ? t('stage.discussionPillCount', '{label} — {n} comments', { label, n: count })
@@ -73,7 +69,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   return (
     <button
       type="button"
-      className={`${styles.pill} ${active ? styles.active : ''} ${className ?? ''}`}
+      className={`${styles.pill} ${className ?? ''}`}
       onClick={() =>
         navigate(
           `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${initiativeId}/discussion`,

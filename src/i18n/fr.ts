@@ -54,7 +54,6 @@ const fr: Dictionary = {
   'stage.pipelineOverview': 'Les étapes de gouvernance',
   'stage.initiativeStripLabel': 'Étapes de cette initiative',
   'stage.discussionPill': 'Discussion',
-  'stage.discussionPillActive': 'En discussion',
   'stage.discussionPillCount': '{label} — {n} commentaires',
 
   'lang.switch': 'Langue',
@@ -109,7 +108,6 @@ const fr: Dictionary = {
   'home.starred': 'Communauté favorite',
   'home.seeAll': 'Tout voir',
   'home.problems': 'Problèmes',
-  'home.discussions': 'En discussion',
   'home.proposals': 'Solutions',
   'home.votes': 'Votes ouverts',
   'home.mandates': 'Décisions récentes',

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, MessageCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star } from 'lucide-react';
+import { AlertCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
@@ -73,7 +73,7 @@ const HomeInitiativeCard: React.FC<{
   );
 };
 
-type ActiveStage = 'problem' | 'discussion' | 'proposals' | 'vote';
+type ActiveStage = 'problem' | 'proposals' | 'vote';
 
 const SECTIONS: {
   stage: ActiveStage;
@@ -83,18 +83,19 @@ const SECTIONS: {
   limit: number;
 }[] = [
   { stage: 'problem', icon: AlertCircle, titleKey: 'home.problems', titleFallback: 'Problems', limit: 3 },
-  { stage: 'discussion', icon: MessageCircle, titleKey: 'home.discussions', titleFallback: 'In discussion', limit: 2 },
   { stage: 'proposals', icon: Lightbulb, titleKey: 'home.proposals', titleFallback: 'Solutions', limit: 2 },
   { stage: 'vote', icon: Vote, titleKey: 'home.votes', titleFallback: 'Open votes', limit: 2 },
 ];
 
 /**
  * The front door — a cross-community overview that mixes a few Problems,
- * Discussions, Proposals and Votes drawn from across all of the user's
- * communities (each card labelled with its community), plus a slim "Recent
- * decisions" strip for mandates. Falls back to the shared sample set when the
- * user has no real initiatives yet. The per-stage browse lives in the global
- * StageFooter / StageFeedView; this page never renders the heavy inline flows.
+ * Solutions and Votes drawn from across all of the user's communities (each
+ * card labelled with its community), plus a slim "Recent decisions" strip for
+ * mandates. Discussion-stage initiatives list under Problems (W3, §5 rule 10 —
+ * mirrors the stage feed: a problem being discussed is still a problem).
+ * Falls back to the shared sample set when the user has no real initiatives
+ * yet. The per-stage browse lives in the global StageFooter / StageFeedView;
+ * this page never renders the heavy inline flows.
  */
 const HomeView: React.FC = () => {
   const t = useT();
@@ -116,7 +117,10 @@ const HomeView: React.FC = () => {
     const map: Record<string, HomeCard[]> = {};
     for (const i of initiatives) {
       if (!i.stage || i.stage === '_unknown') continue;
-      (map[i.stage] ||= []).push({
+      // Discussion is a function, not a stage (W3): those items are problems
+      // in the Problem→Solutions gap, so they list under Problems here.
+      const bucket = i.stage === 'discussion' ? 'problem' : i.stage;
+      (map[bucket] ||= []).push({
         id: i.id,
         title: i.title || 'Untitled Initiative',
         description: i.description || '',
@@ -151,13 +155,15 @@ const HomeView: React.FC = () => {
   const sampleByStage = useMemo(() => {
     const map: Record<string, HomeCard[]> = {};
     for (const [stage, items] of Object.entries(SAMPLE_INITIATIVES)) {
-      map[stage] = items.map((s) => ({
+      // Same fold as realByStage: sample discussion items are problems.
+      const bucket = stage === 'discussion' ? 'problem' : stage;
+      (map[bucket] ||= []).push(...items.map((s) => ({
         id: s.id,
         title: s.title,
         description: s.description,
         communityName: s.communityName,
         authorName: s.authorName,
-      }));
+      })));
     }
     return map;
   }, []);

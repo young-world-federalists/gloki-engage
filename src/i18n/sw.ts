@@ -53,7 +53,6 @@ const sw: Dictionary = {
   'stage.pipelineOverview': 'Hatua za utawala',
   'stage.initiativeStripLabel': 'Hatua za mpango huu',
   'stage.discussionPill': 'Majadiliano',
-  'stage.discussionPillActive': 'Katika majadiliano',
   'stage.discussionPillCount': '{label} — maoni {n}',
 
   'lang.switch': 'Lugha',
@@ -108,7 +107,6 @@ const sw: Dictionary = {
   'home.starred': 'Jumuiya pendwa',
   'home.seeAll': 'Ona zote',
   'home.problems': 'Matatizo',
-  'home.discussions': 'Yanajadiliwa',
   'home.proposals': 'Suluhisho',
   'home.votes': 'Kura zilizo wazi',
   'home.mandates': 'Maamuzi ya hivi karibuni',

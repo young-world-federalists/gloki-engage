@@ -204,7 +204,6 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
           communityId={communityId}
           hostServer={hostServer}
           hostAgent={hostAgent}
-          active={stage === 'discussion'}
         />
         <button
           type="button"

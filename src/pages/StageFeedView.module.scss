@@ -90,13 +90,6 @@
   }
 }
 
-// Icon + label inside the "In discussion" badge.
-.badgeInner {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
 // The title is a keyboard-accessible tap-through: it's the real control, and a
 // stretched ::after makes the whole card its hit area. Other interactive
 // elements (community badge, byline) sit above it via z-index.

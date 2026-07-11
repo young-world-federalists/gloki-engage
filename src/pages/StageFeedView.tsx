@@ -7,8 +7,7 @@ import { useAllInitiatives, type InitiativeWithMeta } from '../hooks/useAllIniti
 import { formatTimeAgo } from '../utils/formatTimeAgo';
 import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
-import { UserIdentity, Banner, Badge } from '../components/shared';
-import { STAGE_META } from '../components/community/stageMeta';
+import { UserIdentity, Banner } from '../components/shared';
 import FeedEngagePanel from '../components/initiative/FeedEngagePanel';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
@@ -83,8 +82,6 @@ const StageFeedCard: React.FC<{
   const trust = useCommunityTrust(item.communityId);
   const profiles = useAppSelector((s) => s.communities.profiles);
   const t = useT();
-  const inDiscussion = item.stage === 'discussion';
-  const DiscussionIcon = STAGE_META.discussion.icon;
   const panelId = `stagefeed-panel-${item.id}`;
   // Only discussion/proposals/vote items need a remap; everything else in an
   // expandable feed is problem-stage by the feed filter (the fallback is
@@ -99,14 +96,9 @@ const StageFeedCard: React.FC<{
         <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
           {item.communityName}
         </button>
-        {inDiscussion && (
-          <Badge tone={STAGE_META.discussion.tone}>
-            <span className={styles.badgeInner}>
-              <DiscussionIcon size={12} />
-              {t('stage.discussionPillActive', 'In discussion')}
-            </span>
-          </Badge>
-        )}
+        {/* No "In discussion" badge (W3, §5 rule 10): a discussion-stage item in
+            this feed is still a problem — the expanded panel's Discussion pill
+            (with its live count) carries the activity signal. */}
         {item.authorName && item.author ? (
           <UserIdentity
             name={item.authorName}

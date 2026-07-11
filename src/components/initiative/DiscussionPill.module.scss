@@ -1,8 +1,8 @@
 @use '../../styles/variables' as *;
 
 // The persistent per-initiative Discussion button (S16: discussion is a
-// function, not a pipeline step). Neutral outline at rest; warning-toned
-// "In discussion" active state matching the Discussion badge tone.
+// function, not a pipeline step). Neutral outline; the live comment count —
+// not a stage-styled skin — carries the activity signal (W3, §5 rule 10).
 
 .pill {
   display: inline-flex;
@@ -24,12 +24,6 @@
   }
 }
 
-.active {
-  border-color: $stage-discussion;
-  background: $warning-surface;
-  color: $warning-on-surface;
-}
-
 .count {
   display: inline-flex;
   align-items: center;
@@ -44,11 +38,6 @@
   font-weight: 700;
 }
 
-.active .count {
-  background: $stage-discussion;
-  color: $gray-900;
-}
-
 @include dark {
   .pill {
     border-color: $dark-border;
@@ -59,18 +48,8 @@
     }
   }
 
-  .active {
-    background: $warning-surface-dark;
-    color: $dark-text;
-  }
-
   .count {
     background: $warning-surface-dark;
     color: $dark-text;
-  }
-
-  .active .count {
-    background: $stage-discussion;
-    color: $gray-900;
   }
 }
