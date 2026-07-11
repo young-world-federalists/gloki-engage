@@ -17,16 +17,6 @@
     justify-content: flex-start;
   }
 
-  .section {
-    margin-bottom: $spacing-2xl;
-
-    h3 {
-      font-size: $text-xl;
-      font-weight: $font-semibold;
-      color: $gray-700;
-      margin-bottom: $spacing-lg;
-    }
-  }
 
   .list {
     display: flex;
@@ -95,20 +85,6 @@
           min-height: 40px; // Reduced height to match smaller card
         }
 
-        .memberName {
-          font-size: $text-2xl; // Even bigger font for name
-          font-weight: $font-semibold;
-          color: $gray-800;
-          line-height: 1.2;
-          margin: 0;
-          flex: 1;
-          min-width: 0; // Allow text to truncate properly
-          // Truncate long names
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
         .publicKey {
           font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
           font-size: $text-sm;
@@ -141,10 +117,6 @@
         }
 
         .memberInfo {
-          .memberName {
-            font-size: $text-xl; // Still bigger than before
-          }
-
           .publicKey {
             font-size: $text-xs;
           }
@@ -162,12 +134,6 @@
       color: $dark-text-secondary;
     }
 
-    .section {
-      h3 {
-        color: $dark-text;
-      }
-    }
-
     .list {
       .memberCard {
         background-color: $dark-bg;
@@ -183,10 +149,6 @@
         }
 
         .memberInfo {
-          .memberName {
-            color: $dark-text;
-          }
-
           .publicKey {
             color: $dark-text-secondary;
           }
