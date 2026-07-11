@@ -19,10 +19,11 @@ export interface VoteEngageProps {
  * The Vote stage's **Engage** slot, rendered inside the shared
  * `InitiativeStageCard`. S11 P2: the "how this vote works" explainer and a
  * read-only ballot preview live OUTSIDE the `StageGate` so the mechanism is
- * auditable before verifying. The interactive quadratic ballot ({@link VoteStage})
- * stays gated by the community's per-stage trust rule. The preview renders only
- * when the current user cannot participate — participants never see a duplicate —
- * and does pure reads, so no write path leaks past the gate.
+ * auditable before verifying — but ONLY for visitors who cannot vote (W3 3.7:
+ * participants get the ballot's own "How hearts work" guide, so showing both
+ * double-explained the same mechanism). The interactive quadratic ballot
+ * ({@link VoteStage}) stays gated by the community's per-stage trust rule.
+ * The preview does pure reads, so no write path leaks past the gate.
  */
 const VoteEngage: React.FC<VoteEngageProps> = ({ initiativeId, communityId, communityMemberCount }) => {
   const { canCurrentUserParticipate, isReady } = useCommunityTrust(communityId);
@@ -32,11 +33,15 @@ const VoteEngage: React.FC<VoteEngageProps> = ({ initiativeId, communityId, comm
 
   return (
     <div className={styles.engage}>
-      <VoteExplainer />
       <StageGate communityId={communityId} stage="vote">
         <VoteStage initiativeId={initiativeId} communityMemberCount={communityMemberCount} />
       </StageGate>
-      {!canVote && <VotePreview initiativeId={initiativeId} communityMemberCount={communityMemberCount} />}
+      {!canVote && (
+        <>
+          <VoteExplainer />
+          <VotePreview initiativeId={initiativeId} communityMemberCount={communityMemberCount} />
+        </>
+      )}
     </div>
   );
 };

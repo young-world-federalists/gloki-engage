@@ -48,7 +48,7 @@ const MandateEngage: React.FC<MandateEngageProps> = ({
     <div className={styles.engage}>
       {/* Mandate identity, mirroring the published-mandate hero (S23): the same
           "Gloki Mandate" label + the winning solution as the title, so arriving
-          here from the mandate page's "Show your support" clearly lands on the
+          here from the mandate page's "Back this mandate" clearly lands on the
           SAME mandate (the card headline shows the problem, not the mandate). The
           winner text comes from the read-only journey read — no extra contract. */}
       {vote?.winnerText && (

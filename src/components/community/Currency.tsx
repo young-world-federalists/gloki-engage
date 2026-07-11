@@ -424,7 +424,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
         <div className={styles.actionsSection}>
           <div className={styles.actionCard}>
-            <h2>{t('currency.sendTitle', 'Send Support')}</h2>
+            <h2>{t('currency.sendTitle', 'Send points')}</h2>
             <div className={styles.paymentForm}>
               <div className="form-group">
                 <label htmlFor="memberSelect">{t('currency.selectMember', 'Select Member')}</label>
@@ -472,7 +472,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
                   className={styles.fullWidthAction}
                   leftIcon={<Send size={16} />}
                 >
-                  {t('currency.sendButton', 'Send Support')}
+                  {t('currency.sendButton', 'Send')}
                 </Button>
               </div>
             </div>

@@ -114,7 +114,7 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
           leftIcon={<Plus size={16} aria-hidden />}
           onClick={() => setModalOpen(true)}
         >
-          {t('mandate.adoptCta', 'Endorse / adopt')}
+          {t('mandate.adoptCta', 'Add your organization')}
         </Button>
       </div>
 
