@@ -318,7 +318,21 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   1131). UI-only → no DEMO bump. Review: adversarial Opus fleet — 2 minor comment-only findings
   fixed, 1 out-of-scope refuted (→ round-2 backlog). Spec
   `docs/superpowers/specs/2026-07-10-w3-discussion-function-design.md`.
-- 📋 **W4** — context restoration + mandate composition.
+- ✅ **W4 — context restoration + mandate composition — SHIPPED + PUSHED 2026-07-11**
+  (`929817e..940b03a`, deploy run 29153336157). New shared `ContextCard` primitive (title?/body?;
+  renders null when empty; body line-clamped) — the discussion page shows the problem body (header
+  h1 stays the initiative title, S23), suggest-to-author shows problem title+body (self-fetches
+  `get_details` through the seam, no prop-threading). MandateCard: support+Share one row (drop
+  `fullWidth`, size=md, flex 1/0) holding at 360px incl. fr "Soutenir ce mandat"; card inset
+  `$spacing-xl`→`$spacing-lg`; hero raised in dark (`$dark-surface`→`$dark-bg`). MandateDocument:
+  inset →`$spacing-lg`; verification prose → `(i)` InfoDisclosure on the turnout strip; indicators
+  `<dl>` collapses behind an inline heading toggle. AdoptionFramework: full adopter list collapses
+  (fixed `.list[hidden]` defeated by `display:flex`). DESIGN_SYSTEM §5-rule-11 (ContextCard pattern)
+  + §6#7 (per-context open-item affordance) codified. i18n +4 keys fr+sw (parity 1135). UI-only → no
+  DEMO bump. 3 stale-premise corrections (4.2 already fixed by W1b; 4.5 only 2 files; 4.6 named the
+  wrong cards — the hero was the flat one). Review: adversarial Opus fleet (5 dims × refute) 0
+  findings + grep gates clean; one collapse bug caught in the 360px preview walk & fixed (`940b03a`).
+  Spec `docs/superpowers/specs/2026-07-11-w4-context-mandate-design.md`.
 - 📋 **W5** — kit-first normalization + spacing/touch floors.
 - 📋 **W6** — community chrome & collab polish.
 
@@ -384,6 +398,36 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 
 ## 8. Changelog
 
+- **2026-07-11 — S27: UI-polish campaign Wave 4 — context restoration + mandate composition
+  (SHIPPED + PUSHED `929817e..940b03a`, deploy run 29153336157).** Gives acted-on sub-pages the item
+  they act on, and composes the published mandate onto a coherent left edge with progressive
+  disclosure — no long-scroll blow-up. **Eston locked (2026-07-11):** inline-expand depth (hero +
+  commitments + turnout open; indicators + full adopter list collapse inline; verification prose →
+  `(i)` modal); ContextCard = title+body only; raise the hero MandateCard; document the §6#7
+  open-item affordance (no code change). (4.1) New shared **`ContextCard`** (`title?`/`body?`/
+  `ariaLabel?`; renders `null` when empty; body `-webkit-line-clamp:4`) rendered on the discussion
+  page **body-only** (header h1 is the initiative title, S23 → no double-title) from a `description`
+  threaded through `InitiativeView`/`get_details`. (4.3) suggest-to-author renders it **title+body**
+  (header h1 is the author) — `SuggestionDmView` self-fetches `get_details` via `contractRead` (no
+  prop-threading through `ProblemEngage`). (4.4) MandateCard actions one row (drop `fullWidth`, both
+  `size=md`, `.supportBtn{flex:1}`/`.shareBtn{flex:0}`) — verified 360px in en **and** fr
+  ("Soutenir ce mandat" 171px + "Partager" 115px, one row, both 44px). (4.5) unify inset: MandateCard
+  + MandateDocument `$spacing-xl`→`$spacing-lg` (RatificationPanel/AdoptionFramework already aligned).
+  (4.6) raise the hero: MandateCard dark bg `$dark-surface`→`$dark-bg` (the campaign named the
+  doc/ratification cards, but those were already raised — the hero was the flat one). (4.7)
+  progressive disclosure: verification prose → `(i)` `InfoDisclosure` on the turnout strip; indicators
+  `<dl>` behind an inline heading toggle (`aria-expanded`/`aria-controls`, chevron); full adopter list
+  behind an inline toggle (`mandate.adoption.showAll {n}`/`hideList`). DESIGN_SYSTEM §5-rule-11
+  (ContextCard/context-header pattern) + §6#7 (per-context open-item affordance) codified; ContextCard
+  added to the primitive inventory. i18n +4 keys fr+sw (parity 1135); **English inline in `t()`,
+  en.ts untouched**. UI-only → **no DEMO bump**. **3 stale-premise corrections** (4.2 already fixed by
+  W1b; 4.5 only 2 files not 4; 4.6 named the wrong cards). Review: adversarial Opus Workflow fleet (5
+  dims × adversarial refute) → **0 findings**, corroborated by grep gates (token-clean, no dead CSS,
+  no dangling refs, single h1, parity OK). **One collapse bug caught in the 360px preview walk & fixed
+  (`940b03a`):** the collapsed adopter `<ul>`'s `hidden` was defeated by `.list{display:flex}` →
+  scoped `.list[hidden]{display:none}`. Specs
+  `docs/superpowers/specs/2026-07-11-w4-context-mandate-design.md` + plan
+  `docs/superpowers/plans/2026-07-11-w4-context-mandate.md`.
 - **2026-07-10 — S26: UI-polish campaign Wave 3 — discussion-as-function + redundancy removal
   (SHIPPED + PUSHED `1b03eb1..f0400e8`, deploy run 29143572642).** Kills every UI holdover that made
   Discussion read as a 5th pipeline stage, and the duplicate controls the campaign flagged — WITHOUT

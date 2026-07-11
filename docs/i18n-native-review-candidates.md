@@ -1002,6 +1002,32 @@ still describe the journey.
 
 ---
 
+## Session 27 (2026-07-11) — W4 context restoration + mandate composition (+4 keys, parity 1131 → 1135)
+
+Wave 4 added the `ContextCard` (shows the item a sub-page acts on) and collapsed the mandate
+adopter list. Four new keys, added to fr + sw together; English lives inline in `t()` (en.ts
+untouched by design). Two are aria-labels (screen-reader only, never visible), two are a visible
+toggle pair.
+
+- **fr/sw `context.discussion.aria`** — aria-label on the discussion page's ContextCard (the
+  problem body shown under the header). English "The problem under discussion". fr "Le problème en
+  discussion", sw "Tatizo linalojadiliwa". Screen-reader only; confirm it reads naturally as a
+  region label (not an instruction).
+- **fr/sw `context.suggest.aria`** — aria-label on the suggest-to-author ContextCard (the problem
+  title+body shown above the private-suggestion composer). English "The problem you are suggesting
+  on". fr "Le problème que vous commentez" (lit. "the problem you are commenting on" — the private
+  suggestion isn't a public comment; **⚠ confirm** whether a verb like "sur lequel vous faites une
+  suggestion" reads better), sw "Tatizo unalotolea maoni" (**⚠ confirm** "maoni"/opinion vs a
+  suggestion-specific noun).
+- **fr/sw `mandate.adoption.showAll`** — toggle that reveals the full adopter list; carries `{n}`.
+  English "Show all {n} organizations". fr "Voir les {n} organisations", sw "Onyesha mashirika yote
+  {n}". `{n}` token present in both; confirm "organisations"/"mashirika" agrees with the mixed
+  adopter types (youth networks, NGOs, governments) already shown elsewhere.
+- **fr/sw `mandate.adoption.hideList`** — the same toggle when expanded. English "Hide the list".
+  fr "Masquer la liste", sw "Ficha orodha".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
