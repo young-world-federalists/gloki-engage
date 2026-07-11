@@ -348,11 +348,14 @@
   }
 }
 
+// Stays bespoke (W5 D3): no kit Button variant matches this AA-safe subtle tint
+// ($primary-dark ~5:1) — secondary is bordered $primary (3.68:1), ghost is gray,
+// both a contrast regression. W5 fixes only its floors: 44px + 8px icon→label gap.
 .copyBtn {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
-  min-height: 36px;
+  gap: $spacing-sm; // icon→label floor (W5)
+  min-height: 44px; // touch-target floor (W5, was 36px)
   padding: $spacing-xs $spacing-sm;
   border: 1px solid transparent;
   border-radius: $radius-md;
