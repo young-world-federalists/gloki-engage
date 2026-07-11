@@ -35,7 +35,7 @@
 .badgeInner {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: $spacing-xs; // tokenized off raw 4px; kept compact for this micro-badge (§5 r7)
 }
 
 // The initiative name, when a stage needs identity above the content (vote card).
@@ -102,7 +102,7 @@
 .metaItem {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: $spacing-xs; // tokenized off raw 4px; kept compact for the meta row (§5 r7)
   min-height: 24px; // WCAG 2.5.8 AA floor for the inline source link (S17 T7)
   color: $gray-500;
   text-decoration: none;
