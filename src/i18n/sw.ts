@@ -767,6 +767,7 @@ const sw: Dictionary = {
   'deliberation.thread.back': 'Rudi kwenye majadiliano kamili',
   'deliberation.thread.emptyTitle': 'Hakuna maoni bado',
   'deliberation.thread.empty': 'Anzisha mazungumzo kuhusu tatizo hili.',
+  'context.discussion.aria': 'Tatizo linalojadiliwa',
   'deliberation.thread.disclosure': 'Maoni ni ya wazi kwa jamii na yanahifadhiwa kama sehemu ya kumbukumbu ya majadiliano.',
   'deliberation.thread.count.one': 'Maoni 1',
   'deliberation.thread.count.many': 'Maoni {n}',

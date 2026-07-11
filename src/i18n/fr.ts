@@ -768,6 +768,7 @@ const fr: Dictionary = {
   'deliberation.thread.back': 'Retour à la discussion complète',
   'deliberation.thread.emptyTitle': 'Pas encore de commentaires',
   'deliberation.thread.empty': 'Lancez la conversation sur ce problème.',
+  'context.discussion.aria': 'Le problème en discussion',
   'deliberation.thread.disclosure': 'Les commentaires sont publics au sein de la communauté et conservés dans l’historique de la discussion.',
   'deliberation.thread.count.one': '1 commentaire',
   'deliberation.thread.count.many': '{n} commentaires',

@@ -21,6 +21,7 @@ const InitiativeView: React.FC = () => {
   const publicKey = useAppSelector((s) => s.user.publicKey);
 
   const [title, setTitle] = useState(initiative?.title ?? 'Initiative');
+  const [description, setDescription] = useState(initiative?.description ?? '');
 
   useEffect(() => {
     if (initiative?.title || !serverUrl || !publicKey || !initiativeId) return;
@@ -30,6 +31,7 @@ const InitiativeView: React.FC = () => {
     })
       .then((details: Record<string, unknown>) => {
         if (details?.title) setTitle(details.title as string);
+        if (typeof details?.description === 'string') setDescription(details.description);
       })
       .catch(() => {});
   }, [initiative?.title, serverUrl, publicKey, initiativeId]);
@@ -47,6 +49,7 @@ const InitiativeView: React.FC = () => {
     return (
       <DiscussionStageView
         title={title}
+        description={description}
         communityId={communityId!}
         initiativeId={initiativeId!}
       />

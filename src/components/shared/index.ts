@@ -8,6 +8,8 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 
 export { default as Card } from './Card';
 export type { CardProps } from './Card';
+export { default as ContextCard } from './ContextCard';
+export type { ContextCardProps } from './ContextCard';
 
 export { default as Modal } from './Modal';
 export type { ModalProps } from './Modal';

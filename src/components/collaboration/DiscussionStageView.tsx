@@ -4,7 +4,7 @@ import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityProperties } from '../../store/slices/communitiesSlice';
 import { useT } from '../../i18n';
-import { Button } from '../shared';
+import { Button, ContextCard } from '../shared';
 import AppHeader from '../AppHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
@@ -15,6 +15,8 @@ import styles from './DiscussionStageView.module.scss';
 
 interface DiscussionStageViewProps {
   title: string;
+  /** The problem/initiative summary shown as the ContextCard body (the item under discussion). */
+  description?: string;
   communityId: string;
   initiativeId: string;
 }
@@ -26,7 +28,7 @@ interface DiscussionStageViewProps {
  * initiative, all one person, one vote. Viewing is always visible; actions gate
  * on the community's per-stage trust rule.
  */
-const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, communityId, initiativeId }) => {
+const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, description, communityId, initiativeId }) => {
   const navigate = useNavigate();
   const t = useT();
   const dispatch = useAppDispatch();
@@ -70,6 +72,10 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, commun
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>
+          {/* The item under discussion stays visible (§5 rule 11). Body-only:
+              the h1 already carries the initiative title (S23), so passing the
+              title here too would double it. */}
+          <ContextCard body={description} ariaLabel={t('context.discussion.aria', 'The problem under discussion')} />
           <ErrorBoundary fallbackMessage={t('deliberation.error', 'The discussion section encountered an error.')}>
             {hasError ? (
               <div className={`${styles.status} ${styles.statusError}`}>
