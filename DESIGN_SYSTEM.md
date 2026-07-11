@@ -241,8 +241,8 @@ hand-rolled because they don't fit the four pill variants, and forcing them in d
 design:
 - **Section-themed actions** — e.g. CollabList's teal `.createBtn` lives in the collab
   `#0d9488` section theme; as primary-blue it would lose that identity.
-- **Icon-only square buttons** — e.g. chat send / top-bar back (40×40). `<Button>` sizes are
-  pills (fixed height + horizontal padding), not squares.
+- **Icon-only square buttons** — e.g. chat send / top-bar back (44×44, the touch floor). `<Button>`
+  sizes are pills (fixed height + horizontal padding), not squares.
 - **List-row / indicator buttons** — e.g. CollabList's collab rows, ChatTopicList's topic
   rows, the `Stepper` step dots. These are navigation rows and step indicators, not actions.
 - **No-matching-variant subtle/link controls** (W5) — the stage-feed `openLink` (a quiet

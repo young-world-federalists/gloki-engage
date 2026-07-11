@@ -134,7 +134,6 @@
   .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
   .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
   .reviewedTag { color: $success; } // the light green IS the AA choice on dark cards
-  .track { background: $dark-border; }
   .solution + .solution { border-top-color: $dark-border; }
   .review + .review { border-top-color: $dark-border; }
   .reviewsLabel { color: $dark-text-secondary; }

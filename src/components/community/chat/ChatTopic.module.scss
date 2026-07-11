@@ -180,16 +180,6 @@
     border-bottom-color: $dark-border;
   }
 
-  .backBtn {
-    border-color: $dark-border;
-    color: $dark-text-secondary;
-
-    &:hover {
-      border-color: $primary;
-      color: $primary;
-    }
-  }
-
   .topicTitle {
     color: $dark-text;
   }
