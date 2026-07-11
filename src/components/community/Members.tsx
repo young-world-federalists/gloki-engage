@@ -6,7 +6,8 @@ import { useAlert } from '../shared/useAlert';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
-import { UserIdentity, Button } from '../shared';
+import { Users } from 'lucide-react';
+import { UserIdentity, Button, EmptyState } from '../shared';
 import { SmartImage } from '../shared/connectivity';
 import { displayNameFor } from '../../utils/displayName';
 import type { TrustState } from '../../services/trustModel';
@@ -234,9 +235,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
 
         <div className={styles.list}>
           {allPeople.length === 0 ? (
-            <div className="empty-state">
-              <p>{t('members.empty', 'No members found.')}</p>
-            </div>
+            <EmptyState icon={<Users size={48} aria-hidden />} title={t('members.empty', 'No members found.')} />
           ) : (
             allPeople.map((person) => (
               <MemberItem
