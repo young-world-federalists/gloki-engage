@@ -1220,6 +1220,7 @@ const sw: Dictionary = {
   // ── Suggestion DM (SuggestionDmView) ──────────────────────────────────
   'suggest.eyebrow': 'Pendekezo',
   'suggest.author': 'mwandishi',
+  'context.suggest.aria': 'Tatizo unalotolea maoni',
   'suggest.emptyTitle': 'Tuma pendekezo la faragha',
   'suggest.empty': 'Pendekezo lako litatumwa kwa faragha kwa {name}.',
   'suggest.placeholder': 'Andika pendekezo lako…',

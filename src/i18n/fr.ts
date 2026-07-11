@@ -1221,6 +1221,7 @@ const fr: Dictionary = {
   // ── Suggestion DM (SuggestionDmView) ──────────────────────────────────
   'suggest.eyebrow': 'Suggestion',
   'suggest.author': 'l’auteur',
+  'context.suggest.aria': 'Le problème que vous commentez',
   'suggest.emptyTitle': 'Envoyer une suggestion privée',
   'suggest.empty': 'Votre suggestion est envoyée en privé à {name}.',
   'suggest.placeholder': 'Écrivez votre suggestion…',

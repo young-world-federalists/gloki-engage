@@ -4,8 +4,10 @@ import { Send } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
 import { useI18n } from '../../i18n';
 import AppHeader from '../AppHeader';
-import { EmptyState, UserIdentity } from '../shared';
+import { EmptyState, UserIdentity, ContextCard } from '../shared';
 import { displayNameFor } from '../../utils/displayName';
+import { contractRead } from '../../services/api';
+import type { IMethod } from '../../services/interfaces';
 import { useFlowContract } from './flows/shared/useFlowContract';
 import { getMessages, addMessage } from '../community/chat/chatApi';
 import type { ChatMessage } from '../community/chat/chatApi';
@@ -43,8 +45,31 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [problem, setProblem] = useState<{ title?: string; description?: string }>({});
   const bottomRef = useRef<HTMLDivElement>(null);
   const cancelled = useRef(false);
+
+  // The problem being acted on stays visible (§5 rule 11). The header h1 is the
+  // author's name, so the ContextCard carries the problem's title + summary.
+  // Self-fetch get_details on the initiative contract (mirrors InitiativeView) so
+  // no context has to be threaded through the launching engage panel.
+  useEffect(() => {
+    if (!serverUrl || !publicKey || !initiativeId) return;
+    let alive = true;
+    contractRead({
+      serverUrl, publicKey, contractId: initiativeId,
+      method: { name: 'get_details', values: {} } as IMethod,
+    })
+      .then((details: Record<string, unknown>) => {
+        if (!alive) return;
+        setProblem({
+          title: typeof details?.title === 'string' ? details.title : undefined,
+          description: typeof details?.description === 'string' ? details.description : undefined,
+        });
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [serverUrl, publicKey, initiativeId]);
 
   const refresh = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -97,6 +122,11 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
     <div className={`${cs.container} ${styles.dm}`}>
       <AppHeader showBack onBack={() => navigate(-1)} title={authorDisplay} eyebrow={t('suggest.eyebrow', 'Suggestion')} />
       <main id="main" tabIndex={-1} className={`${cs.content} ${styles.dmMain}`}>
+        <ContextCard
+          title={problem.title}
+          body={problem.description}
+          ariaLabel={t('context.suggest.aria', 'The problem you are suggesting on')}
+        />
         <div className={styles.thread}>
           {messages.length === 0 ? (
             <EmptyState
