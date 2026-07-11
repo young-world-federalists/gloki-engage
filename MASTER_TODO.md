@@ -307,7 +307,17 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   schemes + contrast sweep (zero chin-attributable fails). Review: inline 0/0/0 + Workflow fleet — 2
   docs findings fixed; known cosmetic note: author-only double hairline (StageAdvanceBar rule 12px
   above chin rule) → W5 candidate. Spec `docs/superpowers/specs/2026-07-09-w2-card-chin-design.md`.
-- 📋 **W3** — discussion-as-function + redundancy removal.
+- ✅ **W3 — discussion-as-function + redundancy removal — SHIPPED + PUSHED 2026-07-10**
+  (`1b03eb1..f0400e8`, deploy run 29143572642). Pill reframe (neutral "Discussion" + count, no
+  `active` skin); `STAGE_META.discussion` deleted (cards fall back to Problem badge); stage-feed
+  badge + HomeView "In discussion" section folded into Problems; sample re-stage + settings row
+  drop; duplicate discussion buttons removed (chin pill is the single entry); write-together
+  sub-views URL-addressable (`?draft=`, no local back arrows, ghost Cancel); VoteExplainer gated to
+  non-participants; support-CTA vocabulary (Send points/Send · Back this mandate · Add your
+  organization, fr+sw). DESIGN_SYSTEM §5-rule-10 codified; i18n 4 retired / 4 re-worded (parity
+  1131). UI-only → no DEMO bump. Review: adversarial Opus fleet — 2 minor comment-only findings
+  fixed, 1 out-of-scope refuted (→ round-2 backlog). Spec
+  `docs/superpowers/specs/2026-07-10-w3-discussion-function-design.md`.
 - 📋 **W4** — context restoration + mandate composition.
 - 📋 **W5** — kit-first normalization + spacing/touch floors.
 - 📋 **W6** — community chrome & collab polish.
@@ -374,6 +384,39 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 
 ## 8. Changelog
 
+- **2026-07-10 — S26: UI-polish campaign Wave 3 — discussion-as-function + redundancy removal
+  (SHIPPED + PUSHED `1b03eb1..f0400e8`, deploy run 29143572642).** Kills every UI holdover that made
+  Discussion read as a 5th pipeline stage, and the duplicate controls the campaign flagged — WITHOUT
+  adding a Discussion feed/stage/route (locked IA). **Eston locked (2026-07-10):** neutral pill +
+  count (border as-is); fold the extra "In discussion" instances into Problems; CTA vocabulary
+  Send points / Back this mandate / Add your organization; URL-addressable write-together sub-views.
+  (3.1) **DiscussionPill** drops the `active` prop + `.active` warning skin — always the neutral
+  "Discussion" label; the live comment count carries activity. (3.2) **`STAGE_META.discussion`
+  deleted** — discussion-data cards fall back to the Problem badge (`|| STAGE_META.problem`);
+  stage-feed compact-card "In discussion" badge removed. **Extra (re-grounding caught 2 instances
+  beyond the campaign list):** HomeView "In discussion" section folded into Problems (real + sample
+  buckets); the stage feed already surfaced them there. (3.3) SAMPLE_FEED s2 discussion→problem
+  (component constant, **no DEMO bump**); CommunitySettings renders the 4 pipeline stages only (the
+  stored discussion rule round-trips untouched). (3.4/3.5) duplicate "Discuss this problem" button +
+  DiscussionActivityCard's second open action removed — the card-chin `DiscussionPill` is the single
+  entry. (3.6) **WriteTogetherPage** sub-views moved from local state to `?draft=new`/`?draft=<id>`
+  search params (S23 URL precedent) — both local back arrows gone, ghost **Cancel** added, header +
+  hardware back pop editor→list; start→editor replaces the spent form entry. (3.7) **VoteExplainer**
+  renders only for gated-out visitors (participants get the ballot's own "How hearts work"); the S11
+  pre-gate auditability is preserved. (3.8) support-CTA vocabulary unified (§5 rule 20). **i18n:** 4
+  keys retired (`stage.discussionPillActive`, `home.discussions`, `card.discussProblem`,
+  `deliberation.discussion.open`), 4 re-worded (`currency.sendTitle`/`sendButton`,
+  `mandate.card.showSupport`, `mandate.adoptCta`) — fr+sw in-commit, `stage.discussion` KEPT (3
+  dynamic `` t(`stage.${id}`) `` consumers); parity 1135→1131; packet Session-26 section added.
+  **DESIGN_SYSTEM §5-rule-10 codified** ("Discussion is a function, not a stage" — banned wordlist,
+  no STAGE_META peer, no permission row, single chin entry; data stage stays real). **Verified:**
+  `npx tsc -b` + `npm run build` clean; parity OK; preview 360px light+dark, en+fr (stage feed with a
+  discussion-stage item, community cards, Home, settings, full write-together round trip incl.
+  history-back, vote gated+ungated, currency, mandate). **Review:** adversarial Opus whole-branch
+  fleet (5 finders → verifiers) — 2 minor comment-only findings (stale JSDoc/filter comments this
+  wave's deletions orphaned) fixed; 1 refuted (participation-history badge in an untouched fixture →
+  campaign round-2 backlog). Spec `docs/superpowers/specs/2026-07-10-w3-discussion-function-design.md`,
+  plan `docs/superpowers/specs/2026-07-10-w3-plan.md`.
 - **2026-07-10 — S25: UI-polish campaign Wave 2 — card-chin footer separation (BUILT + reviewed;
   push HELD for Eston's gate).** Spec'd 2026-07-09 (paused at the spec gate for handoff prep),
   resumed + built 2026-07-10. Tokens/SCSS/TSX-structure on 2 card components + docs, **no product
