@@ -333,8 +333,8 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   wrong cards — the hero was the flat one). Review: adversarial Opus fleet (5 dims × refute) 0
   findings + grep gates clean; one collapse bug caught in the 360px preview walk & fixed (`940b03a`).
   Spec `docs/superpowers/specs/2026-07-11-w4-context-mandate-design.md`.
-- ✅ **W5 — kit-first normalization + spacing/touch floors — SHIPPED 2026-07-11, push pending
-  Eston's gate** (`786f5ba..651a1c9`, 17 commits). Kit adoption: `SegmentedControl` ← StartDraft
+- ✅ **W5 — kit-first normalization + spacing/touch floors — SHIPPED + PUSHED 2026-07-11**
+  (`8005caf..719f8b5`, 17 commits, deploy run 29169104710 green, live 200). Kit adoption: `SegmentedControl` ← StartDraft
   mode toggle + discussion sort; `ProgressBar` ← IdentityTrust verify bar + SolutionsBoard's two
   threshold bars (S22 law); `EmptyState` ← chat (4 states) / members / collab empties (loading
   stays bespoke — kit needs a title); `Button` ← stage-card open CTA + chat create/retry/back.
@@ -425,7 +425,7 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 ## 8. Changelog
 
 - **2026-07-11 — S28: UI-polish campaign Wave 5 — kit-first normalization + spacing/touch floors
-  (SHIPPED, push pending Eston's gate; `786f5ba..651a1c9`, 17 commits).** One mechanical sweep
+  (SHIPPED + PUSHED; `8005caf..719f8b5`, 17 commits, deploy run 29169104710 green, live 200).** One mechanical sweep
   replacing bespoke controls with the shared kit + enforcing the DS floors. Kit adoption:
   `SegmentedControl` (StartDraft mode toggle, discussion sort), `ProgressBar` (IdentityTrust verify
   bar + SolutionsBoard's two threshold bars — the S22 all-determinate-bars law), `EmptyState` (chat
