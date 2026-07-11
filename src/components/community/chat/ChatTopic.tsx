@@ -7,6 +7,7 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 const chatContractCode = '';import { getMessages, addMessage, getTopics } from './chatApi';
 import type { ChatMessage, ChatTopic as ChatTopicType } from './chatApi';
 import { useI18n } from '../../../i18n';
+import { Button, EmptyState } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import { formatDateTime } from '../../../utils/formatDateTime';
 import styles from './ChatTopic.module.scss';
@@ -84,26 +85,25 @@ const ChatTopic: React.FC = () => {
   }, [messages]);
 
   if (!communityId || !topicId) {
-    return <div className={styles.notFound}>{t('chat.topicNotFound', 'Topic not found.')}</div>;
+    return <EmptyState icon={<MessageSquare size={48} aria-hidden />} title={t('chat.topicNotFound', 'Topic not found.')} />;
   }
 
   if (hasError) {
     return (
-      <div className={styles.notFound}>
-        <AlertTriangle size={36} />
-        <p>{errorMessage}</p>
-        <p className={styles.notFoundHint}>
-          {t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
-        </p>
-        <button className={styles.backBtn} onClick={retry}>{t('common.retry', 'Try again')}</button>
-      </div>
+      <EmptyState
+        icon={<AlertTriangle size={48} aria-hidden />}
+        title={errorMessage || t('common.errorTitle', 'Something went wrong')}
+        message={t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
+        action={<Button variant="secondary" size="md" onClick={retry}>{t('common.retry', 'Try again')}</Button>}
+      />
     );
   }
 
   if (!isReady) {
+    // Loading stays bespoke — EmptyState requires a title and reads as "no data".
     return (
-      <div className={styles.notFound}>
-        <MessageSquare size={36} />
+      <div className={styles.loadingState}>
+        <MessageSquare size={36} aria-hidden />
         <p>{statusMessage || (isDeploying ? t('chat.settingUp', 'Setting up chat…') : t('common.loading', 'Loading…'))}</p>
       </div>
     );
@@ -111,15 +111,20 @@ const ChatTopic: React.FC = () => {
 
   if (!topic) {
     return (
-      <div className={styles.notFound}>
-        <p>{t('chat.topicNotFound', 'Topic not found.')}</p>
-        <button
-          className={styles.backBtn}
-          onClick={() => navigate(`/community/${communityId}/chat`)}
-        >
-          <ArrowLeft size={16} /> {t('chat.backTitle', 'Back to Chat')}
-        </button>
-      </div>
+      <EmptyState
+        icon={<MessageSquare size={48} aria-hidden />}
+        title={t('chat.topicNotFound', 'Topic not found.')}
+        action={
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<ArrowLeft size={16} aria-hidden />}
+            onClick={() => navigate(`/community/${communityId}/chat`)}
+          >
+            {t('chat.backTitle', 'Back to Chat')}
+          </Button>
+        }
+      />
     );
   }
 
@@ -169,9 +174,7 @@ const ChatTopic: React.FC = () => {
       {/* Message stream */}
       <div className={styles.messageStream}>
         {messages.length === 0 && (
-          <div className={styles.emptyStream}>
-            <p>{t('chat.noMessages', 'No messages yet. Say something!')}</p>
-          </div>
+          <EmptyState compact title={t('chat.noMessages', 'No messages yet. Say something!')} />
         )}
 
         {messages.map(msg => {

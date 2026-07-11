@@ -7,6 +7,7 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 const chatContractCode = '';import { getTopics, createTopic } from './chatApi';
 import type { ChatTopic } from './chatApi';
 import { useI18n } from '../../../i18n';
+import { Button, EmptyState } from '../../shared';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
 import { displayNameFor } from '../../../utils/displayName';
 import styles from './ChatTopicList.module.scss';
@@ -90,23 +91,22 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
   if (hasError) {
     return (
       <div className={styles.container}>
-        <div className={styles.empty}>
-          <AlertTriangle size={36} />
-          <p>{errorMessage}</p>
-          <p className={styles.caveat}>
-            {t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
-          </p>
-          <button className={styles.newTopicBtn} onClick={retry}>{t('common.retry', 'Try again')}</button>
-        </div>
+        <EmptyState
+          icon={<AlertTriangle size={48} aria-hidden />}
+          title={errorMessage || t('common.errorTitle', 'Something went wrong')}
+          message={t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
+          action={<Button variant="secondary" size="md" onClick={retry}>{t('common.retry', 'Try again')}</Button>}
+        />
       </div>
     );
   }
 
   if (!isReady) {
+    // Loading stays bespoke — EmptyState requires a title and reads as "no data".
     return (
       <div className={styles.container}>
-        <div className={styles.empty}>
-          <MessageSquare size={36} />
+        <div className={styles.loadingState}>
+          <MessageSquare size={36} aria-hidden />
           <p>{statusMessage || (isDeploying ? t('chat.settingUp', 'Setting up chat…') : t('common.loading', 'Loading…'))}</p>
         </div>
       </div>
@@ -128,21 +128,19 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
           onKeyDown={handleKeyDown}
           disabled={creating}
         />
-        <button
-          className={styles.newTopicBtn}
+        <Button
+          variant="primary"
+          size="md"
           onClick={handleCreate}
           disabled={!newTitle.trim() || !publicKey || creating}
         >
           {creating ? t('chat.creating', 'Creating…') : t('chat.newTopic', 'New Topic')}
-        </button>
+        </Button>
       </div>
 
       {/* Topic list */}
       {topics.length === 0 ? (
-        <div className={styles.empty}>
-          <MessageSquare size={36} />
-          <p>{t('chat.noTopics', 'No topics yet. Start a conversation!')}</p>
-        </div>
+        <EmptyState icon={<MessageSquare size={48} aria-hidden />} title={t('chat.noTopics', 'No topics yet. Start a conversation!')} />
       ) : (
         <div className={styles.topicList}>
           {topics.map(topic => {

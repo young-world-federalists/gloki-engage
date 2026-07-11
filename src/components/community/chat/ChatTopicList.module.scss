@@ -5,14 +5,6 @@
   // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 }
 
-.caveat {
-  margin-top: $spacing-xs !important;
-  font-size: $text-xs !important;
-  color: $gray-500 !important;
-  max-width: 380px;
-  line-height: 1.5;
-}
-
 // ─── Input bar ────────────────────────────────────────────────────────────────
 .inputBar {
   display: flex;
@@ -22,6 +14,8 @@
 
 .titleInput {
   flex: 1;
+  min-height: 44px; // touch-target floor (W5)
+  box-sizing: border-box;
   padding: $spacing-md $spacing-lg;
   border: 1.5px solid $gray-300;
   border-radius: $radius-md;
@@ -46,30 +40,13 @@
   }
 }
 
-.newTopicBtn {
-  padding: $spacing-md $spacing-xl;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background $transition-base;
+// New-topic create button → shared <Button primary md> (W5 T4); retry actions →
+// <Button> inside <EmptyState>. Bespoke .newTopicBtn + .caveat deleted.
 
-  &:hover:not(:disabled) {
-    background: $primary-dark;
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
-.empty {
+// ─── Loading state (bespoke) ──────────────────────────────────────────────────
+// Error / no-topics states now render through the shared <EmptyState>; only the
+// transient loading state stays bespoke.
+.loadingState {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -138,7 +115,7 @@
 .msgCount {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: $spacing-xs; // tokenized off raw 3px; kept compact for this dense meta chip
 }
 
 .timeAgo {

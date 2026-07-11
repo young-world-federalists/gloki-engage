@@ -8,8 +8,11 @@
   // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 }
 
-// ─── Not-found state ──────────────────────────────────────────────────────────
-.notFound {
+// ─── Loading state (bespoke) ──────────────────────────────────────────────────
+// Error / not-found / empty states now render through the shared <EmptyState>
+// (W5 T4); only the transient loading state stays bespoke (EmptyState requires a
+// title and reads as zero-data).
+.loadingState {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,13 +27,6 @@
   }
 }
 
-.notFoundHint {
-  max-width: 380px;
-  color: $gray-500;
-  font-size: $text-xs;
-  line-height: 1.5;
-}
-
 // ─── Top bar ──────────────────────────────────────────────────────────────────
 .topBar {
   display: flex;
@@ -39,26 +35,6 @@
   padding-bottom: $spacing-lg;
   border-bottom: 1.5px solid $gray-200;
   margin-bottom: $spacing-lg;
-}
-
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-sm $spacing-md;
-  background: none;
-  border: 1px solid $gray-200;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  color: $gray-600;
-  cursor: pointer;
-  transition: all $transition-base;
-  flex-shrink: 0;
-
-  &:hover {
-    border-color: $primary;
-    color: $primary;
-  }
 }
 
 .topicTitle {
@@ -81,18 +57,7 @@
   padding-bottom: $spacing-lg;
 }
 
-.emptyStream {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-3xl 0;
-  color: $gray-500;
-  font-size: $text-sm;
-
-  p {
-    margin: 0;
-  }
-}
+// Empty message stream → shared <EmptyState compact> (W5 T4); .emptyStream deleted.
 
 // ─── Message ──────────────────────────────────────────────────────────────────
 .message {
@@ -166,7 +131,7 @@
   line-height: 1.5;
   transition: border-color $transition-base;
   background: white;
-  min-height: 40px;
+  min-height: 44px; // touch-target floor (W5)
   max-height: 120px;
   overflow-y: auto;
 
@@ -189,8 +154,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px; // touch-target floor (W5); stays a bespoke icon-only square (DS §244)
+  height: 44px;
   background: $primary;
   color: white;
   border: none;
