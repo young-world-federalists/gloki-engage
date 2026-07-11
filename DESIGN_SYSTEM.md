@@ -326,6 +326,26 @@ the *number* — threshold, tally, meter, stake, source count — inline and vis
 Props: `label` (translated trigger aria-label), `title` (modal heading, defaults to
 `label`), `children` (the prose), `size`, `className`.
 
+**`ContextCard`** (`src/components/shared/ContextCard.tsx`, W4) — the item a
+sub-page acts ON, kept visible so it never disappears. A presentational `<section>`
+with an optional `<h2>` title + a line-clamped body — no interactivity, no data.
+**The context-header rule (campaign §5 rule 11):** any sub-page that acts ON an item
+— the discussion page, suggest-to-author — renders a `ContextCard` (title + body)
+between the `AppHeader` and the working surface, so the user always sees *what* they
+are discussing / suggesting on. `title` is **optional**: a page whose header `<h1>`
+already carries the item title passes **body-only** to avoid a double-title (the
+discussion page does this — the `<h1>` is the initiative title, S23); a page whose
+header names something else (suggest-to-author's `<h1>` is the recipient) passes
+**title + body**. Renders nothing when empty. Props: `title?`, `body?`, `ariaLabel?`,
+`className?`.
+
+**"Open the full item" affordance is intentionally per-context** (campaign §6 #7).
+The control that opens an item's full surface is a *solid `Button` CTA* on dense
+dashboards / hero cards (where acting is the point) but a *quiet inline link* in the
+stage feed and the mandate document's "View full" (where reading flow is the point).
+This difference is deliberate — **do not unify them to one variant** to "fix" the
+inconsistency.
+
 **`StageStrip`** (`src/components/shared/StageStrip.tsx`) — a compact, read-only
 `<ol>` of the **four** governance stages (Problem → Solutions → Vote → Mandate;
 Discussion left the strips in S16 — it is a function, not a pipeline step). A
@@ -479,6 +499,7 @@ scratch** — they already encode the tokens above.
 | `Button` | The canonical *action* button. Variants: primary / secondary / destructive / ghost; sizes sm / md / lg. Use for CTAs and dialog actions; a few themed / icon-only / list-row buttons stay bespoke — see Buttons → "When to reach for `<Button>`". |
 | `SegmentedControl` | Single-select toggle between a few views (e.g. Proposals / Results). Active segment reads like a primary button; AA-readable in light + dark. Use instead of hand-rolled tabs. WAI-ARIA radio-group semantics (S22): one tab stop, arrow keys move selection, `aria-checked`. |
 | `Card` | Content container (padding, radius, shadow per the Cards spec). |
+| `ContextCard` | Presentational title + body panel showing the item a sub-page acts on (discussion, suggest-to-author) — the context-header pattern (§5 rule 11). See the primitives subsection. |
 | `Modal` | Centered overlay dialog (header → body → footer). The mandatory shell for EVERY dialog — see Components → Modals for the S22 law. |
 | `ProgressBar` | Canonical determinate bar (see Progress Bars). |
 | `Banner` | Inline full-width message; pair with a semantic surface (info / success / warning / error). Bakes in `role` — `alert` for the error tone, `status` otherwise. |
