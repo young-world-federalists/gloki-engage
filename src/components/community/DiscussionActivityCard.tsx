@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useT } from '../../i18n';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../../store/slices/communitiesSlice';
@@ -26,12 +25,12 @@ export interface DiscussionActivityCardProps {
 /**
  * The Discussion-stage community-page card: the shared two-part
  * {@link InitiativeStageCard} (Read summary over an Engage panel) wired to the
- * initiative post. Like Mandate, Discussion has a real destination page — the
- * full co-authoring space — so the shell keeps a blue "Open the co-authoring
- * space" button. The Engage slot ({@link DiscussionEngage}) shows a live,
- * per-initiative preview (or a friendly empty state for un-started discussions);
- * the author/co-author advance control ({@link StageAdvanceBar}, discussion →
- * proposals) sits below it.
+ * initiative post. The chin's persistent DiscussionPill is the single entry to
+ * the discussion page (W3 — the duplicate blue open button is gone, matching
+ * the Solution/Vote cards' pill-only chin). The Engage slot
+ * ({@link DiscussionEngage}) shows a live, per-initiative preview (or a
+ * friendly empty state for un-started discussions); the author/co-author
+ * advance control ({@link StageAdvanceBar}, discussion → proposals) sits below.
  */
 const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
   item,
@@ -46,7 +45,6 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
   onToggle,
 }) => {
   const t = useT();
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -83,11 +81,6 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
     source: post.source,
   };
 
-  const openDiscussion = () =>
-    navigate(
-      `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${item.id}/discussion`,
-    );
-
   return (
     <InitiativeStageCard
       post={fullPost}
@@ -96,8 +89,6 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
       expanded={expanded}
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
-      onOpen={openDiscussion}
-      openLabel={t('deliberation.discussion.open', 'Open the discussion')}
       collapsedTeaser={t('card.teaserDiscussion', 'Join the discussion')}
     >
       <DiscussionEngage initiativeId={item.id} />

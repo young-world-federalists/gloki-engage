@@ -341,7 +341,6 @@ const fr: Dictionary = {
   'card.viewMandate': 'Voir le mandat publié',
   'card.teaserMandate': 'Mandat de la communauté',
   'card.teaserDiscussion': 'Rejoindre la discussion',
-  'card.discussProblem': 'Discuter de ce problème',
   'card.suggestToAuthor': 'Envoyer une suggestion à l’auteur',
 
   'problems.sources': 'Sources',
@@ -752,7 +751,6 @@ const fr: Dictionary = {
   'deliberation.action.cancel': 'Annuler',
   'deliberation.action.close': 'Fermer',
   'deliberation.action.dismiss': 'Ignorer',
-  'deliberation.discussion.open': 'Ouvrir la discussion',
   'deliberation.discussion.teaser': '{c} commentaires · {p} personnes',
   'deliberation.thread.addPlaceholder': 'Ajouter à la discussion…',
   'deliberation.thread.comment': 'Commenter',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Copy, MessageCircle, Send } from 'lucide-react';
+import { Copy, Send } from 'lucide-react';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import ProblemVoteFlow from '../../collaboration/flows/voting/ProblemVoteFlow';
 import StageGate from '../../community/StageGate';
@@ -29,9 +29,10 @@ export interface ProblemEngageProps {
 /**
  * The Problem stage's Engage slot inside the shared InitiativeStageCard. Flush
  * (no card-in-a-card): the "Is this a shared problem?" vote ({@link ProblemVoteFlow},
- * gated by {@link StageGate}) first, then a plain-language threshold line, then two
- * clear actions — Discuss this problem (threaded chat) and Send suggestion to
- * author (DM). Advancement is the shared-problem vote only; discussion is ungated.
+ * gated by {@link StageGate}) first, then a plain-language threshold line, then one
+ * clear action — Send suggestion to author (DM). Discussion is reached via the
+ * card chin's persistent DiscussionPill (W3: the single entry, no duplicate
+ * button here). Advancement is the shared-problem vote only.
  */
 const ProblemEngage: React.FC<ProblemEngageProps> = ({
   initiativeId,
@@ -50,7 +51,6 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
   const thresholdMet = up >= needed;
 
   const base = `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${initiativeId}`;
-  const openDiscussion = () => navigate(`${base}/discussion`);
   const openSuggest = () => navigate(`${base}/suggest`, { state: { authorKey, authorName } });
 
   return (
@@ -87,9 +87,6 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
       </button>
 
       <div className={styles.actions}>
-        <Button variant="secondary" onClick={openDiscussion}>
-          <MessageCircle size={16} aria-hidden /> {t('card.discussProblem', 'Discuss this problem')}
-        </Button>
         <Button variant="secondary" onClick={openSuggest}>
           <Send size={16} aria-hidden /> {t('card.suggestToAuthor', 'Send suggestion to author')}
         </Button>

@@ -340,7 +340,6 @@ const sw: Dictionary = {
   'card.viewMandate': 'Tazama agizo lililochapishwa',
   'card.teaserMandate': 'Agizo la jumuiya',
   'card.teaserDiscussion': 'Jiunge na majadiliano',
-  'card.discussProblem': 'Jadili tatizo hili',
   'card.suggestToAuthor': 'Tuma pendekezo kwa mwandishi',
 
   'problems.sources': 'Vyanzo',
@@ -751,7 +750,6 @@ const sw: Dictionary = {
   'deliberation.action.cancel': 'Ghairi',
   'deliberation.action.close': 'Funga',
   'deliberation.action.dismiss': 'Ondoa',
-  'deliberation.discussion.open': 'Fungua majadiliano',
   'deliberation.discussion.teaser': 'Maoni {c} · watu {p}',
   'deliberation.thread.addPlaceholder': 'Changia kwenye majadiliano…',
   'deliberation.thread.comment': 'Toa maoni',

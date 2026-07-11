@@ -31,6 +31,10 @@ interface Props {
  * seam (optimistic with snapshot rollback). In the UI-only demo the current user
  * owns the seeded communities, so we treat them as admin (documented in copy).
  * Permissions gate WHO may act — never how much a vote counts (one person, one vote).
+ *
+ * Discussion has no row (W3, §5 rule 10): it is a per-post function, not a
+ * pipeline stage. Its rule stays at the stored/default value ('members') and
+ * still round-trips through the contract unchanged.
  */
 const CommunitySettings: React.FC<Props> = ({ communityId }) => {
   const t = useT();
@@ -84,7 +88,7 @@ const CommunitySettings: React.FC<Props> = ({ communityId }) => {
       </Banner>
 
       {!loading &&
-        PIPELINE_STAGES.map((stage) => (
+        PIPELINE_STAGES.filter((stage) => stage !== 'discussion').map((stage) => (
           <section key={stage} className={styles.stageRow}>
             <div className={styles.stageLabel}>{t(`nav.${stage}`, STAGE_LABEL[stage])}</div>
             <SegmentedControl<StageRule>
