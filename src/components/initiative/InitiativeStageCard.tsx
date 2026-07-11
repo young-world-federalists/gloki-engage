@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { ChevronDown, ChevronUp, ArrowRight, Flag, ExternalLink } from 'lucide-react';
-import { Card, Badge, UserIdentity } from '../shared';
+import { Button, Card, Badge, UserIdentity } from '../shared';
 import type { UserIdentityProps } from '../shared';
 import { STAGE_META } from '../community/stageMeta';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
@@ -186,10 +186,15 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
                 />
               )}
               {onOpen && openLabel && (
-                <button type="button" className={styles.openBtn} onClick={onOpen}>
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={onOpen}
+                  rightIcon={<ArrowRight size={16} aria-hidden />}
+                  className={styles.openBtn}
+                >
                   {openLabel}
-                  <ArrowRight size={16} aria-hidden />
-                </button>
+                </Button>
               )}
             </div>
           )}

@@ -144,32 +144,9 @@
   }
 }
 
-.openBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  width: 100%;
-  min-height: 44px;
-  padding: $spacing-sm $spacing-md;
-  background: $primary;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  cursor: pointer;
-  transition: background-color $transition-base;
-
-  &:hover {
-    background: $primary-dark;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-}
+// The open CTA is the shared <Button variant="primary" size="md"> (W5 T2) —
+// it owns bg/color/44px height/8px gap/radius/focus/hover. Only the chin
+// layout rule (.chin .openBtn: flex:1, min-width:200px) survives above.
 
 .teaser {
   padding: 0 $spacing-lg $spacing-md;

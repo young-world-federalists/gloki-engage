@@ -39,7 +39,7 @@
 .openLink {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm; // icon→label floor (W5); stays a bespoke quiet link per §6#7
   align-self: flex-end;
   background: none;
   border: none;
