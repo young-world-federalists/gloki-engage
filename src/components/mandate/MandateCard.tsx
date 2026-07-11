@@ -149,10 +149,10 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
       </dl>
 
       <div className={styles.actions}>
-        <Button variant="primary" size="lg" fullWidth leftIcon={<Heart size={16} aria-hidden />} onClick={onShowSupport}>
+        <Button variant="primary" size="md" className={styles.supportBtn} leftIcon={<Heart size={16} aria-hidden />} onClick={onShowSupport}>
           {t('mandate.card.showSupport', 'Back this mandate')}
         </Button>
-        <Button variant="secondary" leftIcon={<Share2 size={16} aria-hidden />} onClick={share}>
+        <Button variant="secondary" size="md" className={styles.shareBtn} leftIcon={<Share2 size={16} aria-hidden />} onClick={share}>
           {copied ? t('mandate.copied', 'Copied') : t('mandate.card.share', 'Share')}
         </Button>
       </div>

@@ -4,14 +4,14 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-  padding: $spacing-xl;
+  padding: $spacing-lg; // unified card inset across the four mandate sections (W4 4.5)
   background: white;
   border: 1px solid $gray-200;
   border-radius: $radius-xl;
   box-shadow: $shadow-md;
 
   @include dark {
-    background: $dark-surface;
+    background: $dark-bg; // raised above the page ($dark-surface) like the doc/ratification cards (W4 4.6)
     border-color: $dark-border;
   }
 }
@@ -195,9 +195,13 @@
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: $spacing-sm;
 }
+
+// Support fills the row; Share keeps its natural width to the right (W4 4.4).
+.supportBtn { flex: 1; min-width: 0; }
+.shareBtn { flex: 0 0 auto; }
 
 .srStatus {
   position: absolute;
