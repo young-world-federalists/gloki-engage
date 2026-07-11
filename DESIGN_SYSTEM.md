@@ -232,7 +232,7 @@ Implemented: `InitiativeStageCard` (full chin — shared shell of all five commu
 | Destructive | `$error` | white | none |
 | Ghost | transparent | `$gray-600` | none |
 
-Sizes: sm (32px height), md (40px), lg (48px). Border radius: `$radius-md`.
+Sizes: sm (32px height), md (**44px** — meets the touch floor), lg (48px). Border radius: `$radius-md`.
 
 **When to reach for `<Button>` vs. keep a bespoke `<button>`.** `<Button>` is the canonical
 *action* button — use it for standard CTAs and dialog actions (and prefer Button's `loading`
@@ -243,8 +243,15 @@ design:
   `#0d9488` section theme; as primary-blue it would lose that identity.
 - **Icon-only square buttons** — e.g. chat send / top-bar back (40×40). `<Button>` sizes are
   pills (fixed height + horizontal padding), not squares.
-- **List-row / indicator buttons** — e.g. CollabList's collab rows, the `Stepper` step dots.
-  These are navigation rows and step indicators, not actions.
+- **List-row / indicator buttons** — e.g. CollabList's collab rows, ChatTopicList's topic
+  rows, the `Stepper` step dots. These are navigation rows and step indicators, not actions.
+- **No-matching-variant subtle/link controls** (W5) — the stage-feed `openLink` (a quiet
+  link with AA-tuned `$primary-dark`/`$primary-on-dark` + underline-on-hover; §6 #7 keeps it a
+  link, not a CTA) and `MandateDocument`'s `copyBtn` (a subtle `$primary-dark`-on-tint pill).
+  No `<Button>` variant reproduces these without a contrast regression (`secondary` is bordered
+  `$primary` at 3.68:1, `ghost` is gray). They stay bespoke; W5 fixed only their 44px + 8px floors.
+  **When a bespoke control is a `$token`-on-tint text (createBtn, copyBtn), it MUST carry a dark
+  override** (`$x-on-dark`) — `$primary-dark` alone drops to ~3.4:1 on the dark tint (DS §241).
 
 There is **no a11y cost** to keeping these bespoke: a global `button:focus-visible` rule
 (`src/styles/index.scss`) already gives every `<button>` the 2px `$primary` focus ring. So
@@ -427,7 +434,9 @@ nouns render canonical-English (only the chrome is `t()`-wired). Props: `value`
 
 **Law (S22): all determinate bars render through the shared `<ProgressBar>`**
 (`src/components/shared/ProgressBar.tsx` — the m6 kit extraction; QVFlow,
-AdoptionFramework, and SharedStatement converged onto it):
+AdoptionFramework, SharedStatement, and — since W5 — `SolutionsBoard`'s two
+threshold bars (`size="sm"`, side-by-side) and `IdentityTrust`'s verify bar
+(`size="md"`) converged onto it):
 - `value`/`max` drive `aria-valuenow/max`; `label` (translated) is required
 - `fillPct` overrides the visual fill when it differs from value/max
   (e.g. QV turnout fills progress toward the interim target)

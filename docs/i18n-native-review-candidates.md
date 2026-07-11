@@ -1028,6 +1028,32 @@ toggle pair.
 
 ---
 
+## Session 28 (2026-07-11) — W5 kit-first normalization (+1 new key; 2 renamed; net +1, parity 1135 → 1136)
+
+Wave 5 swapped bespoke controls for the shared kit. Mostly reused existing strings; the i18n delta
+is one new ProgressBar accessible name and a rename of the SolutionsBoard evidence-toggle pair (the
+disclosure now also holds commitments, so "Evidence…" became "Details"). All added to fr + sw
+together; English lives inline in `t()`.
+
+- **fr/sw `trust.your.barLabel`** *(new)* — accessible name (aria-label) for `IdentityTrust`'s
+  verification `ProgressBar` (the bespoke bar had no name; the kit requires one — an a11y gain).
+  Screen-reader only, never visible. English "Verification progress". fr "Progression de la
+  vérification", sw "Maendeleo ya uthibitisho". Confirm it reads as a status label, not an action.
+- **fr/sw `mechanisms.approval.detailsToggle`** *(renamed from `evidenceToggle`)* — the
+  SolutionsBoard per-solution disclosure toggle when there are no expert reviews. Now folds
+  commitments + indicators + sources under one label. English "Details". fr "Détails", sw
+  "Maelezo". **⚠ confirm** "Maelezo" (explanations/details) is the right register for a tap-to-expand
+  affordance holding commitments + evidence.
+- **fr/sw `mechanisms.approval.detailsToggleReviewed`** *(renamed from `evidenceReviewToggle`)* —
+  the same toggle when expert reviews exist; carries `{n}` (the review count). English "Details
+  ({n})". fr "Détails ({n})", sw "Maelezo ({n})". `{n}` token present in both.
+
+**Keys retired (removed from fr + sw together; zero remaining consumers verified):**
+`mechanisms.approval.evidenceToggle` → renamed to `detailsToggle`;
+`mechanisms.approval.evidenceReviewToggle` → renamed to `detailsToggleReviewed`.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
