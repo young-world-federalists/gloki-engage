@@ -324,6 +324,16 @@ content. **No page-CTA prop by design** — primary actions live in content / th
 thumb zone, never the header. Each page wraps its content in
 `<main id="main" tabIndex={-1}>` (the skip-link target).
 
+**The account menu is context-aware (W6).** The one hamburger present on every page
+(`HomepageMenu`, opened from the AppHeader) prepends the current community's
+section-nav — Start an initiative, Write together, Collab, Chat, Community Funds,
+Members, Identity & Trust, Settings (reusing the `community.menu.*` keys), divided
+from the global items — whenever the route is `/community/:id/*`. This is what makes
+every mini-app reachable from every community **section** page (collab/chat/members/…)
+without a second header or a left drawer — both of which are deleted and locked. The
+community menu's *stateful* actions (Share / Invite / Leave / demo reset) stay
+exclusive to the community menu opened from the community home.
+
 **`InfoDisclosure`** (`src/components/shared/InfoDisclosure.tsx`) — the `(i)` →
 focus-trapped `Modal` disclosure standard. A ≥44px `(i)` icon-button (tap-only, no
 auto-open; `aria-haspopup="dialog"`, `aria-expanded` reflects state) that opens

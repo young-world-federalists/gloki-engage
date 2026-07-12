@@ -1054,6 +1054,22 @@ together; English lives inline in `t()`.
 
 ---
 
+## Session 29 / Wave 6 (2026-07-12) — community chrome (1 string re-worded; parity unchanged 1136)
+
+Wave 6 (the final UI-polish wave) renamed one existing button and reused existing keys everywhere
+else (the global-menu injection reuses the `community.menu.*` + `initiative.start` labels, so it
+added no keys). Key unchanged, only its value; fr/sw parity is untouched.
+
+- **fr/sw `community.menuButton`** *(re-worded — "Menu" → "Community options")* — the secondary button
+  on the community hero card (`CommunityCard`) that opens the community's slide-out menu. Renamed from
+  a bare "Menu" so it reads as *what it does* next to the primary "Start an initiative". English
+  "Community options". fr "Options de la communauté". sw "Machaguo ya jamii". **⚠ confirm** the sw
+  register: *Machaguo ya jamii* = "the community's options/choices" (ma-class plural + `ya` concord) —
+  check it reads as a menu/settings affordance, not "community elections/choices" (*chaguo* can also
+  mean an electoral choice). A shorter alternative if it clips on a narrow button: *Menyu ya jamii*.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
