@@ -1054,19 +1054,23 @@ together; English lives inline in `t()`.
 
 ---
 
-## Session 29 / Wave 6 (2026-07-12) — community chrome (1 string re-worded; parity unchanged 1136)
+## Session 29 / Wave 6 (2026-07-12) — community chrome (1 re-worded + 1 new key; parity 1136 → 1137)
 
-Wave 6 (the final UI-polish wave) renamed one existing button and reused existing keys everywhere
-else (the global-menu injection reuses the `community.menu.*` + `initiative.start` labels, so it
-added no keys). Key unchanged, only its value; fr/sw parity is untouched.
+Wave 6 (the final UI-polish wave) re-worded one existing button and added one short caption key; it
+reused existing keys everywhere else (the global-menu injection reuses the `community.menu.*` +
+`initiative.start` labels, so it added none there).
 
-- **fr/sw `community.menuButton`** *(re-worded — "Menu" → "Community options")* — the secondary button
-  on the community hero card (`CommunityCard`) that opens the community's slide-out menu. Renamed from
-  a bare "Menu" so it reads as *what it does* next to the primary "Start an initiative". English
+- **fr/sw `community.menuButton`** *(re-worded — "Menu" → "Community options")* — now the
+  **aria-label** (accessible name) of the secondary control on the community hero card
+  (`CommunityCard`): a compact icon button that opens the community's slide-out menu. English
   "Community options". fr "Options de la communauté". sw "Machaguo ya jamii". **⚠ confirm** the sw
   register: *Machaguo ya jamii* = "the community's options/choices" (ma-class plural + `ya` concord) —
   check it reads as a menu/settings affordance, not "community elections/choices" (*chaguo* can also
-  mean an electoral choice). A shorter alternative if it clips on a narrow button: *Menyu ya jamii*.
+  mean an electoral choice). A shorter alternative: *Menyu ya jamii*.
+- **fr/sw `community.menuCaption`** *(new)* — the short **on-screen caption** printed under that icon
+  button (a full label won't fit beside the primary "Start an initiative" at 360px, so the visible
+  hint is short while the aria-label carries the full name). English "Options". fr "Options". sw
+  "Machaguo". **⚠ confirm** the sw short form *Machaguo* ("options/choices") reads as a menu hint.
 
 ---
 

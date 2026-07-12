@@ -29,6 +29,13 @@ no 800px owner*; 6.1's aria is a *fix* (`menu`→`dialog`), not an *add*.
 1. **Hero-row balance (6.1/6.2):** *Keep Start dominant.* "Start an initiative" stays the primary/
    larger action; "Community options" enlarges to a comfortable secondary tap target (not
    shrink-to-fit). **Not** equal 50/50; **not** stacked.
+   - **Revised mid-session (Eston, 2026-07-12):** after seeing that at 360px the two full labels
+     can't sit side-by-side without truncating (row ≈286px, primary ≈172px, wider in fr), Eston
+     chose **forced side-by-side** over the graceful stack, then chose **icon + tiny caption** over
+     icon-only. Final: the secondary is a **44×44 icon button** (full `aria-label` "Community
+     options") with a short **"Options" caption** beneath it (new key `community.menuCaption`), on
+     one row beside the dominant primary. Verified 360px light (caption 4.83:1) / dark (5.71:1) / fr
+     (no clip).
 2. **Drawer reachability (6.4):** *Inject the community mini-app items into the global menu.* Honors
    the locked single-AppHeader model — no second header, no reintroduced left drawer. (Rejected:
    bottom-of-content affordance; hamburger-swaps-to-community-menu.)
