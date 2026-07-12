@@ -49,7 +49,6 @@
   animation: slideUpFadeIn 0.3s ease-out both;
   min-height: 48px;
   border: 1px solid $gray-200;
-  border-left: 3px solid $primary;
   border-radius: $radius-md;
   cursor: pointer;
   transition: all $transition-base;
@@ -110,7 +109,6 @@
   .item {
     background: $dark-bg;
     border-color: $dark-border;
-    border-left-color: $primary;
 
     &:hover {
       background: $dark-surface;
