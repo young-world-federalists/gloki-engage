@@ -49,15 +49,19 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
         <Button variant="primary" leftIcon={<Plus size={18} />} onClick={onStartInitiative} className={styles.startBtn}>
           {t('initiative.start', 'Start an initiative')}
         </Button>
-        <Button
-          variant="secondary"
-          leftIcon={<MenuIcon size={18} />}
-          onClick={onOpenMenu}
-          aria-haspopup="dialog"
-          className={styles.optionsBtn}
-        >
-          {t('community.menuButton', 'Community options')}
-        </Button>
+        <div className={styles.optionsWrap}>
+          <Button
+            variant="secondary"
+            leftIcon={<MenuIcon size={20} />}
+            onClick={onOpenMenu}
+            aria-haspopup="dialog"
+            aria-label={t('community.menuButton', 'Community options')}
+            className={styles.optionsBtn}
+          />
+          <span className={styles.optionsCaption} aria-hidden="true">
+            {t('community.menuCaption', 'Options')}
+          </span>
+        </div>
       </div>
     </section>
   );

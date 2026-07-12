@@ -70,23 +70,40 @@
 }
 
 // ─── Action buttons ───────────────────────────
-// Start (primary) stays dominant; "Community options" (secondary) is a comfortable
-// tap target, never shrink-to-fit. Both labels can't sit full-width side-by-side at
-// 360px (each needs ~150px; worse in fr) — so the row wraps gracefully to stacked
-// rather than truncating. Both buttons render ≥44px tall (Button owns min-height).
+// Side-by-side always (Eston, S29): the primary "Start an initiative" takes the row
+// and stays dominant; the secondary is a compact 44×44 icon button with a tiny caption
+// beneath it. A *visible full* secondary label can't fit beside the primary at 360px
+// across locales (row ≈286px, primary ≈172px, wider in fr) — the icon + short caption
+// keep them on one row while still naming the control on screen. The icon carries the
+// full "Community options" aria-label; the caption is the short on-screen hint.
 .actions {
   display: flex;
-  flex-wrap: wrap;
   gap: $spacing-sm;
+  align-items: flex-start; // primary top-aligns with the icon; caption hangs below
 }
 
 .startBtn {
-  flex: 2 1 auto; // dominant — grows 2× the free space
+  flex: 1 1 auto; // dominant — fills the row beside the icon button
+}
+
+.optionsWrap {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs; // 4px between icon and its caption
 }
 
 .optionsBtn {
-  flex: 1 1 auto;
-  min-width: max-content; // never clip the label; wraps to its own row when cramped
+  width: 44px; // square icon target; centred icon (Button justifies content center)
+  padding: 0;
+}
+
+.optionsCaption {
+  font-size: $text-xs;
+  color: $gray-500; // AA caption token
+  line-height: 1.2;
+  text-align: center;
 }
 
 // ─── Dark mode ───────────────────────────────
@@ -105,7 +122,8 @@
   }
 
   .eyebrow,
-  .metaItem {
+  .metaItem,
+  .optionsCaption {
     color: $dark-text-secondary;
   }
 }

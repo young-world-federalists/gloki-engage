@@ -465,6 +465,7 @@ const sw: Dictionary = {
   'community.fallbackName': 'Jumuiya',
   'community.eyebrow': 'Jumuiya',
   'community.menuButton': 'Machaguo ya jamii',
+  'community.menuCaption': 'Machaguo',
   'community.demo': 'Demo',
   'community.members.one': 'Mwanachama 1',
   'community.members.many': 'Wanachama {n}',
