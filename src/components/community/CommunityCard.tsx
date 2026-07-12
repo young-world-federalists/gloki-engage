@@ -53,9 +53,10 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
           variant="secondary"
           leftIcon={<MenuIcon size={18} />}
           onClick={onOpenMenu}
-          aria-haspopup="menu"
+          aria-haspopup="dialog"
+          className={styles.optionsBtn}
         >
-          {t('community.menuButton', 'Menu')}
+          {t('community.menuButton', 'Community options')}
         </Button>
       </div>
     </section>

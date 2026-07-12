@@ -70,15 +70,23 @@
 }
 
 // ─── Action buttons ───────────────────────────
+// Start (primary) stays dominant; "Community options" (secondary) is a comfortable
+// tap target, never shrink-to-fit. Both labels can't sit full-width side-by-side at
+// 360px (each needs ~150px; worse in fr) — so the row wraps gracefully to stacked
+// rather than truncating. Both buttons render ≥44px tall (Button owns min-height).
 .actions {
   display: flex;
-  gap: 8px;
-  // Ensure both buttons render ≥44px tall (Button component handles min-height internally;
-  // flex here just arranges them.)
+  flex-wrap: wrap;
+  gap: $spacing-sm;
 }
 
 .startBtn {
-  flex: 1;
+  flex: 2 1 auto; // dominant — grows 2× the free space
+}
+
+.optionsBtn {
+  flex: 1 1 auto;
+  min-width: max-content; // never clip the label; wraps to its own row when cramped
 }
 
 // ─── Dark mode ───────────────────────────────
