@@ -360,7 +360,30 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
     overrides); (c) **BallotSolutionCard** — extract one card shared by QVFlow (unvoted+voted) +
     VotePreview (partial dedup: only solHead/solText/details are shared, hearts/results/byline
     diverge; risk concentrated in the voting core — do in a focused session with full preview verify).
-- 📋 **W6** — community chrome & collab polish.
+- ✅ **W6 — community chrome & collab polish — SHIPPED + PUSHED 2026-07-12**
+  (`bfc9124..39c2d1f`, 7 commits, deploy run 29204217793). **This closes the UI-polish campaign
+  — all 6 waves shipped.** (6.1) `community.menuButton` "Menu"→"Community options" (now the
+  secondary's aria-label) + `aria-haspopup` `menu`→`dialog` (it opens the `role=dialog`
+  SlideOutMenu). (6.2, **Eston**) hero: a *visible* full label can't fit beside "Start an
+  initiative" at 360px across locales (row ≈286px, primary ≈172px, wider in fr), so the secondary
+  is a compact **44×44 icon button + a short "Options" caption** beneath it, side-by-side with the
+  dominant primary (new key `community.menuCaption`; Eston revised stack→side-by-side→icon+caption
+  mid-session). (6.3) deleted the blue `border-left` test artifact in CollabList — light **and**
+  the orphaned dark override (uniform border both schemes). (6.4, **Eston**) the global account
+  menu is now **context-aware**: inside a community it prepends that community's 8 mini-app nav
+  items (reusing `community.menu.*`), so every mini-app is reachable from every **section** page
+  via the one always-present hamburger — the reachability fix that honors the locked
+  single-AppHeader model (no 2nd header/left drawer). (6.5/6.6) verify-only: createBtn AA
+  (4.62 light / 6.23 dark) + 44px confirmed, **no `800px` owner exists** (dead premise); collab
+  header inherits the header-gutter law (16px, 1 h1/1 header). i18n +1 key (`menuCaption`), parity
+  1136→1137; UI-only → **no DEMO bump**. **Re-grounding: 15th straight catch** (no 800px owner;
+  6.1 aria was a *fix* not an *add*). Review: adversarial Opus fleet (5 dims × refute) 0 findings +
+  focused hero skeptic NO DEFECTS; 3 grep gates clean; `tsc -b && vite build` green; 360px preview
+  light+dark+fr. DESIGN_SYSTEM: context-aware account-menu rule codified. Spec
+  `docs/superpowers/specs/2026-07-12-w6-community-chrome-design.md`.
+  - 📋 **W5 tail still deferred** (unchanged from S28): (a) Currency EmptyState + 44px input floors
+    (needs the global-`.input-field` blast-radius decision); (b) Members rows → `Card`; (c)
+    **BallotSolutionCard** extraction (own focused session — risk is in the voting core).
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
@@ -423,6 +446,29 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
 ---
 
 ## 8. Changelog
+
+- **2026-07-12 — S29: UI-polish campaign Wave 6 — community chrome & collab polish (SHIPPED +
+  PUSHED; `bfc9124..39c2d1f`, 7 commits, deploy run 29204217793). ★ CLOSES THE UI-POLISH CAMPAIGN —
+  all 6 waves shipped.** The final, taste-heavy wave. (6.1) Hero secondary "Menu"→"Community
+  options" (now its aria-label) + `aria-haspopup` `menu`→`dialog`. (6.2, **Eston, revised
+  mid-session**) a visible full label can't fit beside "Start an initiative" at 360px across locales
+  (row ≈286px / primary ≈172px, wider in fr), so the secondary became a compact **44×44 icon button
+  + short "Options" caption** below it, side-by-side with the dominant primary (`community.menuCaption`
+  new key). (6.3) deleted the blue `border-left:3px $primary` test artifact in CollabList — light +
+  the orphaned dark override (W5 lesson: base sweeps miss `@include dark` overrides). (6.4, **Eston**)
+  the global account menu is now **context-aware** — inside a community it prepends that community's
+  8 mini-app sections (reusing `community.menu.*`), making every mini-app reachable from every
+  section page via the one always-present hamburger, honoring the locked single-AppHeader model (no
+  2nd header, no left drawer). (6.5/6.6) verify-only: createBtn AA (4.62 light / 6.23 dark) + 44px;
+  no `800px` owner exists; collab header 16px gutter, 1 h1/1 header. **Re-grounding (15th straight
+  catch):** the "800px owner" premise was dead; 6.1's aria was a fix not an add. i18n +1 key, parity
+  1136→1137; UI-only → no DEMO bump. Review: adversarial Opus fleet (5 dims × refute) 0 findings +
+  focused hero skeptic NO DEFECTS; grep gates clean; 360px preview light+dark+fr. DESIGN_SYSTEM:
+  context-aware account-menu rule codified. Spec
+  `docs/superpowers/specs/2026-07-12-w6-community-chrome-design.md`; memory
+  `project_session29_jul2026`. **Next: `ui` is at its handoff-ready bar — coordinate the Ouri
+  handoff (not ours to drive); optional post-handoff = the W5 tail (Currency/Members-Card/
+  BallotSolutionCard).**
 
 - **2026-07-11 — S28: UI-polish campaign Wave 5 — kit-first normalization + spacing/touch floors
   (SHIPPED + PUSHED; `8005caf..719f8b5`, 17 commits, deploy run 29169104710 green, live 200).** One mechanical sweep
