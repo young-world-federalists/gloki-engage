@@ -82,11 +82,14 @@
 }
 
 // The 4-stage strip alone atop the panel (orientation). The Discussion pill
-// moved to the actions row at the panel's bottom (S23).
+// moved to the actions row at the panel's bottom (S23). Insets to the content
+// gutter like every sibling row (.metaLine/.summary) — S30 A-1 (C2): the strip
+// was flush to the card edge while everything around it sat 16px in.
 .stageNavRow {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  padding: 0 $content-gutter;
 }
 
 .metaLine {
@@ -201,6 +204,10 @@
 
   .metaLine {
     padding: 0 $spacing-md $spacing-sm;
+  }
+
+  .stageNavRow {
+    padding: 0 $spacing-md;
   }
 
   .engage {
