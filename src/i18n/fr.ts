@@ -342,6 +342,7 @@ const fr: Dictionary = {
   'card.teaserMandate': 'Mandat de la communauté',
   'card.teaserDiscussion': 'Rejoindre la discussion',
   'card.suggestToAuthor': 'Envoyer une suggestion à l’auteur',
+  'card.suggestToAuthorShort': 'Suggérer',
 
   'problems.sources': 'Sources',
   'problems.whyMatters': 'Pourquoi c’est important pour nous',

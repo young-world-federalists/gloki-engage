@@ -133,10 +133,10 @@
 .chin {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: $spacing-sm;
-  flex-wrap: wrap;
-  padding: $spacing-md $content-gutter;
+  justify-content: flex-start; // S30 A-5: pack chin controls left (Discussion +
+  gap: $spacing-sm;            // Suggest on row 1); the openBtn's flex:1 still
+  flex-wrap: wrap;             // right-fills where present, so vote/mandate cards
+  padding: $spacing-md $content-gutter; // are unchanged.
   background: $footer-surface;
   border-top: 1px solid $footer-border;
 

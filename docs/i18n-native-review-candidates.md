@@ -1074,6 +1074,25 @@ reused existing keys everywhere else (the global-menu injection reuses the `comm
 
 ---
 
+## Session 30 / Wave A (2026-07-13) — card anatomy unification (1 new key; parity 1137 → 1138)
+
+Wave A moved the Problem card's "Suggest" action + the copyable code chip out of the card body and
+into the card chin, and needed a short visible label for the pill (the full sentence won't share a
+360px chin row with the Discussion pill). Every other string was reused: `card.suggestToAuthor` is
+now the pill's **aria-label** (unchanged), and the threshold-hint keys
+`problems.thresholdMetHint` / `problems.thresholdHintShort` were relocated in-code (now the vote
+bar's caption), not re-worded.
+
+- **fr/sw `card.suggestToAuthorShort`** *(new)* — the short **on-screen label** on the "Suggest"
+  pill in the Problem card chin (a DM-the-author action). The full sentence `card.suggestToAuthor`
+  ("Send suggestion to author" / "Envoyer une suggestion à l’auteur" / "Tuma pendekezo kwa
+  mwandishi") stays as the pill's aria-label — this is only the visible caption. English "Suggest".
+  fr "Suggérer". sw "Pendekeza". **⚠ confirm** both read as the imperative verb "suggest" on a
+  button (a short call-to-action), not a noun: fr *Suggérer* (infinitive, standard for FR button
+  labels) and sw *Pendekeza* (imperative) — check the sw imperative register suits a UI button.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

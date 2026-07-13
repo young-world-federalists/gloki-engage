@@ -11,6 +11,7 @@ import { resolveInitiativeStageContract } from '../../services/contracts/initiat
 import type { IMethod } from '../../services/interfaces';
 import type { PipelineStage } from '../../types/initiative';
 import ProblemEngage from '../initiative/stages/ProblemEngage';
+import ProblemChinExtras from '../initiative/ProblemChinExtras';
 import MandateEngage from '../initiative/stages/MandateEngage';
 import SolutionEngage from '../initiative/stages/SolutionEngage';
 import VoteEngage from '../initiative/stages/VoteEngage';
@@ -250,17 +251,27 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
             initiativeId={initiativeId}
           />
         ) : (
-          <StageGate communityId={communityId} stage={stage}>
+          <>
+            <StageGate communityId={communityId} stage={stage}>
+              {stage === 'problem' && (
+                <ProblemEngage
+                  initiativeId={initiativeId}
+                  communityId={communityId}
+                  communityMemberCount={activeMemberCount}
+                />
+              )}
+            </StageGate>
+            {/* Suggest + code chip live ungated below the vote (S30 A-5) — this
+                legacy fallthrough has no chin, so they render inline as before. */}
             {stage === 'problem' && (
-              <ProblemEngage
+              <ProblemChinExtras
                 initiativeId={initiativeId}
                 communityId={communityId}
-                communityMemberCount={activeMemberCount}
                 hostServer={hostServer}
                 hostAgent={hostAgent}
               />
             )}
-          </StageGate>
+          </>
         )}
       </div>
 

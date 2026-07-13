@@ -1,0 +1,88 @@
+@use '../../styles/variables' as *;
+
+// The Problem card chin extras (S30 A-5): a secondary "Suggest" action pill + the
+// copyable problem-code chip, moved out of ProblemEngage's body. The pill echoes
+// DiscussionPill's outlined-pill grammar (it IS interactive, unlike the strip);
+// the code chip stays a quiet rounded chip and takes its own full-width row.
+
+.suggestPill {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px; // touch-target law
+  padding: 0 $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $gray-700;
+  font-size: $text-sm;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    // $primary on white is 3.68:1 (AA fail); $primary-dark clears it for the label.
+    border-color: $primary;
+    color: $primary-dark;
+  }
+}
+
+.codeChip {
+  flex-basis: 100%; // its own full-width row (row 2), below the pills
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: transparent;
+  cursor: pointer;
+  color: $gray-500;
+  font-size: $text-xs;
+  text-align: left;
+
+  &:hover {
+    border-color: $gray-300;
+    color: $gray-700;
+  }
+}
+
+.codeLabel {
+  color: $gray-500;
+}
+
+.codeValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: $gray-700;
+}
+
+@include dark {
+  .suggestPill {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary-on-dark;
+    }
+  }
+
+  .codeChip {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+
+    &:hover {
+      border-color: $dark-text-secondary;
+      color: $dark-text;
+    }
+  }
+
+  .codeLabel {
+    color: $dark-text-secondary;
+  }
+
+  .codeValue {
+    color: $dark-text;
+  }
+}

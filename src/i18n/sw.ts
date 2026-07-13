@@ -341,6 +341,7 @@ const sw: Dictionary = {
   'card.teaserMandate': 'Agizo la jumuiya',
   'card.teaserDiscussion': 'Jiunge na majadiliano',
   'card.suggestToAuthor': 'Tuma pendekezo kwa mwandishi',
+  'card.suggestToAuthorShort': 'Pendekeza',
 
   'problems.sources': 'Vyanzo',
   'problems.whyMatters': 'Kwa nini hili ni muhimu kwetu',

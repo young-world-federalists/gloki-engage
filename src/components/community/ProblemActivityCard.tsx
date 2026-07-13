@@ -7,6 +7,7 @@ import type { UserIdentityProps } from '../shared';
 import InitiativeStageCard, { type StagePost } from '../initiative/InitiativeStageCard';
 import { useInitiativePost } from '../initiative/useInitiativePost';
 import ProblemEngage from '../initiative/stages/ProblemEngage';
+import ProblemChinExtras from '../initiative/ProblemChinExtras';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 
 export interface ProblemActivityCardProps {
@@ -107,6 +108,16 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
       expanded={expanded}
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
+      chinExtras={
+        <ProblemChinExtras
+          initiativeId={item.id}
+          communityId={communityId}
+          hostServer={hostServer}
+          hostAgent={hostAgent}
+          authorKey={authorKey}
+          authorName={authorName}
+        />
+      }
       collapsedTeaser={
         membersLoaded && thresholdMet
           ? t('card.teaserAgreed', 'Agreed by your community')
@@ -117,10 +128,6 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
         initiativeId={item.id}
         communityId={communityId}
         communityMemberCount={activeMemberCount}
-        hostServer={hostServer}
-        hostAgent={hostAgent}
-        authorKey={authorKey}
-        authorName={authorName}
       />
       <StageAdvanceBar
         initiativeId={item.id}

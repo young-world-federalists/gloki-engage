@@ -57,6 +57,10 @@ export interface InitiativeStageCardProps {
     hostServer: string;
     hostAgent: string;
   };
+  /** Extra controls rendered in the footer chin, after the Discussion pill and
+   *  before the blue open action — e.g. the Problem card's "Suggest" pill + code
+   *  chip (S30 A-5, {@link ProblemChinExtras}). */
+  chinExtras?: React.ReactNode;
   /** The per-stage Engage UI — rendered only when expanded, in the shaded panel. */
   children?: React.ReactNode;
 }
@@ -79,6 +83,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   collapsedTeaser,
   teaserAction,
   stageNav,
+  chinExtras,
   children,
 }) => {
   const t = useT();
@@ -175,7 +180,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
               a sibling AFTER the engage body so the $gray-50 well + the
               $footer-surface chin read as a two-tone footer, and the card's
               overflow:hidden clips the chin's bottom corners. */}
-          {(stageNav || (onOpen && openLabel)) && (
+          {(stageNav || chinExtras || (onOpen && openLabel)) && (
             <div className={styles.chin}>
               {stageNav && (
                 <DiscussionPill
@@ -185,6 +190,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
                   hostAgent={stageNav.hostAgent}
                 />
               )}
+              {chinExtras}
               {onOpen && openLabel && (
                 <Button
                   variant="primary"

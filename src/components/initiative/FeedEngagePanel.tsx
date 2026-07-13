@@ -6,6 +6,7 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../../store/slices/communitiesSlice';
 import InitiativeStageStrip from './InitiativeStageStrip';
 import DiscussionPill from './DiscussionPill';
+import ProblemChinExtras from './ProblemChinExtras';
 import { useInitiativePost } from './useInitiativePost';
 import ProblemEngage from './stages/ProblemEngage';
 import SolutionEngage from './stages/SolutionEngage';
@@ -35,8 +36,6 @@ const ProblemFeedBlock: React.FC<{
   communityId: string;
   hostServer: string;
   hostAgent: string;
-  authorKey?: string;
-  authorName?: string;
   activeMemberCount: number;
   /** False until the member reads land — readiness must not be judged against a
    *  zero denominator (needed would collapse to 1 and enable a premature advance). */
@@ -47,8 +46,6 @@ const ProblemFeedBlock: React.FC<{
   communityId,
   hostServer,
   hostAgent,
-  authorKey,
-  authorName,
   activeMemberCount,
   membersLoaded,
 }) => {
@@ -73,10 +70,6 @@ const ProblemFeedBlock: React.FC<{
         initiativeId={initiativeId}
         communityId={communityId}
         communityMemberCount={activeMemberCount}
-        hostServer={hostServer}
-        hostAgent={hostAgent}
-        authorKey={authorKey}
-        authorName={authorName}
       />
       <StageAdvanceBar
         initiativeId={initiativeId}
@@ -152,8 +145,6 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
           communityId={communityId}
           hostServer={hostServer}
           hostAgent={hostAgent}
-          authorKey={authorKey}
-          authorName={authorName}
           activeMemberCount={activeMemberCount}
           membersLoaded={membersLoaded}
         />
@@ -196,8 +187,9 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
         </>
       )}
 
-      {/* Card footer chin (S25): the persistent Discussion pill beside
-          "Open in community", behind the hairline footer rule. */}
+      {/* Card footer chin (S25, extended S30 A-5): the persistent Discussion pill,
+          the Problem card's Suggest pill + code chip (problem stage only), and the
+          "Open in community" pill — behind the two-tone footer rule + fill. */}
       <div className={styles.chin}>
         <DiscussionPill
           initiativeId={initiativeId}
@@ -205,6 +197,16 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
           hostServer={hostServer}
           hostAgent={hostAgent}
         />
+        {stage === 'problem' && (
+          <ProblemChinExtras
+            initiativeId={initiativeId}
+            communityId={communityId}
+            hostServer={hostServer}
+            hostAgent={hostAgent}
+            authorKey={authorKey}
+            authorName={authorName}
+          />
+        )}
         <button
           type="button"
           className={styles.openLink}
