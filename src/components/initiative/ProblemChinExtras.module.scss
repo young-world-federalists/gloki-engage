@@ -16,7 +16,7 @@
   background: transparent;
   color: $gray-700;
   font-size: $text-sm;
-  font-weight: 600;
+  font-weight: $font-semibold;
   cursor: pointer;
   white-space: nowrap;
 
@@ -28,7 +28,9 @@
 }
 
 .codeChip {
-  flex-basis: 100%; // its own full-width row (row 2), below the pills
+  order: 1;         // always the LAST chin item (after every action pill,
+                    // incl. the stage feed's "Open in community" — S30 review #2)
+  flex-basis: 100%; // its own full-width row, below the pills
   display: inline-flex;
   align-items: center;
   gap: $spacing-xs;

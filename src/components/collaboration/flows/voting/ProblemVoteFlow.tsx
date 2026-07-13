@@ -114,6 +114,10 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   };
 
   const thresholdMet = communityMemberCount > 0 && tally.up / communityMemberCount >= 0.50;
+  // The bar's denominator: half the community, floored at 1 (a 0-member read must
+  // not divide by zero). Value is clamped to it so aria-valuenow never exceeds
+  // aria-valuemax once seconding passes the halfway mark (review S30 #1).
+  const threshold = Math.max(Math.ceil(communityMemberCount * 0.50), 1);
   // A-4: the plain-language threshold line, relocated here from the floating <p>
   // in ProblemEngage so it captions the bar it explains — and doubles as the
   // ProgressBar's accessible name (A-3).
@@ -196,8 +200,8 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
             role=progressbar + aria-valuenow/max. */}
         <div className={styles.thresholdSection}>
           <ProgressBar
-            value={tally.up}
-            max={Math.max(Math.ceil(communityMemberCount * 0.50), 1)}
+            value={Math.min(tally.up, threshold)}
+            max={threshold}
             label={thresholdHint}
             variant={thresholdMet ? 'success' : 'primary'}
             size="md"

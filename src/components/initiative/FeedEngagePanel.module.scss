@@ -60,7 +60,7 @@
   font-size: $text-sm;
   // $primary on white is 3.68:1 (AA fail); $primary-dark clears it at 5.17:1.
   color: $primary-dark;
-  font-weight: 600;
+  font-weight: $font-semibold;
   text-decoration: none;
   white-space: nowrap;
 
