@@ -2,72 +2,104 @@
 
 // The expanded body of a stage-feed card — visually the ActivityCard panel
 // (separated engage zone under the read summary), hosted inside StageFeedView's
-// compact card.
+// compact card. S30 A-5.2: the host card is now padding:0 + overflow:hidden, so
+// the panel splits into an inset .body + a full-width two-tone .chin.
 .panel {
+  display: flex;
+  flex-direction: column;
+}
+
+// The engage body — strip + per-stage participation UI. Owns the inset padding
+// (the host card no longer pads) and carries the summary → panel divider.
+.body {
   border-top: 0.5px solid $gray-200;
-  padding-top: $spacing-md;
   margin-top: $spacing-md;
+  padding: $spacing-md $content-gutter;
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
 }
 
-// The 4-stage strip alone atop the panel, mirroring InitiativeStageCard.
-// The Discussion pill moved to the actions row at the bottom (S23).
+// The 4-stage strip alone atop the body, mirroring InitiativeStageCard.
+// The Discussion pill moved to the chin at the bottom (S23).
 .stageNavRow {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
 }
 
-// Card footer chin (S25, campaign §4): Discussion pill + "Open in community"
-// behind a hairline top rule (the engage → footer divide). Rule ONLY, no
-// $footer-surface fill: the StageFeedView host card pads content 16px and has
-// no overflow:hidden, so a fill would float as an inset box (spec §1.3).
+// Card footer chin (S25, extended S30 A-5.2): Discussion + Suggest + code +
+// "Open in community", now behind the SAME two-tone $footer-surface fill as the
+// community card's chin — a deliberate reversal of the old rule-only call
+// (ui-polish-campaign-2026-07 §1.3): the host card is now padding:0 +
+// overflow:hidden, so the fill bleeds full-width and clips to the card radius
+// instead of floating as an inset box.
 .chin {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: $spacing-sm;
   flex-wrap: wrap;
-  padding-top: $spacing-md;
+  padding: $spacing-md $content-gutter;
+  background: $footer-surface;
   border-top: 1px solid $footer-border;
 }
 
-// "Open in community ↗" — the quiet right-aligned text link (ActivityCard's
-// deepLink pattern) preserving the old tap-through path.
+// "Open in community ↗" — an outlined pill matching DiscussionPill (S30 D4: one
+// interaction grammar per chin), keeping the blue action colour + external icon.
 .openLink {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-sm; // icon→label floor (W5); stays a bespoke quiet link per §6#7
-  align-self: flex-end;
-  background: none;
-  border: none;
-  padding: $spacing-xs 0;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: 0 $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-full;
+  background: transparent;
   cursor: pointer;
   font-size: $text-sm;
   // $primary on white is 3.68:1 (AA fail); $primary-dark clears it at 5.17:1.
   color: $primary-dark;
-  font-weight: $font-medium;
+  font-weight: 600;
   text-decoration: none;
-  min-height: 44px;
+  white-space: nowrap;
 
   &:hover {
-    text-decoration: underline;
+    border-color: $primary;
   }
 
   &:focus-visible {
-    text-decoration: underline;
     outline: 2px solid $primary;
     outline-offset: 2px;
-    border-radius: $radius-sm;
+    border-radius: $radius-full;
   }
 }
 
 // ── Dark mode ──────────────────────────────────────────────────────────────
 @include dark {
-  .panel { border-top-color: $dark-border; }
-  .chin { border-top-color: $footer-border-dark; }
+  .body { border-top-color: $dark-border; }
+  .chin {
+    background: $footer-surface-dark;
+    border-top-color: $footer-border-dark;
+  }
   // $primary text on $dark-bg is 3.97:1 — below AA; the on-dark token clears it.
-  .openLink { color: $primary-on-dark; }
+  .openLink {
+    border-color: $dark-border;
+    color: $primary-on-dark;
+
+    &:hover {
+      border-color: $primary;
+    }
+  }
+}
+
+// ── Responsive — hold the 360px flagship ─────────────────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .body {
+    padding-inline: $spacing-md;
+  }
+
+  .chin {
+    padding: $spacing-md;
+  }
 }

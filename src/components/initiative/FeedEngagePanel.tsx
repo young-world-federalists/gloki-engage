@@ -134,58 +134,62 @@ const FeedEngagePanel: React.FC<FeedEngagePanelProps> = ({
 
   return (
     <div className={styles.panel}>
-      <div className={styles.stageNavRow}>
-        <InitiativeStageStrip current={stage} />
-      </div>
+      {/* The engage body owns the inset padding (S30 A-5.2), mirroring
+          StageFeedView's .summary, so the chin below can bleed a full-width tint. */}
+      <div className={styles.body}>
+        <div className={styles.stageNavRow}>
+          <InitiativeStageStrip current={stage} />
+        </div>
 
-      {stage === 'problem' && (
-        <ProblemFeedBlock
-          initiativeId={initiativeId}
-          title={title}
-          communityId={communityId}
-          hostServer={hostServer}
-          hostAgent={hostAgent}
-          activeMemberCount={activeMemberCount}
-          membersLoaded={membersLoaded}
-        />
-      )}
-
-      {stage === 'proposals' && (
-        <>
-          <SolutionEngage
+        {stage === 'problem' && (
+          <ProblemFeedBlock
             initiativeId={initiativeId}
-            communityId={communityId}
             title={title}
-            hostServer={hostServer}
-            hostAgent={hostAgent}
-            communityMemberCount={activeMemberCount}
-          />
-          <StageAdvanceBar
-            initiativeId={initiativeId}
             communityId={communityId}
-            stage="proposals"
             hostServer={hostServer}
             hostAgent={hostAgent}
+            activeMemberCount={activeMemberCount}
+            membersLoaded={membersLoaded}
           />
-        </>
-      )}
+        )}
 
-      {stage === 'vote' && (
-        <>
-          <VoteEngage
-            initiativeId={initiativeId}
-            communityId={communityId}
-            communityMemberCount={activeMemberCount}
-          />
-          <StageAdvanceBar
-            initiativeId={initiativeId}
-            communityId={communityId}
-            stage="vote"
-            hostServer={hostServer}
-            hostAgent={hostAgent}
-          />
-        </>
-      )}
+        {stage === 'proposals' && (
+          <>
+            <SolutionEngage
+              initiativeId={initiativeId}
+              communityId={communityId}
+              title={title}
+              hostServer={hostServer}
+              hostAgent={hostAgent}
+              communityMemberCount={activeMemberCount}
+            />
+            <StageAdvanceBar
+              initiativeId={initiativeId}
+              communityId={communityId}
+              stage="proposals"
+              hostServer={hostServer}
+              hostAgent={hostAgent}
+            />
+          </>
+        )}
+
+        {stage === 'vote' && (
+          <>
+            <VoteEngage
+              initiativeId={initiativeId}
+              communityId={communityId}
+              communityMemberCount={activeMemberCount}
+            />
+            <StageAdvanceBar
+              initiativeId={initiativeId}
+              communityId={communityId}
+              stage="vote"
+              hostServer={hostServer}
+              hostAgent={hostAgent}
+            />
+          </>
+        )}
+      </div>
 
       {/* Card footer chin (S25, extended S30 A-5): the persistent Discussion pill,
           the Problem card's Suggest pill + code chip (problem stage only), and the

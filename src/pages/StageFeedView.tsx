@@ -92,40 +92,46 @@ const StageFeedCard: React.FC<{
       : 'problem';
   return (
     <div className={styles.card}>
-      <div className={styles.cardMeta}>
-        <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
-          {item.communityName}
-        </button>
-        {/* No "In discussion" badge (W3, §5 rule 10): a discussion-stage item in
-            this feed is still a problem — the expanded panel's Discussion pill
-            (with its live count) carries the activity signal. */}
-        {item.authorName && item.author ? (
-          <UserIdentity
-            name={item.authorName}
-            countryCode={profiles[item.author]?.country}
-            trustState={trust.trustOf(item.author)}
-            size="sm"
-          />
-        ) : item.authorName ? (
-          <span className={styles.author}>{item.authorName}</span>
-        ) : null}
-        {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
-      </div>
+      {/* The summary owns the card's inset padding (S30 A-5.2): the card itself is
+          padding:0 + overflow:hidden so the expanded panel's chin can bleed a
+          full-width tint. The title button's stretched ::after still resolves to
+          .card (this wrapper is static), so the S20 whole-card hit area holds. */}
+      <div className={styles.summary}>
+        <div className={styles.cardMeta}>
+          <button className={styles.communityBadge} onClick={(e) => onCommunityClick(e, item.communityId)}>
+            {item.communityName}
+          </button>
+          {/* No "In discussion" badge (W3, §5 rule 10): a discussion-stage item in
+              this feed is still a problem — the expanded panel's Discussion pill
+              (with its live count) carries the activity signal. */}
+          {item.authorName && item.author ? (
+            <UserIdentity
+              name={item.authorName}
+              countryCode={profiles[item.author]?.country}
+              trustState={trust.trustOf(item.author)}
+              size="sm"
+            />
+          ) : item.authorName ? (
+            <span className={styles.author}>{item.authorName}</span>
+          ) : null}
+          {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
+        </div>
 
-      <h3 className={styles.cardTitle}>
-        <button
-          type="button"
-          className={styles.cardTitleButton}
-          onClick={() => (expandable ? onToggle(item) : onOpen(item))}
-          aria-expanded={expandable ? expanded : undefined}
-          aria-controls={expandable && expanded ? panelId : undefined}
-        >
-          {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
-        </button>
-        {expandable &&
-          (expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />)}
-      </h3>
-      {item.description && <p className={styles.cardDescription}>{item.description}</p>}
+        <h3 className={styles.cardTitle}>
+          <button
+            type="button"
+            className={styles.cardTitleButton}
+            onClick={() => (expandable ? onToggle(item) : onOpen(item))}
+            aria-expanded={expandable ? expanded : undefined}
+            aria-controls={expandable && expanded ? panelId : undefined}
+          >
+            {item.title || t('stagefeed.untitled', 'Untitled Initiative')}
+          </button>
+          {expandable &&
+            (expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />)}
+        </h3>
+        {item.description && <p className={styles.cardDescription}>{item.description}</p>}
+      </div>
 
       {expandable && expanded && (
         <div id={panelId} className={styles.panelWrap}>
@@ -259,13 +265,15 @@ const StageFeedView: React.FC = () => {
             key={sample.id}
             className={`${styles.card} ${styles.sampleCard} ${styles.noClick}`}
           >
-            <div className={styles.cardMeta}>
-              <span className={styles.communityBadge}>{sample.communityName}</span>
-              <span className={styles.author}>{sample.authorName}</span>
-            </div>
+            <div className={styles.summary}>
+              <div className={styles.cardMeta}>
+                <span className={styles.communityBadge}>{sample.communityName}</span>
+                <span className={styles.author}>{sample.authorName}</span>
+              </div>
 
-            <h3 className={styles.cardTitle}>{sample.title}</h3>
-            <p className={styles.cardDescription}>{sample.description}</p>
+              <h3 className={styles.cardTitle}>{sample.title}</h3>
+              <p className={styles.cardDescription}>{sample.description}</p>
+            </div>
           </div>
         ))}
       </main>

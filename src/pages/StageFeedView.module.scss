@@ -13,8 +13,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-lg;
+  padding: 0;        // S30 A-5.2: sections own their padding so the chin can bleed
+  overflow: hidden;  // clips the full-width tinted chin to the card radius
   background: white;
   border: 1px solid $gray-100;
   border-radius: $radius-lg;
@@ -32,6 +32,16 @@
       box-shadow: none;
     }
   }
+}
+
+// The card's inset summary zone (community badge · byline · title · description).
+// Static (unpositioned) so the title button's stretched ::after still resolves to
+// .card — the S20 whole-card hit area survives the restructure.
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
 }
 
 .cardMeta {
@@ -226,7 +236,7 @@
     padding-bottom: 80px;
   }
 
-  .card {
+  .summary {
     padding: $spacing-md;
   }
 }
