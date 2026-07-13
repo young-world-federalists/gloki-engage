@@ -545,30 +545,42 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                 )}
                 {!mergeSource && (
                   <div className={styles.actionRow}>
+                    {/* Icon+count on top, short caption beneath (D1 finding). The
+                        visible caption is the accessible name — no mismatched
+                        aria-label (WCAG 2.5.3 / voice control). aria-pressed on the
+                        two toggles announces state; merge stays a plain action. */}
                     <button
                       className={`${styles.actionBtn} ${myApprovals[p.id] ? styles.actionBtnActive : ''}`}
                       onClick={() => handleToggleApproval(p.id)}
                       disabled={togglingId === p.id}
-                      aria-label={t('mechanisms.approval.upvote', 'Upvote')}
+                      aria-pressed={!!myApprovals[p.id]}
                     >
-                      <ThumbsUp size={16} aria-hidden />
-                      <span>{approvalCounts[p.id] || 0}</span>
+                      <span className={styles.actionTop}>
+                        <ThumbsUp size={16} aria-hidden />
+                        <span>{approvalCounts[p.id] || 0}</span>
+                      </span>
+                      <span className={styles.actionCaption}>{t('mechanisms.approval.upvoteCaption', 'Back this')}</span>
                     </button>
                     <button
                       className={`${styles.actionBtn} ${publicKey && p.expertReviewRequests?.includes(publicKey) ? styles.actionBtnActive : ''}`}
                       onClick={() => handleRequestReview(p.id)}
                       disabled={requestingId === p.id}
-                      aria-label={t('mechanisms.approval.requestReview', 'Request expert review')}
+                      aria-pressed={!!(publicKey && p.expertReviewRequests?.includes(publicKey))}
                     >
-                      <Microscope size={16} aria-hidden />
-                      <span>{p.expertReviewRequests?.length ?? 0}</span>
+                      <span className={styles.actionTop}>
+                        <Microscope size={16} aria-hidden />
+                        <span>{p.expertReviewRequests?.length ?? 0}</span>
+                      </span>
+                      <span className={styles.actionCaption}>{t('mechanisms.approval.requestReviewCaption', 'Request expert')}</span>
                     </button>
                     <button
                       className={styles.actionBtn}
                       onClick={() => setMergeSource(p.id)}
-                      aria-label={t('mechanisms.approval.suggestMerge', 'Suggest a merge')}
                     >
-                      <GitMerge size={16} aria-hidden />
+                      <span className={styles.actionTop}>
+                        <GitMerge size={16} aria-hidden />
+                      </span>
+                      <span className={styles.actionCaption}>{t('mechanisms.approval.suggestMergeCaption', 'Suggest merge')}</span>
                     </button>
                   </div>
                 )}

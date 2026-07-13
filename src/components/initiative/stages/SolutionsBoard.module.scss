@@ -88,15 +88,18 @@
 
 .actionRow { display: flex; gap: $spacing-xs; margin-top: $spacing-sm; border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
 .actionBtn {
-  flex: 1; min-height: 44px;
-  display: inline-flex; align-items: center; justify-content: center; gap: $spacing-sm; // icon→label floor (W5)
+  flex: 1; min-height: 44px; // floor — the button grows for the caption beneath (S31)
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: $spacing-xs; padding-block: $spacing-xs;
   border: 1.5px solid $gray-200; border-radius: $radius-sm;
-  background: none; color: $gray-600; cursor: pointer; font-size: $text-sm;
+  background: none; color: $gray-600; cursor: pointer;
   transition: all $transition-base;
   &:hover:not(:disabled) { border-color: $primary; color: $primary; background: rgba($primary, 0.05); }
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
+.actionTop { display: inline-flex; align-items: center; gap: $spacing-xs; font-size: $text-sm; } // icon + count
+.actionCaption { font-size: $text-xs; font-weight: $font-medium; line-height: 1.15; } // colour inherits from .actionBtn (themed)
 .actionBtnActive { border-color: $primary; color: $primary; background: rgba($primary, 0.1); }
 .expertAddBtn {
   margin-top: $spacing-xs; min-height: 44px; width: 100%;
