@@ -385,7 +385,18 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
     (needs the global-`.input-field` blast-radius decision); (b) Members rows → `Card`; (c)
     **BallotSolutionCard** extraction (own focused session — risk is in the voting core).
 
-**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 📋 PLANNED, not built.**
+**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 🔨 IN PROGRESS — Wave A shipped, W-B/C/D pending.**
+
+- ✅ **W-A — card anatomy unification (S30) — BUILT, push HELD for Eston.** Spec
+  `docs/superpowers/specs/2026-07-13-card-anatomy-design.md`; commits `b87608e..6abc429`.
+  Shipped: strip gutter (`.stageNavRow` → `$content-gutter`); de-buttonized current stage pill
+  (D2); bespoke threshold bar → shared `ProgressBar` kit (gray end-line + ARIA gap gone, A-3/A-4);
+  universal two-tone chin — stage feed restructured to tint like the community card, `chinExtras`
+  slot + shared `ProblemChinExtras` (Suggest pill "Suggest"/D3 + code chip moved out of the body);
+  stage-feed "Open in community" → pill (D4). +1 i18n key `card.suggestToAuthorShort` (parity 1138).
+  Opus review 0 blocker / 0 major (3 minor fixes applied). Verified 360px light+dark en/fr/sw; the
+  ProblemVoteFlow bar itself stayed StageGate-gated for the demo visitor (verified via code path +
+  build, same limit the review session hit). DESIGN_SYSTEM chin/strip law codified.
 Eston's live walkthrough (~20 critiques) verified same-day against `c91bd86` (7-unit read-only
 fleet + controller preview walk) → [docs/ui-walkthrough-campaign-2026-07-13.md](docs/ui-walkthrough-campaign-2026-07-13.md)
 (verified findings + 4 waves + 9 open decisions for Eston §6). W-A card anatomy (strip gutter +
@@ -463,6 +474,38 @@ bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English 
 
 ## 8. Changelog
 
+- **2026-07-13 — S30: Walkthrough-campaign Wave A — card anatomy unification (BUILT; push HELD for
+  Eston; `b87608e..6abc429`, 8 commits).** First wave of the 2026-07-13 walkthrough campaign (P8).
+  UI-composition only — no contract methods, fixtures, routes, or DEMO bump. (A-1) `.stageNavRow`
+  insets to `$content-gutter`/`$spacing-md` — the 4-stage strip was flush to the card edge while
+  every sibling row sat 16px in (C2). (A-2, **D2**) de-buttonized the current stage pill — dropped
+  its fill + border (it read as an interactive button, borrowing DiscussionPill's grammar); "you
+  are here" now rides the full-colour dot + `$gray-900` semibold label. (A-3/A-4) ProblemVoteFlow's
+  bespoke threshold track/fill/marker → the shared `ProgressBar` kit: the redundant gray end-line
+  (`thresholdMarker` `left:100%`) dies, `role=progressbar`+ARIA arrives, and the floating "Agreed by
+  at least half…" `<p>` relocates from ProblemEngage's body into the bar block as its caption. (A-5,
+  **D3**) new `chinExtras` slot on InitiativeStageCard + shared `ProblemChinExtras` (a "Suggest" pill
+  — short label, full string as aria-label — + the copyable code chip) moved out of ProblemEngage's
+  body into the chin of all three hosts; ProblemEngage slimmed to just the vote flow. (A-5.2, **D4**)
+  the stage-feed card was restructured (card `padding:0; overflow:hidden`, inset `.summary`+`.body`,
+  chin a full-width sibling) so its chin now carries the **same two-tone `$footer-surface` fill** as
+  the community card — chin tint parity achieved, reversing the deliberate S25 §1.3 rule-only call;
+  "Open in community" text link → outlined pill. i18n +1 key `card.suggestToAuthorShort` (parity
+  1137→1138). Review: Opus whole-branch **0 blocker / 0 major**; 3 minor fixes applied (clamp bar
+  `value` so aria-valuenow ≤ valuemax past the halfway mark; `order:1` on the code chip so the
+  stage-feed Open pill groups with the actions instead of below the code reference; raw `600` →
+  `$font-semibold`). Verified 360px light+dark en/fr/sw on community feed + stage feed (Discussion +
+  "Suggest"/"Suggérer"/"Pendekeza" share row 1 in all three; S20 ::after hit-area survives the
+  restructure — confirmed via elementFromPoint). **Limitation (honest):** the ProblemVoteFlow bar
+  stayed StageGate-gated for the default demo visitor across all 4 seeded communities (join routes
+  to onboarding) — the bar's kit swap is code-verified + build-green, the same limit the review
+  session documented; a member/author persona is needed to see it render live. **Catches:** the
+  campaign doc's `ProblemVoteFlow.tsx` path was stale (`initiative/stages/` → actually
+  `collaboration/flows/voting/`); `$spacing-md`=12px (not 16px) so A-1 needed a 360px override the
+  one-liner omitted; the DESIGN_SYSTEM `InitiativeStageStrip` section was itself stale (described a
+  tappable/router-aware strip with `communityId`/`initiativeId` props — S19 W2 had already made it a
+  pure non-interactive `<ol>`), corrected in the codification. DESIGN_SYSTEM: universal chin law +
+  strip gutter/de-buttonize codified. Spec `docs/superpowers/specs/2026-07-13-card-anatomy-design.md`.
 - **2026-07-12 — S29: UI-polish campaign Wave 6 — community chrome & collab polish (SHIPPED +
   PUSHED; `bfc9124..39c2d1f`, 7 commits, deploy run 29204217793). ★ CLOSES THE UI-POLISH CAMPAIGN —
   all 6 waves shipped.** The final, taste-heavy wave. (6.1) Hero secondary "Menu"→"Community
