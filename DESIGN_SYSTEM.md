@@ -205,23 +205,36 @@ not another content block (S25, campaign §4):
   radius clips its corners; if a full-bleed host lacks `overflow: hidden`, add
   `border-bottom-{left,right}-radius: $radius-lg`. Two-tone footer: `$gray-50` engage well →
   `$gray-100` chin.
-- **Inset hosts get the rule only** — inside an already-padded host (the stage feed's
-  `FeedEngagePanel`) a fill would double-inset and float as a boxed rectangle. No
-  negative-margin full-bleed hacks.
+- **Universal fill — feed cards tint, hero cards don't (S30 A-5.2, reverses ui-polish-campaign
+  §1.3):** BOTH feed-card chins carry the two-tone fill now — the community card
+  (`InitiativeStageCard`) *and* the stage feed (`FeedEngagePanel`). The old "inset host → rule
+  only" carve-out is gone: the stage-feed host was restructured to the InitiativeStageCard model
+  (card `padding: 0; overflow: hidden`, an inset `.summary` + `.body` owning the padding, the chin
+  a full-width sibling) so the fill bleeds edge-to-edge and clips to the radius instead of floating
+  as a boxed rectangle. **No negative-margin full-bleed hacks** — sections own their padding; the
+  chin spans the panel. The published-mandate `MandateCard` is a **hero**, not a feed card: it
+  keeps its `.actions` row, no chin.
 - **Padding (full-bleed chins):** `$spacing-md $content-gutter`; mobile tightens to `$spacing-md`.
 - **Tokens are the one home:** `$footer-surface(-dark)` / `$footer-border(-dark)` — never
   re-hardcode `$gray-100`/`$gray-200` for a card footer. Distinct from the global StageFooter's
   `$footer-height`/`$footer-clearance` layout tokens.
-- **Links in a chin (fill or rule-only):** `$primary-dark` (light) / `$primary-on-dark` (dark) —
-  plain `$primary` fails AA on white (3.68:1) and on `$gray-100` (3.36:1), so the rule holds even
-  when the chin has no fill (e.g. FeedEngagePanel's rule-only chin on the white host card).
+- **One interaction grammar per chin (S30 D4):** every interactive control in a chin is an
+  outlined `$radius-full` pill — DiscussionPill, the Problem card's "Suggest" pill, the stage-feed
+  "Open in community" (no more quiet text link). Pills carrying the brand action colour use
+  `$primary-dark` (light) / `$primary-on-dark` (dark) — plain `$primary` fails AA on white
+  (3.68:1) and on `$footer-surface` (3.36:1).
+- **Extra controls (`chinExtras` slot):** stage-specific chin controls (the Problem card's Suggest
+  pill + copyable code chip) pass through `InitiativeStageCard`'s `chinExtras` prop, or render
+  directly in `FeedEngagePanel`'s chin — shared via `ProblemChinExtras`. The chin is
+  `justify-content: flex-start; flex-wrap: wrap`; a full-width member (the code chip via
+  `flex-basis: 100%`) takes its own row.
 - **Dark-authoring rule applies:** a chin that sets a background re-declares background AND
   border in `@include dark`. `$footer-surface-dark` must stay the `.06` tint
   (`$dark-tint-subtle`): `$dark-text-secondary` on the composited strip is ≈4.76:1 — the sibling
   `.08`/`.10` tints drop chin text below AA.
 
-Implemented: `InitiativeStageCard` (full chin — shared shell of all five community stage cards),
-`FeedEngagePanel` (rule only).
+Implemented: `InitiativeStageCard` (community cards) and `FeedEngagePanel` (stage feed) — both the
+full two-tone chin (S30 unified them). `MandateCard` hero keeps a plain `.actions` row (exempt).
 
 ### Buttons
 
@@ -245,9 +258,9 @@ design:
   sizes are pills (fixed height + horizontal padding), not squares.
 - **List-row / indicator buttons** — e.g. CollabList's collab rows, ChatTopicList's topic
   rows, the `Stepper` step dots. These are navigation rows and step indicators, not actions.
-- **No-matching-variant subtle/link controls** (W5) — the stage-feed `openLink` (a quiet
-  link with AA-tuned `$primary-dark`/`$primary-on-dark` + underline-on-hover; §6 #7 keeps it a
-  link, not a CTA) and `MandateDocument`'s `copyBtn` (a subtle `$primary-dark`-on-tint pill).
+- **No-matching-variant subtle/link controls** (W5) — the stage-feed `openLink` (since S30 D4 an
+  outlined `$radius-full` chin pill with AA-tuned `$primary-dark`/`$primary-on-dark`, matching
+  DiscussionPill's grammar) and `MandateDocument`'s `copyBtn` (a subtle `$primary-dark`-on-tint pill).
   No `<Button>` variant reproduces these without a contrast regression (`secondary` is bordered
   `$primary` at 3.68:1, `ghost` is gray). They stay bespoke; W5 fixed only their 44px + 8px floors.
   **When a bespoke control is a `$token`-on-tint text (createBtn, copyBtn), it MUST carry a dark
@@ -373,19 +386,20 @@ an accessible name. Used on the task-first create + login screens. Props:
 `ariaLabel`, `className`.
 
 **`InitiativeStageStrip`** (`src/components/initiative/InitiativeStageStrip.tsx`) — the
-router-aware sibling of `StageStrip`: the **follow-this-initiative** control rendered
-atop the expanded `InitiativeStageCard` panel (P1). Same four-stage set, but it
-**highlights the initiative's current stage** (`get_stage`, `aria-current="step"` +
-ring) and is **tappable only where a real per-initiative surface exists** — Mandate
-(`/mandate/cid/iid`). Other stages are progress markers (done/upcoming), never
-misleading links — the inline dashboard exposes only the *current* stage, so
-there's no past-stage surface to navigate to. An initiative whose data stage is
-`discussion` renders in the Problem→Solutions gap (Problem done, nothing current).
-Tappable stages are `<button>`s (label `stage.goTo`); the rest are static `<span>`s.
-`aria-label` = `stage.initiativeStripLabel` ("Stages of this initiative"). Distinct
-from the global **"Browse by stage"** `StageFooter` (cross-community discovery, 4
-stages, demoted) — the two must never be conflated as one nav. Props: `current`,
-`communityId`, `initiativeId`, `className`.
+**follow-this-initiative** marker rendered atop the expanded `InitiativeStageCard` panel (P1):
+the same four-stage set, **highlighting the initiative's current stage** (`aria-current="step"`).
+A **pure progress indicator — nothing here navigates** (S19 W2, Eston): stage browsing lives in
+the global StageFooter, discussion on the adjacent DiscussionPill, and a published mandate is
+linked from mandate-stage card content. Stage colour rides a small **dot**; the current stage is
+carried by a `$gray-900` **semibold label** beside its full-colour dot — **no pill fill or border**
+(S30 A-2/D2: the old tinted+bordered current pill read as an interactive button, borrowing
+DiscussionPill's grammar). An initiative whose data stage is `discussion` renders in the
+Problem→Solutions gap (index 0.5 — Problem done, nothing current). `aria-label` =
+`stage.initiativeStripLabel` ("Stages of this initiative"). Distinct from the global **"Browse by
+stage"** `StageFooter` (cross-community discovery, 4 stages, demoted) — never conflate the two as
+one nav. **Gutter (S30 A-1):** the strip's row (`.stageNavRow` in `InitiativeStageCard`) insets to
+`$content-gutter` (mobile `$spacing-md`) like every sibling content row — never flush to the card
+edge. Props: `current`, `className`.
 
 **`DiscussionPill`** (`src/components/initiative/DiscussionPill.tsx`, S16) — the
 persistent per-initiative **Discussion** button rendered under the strip in the
