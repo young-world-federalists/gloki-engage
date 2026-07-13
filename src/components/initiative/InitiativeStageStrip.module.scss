@@ -46,7 +46,11 @@
 .stage_mandate .dot   { background: $stage-mandate; }
 
 // Progress states: done keeps a full-colour dot; upcoming reads as "not yet";
-// the current stage gets a stage-tinted pill + darker label — "you are here".
+// the current stage carries "you are here" with its full-colour dot + a darker,
+// semibold label — NO pill fill or border (S30 A-2, D2): the tinted+bordered
+// current pill read as an interactive button (Eston, 2026-07-13), borrowing the
+// grammar of the genuinely-interactive DiscussionPill beside it. Stage colour
+// now rides the dot alone; nothing here navigates (S19 W2 still holds).
 .upcoming {
   .dot { opacity: 0.35; }
   .pill { color: $gray-500; }
@@ -57,20 +61,10 @@
   font-weight: $font-semibold;
 }
 
-.stage_problem.current .pill   { background: rgba($stage-problem, 0.12); border-color: rgba($stage-problem, 0.4); }
-.stage_proposals.current .pill { background: rgba($stage-solutions, 0.12); border-color: rgba($stage-solutions, 0.4); }
-.stage_vote.current .pill      { background: rgba($stage-vote, 0.12); border-color: rgba($stage-vote, 0.4); }
-.stage_mandate.current .pill   { background: rgba($stage-mandate, 0.12); border-color: rgba($stage-mandate, 0.4); }
-
 @include dark {
   // De-emphasis rides the dot alone — an opacity'd 12px label fails AA (3.56:1
   // measured), and order relative to the current pill already says done/upcoming.
   .pill,
   .upcoming .pill { color: $dark-text-secondary; }
   .current .pill { color: $dark-text; }
-
-  .stage_problem.current .pill   { background: rgba($stage-problem, 0.18); }
-  .stage_proposals.current .pill { background: rgba($stage-solutions, 0.18); }
-  .stage_vote.current .pill      { background: rgba($stage-vote, 0.18); }
-  .stage_mandate.current .pill   { background: rgba($stage-mandate, 0.18); }
 }
