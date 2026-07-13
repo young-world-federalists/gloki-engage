@@ -122,11 +122,6 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
     <div className={`${cs.container} ${styles.dm}`}>
       <AppHeader showBack onBack={() => navigate(-1)} title={authorDisplay} eyebrow={t('suggest.eyebrow', 'Suggestion')} />
       <main id="main" tabIndex={-1} className={`${cs.content} ${styles.dmMain}`}>
-        <ContextCard
-          title={problem.title}
-          body={problem.description}
-          ariaLabel={t('context.suggest.aria', 'The problem you are suggesting on')}
-        />
         <div className={styles.thread}>
           {messages.length === 0 ? (
             <EmptyState
@@ -158,6 +153,19 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
           <div ref={bottomRef} />
         </div>
       </main>
+      {/* The problem being acted on stays visible as a "you're responding to" bar
+          directly above the composer (D1, DESIGN_SYSTEM §5 rule 11). Sibling of
+          <main> so it hugs the input; the wrapper (not the card) carries the
+          page-column so the card border stays inset from the screen edge. */}
+      {(problem.title || problem.description) && (
+        <div className={styles.contextBar}>
+          <ContextCard
+            title={problem.title}
+            body={problem.description}
+            ariaLabel={t('context.suggest.aria', 'The problem you are suggesting on')}
+          />
+        </div>
+      )}
       <div className={styles.inputBar}>
         <textarea
           className={styles.textarea}

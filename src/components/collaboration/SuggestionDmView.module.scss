@@ -3,7 +3,16 @@
 // Full-height flex column: main grows, the composer anchors at the bottom
 // above the fixed StageFooter (S18 W1, campaign finding M4).
 .dm { display: flex; flex-direction: column; min-height: 100dvh; }
-.dmMain { flex: 1; padding-bottom: 0; }
+// Top air under the header now that the ContextCard has moved down to the composer
+// (local fix — $heading-gap is app-wide, don't touch it).
+.dmMain { flex: 1; padding-top: $spacing-lg; padding-bottom: 0; }
+
+// The relocated "you're responding to" bar. The wrapper carries the centred column
+// (matching .inputBar); the ContextCard inside keeps its own inset border box.
+.contextBar {
+  @include page-column;
+  padding-block: $spacing-md;
+}
 
 .thread { display: flex; flex-direction: column; gap: $spacing-md; padding: $spacing-md 0; }
 
