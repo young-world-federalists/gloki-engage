@@ -256,7 +256,6 @@ const InitiativeStagePanel: React.FC<InitiativeStagePanelProps> = ({
                 initiativeId={initiativeId}
                 communityId={communityId}
                 communityMemberCount={activeMemberCount}
-                up={problemTally.up}
                 hostServer={hostServer}
                 hostAgent={hostAgent}
               />

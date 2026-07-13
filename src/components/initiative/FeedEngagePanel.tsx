@@ -73,7 +73,6 @@ const ProblemFeedBlock: React.FC<{
         initiativeId={initiativeId}
         communityId={communityId}
         communityMemberCount={activeMemberCount}
-        up={up}
         hostServer={hostServer}
         hostAgent={hostAgent}
         authorKey={authorKey}

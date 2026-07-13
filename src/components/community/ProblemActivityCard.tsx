@@ -117,7 +117,6 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
         initiativeId={item.id}
         communityId={communityId}
         communityMemberCount={activeMemberCount}
-        up={up}
         hostServer={hostServer}
         hostAgent={hostAgent}
         authorKey={authorKey}

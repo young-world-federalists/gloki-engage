@@ -190,41 +190,10 @@
   margin-top: $spacing-lg;
 }
 
-.progressTrack {
-  position: relative;
-  height: 8px;
-  background: $gray-100;
-  border-radius: $radius-full;
-  overflow: visible;
-
-  @include dark {
-    background: $dark-border;
-  }
-}
-
-.progressFill {
-  height: 100%;
-  background: $primary;
-  border-radius: $radius-full;
-  transition: width $transition-base;
-
-  &.thresholdMet {
-    background: $success;
-  }
-}
-
-.thresholdMarker {
-  position: absolute;
-  top: -4px;
-  width: 2px;
-  height: 16px;
-  background: $gray-600;
-  transform: translateX(-1px);
-
-  @include dark {
-    background: $dark-text-secondary;
-  }
-}
+// S30 A-3: the bespoke .progressTrack/.progressFill/.thresholdMarker were
+// replaced by the shared <ProgressBar size="md"> (8px track, token colours, the
+// conditional success/primary variant, and role=progressbar ARIA the bespoke bar
+// never had). The gray end-line marker (left:100%) is gone with them.
 
 .thresholdLabels {
   display: flex;
@@ -236,6 +205,14 @@
 
 .thresholdTarget {
   font-weight: $font-medium;
+}
+
+// A-4: the relocated "agreed by half…" hint, captioning the bar it explains.
+.thresholdCaption {
+  margin: $spacing-xs 0 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-500;
 }
 
 .yourVote {
@@ -292,6 +269,7 @@
 
   // Captions were $gray-500 (≈3.0:1 on the dark surface) with no dark override.
   .thresholdLabels,
+  .thresholdCaption,
   .yourVote,
   .undoHint {
     color: $dark-text-secondary;

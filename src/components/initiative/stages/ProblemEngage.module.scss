@@ -6,18 +6,6 @@
   gap: $spacing-md;
 }
 
-/* Plain-language threshold line, below the vote */
-.thresholdHint {
-  margin: 0;
-  font-size: $text-xs;
-  line-height: 1.5;
-  color: $gray-500;
-
-  @include dark {
-    color: $dark-text-secondary;
-  }
-}
-
 /* Copyable 3-word problem code chip */
 .codeChip {
   display: inline-flex;

@@ -14,10 +14,8 @@ export interface ProblemEngageProps {
   initiativeId: string;
   /** Hosting community — gates participation. */
   communityId: string;
-  /** Active community member count, for the threshold copy. */
+  /** Active community member count — passed through to the vote flow's bar. */
   communityMemberCount: number;
-  /** Live "second" upvote count (read by the parent), for the threshold copy. */
-  up: number;
   /** Host coordinates for the Discuss / Suggest deep links. */
   hostServer: string;
   hostAgent: string;
@@ -38,7 +36,6 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
   initiativeId,
   communityId,
   communityMemberCount,
-  up,
   hostServer,
   hostAgent,
   authorKey,
@@ -46,9 +43,6 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
 }) => {
   const t = useT();
   const navigate = useNavigate();
-
-  const needed = Math.max(Math.ceil(communityMemberCount * 0.5), 1);
-  const thresholdMet = up >= needed;
 
   const base = `/initiative/${encodeURIComponent(hostServer)}/${encodeURIComponent(hostAgent)}/${communityId}/${initiativeId}`;
   const openSuggest = () => navigate(`${base}/suggest`, { state: { authorKey, authorName } });
@@ -68,12 +62,6 @@ const ProblemEngage: React.FC<ProblemEngageProps> = ({
           />
         </ErrorBoundary>
       </StageGate>
-
-      <p className={styles.thresholdHint}>
-        {thresholdMet
-          ? t('problems.thresholdMetHint', 'Agreed by at least half of your community.')
-          : t('problems.thresholdHintShort', 'It becomes a shared problem once at least half of your community agrees.')}
-      </p>
 
       <button
         type="button"

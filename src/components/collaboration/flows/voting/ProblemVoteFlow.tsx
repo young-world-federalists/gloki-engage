@@ -6,6 +6,7 @@ import { useAppSelector } from '../../../../store/hooks';
 const problemVoteCode = '';import { sanitizeExternalUrl } from '../../../../utils/urlSafety';
 import { getCountryByCode, getCountryName } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
+import { ProgressBar } from '../../../shared';
 import styles from './ProblemVoteFlow.module.scss';
 
 interface ProblemVoteFlowProps {
@@ -113,6 +114,12 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   };
 
   const thresholdMet = communityMemberCount > 0 && tally.up / communityMemberCount >= 0.50;
+  // A-4: the plain-language threshold line, relocated here from the floating <p>
+  // in ProblemEngage so it captions the bar it explains — and doubles as the
+  // ProgressBar's accessible name (A-3).
+  const thresholdHint = thresholdMet
+    ? t('problems.thresholdMetHint', 'Agreed by at least half of your community.')
+    : t('problems.thresholdHintShort', 'It becomes a shared problem once at least half of your community agrees.');
   const safeEvidenceLinks = evidenceLinks
     .map((link) => sanitizeExternalUrl(link))
     .filter((link): link is string => link !== null);
@@ -183,15 +190,18 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
           </button>
         </div>
 
-        {/* Threshold progress bar */}
+        {/* Threshold progress toward the 50%-agreement bar. S30 A-3: the shared
+            ProgressBar kit — was a bespoke track with a redundant gray end-line
+            marker (thresholdMarker, left:100%) and zero ARIA. The kit brings
+            role=progressbar + aria-valuenow/max. */}
         <div className={styles.thresholdSection}>
-          <div className={styles.progressTrack}>
-            <div
-              className={`${styles.progressFill} ${thresholdMet ? styles.thresholdMet : ''}`}
-              style={{ width: `${Math.min((tally.up / Math.max(Math.ceil(communityMemberCount * 0.50), 1)) * 100, 100)}%` }}
-            />
-            <div className={styles.thresholdMarker} style={{ left: '100%' }} />
-          </div>
+          <ProgressBar
+            value={tally.up}
+            max={Math.max(Math.ceil(communityMemberCount * 0.50), 1)}
+            label={thresholdHint}
+            variant={thresholdMet ? 'success' : 'primary'}
+            size="md"
+          />
           <div className={styles.thresholdLabels}>
             <span>{t('mechanisms.problem.secondedCount', '{n} seconded', { n: tally.up })}</span>
             <span className={styles.thresholdTarget}>
@@ -202,6 +212,10 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
                   })}
             </span>
           </div>
+          {/* A-4: the "agreed by half…" line, relocated from the floating <p> in
+              ProblemEngage to caption the bar directly. aria-hidden — the
+              ProgressBar's aria-label already announces this copy. */}
+          <p className={styles.thresholdCaption} aria-hidden>{thresholdHint}</p>
         </div>
 
         {myVote && (
