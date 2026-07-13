@@ -385,6 +385,22 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
     (needs the global-`.input-field` blast-radius decision); (b) Members rows → `Card`; (c)
     **BallotSolutionCard** extraction (own focused session — risk is in the voting core).
 
+**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 📋 PLANNED, not built.**
+Eston's live walkthrough (~20 critiques) verified same-day against `c91bd86` (7-unit read-only
+fleet + controller preview walk) → [docs/ui-walkthrough-campaign-2026-07-13.md](docs/ui-walkthrough-campaign-2026-07-13.md)
+(verified findings + 4 waves + 9 open decisions for Eston §6). W-A card anatomy (strip gutter +
+de-buttonize pill, bespoke threshold bar → ProgressBar kit killing the gray end-line, universal
+two-tone chin w/ `chinExtras` slot, suggest-btn + problem-code → chin) = S30, prompt
+`docs/session-prompts/session-30-card-anatomy-unification.md`; W-B suggest-flow recompose
+(ContextCard → pinned above composer) + W-C solution-button captions = S31; W-D mandate-page
+recompose (top air, "Mandate summary" eyebrow, status top-right, provenance strip to card bottom,
+AdoptionFramework gets card chrome) = S32. UI-only campaign: no contract methods, no fixtures, no
+DEMO bump. Key premise corrections baked into the doc: "initiative view" = the stage feed
+(`/initiative/*` root redirects, 16th stale-premise catch); the stage-feed chin's missing tint was
+the *deliberate* S25 §1.3 rule-only call being reversed; the gray line is ProblemVoteFlow's
+bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English lives in inline
+`t()` fallbacks — copy changes touch tsx + fr + sw, never en.ts).
+
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
 - ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
