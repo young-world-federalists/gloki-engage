@@ -947,7 +947,7 @@ const fr: Dictionary = {
   'mechanisms.approval.detailsToggleReviewed': 'Détails ({n})',
   'mechanisms.approval.detailsToggle': 'Détails',
   'mechanisms.approval.upvoteCaption': 'Soutenir',
-  'mechanisms.approval.requestReviewCaption': 'Voir un expert',
+  'mechanisms.approval.requestReviewCaption': 'Avis d’expert',
   'mechanisms.approval.suggestMergeCaption': 'Fusionner',
   'mechanisms.approval.mergePickTarget': 'Touchez la solution dans laquelle fusionner celle-ci',
   'mechanisms.approval.mergeIntoThis': 'Toucher pour fusionner dans celle-ci',
