@@ -219,8 +219,9 @@ not another content block (S25, campaign §4):
 - **Tokens are the one home:** `$footer-surface(-dark)` / `$footer-border(-dark)` — never
   re-hardcode `$gray-100`/`$gray-200` for a card footer. Distinct from the global StageFooter's
   `$footer-height`/`$footer-clearance` layout tokens.
-- **One interaction grammar per chin (S30 D4):** every interactive control in a chin is an
-  outlined `$radius-full` pill — DiscussionPill, the Problem card's "Suggest" pill, the stage-feed
+- **One interaction grammar per chin (S30 D4)** *(engage chins — the provenance/utility chin below
+  carries non-pill controls):* every interactive control in an engage chin is an outlined
+  `$radius-full` pill — DiscussionPill, the Problem card's "Suggest" pill, the stage-feed
   "Open in community" (no more quiet text link). Pills carrying the brand action colour use
   `$primary-dark` (light) / `$primary-on-dark` (dark) — plain `$primary` fails AA on white
   (3.68:1) and on `$footer-surface` (3.36:1).
