@@ -1,9 +1,22 @@
 @use '../../styles/variables' as *;
 
+/* Sibling card chrome (S32 F6, D8): "From mandate to action" now reads as a card
+   like its three mandate siblings, which all hand-roll chrome (kit convergence of
+   all four is a separate refactor lane). */
 .adoption {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
 }
 
 /* ----- Header ----- */
@@ -147,12 +160,14 @@
   flex-direction: column;
   gap: $spacing-sm;
   padding: $spacing-md $spacing-lg;
-  background: white;
+  // Nested item inside the white .adoption card (S32 F6): $gray-50 reads as a
+  // recessed row, not white-on-white; dark drops to $dark-surface below the card.
+  background: $gray-50;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
 
   @include dark {
-    background: $dark-bg;
+    background: $dark-surface;
     border-color: $dark-border;
   }
 }
