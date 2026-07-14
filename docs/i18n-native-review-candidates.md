@@ -1127,6 +1127,27 @@ so the three `mechanisms.approval.{upvote,requestReview,suggestMerge}` aria keys
 
 ---
 
+## Session 32 / Wave D (2026-07-14) — mandate-page recompose (1 renamed key; parity 1137 → 1137)
+
+The published-mandate hero card's eyebrow was renamed from the brand label "Gloki Mandate" to a
+section label "Mandate summary" (F2/D6), so the hero and the formal document card stop showing the
+same words. The **existing fr/sw copy was reused verbatim** — the old `mandate.card.aria` (the hero
+section's invisible aria-label) already held these values; it was retired into a new **visible** key
+and the section now uses `aria-labelledby` on the visible eyebrow. **No new translation work** — but
+the strings are now on screen, so a quick read-in-context is worth it.
+
+- **fr/sw `mandate.card.eyebrow`** *(renamed from `mandate.card.aria`; same values)* — now the
+  **visible** eyebrow atop the mandate summary hero (a shield icon sits before it). English
+  "Mandate summary". fr "Résumé du mandat". sw "Muhtasari wa agizo". **⚠ confirm** both read as a
+  short section heading ("summary of the mandate") when seen as visible text, not only as an
+  aria-label — the wording is unchanged, but its role changed from hidden to shown.
+- **Retired (removed from fr + sw):** `mandate.card.aria` — its sole use (the hero section's
+  aria-label) was replaced by `aria-labelledby` on the visible eyebrow. Listed so a reviewer
+  doesn't hunt for it. The shared `mandate.card.brand` ("Gloki Mandate") is untouched — the
+  document card + MandateEngage still use it.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
