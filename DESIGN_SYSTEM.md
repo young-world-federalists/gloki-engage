@@ -211,9 +211,10 @@ not another content block (S25, campaign §4):
   only" carve-out is gone: the stage-feed host was restructured to the InitiativeStageCard model
   (card `padding: 0; overflow: hidden`, an inset `.summary` + `.body` owning the padding, the chin
   a full-width sibling) so the fill bleeds edge-to-edge and clips to the radius instead of floating
-  as a boxed rectangle. **No negative-margin full-bleed hacks** — sections own their padding; the
-  chin spans the panel. The published-mandate `MandateCard` is a **hero**, not a feed card: it
-  keeps its `.actions` row, no chin.
+  as a boxed rectangle. **No negative-margin full-bleed hacks** *(engage chins)* — sections own
+  their padding; the chin spans the panel. (The **provenance / utility chin** below is the one
+  documented exception, for uniformly-padded cards that keep their inset.) The published-mandate
+  `MandateCard` is a **hero**, not a feed card: it keeps its `.actions` row, no chin.
 - **Padding (full-bleed chins):** `$spacing-md $content-gutter`; mobile tightens to `$spacing-md`.
 - **Tokens are the one home:** `$footer-surface(-dark)` / `$footer-border(-dark)` — never
   re-hardcode `$gray-100`/`$gray-200` for a card footer. Distinct from the global StageFooter's
@@ -235,6 +236,29 @@ not another content block (S25, campaign §4):
 
 Implemented: `InitiativeStageCard` (community cards) and `FeedEngagePanel` (stage feed) — both the
 full two-tone chin (S30 unified them). `MandateCard` hero keeps a plain `.actions` row (exempt).
+
+#### Provenance / utility chin (S32)
+
+A second kind of chin: a card's **terminal footer strip that carries provenance or utility content
+rather than an engage row**. Same two-tone vocabulary (`$footer-surface(-dark)` fill, `$footer-
+border(-dark)` hairline top rule, dark-authoring re-declaration), two differences from the engage
+chin above:
+
+- **Content carve-out:** a provenance/utility chin MAY carry non-action content — a short
+  provenance line, a disclosure `(i)`, a view toggle. The **"one interaction grammar per chin →
+  every control is an outlined pill"** rule is specific to **engage chins** (DiscussionPill +
+  open-action). Don't force a `SegmentedControl` or an `(i)` into a pill.
+- **Padded-card bleed variant (the documented exception to "no negative-margin hacks"):** engage
+  chins avoid negative margins because their host is restructured to `padding: 0; overflow: hidden`.
+  A card that deliberately keeps a **uniform inset** (e.g. the mandate document card's `$spacing-lg`,
+  kept per W4 4.5) instead bleeds its terminal chin to the card edges with
+  `margin: 0 (-$inset) (-$inset)` + its own `padding: $spacing-md $content-gutter` + matching
+  `border-bottom-{left,right}-radius: $radius-lg`. The flex `gap` above still supplies the top
+  separation. Any non-terminal content the chin absorbs (e.g. the old turnout pill) drops its own
+  surface — the chin is the surface now.
+
+Reference implementation: `MandateDocument` `.provChin` (turnout line + Sybil-resistance `(i)` +
+plain/spec `SegmentedControl` at the document card's foot — S32 F4/F5, D7).
 
 ### Buttons
 
