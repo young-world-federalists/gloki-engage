@@ -385,7 +385,7 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
     (needs the global-`.input-field` blast-radius decision); (b) Members rows → `Card`; (c)
     **BallotSolutionCard** extraction (own focused session — risk is in the voting core).
 
-**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 🔨 IN PROGRESS — Wave A shipped, W-B/C/D pending.**
+**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 🔨 IN PROGRESS — Waves A–C shipped (push HELD), W-D pending.**
 
 - ✅ **W-A — card anatomy unification (S30) — BUILT, push HELD for Eston.** Spec
   `docs/superpowers/specs/2026-07-13-card-anatomy-design.md`; commits `b87608e..6abc429`.
@@ -397,6 +397,20 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   Opus review 0 blocker / 0 major (3 minor fixes applied). Verified 360px light+dark en/fr/sw; the
   ProblemVoteFlow bar itself stayed StageGate-gated for the demo visitor (verified via code path +
   build, same limit the review session hit). DESIGN_SYSTEM chin/strip law codified.
+- ✅ **W-B/C — suggest-flow recompose + action-button captions (S31) — BUILT, push HELD for Eston.**
+  Spec `docs/superpowers/specs/2026-07-14-suggest-flow-captions-design.md`; commits `1d8a996..555d090`.
+  **W-B (D1):** the problem `ContextCard` moved from the top of `<main>` to a persistent "you're
+  responding to" bar pinned directly above the composer (wrapper carries `@include page-column`; the
+  card border stays inset); `$spacing-lg` top air on `.dmMain`; autoscroll-on-send re-verified.
+  **W-C (D5):** SolutionsBoard action buttons stack an icon+count row over a short visible caption
+  (Back this / Request expert / Suggest merge); the sentence aria-labels dropped (the visible caption
+  is the accessible name — WCAG 2.5.3 / voice control), `aria-pressed` added to the two toggles;
+  ThreadedDiscussion's Heart gains a visible "Like (n)" label matching Reply/Delete. i18n: +3 caption
+  keys, revived `deliberation.thread.like`, retired 4 keys (parity 1137/1137). Opus whole-branch
+  review 0 crit / 0 important (1 minor doc-of-record fix applied: context-header rule now states the
+  context-dependent placement). Verified 360px light+dark en/fr/sw on the suggest page (light 4.76 /
+  dark 5.71 caption contrast, no fr/sw overflow) + SolutionsBoard stage feed + discussion heart.
+  DESIGN_SYSTEM icon+caption action-button law codified.
 Eston's live walkthrough (~20 critiques) verified same-day against `c91bd86` (7-unit read-only
 fleet + controller preview walk) → [docs/ui-walkthrough-campaign-2026-07-13.md](docs/ui-walkthrough-campaign-2026-07-13.md)
 (verified findings + 4 waves + 9 open decisions for Eston §6). W-A card anatomy (strip gutter +
@@ -474,6 +488,28 @@ bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English 
 
 ## 8. Changelog
 
+- **2026-07-14 — S31: Walkthrough-campaign Waves B+C — suggest-flow recompose + action-button
+  captions (BUILT; push HELD for Eston; `1d8a996..555d090`, 7 commits).** Spec
+  `docs/superpowers/specs/2026-07-14-suggest-flow-captions-design.md`; decisions D1 (pinned above
+  composer) + D5 (fix the heart) locked by Eston. UI-only — no contract methods, fixtures, routes,
+  or DEMO bump. **Wave B (A1/A3, D1):** on the suggest-to-author page the problem `ContextCard` moved
+  from the top of `<main>` to a persistent "you're responding to" bar pinned directly above the
+  composer (sibling of `<main>`, wrapper carries `@include page-column` so the card border stays
+  inset); `$spacing-lg` top air added on `.dmMain`; header keeps eyebrow "Suggestion" + author-name
+  h1 (one-h1 law); autoscroll-on-send re-verified. **Wave C (D1 finding, D5):** SolutionsBoard's three
+  action buttons stack an icon+count row over a short visible caption (Back this / Request expert /
+  Suggest merge) — they were icon-only; the sentence-length aria-labels were dropped so the visible
+  caption is the accessible name (WCAG 2.5.3 Label-in-Name / voice control), and `aria-pressed` was
+  added to the two toggles (upvote, request-review) — merge stays a plain action. ThreadedDiscussion's
+  icon-only Heart gained a visible "Like (n)" label matching its labeled Reply/Delete neighbours.
+  i18n (fr/sw only; en.ts is a partial dict): +3 caption keys, revived the orphaned
+  `deliberation.thread.like`, retired the 3 approval aria keys + `deliberation.thread.likeCount`
+  (parity 1137/1137). Opus whole-branch adversarial review (5 dimensions → verify) = 0 crit / 0
+  important, 1 minor applied (the DESIGN_SYSTEM context-header rule now states the placement is
+  context-dependent, since D1 moved the suggest card). Verified 360px light+dark en/fr/sw on the
+  suggest page (caption contrast light 4.76 / dark 5.71, no fr/sw caption overflow), SolutionsBoard
+  stage feed (active/backed state legible), and the discussion heart (liked red state). DESIGN_SYSTEM
+  icon+caption action-button law codified; i18n native-review packet S31 section appended.
 - **2026-07-13 — S30: Walkthrough-campaign Wave A — card anatomy unification (BUILT; push HELD for
   Eston; `b87608e..6abc429`, 8 commits).** First wave of the 2026-07-13 walkthrough campaign (P8).
   UI-composition only — no contract methods, fixtures, routes, or DEMO bump. (A-1) `.stageNavRow`
