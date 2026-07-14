@@ -74,10 +74,12 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
   const shown = showAllCountries ? countries : countries.slice(0, COUNTRY_PREVIEW);
 
   return (
-    <section className={styles.card} aria-label={t('mandate.card.aria', 'Mandate summary')}>
+    <section className={styles.card} aria-labelledby="mandate-summary-eyebrow">
       <div className={styles.eyebrow}>
         <ShieldCheck size={15} aria-hidden className={styles.eyebrowIcon} />
-        <span className={styles.brand}>{t('mandate.card.brand', 'Gloki Mandate')}</span>
+        {/* Visible eyebrow doubles as the section's accessible name (S32 F2) — the id sits
+            on the text span, not the row, so the "Pending" badge isn't swept into the name. */}
+        <span id="mandate-summary-eyebrow" className={styles.brand}>{t('mandate.card.eyebrow', 'Mandate summary')}</span>
         {mandate.status !== 'ratified' && (
           <Badge tone="warning" size="sm" className={styles.pending}>
             {t('mandate.statusPending', 'Pending ratification')}

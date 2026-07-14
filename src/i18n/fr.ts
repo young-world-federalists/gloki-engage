@@ -380,7 +380,7 @@ const fr: Dictionary = {
   'mandate.ratifiedOn': 'Ratifié le {date}',
   'mandate.you': 'Vous',
   'mandate.optional': 'facultatif',
-  'mandate.card.aria': 'Résumé du mandat',
+  'mandate.card.eyebrow': 'Résumé du mandat',
   'mandate.card.brand': 'Gloki Mandate',
   'mandate.card.problemLabel': 'Problème',
   'mandate.card.viewFull': 'Voir en entier',

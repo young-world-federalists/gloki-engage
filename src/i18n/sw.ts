@@ -379,7 +379,7 @@ const sw: Dictionary = {
   'mandate.ratifiedOn': 'Limeidhinishwa {date}',
   'mandate.you': 'Wewe',
   'mandate.optional': 'si lazima',
-  'mandate.card.aria': 'Muhtasari wa agizo',
+  'mandate.card.eyebrow': 'Muhtasari wa agizo',
   'mandate.card.brand': 'Gloki Mandate',
   'mandate.card.problemLabel': 'Tatizo',
   'mandate.card.viewFull': 'Tazama kamili',
