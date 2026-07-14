@@ -4,6 +4,9 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
+  // Top air so the hero card clears the sticky bar (it tucked -2.5px under it — S32 F1).
+  // Owned here, not in Container.module.scss — five other pages add their own top air there.
+  padding-top: $spacing-lg;
 }
 
 /* "Read the full mandate" scroll target — clears the sticky header.
