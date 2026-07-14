@@ -53,10 +53,12 @@
   }
 }
 
-.metaRow {
+/* Eyebrow + status badge share one row: eyebrow left, badge right (S32 F3). Exactly
+   two children, so space-between beats tagging the shared <Badge> with a margin class. */
+.eyebrowRow {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
   gap: $spacing-sm;
 }
 
@@ -241,22 +243,37 @@
   }
 }
 
-/* ----- Turnout + verification (institutional credibility) ----- */
-/* The Sybil-resistance prose now lives behind the (i) at the end of the turnout
-   strip (W4 4.7); the standing .verification block was retired. */
+/* ----- Provenance chin (turnout + view toggle) ----- */
+/* S32 F4/F5, D7: the provenance strip is the document card's two-tone chin — the
+   padded-card bleed variant (DESIGN_SYSTEM "Provenance / utility chin"). The card
+   has a uniform $spacing-lg inset, so the chin cancels it on L/R/bottom with negative
+   margins and rounds its own bottom corners to match; the flex gap:$spacing-xl above
+   still supplies the top separation. A provenance chin may carry non-action content
+   (the turnout line, the (i), the view toggle) — unlike an engage chin. */
+.provChin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0 (-$spacing-lg) (-$spacing-lg);
+  padding: $spacing-md $content-gutter;
+  background: $footer-surface;
+  border-top: 1px solid $footer-border;
+  border-bottom-left-radius: $radius-lg;
+  border-bottom-right-radius: $radius-lg;
+
+  @include dark {
+    background: $footer-surface-dark;
+    border-top-color: $footer-border-dark;
+  }
+}
+
+/* The turnout line — the chin is the surface now, so this is a plain flex row
+   (its former $gray-50 pill background/border/radius was retired in S32). The
+   Sybil-resistance prose lives behind the (i) at the row's right end (W4 4.7). */
 .turnout {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  padding: $spacing-sm $spacing-md;
-  background: $gray-50;
-  border: 1px solid $gray-100;
-  border-radius: $radius-md;
-
-  @include dark {
-    background: $dark-surface;
-    border-color: $dark-border;
-  }
 }
 
 .turnoutIcon {

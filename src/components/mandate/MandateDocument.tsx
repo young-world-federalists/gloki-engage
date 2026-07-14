@@ -103,63 +103,25 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
           the formal text (title → who ratified → the commitments), not a second
           stats card. */}
       <header className={styles.masthead}>
-        <p className={styles.eyebrow}>{t('mandate.card.brand', 'Gloki Mandate')}</p>
-        <h2 className={styles.title}>{mandate.title}</h2>
-        <div className={styles.metaRow}>
+        <div className={styles.eyebrowRow}>
+          <p className={styles.eyebrow}>{t('mandate.card.brand', 'Gloki Mandate')}</p>
           {mandate.status === 'ratified' ? (
             <Badge tone="success" size="sm">{t('mandate.statusRatified', 'Ratified')}</Badge>
           ) : (
             <Badge tone="warning" size="sm">{t('mandate.statusPending', 'Pending ratification')}</Badge>
           )}
-          {/* The date only exists once ratification has happened — showing it next
-              to a "Pending ratification" badge contradicted the badge (S17 persona
-              sample, James). */}
-          {mandate.status === 'ratified' && (
-            <span className={styles.ratified}>
-              <CalendarCheck size={14} aria-hidden />
-              {t('mandate.ratifiedOn', 'Ratified {date}', { date: ratified })}
-            </span>
-          )}
         </div>
+        <h2 className={styles.title}>{mandate.title}</h2>
+        {/* The date only exists once ratification has happened — showing it next to a
+            "Pending ratification" badge contradicted the badge (S17). Now on its own line
+            under the title; the status badge sits top-right in the eyebrow row (S32 F3). */}
+        {mandate.status === 'ratified' && (
+          <span className={styles.ratified}>
+            <CalendarCheck size={14} aria-hidden />
+            {t('mandate.ratifiedOn', 'Ratified {date}', { date: ratified })}
+          </span>
+        )}
       </header>
-
-      {/* Turnout carries the "is this vote real?" moment; the Sybil-resistance
-          prose is one tap away on the (i) rather than a standing block (W4 4.7). */}
-      <div className={styles.turnout}>
-        <Vote size={16} aria-hidden className={styles.turnoutIcon} />
-        <p className={styles.turnoutText}>
-          {t('mandate.turnoutLine', '{voters} of {eligible} eligible members voted ({pct}%)', {
-            voters: mandate.provenance.voters.toLocaleString(),
-            eligible: mandate.provenance.eligible.toLocaleString(),
-            pct: turnoutPct(mandate.provenance.voters, mandate.provenance.eligible),
-          })}
-        </p>
-        <InfoDisclosure
-          label={t('mandate.verification.title', 'How we keep the vote real')}
-          className={styles.verifyInfo}
-        >
-          <p>{t('mandate.verification.body', VERIFICATION_STATEMENT)}</p>
-        </InfoDisclosure>
-      </div>
-
-      <SegmentedControl<MandateView>
-        ariaLabel={t('mandate.viewToggle', 'Mandate view')}
-        fullWidth
-        value={view}
-        onChange={setView}
-        options={[
-          {
-            value: 'plain',
-            label: t('mandate.viewPlain', 'Plain language'),
-            icon: <FileText size={16} />,
-          },
-          {
-            value: 'spec',
-            label: t('mandate.viewSpec', 'Machine-readable spec'),
-            icon: <Code2 size={16} />,
-          },
-        ]}
-      />
 
       {view === 'plain' && (
         <div className={styles.plain}>
@@ -258,6 +220,47 @@ const MandateDocument: React.FC<MandateDocumentProps> = ({ mandate }) => {
           </span>
         </div>
       )}
+
+      {/* Provenance chin (S32 F4/F5, D7): the turnout line + Sybil-resistance (i) and the
+          plain/spec view toggle sit in the document card's two-tone chin. Trade-off accepted:
+          the toggle now follows the content it swaps (reverses W4 4.7's turnout-up-high). */}
+      <div className={styles.provChin}>
+        <div className={styles.turnout}>
+          <Vote size={16} aria-hidden className={styles.turnoutIcon} />
+          <p className={styles.turnoutText}>
+            {t('mandate.turnoutLine', '{voters} of {eligible} eligible members voted ({pct}%)', {
+              voters: mandate.provenance.voters.toLocaleString(),
+              eligible: mandate.provenance.eligible.toLocaleString(),
+              pct: turnoutPct(mandate.provenance.voters, mandate.provenance.eligible),
+            })}
+          </p>
+          <InfoDisclosure
+            label={t('mandate.verification.title', 'How we keep the vote real')}
+            className={styles.verifyInfo}
+          >
+            <p>{t('mandate.verification.body', VERIFICATION_STATEMENT)}</p>
+          </InfoDisclosure>
+        </div>
+
+        <SegmentedControl<MandateView>
+          ariaLabel={t('mandate.viewToggle', 'Mandate view')}
+          fullWidth
+          value={view}
+          onChange={setView}
+          options={[
+            {
+              value: 'plain',
+              label: t('mandate.viewPlain', 'Plain language'),
+              icon: <FileText size={16} />,
+            },
+            {
+              value: 'spec',
+              label: t('mandate.viewSpec', 'Machine-readable spec'),
+              icon: <Code2 size={16} />,
+            },
+          ]}
+        />
+      </div>
     </article>
   );
 };
