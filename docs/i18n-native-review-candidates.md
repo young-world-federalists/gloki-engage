@@ -1093,6 +1093,40 @@ bar's caption), not re-worded.
 
 ---
 
+## Session 31 / Waves B+C (2026-07-14) — action-button captions (3 new, 1 revived, 4 retired; parity 1138 → 1137)
+
+Wave C gave the SolutionsBoard action buttons short **on-screen captions** stacked under the
+icon+count (they were icon-only), and gave ThreadedDiscussion's Heart a visible "Like" label to
+match its Reply/Delete neighbors. The captions are now the buttons' **accessible name** (the old
+sentence-length aria-labels were dropped — the visible caption satisfies WCAG 2.5.3 / voice control),
+so the three `mechanisms.approval.{upvote,requestReview,suggestMerge}` aria keys and the interpolated
+`deliberation.thread.likeCount` were **retired**. All captions must stay ≤ ~1 short line (they wrap to
+2 lines inside a ~98px button at 360px; verified no overflow in en/fr/sw).
+
+- **fr/sw `mechanisms.approval.upvoteCaption`** *(new)* — visible caption on the "back this solution"
+  button (icon = thumbs-up + the backer count). English "Back this". fr "Soutenir". sw "Unga mkono".
+  **⚠ confirm** both read as the imperative "support/back this" on a button (these reuse the retired
+  upvote aria's wording, which was already in use).
+- **fr/sw `mechanisms.approval.requestReviewCaption`** *(new)* — visible caption on the "ask an expert
+  to review this solution" button (icon = microscope + request count). English "Request expert".
+  fr "Avis d’expert". sw "Omba mtaalam". **⚠ confirm** the fr *Avis d’expert* ("expert opinion") reads
+  as *requesting a review of this solution*, not consulting an expert in person; a verb form like
+  *Demander un avis* is an alternative if the noun feels off. sw *Omba mtaalam* = "request expert".
+- **fr/sw `mechanisms.approval.suggestMergeCaption`** *(new)* — visible caption on the "propose merging
+  this solution into another" button (icon = git-merge, no count). English "Suggest merge".
+  fr "Fusionner". sw "Unganisha". **⚠ confirm** both read as "merge/combine" as a button action
+  (fr infinitive, sw imperative).
+- **fr/sw `deliberation.thread.like`** *(revived — already translated, previously unused)* — now the
+  visible label on a discussion comment's Heart button, rendered as "Like (n)" with the count in
+  parentheses. English "Like". fr "J’aime". sw "Penda". **⚠ confirm** these read as the "like/heart"
+  affordance on a comment (they existed already; now they are actually on screen).
+- **Retired (removed from fr + sw):** `mechanisms.approval.upvote`, `mechanisms.approval.requestReview`,
+  `mechanisms.approval.suggestMerge` (were the icon buttons' aria-labels), and
+  `deliberation.thread.likeCount` (the interpolated "Like ({count})" aria-label). No action needed —
+  listed so a reviewer doesn't hunt for them.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

@@ -272,6 +272,21 @@ consolidating them to `<Button>` would be consistency-only — not worth the des
 _(Batch 14 finding; the identity-area action buttons + IdentityCardDialog→Modal were the clean
 wins and are done.)_
 
+**Icon+caption action buttons (S31).** An action button that carries an icon (and maybe a count)
+gets a short **visible caption** — icon-only is a decode-tax for the ≥70%-unaided, English-as-a-
+third-language user. Two forms:
+- **Board actions stack** — `flex-direction: column`, an icon+count row on top and the caption
+  beneath (SolutionsBoard's back / request-expert / merge row). `min-height: 44px` is a *floor*, not
+  a fixed height — the button grows for the caption.
+- **Thread/inline actions label inline** — the caption sits after the icon on one line, matching its
+  neighbors (ThreadedDiscussion's Heart now reads "Like (n)" beside the labeled Reply/Delete).
+
+The **visible caption is the accessible name** — do NOT also set a sentence-length `aria-label` that
+differs from it (WCAG 2.5.3 Label-in-Name; a voice-control user must be able to say what they see).
+Toggle buttons carry `aria-pressed`. Captions use short i18n keys (precedent `community.menuCaption`,
+`card.suggestToAuthorShort`); fr/sw may wrap to two lines inside a ~98px button at 360px but must not
+overflow — measure in the live preview per the width law.
+
 **Legacy classes removed.** Eight global button-style classes (`.save-button`, `.cancel-button`,
 `.submit-button`, `.action-button`, `.primary-button`, `.secondary-button`, `.delete-button`,
 `.back-button`) were deleted as dead CSS — no component referenced them. The bespoke-`<button>`
