@@ -375,9 +375,14 @@ Props: `label` (translated trigger aria-label), `title` (modal heading, defaults
 sub-page acts ON, kept visible so it never disappears. A presentational `<section>`
 with an optional `<h2>` title + a line-clamped body — no interactivity, no data.
 **The context-header rule (campaign §5 rule 11):** any sub-page that acts ON an item
-— the discussion page, suggest-to-author — renders a `ContextCard` (title + body)
-between the `AppHeader` and the working surface, so the user always sees *what* they
-are discussing / suggesting on. `title` is **optional**: a page whose header `<h1>`
+— the discussion page, suggest-to-author — renders a `ContextCard` (title + body) so
+the user always sees *what* they are discussing / suggesting on. **Placement is
+context-dependent (S31, D1):** the discussion page renders it between the `AppHeader`
+and the working surface (it reads top-down: context → conversation); the
+suggest-to-author page **pins it as a persistent "you're responding to" bar directly
+above the composer** — a sibling of `<main>` above `.inputBar`, carrying
+`@include page-column` — so on a long thread the problem never scrolls away and hugs
+the primary act (the input). `title` is **optional**: a page whose header `<h1>`
 already carries the item title passes **body-only** to avoid a double-title (the
 discussion page does this — the `<h1>` is the initiative title, S23); a page whose
 header names something else (suggest-to-author's `<h1>` is the recipient) passes
