@@ -385,9 +385,9 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
     (needs the global-`.input-field` blast-radius decision); (b) Members rows → `Card`; (c)
     **BallotSolutionCard** extraction (own focused session — risk is in the voting core).
 
-**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). 🔨 IN PROGRESS — Waves A–C shipped (push HELD), W-D pending.**
+**P8 — Walkthrough campaign (Eston click-through, 2026-07-13). ✅ DONE — all four waves (A–D) SHIPPED+PUSHED; campaign complete.**
 
-- ✅ **W-A — card anatomy unification (S30) — BUILT, push HELD for Eston.** Spec
+- ✅ **W-A — card anatomy unification (S30) — SHIPPED+PUSHED (deploy green on `5009ef1`).** Spec
   `docs/superpowers/specs/2026-07-13-card-anatomy-design.md`; commits `b87608e..6abc429`.
   Shipped: strip gutter (`.stageNavRow` → `$content-gutter`); de-buttonized current stage pill
   (D2); bespoke threshold bar → shared `ProgressBar` kit (gray end-line + ARIA gap gone, A-3/A-4);
@@ -397,7 +397,7 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   Opus review 0 blocker / 0 major (3 minor fixes applied). Verified 360px light+dark en/fr/sw; the
   ProblemVoteFlow bar itself stayed StageGate-gated for the demo visitor (verified via code path +
   build, same limit the review session hit). DESIGN_SYSTEM chin/strip law codified.
-- ✅ **W-B/C — suggest-flow recompose + action-button captions (S31) — BUILT, push HELD for Eston.**
+- ✅ **W-B/C — suggest-flow recompose + action-button captions (S31) — SHIPPED+PUSHED (deploy green on `5009ef1`).**
   Spec `docs/superpowers/specs/2026-07-14-suggest-flow-captions-design.md`; commits `1d8a996..555d090`.
   **W-B (D1):** the problem `ContextCard` moved from the top of `<main>` to a persistent "you're
   responding to" bar pinned directly above the composer (wrapper carries `@include page-column`; the
@@ -411,6 +411,24 @@ calls await Eston (§6); a Round-2 backlog covers uncovered surfaces (§7).
   context-dependent placement). Verified 360px light+dark en/fr/sw on the suggest page (light 4.76 /
   dark 5.71 caption contrast, no fr/sw overflow) + SolutionsBoard stage feed + discussion heart.
   DESIGN_SYSTEM icon+caption action-button law codified.
+- ✅ **W-D — mandate-page recompose (S32) — SHIPPED+PUSHED (deploy green on `ffa3878`).** Spec
+  `docs/superpowers/specs/2026-07-14-mandate-page-recompose-design.md`; commits `a98cb8f..ffa3878`.
+  UI-only — no contract methods, fixtures, routes, or DEMO bump. **F1** top air on `.page`. **F2/D6**
+  hero eyebrow "Gloki Mandate" → "Mandate summary" (retired the orphaned `mandate.card.aria` aria-label
+  into a new visible `mandate.card.eyebrow`; section now `aria-labelledby` the visible span; shield
+  kept). **F3** document status Badge → top-right of a new `.eyebrowRow` (space-between); `.metaRow`
+  dissolves; the "Ratified {date}" line moves under the title, still gated by status (S17 rule).
+  **F4/F5/D7** turnout line + Sybil (i) + plain/spec toggle relocated to a bottom **two-tone
+  provenance chin** — a new padded-card bleed variant (`margin: 0 -$spacing-lg -$spacing-lg` +
+  matching bottom radius) since the doc card keeps its W4 4.5 uniform inset; `.turnout` drops its own
+  pill surface. **F6/D8** `AdoptionFramework` "From mandate to action" gains hand-rolled sibling card
+  chrome; the white AdopterCard `<li>` → `$gray-50`/`$dark-surface` so nested items stay distinct.
+  **D9** skipped (the hero's S11 clean-link Share already sits on the page). i18n: −1 aria +1 eyebrow
+  (parity 1137/1137). Opus whole-branch adversarial review (4 dimensions → verify) = 0 blocker / 0
+  major; 1 minor applied (engage-chin grammar rule now self-marks its scope), 2 refuted. Verified
+  360px light+dark en/fr/sw on the published-mandate page (chin bleed measured exact; dark turnout
+  ≈4.76:1, info-box ~9.5:1; `#docAnchor` "View full" lands the title). DESIGN_SYSTEM "provenance /
+  utility chin" variant codified; i18n packet S32 section appended.
 Eston's live walkthrough (~20 critiques) verified same-day against `c91bd86` (7-unit read-only
 fleet + controller preview walk) → [docs/ui-walkthrough-campaign-2026-07-13.md](docs/ui-walkthrough-campaign-2026-07-13.md)
 (verified findings + 4 waves + 9 open decisions for Eston §6). W-A card anatomy (strip gutter +
@@ -488,8 +506,42 @@ bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English 
 
 ## 8. Changelog
 
+- **2026-07-14 — S32: Walkthrough-campaign Wave D — mandate-page recompose (SHIPPED+PUSHED;
+  `a98cb8f..ffa3878`, 9 commits; deploy green). CLOSES the P8 walkthrough campaign.** Spec
+  `docs/superpowers/specs/2026-07-14-mandate-page-recompose-design.md`; decisions D6 (keep shield),
+  D7 (two-tone chin + extend the chin law), D8 (hand-rolled chrome in place), D9 (skip the extra
+  share) locked by Eston at kickoff. UI-only — no contract methods, fixtures, routes, or DEMO bump.
+  **F1:** `padding-top: $spacing-lg` on `.page` (the hero tucked -2.5px under the sticky bar); owned
+  there, not in `Container.module.scss` (five other pages add their own top air). **F2/D6:** the hero
+  `MandateCard` eyebrow changes from the brand label "Gloki Mandate" to the section label "Mandate
+  summary" so it stops echoing the document card — the orphaned `mandate.card.aria` (the section's
+  invisible aria-label) is retired into a new **visible** `mandate.card.eyebrow` (same fr/sw values),
+  and the section switches to `aria-labelledby` on the visible span (id on the text node, so the
+  Pending badge isn't swept into the name); shield kept. The shared `mandate.card.brand` is untouched
+  (document card + MandateEngage still use it). **F3:** the document status Badge moves into a new
+  `.eyebrowRow` (`justify-content: space-between`) top-right; `.metaRow` dissolves; the "Ratified
+  {date}" line moves under the title, still gated by `status === 'ratified'` (never beside a Pending
+  badge — S17). **F4/F5/D7:** the turnout line + Sybil-resistance (i) + plain/spec `SegmentedControl`
+  relocate from directly-after-masthead to a bottom **two-tone provenance chin** (`$footer-*` tokens).
+  Because the document card keeps its W4 4.5 uniform `$spacing-lg` inset (unlike the engage chins,
+  whose hosts are `padding:0; overflow:hidden`), the chin bleeds with `margin: 0 -$spacing-lg
+  -$spacing-lg` + matching `border-bottom-*-radius` — a new **padded-card bleed variant**; `.turnout`
+  drops its own pill surface. Accepted trade-off: the view toggle now follows the content it swaps.
+  **F6/D8:** `AdoptionFramework` "From mandate to action" gains hand-rolled sibling card chrome
+  (white/`$dark-bg`, `$gray-200` border, `$radius-lg`, `$shadow-sm`, `$spacing-lg`); the white-on-white
+  AdopterCard `<li>` → `$gray-50` (light) / `$dark-surface` (dark) so nested items stay distinct; the
+  `$info-surface` summary box re-checked (dark ~9.5:1). **D9:** skipped (the hero's S11 pubkey-free
+  Share already sits on the page). i18n (fr/sw only; en.ts is a partial dict): −1 `mandate.card.aria`
+  +1 `mandate.card.eyebrow` (parity 1137/1137). Opus whole-branch adversarial review (4 dimensions →
+  per-finding verify) = 0 blocker / 0 major; 1 minor applied (the engage-chin "one interaction
+  grammar" rule now self-marks its scope so the provenance-chin carve-out is greppable at the rule),
+  2 findings refuted with evidence. Verified 360px light+dark en/fr/sw on the published-mandate page:
+  chin bleed measured exact (1px border gaps, rounded bottom corners), dark turnout ≈4.76:1 + info-box
+  ~9.5:1 (AA), F2 eyebrow localizes + shield kept, F3 badge top-right + ratified date under title, F6
+  nested AdopterCard distinct, `#docAnchor` "View full" lands the title, no console errors. DESIGN_SYSTEM
+  "provenance / utility chin" variant codified; i18n native-review packet S32 section appended.
 - **2026-07-14 — S31: Walkthrough-campaign Waves B+C — suggest-flow recompose + action-button
-  captions (BUILT; push HELD for Eston; `1d8a996..555d090`, 7 commits).** Spec
+  captions (SHIPPED+PUSHED; `1d8a996..555d090`, 7 commits; deploy green on `5009ef1`).** Spec
   `docs/superpowers/specs/2026-07-14-suggest-flow-captions-design.md`; decisions D1 (pinned above
   composer) + D5 (fix the heart) locked by Eston. UI-only — no contract methods, fixtures, routes,
   or DEMO bump. **Wave B (A1/A3, D1):** on the suggest-to-author page the problem `ContextCard` moved
@@ -510,8 +562,8 @@ bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English 
   suggest page (caption contrast light 4.76 / dark 5.71, no fr/sw caption overflow), SolutionsBoard
   stage feed (active/backed state legible), and the discussion heart (liked red state). DESIGN_SYSTEM
   icon+caption action-button law codified; i18n native-review packet S31 section appended.
-- **2026-07-13 — S30: Walkthrough-campaign Wave A — card anatomy unification (BUILT; push HELD for
-  Eston; `b87608e..6abc429`, 8 commits).** First wave of the 2026-07-13 walkthrough campaign (P8).
+- **2026-07-13 — S30: Walkthrough-campaign Wave A — card anatomy unification (SHIPPED+PUSHED;
+  `b87608e..6abc429`, 8 commits; deploy green on `5009ef1`).** First wave of the 2026-07-13 walkthrough campaign (P8).
   UI-composition only — no contract methods, fixtures, routes, or DEMO bump. (A-1) `.stageNavRow`
   insets to `$content-gutter`/`$spacing-md` — the 4-stage strip was flush to the card edge while
   every sibling row sat 16px in (C2). (A-2, **D2**) de-buttonized the current stage pill — dropped
