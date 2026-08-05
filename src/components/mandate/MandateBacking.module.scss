@@ -1,0 +1,119 @@
+@use '../../styles/variables' as *;
+
+/* Sibling card chrome — matches AdoptionFramework (S32 F6/D8) so the mandate
+   page reads as one stack of peer cards. */
+.backing {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+/* ----- Header ----- */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.headingRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.headingIcon {
+  color: $primary;
+  flex-shrink: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* The count stays visible while the control folds. */
+.summary {
+  margin: 0;
+  padding: $spacing-lg;
+  background: $info-surface;
+  border-radius: $radius-lg;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $info-on-surface;
+
+  @include dark {
+    background: $info-surface-dark;
+    color: $dark-text;
+  }
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+  text-align: left;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+.chevron {
+  flex: none;
+  transition: transform $transition-base;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.panel {
+  // The `hidden` attribute's display:none is otherwise overridden by display:flex.
+  &[hidden] {
+    display: none;
+  }
+}

@@ -23,6 +23,28 @@ export async function stake(
   }));
 }
 
+/**
+ * S33 — change an existing commitment's duration. Never touches the amount, so a
+ * re-commit cannot inflate one person's weight (which a second `stake` would).
+ */
+export async function updateStake(
+  serverUrl: string, publicKey: string, contractId: string,
+  duration: string, country: string,
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl, publicKey, contractId,
+    method: { name: 'update_stake', values: { duration, country } } as IMethod,
+  }));
+}
+
+/** S33 — drop your backing entirely. */
+export async function withdrawStake(serverUrl: string, publicKey: string, contractId: string) {
+  return throwIfContractError(await contractWrite({
+    serverUrl, publicKey, contractId,
+    method: { name: 'withdraw_stake', values: {} } as IMethod,
+  }));
+}
+
 export async function getMyStake(serverUrl: string, publicKey: string, contractId: string) {
   return await contractRead({
     serverUrl, publicKey, contractId,

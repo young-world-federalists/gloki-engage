@@ -120,3 +120,50 @@ only READS: `initiative.get_stage_contract { stage_key: 'discussionContractId' }
 then `discussion.get_comments` for the live count. It never deploys or writes —
 the discussion page itself remains the deploy-on-intent surface. No contract work
 needed beyond what already exists.
+
+### Conviction / backing (`demoContracts/conviction.ts`) — documented S33
+
+**This subsystem was missing from this doc entirely** (it predates it). Full surface,
+including the two methods S33 adds. Resolved in **shared mode** from the initiative
+contract: `initiative.get_stage_contract { stage_key: 'convictionContractId' }`.
+Client wrappers live in `src/components/collaboration/flows/voting/convictionApi.ts`.
+
+Stake record shape: `{ amount, duration, timestamp, country, voter }`.
+`duration` is one of `1w | 1m | 3m | 6m | 1y`, with weights **1 / 2 / 4 / 7 / 12**.
+
+Reads:
+
+- `get_my_stake` (no args) → the caller's stake record, or `null`.
+- `get_stakes` (no args) → `{ [voter]: stake }`.
+- `get_total_conviction` (no args) → `{ total, count }` — `total` sums
+  `amount × durationWeight`; `count` is the number of backers.
+- `get_conviction_by_country` (no args) → `{ [ISO-alpha-2]: weight }`.
+
+Writes:
+
+- `stake` (`{ amount, duration, country }`) — creates the caller's backing.
+  **The UI always sends `amount: 1`**: conviction here is *time-only*, so the
+  duration weight is the entire weight and support can never be wealth-weighted
+  (this is what keeps it consistent with the locked one-person-one-vote decision).
+  ⚠️ The stub currently *adds* to `amount` when a stake already exists; the UI no
+  longer reaches that path (it routes changes through `update_stake`), but **the
+  real contract should reject a second `stake` from the same caller** rather than
+  accumulate.
+- `update_stake` (`{ duration, country }`) — **new in S33.** Changes the caller's
+  duration and nothing else; the amount is never touched, so re-committing cannot
+  inflate one person's weight. Returns `{ error }` if the caller has no stake.
+  **Timestamp rule the real contract must mirror:** lengthening the commitment
+  *preserves* the original `timestamp` (the backing record stands); shortening it
+  *resets* `timestamp` to now. This is the honest analogue of time-accrual — a long
+  record cannot be harvested and then quietly downgraded.
+- `withdraw_stake` (no args) — **new in S33.** Removes the caller's stake. Returns
+  `{ error }` if there is none.
+
+**Auth the real contract must enforce:** all three writes act on `caller` only — a
+caller must never be able to create, change, or withdraw another key's backing.
+
+**Two UI surfaces, one contract.** `MandateStage` (community page / stage feed) and
+`MandateBacking` (the published mandate page, S33) both mount `ConvictionStaking`
+with the same `instanceId`/`parentContractId`/`stageKey` triple, because the mandate
+route's `:mandateId` IS the initiative contract id. They are the same contract, not
+two copies — backing on one surface must show on the other.

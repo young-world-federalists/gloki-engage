@@ -89,6 +89,36 @@ export function convictionWrite(contractId: string, method: IMethod, caller: str
       writeState(contractId, s);
       return null;
     }
+    // S33: a commitment is changeable, not frozen. Duration is the ONLY thing
+    // that moves — amount stays whatever the original stake set (always 1), so
+    // re-committing can never inflate one person's weight the way a second
+    // `stake` call would.
+    case 'update_stake': {
+      const duration = method.values?.duration as string | undefined;
+      const country = method.values?.country;
+      if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
+      const existing = s.stakes[caller];
+      if (!existing) return { error: 'No commitment to change' };
+      // Lengthening preserves the original backing date (the record stands);
+      // shortening restarts the clock, so a long record can't be harvested and
+      // then quietly downgraded. FOR OURI: enforce this server-side too.
+      const wasMult = DURATION_MULTIPLIERS[existing.duration] ?? 1;
+      const nowMult = DURATION_MULTIPLIERS[duration];
+      s.stakes[caller] = {
+        ...existing,
+        duration,
+        country: country === undefined ? existing.country : normalizeCountry(country),
+        timestamp: nowMult < wasMult ? Date.now() : existing.timestamp,
+      };
+      writeState(contractId, s);
+      return null;
+    }
+    case 'withdraw_stake': {
+      if (!s.stakes[caller]) return { error: 'No commitment to withdraw' };
+      delete s.stakes[caller];
+      writeState(contractId, s);
+      return null;
+    }
     default:
       return null;
   }

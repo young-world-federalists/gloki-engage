@@ -4,6 +4,7 @@ import AppHeader from '../AppHeader';
 import MandateCard, { MANDATE_DOC_ANCHOR_ID } from './MandateCard';
 import MandateDocument from './MandateDocument';
 import AdoptionFramework from './AdoptionFramework';
+import MandateBacking from './MandateBacking';
 import RatificationPanel from './RatificationPanel';
 import { useMandate } from '../../hooks/useMandate';
 import cs from '../../pages/Container.module.scss';
@@ -23,16 +24,24 @@ const MandatePage: React.FC = () => {
   const { communityId, mandateId } = useParams<{ communityId: string; mandateId: string }>();
   const [ratifyToken, setRatifyToken] = React.useState(0);
   const { mandate } = useMandate(mandateId, communityId, ratifyToken);
+  const [backingOpen, setBackingOpen] = React.useState(false);
+  const backingRef = React.useRef<HTMLDivElement>(null);
 
   const onViewFull = () => {
     const el = document.getElementById(MANDATE_DOC_ANCHOR_ID);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Decision B: route to where conviction staking lives — the community page
-  // auto-expands the initiative card (MandateStage → ConvictionStaking).
+  // S33: backing happens HERE now. It used to navigate to the community page and
+  // lean on the initiative card auto-expanding into MandateStage — the same
+  // control, three screens away. The panel below resolves the same shared
+  // conviction contract, so this is one surface moved, not a second copy.
   const onShowSupport = () => {
-    if (communityId && mandateId) navigate(`/community/${communityId}?initiative=${mandateId}`);
+    setBackingOpen(true);
+    // Let the panel render before scrolling to it.
+    window.requestAnimationFrame(() => {
+      backingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   return (
@@ -43,6 +52,16 @@ const MandatePage: React.FC = () => {
         <div className={cs.main}>
           <div className={styles.page}>
             <MandateCard mandate={mandate} communityId={communityId ?? ''} mandateId={mandateId ?? ''} onShowSupport={onShowSupport} onViewFull={onViewFull} />
+            {mandateId && (
+              <div ref={backingRef} className={styles.backingAnchor}>
+                <MandateBacking
+                  mandateId={mandateId}
+                  backers={mandate.provenance.convictionBackers}
+                  expanded={backingOpen}
+                  onToggle={() => setBackingOpen((v) => !v)}
+                />
+              </div>
+            )}
             {mandateId && (
               <RatificationPanel
                 initiativeId={mandateId}
