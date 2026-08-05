@@ -130,7 +130,123 @@ change with contract and results implications, not a UI session. Logged to MASTE
 
 ---
 
-## 3. W2 — The author's perspective · 4. W3 — The organization actor · 5. W4 — Design audit
+## 3. W2 — The author's perspective
 
-Specified in §§3–5 below once the subsystem maps land; W1 above is independently verified and
-buildable now.
+### 3.1 What the map found (and it is worse than "missing")
+
+A five-agent read-only mapping pass over HEAD established:
+
+| # | Finding | Evidence |
+|---|---|---|
+| A1 | `SolutionsBoard` has **no author branch at all**. It fetches `roles` and uses it for exactly one thing — `isExpert` | `SolutionsBoard.tsx:159-166`; `roles.author` is never compared to `publicKey` in the file |
+| A2 | An expert-review request renders **identically** for the author, the requester, and a stranger — a bare count + "Review requested by {n}" | `SolutionsBoard.tsx:530-534`, `:564-575` |
+| A3 | **`mergeSuggestions` is write-only.** `suggest_proposal_merge` stores it; grepping the symbol finds it *declared* in `SolutionsBoard.tsx:34` and *written* in `approval.ts:203-207` and **read by nothing** | grep `mergeSuggestions` across `src/` |
+| A4 | The one real author-decision UI (cross-initiative merge accept/reject) sits on a route **nothing in the app links to** — `/…/collaboration`, reachable only by typing the URL | `InitiativeView.tsx:42`; no `navigate()` targets it |
+| A5 | `NotificationsBell` has exactly one event type (`'merge_absorbed'`) and is fed by a single dispatch on that unreachable route — so it is permanently empty | `notificationsSlice.ts:3`; `MergeProposalsList.tsx:78-86` |
+| A6 | The demo user **authors nothing** in the seed — every initiative and solution is persona-authored on purpose | `seedDemoCommunity.ts:123,138,194`; already documented in `.claude/skills/gloki-verification-and-qa/SKILL.md:177-179` |
+
+A3 is the sharpest: a member can suggest a merge, the contract records it, and **no human being
+ever sees it**. Eston's question — "what does the author see?" — has the answer "nothing", and for
+merges the answer is "nothing, for anyone".
+
+### 3.2 What was built
+
+🔶 **`SolutionAuthorPanel`**, rendered only when `p.author === publicKey`:
+
+- **Expert-review requests** — named people (`UserIdentity`), plus the honest note that the author
+  cannot grant this themselves; an expert has to pick it up. Status, not a fake action.
+- **Merge suggestions** — who suggested it, the target solution quoted, and a real decision:
+  **Accept the merge** / **Keep mine separate**. Settled suggestions render as a past-tense line.
+
+🔶 **New wire method** `decide_merge_suggestion { source_id, target_id, decision }` — the missing
+half of A3. **Gated on `caller === source_proposal.author`**, because the suggestion asks to fold
+*the caller's own* solution into someone else's. Accepting sets `mergedInto` and deliberately does
+**not** move approval counts: folding tallies is a governance change, not a display one.
+Documented in `FOR_OURI_seam.md` with the auth the real contract must enforce.
+
+🔶 **Seeded reachability (A6).** One `databroker` solution is authored by the **viewer**, carrying
+two pending review requests and one merge suggestion. This is what makes the author view visible
+at all — and it answers Eston's "show me both perspectives" better than a toggle would: the same
+board now shows *your* solution with its author panel directly beside other people's solutions
+with the plain member view. Fixtures changed ⇒ **`DEMO_VERSION` `global-v16` → `global-v17`**.
+
+⚠️ Consequence caught in the preview walk, not the build: the viewer's byline rendered as the raw
+key `aaaaaaaa…` (the demo user has no profile). Your own byline now reads **"You"**.
+
+⛔ Out of scope: a real notifications inbox (A5), and making the `/collaboration` route reachable
+(A4). Both logged to MASTER_TODO §7 — A4 in particular is a live dead-end worth its own decision.
+
+---
+
+## 4. W3 — The organization actor
+
+### 4.1 The shape of the decision
+
+Eston: organizations should **not** be users of the platform; they interact only with finished
+mandates — endorse and subscribe — "almost like a parallel app". They may view other content but
+not interact with it.
+
+🔶 **Decision: a parallel actor, not a permission level.** This follows from the locked 1p1v
+decision: the reason an institution cannot deliberate or vote here is not that it lacks a
+privilege, it is that the mechanism counts people. So the organization is modelled beside the
+member identity, not inside its trust ladder.
+
+### 4.2 Constraints the map imposed
+
+| # | Constraint | Consequence |
+|---|---|---|
+| B1 | The whole app is auth-gated above the Router (`App.tsx:99-105`) | An organization still signs in; auth is key-based for every actor, so org sign-in mints a key the same way. The local record is what makes it an organization |
+| B2 | Identity is exactly `{ publicKey, serverUrl }` in localStorage + Redux | The org record persists separately (`gloki.organization`), like `DigitalAgent` — no contract, no wire method, nothing for Ouri to implement yet |
+| B3 | **`useMandate` DEPLOYS** two stage contracts in shared mode | The org's mandate list must never call it — one call per row would write a contract per listed mandate. It uses `useAllInitiatives`, which is pure `contractRead` |
+| B4 | Pilot communities force stage rules to `'anyone'` (`seedDemoCommunity.ts:516-520`) | `canParticipate` would happily let an institution vote. The org block must sit **before** the trust checks in `StageGate` |
+| B5 | Only **one** published mandate exists, and there is no index | `/organization` builds its own list from initiatives at stage `mandate`. It will read thin until more communities finish — the empty/thin state is written for that |
+| B6 | `MandateAdopter.verified` already exists as an attestation hook | Org-added endorsements stay `verified: false` ("claimed"), never "verified" — the honest state until organizations are real |
+
+### 4.3 What was built
+
+- `services/organizationActor.ts` + `hooks/useOrganization.ts` — the single gate the app branches on.
+- `OrganizationSignIn` on `LoginPage` — a quiet secondary path (name, type, optional country).
+  Deliberately shorter than the member flow: no onboarding, no vouching, no trust ladder, because
+  none of it applies.
+- **`/organization`** — the org's whole app: finished mandates and nothing else. *(New top-level
+  route. The route map is frozen by convention, so this is flagged for Eston as an IA change —
+  §6.)*
+- `RootRoute` sends an org session there instead of `/welcome` (it has no member journey to onboard into).
+- `StageGate` blocks organizations at every stage, before the trust checks (B4); reading stays open.
+- `MandateBacking` shows an org the backer count without the staking control — backing is a
+  person's act. `AdoptionFramework` binds endorse/subscribe to the signed-in org: the CTA names
+  them, the modal pre-fills identity and country.
+- `logout()` clears the org record — it outlives `user`, so the next person to sign in on the
+  device would otherwise inherit the org session and find everything blocked.
+
+---
+
+## 5. W4 — "It looks vibe-coded / AI"
+
+Handled as a research-then-audit pass rather than a guess: three independent web sweeps (visual
+tells of AI-generated UIs; positive markers of hand-crafted design; how civic products earn
+institutional credibility), then an audit of those findings against a factual visual inventory of
+this codebase, then a skeptical verification pass over every proposed change — checking each one
+is true at HEAD, doesn't violate a locked decision, and survives the mobile/fr/sw constraints.
+
+Findings and what was applied are recorded in §7 of this spec (written at closeout).
+
+⛔ Explicitly **not** built: short-form video as initiative content. Eston named it as the
+long-term direction, not this session's scope.
+
+---
+
+## 6. Open decisions for Eston
+
+1. **New top-level route `/organization`.** The route map is frozen by convention; adding a
+   top-level area is an IA decision. The alternative was hanging it under an existing wildcard
+   (`/identity/*`), which reads wrong for a different actor. Built as `/organization`; say if you'd
+   rather it live elsewhere or be named differently.
+2. **Conviction editing changes the mechanism's feel.** Lengthening preserves your backing date,
+   shortening resets it. That's my reading of what keeps "conviction" honest without a real
+   accrual clock — but it is a governance choice, not a UI one.
+3. **No "view as author" toggle was built.** Seeding a viewer-authored solution makes the author
+   view real rather than simulated, and puts both perspectives on one screen. A toggle is still
+   possible if you want to flip perspective on *any* solution.
+4. **Organizations can currently read every community surface.** Blocked from acting, but not from
+   browsing. If organizations should see less, that's a further gate.
