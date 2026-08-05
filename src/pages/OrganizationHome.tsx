@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Building2, ScrollText, ArrowRight } from 'lucide-react';
 import AppHeader from '../components/AppHeader';
 import { Badge, CountryFlag, EmptyState } from '../components/shared';
@@ -25,7 +25,7 @@ import styles from './OrganizationHome.module.scss';
 const OrganizationHome: React.FC = () => {
   const navigate = useNavigate();
   const { t, locale } = useI18n();
-  const { organization } = useOrganization();
+  const { organization, isOrganization } = useOrganization();
   const { initiatives, isLoading } = useAllInitiatives();
 
   const mandates = useMemo(
@@ -42,6 +42,10 @@ const OrganizationHome: React.FC = () => {
       default: return t('mandate.typeYouth', 'Youth network');
     }
   };
+
+  // This is the organization's app, not a public page — a person session that
+  // lands here would see an empty "Signed in as" panel.
+  if (!isOrganization) return <Navigate to="/" replace />;
 
   return (
     <div className={cs.container}>

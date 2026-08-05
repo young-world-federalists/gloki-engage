@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { getOrganization, type OrganizationActor } from '../services/organizationActor';
+import { getOrganization, invalidateOrganizationCache, type OrganizationActor } from '../services/organizationActor';
 
 const listeners = new Set<() => void>();
 
@@ -7,7 +7,11 @@ function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   // Another tab signing in/out as an organization should flip this one too.
   const onStorage = (e: StorageEvent) => {
-    if (e.key === 'gloki.organization' || e.key === null) listener();
+    if (e.key === 'gloki.organization' || e.key === null) {
+      // Re-read storage, or getSnapshot returns this tab's stale memo.
+      invalidateOrganizationCache();
+      listener();
+    }
   };
   window.addEventListener('storage', onStorage);
   return () => {

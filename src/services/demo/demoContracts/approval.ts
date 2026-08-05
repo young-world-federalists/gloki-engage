@@ -225,9 +225,12 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       // thing standing between a stranger and someone else's merge decision.
       if (p.author !== caller) return { error: 'Only the solution’s author can decide' };
       const suggestions = Array.isArray(p.mergeSuggestions) ? p.mergeSuggestions : [];
-      const match = suggestions.find((m) => m.target === targetId);
-      if (!match) return { error: 'Unknown merge suggestion' };
-      match.decision = decision;
+      // Suggestions are deduped per {target, suggester}, so two members can
+      // legitimately suggest the SAME target. Decide every entry for that target
+      // — matching only the first left the others permanently undecidable.
+      const matches = suggestions.filter((m) => m.target === targetId);
+      if (matches.length === 0) return { error: 'Unknown merge suggestion' };
+      for (const m of matches) m.decision = decision;
       // Accepting records the outcome on the solution; it deliberately does NOT
       // move approval counts (folding the tallies is a governance change, not a
       // display one).

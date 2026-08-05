@@ -159,17 +159,25 @@ Writes:
   **The UI always sends `amount: 1`**: conviction here is *time-only*, so the
   duration weight is the entire weight and support can never be wealth-weighted
   (this is what keeps it consistent with the locked one-person-one-vote decision).
-  ⚠️ The stub currently *adds* to `amount` when a stake already exists; the UI no
-  longer reaches that path (it routes changes through `update_stake`), but **the
-  real contract should reject a second `stake` from the same caller** rather than
-  accumulate.
+  **Rejects a second `stake` from the same caller** (`{ error: 'Already backing —
+  use update_stake' }`). It previously *added* to the existing amount, which made
+  one-person-one-commitment depend on the client having read `get_my_stake` first
+  — a failed read silently doubled the caller's weight. The real contract must
+  reject it server-side too.
 - `update_stake` (`{ duration, country }`) — **new in S33.** Changes the caller's
   duration and nothing else; the amount is never touched, so re-committing cannot
   inflate one person's weight. Returns `{ error }` if the caller has no stake.
-  **Timestamp rule the real contract must mirror:** lengthening the commitment
-  *preserves* the original `timestamp` (the backing record stands); shortening it
-  *resets* `timestamp` to now. This is the honest analogue of time-accrual — a long
-  record cannot be harvested and then quietly downgraded.
+  **Timestamp handling:** lengthening the commitment preserves the original
+  `timestamp`; shortening resets it to now.
+  ⚠️ **Be clear about what this does and doesn't buy.** Today `timestamp` is
+  *display metadata only* — it drives the "Backing since {date}" line and nothing
+  else. Weight is computed purely from the currently-declared `duration`
+  (`get_total_conviction` / `get_conviction_by_country` multiply
+  `amount × DURATION_MULTIPLIERS[duration]`), and withdrawal is free, so nothing
+  currently stops a caller declaring `1y` for maximum weight and withdrawing a
+  moment later. The timestamp rule only becomes a real anti-harvest guarantee once
+  weight accrues from time *held* — see the open item in MASTER_TODO §7. Implement
+  the rule, but don't rely on it as a defence yet.
 - `withdraw_stake` (no args) — **new in S33.** Removes the caller's stake. Returns
   `{ error }` if there is none.
 

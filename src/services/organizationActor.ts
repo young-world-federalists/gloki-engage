@@ -66,6 +66,15 @@ export function saveOrganization(org: Omit<OrganizationActor, 'createdAt'>): Org
   return record;
 }
 
+/**
+ * Drop the memoised value so the next `getOrganization()` re-reads storage.
+ * Needed by the cross-tab `storage` listener: without it the listener fires but
+ * `getSnapshot` returns the same cached reference and React bails out.
+ */
+export function invalidateOrganizationCache(): void {
+  cached = undefined;
+}
+
 export function clearOrganization(): void {
   try {
     localStorage.removeItem(ORG_KEY);

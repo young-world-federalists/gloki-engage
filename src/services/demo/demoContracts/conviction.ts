@@ -77,10 +77,14 @@ export function convictionWrite(contractId: string, method: IMethod, caller: str
       if (typeof amount !== 'number' || amount <= 0) return { error: 'Stake amount must be positive' };
       if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
       const normalized = normalizeCountry(country);
-      const existing = s.stakes[caller];
-      const newAmount = existing ? existing.amount + amount : amount;
+      // S33: one backing per person, enforced HERE. This used to add to an
+      // existing amount, which made one-person-one-commitment depend on the
+      // client having successfully read `get_my_stake` first — a failed read
+      // would silently double the caller's weight. Changes go through
+      // `update_stake`. FOR OURI: the real contract must reject this too.
+      if (s.stakes[caller]) return { error: 'Already backing — use update_stake' };
       s.stakes[caller] = {
-        amount: newAmount,
+        amount,
         duration,
         timestamp: Date.now(),
         country: normalized,

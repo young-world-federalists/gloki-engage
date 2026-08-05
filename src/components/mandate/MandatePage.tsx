@@ -56,6 +56,7 @@ const MandatePage: React.FC = () => {
               <div ref={backingRef} className={styles.backingAnchor}>
                 <MandateBacking
                   mandateId={mandateId}
+                  communityId={communityId ?? ''}
                   backers={mandate.provenance.convictionBackers}
                   expanded={backingOpen}
                   onToggle={() => setBackingOpen((v) => !v)}

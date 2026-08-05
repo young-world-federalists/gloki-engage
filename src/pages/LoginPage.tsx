@@ -120,9 +120,12 @@ const LoginPage: React.FC = () => {
       setLoginError(null);
       const key = generateKeyString();
       const url = serverUrl || DEFAULT_SERVER_URL;
+      // Save the org record only AFTER login resolves. Writing it first meant a
+      // reload or closed tab mid-init left `gloki.organization` with no `user`,
+      // and the next PERSON to sign in inherited an organization session.
+      await login(key, url);
       saveOrganization({ name: input.name.trim(), type: input.type, country: input.country });
       notifyOrganizationChanged();
-      await login(key, url);
     } catch (error) {
       // Don't strand a half-made organization session on a failed login.
       clearOrganization();
@@ -135,6 +138,11 @@ const LoginPage: React.FC = () => {
     if (isValid) {
       try {
         setLoginError(null);
+        // Signing in as a person clears any organization record left behind by
+        // an abandoned org sign-in — otherwise this person would silently be
+        // treated as an organization and find every stage blocked.
+        clearOrganization();
+        notifyOrganizationChanged();
 
         // Save server URL to history
         const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);

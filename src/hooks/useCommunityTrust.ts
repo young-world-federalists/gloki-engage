@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../store/hooks';
 import { useDigitalAgent } from '../components/identity/agent/useDigitalAgent';
+import { useOrganization } from './useOrganization';
 import {
   getCommunityVouches,
   getStagePermissions,
@@ -35,6 +36,7 @@ export function useCommunityTrust(communityId: string | undefined): CommunityTru
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const members = useAppSelector((s) => (communityId ? s.communities.communityMembers[communityId] : undefined));
   const { agent } = useDigitalAgent();
+  const { isOrganization } = useOrganization();
 
   const [vouches, setVouches] = useState<Record<string, string[]>>({});
   const [permissions, setPermissions] = useState<Record<PipelineStage, StageRule> | null>(null);
@@ -69,9 +71,17 @@ export function useCommunityTrust(communityId: string | undefined): CommunityTru
     (stage: PipelineStage) => (permissions ?? DEFAULT_STAGE_PERMISSIONS)[stage],
     [permissions],
   );
+  // S33 — organizations never participate, at any stage, under any rule. This
+  // check belongs HERE, not in StageGate: this predicate is what every
+  // participation surface consults (StageGate, DiscussionStageView,
+  // ThreadedDiscussion, SharedStatement…), and StageGate wraps only four of
+  // them. Putting the check in the wrapper left deliberation and chat open to
+  // an institution, which contradicts one-person-one-vote.
   const canCurrentUserParticipate = useCallback(
-    (stage: PipelineStage) => canParticipate(ruleFor(stage), trustOf(publicKey || ''), isMember(publicKey || '')),
-    [ruleFor, trustOf, isMember, publicKey],
+    (stage: PipelineStage) =>
+      !isOrganization
+      && canParticipate(ruleFor(stage), trustOf(publicKey || ''), isMember(publicKey || '')),
+    [isOrganization, ruleFor, trustOf, isMember, publicKey],
   );
 
   return {

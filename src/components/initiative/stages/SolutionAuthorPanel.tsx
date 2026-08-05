@@ -91,7 +91,7 @@ const SolutionAuthorPanel: React.FC<SolutionAuthorPanelProps> = ({
 
       {/* Merge suggestions — this IS the author's decision. */}
       {openMerges.map((m) => (
-        <div key={m.target} className={styles.ask}>
+        <div key={`${m.suggester}:${m.target}`} className={styles.ask}>
           <p className={styles.askHead}>
             <GitMerge size={15} aria-hidden />
             {t('mechanisms.approval.author.mergeAsked', '{name} suggested merging your solution into another one', {
@@ -123,7 +123,7 @@ const SolutionAuthorPanel: React.FC<SolutionAuthorPanelProps> = ({
       ))}
 
       {settledMerges.map((m) => (
-        <p key={m.target} className={styles.settled}>
+        <p key={`${m.suggester}:${m.target}`} className={styles.settled}>
           {m.decision === 'accepted'
             ? t('mechanisms.approval.author.mergeAccepted', 'You merged this into “{text}”.', { text: targetTextOf(m.target) })
             : t('mechanisms.approval.author.mergeDeclined', 'You kept this separate from “{text}”.', { text: targetTextOf(m.target) })}
