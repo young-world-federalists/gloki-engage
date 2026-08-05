@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: mode === 'production' ? '/gloki-engage/' : '/',
+  server: {
+    port: 4280,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
