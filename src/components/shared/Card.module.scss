@@ -4,7 +4,23 @@
   background-color: white;
   border: 1px solid $gray-100;
   border-radius: $radius-lg;
+}
+
+/* Surface variants (S33) — elevation carries meaning instead of decorating every
+   box. See CardProps.variant. */
+.raised {
   box-shadow: $shadow-base;
+}
+
+/* Nested inside another card: same surface, no second shadow. */
+.flat {
+  box-shadow: none;
+}
+
+/* Belongs TO its parent rather than sitting beside it — recessed, no shadow. */
+.inset {
+  background-color: $gray-50;
+  box-shadow: none;
 }
 
 .padded {
@@ -34,5 +50,9 @@
   .card {
     background-color: $dark-bg;
     border-color: $dark-border;
+  }
+
+  .inset {
+    background-color: $dark-surface;
   }
 }
