@@ -132,16 +132,59 @@ whether to wire that route up or retire it.
 
 ---
 
-## 4. What Eston needs to decide
+## 4. Decisions taken (Eston delegated these, 2026-08-05)
 
-1. **A typeface (F1)?** Highest-impact single change, and a real bandwidth trade-off against north
-   star #1. Recommendation: yes, but headings/numerals only, one self-hosted variable subset,
-   system fallback.
-2. **Raise the page-title size (F2)?** One token; needs a three-language 360px sweep.
-3. **Card surface variants (F4)?** A refactor session, but it is the change that would most make
-   the app read as designed rather than assembled.
+1. **Typeface (F1) — YES, and it costs zero bytes.** New `$font-display` / `$font-body` tokens;
+   `$font-display` is a **system serif stack** (`ui-serif, Georgia, …`). A serif does three jobs at
+   once: gives headings a voice the stock UI sans can't, reads warmer and more human, and reads as
+   a *document* — which is what a mandate must be to a ministry. Because it's a system stack,
+   nothing downloads on a cheap Android, so F1's trade-off against north star #1 **disappears**.
+   Applied as one global `h1..h6` rule, not per component (a serif applied component-by-component
+   drifts back out of sync one heading at a time — I applied it to four components first, watched
+   the community hero go out of sync in the preview, and moved it). The swap point for a real
+   webfont is documented on the token if we ever want one.
+2. **Title ramp (F2) — YES.** `$page-title-size` `$text-xl` → `$text-2xl`. 1.25 → 1.5 ratio against
+   body. Verified at 360px in en/fr/sw: no overflow, no new truncation.
+3. **Card surface variants (F4) — mechanism YES, migration deferred.** `Card` gains
+   `raised | flat | inset` so elevation means something instead of decorating every box. Migrating
+   the 58 stylesheets that hand-roll a white surface is its own session — logged to MASTER_TODO §7.
 
-## 5. The thing no design change fixes
+All three are **direction-agnostic**: they survive the Campfire rebrand below and don't assume it.
+
+---
+
+## 5. Campfire Democracy (Eston's direction, 2026-08-05)
+
+Eston is keen to rebrand as **Campfire Democracy**, leaning into a camping / caveman feel. Visual
+direction proposed as an artifact (palette, type, real component specimens, vocabulary).
+
+**Recommendation: keep campfire, drop caveman.**
+
+- **Campfire earns its keep.** The fire people sit around to decide things is the oldest
+  deliberative form there is, and it is *pre-national* — which suits a transnational platform
+  better than any state imagery. It is warm where civic tech is cold, and it is nobody's default
+  output, which is the actual fix for F1–F4's undifferentiation. It also explains the product's
+  hardest mechanic for free: **conviction is tending a fire** — you keep it lit by feeding it.
+  That is a better explanation than the current UI manages.
+- **Caveman is the half that costs.** A mandate has to be ingestible by a ministry, and cave-scrawl
+  iconography argues against that on sight. Separately: for pilot communities in Kenya and Malawi,
+  "primitive people deciding things around a fire" is a reading someone will land on. Campfire is
+  an atmosphere; caveman is a costume.
+- **Palette note:** the honest campfire ground is **night, not cream**. A campfire is a dark
+  experience with one hot source. This also avoids the warm-cream-plus-terracotta palette that
+  every "warm rebrand" — and every AI mood board — arrives at.
+- **Two words must not be renamed:** *mandate* and *vote*. Those are the words institutions
+  recognise and the ones users must not have to decode. When a metaphor starts renaming ballots it
+  has stopped serving users.
+- **`$primary` `#3b82f6` is untouched.** The brand blue is a locked decision confirmed at two
+  gates; a rebrand supersedes it, but that is Eston's call to make explicitly, not mine to assume
+  from "keen to".
+
+---
+
+## 6. Still open
+
+### The thing no design change fixes
 
 Eston's own read is worth recording: his long-term intent is that initiative content becomes
 **short-form video**, not text. That is probably right about the deeper cause. The current app
