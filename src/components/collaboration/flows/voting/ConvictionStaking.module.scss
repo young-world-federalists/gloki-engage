@@ -367,6 +367,7 @@
 }
 
 .statValue {
+  @include tabular-nums;
   font-size: $text-2xl;
   font-weight: $font-bold;
   color: $primary;
@@ -435,6 +436,7 @@
 }
 
 .countryWeight {
+  @include tabular-nums;
   font-size: $text-xs;
   font-weight: $font-semibold;
   color: $gray-700;

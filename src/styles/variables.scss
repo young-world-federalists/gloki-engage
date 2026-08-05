@@ -196,6 +196,15 @@ $sticky-scroll-offset: 76px;
   box-sizing: border-box;
 }
 
+// Figures that sit in a column, update in place, or get compared to each other
+// (tallies, counts, percentages, strengths) render with fixed-width digits, so a
+// number doesn't jitter sideways when it changes and columns of numbers line up.
+// Prose keeps the default proportional figures — only apply this to DATA. (S33)
+@mixin tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
 // ---------------------------------------------------------------------------
 // Theme (S21, D2) — the ONLY way to write dark-mode styles.
 // `<html>` carries data-theme="light" | "dark" | (absent = Auto, the default).

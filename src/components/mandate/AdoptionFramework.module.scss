@@ -244,6 +244,7 @@
 }
 
 .progressPct {
+  @include tabular-nums;
   flex-shrink: 0;
   font-size: $text-xs;
   font-weight: $font-medium;
