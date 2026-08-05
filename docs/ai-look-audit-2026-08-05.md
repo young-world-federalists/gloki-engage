@@ -38,7 +38,7 @@ ranked by how much they contribute to that.
 
 ## 2. Findings, ranked
 
-### F1 — There is no typeface. (highest impact; needs a decision)
+### F1 — There is no typeface. (highest impact) ✅ **RESOLVED — see §4**
 
 **Verified:** grepping `@font-face|fonts.googleapis|fonts.gstatic|\.woff|\.ttf|\.otf` across
 `src`, `index.html`, `public`, and `package.json` returns **0 hits**. `index.html` has no font
@@ -51,15 +51,10 @@ One system font does **every** job — display, body, UI labels, and numerals. A
 it is the one that best explains "looks generic" in an app that has no other clichés: type is the
 loudest carrier of a product's voice, and this product has not made a single typographic choice.
 
-**But the obvious fix collides with a north star.** Adding a webfont costs bandwidth on "a cheap
-Android with intermittent data" (MASTER_TODO §1, north star #1). This is a genuine trade-off, not
-an oversight — so it is a decision for Eston, not a change to make unilaterally.
-
-Cheapest credible option if he wants it: **one** self-hosted variable font, latin+latin-ext subset
-only, ~30–45 KB woff2, `font-display: swap`, system stack as the fallback so a failed/slow load
-degrades to exactly today's rendering. Used for headings and numerals only, body stays system —
-that gets most of the voice for a fraction of the bytes. Also worth deleting the dead `:root`
-stack at `index.scss:10` either way.
+**The obvious fix looked like it collided with a north star** — a webfont costs bandwidth on "a
+cheap Android with intermittent data" (MASTER_TODO §1, north star #1). **It doesn't, because the
+pairing didn't need a webfont:** a *system serif* stack gives headings a distinct voice for zero
+bytes. Resolved in §4. The dead `:root` stack at `index.scss:10` is deleted too.
 
 ### F2 — The type hierarchy is narrow
 
@@ -72,10 +67,9 @@ weight/colour/space carry hierarchy rather than size alone. A 1.25 ratio between
 important text and its ordinary text is why screens read as flat.
 
 **Fix:** raise `$page-title-size` to `$text-2xl` (24px). One token, every page.
-**Not applied** — it touches every `h1` in the app and fr/sw run 20–30% longer than English, so it
-needs a full 360px sweep in three languages before it can ship. Recommended as the next cheap win.
+✅ **APPLIED** — verified at 360px in en/fr/sw, no overflow and no new truncation. See §4.
 
-### F3 — The elevation ramp is Tailwind's defaults, verbatim
+### F3 — The elevation ramp is Tailwind's defaults, verbatim (partly addressed by F4's variants)
 
 **Verified:** all five shadow tokens are Tailwind's default ramp exactly
 (`$shadow-sm` = `0 1px 2px 0 rgba(0,0,0,0.05)`, etc.), there is **no brand-tinted shadow token**,
@@ -101,8 +95,8 @@ Everything therefore looks *approximately* the same without being the same — w
 
 **Fix:** give `Card` a surface variant (`raised` | `flat` | `inset`) and migrate the hand-rolled
 surfaces onto it. That single change buys the differentiated surface language F3 wants, kills ~85
-duplicated declarations, and makes "which things are peers?" legible. This is the highest
-value-per-risk item on the list, but it is a broad refactor — a session of its own.
+duplicated declarations, and makes "which things are peers?" legible.
+🔨 **Variant mechanism APPLIED** (§4); the migration of 58 stylesheets is its own session.
 
 ### F5 — `$primary` is Tailwind's `blue-500`
 
