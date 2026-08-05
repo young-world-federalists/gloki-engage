@@ -190,3 +190,27 @@ export async function suggestProposalMerge(
     method: { name: 'suggest_proposal_merge', values: { source_id: sourceId, target_id: targetId } } as IMethod,
   }));
 }
+
+/**
+ * S33 — the source solution's author accepts or declines a merge suggestion.
+ * `decision` is 'accepted' | 'declined'. Author-gated in the demo contract; the
+ * real contract must enforce it too.
+ */
+export async function decideMergeSuggestion(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  sourceId: string,
+  targetId: string,
+  decision: 'accepted' | 'declined',
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: {
+      name: 'decide_merge_suggestion',
+      values: { source_id: sourceId, target_id: targetId, decision },
+    } as IMethod,
+  }));
+}

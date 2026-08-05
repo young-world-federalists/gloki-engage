@@ -7,7 +7,7 @@ import { initCommunity, communityWrite } from './demoContracts/community';
 import { fundingWrite } from './demoContracts/funding';
 import { initInitiative, initiativeWrite } from './demoContracts/initiative';
 import { initProblemVote } from './demoContracts/problemVote';
-import { initApproval } from './demoContracts/approval';
+import { initApproval, type Proposal as SeedProposal } from './demoContracts/approval';
 import { initQV } from './demoContracts/qv';
 import { initConviction } from './demoContracts/conviction';
 import { initModification } from './demoContracts/modification';
@@ -31,6 +31,16 @@ const STAGE_ORDER = ['problem', 'discussion', 'proposals', 'vote', 'mandate'] as
 type Stage = typeof STAGE_ORDER[number];
 
 const SEED_FLAG = 'gloki_demo_seeded_';
+
+/**
+ * S33 — the one initiative that gets a solution authored by the VIEWER.
+ * Everything else is persona-authored on purpose (real names on cards), which
+ * left the author's own perspective unreachable: you could never be the person
+ * a merge suggestion or review request was addressed to.
+ */
+const VIEWER_AUTHORED_KEY = 'databroker';
+const VIEWER_AUTHORED_SOLUTION =
+  'Give every person one place to see, correct, and delete what brokers hold on them — a single request that reaches every registered broker at once, answered in plain language within 14 days.';
 
 function isAlreadySeeded(communityId: string): boolean {
   return localStorage.getItem(SEED_FLAG + communityId) === 'true';
@@ -179,7 +189,7 @@ export function seedDemoCommunity(
     const commitmentsByIndex = PROPOSAL_COMMITMENTS_BY_KEY[seed.key] ?? {};
     const reviewSeeds = PROPOSAL_EXPERT_REVIEWS_BY_KEY[seed.key] ?? [];
     const authorExtras = PROPOSAL_AUTHOR_EXTRAS_BY_KEY[seed.key] ?? {};
-    const propProposals = proposals.map((text, i) => {
+    const propProposals: SeedProposal[] = proposals.map((text, i) => {
       const reviews = reviewSeeds
         .filter((r) => r.proposalIndex === i)
         .map((r) => ({
@@ -200,6 +210,31 @@ export function seedDemoCommunity(
         ...(reviews.length > 0 ? { expertReviews: reviews } : {}),
       };
     });
+    // S33 — one solution authored by the VIEWER, so the author's perspective is
+    // reachable at all. Every other seeded initiative and solution is authored by
+    // a persona (deliberately, so cards show real names), which meant the
+    // author-only UI — requests waiting on you, merge suggestions addressed to
+    // you — could never render for the demo user. Seeded on `databroker` because
+    // that initiative is already the open, un-gated one a fresh visitor can reach.
+    if (seed.key === VIEWER_AUTHORED_KEY && propProposals.length > 0) {
+      const mineId = 'p' + propProposals.length;
+      propProposals.push({
+        id: mineId,
+        text: VIEWER_AUTHORED_SOLUTION,
+        author: publicKey,
+        timestamp: Date.now() - 2 * 3_600_000,
+        commitments: [
+          'Brokers must answer a data request within 14 days, in plain language',
+          'A single public form works for every broker, in every member country',
+          'Refusals must cite a specific legal ground, published openly',
+        ],
+        // Two members asked an expert to look at it; nobody has yet.
+        expertReviewRequests: ['demo-user-ng-amina', 'demo-user-pl-marta'],
+        // …and one member thinks it belongs inside the registry solution (p0).
+        mergeSuggestions: [{ target: 'p0', suggester: 'demo-user-br-lucas', timestamp: Date.now() - 3_600_000 }],
+      });
+    }
+
     const propId = deployStageContract('approval_contract.py', initiativeId, seed.title);
     initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2));
     initiativeWrite(initiativeId, {

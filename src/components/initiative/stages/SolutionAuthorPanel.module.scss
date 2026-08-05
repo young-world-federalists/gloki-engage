@@ -1,0 +1,159 @@
+@use '../../../styles/variables' as *;
+
+/* The author's view of their own solution (S33). Tinted like an addressed note
+   rather than a peer card — it belongs to one reader, not the board. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $info-surface;
+  border-radius: $radius-md;
+
+  @include dark {
+    background: $info-surface-dark;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.headIcon {
+  flex-shrink: 0;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.badge {
+  padding: 2px $spacing-sm;
+  border-radius: $radius-full;
+  background: $primary;
+  color: white;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+}
+
+.empty,
+.note,
+.settled {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.askHead {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $info-on-surface;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.who {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.targetQuote {
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  background: white;
+  border-radius: $radius-sm;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-700;
+
+  @include dark {
+    background: $dark-surface;
+    color: $dark-text;
+  }
+}
+
+.decideRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.acceptBtn,
+.declineBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: opacity $transition-base;
+
+  svg { flex-shrink: 0; }
+
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+.acceptBtn {
+  border: none;
+  background: $primary;
+  color: white;
+}
+
+.declineBtn {
+  border: 1.5px solid $gray-200;
+  background: white;
+  color: $gray-700;
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}

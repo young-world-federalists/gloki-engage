@@ -9,6 +9,7 @@ import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, 
 import { displayNameFor } from '../../../utils/displayName';
 import type { SourceLink } from '../../../utils/sources';
 import { useT } from '../../../i18n';
+import SolutionAuthorPanel from './SolutionAuthorPanel';
 import styles from './SolutionsBoard.module.scss';
 
 export interface SolutionsBoardProps {
@@ -19,7 +20,7 @@ export interface SolutionsBoardProps {
 }
 
 interface ExpertReview { expert: string; metrics: string[]; note?: string; assessment?: string; credentials?: string; sources?: SourceLink[]; timestamp: number }
-interface MergeSuggestion { target: string; suggester: string; timestamp: number }
+interface MergeSuggestion { target: string; suggester: string; timestamp: number; decision?: 'accepted' | 'declined' }
 interface Proposal {
   id: string;
   text: string;
@@ -32,6 +33,7 @@ interface Proposal {
   expertReviewRequests?: string[];
   expertReviews?: ExpertReview[];
   mergeSuggestions?: MergeSuggestion[];
+  mergedInto?: string;
 }
 
 /**
@@ -165,6 +167,9 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   }, [serverUrl, publicKey, initiativeId]);
   const isExpert = Boolean(publicKey && roles?.experts.includes(publicKey));
 
+  // S33 — the author's decision on a merge suggestion pointing at their solution.
+  const [decidingMerge, setDecidingMerge] = useState<string | null>(null);
+
   const [reviewFor, setReviewFor] = useState<string | null>(null);
   const [reviewMetrics, setReviewMetrics] = useState<string[]>(['', '']);
   const [reviewNote, setReviewNote] = useState('');
@@ -173,6 +178,19 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [reviewSources, setReviewSources] = useState<SourceLink[]>([{ url: '' }]);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const canSubmitReview = reviewMetrics.some((m) => m.trim().length > 0);
+
+  const handleDecideMerge = async (sourceId: string, targetId: string, decision: 'accepted' | 'declined') => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    setDecidingMerge(targetId);
+    try {
+      await api.decideMergeSuggestion(serverUrl, publicKey, contractId, sourceId, targetId, decision);
+      await fetchData();
+    } catch (err) {
+      console.error('Failed to decide merge suggestion:', err);
+    } finally {
+      setDecidingMerge(null);
+    }
+  };
 
   const resetReview = () => {
     setReviewFor(null); setReviewMetrics(['', '']); setReviewNote('');
@@ -503,6 +521,8 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             const reviewed = reviews.length > 0;
             const requestCount = p.expertReviewRequests?.length ?? 0;
             const hasDetails = (p.commitments?.length ?? 0) > 0 || (p.metrics?.length ?? 0) > 0 || (p.sources?.length ?? 0) > 0 || reviewed;
+            // S33 — the author's own view of this solution.
+            const isMine = !!publicKey && p.author === publicKey;
             return (
               <div
                 key={p.id}
@@ -588,6 +608,25 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                   <button type="button" className={styles.expertAddBtn} onClick={() => setReviewFor(p.id)}>
                     {t('mechanisms.approval.addExpertReview', 'Add expert review')}
                   </button>
+                )}
+                {/* S33 — only the author of THIS solution sees what is waiting on
+                    them. Everyone else sees the card exactly as before. */}
+                {isMine && !mergeSource && (
+                  <SolutionAuthorPanel
+                    reviewRequests={p.expertReviewRequests ?? []}
+                    reviewed={reviewed}
+                    mergeSuggestions={p.mergeSuggestions ?? []}
+                    targetTextOf={(id) => {
+                      const target = proposals[id];
+                      if (!target) return t('mechanisms.approval.author.unknownTarget', 'another solution');
+                      return target.text.length > 120 ? `${target.text.slice(0, 120)}…` : target.text;
+                    }}
+                    authorName={authorName}
+                    profiles={profiles}
+                    onDecideMerge={(targetId, decision) => handleDecideMerge(p.id, targetId, decision)}
+                    decidingTarget={decidingMerge}
+                    t={t}
+                  />
                 )}
               </div>
             );

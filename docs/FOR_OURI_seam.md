@@ -60,12 +60,26 @@ names stay `proposal`. (e.g. the add-solution popup calls `add_proposal`.)
   never auto-merges. Records the suggestion on `source_proposal.mergeSuggestions`
   pointing at `target_id`. Idempotent per `{suggester, target}` pair.
 
+- **`decide_merge_suggestion(source_id, target_id, decision)`** — **new in S33.**
+  `decision` is `'accepted' | 'declined'`. Sets `decision` on the matching entry in
+  `source_proposal.mergeSuggestions`, and on accept sets `source_proposal.mergedInto
+  = target_id`. **The real contract MUST gate this on `caller === source_proposal.author`**
+  — the suggestion asks to fold the caller's own solution into someone else's, so
+  only its author may answer. The demo stub enforces this (it is the one demo
+  handler that does), but the server must not rely on the client.
+  Deliberately does **not** move approval counts: folding tallies is a governance
+  change, not a display one.
+  *Context:* before S33 `suggest_proposal_merge` was write-only — stored by the
+  contract and read by no UI at all, so the author it was addressed to could never
+  learn it existed. This method plus `SolutionAuthorPanel` closes that loop.
+
 - **New proposal fields added** (all optional, backward-compatible):
   - `commitments: string[]`
   - `co_authors: string[]` (stored as `coAuthors`)
   - `expertReviewRequests: string[]` (public keys of requesters)
   - `expertReviews: { expert: string; metrics: string[]; note?: string; timestamp: number }[]`
-  - `mergeSuggestions: { target: string; suggester: string; timestamp: number }[]`
+  - `mergeSuggestions: { target: string; suggester: string; timestamp: number; decision?: 'accepted' | 'declined' }[]`
+  - `mergedInto?: string` (S33 — set when the author accepts a merge suggestion)
 
 ### S5 — Vote (`src/components/collaboration/flows/voting/QVFlow.tsx`)
 
