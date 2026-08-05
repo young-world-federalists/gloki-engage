@@ -979,6 +979,7 @@ const sw: Dictionary = {
   'mechanisms.approval.suggestMergeCaption': 'Unganisha',
   'mechanisms.approval.author.panelLabel': 'Suluhisho lako — yanayosubiri jibu lako',
   'mechanisms.approval.author.title': 'Suluhisho lako',
+  'mechanisms.approval.author.you': 'Wewe',
   'mechanisms.approval.author.openCount': '{n} yanakusubiri',
   'mechanisms.approval.author.nothing': 'Hakuna kinachokusubiri kwa sasa. Maombi ya ukaguzi wa mtaalamu na mapendekezo ya kuunganisha yataonekana hapa.',
   'mechanisms.approval.author.reviewAsked': 'Watu {n} wameomba mtaalamu akague suluhisho lako',

@@ -60,8 +60,11 @@
   line-height: 1.5;
   color: $info-on-surface;
 
+  // $dark-text-secondary measures 4.04:1 on $info-surface-dark — below AA. The
+  // tinted info surface needs $dark-text, the same pairing AdoptionFramework
+  // uses on this background.
   @include dark {
-    color: $dark-text-secondary;
+    color: $dark-text;
   }
 }
 

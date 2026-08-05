@@ -980,6 +980,7 @@ const fr: Dictionary = {
   'mechanisms.approval.suggestMergeCaption': 'Fusionner',
   'mechanisms.approval.author.panelLabel': 'Votre solution — ce qui attend votre réponse',
   'mechanisms.approval.author.title': 'Votre solution',
+  'mechanisms.approval.author.you': 'Vous',
   'mechanisms.approval.author.openCount': '{n} en attente de vous',
   'mechanisms.approval.author.nothing': 'Rien ne vous attend pour le moment. Les demandes d’expertise et les propositions de fusion apparaîtront ici.',
   'mechanisms.approval.author.reviewAsked': '{n} personnes ont demandé qu’un expert examine votre solution',

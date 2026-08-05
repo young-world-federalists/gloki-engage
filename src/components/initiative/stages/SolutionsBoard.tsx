@@ -314,7 +314,13 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     }
   };
 
-  const authorName = (key: string): string => displayNameFor(profiles[key], key);
+  // Your own byline reads "You", never your truncated key. The demo user has no
+  // profile record, so displayNameFor would fall back to "aaaaaaaa…" — which is
+  // what the whole seed avoids by authoring content as personas (S33).
+  const authorName = (key: string): string =>
+    publicKey && key === publicKey
+      ? t('mechanisms.approval.author.you', 'You')
+      : displayNameFor(profiles[key], key);
 
   if (hasError) return (
     <div className={styles.loading}>
