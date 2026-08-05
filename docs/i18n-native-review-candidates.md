@@ -1148,6 +1148,79 @@ the strings are now on screen, so a quick read-in-context is worth it.
 
 ---
 
+## Session 33 (2026-08-05) — conviction editing, the author's view, the organization actor
+
+**+53 keys** (parity 1137 → 1190 in both fr and sw). Three families. All were checked at 360px in
+fr and sw with no overflow, but the *meaning* still needs a native read — several carry governance
+weight, not just chrome.
+
+### 1. Conviction — editing a commitment (`mechanisms.conviction.*`, 10 keys)
+
+Backing a mandate is no longer locked once given: you can change how long you commit, or withdraw.
+
+- **`change`** en "Change how long" · fr "Changer la durée" · sw "Badilisha muda" — a button on
+  your existing commitment.
+- **`withdraw`** en "Withdraw backing" · fr "Retirer mon soutien" · sw "Ondoa uungaji mkono".
+- **`editHeading`** en "Change how long you'll back this" · fr "Changez la durée de votre soutien"
+  · sw "Badilisha muda wa kuunga mkono".
+- **`saveChange`** en "Save change" · fr "Enregistrer" · sw "Hifadhi mabadiliko".
+- **`backingSince`** en "Backing since {date}" · fr "Vous soutenez ceci depuis le {date}" ·
+  sw "Unaunga mkono tangu {date}". **⚠ confirm** the fr preposition reads naturally with the
+  localized date format produced by `formatDateTime` (e.g. "5 août 2026, 13:02").
+- **`howLabel` / `howTitle`** en "How backing works" (an (i) disclosure).
+- **`how1` / `how2` / `how3`** — the three explainer lines. **⚠ these are the important ones.**
+  They answer "how much conviction do I have?": there is **no bank** — one backing per person, and
+  length of commitment is the only lever. `how3` states the rule that committing for longer keeps
+  your original backing date while shortening restarts it. **Confirm fr/sw convey "no budget,
+  nothing to spend"** — not "you have a limited amount".
+
+### 2. The author's view of their own solution (`mechanisms.approval.author.*`, 14 keys)
+
+New panel shown only on a solution you wrote.
+
+- **`title`** "Your solution" · **`you`** "You" (your own byline) · **`panelLabel`** (the section's
+  accessible name).
+- **`openCount`** en "{n} waiting on you" · fr "{n} en attente de vous" · sw "{n} yanakusubiri".
+  **⚠ confirm** the sw agreement class is right for a mixed count of requests + suggestions.
+- **`reviewAsked`** en "{n} people asked for an expert to review your solution".
+- **`reviewDone`** "An expert has reviewed your solution."
+- **`reviewNote`** — explains the author cannot grant expert review themselves.
+- **`mergeAsked`** en "{name} suggested merging your solution into another one".
+- **`accept`** "Accept the merge" · **`decline`** en "Keep mine separate" · fr "Garder la mienne à
+  part" · sw "Acha langu peke yake". **⚠ confirm** the decline wording reads as a neutral,
+  legitimate choice — not as refusing to cooperate.
+- **`mergeAccepted` / `mergeDeclined`** — past-tense confirmations quoting the other solution.
+- **`nothing`** — the empty state · **`unknownTarget`** "another solution" (fallback).
+
+### 3. The organization actor (`org.*`, `gate.org.*`, `login.org*`, +2 mandate keys, 29 keys)
+
+A new kind of signed-in actor: organizations endorse or subscribe to **finished mandates** and
+never deliberate or vote.
+
+- **`login.orgCta`** en "Sign in as an organization" · **`login.orgHint`** · **`login.or`** "or".
+- **`org.signIn.title` / `.intro` / `.nameLabel` / `.countryLabel` / `.countryPlaceholder` /
+  `.submit`** — the sign-in modal. **⚠ `org.signIn.intro` is the load-bearing one**: it must make
+  clear the organization may read everything but only acts on finished mandates, *because* voting
+  stays one person one vote.
+- **`org.home.title`** en "Mandates to act on" · **`.subtitle` / `.signedInAs` / `.loading` /
+  `.emptyTitle` / `.emptyBody` / `.openMandate` / `.footnote` / `.browse`**.
+- **`org.badge`** "Organization".
+- **`gate.org.title`** en "Organizations don't take part here" · **`.body`** · **`.action`** —
+  shown when an organization opens a participation surface. **⚠ confirm the tone**: it should read
+  as a principled boundary, not as a punishment or an error.
+- **`mandate.adoptCtaOrg`** en "Respond as {name}" — the CTA when an organization is signed in.
+- **`mandate.backing.orgNote`** — why an organization sees the backer count but not the control.
+
+### 4. Mandate backing panel (`mandate.backing.*`, 5 keys)
+
+The published mandate page can now take backing in place instead of sending you to the community
+page.
+
+- **`title`** "Back this mandate" · **`intro`** · **`count`** en "{n} people are backing this
+  mandate" · **`show`** en "Add or change your backing" · **`hide`** "Hide backing".
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
