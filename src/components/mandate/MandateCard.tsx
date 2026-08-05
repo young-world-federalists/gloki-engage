@@ -26,7 +26,10 @@ export interface MandateCardProps {
   /** Route ids — used to build a clean, pubkey-free share link (S11 P2). */
   communityId: string;
   mandateId: string;
-  /** Primary CTA → the initiative's mandate stage where conviction staking lives. */
+  /** Live backer count, resolved by MandatePage — NOT the fixture's provenance
+   *  figure, which disagreed with the panel directly below this card (S33). */
+  backers: number;
+  /** Primary CTA → expands the backing panel below the card. */
   onShowSupport: () => void;
   /** "View full" → scroll/route to the full published document. */
   onViewFull: () => void;
@@ -38,7 +41,7 @@ export interface MandateCardProps {
  * jurisdiction, conviction). The primary action drives engagement (conviction),
  * not reading; the full document is one understated "View full" away.
  */
-const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandateId, onShowSupport, onViewFull }) => {
+const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandateId, backers, onShowSupport, onViewFull }) => {
   const { t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
   const [showAllCountries, setShowAllCountries] = useState(false);
@@ -144,7 +147,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
         <div className={styles.row}>
           <dt className={styles.rowLabel}>{t('mandate.card.convictionLabel', 'Conviction')}</dt>
           <dd className={styles.rowValue}>
-            {t('mandate.card.convictionValue', 'Backed by {n}', { n: provenance.convictionBackers.toLocaleString() })}
+            {t('mandate.card.convictionValue', 'Backed by {n}', { n: backers.toLocaleString() })}
             <span className={styles.note}>{t('mandate.card.convictionNote', 'in sustained conviction')}</span>
           </dd>
         </div>

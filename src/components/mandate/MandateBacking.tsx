@@ -5,9 +5,6 @@ import ConvictionStaking from '../collaboration/flows/voting/ConvictionStaking';
 import StageGate from '../community/StageGate';
 import { useT } from '../../i18n';
 import { useOrganization } from '../../hooks/useOrganization';
-import { useAppSelector } from '../../store/hooks';
-import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
-import { getTotalConviction } from '../collaboration/flows/voting/convictionApi';
 import styles from './MandateBacking.module.scss';
 
 export interface MandateBackingProps {
@@ -15,7 +12,7 @@ export interface MandateBackingProps {
   mandateId: string;
   /** Owning community — needed to apply the same stage permissions the community page applies. */
   communityId: string;
-  /** Backers already counted in the mandate's provenance, shown while collapsed. */
+  /** How many people are backing this — the LIVE count, resolved by the page. */
   backers: number;
   expanded: boolean;
   onToggle: () => void;
@@ -44,36 +41,6 @@ const MandateBacking: React.FC<MandateBackingProps> = ({ mandateId, communityId,
   const t = useT();
   const { isOrganization } = useOrganization();
   const panelId = 'mandate-backing-panel';
-  const serverUrl = useAppSelector((s) => s.user.serverUrl);
-  const publicKey = useAppSelector((s) => s.user.publicKey);
-  const [liveBackers, setLiveBackers] = React.useState<number | null>(null);
-
-  // The provenance figure is a hand-authored fixture constant (760). The panel
-  // right below it renders the REAL count from the conviction contract, so
-  // before this the page showed two contradictory numbers inches apart and the
-  // top one never moved when you backed. Read the live count instead.
-  //
-  // Read-only on purpose: `resolveInitiativeStageContract` is pure contractRead.
-  // `useFlowContract` would DEPLOY, which is exactly what the lazy mount below
-  // exists to avoid.
-  React.useEffect(() => {
-    if (!serverUrl || !publicKey || !mandateId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const stage = await resolveInitiativeStageContract(serverUrl, publicKey, mandateId, 'convictionContractId');
-        if (!stage?.contractId || cancelled) return;
-        const total = await getTotalConviction(serverUrl, publicKey, stage.contractId);
-        const count = (total as { count?: number } | null)?.count;
-        if (!cancelled && typeof count === 'number') setLiveBackers(count);
-      } catch {
-        /* no conviction contract yet — fall back to the provenance figure */
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [serverUrl, publicKey, mandateId, expanded]);
-
-  const shownBackers = liveBackers ?? backers;
 
   // S33 — backing is a person's act (one commitment each, weighted only by time).
   // An organization's way of standing behind a mandate is endorsing or
@@ -90,7 +57,7 @@ const MandateBacking: React.FC<MandateBackingProps> = ({ mandateId, communityId,
           </div>
         </header>
         <p className={styles.summary}>
-          {t('mandate.backing.count', '{n} people are backing this mandate', { n: shownBackers.toLocaleString() })}
+          {t('mandate.backing.count', '{n} people are backing this mandate', { n: backers.toLocaleString() })}
         </p>
         <p className={styles.orgNote}>
           {t(
@@ -123,7 +90,7 @@ const MandateBacking: React.FC<MandateBackingProps> = ({ mandateId, communityId,
           disclosure rule: prose folds, numbers don't). */}
       <p className={styles.summary}>
         {t('mandate.backing.count', '{n} people are backing this mandate', {
-          n: shownBackers.toLocaleString(),
+          n: backers.toLocaleString(),
         })}
       </p>
 
