@@ -472,8 +472,12 @@ where a role in the product had no interface.
   modification decision UI, and nothing in the app navigates to it. Either wire it up or retire it.
 - **`NotificationsBell` is permanently empty** — one event type (`merge_absorbed`), produced only
   on that unreachable route. The author panel is per-solution; a real inbox is the general answer.
-- **Conviction has no time-accrual clock.** Weight is the pledged duration, not time held. A real
-  accrual model is a mechanism change with results implications.
+- **Conviction has no time-accrual clock.** Weight is the pledged duration, not time held, and
+  withdrawal is free — so nothing stops declaring `1y` for maximum weight and withdrawing a moment
+  later. S33's lengthen-preserves/shorten-resets timestamp rule is implemented and documented, but
+  it protects nothing until weight accrues from time *held*; `timestamp` is display metadata today
+  (flagged as such in FOR_OURI_seam.md). A real accrual model is a mechanism change with results
+  implications — Eston's call.
 - **Only one published mandate exists**, so the organization home reads thin until more communities
   finish a pipeline.
 
@@ -596,6 +600,20 @@ where a role in the product had no interface.
   build could not catch were found in that walk and fixed: the viewer's byline rendered as the raw
   key `aaaaaaaa…` (now "You"), and `SolutionAuthorPanel`'s muted lines measured **4.04:1** on
   `$info-surface-dark` (below AA) — switched to `$dark-text`, now 9.45:1 dark / 7.15:1 light.
+  **Opus whole-branch review found 2 blockers + 5 majors — all fixed in `a03b38d`.** Both
+  blockers were the same class of mistake, and worth recording: **a new surface inherited none of
+  the old surface's gates.** (1) `MandateBacking` mounted the identical `ConvictionStaking` that
+  `MandateEngage` has always wrapped in `<StageGate stage="mandate">`, and `mandate` defaults to
+  `'verified'` — so W1 created an *ungated route to a gated action*. (2) The organization block sat
+  in `StageGate`, which wraps only four surfaces; deliberation, chat and Start-an-initiative
+  consult `canCurrentUserParticipate` directly or nothing at all, so an institution could still
+  deliberate and open initiatives. The fix moved the check into the **predicate** every surface
+  shares, plus an explicit guard on `CreateInitiativePage`. Majors: `stake` was still additive and
+  reachable when a `get_my_stake` read failed (one-person-one-commitment was being enforced by an
+  optimistic client read — now rejected in the contract); two members suggesting the same merge
+  target left all but the first suggestion permanently undecidable; the mandate page showed the
+  fixture's `760` backers directly above the contract's real `15`; an interrupted org sign-in
+  stranded `gloki.organization` and trapped the next person in an org session.
   **Follow-ups logged to §7** (unreachable `/collaboration` route, permanently-empty
   `NotificationsBell`, no conviction time-accrual, only one published mandate).
 
