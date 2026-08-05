@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { HeartHandshake, Globe, Plus, ShieldCheck, ChevronDown } from 'lucide-react';
 import { Badge, Banner, Button, CountryFlag, Modal, ProgressBar } from '../shared';
 import { useI18n } from '../../i18n';
+import { useOrganization } from '../../hooks/useOrganization';
 import type { TFunction } from '../../i18n';
 import {
   getAdopters,
@@ -47,6 +48,7 @@ interface AdoptionFrameworkProps {
  */
 const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
   const { t, locale } = useI18n();
+  const { organization } = useOrganization();
   const [adopters, setAdopters] = useState<MandateAdopter[]>(() => getAdopters(mandateId));
   const [modalOpen, setModalOpen] = useState(false);
   const [justAddedName, setJustAddedName] = useState<string | null>(null);
@@ -109,13 +111,17 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
             },
           )}
         </p>
+        {/* S33 — an organization session already knows who it is, so the CTA
+            names them instead of asking again. */}
         <Button
           variant="primary"
           size="sm"
           leftIcon={<Plus size={16} aria-hidden />}
           onClick={() => setModalOpen(true)}
         >
-          {t('mandate.adoptCta', 'Add your organization')}
+          {organization
+            ? t('mandate.adoptCtaOrg', 'Respond as {name}', { name: organization.name })
+            : t('mandate.adoptCta', 'Add your organization')}
         </Button>
       </div>
 
@@ -162,6 +168,9 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}
         t={t}
+        presetName={organization?.name}
+        presetType={organization?.type}
+        presetCountry={organization?.country}
       />
     </section>
   );
@@ -256,17 +265,29 @@ interface EndorseModalProps {
   onClose: () => void;
   onSubmit: (input: EndorsementInput) => void;
   t: TFunction;
+  /** S33 — an organization session pre-fills its own identity. */
+  presetName?: string;
+  presetType?: AdopterType;
+  presetCountry?: string;
 }
 
-const EndorseModal: React.FC<EndorseModalProps> = ({ isOpen, onClose, onSubmit, t }) => {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<AdopterType>('youth-network');
+const EndorseModal: React.FC<EndorseModalProps> = ({
+  isOpen, onClose, onSubmit, t, presetName, presetType, presetCountry,
+}) => {
+  const [name, setName] = useState(presetName ?? '');
+  const [type, setType] = useState<AdopterType>(presetType ?? 'youth-network');
   const [level, setLevel] = useState<AdoptionLevel>('endorsed');
   const [note, setNote] = useState('');
 
+  // Re-sync when the signed-in organization resolves after first render.
+  useEffect(() => {
+    if (presetName) setName(presetName);
+    if (presetType) setType(presetType);
+  }, [presetName, presetType]);
+
   const reset = () => {
-    setName('');
-    setType('youth-network');
+    setName(presetName ?? '');
+    setType(presetType ?? 'youth-network');
     setLevel('endorsed');
     setNote('');
   };
@@ -284,6 +305,7 @@ const EndorseModal: React.FC<EndorseModalProps> = ({ isOpen, onClose, onSubmit, 
       name,
       type,
       level,
+      country: presetCountry,
       progressNote: level === 'subscribed' ? note : undefined,
     });
     reset();

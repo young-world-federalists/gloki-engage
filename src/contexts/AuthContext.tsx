@@ -5,6 +5,8 @@ import { initializeUser, setCurrentUser, clearUser, fetchContracts } from '../st
 import type { AppDispatch, RootState } from '../store';
 import { buildFlowContractsScope, hydrateContracts } from '../components/collaboration/flows/shared/flowContractsSlice';
 import { eventStreamService } from '../services/eventStream';
+import { clearOrganization } from '../services/organizationActor';
+import { notifyOrganizationChanged } from '../hooks/useOrganization';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -113,10 +115,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('user');
-    
+
+    // S33: the organization record outlives `user` unless we drop it here —
+    // the next person to sign in on this device would inherit the org session
+    // and find every stage blocked.
+    clearOrganization();
+    notifyOrganizationChanged();
+
     // Clear user data from Redux
     dispatch(clearUser());
-    
+
     // Disconnect from the SSE stream
     eventStreamService.disconnect();
   };

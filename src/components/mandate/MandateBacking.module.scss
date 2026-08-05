@@ -117,3 +117,16 @@
     display: none;
   }
 }
+
+/* Shown to an organization instead of the staking control: backing is a
+   person's act; organizations endorse or subscribe (S33). */
+.orgNote {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

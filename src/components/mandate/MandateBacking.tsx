@@ -3,6 +3,7 @@ import { Heart, ChevronDown } from 'lucide-react';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ConvictionStaking from '../collaboration/flows/voting/ConvictionStaking';
 import { useT } from '../../i18n';
+import { useOrganization } from '../../hooks/useOrganization';
 import styles from './MandateBacking.module.scss';
 
 export interface MandateBackingProps {
@@ -35,7 +36,35 @@ export interface MandateBackingProps {
  */
 const MandateBacking: React.FC<MandateBackingProps> = ({ mandateId, backers, expanded, onToggle }) => {
   const t = useT();
+  const { isOrganization } = useOrganization();
   const panelId = 'mandate-backing-panel';
+
+  // S33 — backing is a person's act (one commitment each, weighted only by time).
+  // An organization's way of standing behind a mandate is endorsing or
+  // subscribing, just below. Show the count, not the control.
+  if (isOrganization) {
+    return (
+      <section className={styles.backing} aria-labelledby="backing-heading">
+        <header className={styles.header}>
+          <div className={styles.headingRow}>
+            <Heart size={20} aria-hidden className={styles.headingIcon} />
+            <h2 id="backing-heading" className={styles.heading}>
+              {t('mandate.backing.title', 'Back this mandate')}
+            </h2>
+          </div>
+        </header>
+        <p className={styles.summary}>
+          {t('mandate.backing.count', '{n} people are backing this mandate', { n: backers.toLocaleString() })}
+        </p>
+        <p className={styles.orgNote}>
+          {t(
+            'mandate.backing.orgNote',
+            'Backing is how individual people sustain a mandate. Your organization stands behind it by endorsing or subscribing below.',
+          )}
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.backing} aria-labelledby="backing-heading">

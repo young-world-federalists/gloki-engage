@@ -326,3 +326,52 @@
   }
 }
 
+
+/* S33 — the organization path. Quiet and secondary: the person flow is the
+   product; organizations are a narrow, mandate-only actor. */
+.orgRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+}
+
+.orgDivider {
+  font-size: $text-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $gray-500;
+}
+
+.orgButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  svg { flex-shrink: 0; }
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+.orgHint {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  text-align: center;
+  color: $gray-600;
+}

@@ -1,9 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
+import { Key, Server, ArrowRight, RefreshCw, Building2 } from 'lucide-react';
 import { useT } from '../i18n';
 import { InfoDisclosure, LanguageSwitcher, StageStrip } from '../components/shared';
+import OrganizationSignIn, { type OrganizationSignInInput } from '../components/organization/OrganizationSignIn';
+import { saveOrganization, clearOrganization } from '../services/organizationActor';
+import { notifyOrganizationChanged } from '../hooks/useOrganization';
 import styles from './LoginPage.module.scss';
+
+const DEFAULT_SERVER_URL = 'https://gdi.gloki.contact';
+
+/** A fresh 64-char identity key — the shape `validatePublicKey` requires. */
+function generateKeyString(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 64; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
@@ -16,6 +31,7 @@ const LoginPage: React.FC = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
   const [serverUrlError, setServerUrlError] = useState<string | null>(null);
+  const [orgOpen, setOrgOpen] = useState(false);
 
   // Check for stored error messages on component mount
   useEffect(() => {
@@ -85,17 +101,34 @@ const LoginPage: React.FC = () => {
   }, [publicKey, serverUrl]);
 
   const generateRandomKey = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 64; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setPublicKey(result);
+    setPublicKey(generateKeyString());
   };
 
   const handleServerUrlSelect = (url: string) => {
     setServerUrl(url);
     setShowHistory(false);
+  };
+
+  /**
+   * S33 — organization sign-in. An organization still needs a key + server to
+   * reach the network (auth is key-based for every actor), so we mint one the
+   * same way the person flow does; what makes it an organization is the local
+   * record saved alongside it, which `useOrganization` gates on.
+   */
+  const handleOrgLogin = async (input: OrganizationSignInInput) => {
+    try {
+      setLoginError(null);
+      const key = generateKeyString();
+      const url = serverUrl || DEFAULT_SERVER_URL;
+      saveOrganization({ name: input.name.trim(), type: input.type, country: input.country });
+      notifyOrganizationChanged();
+      await login(key, url);
+    } catch (error) {
+      // Don't strand a half-made organization session on a failed login.
+      clearOrganization();
+      notifyOrganizationChanged();
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    }
   };
 
   const handleLogin = async () => {
@@ -255,8 +288,34 @@ const LoginPage: React.FC = () => {
             <span>{isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}</span>
             {!isLoading && <ArrowRight size={20} />}
           </button>
+
+          {/* S33 — the other kind of actor. Organizations don't deliberate or
+              vote; they respond to mandates communities have already decided.
+              Kept as a quiet secondary path so the person flow stays primary. */}
+          <div className={styles.orgRow}>
+            <span className={styles.orgDivider}>{t('login.or', 'or')}</span>
+            <button
+              type="button"
+              className={styles.orgButton}
+              onClick={() => setOrgOpen(true)}
+              disabled={isLoading}
+            >
+              <Building2 size={18} aria-hidden />
+              {t('login.orgCta', 'Sign in as an organization')}
+            </button>
+            <p className={styles.orgHint}>
+              {t('login.orgHint', 'For bodies that want to endorse or act on finished mandates — not to take part in the vote.')}
+            </p>
+          </div>
         </div>
       </div>
+
+      <OrganizationSignIn
+        isOpen={orgOpen}
+        onClose={() => setOrgOpen(false)}
+        onSubmit={handleOrgLogin}
+        submitting={isLoading}
+      />
     </div>
   );
 };

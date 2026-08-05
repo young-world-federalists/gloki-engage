@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Banner, Button } from '../shared';
 import { useT } from '../../i18n';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { useOrganization } from '../../hooks/useOrganization';
 import type { PipelineStage } from '../../services/trust';
 
 interface Props {
@@ -23,6 +24,30 @@ const StageGate: React.FC<Props> = ({ communityId, stage, children }) => {
   const t = useT();
   const navigate = useNavigate();
   const { canCurrentUserParticipate, ruleFor, currentUserVouchCount, isReady } = useCommunityTrust(communityId);
+  const { isOrganization } = useOrganization();
+
+  // S33 — organizations never participate, at any stage, on any rule. This has
+  // to come BEFORE the trust checks: pilot communities open their stages to
+  // 'anyone', which would otherwise let an institution deliberate and vote
+  // alongside people. Reading stays open; only acting is blocked.
+  if (isOrganization) {
+    return (
+      <Banner
+        tone="info"
+        title={t('gate.org.title', 'Organizations don’t take part here')}
+        action={
+          <Button size="sm" onClick={() => navigate('/organization')}>
+            {t('gate.org.action', 'See mandates to endorse')}
+          </Button>
+        }
+      >
+        {t(
+          'gate.org.body',
+          'Deliberation and voting stay one person, one vote. You can read everything here — organizations act on finished mandates by endorsing or subscribing to them.',
+        )}
+      </Banner>
+    );
+  }
 
   // While loading, don't flash a block — show the flow (reads are harmless in the mock).
   if (!isReady || canCurrentUserParticipate(stage)) return <>{children}</>;

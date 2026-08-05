@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound';
 import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 import { getAgent, getProgress } from './components/identity/agent/digitalAgentStore';
+import { isOrganizationSession } from './services/organizationActor';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FROZEN ROUTE MAP — the Voices-for-the-Climate journey.
@@ -47,6 +48,8 @@ const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
 // Lane placeholder areas — owning lane replaces the stub component (not this file).
 const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow'));
 const MandatePage = lazy(() => import('./components/mandate/MandatePage'));
+// S33 — the organization actor's whole app: finished mandates, nothing else.
+const OrganizationHome = lazy(() => import('./pages/OrganizationHome'));
 // Dev/lab route — durable verification page for the cross-cutting presence primitives (§10 [F→Foundation]).
 const PresenceLabRoute = lazy(() => import('./components/shared/presence/PresenceLabRoute'));
 
@@ -64,9 +67,11 @@ const isFirstRun = (): boolean => {
   }
 };
 
-// Entry point for `/`: first-run users are guided to the /welcome journey;
-// everyone else lands on the cross-community Home overview.
+// Entry point for `/`: an organization session goes to its own home (it has no
+// member journey to onboard into — S33); first-run people are guided to the
+// /welcome journey; everyone else lands on the cross-community Home overview.
 function RootRoute() {
+  if (isOrganizationSession()) return <Navigate to="/organization" replace />;
   if (isFirstRun()) return <Navigate to="/welcome" replace />;
   return <HomeView />;
 }
@@ -121,6 +126,7 @@ function AppContent() {
               element={<InitiativeView />}
             />
             <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
+            <Route path="/organization" element={<OrganizationHome />} />
             <Route path="/lab/presence" element={<PresenceLabRoute />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
