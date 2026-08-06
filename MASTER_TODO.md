@@ -444,7 +444,7 @@ the *deliberate* S25 §1.3 rule-only call being reversed; the gray line is Probl
 bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English lives in inline
 `t()` fallbacks — copy changes touch tsx + fr + sw, never en.ts).
 
-**P9 — Actor completeness (Eston review, 2026-08-05). 🔨 BUILT, push HELD.** Spec
+**P9 — Actor completeness (Eston review, 2026-08-05). ✅ SHIPPED+PUSHED** (`1094375..0381f7c`, 17 commits; deploy green, run 31085623145). Spec
 [docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md](docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md).
 Five asks from Eston's review, all built in S33. Not a polish campaign — each one closes a hole
 where a role in the product had no interface.
@@ -544,7 +544,7 @@ where a role in the product had no interface.
 ## 8. Changelog
 
 - **2026-08-05 — S33: P9 actor completeness — conviction editing, the author's view, the
-  organization actor (BUILT on `ui`; push HELD for Eston's gate).** Spec
+  organization actor (SHIPPED+PUSHED; `1094375..0381f7c`, 17 commits; Pages deploy green).** Spec
   `docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md`. Driven by Eston's
   2026-08-05 review. Scope classes: UI + **two contract-method additions** + **one fixture change**
   (⇒ `DEMO_VERSION` `global-v16` → `global-v17`) + **one new top-level route** (flagged as an IA
@@ -614,6 +614,14 @@ where a role in the product had no interface.
   target left all but the first suggestion permanently undecidable; the mandate page showed the
   fixture's `760` backers directly above the contract's real `15`; an interrupted org sign-in
   stranded `gloki.organization` and trapped the next person in an org session.
+  **Push (2026-08-06).** `origin/ui` had moved: Ouri's PR #21 dependency bump (`1094375`) landed
+  2026-07-17, including **two major jumps** — `lucide-react` 0.525→1.24 and `jspdf` 3→4. Rebased
+  the 17 commits onto it (no content conflicts — the bump touches only `package.json` +
+  lockfile), then **reinstalled and re-verified against the new majors** rather than trusting the
+  earlier green build: `tsc -b` + `npm run build` clean on lucide 1.24 / jspdf 4.2.1, gates clean,
+  parity 1190/1190. `npm install` on macOS stripped Linux-only `libc` hints from the lockfile —
+  reverted rather than pushing lockfile churn into an Ubuntu CI. Deploy green (run 31085623145,
+  5m13s); live site verified serving the serif display face.
   **Follow-ups logged to §7** (unreachable `/collaboration` route, permanently-empty
   `NotificationsBell`, no conviction time-accrual, only one published mandate).
 
