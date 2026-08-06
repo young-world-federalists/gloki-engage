@@ -147,12 +147,21 @@ All three are **direction-agnostic**: they survive the Campfire rebrand below an
 
 ---
 
-## 5. Campfire Democracy (Eston's direction, 2026-08-05)
+## 5. Campfire Democracy — ⏸️ PARKED (Eston, 2026-08-05)
 
-Eston is keen to rebrand as **Campfire Democracy**, leaning into a camping / caveman feel. Visual
-direction proposed as an artifact (palette, type, real component specimens, vocabulary).
+**Status: not being pursued.** Eston floated rebranding to *Campfire Democracy* with a
+camping/caveman feel; a visual direction was proposed the same day, and he called it back —
+*"let's hold off on too much of the campfire stuff, it's all a bit kitsch."* That is the standing
+position. **No campfire vocabulary, palette, or imagery exists anywhere in `src/`** (verified by
+grep) and none should be added without Eston reopening it.
 
-**Recommendation: keep campfire, drop caveman.**
+Kept as a record because the reasoning is reusable if the brand question comes back — not as a
+plan. The section below is what *was* proposed, unchanged.
+
+<details>
+<summary>The direction as proposed (parked)</summary>
+
+**Recommendation given at the time: keep campfire, drop caveman.**
 
 - **Campfire earns its keep.** The fire people sit around to decide things is the oldest
   deliberative form there is, and it is *pre-national* — which suits a transnational platform
@@ -173,6 +182,13 @@ direction proposed as an artifact (palette, type, real component specimens, voca
 - **`$primary` `#3b82f6` is untouched.** The brand blue is a locked decision confirmed at two
   gates; a rebrand supersedes it, but that is Eston's call to make explicitly, not mine to assume
   from "keen to".
+
+</details>
+
+**The one idea worth keeping regardless of branding:** conviction is easier to explain as
+*something you keep going* than as a duration multiplier. That reframing needs no rebrand and no
+camping vocabulary — it is just clearer copy, and it is available whenever the conviction explainer
+is next touched.
 
 ---
 
