@@ -7,7 +7,9 @@
 
 // Root styles
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  // S33: was a Vite scaffold remnant (system-ui, Avenir, Helvetica…) that never
+  // matched the body stack below it. Both now come from one token.
+  font-family: $font-body;
   line-height: 1.5;
   font-weight: $font-normal;
 
@@ -52,9 +54,7 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: $font-body;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: $gray-50;

@@ -17,9 +17,10 @@ interface MergeSuggestion {
   target: string;     // id of the proposal this one is suggested to merge into
   suggester: string;  // public key of the member who suggested it
   timestamp: number;
+  decision?: 'accepted' | 'declined'; // S33: the source author's answer; undefined = still open
 }
 
-interface Proposal {
+export interface Proposal {
   id: string;
   text: string;
   author: string;
@@ -32,6 +33,7 @@ interface Proposal {
   expertReviewRequests?: string[];  // public keys of members who requested review (1p1v)
   expertReviews?: ExpertReview[];   // experts who reviewed, each attaching metrics
   mergeSuggestions?: MergeSuggestion[]; // solution→solution merge suggestions (suggest-only)
+  mergedInto?: string;              // S33: set when the author ACCEPTS a merge suggestion
 }
 
 interface ApprovalState {
@@ -205,6 +207,34 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
         existing.push({ target: targetId, suggester: caller, timestamp: Date.now() });
       }
       p.mergeSuggestions = existing;
+      writeState(contractId, s);
+      return null;
+    }
+    // S33: the other half of `suggest_proposal_merge`. Until now a suggestion was
+    // write-only — stored and rendered by nothing, so the author it was addressed
+    // to never learned it existed. Only the SOURCE solution's author may decide:
+    // the suggestion asks to fold THEIR solution into someone else's.
+    case 'decide_merge_suggestion': {
+      const sourceId = method.values?.source_id as string | undefined;
+      const targetId = method.values?.target_id as string | undefined;
+      const decision = method.values?.decision as string | undefined;
+      if (!sourceId || !(sourceId in s.proposals)) return { error: 'Unknown source proposal' };
+      if (decision !== 'accepted' && decision !== 'declined') return { error: 'Invalid decision' };
+      const p = s.proposals[sourceId];
+      // FOR OURI: the real contract MUST enforce this — the demo seam is the only
+      // thing standing between a stranger and someone else's merge decision.
+      if (p.author !== caller) return { error: 'Only the solution’s author can decide' };
+      const suggestions = Array.isArray(p.mergeSuggestions) ? p.mergeSuggestions : [];
+      // Suggestions are deduped per {target, suggester}, so two members can
+      // legitimately suggest the SAME target. Decide every entry for that target
+      // — matching only the first left the others permanently undecidable.
+      const matches = suggestions.filter((m) => m.target === targetId);
+      if (matches.length === 0) return { error: 'Unknown merge suggestion' };
+      for (const m of matches) m.decision = decision;
+      // Accepting records the outcome on the solution; it deliberately does NOT
+      // move approval counts (folding the tallies is a governance change, not a
+      // display one).
+      p.mergedInto = decision === 'accepted' ? targetId : undefined;
       writeState(contractId, s);
       return null;
     }

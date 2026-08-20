@@ -60,12 +60,26 @@ names stay `proposal`. (e.g. the add-solution popup calls `add_proposal`.)
   never auto-merges. Records the suggestion on `source_proposal.mergeSuggestions`
   pointing at `target_id`. Idempotent per `{suggester, target}` pair.
 
+- **`decide_merge_suggestion(source_id, target_id, decision)`** — **new in S33.**
+  `decision` is `'accepted' | 'declined'`. Sets `decision` on the matching entry in
+  `source_proposal.mergeSuggestions`, and on accept sets `source_proposal.mergedInto
+  = target_id`. **The real contract MUST gate this on `caller === source_proposal.author`**
+  — the suggestion asks to fold the caller's own solution into someone else's, so
+  only its author may answer. The demo stub enforces this (it is the one demo
+  handler that does), but the server must not rely on the client.
+  Deliberately does **not** move approval counts: folding tallies is a governance
+  change, not a display one.
+  *Context:* before S33 `suggest_proposal_merge` was write-only — stored by the
+  contract and read by no UI at all, so the author it was addressed to could never
+  learn it existed. This method plus `SolutionAuthorPanel` closes that loop.
+
 - **New proposal fields added** (all optional, backward-compatible):
   - `commitments: string[]`
   - `co_authors: string[]` (stored as `coAuthors`)
   - `expertReviewRequests: string[]` (public keys of requesters)
   - `expertReviews: { expert: string; metrics: string[]; note?: string; timestamp: number }[]`
-  - `mergeSuggestions: { target: string; suggester: string; timestamp: number }[]`
+  - `mergeSuggestions: { target: string; suggester: string; timestamp: number; decision?: 'accepted' | 'declined' }[]`
+  - `mergedInto?: string` (S33 — set when the author accepts a merge suggestion)
 
 ### S5 — Vote (`src/components/collaboration/flows/voting/QVFlow.tsx`)
 
@@ -120,3 +134,58 @@ only READS: `initiative.get_stage_contract { stage_key: 'discussionContractId' }
 then `discussion.get_comments` for the live count. It never deploys or writes —
 the discussion page itself remains the deploy-on-intent surface. No contract work
 needed beyond what already exists.
+
+### Conviction / backing (`demoContracts/conviction.ts`) — documented S33
+
+**This subsystem was missing from this doc entirely** (it predates it). Full surface,
+including the two methods S33 adds. Resolved in **shared mode** from the initiative
+contract: `initiative.get_stage_contract { stage_key: 'convictionContractId' }`.
+Client wrappers live in `src/components/collaboration/flows/voting/convictionApi.ts`.
+
+Stake record shape: `{ amount, duration, timestamp, country, voter }`.
+`duration` is one of `1w | 1m | 3m | 6m | 1y`, with weights **1 / 2 / 4 / 7 / 12**.
+
+Reads:
+
+- `get_my_stake` (no args) → the caller's stake record, or `null`.
+- `get_stakes` (no args) → `{ [voter]: stake }`.
+- `get_total_conviction` (no args) → `{ total, count }` — `total` sums
+  `amount × durationWeight`; `count` is the number of backers.
+- `get_conviction_by_country` (no args) → `{ [ISO-alpha-2]: weight }`.
+
+Writes:
+
+- `stake` (`{ amount, duration, country }`) — creates the caller's backing.
+  **The UI always sends `amount: 1`**: conviction here is *time-only*, so the
+  duration weight is the entire weight and support can never be wealth-weighted
+  (this is what keeps it consistent with the locked one-person-one-vote decision).
+  **Rejects a second `stake` from the same caller** (`{ error: 'Already backing —
+  use update_stake' }`). It previously *added* to the existing amount, which made
+  one-person-one-commitment depend on the client having read `get_my_stake` first
+  — a failed read silently doubled the caller's weight. The real contract must
+  reject it server-side too.
+- `update_stake` (`{ duration, country }`) — **new in S33.** Changes the caller's
+  duration and nothing else; the amount is never touched, so re-committing cannot
+  inflate one person's weight. Returns `{ error }` if the caller has no stake.
+  **Timestamp handling:** lengthening the commitment preserves the original
+  `timestamp`; shortening resets it to now.
+  ⚠️ **Be clear about what this does and doesn't buy.** Today `timestamp` is
+  *display metadata only* — it drives the "Backing since {date}" line and nothing
+  else. Weight is computed purely from the currently-declared `duration`
+  (`get_total_conviction` / `get_conviction_by_country` multiply
+  `amount × DURATION_MULTIPLIERS[duration]`), and withdrawal is free, so nothing
+  currently stops a caller declaring `1y` for maximum weight and withdrawing a
+  moment later. The timestamp rule only becomes a real anti-harvest guarantee once
+  weight accrues from time *held* — see the open item in MASTER_TODO §7. Implement
+  the rule, but don't rely on it as a defence yet.
+- `withdraw_stake` (no args) — **new in S33.** Removes the caller's stake. Returns
+  `{ error }` if there is none.
+
+**Auth the real contract must enforce:** all three writes act on `caller` only — a
+caller must never be able to create, change, or withdraw another key's backing.
+
+**Two UI surfaces, one contract.** `MandateStage` (community page / stage feed) and
+`MandateBacking` (the published mandate page, S33) both mount `ConvictionStaking`
+with the same `instanceId`/`parentContractId`/`stageKey` triple, because the mandate
+route's `:mandateId` IS the initiative contract id. They are the same contract, not
+two copies — backing on one surface must show on the other.

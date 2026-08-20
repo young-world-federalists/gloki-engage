@@ -2,6 +2,15 @@
 // Global utility classes and reusable components
 @use './variables' as *;
 
+/* Type pairing (S33) — display face for headings, body face for everything else.
+   Applied HERE rather than per component: a serif applied component-by-component
+   drifts back out of sync one new heading at a time, and the point of a pairing
+   is that it is systematic. Sizes/weights stay where they are — this changes the
+   VOICE of headings, not the scale. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-display;
+}
+
 /* Loading States */
 .loading-container {
   display: flex;

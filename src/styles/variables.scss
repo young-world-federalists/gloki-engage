@@ -90,6 +90,28 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
+// Font families (S33) — the ONE place a typeface is chosen.
+//
+// Before this the stacks were hardcoded in index.scss and a single system sans
+// did every job: display, body, UI labels and numerals. "One default typeface
+// doing every job" is among the most-cited reasons a product reads as
+// machine-generated — type is the loudest carrier of a product's voice, and
+// this product had made no typographic choice at all.
+//
+// The pairing is deliberate and costs **zero bytes**: both stacks are system
+// fonts, so nothing is downloaded on a cheap Android with intermittent data
+// (north star #1). A serif for headings reads warmer and more human than the
+// stock UI sans, and it reads as a *document* — which is what a mandate is
+// meant to be. Body stays sans for small-size legibility.
+//
+// TO SWAP IN A REAL WEBFONT: change $font-display here and add a self-hosted
+// @font-face in index.scss (subset, woff2, font-display: swap), keeping the
+// system faces as the fallback tail so a slow or failed load degrades to
+// exactly today's rendering. Nothing else in the app needs to change.
+$font-display: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+$font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
 // Font sizes
 $text-xs: 0.75rem;
 $text-sm: 0.875rem;
@@ -109,7 +131,11 @@ $font-bold: 700;
 // including the AppHeader title block — uses this pair, with $heading-gap
 // below it. Sanctioned exceptions (DESIGN_SYSTEM § Typography): full-bleed
 // guided flows (onboarding steps, the MandateCard document title).
-$page-title-size: $text-xl; // 20px
+// S33: raised $text-xl (20px) → $text-2xl (24px). At 20px against 16px body the
+// ratio was 1.25 — the page's most important text barely outranked its ordinary
+// text, which is why screens read flat. 24px gives a 1.5 ratio and lets the
+// $text-xl step do real work as the section heading below it.
+$page-title-size: $text-2xl; // 24px
 $page-title-weight: $font-bold; // 700 — keeps h1 distinct from 600-weight section h2s
 $heading-gap: $spacing-sm; // 8px minimum air under a page title
 
@@ -194,6 +220,15 @@ $sticky-scroll-offset: 76px;
   margin-inline: auto;
   padding-inline: $content-gutter;
   box-sizing: border-box;
+}
+
+// Figures that sit in a column, update in place, or get compared to each other
+// (tallies, counts, percentages, strengths) render with fixed-width digits, so a
+// number doesn't jitter sideways when it changes and columns of numbers line up.
+// Prose keeps the default proportional figures — only apply this to DATA. (S33)
+@mixin tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
 // ---------------------------------------------------------------------------

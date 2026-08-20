@@ -444,6 +444,43 @@ the *deliberate* S25 §1.3 rule-only call being reversed; the gray line is Probl
 bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English lives in inline
 `t()` fallbacks — copy changes touch tsx + fr + sw, never en.ts).
 
+**P9 — Actor completeness (Eston review, 2026-08-05). ✅ SHIPPED+PUSHED** (`1094375..0381f7c`, 17 commits; deploy green, run 31085623145). Spec
+[docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md](docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md).
+Five asks from Eston's review, all built in S33. Not a polish campaign — each one closes a hole
+where a role in the product had no interface.
+
+- ✅ **W1 — back a mandate from the mandate page + an editable commitment.** "Back this mandate"
+  teleported to the community page; it now expands in place, resolving the *same* shared conviction
+  contract (the mandate route's `:mandateId` IS the initiative contract id). New `update_stake` /
+  `withdraw_stake`: a commitment is changeable, amount never moves, lengthening preserves your
+  backing date and shortening resets it. An (i) answers "how much conviction do I have?" — there is
+  no bank.
+- ✅ **W2 — the author's perspective.** `SolutionAuthorPanel` on your own solution: who asked for
+  expert review, and merge suggestions with Accept / Keep mine separate. Closes a real dead end —
+  `mergeSuggestions` was **write-only**, stored by the contract and read by no UI at all. New
+  author-gated `decide_merge_suggestion`. One seeded solution is authored by the viewer, which is
+  what makes the author view reachable (the demo user authors nothing else, by design).
+- ✅ **W3 — the organization actor.** Organizations sign in, see only finished mandates at
+  `/organization`, and endorse or subscribe. Blocked from every participation surface *before* the
+  trust checks (pilot communities open stages to `'anyone'`). A parallel actor, not a permission
+  level — because 1p1v means an institution isn't a small person.
+- 🔨 **W4 — the "looks AI-generated" audit.** Research → audit → adversarial verification; applied
+  findings recorded in §8.
+
+**Open follow-ups this session surfaced (not built):**
+- **The `/…/collaboration` route is unreachable.** It hosts the only cross-initiative merge and
+  modification decision UI, and nothing in the app navigates to it. Either wire it up or retire it.
+- **`NotificationsBell` is permanently empty** — one event type (`merge_absorbed`), produced only
+  on that unreachable route. The author panel is per-solution; a real inbox is the general answer.
+- **Conviction has no time-accrual clock.** Weight is the pledged duration, not time held, and
+  withdrawal is free — so nothing stops declaring `1y` for maximum weight and withdrawing a moment
+  later. S33's lengthen-preserves/shorten-resets timestamp rule is implemented and documented, but
+  it protects nothing until weight accrues from time *held*; `timestamp` is display metadata today
+  (flagged as such in FOR_OURI_seam.md). A real accrual model is a mechanism change with results
+  implications — Eston's call.
+- **Only one published mandate exists**, so the organization home reads thin until more communities
+  finish a pipeline.
+
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
 - ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
@@ -505,6 +542,88 @@ bespoke `thresholdMarker` (not the kit); en.ts is a partial dictionary (English 
 ---
 
 ## 8. Changelog
+
+- **2026-08-05 — S33: P9 actor completeness — conviction editing, the author's view, the
+  organization actor (SHIPPED+PUSHED; `1094375..0381f7c`, 17 commits; Pages deploy green).** Spec
+  `docs/superpowers/specs/2026-08-05-s33-conviction-author-org-design.md`. Driven by Eston's
+  2026-08-05 review. Scope classes: UI + **two contract-method additions** + **one fixture change**
+  (⇒ `DEMO_VERSION` `global-v16` → `global-v17`) + **one new top-level route** (flagged as an IA
+  decision, spec §6).
+  **Re-grounding first, as always** — 11 premises checked against `751c63a`; two changed the design.
+  (a) The mandate route's `:mandateId` **is** the initiative contract id, so the mandate page can
+  mount the *same* shared conviction contract the community page uses — the fix is one surface
+  moved, not a second copy. (b) `useFlowContract` **deploys** when a parent has no registered
+  sub-contract, so the backing panel mounts lazily on expand; and `useMandate` deploys *two* stage
+  contracts, so the organization's mandate list is built on the read-only `useAllInitiatives`
+  instead (one `useMandate` per row would have written a contract per listed mandate).
+  **W1 conviction.** `MandateBacking` (new) replaces `MandatePage`'s navigate-away `onShowSupport`
+  with an inline expandable panel; `MandateCard`'s CTA expands + scrolls to it. New wire methods
+  `update_stake { duration, country }` and `withdraw_stake {}` on the conviction contract: duration
+  is the only thing that moves (calling `stake` twice would have *added* to the amount, breaking
+  one-person-one-commitment), lengthening preserves the original `timestamp`, shortening resets it
+  so a long record can't be harvested then downgraded. "Backing since {date}" makes the time
+  dimension visible; an `InfoDisclosure` states there is no bank — one backing per person, length
+  is the only lever. **The conviction subsystem had no entry in `FOR_OURI_seam.md` at all**; a full
+  section now documents every method plus the auth the real contract must enforce.
+  **W2 the author's perspective.** The app had none: an expert-review request rendered as the same
+  anonymous counter for author, requester and stranger, and — the sharper finding — a merge
+  suggestion was **write-only**, stored by `suggest_proposal_merge` and read by *no UI anywhere*, so
+  the person it was addressed to could never learn it existed. New `SolutionAuthorPanel` renders
+  only on a solution you authored (named requesters + the honest note that only an expert can grant
+  a review; merge suggestions with **Accept the merge / Keep mine separate**). New
+  `decide_merge_suggestion { source_id, target_id, decision }`, gated on `caller === source
+  proposal author`; accepting sets `mergedInto` and deliberately does **not** move approval counts.
+  One `databroker` solution is now seeded **authored by the viewer** with two pending review
+  requests and one merge suggestion — the demo user authors nothing else by design, which is
+  precisely why the author branches were unreachable. Bonus: the same board now shows your solution
+  (author view) beside personas' (member view), which answers "show me both perspectives" without a
+  simulated toggle.
+  **W3 the organization actor.** Organizations are modelled as a *parallel actor*, not a permission
+  level — 1p1v means an institution isn't a small person. `services/organizationActor.ts` +
+  `useOrganization` persist `{ name, type, country }` locally like `DigitalAgent` (no contract, no
+  wire method for Ouri yet; `MandateAdopter.verified` is the existing attestation hook, so org
+  endorsements stay "claimed"). `OrganizationSignIn` is a quiet secondary path on `LoginPage`; new
+  **`/organization`** route lists finished mandates and nothing else; `RootRoute` sends org sessions
+  there instead of `/welcome`. `StageGate` blocks organizations **before** the trust checks —
+  pilot communities force stages to `'anyone'`, which would otherwise have let an institution vote.
+  `MandateBacking` shows orgs the backer count without the control; `AdoptionFramework` binds
+  endorse/subscribe to the signed-in org (CTA names them, modal pre-fills). `logout()` clears the
+  org record, which otherwise outlives `user` and would strand the next person on the device.
+  **Verification.** `tsc -b` + `npm run build` clean; grep gates clean; i18n +53 keys at fr/sw
+  parity **1190/1190**. Preview walk at 360px, light + dark, en/fr/sw: backing 15→16 backers on
+  stake; **edit 1m→1y kept backers at 16 and moved strength 58→68** (proving the amount never
+  inflates) and preserved the backing date; **shortening 1y→1w reset the clock** (verified in
+  contract state) and moved strength 68→57; withdraw restored 15/56 exactly; the author panel
+  rendered on exactly **one** card with a real decision persisting to the contract; org sign-in
+  landed on `/organization`, endorsed as "Mercy Corps" (6→7 organizations), and was blocked with
+  the org banner on a community participation surface while still able to read. Two defects the
+  build could not catch were found in that walk and fixed: the viewer's byline rendered as the raw
+  key `aaaaaaaa…` (now "You"), and `SolutionAuthorPanel`'s muted lines measured **4.04:1** on
+  `$info-surface-dark` (below AA) — switched to `$dark-text`, now 9.45:1 dark / 7.15:1 light.
+  **Opus whole-branch review found 2 blockers + 5 majors — all fixed in `a03b38d`.** Both
+  blockers were the same class of mistake, and worth recording: **a new surface inherited none of
+  the old surface's gates.** (1) `MandateBacking` mounted the identical `ConvictionStaking` that
+  `MandateEngage` has always wrapped in `<StageGate stage="mandate">`, and `mandate` defaults to
+  `'verified'` — so W1 created an *ungated route to a gated action*. (2) The organization block sat
+  in `StageGate`, which wraps only four surfaces; deliberation, chat and Start-an-initiative
+  consult `canCurrentUserParticipate` directly or nothing at all, so an institution could still
+  deliberate and open initiatives. The fix moved the check into the **predicate** every surface
+  shares, plus an explicit guard on `CreateInitiativePage`. Majors: `stake` was still additive and
+  reachable when a `get_my_stake` read failed (one-person-one-commitment was being enforced by an
+  optimistic client read — now rejected in the contract); two members suggesting the same merge
+  target left all but the first suggestion permanently undecidable; the mandate page showed the
+  fixture's `760` backers directly above the contract's real `15`; an interrupted org sign-in
+  stranded `gloki.organization` and trapped the next person in an org session.
+  **Push (2026-08-06).** `origin/ui` had moved: Ouri's PR #21 dependency bump (`1094375`) landed
+  2026-07-17, including **two major jumps** — `lucide-react` 0.525→1.24 and `jspdf` 3→4. Rebased
+  the 17 commits onto it (no content conflicts — the bump touches only `package.json` +
+  lockfile), then **reinstalled and re-verified against the new majors** rather than trusting the
+  earlier green build: `tsc -b` + `npm run build` clean on lucide 1.24 / jspdf 4.2.1, gates clean,
+  parity 1190/1190. `npm install` on macOS stripped Linux-only `libc` hints from the lockfile —
+  reverted rather than pushing lockfile churn into an Ubuntu CI. Deploy green (run 31085623145,
+  5m13s); live site verified serving the serif display face.
+  **Follow-ups logged to §7** (unreachable `/collaboration` route, permanently-empty
+  `NotificationsBell`, no conviction time-accrual, only one published mandate).
 
 - **2026-07-14 — S32: Walkthrough-campaign Wave D — mandate-page recompose (SHIPPED+PUSHED;
   `a98cb8f..ffa3878`, 9 commits; deploy green). CLOSES the P8 walkthrough campaign.** Spec

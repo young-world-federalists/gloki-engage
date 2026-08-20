@@ -14,3 +14,9 @@
 .docAnchor {
   scroll-margin-top: $sticky-scroll-offset;
 }
+
+/* "Back this mandate" scroll target — same sticky-header clearance as .docAnchor
+   so the backing card's heading isn't tucked under the bar (S33). */
+.backingAnchor {
+  scroll-margin-top: $sticky-scroll-offset;
+}

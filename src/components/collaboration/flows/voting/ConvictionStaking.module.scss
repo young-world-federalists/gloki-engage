@@ -241,6 +241,113 @@
   }
 }
 
+// The time dimension made visible — a commitment has a start date, not just a
+// length (S33).
+.sinceLine {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-sm 0 0 0;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// ─── Change / withdraw (a commitment is revisitable, not frozen — S33) ─────
+.commitmentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.changeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  svg { flex-shrink: 0; }
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+// Quieter than "change" — withdrawing is the rarer, heavier act, so it reads as
+// a text control rather than a peer button.
+.withdrawBtn {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $radius-md;
+  background: none;
+  font-size: $text-sm;
+  color: $gray-600;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover:not(:disabled) { color: $error-dark; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    color: $dark-text-secondary;
+
+    &:hover:not(:disabled) { color: $error-on-dark; }
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: stretch;
+
+  // .stakeBtn is width:100% when it stands alone; beside Cancel it must flex.
+  .stakeBtn {
+    width: auto;
+    flex: 1 1 auto;
+  }
+}
+
+.cancelBtn {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
 // ─── Community aggregate ───────────────────────────────────────────────────
 .aggregate {
   display: flex;
@@ -260,6 +367,7 @@
 }
 
 .statValue {
+  @include tabular-nums;
   font-size: $text-2xl;
   font-weight: $font-bold;
   color: $primary;
@@ -328,6 +436,7 @@
 }
 
 .countryWeight {
+  @include tabular-nums;
   font-size: $text-xs;
   font-weight: $font-semibold;
   color: $gray-700;

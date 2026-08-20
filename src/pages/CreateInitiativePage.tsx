@@ -6,7 +6,8 @@ import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
 import { sanitizeExternalUrl } from '../utils/urlSafety';
 import { useT } from '../i18n';
-import { Button, CountryMultiSelect, InfoDisclosure, StageStrip } from '../components/shared';
+import { Banner, Button, CountryMultiSelect, InfoDisclosure, StageStrip } from '../components/shared';
+import { useOrganization } from '../hooks/useOrganization';
 import styles from './CreateInitiativePage.module.scss';
 
 // ─── Vocabulary decision (Gloki product voice, confirmed with Eston, Batch 3 C7)
@@ -60,6 +61,7 @@ const CreateInitiativePage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const t = useT();
+  const { isOrganization } = useOrganization();
   const { publicKey, serverUrl } = useAppSelector((s) => s.user);
 
   const [title, setTitle] = useState('');
@@ -129,6 +131,31 @@ const CreateInitiativePage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // S33 — starting an initiative is the most consequential act in the product,
+  // and it consults no permission predicate, so the organization block has to be
+  // explicit here. An institution opening a governance initiative would directly
+  // contradict what the organization sign-in promises.
+  if (isOrganization) {
+    return (
+      <div className={styles.page}>
+        <Banner
+          tone="info"
+          title={t('gate.org.title', 'Organizations don’t take part here')}
+          action={
+            <Button size="sm" onClick={() => navigate('/organization')}>
+              {t('gate.org.action', 'See mandates to endorse')}
+            </Button>
+          }
+        >
+          {t(
+            'gate.org.body',
+            'Deliberation and voting stay one person, one vote. You can read everything here — organizations act on finished mandates by endorsing or subscribing to them.',
+          )}
+        </Banner>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>

@@ -1,0 +1,150 @@
+@use '../styles/variables' as *;
+
+/* Who you're signed in as — an organization, not a person. Stated once, at the
+   top, because every capability on this screen follows from it (S33). */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  background: $info-surface;
+  border-radius: $radius-lg;
+
+  @include dark {
+    background: $info-surface-dark;
+  }
+}
+
+.identityIcon {
+  flex-shrink: 0;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.identityText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.orgName {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.orgMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin: $spacing-xs 0 0 0;
+  font-size: $text-xs;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  &:hover { border-color: $primary; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.cardEyebrow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+
+  svg { flex-shrink: 0; }
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.cardTitle {
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  line-height: 1.3;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.cardBody {
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.cardCta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+
+  svg { flex-shrink: 0; }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+.footnote {
+  margin: $spacing-lg 0 0 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

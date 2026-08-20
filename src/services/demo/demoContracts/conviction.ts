@@ -77,15 +77,49 @@ export function convictionWrite(contractId: string, method: IMethod, caller: str
       if (typeof amount !== 'number' || amount <= 0) return { error: 'Stake amount must be positive' };
       if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
       const normalized = normalizeCountry(country);
-      const existing = s.stakes[caller];
-      const newAmount = existing ? existing.amount + amount : amount;
+      // S33: one backing per person, enforced HERE. This used to add to an
+      // existing amount, which made one-person-one-commitment depend on the
+      // client having successfully read `get_my_stake` first — a failed read
+      // would silently double the caller's weight. Changes go through
+      // `update_stake`. FOR OURI: the real contract must reject this too.
+      if (s.stakes[caller]) return { error: 'Already backing — use update_stake' };
       s.stakes[caller] = {
-        amount: newAmount,
+        amount,
         duration,
         timestamp: Date.now(),
         country: normalized,
         voter: caller,
       };
+      writeState(contractId, s);
+      return null;
+    }
+    // S33: a commitment is changeable, not frozen. Duration is the ONLY thing
+    // that moves — amount stays whatever the original stake set (always 1), so
+    // re-committing can never inflate one person's weight the way a second
+    // `stake` call would.
+    case 'update_stake': {
+      const duration = method.values?.duration as string | undefined;
+      const country = method.values?.country;
+      if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
+      const existing = s.stakes[caller];
+      if (!existing) return { error: 'No commitment to change' };
+      // Lengthening preserves the original backing date (the record stands);
+      // shortening restarts the clock, so a long record can't be harvested and
+      // then quietly downgraded. FOR OURI: enforce this server-side too.
+      const wasMult = DURATION_MULTIPLIERS[existing.duration] ?? 1;
+      const nowMult = DURATION_MULTIPLIERS[duration];
+      s.stakes[caller] = {
+        ...existing,
+        duration,
+        country: country === undefined ? existing.country : normalizeCountry(country),
+        timestamp: nowMult < wasMult ? Date.now() : existing.timestamp,
+      };
+      writeState(contractId, s);
+      return null;
+    }
+    case 'withdraw_stake': {
+      if (!s.stakes[caller]) return { error: 'No commitment to withdraw' };
+      delete s.stakes[caller];
       writeState(contractId, s);
       return null;
     }
