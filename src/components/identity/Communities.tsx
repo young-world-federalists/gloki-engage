@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Star, EyeOff, Eye, ArrowLeft, Users, ScrollText, PlusCircle, Calendar } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchContracts } from '../../store/slices/userSlice';
-import { fetchCommunityProperties, fetchCommunityMembers, fetchCollaborations, fetchInitiativeStage } from '../../store/slices/communitiesSlice';
+import { fetchGlokiEngageCommunityDetails } from '../../store/slices/communitiesSlice';
+import { isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
 import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
 import { useI18n } from '../../i18n';
@@ -32,7 +33,7 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
   );
 
   const communityContracts = useMemo(
-    () => contracts.filter((contract) => contract.contract === 'community_contract.py'),
+    () => contracts.filter(isGlokiEngageCommunityContract),
     [contracts],
   );
 
@@ -44,62 +45,23 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
 
   useEventStream('deploy_contract', handleDeployContract);
 
-  // Fetch properties, members, and collaborations for each community.
-  // dispatchedRef prevents duplicate in-flight dispatches: when one fetch's
-  // .fulfilled re-runs this effect, sibling fetches may still be pending (data
-  // still undefined), so a data-only guard would redispatch them. The ref tracks
-  // "already kicked off fetches for this community" regardless of which ones
-  // have settled.
+  // Fetch each real community's details (name/description/createdAt) from
+  // its actual contract. Membership and initiative counts stay at their
+  // graceful zero/empty defaults below — real communities don't have that
+  // data yet (member management and initiative creation aren't migrated to
+  // the real seam), so there's nothing to fetch for them here.
+  // dispatchedRef prevents duplicate in-flight dispatches: a data-only guard
+  // would redispatch while the first fetch is still pending.
   const dispatchedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!user.serverUrl || !user.publicKey) return;
     communityContracts.forEach((c) => {
       if (dispatchedRef.current.has(c.id)) return;
-      const needsProps = !communityProperties[c.id];
-      const needsMembers = !communityMembers[c.id];
-      const needsCollabs = !communityCollaborations[c.id];
-      if (!needsProps && !needsMembers && !needsCollabs) return;
+      if (communityProperties[c.id]) return;
       dispatchedRef.current.add(c.id);
-      if (needsProps) {
-        dispatch(fetchCommunityProperties({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, contractId: c.id }));
-      }
-      if (needsMembers) {
-        dispatch(fetchCommunityMembers({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, contractId: c.id }));
-      }
-      if (needsCollabs) {
-        dispatch(fetchCollaborations({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, contractId: c.id }));
-      }
+      dispatch(fetchGlokiEngageCommunityDetails({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, contractId: c.id }));
     });
-  }, [
-    user.serverUrl,
-    user.publicKey,
-    communityContracts,
-    communityProperties,
-    communityMembers,
-    communityCollaborations,
-    dispatch,
-  ]);
-
-  // Fetch stage for each initiative so mandate count can be stage-accurate.
-  // `stageDispatchedRef` tracks initiatives we have already dispatched for
-  // this session — without it, every fulfilled stage fetch would re-run the
-  // effect (because `initiativeStages` is in deps) and redispatch reads for
-  // every still-pending sibling, producing O(N^2) traffic on large communities.
-  const stageDispatchedRef = useRef<Set<string>>(new Set());
-  useEffect(() => {
-    if (!user.serverUrl || !user.publicKey) return;
-    communityContracts.forEach((c) => {
-      const collabs = communityCollaborations[c.id];
-      if (!Array.isArray(collabs)) return;
-      collabs.forEach((item) => {
-        if (item.type !== 'initiative') return;
-        if (initiativeStages[item.id] !== undefined) return;
-        if (stageDispatchedRef.current.has(item.id)) return;
-        stageDispatchedRef.current.add(item.id);
-        dispatch(fetchInitiativeStage({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, initiativeId: item.id }));
-      });
-    });
-  }, [user.serverUrl, user.publicKey, communityContracts, communityCollaborations, initiativeStages, dispatch]);
+  }, [user.serverUrl, user.publicKey, communityContracts, communityProperties, dispatch]);
 
   const handleCommunityClick = (contractId: string) => {
     navigate(`/community/${contractId}`);

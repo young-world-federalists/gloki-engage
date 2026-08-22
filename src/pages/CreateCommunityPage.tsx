@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GitBranch, Coins, Users2, Shield, Globe, AlertCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { createCommunity } from '../services/contracts/community';
-import { isDemoContract } from '../services/demo/demoRegistry';
-import { seedDemoCommunity } from '../services/demo/seedDemoCommunity';
+import { createCommunityOnChain } from '../services/contracts/glokiEngageCommunity';
 import { fetchContracts } from '../store/slices/userSlice';
 import { useT } from '../i18n';
 import { Button, InfoDisclosure, StageStrip } from '../components/shared';
@@ -50,7 +48,7 @@ const CreateCommunityPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const t = useT();
-  const { publicKey, serverUrl, profileContractId } = useAppSelector((s) => s.user);
+  const { publicKey, serverUrl, digitalAgentContractId } = useAppSelector((s) => s.user);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -71,22 +69,18 @@ const CreateCommunityPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const contractId = await createCommunity(
+      await createCommunityOnChain({
         serverUrl,
         publicKey,
-        name.trim(),
-        description.trim(),
-        profileContractId,
-      );
+        name: name.trim(),
+        description: description.trim(),
+        profile: digitalAgentContractId ?? undefined,
+      });
 
-      if (contractId && isDemoContract(contractId)) {
-        seedDemoCommunity(contractId, publicKey);
-      }
-
-      // Refresh the contracts list so the new (including demo) community shows up.
+      // Refresh the contracts list so the new community shows up.
       await dispatch(fetchContracts());
 
-      navigate(contractId && isDemoContract(contractId) ? `/community/${contractId}` : '/identity/communities');
+      navigate('/identity/communities');
     } catch (err) {
       console.error('[CreateCommunity] Deploy failed:', err);
       const detail = err instanceof Error ? err.message : String(err);

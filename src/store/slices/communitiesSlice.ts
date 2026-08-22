@@ -12,6 +12,7 @@ import { contractRead } from '../../services/api';
 import type { IMethod } from '../../services/interfaces';
 import type { IProfile, IPartner } from '../../services/interfaces';
 import { getProfile } from '../../services/contracts/gloki';
+import { getCommunityDetails } from '../../services/contracts/glokiEngageCommunity';
 import { stripSensitiveProfileFields } from '../../utils/localSecrets';
 
 // Define Community interface
@@ -65,6 +66,19 @@ export const fetchCommunityProperties = createAsyncThunk(
       args.contractId,
     );
     return { contractId: args.contractId, properties: result };
+  }
+);
+
+// Real counterpart to fetchCommunityProperties, for communities deployed
+// through glokiEngageCommunity.ts (contract === GLOKI_ENGAGE_COMMUNITY_CONTRACT).
+// Writes into the SAME communityProperties[contractId] slot so consumers
+// (Communities.tsx) don't need to know which kind of community they're
+// reading — `description`/`createdAt` just show up either way.
+export const fetchGlokiEngageCommunityDetails = createAsyncThunk(
+  'communities/fetchGlokiEngageCommunityDetails',
+  async (args: { serverUrl: string; publicKey: string; contractId: string }) => {
+    const details = await getCommunityDetails(args);
+    return { contractId: args.contractId, properties: details ?? {} };
   }
 );
 
@@ -233,6 +247,12 @@ const communitiesSlice = createSlice({
       })
       .addCase(fetchCommunityProperties.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch community properties';
+      })
+      .addCase(fetchGlokiEngageCommunityDetails.fulfilled, (state, action) => {
+        state.communityProperties[action.payload.contractId] = action.payload.properties;
+      })
+      .addCase(fetchGlokiEngageCommunityDetails.rejected, (state, action) => {
+        state.error = action.error.message || 'Failed to fetch community details';
       });
 
     // Fetch community members with profiles

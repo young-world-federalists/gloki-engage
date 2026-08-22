@@ -1,6 +1,6 @@
 import { contractRead, contractWrite, deployContract } from '../api';
 import type { IMethod } from '../interfaces';
-const communityContractCode = '';const issueContractCode = '';const initiativeContractCode = '';
+const issueContractCode = '';const initiativeContractCode = '';
 /**
  * Community contract interface
  * Handles all community-specific contract calls
@@ -17,82 +17,6 @@ export interface IParameters {
     burn: number;
     commons_mint: number;
   };
-}
-
-export async function createCommunity(
-  serverUrl: string,
-  publicKey: string,
-  communityName: string,
-  communityDescription: string,
-  profile: string | null
-
-): Promise<string | null> {
-  // Deploy the community contract
-  const deployResponse = await deployContract({
-    serverUrl,
-    publicKey,
-    name: communityName,
-    contract: 'community_contract.py',
-    code: communityContractCode,
-    profile: profile || undefined,
-  });
-
-  const contractId = (deployResponse as { id?: string })?.id ?? (deployResponse as string | undefined);
-
-  // Set properties: name, description, createdAt
-  if (contractId) {
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'name',
-          value: communityName
-        },
-      } as IMethod
-    });
-    
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'description',
-          value: communityDescription
-        },
-      } as IMethod,
-    });
-    
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'createdAt',
-          value: new Date().toISOString()
-        },
-      } as IMethod,
-    });
-
-    // Call request_join to join the community as the creator
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'request_join',
-        values: {},
-      } as IMethod,
-    });
-  }
-
-  return contractId ?? null;
 }
 
 /**
