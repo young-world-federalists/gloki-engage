@@ -4,6 +4,9 @@ import { Stepper, Button, Card } from '../shared';
 import AppHeader from '../AppHeader';
 import { useT } from '../../i18n';
 import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
+import { saveDigitalAgentProfile, type DigitalAgentProfileFields } from '../identity/agent/digitalAgentContract';
+import { setDigitalAgentProfile } from '../../store/slices/userSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getVoucher, defaultVouchers } from '../../services/demo/fixtures/identity';
 import { ONBOARDING_SEED } from '../../services/trustModel';
 import InviteStep from './steps/InviteStep';
@@ -14,23 +17,53 @@ import RulesStep from './steps/RulesStep';
 import ReadyStep from './steps/ReadyStep';
 import styles from './OnboardingFlow.module.scss';
 
+// Invitation entry (?invite=CODE) walks all 6 steps; direct entry (no invite
+// param — e.g. the root URL's first-run redirect) skips straight to building
+// the profile, since there's no inviter or vouch relationship to explain.
+type OnboardingStepKey = 'invite' | 'vouch' | 'how' | 'agent' | 'rules' | 'ready';
+const INVITATION_STEPS: OnboardingStepKey[] = ['invite', 'vouch', 'how', 'agent', 'rules', 'ready'];
+const DIRECT_STEPS: OnboardingStepKey[] = ['agent', 'rules', 'ready'];
+
+const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
+  invite: ['onboarding.step.invite', 'Invite'],
+  vouch: ['onboarding.step.vouch', 'Trust'],
+  how: ['onboarding.step.how', 'How'],
+  agent: ['onboarding.step.agent', 'You'],
+  rules: ['onboarding.step.rules', 'Rules'],
+  ready: ['onboarding.step.ready', 'Ready'],
+};
+
 /**
  * Lane A — guided first-run journey, routed at `/welcome/*`.
- * Single screen, resumable: invite → vouch → Digital Agent → consent → ready.
+ * `?invite=CODE` selects the full invitation sequence; its absence (the
+ * common case — a self-serve agent, or the root URL's first-run redirect)
+ * selects the shorter direct-entry sequence starting at the profile form.
+ *
+ * Nothing about step position or profile fields persists locally — step
+ * position is plain in-memory state (lost on refresh, which is fine for a
+ * short one-time flow), and the profile itself is only ever real once it's
+ * written to the contract; state.user.digitalAgentProfile (Redux, sourced
+ * from the real server) is what "already onboarded" means.
  */
 const OnboardingFlow: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [params] = useSearchParams();
-  const { agent, progress, isOnboarded, saveAgent, saveProgress, startOver } = useDigitalAgent();
+  const { agent, saveAgent } = useDigitalAgent();
+  const { serverUrl, publicKey, digitalAgentProfile, digitalAgentContractId } = useAppSelector((s) => s.user);
 
-  const voucher = getVoucher(params.get('invite'));
+  const inviteCode = params.get('invite');
+  const stepKeys = inviteCode ? INVITATION_STEPS : DIRECT_STEPS;
+  const voucher = getVoucher(inviteCode);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
-  const [step, setStep] = useState(progress.completed ? 0 : progress.step);
 
-  // Seed the vouch as soon as the newcomer arrives, so it survives a later skip.
+  const [index, setIndex] = useState(0);
+  const [consented, setConsented] = useState(false);
+
+  // Seed the vouch as soon as an invited newcomer arrives, so it survives a later skip.
   useEffect(() => {
-    if (!agent?.invitedBy) {
+    if (inviteCode && !agent?.invitedBy) {
       saveAgent({ invitedBy: voucher.publicKey, vouchedBy: defaultVouchers(voucher.publicKey) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -39,15 +72,24 @@ const OnboardingFlow: React.FC = () => {
   // Move focus to the step heading on each step change (announced via the live region).
   useEffect(() => {
     headingRef.current?.focus();
-  }, [step]);
+  }, [index]);
 
-  const go = (next: number) => {
-    setStep(next);
-    saveProgress({ step: next });
+  const go = (nextIndex: number) => setIndex(nextIndex);
+
+  const submitProfile = (fields: DigitalAgentProfileFields) => {
+    if (!serverUrl || !publicKey) return;
+    saveDigitalAgentProfile({ serverUrl, publicKey, existingContractId: digitalAgentContractId, fields })
+      .then((contractId) => {
+        dispatch(setDigitalAgentProfile({ profile: fields, contractId }));
+      })
+      .catch((err) => {
+        console.error('[OnboardingFlow] Failed to save digital agent profile contract:', err);
+      });
   };
 
-  // Return state: already onboarded → compact "all set" with Start over.
-  if (isOnboarded) {
+  // Return state: already onboarded (a real profile contract exists) →
+  // compact "all set" with Start over.
+  if (digitalAgentProfile) {
     return (
       // Banner + main#main keep the entry route inside the page model — skip
       // link, landmark, and the step hero as the page's h1 (S18 W1, campaign M1).
@@ -63,7 +105,7 @@ const OnboardingFlow: React.FC = () => {
               <Button fullWidth onClick={() => navigate('/stage/problem')}>
                 {t('onboarding.cta.explore', 'Explore Gloki')}
               </Button>
-              <Button variant="ghost" fullWidth onClick={() => { startOver(); setStep(0); }}>
+              <Button variant="ghost" fullWidth onClick={() => setIndex(0)}>
                 {t('onboarding.cta.startOver', 'Start over')}
               </Button>
             </div>
@@ -73,16 +115,12 @@ const OnboardingFlow: React.FC = () => {
     );
   }
 
-  const steps = [
-    { label: t('onboarding.step.invite', 'Invite') },
-    { label: t('onboarding.step.vouch', 'Trust') },
-    { label: t('onboarding.step.how', 'How') },
-    { label: t('onboarding.step.agent', 'You') },
-    { label: t('onboarding.step.rules', 'Rules') },
-    { label: t('onboarding.step.ready', 'Ready') },
-  ];
+  const steps = stepKeys.map((key) => {
+    const [i18nKey, fallback] = STEP_LABELS[key];
+    return { label: t(i18nKey, fallback) };
+  });
   const vouchCount = agent?.vouchedBy?.length ?? 1;
-  const consented = !!agent?.consentedAt;
+  const currentKey = stepKeys[index];
 
   return (
     // Same page-model wrapper as the done branch (S18 W1, campaign M1); the
@@ -91,50 +129,49 @@ const OnboardingFlow: React.FC = () => {
       <AppHeader />
       <main id="main" tabIndex={-1} className={styles.flowMain}>
         <div className={styles.stepperWrap}>
-          <Stepper steps={steps} current={step} onStepClick={(i) => go(i)} />
+          <Stepper steps={steps} current={index} onStepClick={(i) => go(i)} />
         </div>
         <p className={styles.srOnly} role="status" aria-live="polite">
-          {t('onboarding.announce', 'Step {n} of {total}: {label}', { n: step + 1, total: steps.length, label: steps[step].label })}
+          {t('onboarding.announce', 'Step {n} of {total}: {label}', { n: index + 1, total: steps.length, label: steps[index].label })}
         </p>
 
         <div className={styles.stepBody}>
-          {step === 0 && <InviteStep headingRef={headingRef} voucher={voucher} onContinue={() => go(1)} />}
-          {step === 1 && (
-            <VouchStep headingRef={headingRef} voucher={voucher} vouchCount={vouchCount} onBack={() => go(0)} onContinue={() => go(2)} />
+          {currentKey === 'invite' && <InviteStep headingRef={headingRef} voucher={voucher} onContinue={() => go(index + 1)} />}
+          {currentKey === 'vouch' && (
+            <VouchStep headingRef={headingRef} voucher={voucher} vouchCount={vouchCount} onBack={() => go(index - 1)} onContinue={() => go(index + 1)} />
           )}
-          {step === 2 && (
+          {currentKey === 'how' && (
             <HowItWorksStep
               headingRef={headingRef}
               vouchCount={agent?.vouchedBy?.length ?? ONBOARDING_SEED}
-              onBack={() => go(1)}
-              onContinue={() => go(3)}
+              onBack={() => go(index - 1)}
+              onContinue={() => go(index + 1)}
             />
           )}
-          {step === 3 && (
+          {currentKey === 'agent' && (
             <AgentStep
               headingRef={headingRef}
               agent={agent}
               voucher={voucher}
-              onBack={() => go(2)}
-              onContinue={(fields) => { saveAgent(fields); go(4); }}
-              onSkip={() => go(4)}
+              onBack={index > 0 ? () => go(index - 1) : undefined}
+              onContinue={(fields) => {
+                submitProfile(fields);
+                go(index + 1);
+              }}
+              onSkip={() => go(index + 1)}
             />
           )}
-          {step === 4 && (
-            <RulesStep
-              headingRef={headingRef}
-              onBack={() => go(3)}
-              onAgree={() => { saveAgent({ consentedAt: Date.now() }); go(5); }}
-            />
+          {currentKey === 'rules' && (
+            <RulesStep headingRef={headingRef} onBack={() => go(index - 1)} onAgree={() => { setConsented(true); go(index + 1); }} />
           )}
-          {step === 5 && (
+          {currentKey === 'ready' && (
             <ReadyStep
               headingRef={headingRef}
               agent={agent}
               consented={consented}
-              onConsentNudge={() => go(4)}
-              onExplore={() => { saveProgress({ completed: true }); navigate('/stage/problem'); }}
-              onViewAgent={() => { saveProgress({ completed: true }); navigate('/identity/profile'); }}
+              onConsentNudge={() => go(index - 1)}
+              onExplore={() => navigate('/stage/problem')}
+              onViewAgent={() => navigate('/identity/profile')}
             />
           )}
         </div>

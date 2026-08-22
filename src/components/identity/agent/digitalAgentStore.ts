@@ -1,12 +1,26 @@
-// Lane A — local Digital Agent store (UI-only mockup).
-//
-// The agent a newcomer builds during onboarding + their onboarding progress.
-// localStorage-backed and refresh-surviving, mirroring services/demo/demoState.ts.
-// Lives inside the Lane A owned tree because the demo plumbing isn't ours to edit.
-// No backend, no contract writes.
+// Local trust-graph cache for the Digital Agent identity: only vouchedBy/
+// invitedBy persist here. Profile fields (displayName/photo/country/
+// languages) and onboarding completion are NOT cached locally — they live
+// in the real profile contract and are read fresh via Redux's
+// state.user.digitalAgentProfile (see userSlice.ts's fetchContracts).
 
-const AGENT_KEY = 'gloki.digitalAgent';
-const ONBOARDING_KEY = 'gloki.onboarding';
+const AGENT_KEY_BASE = 'gloki.digitalAgent';
+
+// Scoped by identity (serverUrl+publicKey), mirroring flowContractsSlice's
+// buildFlowContractsScope — without this, one identity's vouch data leaked
+// into every other identity that ever logged in on the same browser.
+let currentScope: string | null = null;
+
+export function setDigitalAgentScope(scopeKey: string | null): void {
+  if (scopeKey === currentScope) return;
+  currentScope = scopeKey;
+  agentCache = undefined;
+  notify();
+}
+
+function agentKey(): string {
+  return currentScope ? `${AGENT_KEY_BASE}:${currentScope}` : AGENT_KEY_BASE;
+}
 
 export interface DigitalAgent {
   displayName: string;
@@ -16,21 +30,10 @@ export interface DigitalAgent {
   createdAt: number;
   invitedBy?: string; // voucher publicKey
   vouchedBy: string[]; // publicKeys; length = "vouched by N"
-  consentedAt?: number; // set when the user accepts the deliberation rules
 }
 
-export interface OnboardingProgress {
-  step: number;
-  completed: boolean;
-}
-
-export const ONBOARDING_STEP_COUNT = 6;
-
-const DEFAULT_PROGRESS: OnboardingProgress = { step: 0, completed: false };
-
-// In-memory caches so getSnapshot returns a STABLE reference for useSyncExternalStore.
+// In-memory cache so getSnapshot returns a STABLE reference for useSyncExternalStore.
 let agentCache: DigitalAgent | null | undefined; // undefined = not yet loaded
-let progressCache: OnboardingProgress | undefined;
 
 const listeners = new Set<() => void>();
 
@@ -62,33 +65,31 @@ function writeJson(key: string, value: unknown): void {
   }
 }
 
-export function getAgent(): DigitalAgent | null {
-  if (agentCache === undefined) agentCache = readJson<DigitalAgent | null>(AGENT_KEY, null);
-  return agentCache;
-}
-
-export function getProgress(): OnboardingProgress {
-  if (progressCache === undefined) progressCache = readJson<OnboardingProgress>(ONBOARDING_KEY, DEFAULT_PROGRESS);
-  return progressCache;
-}
-
 function baseAgent(): DigitalAgent {
   return { displayName: '', photo: '', country: '', languages: [], createdAt: Date.now(), vouchedBy: [] };
+}
+
+// Only the trust-graph fields are persisted; profile fields stay in-memory
+// only for the current session (they're sourced from the real contract).
+type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy'>;
+
+function toPersisted(agent: DigitalAgent): PersistedAgent {
+  return { createdAt: agent.createdAt, invitedBy: agent.invitedBy, vouchedBy: agent.vouchedBy };
+}
+
+export function getAgent(): DigitalAgent | null {
+  if (agentCache === undefined) {
+    const persisted = readJson<PersistedAgent | null>(agentKey(), null);
+    agentCache = persisted ? { ...baseAgent(), ...persisted } : null;
+  }
+  return agentCache;
 }
 
 /** Merge a partial agent into the stored one (creating it if absent). */
 export function saveAgent(partial: Partial<DigitalAgent>): DigitalAgent {
   const next: DigitalAgent = { ...(getAgent() ?? baseAgent()), ...partial };
   agentCache = next;
-  writeJson(AGENT_KEY, next);
-  notify();
-  return next;
-}
-
-export function saveProgress(partial: Partial<OnboardingProgress>): OnboardingProgress {
-  const next: OnboardingProgress = { ...getProgress(), ...partial };
-  progressCache = next;
-  writeJson(ONBOARDING_KEY, next);
+  writeJson(agentKey(), toPersisted(next));
   notify();
   return next;
 }
@@ -96,42 +97,20 @@ export function saveProgress(partial: Partial<OnboardingProgress>): OnboardingPr
 export function clearAgent(): void {
   agentCache = null;
   try {
-    localStorage.removeItem(AGENT_KEY);
+    localStorage.removeItem(agentKey());
   } catch {
     /* ignore */
   }
-  notify();
-}
-
-export function resetOnboarding(): void {
-  progressCache = { ...DEFAULT_PROGRESS };
-  writeJson(ONBOARDING_KEY, progressCache);
-  notify();
-}
-
-/** Genuine fresh start: clears the created agent AND onboarding progress. */
-export function startOver(): void {
-  agentCache = null;
-  progressCache = { ...DEFAULT_PROGRESS };
-  try {
-    localStorage.removeItem(AGENT_KEY);
-  } catch {
-    /* ignore */
-  }
-  writeJson(ONBOARDING_KEY, progressCache);
   notify();
 }
 
 // (getInitials moved to src/utils/initials.ts — S22 consolidation.)
 
-// Cross-tab sync: invalidate caches when another tab writes, then notify.
+// Cross-tab sync: invalidate cache when another tab writes, then notify.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if (e.key === AGENT_KEY) {
+    if (e.key === agentKey()) {
       agentCache = undefined;
-      notify();
-    } else if (e.key === ONBOARDING_KEY) {
-      progressCache = undefined;
       notify();
     }
   });

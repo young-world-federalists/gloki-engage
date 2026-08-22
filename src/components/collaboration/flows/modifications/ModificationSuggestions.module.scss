@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../../../styles/variables' as *;
 
 .container {
@@ -261,7 +262,7 @@
   background: $success;
 
   &:hover:not(:disabled) {
-    background: darken($success, 8%);
+    background: color.adjust($success, $lightness: -8%);
   }
 }
 
@@ -270,7 +271,7 @@
   background: $error;
 
   &:hover:not(:disabled) {
-    background: darken($error, 8%);
+    background: color.adjust($error, $lightness: -8%);
   }
 }
 

@@ -20,7 +20,8 @@ interface Props {
   voucher: Persona;
   onContinue: (fields: AgentFields) => void;
   onSkip: () => void;
-  onBack: () => void;
+  /** Omitted when this is the flow's first step (direct entry, no invite). */
+  onBack?: () => void;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
 }
 

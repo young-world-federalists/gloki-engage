@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { initializeUser, setCurrentUser, clearUser, fetchContracts } from '../store/slices/userSlice';
 import type { AppDispatch, RootState } from '../store';
 import { buildFlowContractsScope, hydrateContracts } from '../components/collaboration/flows/shared/flowContractsSlice';
+import { setDigitalAgentScope } from '../components/identity/agent/digitalAgentStore';
 import { eventStreamService } from '../services/eventStream';
 import { clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
@@ -43,6 +44,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       ? buildFlowContractsScope(user.serverUrl, user.publicKey)
       : null;
     dispatch(hydrateContracts({ scopeKey }));
+    // Same scope key for the onboarding Digital Agent store — without this,
+    // one identity's completed onboarding leaks into every other identity
+    // that logs in on the same browser (these keys used to be global).
+    setDigitalAgentScope(scopeKey);
   }, [dispatch, user.publicKey, user.serverUrl]);
 
   useEffect(() => {
@@ -102,11 +107,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Use the new initializeUser thunk which handles everything
       await dispatch(initializeUser()).unwrap();
-      
+
       // Store in localStorage
       localStorage.setItem('user', JSON.stringify({ publicKey, serverUrl }));
     } catch (err) {
-      // Error handling: just throw error for now
+      // Registration/validation failed against the real server — undo the
+      // optimistic setCurrentUser above so isAuthenticated goes back to
+      // false and the app returns to LoginPage instead of stranding the
+      // user in a signed-in-looking app with no contracts and no error.
+      dispatch(setCurrentUser(null));
+      eventStreamService.disconnect();
       throw new Error(String(err));
     } finally {
       setIsLoading(false);

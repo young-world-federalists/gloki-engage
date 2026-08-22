@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: mode === 'production' ? '/gloki-engage/' : '/',
   server: {
-    port: 4280,
+    port: 7173,
   },
   resolve: {
     alias: {

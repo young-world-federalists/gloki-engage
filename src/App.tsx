@@ -8,7 +8,8 @@ import { OfflineBanner } from './components/shared/connectivity';
 import NotFound from './pages/NotFound';
 import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
-import { getAgent, getProgress } from './components/identity/agent/digitalAgentStore';
+import { useAppSelector } from './store/hooks';
+import { useT } from './i18n';
 import { isOrganizationSession } from './services/organizationActor';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,26 +54,28 @@ const OrganizationHome = lazy(() => import('./pages/OrganizationHome'));
 // Dev/lab route — durable verification page for the cross-cutting presence primitives (§10 [F→Foundation]).
 const PresenceLabRoute = lazy(() => import('./components/shared/presence/PresenceLabRoute'));
 
-// First-run heuristic: a newcomer hasn't created a Digital Agent or finished onboarding yet.
-// Such users land on the guided /welcome flow; everyone else goes straight to the stage feed.
-const isFirstRun = (): boolean => {
-  try {
-    // Read the agent store's canonical state — getProgress() reads `gloki.onboarding`,
-    // the key onboarding actually writes. The old code checked `gloki.onboarding.completed`,
-    // which nothing ever set, so every returning user was sent back to /welcome.
-    return !getAgent() || !getProgress().completed;
-  } catch {
-    // localStorage blocked (private mode) — fall back to the returning-user path.
-    return false;
-  }
-};
-
 // Entry point for `/`: an organization session goes to its own home (it has no
-// member journey to onboard into — S33); first-run people are guided to the
-// /welcome journey; everyone else lands on the cross-community Home overview.
+// member journey to onboard into — S33); a newcomer who hasn't deployed their
+// gloki-engage Digital Agent profile contract yet is guided to the /welcome
+// journey; everyone else lands on the cross-community Home overview. Sourced
+// live from state.user.digitalAgentProfile (checked against the real server
+// on every login, see userSlice.ts's fetchContracts) — nothing local/cached
+// decides this.
 function RootRoute() {
+  const t = useT();
+  const { digitalAgentProfile, digitalAgentProfileChecked } = useAppSelector((s) => s.user);
   if (isOrganizationSession()) return <Navigate to="/organization" replace />;
-  if (isFirstRun()) return <Navigate to="/welcome" replace />;
+  // Don't guess: wait for the real server's answer before deciding
+  // onboarding vs. skip, rather than flashing one and then the other.
+  if (!digitalAgentProfileChecked) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>{t('app.validatingSession', 'Validating session…')}</p>
+      </div>
+    );
+  }
+  if (!digitalAgentProfile) return <Navigate to="/welcome" replace />;
   return <HomeView />;
 }
 

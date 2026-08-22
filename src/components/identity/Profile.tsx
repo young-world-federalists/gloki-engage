@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { Key, Server, ChevronDown, ChevronUp, UserPlus } from 'lucide-react';
 import { Button, Card, Modal, EmptyState, Banner, SearchableSelect } from '../shared';
 import { DataSaverToggle } from '../shared/connectivity';
@@ -8,6 +8,8 @@ import { useT, useI18n } from '../../i18n';
 import DigitalAgentCard from './DigitalAgentCard';
 import PhotoPicker from './PhotoPicker';
 import { useDigitalAgent } from './agent/useDigitalAgent';
+import { saveDigitalAgentProfile } from './agent/digitalAgentContract';
+import { setDigitalAgentProfile } from '../../store/slices/userSlice';
 import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../utils/languages';
 import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
@@ -18,7 +20,8 @@ const Profile: React.FC = () => {
   const { locale } = useI18n();
   const navigate = useNavigate();
   const user = useAppSelector((s) => s.user);
-  const { agent, hasAgent, isOnboarded, saveAgent } = useDigitalAgent();
+  const dispatch = useAppDispatch();
+  const { agent, hasAgent, isOnboarded } = useDigitalAgent();
 
   const [editing, setEditing] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false);
@@ -41,8 +44,22 @@ const Profile: React.FC = () => {
   };
 
   const saveEdit = () => {
-    saveAgent({ displayName: displayName.trim(), photo, country, languages: language ? [language] : [] });
-    if (user.serverUrl && user.publicKey) setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
+    const fields = { displayName: displayName.trim(), photo, country, languages: language ? [language] : [] };
+    if (user.serverUrl && user.publicKey) {
+      saveDigitalAgentProfile({
+        serverUrl: user.serverUrl,
+        publicKey: user.publicKey,
+        existingContractId: user.digitalAgentContractId,
+        fields,
+      })
+        .then((contractId) => {
+          dispatch(setDigitalAgentProfile({ profile: fields, contractId }));
+        })
+        .catch((err) => {
+          console.error('[Profile] Failed to save digital agent profile contract:', err);
+        });
+      setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
+    }
     setEditing(false);
   };
 

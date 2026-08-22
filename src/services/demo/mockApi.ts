@@ -115,7 +115,11 @@ export async function mockJoinContract(): Promise<unknown> {
 
 export { isDemoContract, getDemoContract };
 
-// Merge demo communities into the (always empty in UI-only mode) real list.
+// Merge demo communities into the real list — shared demo content, visible
+// to everyone regardless of identity. (The gloki-engage Digital Agent
+// profile contract used to be merged in here too, back when deployContract
+// was still mocked; it's deployed for real now — see digitalAgentContract.ts
+// — so it already comes back directly in realContracts.)
 export function mergeDemoContracts(realContracts: IContract[]): IContract[] {
   const demoCommunities = listDemoContractsByType('community_contract.py');
   const existingIds = new Set(realContracts.map((c) => c.id));

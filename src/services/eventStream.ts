@@ -155,4 +155,32 @@ class EventStreamService {
 }
 
 // Export a singleton instance
-export const eventStreamService = new EventStreamService(); 
+export const eventStreamService = new EventStreamService();
+
+/**
+ * Resolves with a `deploy_contract`/`contract_write` call's real result once
+ * the matching event arrives on the stream (matched by `request` === the ack
+ * id the PUT/POST call returned). Per docs/blockchain-api.md: writes only
+ * hand back an ack id — the actual result is async, delivered here.
+ */
+export function waitForChainAck(
+  eventType: 'deploy_contract' | 'contract_write',
+  requestId: string,
+  timeoutMs = 20000,
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      eventStreamService.removeEventListener(eventType, handler);
+      reject(new Error(`Timed out waiting for ${eventType} result (request ${requestId})`));
+    }, timeoutMs);
+
+    function handler(event: BlockchainEvent) {
+      if (event.request !== requestId) return;
+      clearTimeout(timeoutId);
+      eventStreamService.removeEventListener(eventType, handler);
+      resolve(event.reply);
+    }
+
+    eventStreamService.addEventListener(eventType, handler);
+  });
+}
