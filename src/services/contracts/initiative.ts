@@ -1,4 +1,5 @@
 import { contractRead, joinContract } from '../api';
+import { isDemoContract } from '../demo/demoRegistry';
 import type { IMethod } from '../interfaces';
 
 /**
@@ -68,6 +69,21 @@ export async function resolveInitiativeStageContract(
   contractId: string,
   stageKey: string,
 ): Promise<InitiativeStageContract | null> {
+  // A real (non-demo) initiative contract implements every stage's methods
+  // directly on itself — there's no separate per-stage sub-contract to look
+  // up, unlike demo initiatives which still split into one sub-contract per
+  // stage. Mirrors useFlowContract.ts's isSingleContract short-circuit for
+  // every read-only summary/preview call site that resolves a stage contract
+  // without going through that hook (stageMetrics.ts, useInitiativePost.ts,
+  // useMandateJourney.ts, DiscussionPill.tsx, VotePreview.tsx,
+  // useLiveBackers.ts, InitiativeStagePanel.tsx) — without this, they'd keep
+  // trying get_stage_contract (nonexistent on the real contract) and the
+  // get_details[stageKey] fallback (also nonexistent), always resolving to
+  // null and silently freezing their readiness/summary data at empty.
+  if (!isDemoContract(contractId)) {
+    return { contractId };
+  }
+
   try {
     const stageContract = await contractRead({
       serverUrl,

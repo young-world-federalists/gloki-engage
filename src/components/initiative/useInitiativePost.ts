@@ -56,6 +56,12 @@ export function useInitiativePost(
 ): UseInitiativePostResult {
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
+  // ProblemVoteFlow (a separate component subtree — the actual "Second it"
+  // vote buttons) publishes its live tally here on every fetch, including
+  // right after a vote. Preferred over the local one-time fetch below so this
+  // hook's readiness banner + advance-bar gate update immediately on a vote
+  // instead of staying stuck until the page is reloaded.
+  const reduxTally = useAppSelector((s) => s.communities.initiativeTallies[initiativeId]);
 
   const [details, setDetails] = useState<InitiativeDetails | null>(null);
   const [tally, setTally] = useState<Tally | null>(null);
@@ -127,8 +133,9 @@ export function useInitiativePost(
   }, [framing, details, fallbackTitle]);
 
   const needed = Math.max(Math.ceil(communityMemberCount * 0.5), 1);
-  const up = tally?.up ?? 0;
-  const thresholdMet = tally != null && up >= needed;
+  const effectiveTally = reduxTally ?? tally;
+  const up = effectiveTally?.up ?? 0;
+  const thresholdMet = effectiveTally != null && up >= needed;
 
   return { post, thresholdMet, up, loading };
 }

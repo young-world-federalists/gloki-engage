@@ -4,6 +4,7 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import { decodeCommunityInvitation } from '../../../services/encodeDecode';
 import { useAppSelector } from '../../../store/hooks';
 import { addUserVouch } from '../../../services/trust';
+import { displayNameFor } from '../../../utils/displayName';
 import { useT } from '../../../i18n';
 import { Button, Modal } from '../../shared';
 import styles from './QRScannerDialog.module.scss';
@@ -23,6 +24,7 @@ interface ScanResult {
   memberProfile?: {
     firstName?: string;
     lastName?: string;
+    displayName?: string;
     userPhoto?: string;
   };
 }
@@ -90,6 +92,7 @@ const QRScannerDialog: React.FC<QRScannerDialogProps> = ({
           memberProfile: memberProfile ? {
             firstName: memberProfile.firstName,
             lastName: memberProfile.lastName,
+            displayName: memberProfile.displayName,
             userPhoto: memberProfile.userPhoto
           } : undefined
         });
@@ -113,10 +116,10 @@ const QRScannerDialog: React.FC<QRScannerDialogProps> = ({
     console.error('QR Scanner error:', error);
   };
 
-  const memberName =
-    scanResult?.memberProfile?.firstName && scanResult?.memberProfile?.lastName
-      ? `${scanResult.memberProfile.firstName} ${scanResult.memberProfile.lastName}`
-      : t('members.unknown', 'Unknown Member');
+  // displayNameFor prefers the opt-in displayName pseudonym, then first+last —
+  // real profiles only ever set displayName, so the old firstName+lastName-only
+  // check never matched them and always fell through to "Unknown Member".
+  const memberName = displayNameFor(scanResult?.memberProfile) || t('members.unknown', 'Unknown Member');
 
   return (
     <Modal

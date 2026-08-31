@@ -48,6 +48,13 @@
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
 }
 .commentSources { margin: 4px 0 $spacing-xs; }
+.composeError {
+  margin: 0;
+  font-size: $text-sm;
+  // Same AA-safe reds as the delete control below — $error fails AA on white.
+  color: $error-dark;
+  @include dark { color: $error-on-dark; }
+}
 .composeActions { display: flex; gap: $spacing-sm; }
 .btnSubmit {
   min-height: 44px;

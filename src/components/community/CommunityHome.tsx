@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Megaphone } from 'lucide-react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUrlExpandedSet } from '../../hooks/useUrlExpandedSet';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { fetchCollaborations } from '../../store/slices/communitiesSlice';
-import { contractRead } from '../../services/api';
-import type { IMethod } from '../../services/interfaces';
+import { fetchCollaborations, fetchInitiativeStage } from '../../store/slices/communitiesSlice';
+import { useContractSyncMany } from '../collaboration/flows/shared/useContractSync';
 import { DEMO_COMMUNITIES } from '../../services/demo/fixtures/community';
 import { displayNameFor } from '../../utils/displayName';
 import { useT } from '../../i18n';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
-import { Card, Badge, Banner } from '../shared';
+import { Card, Badge, Banner, EmptyState } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import CommunityCard from './CommunityCard';
 import { STAGE_META } from './stageMeta';
@@ -45,11 +45,15 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
-  const { communityCollaborations, communityMembers, communityProperties, profiles } = useAppSelector(
-    (s) => s.communities,
-  );
+  const {
+    communityCollaborations,
+    collaborationsLoading,
+    communityMembers,
+    communityProperties,
+    profiles,
+    initiativeStages,
+  } = useAppSelector((s) => s.communities);
   const trust = useCommunityTrust(communityId);
-  const [stages, setStages] = useState<Record<string, string>>({});
   const deepLinked = searchParams.get('initiative');
   // Expansion lives in the URL (S23) so it survives the discussion round-trip;
   // the `?initiative=` deep link seeds it below (idempotent add — StrictMode-safe).
@@ -70,7 +74,11 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
     if (showCreated) window.history.replaceState({}, ''); // don't re-show on refresh
   }, [showCreated]);
 
-  // Fetch collaborations if not already loaded.
+  // Fetch collaborations if not already loaded. For a real gloki-engage
+  // community, fetchCollaborations itself reads the community's own
+  // get_initiatives refs and each one's details/roles (in parallel, since
+  // they may live on different members' servers) and maps them into this
+  // same Collaboration shape — so this one effect covers both cases.
   useEffect(() => {
     if (!serverUrl || !publicKey || communityCollaborations[communityId]) return;
     dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
@@ -99,25 +107,30 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
     el.focus({ preventScroll: true });
   }, [deepLinked, initiatives]);
 
-  // Fetch each initiative's current stage.
+  // Fetch each initiative's current stage into Redux (not local state): the
+  // same initiativeStages slot is written by StageAdvanceBar on a successful
+  // advance (set_stage), so keeping the read here on Redux too means an
+  // advance updates every card showing this initiative immediately, instead
+  // of leaving a locally-cached stage stuck at its pre-advance value.
   useEffect(() => {
     if (!serverUrl || !publicKey || initiatives.length === 0) return;
     initiatives.forEach((item) => {
-      if (stages[item.id]) return;
-      contractRead({
-        serverUrl,
-        publicKey,
-        contractId: item.id,
-        method: { name: 'get_stage', values: {} } as IMethod,
-      })
-        .then((result: unknown) => {
-          setStages((prev) => ({ ...prev, [item.id]: typeof result === 'string' ? result : 'problem' }));
-        })
-        .catch(() => {
-          setStages((prev) => ({ ...prev, [item.id]: 'problem' }));
-        });
+      if (initiativeStages[item.id]) return;
+      dispatch(fetchInitiativeStage({ serverUrl, publicKey, initiativeId: item.id }));
     });
-  }, [serverUrl, publicKey, initiatives]);
+  }, [serverUrl, publicKey, initiatives, initiativeStages, dispatch]);
+
+  // Re-read an initiative's stage whenever ANY write lands on it — including
+  // a stage advance from someone else's client, which nothing else here would
+  // otherwise ever notice (StageAdvanceBar only updates Redux for its OWN
+  // advance). Never a direct refetch after our own action — purely reacting
+  // to the contract_write SSE event, same principle as useContractSync.
+  const initiativeIds = useMemo(() => initiatives.map((item) => item.id), [initiatives]);
+  useContractSyncMany(initiativeIds, (changedId) => {
+    if (serverUrl && publicKey) {
+      dispatch(fetchInitiativeStage({ serverUrl, publicKey, initiativeId: changedId }));
+    }
+  });
 
   const props = communityProperties[communityId] || {};
   const fixture = DEMO_COMMUNITIES.find((c) => c.name === props.name);
@@ -140,7 +153,17 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
     return list;
   }, [members, profiles, fixture, memberCount]);
 
-  const usingSampleData = initiatives.length === 0;
+  // "Loading" covers both the active fetch and the not-yet-dispatched initial
+  // moment (communityCollaborations[communityId] is undefined until the fetch
+  // above resolves at least once) — without the latter, usingSampleData below
+  // would read as "confirmed empty" for one render and flash the mockup feed.
+  const isLoadingInitiatives =
+    collaborationsLoading[communityId] || communityCollaborations[communityId] === undefined;
+  // The sample feed is onboarding decoration for the seeded demo communities
+  // only — a real community with zero initiatives gets a genuine empty state
+  // below, not fake example cards implying activity that doesn't exist.
+  const usingSampleData = !isLoadingInitiatives && isDemo && initiatives.length === 0;
+  const showEmptyState = !isLoadingInitiatives && !isDemo && initiatives.length === 0;
 
   return (
     <div className={styles.home}>
@@ -178,62 +201,82 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
           </p>
         </div>
 
-        {initiatives.map((item) => {
-          const stage = stages[item.id] || 'problem';
-          const authorProfile = item.author ? profiles[item.author] : undefined;
-          const authorName = item.author ? displayNameFor(authorProfile, item.author) : '';
-          const hostServer = item.hostServer || serverUrl || 'local';
-          const hostAgent = item.hostAgent || publicKey || 'local';
-
-          return (
-            <div
-              key={item.id}
-              ref={item.id === deepLinked ? deepCardRef : undefined}
-              tabIndex={item.id === deepLinked ? -1 : undefined}
-              className={styles.cardWrap}
-            >
-              <ActivityCard
-                item={item}
-                communityId={communityId}
-                stage={stage}
-                authorName={authorName}
-                authorKey={item.author}
-                trustState={trust.trustOf(item.author || '')}
-                vouchCount={trust.vouchCountOf(item.author || '')}
-                hostServer={hostServer}
-                hostAgent={hostAgent}
-                expanded={expandedIds.has(item.id)}
-                onToggle={() => toggleExpanded(item.id)}
-              />
-            </div>
-          );
-        })}
-
-        {usingSampleData && (
+        {isLoadingInitiatives ? (
+          <div className={styles.feedLoading}>
+            <div className="loading-spinner-small" />
+            <p>{t('community.activityLoading', 'Loading activity…')}</p>
+          </div>
+        ) : (
           <>
-            <div className={styles.sampleBanner}>
-              {t('community.sampleBanner', 'Example initiatives — start an initiative to participate')}
-            </div>
-            {SAMPLE_FEED.map((sample) => {
-              const meta = STAGE_META[sample.stage] || STAGE_META.problem;
-              const Icon = meta.icon;
+            {initiatives.map((item) => {
+              const stage = initiativeStages[item.id] || 'problem';
+              const authorProfile = item.author ? profiles[item.author] : undefined;
+              const authorName = item.author ? displayNameFor(authorProfile, item.author) : '';
+              const hostServer = item.hostServer || serverUrl || 'local';
+              const hostAgent = item.hostAgent || publicKey || 'local';
+
               return (
-                <Card key={sample.id} as="article" className={`${styles.card} ${styles.sampleCard}`}>
-                  <div className={styles.cardHeader}>
-                    <Badge tone={meta.tone}>
-                      <span className={styles.badgeInner}>
-                        <Icon size={12} />
-                        {t(meta.labelKey, meta.labelDefault)}
-                      </span>
-                    </Badge>
-                    <span className={styles.time}>{formatTimeAgo(t, sample.createdAt)}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{sample.title}</h3>
-                  <p className={styles.cardDesc}>{sample.description}</p>
-                  <span className={styles.author}>{sample.authorName}</span>
-                </Card>
+                <div
+                  key={item.id}
+                  ref={item.id === deepLinked ? deepCardRef : undefined}
+                  tabIndex={item.id === deepLinked ? -1 : undefined}
+                  className={styles.cardWrap}
+                >
+                  <ActivityCard
+                    item={item}
+                    communityId={communityId}
+                    stage={stage}
+                    authorName={authorName}
+                    authorKey={item.author}
+                    trustState={trust.trustOf(item.author || '')}
+                    vouchCount={trust.vouchCountOf(item.author || '')}
+                    hostServer={hostServer}
+                    hostAgent={hostAgent}
+                    expanded={expandedIds.has(item.id)}
+                    onToggle={() => toggleExpanded(item.id)}
+                  />
+                </div>
               );
             })}
+
+            {showEmptyState && (
+              <EmptyState
+                icon={<Megaphone size={32} aria-hidden />}
+                title={t('community.noInitiatives.title', 'No initiatives yet')}
+                message={t(
+                  'community.noInitiatives.body',
+                  'Be the first to start one and bring your community together around it.',
+                )}
+              />
+            )}
+
+            {usingSampleData && (
+              <>
+                <div className={styles.sampleBanner}>
+                  {t('community.sampleBanner', 'Example initiatives — start an initiative to participate')}
+                </div>
+                {SAMPLE_FEED.map((sample) => {
+                  const meta = STAGE_META[sample.stage] || STAGE_META.problem;
+                  const Icon = meta.icon;
+                  return (
+                    <Card key={sample.id} as="article" className={`${styles.card} ${styles.sampleCard}`}>
+                      <div className={styles.cardHeader}>
+                        <Badge tone={meta.tone}>
+                          <span className={styles.badgeInner}>
+                            <Icon size={12} />
+                            {t(meta.labelKey, meta.labelDefault)}
+                          </span>
+                        </Badge>
+                        <span className={styles.time}>{formatTimeAgo(t, sample.createdAt)}</span>
+                      </div>
+                      <h3 className={styles.cardTitle}>{sample.title}</h3>
+                      <p className={styles.cardDesc}>{sample.description}</p>
+                      <span className={styles.author}>{sample.authorName}</span>
+                    </Card>
+                  );
+                })}
+              </>
+            )}
           </>
         )}
       </div>

@@ -112,10 +112,13 @@ export async function getMyApprovals(
   });
 }
 
-// Fetch proposals and approval counts together. Warns on size mismatch so
-// partial-response data loss is loggable — the contract guarantees the two
-// maps cover the same proposal set, so any mismatch implies truncation
-// somewhere between server and client.
+// Fetch proposals and approval counts together. get_approval_counts only
+// includes a proposal id once it has at least one approval, so counts having
+// FEWER entries than proposals is normal, not a mismatch. Warns only when
+// counts references a proposal id that doesn't exist in proposals at all —
+// that would mean actual truncation/corruption somewhere between server and
+// client, which the size check alone couldn't tell apart from "not approved
+// yet".
 export async function getProposalsAndCounts(
   serverUrl: string,
   publicKey: string,
@@ -131,12 +134,10 @@ export async function getProposalsAndCounts(
   const counts = (countsRaw && typeof countsRaw === 'object' && !Array.isArray(countsRaw)
     ? countsRaw
     : {}) as Record<string, number>;
-  const pCount = Object.keys(proposals).length;
-  const cCount = Object.keys(counts).length;
-  if (pCount !== cCount) {
-    console.warn('[approvalApi] Proposals/counts size mismatch — partial response?', {
-      proposals: pCount,
-      counts: cCount,
+  const orphanIds = Object.keys(counts).filter((id) => !(id in proposals));
+  if (orphanIds.length > 0) {
+    console.warn('[approvalApi] Approval counts reference unknown proposal ids — partial response?', {
+      orphanIds,
       contractId,
     });
   }

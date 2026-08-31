@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Download } from 'lucide-react';
 import styles from './IdentityCardDialog.module.scss';
 import { useAppSelector } from '../../../store/hooks';
+import { displayNameFor } from '../../../utils/displayName';
 import { encodeCommunityInvitation } from '../../../services/encodeDecode';
 import IdentityCardSVG from './IdentityCardSVG';
 import { generateIdentityCardPDF } from './IdentityCardPDFGenerator';
@@ -39,11 +40,12 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
 
   // The credential's name + fallbacks are kept in canonical English to stay coherent
   // with the English IdentityCardSVG credential (see that file's header note).
-  const memberName =
-    userProfile.firstName && userProfile.lastName
-      ? `${userProfile.firstName} ${userProfile.lastName}`
-      : 'Unknown Member';
-  const memberInitial = userProfile.firstName ? userProfile.firstName.charAt(0).toUpperCase() : '?';
+  // displayNameFor prefers the opt-in displayName pseudonym, then first+last —
+  // real profiles only ever set displayName, so the old firstName+lastName-only
+  // check never matched them and always fell through to "Unknown Member".
+  const resolvedMemberName = displayNameFor(userProfile);
+  const memberName = resolvedMemberName || 'Unknown Member';
+  const memberInitial = resolvedMemberName ? resolvedMemberName.charAt(0).toUpperCase() : '?';
 
   const handleDownloadCard = async () => {
     try {

@@ -1,28 +1,28 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star } from 'lucide-react';
+import { AlertCircle, Lightbulb, Vote, ScrollText, ArrowRight, Star, Megaphone } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 import { useAllInitiatives } from '../hooks/useAllInitiatives';
 import { formatTimeAgo } from '../utils/formatTimeAgo';
-import { SAMPLE_INITIATIVES } from './StageFeedView';
 import AppHeader from '../components/AppHeader';
-import { UserIdentity } from '../components/shared';
+import { UserIdentity, EmptyState } from '../components/shared';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import styles from './HomeView.module.scss';
 import cs from './Container.module.scss';
 
-// A normalised card the Home renders for both real initiatives and the sample
-// fallback. `communityId` (and host/agent) are only present for real items —
-// sample cards are display-only.
+// A normalised card the Home renders for a real initiative. communityId is
+// always set (every card comes from useAllInitiatives, real communities
+// only) — author/authorName/hostServer/hostAgent/createdAt stay optional
+// since a given initiative's own data may legitimately be missing them.
 interface HomeCard {
   id: string;
   title: string;
   description: string;
   communityName: string;
-  communityId?: string;
+  communityId: string;
   authorName?: string;
-  /** Author public key — present for real items only, used to resolve trust. */
+  /** Author public key, used to resolve trust. */
   author?: string;
   hostServer?: string;
   hostAgent?: string;
@@ -30,32 +30,26 @@ interface HomeCard {
 }
 
 // One Home initiative card. Its own component so it can resolve the author's
-// trust in that card's community. Sample cards (no communityId) show no badge —
-// we never present sample data as real trust.
+// trust in that card's community.
 const HomeInitiativeCard: React.FC<{
   card: HomeCard;
   starred: boolean;
   interactionProps: Record<string, unknown>;
-  onCommunityClick: (e: React.MouseEvent, communityId?: string) => void;
+  onCommunityClick: (e: React.MouseEvent, communityId: string) => void;
 }> = ({ card, starred, interactionProps, onCommunityClick }) => {
   const t = useT();
   const trust = useCommunityTrust(card.communityId);
   const profiles = useAppSelector((s) => s.communities.profiles);
-  const clickable = Boolean(card.communityId);
   return (
-    <div className={`${styles.card} ${clickable ? '' : styles.cardStatic}`} {...interactionProps}>
+    <div className={styles.card} {...interactionProps}>
       <div className={styles.cardMeta}>
         {starred && (
           <Star size={12} className={styles.starIcon} aria-label={t('home.starred', 'Starred community')} />
         )}
-        {clickable ? (
-          <button type="button" className={styles.communityBadge} onClick={(e) => onCommunityClick(e, card.communityId)}>
-            {card.communityName}
-          </button>
-        ) : (
-          <span className={`${styles.communityBadge} ${styles.communityBadgeStatic}`}>{card.communityName}</span>
-        )}
-        {card.authorName && card.communityId && card.author ? (
+        <button type="button" className={styles.communityBadge} onClick={(e) => onCommunityClick(e, card.communityId)}>
+          {card.communityName}
+        </button>
+        {card.authorName && card.author ? (
           <UserIdentity
             name={card.authorName}
             countryCode={profiles[card.author]?.country}
@@ -93,9 +87,9 @@ const SECTIONS: {
  * card labelled with its community), plus a slim "Recent decisions" strip for
  * mandates. Discussion-stage initiatives list under Problems (W3, §5 rule 10 —
  * mirrors the stage feed: a problem being discussed is still a problem).
- * Falls back to the shared sample set when the user has no real initiatives
- * yet. The per-stage browse lives in the global StageFooter / StageFeedView;
- * this page never renders the heavy inline flows.
+ * Shows a genuine empty state when the user has no real initiatives anywhere
+ * — never mockup content. The per-stage browse lives in the global
+ * StageFooter / StageFeedView; this page never renders the heavy inline flows.
  */
 const HomeView: React.FC = () => {
   const t = useT();
@@ -141,62 +135,38 @@ const HomeView: React.FC = () => {
     return map;
   }, [initiatives, isStarred]);
 
-  // Empty-section handling: when the user has ANY real initiative we show only
-  // real data and hide the sections that happen to be empty (via the per-section
-  // `cards.length === 0` guard below). We deliberately do NOT backfill empty
-  // sections with samples — mixing real and example items in one view erodes
-  // trust ("are these votes real?"). The full immersive sample set appears only
-  // when the user has NO real initiatives anywhere (a brand-new account), as a
-  // preview of what Gloki looks like in use.
+  // Empty-section handling: sections with nothing real in them just don't
+  // render (the per-section `cards.length === 0` guard below) — no mockup
+  // backfill. When there's NO real initiative anywhere, the whole page shows
+  // one genuine empty state instead.
   const hasReal = Object.keys(realByStage).length > 0;
-  const useSamples = !isLoading && !hasReal;
+  const isEmpty = !isLoading && !hasReal;
 
-  // The shared sample set, reshaped into HomeCards (display-only).
-  const sampleByStage = useMemo(() => {
-    const map: Record<string, HomeCard[]> = {};
-    for (const [stage, items] of Object.entries(SAMPLE_INITIATIVES)) {
-      // Same fold as realByStage: sample discussion items are problems.
-      const bucket = stage === 'discussion' ? 'problem' : stage;
-      (map[bucket] ||= []).push(...items.map((s) => ({
-        id: s.id,
-        title: s.title,
-        description: s.description,
-        communityName: s.communityName,
-        authorName: s.authorName,
-      })));
-    }
-    return map;
-  }, []);
-
-  const source = useSamples ? sampleByStage : realByStage;
+  const source = realByStage;
   const mandates = (source.mandate || []).slice(0, 4);
 
   const openInitiative = (card: HomeCard) => {
-    if (!card.communityId) return; // sample card — display only
     // The initiative roadmap lives inline on the community page now — link straight
     // there (auto-expands the card) instead of via the /…/roadmap redirect hop.
     navigate(`/community/${card.communityId}?initiative=${card.id}`);
   };
 
-  const handleCommunityClick = (e: React.MouseEvent, communityId?: string) => {
+  const handleCommunityClick = (e: React.MouseEvent, communityId: string) => {
     e.stopPropagation();
-    if (communityId) navigate(`/community/${communityId}/initiative`);
+    navigate(`/community/${communityId}/initiative`);
   };
 
-  const cardInteractionProps = (card: HomeCard) => {
-    if (!card.communityId) return {};
-    return {
-      role: 'button',
-      tabIndex: 0,
-      onClick: () => openInitiative(card),
-      onKeyDown: (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openInitiative(card);
-        }
-      },
-    };
-  };
+  const cardInteractionProps = (card: HomeCard) => ({
+    role: 'button',
+    tabIndex: 0,
+    onClick: () => openInitiative(card),
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openInitiative(card);
+      }
+    },
+  });
 
   const renderCard = (card: HomeCard) => (
     <HomeInitiativeCard
@@ -216,65 +186,63 @@ const HomeView: React.FC = () => {
       />
 
       <main id="main" tabIndex={-1} className={styles.home}>
-        {isLoading && !hasReal && (
-          <div className={styles.notice}>{t('home.loading', 'Gathering activity from your communities…')}</div>
-        )}
-
-        {useSamples && (
-          <div className={styles.notice}>
-            {t('home.sampleBanner', 'Example activity — join or create a community to take part')}
+        {isLoading ? (
+          <div className={styles.feedLoading}>
+            <div className="loading-spinner-small" />
+            <p>{t('home.loading', 'Gathering activity from your communities…')}</p>
           </div>
-        )}
-
-        {SECTIONS.map((section) => {
-          const cards = (source[section.stage] || []).slice(0, section.limit);
-          if (cards.length === 0) return null;
-          const Icon = section.icon;
-          return (
-            <section key={section.stage} className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                  <Icon size={18} aria-hidden />
-                  {t(section.titleKey, section.titleFallback)}
-                </h2>
-                <button className={styles.seeAll} onClick={() => navigate(`/stage/${section.stage}`)}>
-                  {t('home.seeAll', 'See all')}
-                  <ArrowRight size={16} aria-hidden />
-                </button>
-              </div>
-              <div className={styles.cards}>{cards.map(renderCard)}</div>
-            </section>
-          );
-        })}
-
-        {mandates.length > 0 && (
-          <section className={`${styles.section} ${styles.mandates}`}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                <ScrollText size={18} aria-hidden />
-                {t('home.mandates', 'Recent decisions')}
-              </h2>
-              <button className={styles.seeAll} onClick={() => navigate('/stage/mandate')}>
-                {t('home.seeAll', 'See all')}
-                <ArrowRight size={16} aria-hidden />
-              </button>
-            </div>
-            <div className={styles.mandateStrip}>
-              {mandates.map((m) => {
-                const clickable = Boolean(m.communityId);
-                return (
-                  <div
-                    key={m.id}
-                    className={`${styles.mandateCard} ${clickable ? '' : styles.cardStatic}`}
-                    {...cardInteractionProps(m)}
-                  >
-                    <span className={styles.mandateCommunity}>{m.communityName}</span>
-                    <span className={styles.mandateTitle}>{m.title}</span>
+        ) : isEmpty ? (
+          <EmptyState
+            icon={<Megaphone size={32} aria-hidden />}
+            title={t('home.empty.title', 'No activity yet')}
+            message={t('home.empty.body', 'Join or create a community to see problems, solutions, and votes here.')}
+          />
+        ) : (
+          <>
+            {SECTIONS.map((section) => {
+              const cards = (source[section.stage] || []).slice(0, section.limit);
+              if (cards.length === 0) return null;
+              const Icon = section.icon;
+              return (
+                <section key={section.stage} className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <Icon size={18} aria-hidden />
+                      {t(section.titleKey, section.titleFallback)}
+                    </h2>
+                    <button className={styles.seeAll} onClick={() => navigate(`/stage/${section.stage}`)}>
+                      {t('home.seeAll', 'See all')}
+                      <ArrowRight size={16} aria-hidden />
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          </section>
+                  <div className={styles.cards}>{cards.map(renderCard)}</div>
+                </section>
+              );
+            })}
+
+            {mandates.length > 0 && (
+              <section className={`${styles.section} ${styles.mandates}`}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>
+                    <ScrollText size={18} aria-hidden />
+                    {t('home.mandates', 'Recent decisions')}
+                  </h2>
+                  <button className={styles.seeAll} onClick={() => navigate('/stage/mandate')}>
+                    {t('home.seeAll', 'See all')}
+                    <ArrowRight size={16} aria-hidden />
+                  </button>
+                </div>
+                <div className={styles.mandateStrip}>
+                  {mandates.map((m) => (
+                    <div key={m.id} className={styles.mandateCard} {...cardInteractionProps(m)}>
+                      <span className={styles.mandateCommunity}>{m.communityName}</span>
+                      <span className={styles.mandateTitle}>{m.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
       </main>
     </div>

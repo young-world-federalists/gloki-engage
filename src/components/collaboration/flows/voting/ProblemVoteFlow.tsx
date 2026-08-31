@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
+import { useContractSync } from '../shared/useContractSync';
 import * as api from './problemVoteApi';
-import { useAppSelector } from '../../../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
+import { setInitiativeTally } from '../../../../store/slices/communitiesSlice';
+import { isDemoContract } from '../../../../services/demo/demoRegistry';
 const problemVoteCode = '';import { sanitizeExternalUrl } from '../../../../utils/urlSafety';
 import { getCountryByCode, getCountryName } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
@@ -40,6 +43,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   );
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
+  const dispatch = useAppDispatch();
 
   const [tally, setTally] = useState<Tally>({ up: 0, down: 0, total: 0 });
   const [myVote, setMyVote] = useState<'up' | 'down' | null>(null);
@@ -48,8 +52,13 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
   const fetchData = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
     try {
-      const tallyRes = await api.getTally(serverUrl, publicKey, contractId);
-      setTally((tallyRes as Tally) || { up: 0, down: 0, total: 0 });
+      const tallyRes = (await api.getTally(serverUrl, publicKey, contractId)) as Tally | null;
+      const resolvedTally = tallyRes || { up: 0, down: 0, total: 0 };
+      setTally(resolvedTally);
+      // Publish to Redux too: useInitiativePost's readiness banner + advance-bar
+      // gate (a separate component subtree, fetched once on its own mount) reads
+      // from here, so voting updates them immediately instead of only on reload.
+      dispatch(setInitiativeTally({ initiativeId: parentContractId || contractId, tally: resolvedTally }));
 
       try {
         const myVoteRes = await api.getMyVote(serverUrl, publicKey, contractId);
@@ -63,11 +72,17 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
     } catch (err) {
       console.error('Failed to fetch problem vote data:', err);
     }
-  }, [serverUrl, publicKey, contractId]);
+  }, [serverUrl, publicKey, contractId, parentContractId, dispatch]);
 
   useEffect(() => {
     if (isReady) fetchData();
   }, [isReady, fetchData]);
+
+  // Real contracts: no refetch after the write below — this SSE listener is
+  // the only thing that refreshes afterward, for the write's own confirmation
+  // event same as anyone else's. Demo contracts emit no events at all, so
+  // handleVote below falls back to a direct refetch for those.
+  useContractSync(contractId, fetchData);
 
   const handleVote = async (direction: 'up' | 'down') => {
     if (!serverUrl || !publicKey || !contractId || voting) return;
@@ -102,7 +117,11 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
       } else {
         await api.downvote(serverUrl, publicKey, contractId);
       }
-      await fetchData();
+      // Demo contracts emit no SSE events — refetch directly, the only way a
+      // demo write ever reconciles. Real contracts rely solely on
+      // useContractSync above, which fires for this same write's own
+      // confirmation event (and for any other client's writes too).
+      if (isDemoContract(contractId)) await fetchData();
     } catch (err) {
       // Rollback on failure
       setTally(prevTally);

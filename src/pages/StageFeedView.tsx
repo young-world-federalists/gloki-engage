@@ -15,29 +15,6 @@ import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints
 import styles from './StageFeedView.module.scss';
 import cs from './Container.module.scss';
 
-// Sample data for development — shown when no real initiatives exist at a stage.
-// Exported so the cross-community Home (HomeView) reuses the same fallback set.
-export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: string; description: string; communityName: string; authorName: string; stage: string; tally?: { up: number; down: number; total: number } }>> = {
-  problem: [
-    { id: 'sample-1', title: 'Access to Clean Drinking Water', description: 'Over 2 billion people worldwide lack access to safely managed drinking water. This affects health, education, and economic development across multiple countries.', communityName: 'Global Health Network', authorName: 'Maria S.', stage: 'problem', tally: { up: 42, down: 5, total: 47 } },
-    { id: 'sample-2', title: 'Misinformation and Democratic Erosion', description: 'AI-generated misinformation is undermining democratic processes globally. Voters are being manipulated and public trust in institutions is declining.', communityName: 'Democracy Watch', authorName: 'James T.', stage: 'problem', tally: { up: 28, down: 12, total: 40 } },
-    { id: 'sample-3', title: 'Youth Unemployment Crisis', description: 'Youth unemployment rates exceed 30% in many countries. Millions of young people face economic exclusion, leading to social instability and brain drain.', communityName: 'Future Economy Forum', authorName: 'Aisha K.', stage: 'problem', tally: { up: 35, down: 3, total: 38 } },
-  ],
-  discussion: [
-    { id: 'sample-4', title: 'Ocean Plastic Pollution', description: 'Over 8 million tons of plastic enter the oceans each year. Marine ecosystems are collapsing and microplastics are entering the food chain.', communityName: 'Ocean Alliance', authorName: 'Lin W.', stage: 'discussion' },
-    { id: 'sample-5', title: 'Global Teacher Shortage', description: 'UNESCO estimates a shortage of 69 million teachers by 2030. Rural and disadvantaged communities are disproportionately affected.', communityName: 'Education for All', authorName: 'Priya M.', stage: 'discussion' },
-  ],
-  proposals: [
-    { id: 'sample-6', title: 'Antibiotic Resistance', description: 'Drug-resistant infections kill 1.27 million people annually. Without coordinated global action, routine surgeries and minor infections could become deadly again.', communityName: 'Global Health Network', authorName: 'Dr. Chen L.', stage: 'proposals' },
-  ],
-  vote: [
-    { id: 'sample-7', title: 'Digital Privacy Standards', description: 'Personal data is harvested at an unprecedented scale with minimal regulation in most countries. A global framework for digital rights is urgently needed.', communityName: 'Digital Rights Coalition', authorName: 'Sam R.', stage: 'vote' },
-  ],
-  mandate: [
-    { id: 'sample-8', title: 'Universal Climate Adaptation Fund', description: 'Communities worldwide voted to establish a decentralized climate adaptation fund. Local communities can apply directly for resilience infrastructure and disaster preparedness resources.', communityName: 'Climate Action Network', authorName: 'Elena V.', stage: 'mandate' },
-  ],
-};
-
 // Vocabulary: an *initiative* is the effort that travels the pipeline; a
 // *problem* is its Stage-1 founding statement (see CreateInitiativePage for the
 // full decision). Copy below keeps "initiative" as the object and "problem" for
@@ -197,9 +174,9 @@ const StageFeedView: React.FC = () => {
     navigate(`/community/${communityId}/initiative`);
   };
 
-  // Show sample data when no real initiatives exist at this stage
-  const usingSampleData = stageInitiatives.length === 0 && !isLoading;
-  const sampleItems = SAMPLE_INITIATIVES[stage] || [];
+  // No sample fallback here — once loading is done, a stage with no real
+  // initiatives just shows the empty state below, never mockup content.
+  const isEmpty = stageInitiatives.length === 0 && !isLoading;
 
   const StageIcon = config.icon;
 
@@ -233,16 +210,19 @@ const StageFeedView: React.FC = () => {
           </Banner>
         )}
 
-        {isLoading && stageInitiatives.length === 0 && (
-          <div className={styles.empty}>
-            <StageIcon size={48} />
-            <h3>{t('stagefeed.loading.title', 'Loading initiatives...')}</h3>
+        {isLoading && (
+          <div className={styles.feedLoading}>
+            <div className="loading-spinner-small" />
             <p>{t('stagefeed.loading.body', 'Fetching data from communities...')}</p>
           </div>
         )}
 
-        {usingSampleData && (
-          <div className={styles.sampleBanner}>{t('stagefeed.sample.banner', 'Example initiatives — join or create a community to participate')}</div>
+        {isEmpty && (
+          <div className={styles.empty}>
+            <StageIcon size={48} />
+            <h3>{t('stagefeed.empty.title', 'No initiatives here yet')}</h3>
+            <p>{t('stagefeed.empty.body', 'Start an initiative in one of your communities to see it here.')}</p>
+          </div>
         )}
 
         {stageInitiatives.map((item) => (
@@ -257,24 +237,6 @@ const StageFeedView: React.FC = () => {
             onOpen={handleCardOpen}
             onCommunityClick={handleCommunityClick}
           />
-        ))}
-
-        {/* Sample cards when no real data — compact, display-only. */}
-        {usingSampleData && sampleItems.map((sample) => (
-          <div
-            key={sample.id}
-            className={`${styles.card} ${styles.sampleCard} ${styles.noClick}`}
-          >
-            <div className={styles.summary}>
-              <div className={styles.cardMeta}>
-                <span className={styles.communityBadge}>{sample.communityName}</span>
-                <span className={styles.author}>{sample.authorName}</span>
-              </div>
-
-              <h3 className={styles.cardTitle}>{sample.title}</h3>
-              <p className={styles.cardDescription}>{sample.description}</p>
-            </div>
-          </div>
         ))}
       </main>
     </div>

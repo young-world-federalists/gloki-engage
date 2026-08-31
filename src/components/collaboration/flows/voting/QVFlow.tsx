@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, Plus, Minus, ChevronDown } from 'lucide-react';
 import type { FlowProps } from '../types';
 import { useFlowContract } from '../shared/useFlowContract';
+import { useContractSync } from '../shared/useContractSync';
+import { isDemoContract } from '../../../../services/demo/demoRegistry';
 import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './qvApi';
 import * as approvalApi from './approvalApi';
@@ -113,6 +115,10 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
   }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady]);
 
   useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
+  // Real contracts: no refetch after the write below — this SSE listener is
+  // the only thing that refreshes afterward. Demo contracts emit no events
+  // at all, so handleSubmitAllocation below falls back to a direct refetch.
+  useContractSync(contractId, fetchData);
 
   // ── Build the ballot: join qv (mechanics) + approval (spine), reviewed-only ──
   const qvList = Object.values(qvProposals).sort(
@@ -155,7 +161,9 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
       const credits: Record<string, number> = {};
       for (const [pid, h] of Object.entries(draft)) if (h > 0) credits[pid] = heartCost(h);
       await api.allocate(serverUrl, publicKey, contractId, credits);
-      await fetchData(); // demo seam emits no write events → re-fetch; flips to locked
+      // Demo seam emits no write events → refetch directly (flips to locked).
+      // Real contracts rely on useContractSync above instead.
+      if (isDemoContract(contractId)) await fetchData();
     } catch (err) { console.error('Failed to submit allocation:', err); }
     finally { setSubmitting(false); }
   };

@@ -4,6 +4,8 @@ import { AlertTriangle, MessageSquare, FileText, Vote, ScrollText, Plus, X } fro
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { createInitiative } from '../services/contracts/community';
+import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
+import { createInitiativeOnChain } from '../services/contracts/glokiEngageInitiative';
 import { sanitizeExternalUrl } from '../utils/urlSafety';
 import { useT } from '../i18n';
 import { Banner, Button, CountryMultiSelect, InfoDisclosure, StageStrip } from '../components/shared';
@@ -62,7 +64,9 @@ const CreateInitiativePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const t = useT();
   const { isOrganization } = useOrganization();
-  const { publicKey, serverUrl } = useAppSelector((s) => s.user);
+  const { publicKey, serverUrl, contracts } = useAppSelector((s) => s.user);
+  const community = contracts.find((c) => c.id === communityId);
+  const isGlokiEngageCommunity = !!community && isGlokiEngageCommunityContract(community);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -115,18 +119,44 @@ const CreateInitiativePage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await createInitiative(serverUrl, publicKey, communityId, {
-        title: title.trim(),
-        description: description.trim(),
-        evidence: normalizedEvidence,
-        countries,
-      });
-      dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
+      if (isGlokiEngageCommunity) {
+        // Real path: the "title" field is short and descriptive, so it maps
+        // to the contract's `description`; the longer "why does this
+        // matter" field maps to `explanation`.
+        await createInitiativeOnChain({
+          serverUrl,
+          publicKey,
+          communityId,
+          details: {
+            description: title.trim(),
+            explanation: description.trim(),
+            links: normalizedEvidence,
+            countries,
+          },
+        });
+      } else {
+        await createInitiative(serverUrl, publicKey, communityId, {
+          title: title.trim(),
+          description: description.trim(),
+          evidence: normalizedEvidence,
+          countries,
+        });
+      }
+      // Demo communities emit no SSE events, so this is the only way a demo
+      // creation ever shows up — dispatched directly here. Real gloki-engage
+      // communities DON'T need this: CommunityView's own contract_write
+      // listener (active the whole time we're on this child route) already
+      // reacts to add_initiative's write and refetches collaborations itself.
+      if (!isGlokiEngageCommunity) {
+        dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
+      }
       // The feed shows a one-shot confirmation — the new card appears only after
       // the contract deploy resolves, which reads as silence otherwise (S18 W1, m3).
       navigate(`/community/${communityId}`, { state: { initiativeCreated: true } });
-    } catch {
-      setError(t('initiative.error.submitFailed', 'Something went wrong. Please try again.'));
+    } catch (err) {
+      console.error('[CreateInitiative] Submit failed:', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      setError(t('initiative.error.submitFailed', 'Something went wrong: {detail}', { detail }));
     } finally {
       setIsSubmitting(false);
     }

@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   fetchCollaborations,
-  fetchCommunityProperties,
+  fetchGlokiEngageCommunityDetails,
   fetchCommunityMembers,
   fetchCommunityActiveMembers,
+  fetchInitiativeStage,
 } from '../store/slices/communitiesSlice';
-import { contractRead } from '../services/api';
-import type { IMethod } from '../services/interfaces';
+import { useContractSyncMany } from '../components/collaboration/flows/shared/useContractSync';
+import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
+import { displayNameFor } from '../utils/displayName';
 import type { Collaboration } from '../services/contracts/community';
 
 export interface InitiativeWithMeta extends Collaboration {
@@ -21,20 +23,20 @@ export interface InitiativeWithMeta extends Collaboration {
 export interface UseAllInitiativesResult {
   /** Every initiative across the user's visible communities, newest first, each with `.stage`. */
   initiatives: InitiativeWithMeta[];
-  /** initiativeId → resolved stage string (or `'_unknown'`). */
-  stages: Record<string, string>;
   /** True while at least one initiative's stage is still being resolved. */
   isLoading: boolean;
 }
 
 /**
- * Aggregates initiatives across all of the user's (non-hidden) communities and
- * resolves each one's pipeline stage. Shared by the cross-community Home
- * (`HomeView`) and the per-stage feed (`StageFeedView`) so this collection logic
- * lives in exactly one place.
+ * Aggregates initiatives across all of the user's (non-hidden) REAL
+ * gloki-engage communities and resolves each one's pipeline stage. Shared by
+ * the cross-community Home (`HomeView`) and the per-stage feed
+ * (`StageFeedView`) so this collection logic lives in exactly one place.
+ * Demo/seeded communities are deliberately excluded — see
+ * `isGlokiEngageCommunityContract` below.
  *
- * All reads/writes go through the service seam (`contractRead` + the community
- * thunks) — never a direct server call from a component.
+ * All reads go through the community thunks (the service seam) — never a
+ * direct server call from a component.
  */
 export function useAllInitiatives(): UseAllInitiativesResult {
   const dispatch = useAppDispatch();
@@ -44,8 +46,13 @@ export function useAllInitiatives(): UseAllInitiativesResult {
   const profiles = useAppSelector((s) => s.communities.profiles);
   const { hidden } = useAppSelector((s) => s.preferences);
 
+  // Real gloki-engage communities only — deliberately excludes the old
+  // demo/mock community type (Ouri's call). Demo communities still work
+  // fully on their own pages; they're just not aggregated into this
+  // cross-community view, so seeded example content doesn't crowd out a
+  // user's real activity on Home/StageFeedView.
   const communityContracts = useMemo(
-    () => contracts.filter((c) => c.contract === 'community_contract.py' && !hidden.includes(c.id)),
+    () => contracts.filter((c) => isGlokiEngageCommunityContract(c) && !hidden.includes(c.id)),
     [contracts, hidden],
   );
 
@@ -57,7 +64,7 @@ export function useAllInitiatives(): UseAllInitiativesResult {
         dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: c.id }));
       }
       if (!communityProperties[c.id]) {
-        dispatch(fetchCommunityProperties({ serverUrl, publicKey, contractId: c.id }));
+        dispatch(fetchGlokiEngageCommunityDetails({ serverUrl, publicKey, contractId: c.id }));
       }
       if (!communityMembers[c.id]) {
         dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: c.id }));
@@ -85,11 +92,13 @@ export function useAllInitiatives(): UseAllInitiativesResult {
       const name = communityProperties[c.id]?.name || c.name || c.id.slice(0, 8);
       for (const collab of collabs) {
         if (collab.type === 'initiative') {
-          const authorProfile = collab.author && profiles ? profiles[collab.author] : undefined;
-          const profileName = authorProfile
-            ? `${authorProfile.firstName} ${authorProfile.lastName}`.trim()
-            : '';
-          const authorName = profileName || (collab.author ? collab.author.slice(0, 8) + '...' : undefined);
+          // displayNameFor is the single source of truth for a byline name
+          // (prefers the opt-in displayName pseudonym, then first+last, then
+          // a truncated key) — real profiles only ever set displayName, so
+          // reimplementing first+last concatenation here (as this used to)
+          // rendered literally "undefined undefined" for every real author.
+          const authorProfile = collab.author ? profiles[collab.author] : undefined;
+          const authorName = collab.author ? displayNameFor(authorProfile, collab.author) : undefined;
           result.push({ ...collab, communityId: c.id, communityName: name, authorName });
         }
       }
@@ -97,44 +106,48 @@ export function useAllInitiatives(): UseAllInitiativesResult {
     return result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   }, [communityContracts, communityCollaborations, communityProperties, profiles]);
 
-  // Resolve each initiative's pipeline stage (read-only).
-  const [stages, setStages] = useState<Record<string, string>>({});
-
+  // Resolve each initiative's pipeline stage into the SAME Redux slot
+  // StageAdvanceBar writes on advance — one source of truth, not a separate
+  // local cache. Fetched once per id on mount (page load); refreshed after
+  // that only in reaction to a contract_write SSE event (below), never by
+  // directly refetching after our own action.
+  const reduxStages = useAppSelector((s) => s.communities.initiativeStages);
   useEffect(() => {
     if (!serverUrl || !publicKey || baseInitiatives.length === 0) return;
     baseInitiatives.forEach((item) => {
-      if (stages[item.id]) return;
-      contractRead({
-        serverUrl,
-        publicKey,
-        contractId: item.id,
-        method: { name: 'get_stage', values: {} } as IMethod,
-      })
-        .then((result: unknown) => {
-          setStages((prev) => ({ ...prev, [item.id]: typeof result === 'string' ? result : '_unknown' }));
-        })
-        .catch(() => {
-          setStages((prev) => ({ ...prev, [item.id]: '_unknown' }));
-        });
+      if (reduxStages[item.id]) return;
+      dispatch(fetchInitiativeStage({ serverUrl, publicKey, initiativeId: item.id }));
     });
-    // `stages` is intentionally omitted: we guard per-id and update via the
-    // functional setter, so we must not re-run when a stage resolves.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverUrl, publicKey, baseInitiatives]);
+  }, [serverUrl, publicKey, baseInitiatives, reduxStages, dispatch]);
 
-  // Attach the resolved stage to each initiative. Redux `initiativeStages`
-  // (written by StageAdvanceBar on advance) overlays the local cache so an
-  // in-feed advance is reflected live — the local map is guarded per-id and
-  // never re-reads.
-  const reduxStages = useAppSelector((s) => s.communities.initiativeStages);
+  // Re-read an initiative's stage whenever ANY write lands on it — including
+  // a stage advance from someone else's client.
+  const initiativeIds = useMemo(() => baseInitiatives.map((i) => i.id), [baseInitiatives]);
+  useContractSyncMany(initiativeIds, (changedId) => {
+    if (serverUrl && publicKey) {
+      dispatch(fetchInitiativeStage({ serverUrl, publicKey, initiativeId: changedId }));
+    }
+  });
+
   const initiatives = useMemo(
-    () => baseInitiatives.map((i) => ({ ...i, stage: reduxStages[i.id] ?? stages[i.id] })),
-    [baseInitiatives, stages, reduxStages],
+    () => baseInitiatives.map((i) => ({ ...i, stage: reduxStages[i.id] })),
+    [baseInitiatives, reduxStages],
   );
 
-  const isLoading = baseInitiatives.length > 0 && Object.keys(stages).length < baseInitiatives.length;
+  // "Loading" must stay true until every community's collaborations AND
+  // every initiative's stage have actually been fetched at least once —
+  // not just "some are still missing," which reads as false (not loading)
+  // the moment baseInitiatives is empty, including at the very start before
+  // any fetch has even resolved. That gap is exactly what let the sample
+  // fallback flash before real data arrived (same class of bug fixed
+  // earlier for CommunityHome.tsx). Both `.every()` checks are vacuously
+  // true on an empty list, so zero real communities correctly resolves to
+  // "done loading" immediately rather than spinning forever.
+  const collaborationsLoaded = communityContracts.every((c) => communityCollaborations[c.id] !== undefined);
+  const stagesLoaded = baseInitiatives.every((i) => reduxStages[i.id] !== undefined);
+  const isLoading = !collaborationsLoaded || !stagesLoaded;
 
-  return { initiatives, stages, isLoading };
+  return { initiatives, isLoading };
 }
 
 export default useAllInitiatives;

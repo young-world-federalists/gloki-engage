@@ -9,11 +9,23 @@ import {
   type Collaboration,
 } from '../../services/contracts/community';
 import { contractRead } from '../../services/api';
-import type { IMethod } from '../../services/interfaces';
+import type { IMethod, IContract } from '../../services/interfaces';
 import type { IProfile, IPartner } from '../../services/interfaces';
 import { getProfile } from '../../services/contracts/gloki';
-import { getCommunityDetails } from '../../services/contracts/glokiEngageCommunity';
+import { getCommunityDetails, isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
+import type { InitiativeRef } from '../../services/contracts/glokiEngageInitiative';
 import { stripSensitiveProfileFields } from '../../utils/localSecrets';
+import type { RootState } from '../index';
+
+// Gloki's `timestamp()` returns a packed digit string: YYYYMMDDHHMMSS +
+// fractional digits. Parsed only far enough to sort correctly, not for
+// true epoch-ms precision.
+function parseGlokiTimestamp(raw: unknown): number {
+  if (typeof raw === 'number') return raw;
+  if (typeof raw !== 'string' || !/^\d{14,}$/.test(raw)) return 0;
+  const parsed = Number(raw.slice(0, 14));
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
 
 // Define Community interface
 interface Community {
@@ -31,9 +43,10 @@ interface CommunitiesState {
   communityMembers: Record<string, string[]>; // contractId -> array of member public keys
   communityActiveMembers: Record<string, number>; // contractId -> active member count (last N days)
   initiativeStages: Record<string, string>; // initiativeContractId -> stage ('problem' | 'discussion' | 'proposals' | 'vote' | 'mandate' | '_unknown')
+  initiativeTallies: Record<string, { up: number; down: number; total: number }>; // initiativeContractId -> problem-vote tally
   communityTasks: Record<string, Record<string, boolean>>; // contractId -> agentId -> approval status
   communityNominates: Record<string, string[]>; // contractId -> array of candidate public keys
-  communityCollaborations: Record<string, Collaboration[]>; // contractId -> collaborations list
+  communityCollaborations: Record<string, Collaboration[]>; // contractId -> collaborations list (real gloki-engage communities populate this too — see fetchCollaborations)
   profiles: Record<string, IProfile>; // memberPublicKey -> IProfile (across all communities)
   loading: boolean;
   membersLoading: Record<string, boolean>; // contractId -> loading status for members
@@ -47,6 +60,7 @@ const initialState: CommunitiesState = {
   communityMembers: {},
   communityActiveMembers: {},
   initiativeStages: {},
+  initiativeTallies: {},
   communityTasks: {},
   communityNominates: {},
   communityCollaborations: {},
@@ -97,16 +111,81 @@ export const fetchMemberProfile = createAsyncThunk(
   }
 );
 
+// For a real gloki-engage community, reads its own list of initiative refs
+// ({address, agent, contract}) and each ref's details+roles — an initiative
+// may live on a different member's server than the community itself, so
+// every ref is read in parallel rather than one at a time. Mapped into the
+// same Collaboration shape the demo path already produces, so ActivityCard
+// and everything downstream of it need no changes at all.
+async function fetchGlokiEngageCollaborations(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Collaboration[]> {
+  const refsResult = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_initiatives', values: {} } as IMethod,
+  });
+  const refs: InitiativeRef[] = Array.isArray(refsResult) ? refsResult : [];
+
+  const items = await Promise.all(
+    refs.map(async (ref): Promise<Collaboration | null> => {
+      try {
+        const [details, roles] = await Promise.all([
+          contractRead({
+            serverUrl: ref.address,
+            publicKey: ref.agent,
+            contractId: ref.contract,
+            method: { name: 'get_details', values: {} } as IMethod,
+          }),
+          contractRead({
+            serverUrl: ref.address,
+            publicKey: ref.agent,
+            contractId: ref.contract,
+            method: { name: 'get_roles', values: {} } as IMethod,
+          }),
+        ]);
+        if (!details) return null;
+        // "title"/"description" here are the Collaboration/ActivityCard
+        // field names — they map onto the contract's own description
+        // (short label) / explanation (long body), matching the field
+        // mapping already established in CreateInitiativePage.tsx.
+        return {
+          id: ref.contract,
+          type: 'initiative',
+          title: details.description ?? '',
+          description: details.explanation ?? '',
+          author: (roles && roles.author) || details.author || '',
+          createdAt: parseGlokiTimestamp(details.createdAt),
+          hostServer: ref.address,
+          hostAgent: ref.agent,
+        };
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return items.filter((item): item is Collaboration => item !== null);
+}
+
 export const fetchCollaborations = createAsyncThunk(
   'communities/fetchCollaborations',
-  async (args: { serverUrl: string; publicKey: string; contractId: string }) => {
-    const result = await getCollaborations(
-      args.serverUrl,
-      args.publicKey,
-      args.contractId,
-    );
-    const collaborations = Array.isArray(result) ? result : [];
-    return { contractId: args.contractId, collaborations };
+  async (args: { serverUrl: string; publicKey: string; contractId: string }, { getState }) => {
+    const { serverUrl, publicKey, contractId } = args;
+    const community = (getState() as RootState).user.contracts.find((c: IContract) => c.id === contractId);
+
+    let collaborations: Collaboration[];
+    if (community && isGlokiEngageCommunityContract(community)) {
+      collaborations = await fetchGlokiEngageCollaborations(serverUrl, publicKey, contractId);
+    } else {
+      const result = await getCollaborations(serverUrl, publicKey, contractId);
+      collaborations = Array.isArray(result) ? result : [];
+    }
+
+    return { contractId, collaborations };
   },
 );
 
@@ -139,13 +218,70 @@ export const fetchCommunityActiveMembers = createAsyncThunk(
   },
 );
 
+// Real counterpart to fetchCommunityMembers's get_partners+get_all_people call,
+// for communities deployed through glokiEngageCommunity.ts. `get_partners` is
+// a *contract-independent* method every deployed contract answers by default
+// (it reflects the replication/consensus group actually running the
+// contract) — the gloki-engage contract defines no membership methods of its
+// own, but this one works regardless. Verified shape (2026-08-31, against a
+// real community): `[{ address, agent, profile }]`, i.e. exactly IPartner[].
+//
+// Simplification, deliberate for now: a contract's partners are not
+// necessarily its community's members in general — a contract's replication
+// group and "who belongs to this community" are logically separate, and real
+// membership needs its own governance (join requests, approvals) layered on
+// top, independent of who happens to host the contract. That governance
+// isn't implemented yet, so for now partnership stands in for membership:
+// whoever co-hosts the contract counts as a member.
+async function fetchGlokiEngageCommunityMembers(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  existingProfiles: Record<string, IProfile>,
+  dispatch: (action: ReturnType<typeof fetchMemberProfile>) => unknown,
+): Promise<{ members: string[]; tasks: Record<string, boolean>; nominates: string[] }> {
+  const partners = (await getPartners(serverUrl, publicKey, contractId)) as IPartner[];
+  const members = partners.map((partner) => partner.agent);
+
+  for (const partner of partners) {
+    if (existingProfiles[partner.agent]) continue;
+    if (partner.address && partner.agent && partner.profile) {
+      dispatch(fetchMemberProfile({
+        memberServerUrl: partner.address,
+        memberPublicKey: partner.agent,
+        memberContractId: partner.profile,
+        memberAgent: partner.agent,
+      }));
+    }
+  }
+
+  // `tasks` (pending join-approval queue) and `nominates` (join candidates)
+  // belong to a fuller membership-governance mechanism — approvals separate
+  // from replication partnership — that isn't implemented for real
+  // communities yet. Left empty (not omitted) so the result shape still
+  // matches what the reducer expects from the demo path.
+  return { members, tasks: {}, nominates: [] };
+}
+
 export const fetchCommunityMembers = createAsyncThunk(
   'communities/fetchCommunityMembers',
   async (args: { serverUrl: string; publicKey: string; contractId: string }, { getState, dispatch }) => {
     const { serverUrl, publicKey, contractId } = args;
-    const state = getState() as { communities: CommunitiesState };
+    const state = getState() as RootState;
     const existingProfiles = state.communities.profiles;
-    
+
+    const community = state.user.contracts.find((c: IContract) => c.id === contractId);
+    if (community && isGlokiEngageCommunityContract(community)) {
+      const { members, tasks, nominates } = await fetchGlokiEngageCommunityMembers(
+        serverUrl,
+        publicKey,
+        contractId,
+        existingProfiles,
+        dispatch,
+      );
+      return { contractId, members, tasks, nominates, newProfiles: {} };
+    }
+
     try {
       // Step 1 & 2: Call get_partners and get_all_people in parallel
       const [partnersResult, allPeopleResult] = await Promise.all([
@@ -237,6 +373,17 @@ const communitiesSlice = createSlice({
     // fetchInitiativeStage).
     setInitiativeStage: (state, action: PayloadAction<{ initiativeId: string; stage: string }>) => {
       state.initiativeStages[action.payload.initiativeId] = action.payload.stage;
+    },
+    // Local-only tally update — ProblemVoteFlow calls this with whatever it
+    // just fetched/computed (on mount and after every vote) so every OTHER
+    // reader of the same initiative's tally (useInitiativePost's readiness
+    // banner + advance-bar gate) updates immediately too, instead of staying
+    // stuck at whatever it read on its own one-time mount fetch.
+    setInitiativeTally: (
+      state,
+      action: PayloadAction<{ initiativeId: string; tally: { up: number; down: number; total: number } }>,
+    ) => {
+      state.initiativeTallies[action.payload.initiativeId] = action.payload.tally;
     },
   },
   extraReducers: (builder) => {
@@ -330,5 +477,5 @@ const communitiesSlice = createSlice({
   },
 });
 
-export const { setCurrentCommunity, clearError, clearCommunityData, updateMemberProfile, setInitiativeStage } = communitiesSlice.actions;
+export const { setCurrentCommunity, clearError, clearCommunityData, updateMemberProfile, setInitiativeStage, setInitiativeTally } = communitiesSlice.actions;
 export default communitiesSlice.reducer;

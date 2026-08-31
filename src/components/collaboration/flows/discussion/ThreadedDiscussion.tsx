@@ -9,9 +9,11 @@ import type { TrustState } from '../../../../services/trust';
 import { EmptyState, SegmentedControl, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
 import { formatDateTime } from '../../../../utils/formatDateTime';
-import type { SourceLink } from '../../../../utils/sources';
+import { normalizeSources, type SourceLink } from '../../../../utils/sources';
 import * as api from './discussionApi';
 import type { Comment } from './discussionApi';
+import { useContractSync } from '../shared/useContractSync';
+import { isDemoContract } from '../../../../services/demo/demoRegistry';
 import styles from './ThreadedDiscussion.module.scss';
 
 // Indent levels 0..DEPTH_CAP render inline; at the cap a node with children
@@ -56,7 +58,7 @@ const displayName = (
 const Composer: React.FC<{
   placeholder: string;
   submitLabel: string;
-  onSubmit: (text: string, sources: SourceLink[]) => void;
+  onSubmit: (text: string, sources: SourceLink[]) => Promise<void>;
   onCancel?: () => void;
   autoFocus?: boolean;
 }> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus }) => {
@@ -64,13 +66,30 @@ const Composer: React.FC<{
   const [text, setText] = useState('');
   const [sources, setSources] = useState<SourceLink[]>([{ url: '' }]);
   const [showSources, setShowSources] = useState(false);
-  const submit = () => {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const submit = async () => {
     const trimmed = text.trim();
-    if (!trimmed) return;
-    onSubmit(trimmed, sources);
-    setText('');
-    setSources([{ url: '' }]);
-    setShowSources(false);
+    if (!trimmed || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      // SourcesInput leaves blank rows in place while editing (its own
+      // contract: "caller filters on submit") — the untouched default row
+      // ({ url: '' }) would otherwise go out on every post that never
+      // touches "+ Add sources" at all.
+      await onSubmit(trimmed, normalizeSources(sources));
+      // Only clear the draft on success — a failed post keeps the text (and
+      // sources) in place so nothing typed is silently lost.
+      setText('');
+      setSources([{ url: '' }]);
+      setShowSources(false);
+    } catch (err) {
+      console.error('[ThreadedDiscussion] Failed to post comment:', err);
+      setError(err instanceof Error ? err.message : t('deliberation.thread.postFailed', "Couldn't post. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
   return (
     <div className={styles.composeBox}>
@@ -95,9 +114,10 @@ const Composer: React.FC<{
             {t('deliberation.thread.addSources', '+ Add sources')}
           </button>
         )}
+      {error && <p className={styles.composeError} role="alert">{error}</p>}
       <div className={styles.composeActions}>
-        <button type="button" className={styles.btnSubmit} onClick={submit} disabled={!text.trim()}>
-          {submitLabel}
+        <button type="button" className={styles.btnSubmit} onClick={submit} disabled={!text.trim() || submitting}>
+          {submitting ? t('deliberation.thread.posting', 'Posting…') : submitLabel}
         </button>
         {onCancel && (
           <button type="button" className={styles.btnCancel} onClick={onCancel}>
@@ -297,6 +317,11 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   }, [serverUrl, publicKey, contractId]);
 
   useEffect(() => { refresh(); }, [refresh]);
+  // Real contracts: no refetch after any write below — this SSE listener is
+  // the only thing that refreshes afterward (for this contract's own write
+  // confirmation event same as anyone else's). Demo contracts emit no
+  // events at all, so each handler below falls back to a direct refetch.
+  useContractSync(contractId, refresh);
 
   // Move focus to the newly-posted comment after refresh settles. A short
   // timeout (not rAF — rAF is throttled in backgrounded tabs) lets React commit
@@ -323,11 +348,19 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     if (announceTimer.current) clearTimeout(announceTimer.current);
     setPostedStatus('');
     const result = await api.addComment(serverUrl, publicKey, contractId, text, null, undefined, sources);
-    await refresh();
-    // Identify the new comment: use the returned id if available, else diff the list
-    const returnedId = result && typeof result === 'object' && 'id' in result
-      ? String((result as { id: unknown }).id)
-      : null;
+    // Demo contracts emit no SSE events — refetch directly, the only way a
+    // demo write ever reconciles. Real contracts rely on useContractSync
+    // above (fires from this same write's own confirmation event).
+    if (isDemoContract(contractId)) await refresh();
+    // Identify the new comment: the contract returns its new id directly as
+    // part of the write's own result (not a second read), so this resolves
+    // immediately regardless of whether the SSE-driven refresh above has
+    // landed in `flat` yet.
+    const returnedId = typeof result === 'string'
+      ? result
+      : result && typeof result === 'object' && 'id' in result
+        ? String((result as { id: unknown }).id)
+        : null;
     if (returnedId) {
       setNewCommentId(returnedId);
     } else {
@@ -348,19 +381,19 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const handleReply = useCallback(async (parentId: string, text: string, sources: SourceLink[]) => {
     if (!serverUrl || !publicKey || !contractId) return;
     await api.addComment(serverUrl, publicKey, contractId, text, parentId, undefined, sources);
-    await refresh();
+    if (isDemoContract(contractId)) await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
     await api.deleteComment(serverUrl, publicKey, contractId, id);
-    await refresh();
+    if (isDemoContract(contractId)) await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
   const handleLike = useCallback(async (id: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
     await api.likeComment(serverUrl, publicKey, contractId, id);
-    await refresh();
+    if (isDemoContract(contractId)) await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
   const tree = useMemo(() => buildTree(flat, sort), [flat, sort]);

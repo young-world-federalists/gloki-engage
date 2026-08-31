@@ -96,6 +96,16 @@
   color: $gray-500;
 }
 
+.feedLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-xl 0;
+  color: $gray-500;
+  font-size: $text-sm;
+}
+
 .sampleBanner {
   font-size: $text-xs;
   color: $gray-500;
@@ -117,4 +127,5 @@
   .cardDesc { color: $dark-text-secondary; }
   .author,
   .time { color: $dark-text-secondary; }
+  .feedLoading { color: $dark-text-secondary; }
 }

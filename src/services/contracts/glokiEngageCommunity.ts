@@ -5,7 +5,7 @@
 // stays on the mock layer for the demo-seeded communities and their
 // initiative/collaboration features — not migrated by this module.
 import { deployContractOnChain, contractWriteOnChain, contractReadOnChain } from '../api';
-import { waitForChainAck } from '../eventStream';
+import { watchForChainAck } from '../eventStream';
 import type { IContract } from '../interfaces';
 import glokiEngageCommunityContractSrc from '../../assets/contracts/gloki_engage_community_contract.py?raw';
 
@@ -39,30 +39,40 @@ export async function createCommunityOnChain({
   description: string;
   profile?: string;
 }): Promise<string> {
-  const ackId = await deployContractOnChain({
-    serverUrl,
-    publicKey,
-    name,
-    contract: GLOKI_ENGAGE_COMMUNITY_CONTRACT,
-    code: glokiEngageCommunityContractSrc,
-    defaultApp: window.location.origin,
-    profile: profile ?? '',
-  });
-  // Deploy completes asynchronously; the ack id doubles as the new
-  // contract's id, but it isn't safe to write to it until the matching
-  // deploy_contract event confirms it's live (docs/blockchain-api.md).
-  await waitForChainAck('deploy_contract', ackId);
-  const contractId = ackId;
+  // Start listening BEFORE issuing the deploy/write calls — see
+  // watchForChainAck's docs on why (a fast write can emit its event before
+  // a listener attached only after the HTTP response would ever see it).
+  const deployWatcher = watchForChainAck('deploy_contract');
+  const writeWatcher = watchForChainAck('contract_write');
+  try {
+    const ackId = await deployContractOnChain({
+      serverUrl,
+      publicKey,
+      name,
+      contract: GLOKI_ENGAGE_COMMUNITY_CONTRACT,
+      code: glokiEngageCommunityContractSrc,
+      defaultApp: window.location.origin,
+      profile: profile ?? '',
+    });
+    // Deploy completes asynchronously; the ack id doubles as the new
+    // contract's id, but it isn't safe to write to it until the matching
+    // deploy_contract event confirms it's live (docs/blockchain-api.md).
+    await deployWatcher.waitFor(ackId);
+    const contractId = ackId;
 
-  const writeAckId = await contractWriteOnChain({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'set_details', values: { name, description } },
-  });
-  await waitForChainAck('contract_write', writeAckId);
+    const writeAckId = await contractWriteOnChain({
+      serverUrl,
+      publicKey,
+      contractId,
+      method: { name: 'set_details', values: { name, description } },
+    });
+    await writeWatcher.waitFor(writeAckId);
 
-  return contractId;
+    return contractId;
+  } finally {
+    deployWatcher.dispose();
+    writeWatcher.dispose();
+  }
 }
 
 export async function getCommunityDetails({

@@ -60,6 +60,14 @@ const OnboardingFlow: React.FC = () => {
 
   const [index, setIndex] = useState(0);
   const [consented, setConsented] = useState(false);
+  // Captured once, on mount — NOT read reactively below. submitProfile's own
+  // write sets digitalAgentProfile mid-flow (as soon as the agent step's save
+  // confirms), which would otherwise make the "already onboarded" branch
+  // below fire immediately and yank the user out of the rules/ready steps
+  // before they ever see them (they'd never get to click "Agree"). Only a
+  // profile that already existed when this page first loaded should skip
+  // the flow.
+  const [alreadyOnboarded] = useState(() => !!digitalAgentProfile);
 
   // Seed the vouch as soon as an invited newcomer arrives, so it survives a later skip.
   useEffect(() => {
@@ -87,9 +95,9 @@ const OnboardingFlow: React.FC = () => {
       });
   };
 
-  // Return state: already onboarded (a real profile contract exists) →
-  // compact "all set" with Start over.
-  if (digitalAgentProfile) {
+  // Return state: already onboarded when this page loaded (a real profile
+  // contract already existed) → compact "all set" with Start over.
+  if (alreadyOnboarded) {
     return (
       // Banner + main#main keep the entry route inside the page model — skip
       // link, landmark, and the step hero as the page's h1 (S18 W1, campaign M1).

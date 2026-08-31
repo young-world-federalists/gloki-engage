@@ -5,11 +5,12 @@ import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
 import AppHeader from '../components/AppHeader';
 import { useT } from '../i18n';
 import { isDemoContract } from '../services/demo/demoRegistry';
+import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { buildDemoShareLink } from '../services/demo/demoUrlShare';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
-import { fetchCommunityProperties, fetchCommunityMembers, fetchCollaborations, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
+import { fetchCommunityProperties, fetchGlokiEngageCommunityDetails, fetchCommunityMembers, fetchCollaborations, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
 import { recordActivity } from '../services/contracts/community';
 import { seedTestDataIfNeeded } from '../utils/seedTestData';
 import { eventStreamService } from '../services/eventStream';
@@ -148,25 +149,20 @@ const CommunityView: React.FC = () => {
   useEffect(() => {
     if (!communityId) return;
 
-    if (!props || Object.keys(props).length === 0) {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          if (user.serverUrl && user.publicKey) {
-            setFetching(true);
-            dispatch(
-              fetchCommunityProperties({
-                contractId: communityId,
-                serverUrl: user.serverUrl,
-                publicKey: user.publicKey,
-              }),
-            ).finally(() => setFetching(false));
-          }
-        } catch {
-          // skip
-        }
-      }
+    // Landing directly on this URL (refresh, or a shared link) — Redux state
+    // is empty and nothing upstream (e.g. Communities.tsx's own list-page
+    // prefetch) has populated communityProperties yet, so fetch it here.
+    // Real gloki-engage communities have no `get_properties` method (only
+    // Communities.tsx's fetchGlokiEngageCommunityDetails/`get_details` reads
+    // them correctly) — calling the demo-era fetchCommunityProperties on one
+    // fails silently and leaves this page stuck on "Community not found"
+    // forever, even though the community and its contract are both real.
+    if ((!props || Object.keys(props).length === 0) && publicKey && serverUrl) {
+      setFetching(true);
+      const fetchProperties = contract && isGlokiEngageCommunityContract(contract)
+        ? dispatch(fetchGlokiEngageCommunityDetails({ contractId: communityId, serverUrl, publicKey }))
+        : dispatch(fetchCommunityProperties({ contractId: communityId, serverUrl, publicKey }));
+      fetchProperties.finally(() => setFetching(false));
     }
 
     if (publicKey && serverUrl && communityId && !communityMembers[communityId]) {
@@ -177,7 +173,7 @@ const CommunityView: React.FC = () => {
     return () => {
       eventStreamService.removeEventListener('contract_write', handleContractWrite);
     };
-  }, [communityId, props, dispatch, publicKey, serverUrl, communityMembers, handleContractWrite]);
+  }, [communityId, props, contract, dispatch, publicKey, serverUrl, communityMembers, handleContractWrite]);
 
   // Record user activity + fetch active-member count on community entry.
   // Old communities lack `record_activity` / `get_active_members`; both fall back silently.

@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
 import { setContract, setDeploying, clearDeploying, buildFlowContractsScope } from './flowContractsSlice';
 import { deployContract, joinContract, contractWrite, contractRead } from '../../../../services/api';
 import { normalizeStageContract } from '../../../../services/contracts/initiative';
+import { isDemoContract } from '../../../../services/demo/demoRegistry';
 import type { IMethod } from '../../../../services/interfaces';
 
 interface UseFlowContractResult {
@@ -40,6 +41,12 @@ export function useFlowContract(
   const [statusMessage, setStatusMessage] = useState('');
 
   const isShared = !!parentContractId && !!stageKey;
+  // A real (non-demo) parent contract implements every stage's methods on
+  // itself — there is no separate sub-contract to look up or deploy, unlike
+  // demo parents which always split concerns across per-stage sub-contracts.
+  // Resolving straight to the parent id here is what lets every stage
+  // component work unchanged against a single consolidated real contract.
+  const isSingleContract = isShared && !!parentContractId && !isDemoContract(parentContractId);
 
   const retry = useCallback(() => {
     failed.current = false;
@@ -58,6 +65,15 @@ export function useFlowContract(
       dispatch(clearDeploying({ instanceId }));
     }
   }, [isDeploying, contractId, instanceId, dispatch]);
+
+  // ── Single-contract mode (real, non-demo parents) ───────────────────────────
+  // No lookup, no deploy, no network call — the parent IS the contract every
+  // stage reads/writes. Just point instanceId at it directly.
+  useEffect(() => {
+    if (!isSingleContract || !parentContractId) return;
+    if (contractId === parentContractId) return;
+    dispatch(setContract({ instanceId, contractId: parentContractId }));
+  }, [isSingleContract, parentContractId, contractId, instanceId, dispatch]);
 
   // ── Per-user deploy mode ───────────────────────────────────────────────────
   useEffect(() => {
@@ -111,9 +127,9 @@ export function useFlowContract(
     return () => { clearTimeout(timeoutId); };
   }, [isShared, instanceId, contractId, isDeploying, serverUrl, publicKey, contractName, contractFileName, contractCode, dispatch, hasError, scopeReady]);
 
-  // ── Shared contract mode ───────────────────────────────────────────────────
+  // ── Shared contract mode (demo parents — sub-contract lookup/deploy) ────────
   useEffect(() => {
-    if (!isShared) return;
+    if (!isShared || isSingleContract) return;
     if (contractId || isDeploying || attempted.current || failed.current) return;
     if (!serverUrl || !publicKey || !parentContractId) return;
     if (!scopeReady) return;
@@ -286,7 +302,7 @@ export function useFlowContract(
     })();
 
     return () => { clearTimeout(timeoutId); };
-  }, [isShared, instanceId, contractId, isDeploying, serverUrl, publicKey, parentContractId, stageKey, contractName, contractFileName, contractCode, dispatch, hasError, scopeReady]);
+  }, [isShared, isSingleContract, instanceId, contractId, isDeploying, serverUrl, publicKey, parentContractId, stageKey, contractName, contractFileName, contractCode, dispatch, hasError, scopeReady]);
 
   return {
     contractId,

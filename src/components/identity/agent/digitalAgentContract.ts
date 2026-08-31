@@ -4,7 +4,7 @@
 // in src/services/api.ts), unlike deployContract/contractWrite/contractRead
 // which stay mocked for every other flow in this app for now.
 import { deployContractOnChain, contractWriteOnChain, contractReadOnChain } from '../../../services/api';
-import { waitForChainAck } from '../../../services/eventStream';
+import { watchForChainAck } from '../../../services/eventStream';
 import type { IContract } from '../../../services/interfaces';
 import digitalAgentContractSrc from '../../../assets/contracts/digital_agent_contract.py?raw';
 
@@ -34,21 +34,29 @@ export async function deployDigitalAgentProfile({
   publicKey: string;
   fields: DigitalAgentProfileFields;
 }): Promise<string> {
-  const ackId = await deployContractOnChain({
-    serverUrl,
-    publicKey,
-    name: DIGITAL_AGENT_CONTRACT_NAME,
-    contract: 'digital_agent_contract.py',
-    code: digitalAgentContractSrc,
-    defaultApp: window.location.origin,
-  });
-  // Deploy completes asynchronously; the ack id doubles as the new
-  // contract's id, but it isn't safe to read/write until the matching
-  // deploy_contract event confirms it's live (docs/blockchain-api.md).
-  await waitForChainAck('deploy_contract', ackId);
-  const contractId = ackId;
-  await writeDigitalAgentProfile({ serverUrl, publicKey, contractId, fields });
-  return contractId;
+  // Start listening BEFORE issuing the deploy call — see watchForChainAck's
+  // docs on why (a fast reply can emit its event before a listener attached
+  // only after the HTTP response would ever see it).
+  const deployWatcher = watchForChainAck('deploy_contract');
+  try {
+    const ackId = await deployContractOnChain({
+      serverUrl,
+      publicKey,
+      name: DIGITAL_AGENT_CONTRACT_NAME,
+      contract: 'digital_agent_contract.py',
+      code: digitalAgentContractSrc,
+      defaultApp: window.location.origin,
+    });
+    // Deploy completes asynchronously; the ack id doubles as the new
+    // contract's id, but it isn't safe to read/write until the matching
+    // deploy_contract event confirms it's live (docs/blockchain-api.md).
+    await deployWatcher.waitFor(ackId);
+    const contractId = ackId;
+    await writeDigitalAgentProfile({ serverUrl, publicKey, contractId, fields });
+    return contractId;
+  } finally {
+    deployWatcher.dispose();
+  }
 }
 
 export async function writeDigitalAgentProfile({
@@ -62,21 +70,26 @@ export async function writeDigitalAgentProfile({
   contractId: string;
   fields: DigitalAgentProfileFields;
 }): Promise<void> {
-  const ackId = await contractWriteOnChain({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'set_profile',
-      values: {
-        display_name: fields.displayName,
-        photo: fields.photo,
-        country: fields.country,
-        languages: fields.languages,
+  const writeWatcher = watchForChainAck('contract_write');
+  try {
+    const ackId = await contractWriteOnChain({
+      serverUrl,
+      publicKey,
+      contractId,
+      method: {
+        name: 'set_profile',
+        values: {
+          display_name: fields.displayName,
+          photo: fields.photo,
+          country: fields.country,
+          languages: fields.languages,
+        },
       },
-    },
-  });
-  await waitForChainAck('contract_write', ackId);
+    });
+    await writeWatcher.waitFor(ackId);
+  } finally {
+    writeWatcher.dispose();
+  }
 }
 
 /**

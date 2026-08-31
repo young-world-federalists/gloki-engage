@@ -1,10 +1,17 @@
 // Seam boundary between the UI and the Gloki backend, migrating one method at
 // a time from the UI-only mock to real IBC calls. isExistAgent/registerAgent/
-// getContracts call the real server; deployContract/joinContract/contractRead/
-// contractWrite are still answered locally by the demo mock layer.
+// getContracts always call the real server. contractRead/contractWrite are
+// dispatch-aware: a demo contract id (always prefixed `demo-`) routes to the
+// mock layer exactly as before; any other id routes to the real IBC server.
+// deployContract/joinContract stay fully mocked — nothing that reaches a
+// real, non-demo contract via the shared-mode path in useFlowContract.ts
+// ever needs deployContract to deploy anything (see
+// components/collaboration/flows/shared/useFlowContract.ts's single-contract
+// mode), and membership/joining isn't migrated yet (a real community has no
+// membership methods for a successful join to do anything with).
 //
 // getContracts merges real results with the seeded demo communities so the
-// mockup content keeps showing until the remaining methods are migrated too.
+// mockup content keeps showing for flows not yet migrated off the mock layer.
 //
 // All public function signatures are unchanged so callers (slices, flow APIs,
 // contract wrappers) keep working without edits.
@@ -18,6 +25,8 @@ import {
   mockJoinContract,
   mergeDemoContracts,
 } from "./demo/mockApi";
+import { isDemoContract } from "./demo/demoRegistry";
+import { watchForChainAck } from "./eventStream";
 
 const FAKE_DEPLOY_DELAY = 200;
 
@@ -110,12 +119,15 @@ export async function getContracts({
 }
 
 // REAL deploy/write/read, bypassing the mock layer entirely — currently used
-// only by the digital-agent profile contract (src/components/identity/agent/
-// digitalAgentContract.ts). deployContract/contractWrite/contractRead below
-// stay on the mock layer for every other flow, which isn't ready for a real
-// backend yet; migrating those wholesale would break them. Writes only
-// return an ack id — pair with waitForChainAck from services/eventStream.ts
-// to get the real result once it arrives on the SSE stream.
+// by the digital-agent profile, gloki-engage community, and gloki-engage
+// initiative contracts (src/components/identity/agent/digitalAgentContract.ts,
+// src/services/contracts/glokiEngage{Community,Initiative}.ts).
+// deployContract/contractWrite/contractRead below stay on the mock layer for
+// every other flow, which isn't ready for a real backend yet; migrating
+// those wholesale would break them. Writes only return an ack id — pair with
+// watchForChainAck from services/eventStream.ts (start it BEFORE issuing the
+// call, not after — see its docs) to get the real result once it arrives on
+// the SSE stream.
 export async function deployContractOnChain({
   serverUrl,
   publicKey,
@@ -216,6 +228,11 @@ export async function deployContract({
   return delay(FAKE_DEPLOY_DELAY, result);
 }
 
+// Membership/joining isn't migrated yet — a real gloki-engage community has
+// no membership methods for a successful join to do anything with — so this
+// stays fully mocked, same as before. (When that work happens, note
+// JoinCommunity.tsx already assumes the real confirmation event is
+// 'a2a_connect', not 'contract_write' — worth reusing that signal.)
 export async function joinContract({
   publicKey,
 }: {
@@ -241,6 +258,15 @@ export async function contractWrite({
   contractId: string;
   method: IMethod;
 }): Promise<any> {
+  if (!isDemoContract(contractId)) {
+    const watcher = watchForChainAck('contract_write');
+    try {
+      const ackId = await contractWriteOnChain({ serverUrl, publicKey, contractId, method });
+      return await watcher.waitFor(ackId);
+    } finally {
+      watcher.dispose();
+    }
+  }
   return mockContractWrite({ serverUrl, publicKey, contractId, method });
 }
 
@@ -255,5 +281,8 @@ export async function contractRead({
   contractId: string;
   method: IMethod;
 }): Promise<any> {
+  if (!isDemoContract(contractId)) {
+    return contractReadOnChain({ serverUrl, publicKey, contractId, method });
+  }
   return mockContractRead({ serverUrl, publicKey, contractId, method });
 }
