@@ -7,12 +7,14 @@ description: Use when setting up the Communities2/Gloki repo from scratch, runni
 
 ## Overview
 
-Core principle: **a push to `ui` IS a production deploy.** There is no staging. The GitHub
-Actions workflow builds on every push to `ui` and publishes to the live GitHub Pages demo,
-and the build script starts with `tsc -b` — so a single TypeScript error (including an
-unused import) silently blocks the deploy in the Actions tab. Everything in this skill
-exists to keep that pipeline green and to keep you productive on this repo's unusual
-environment: a slow, flaky-under-parallel-I/O external USB drive.
+Core principle: **a push to `ui` no longer deploys** (since 2026-09-02, S34 D11). Ouri
+merges `ui` into `server-side`, and it's a push to `server-side` that is a production
+deploy — there is no staging. The GitHub Actions workflow builds on every push to
+`server-side` and publishes to the live GitHub Pages demo, and the build script starts
+with `tsc -b` — so a single TypeScript error (including an unused import) silently blocks
+the deploy in the Actions tab, and Ouri's merge from `ui` inherits whatever is red.
+Everything in this skill exists to keep that pipeline green and to keep you productive on
+this repo's unusual environment: a slow, flaky-under-parallel-I/O external USB drive.
 
 Two things this app does NOT have, by design:
 
@@ -123,20 +125,22 @@ https://young-world-federalists.github.io/gloki-engage/
 (Org name has hyphens and plural "federalists" — easy to mistype. The `/gloki-engage/`
 base matches the repo name; remote = `https://github.com/young-world-federalists/gloki-engage.git`.)
 
-Note: CLAUDE.md says "GitHub Pages: configured via repo Settings → Pages, source branch
-`ui`" — that phrasing is imprecise. The trigger is a push to `ui`, but the deploy is
-Actions-artifact based, not branch-served. Practical consequence: **when a deploy fails,
-look at the Actions tab / `gh run list`, not Pages settings.** A `tsc -b` error fails the
-`build` job and the site silently keeps serving the previous deploy.
+Note: CLAUDE.md's Deployment section names the trigger as `push: branches: [server-side]`
+in `.github/workflows/deploy.yml` — the deploy is Actions-artifact based, not branch-served.
+Practical consequence: **when a deploy fails, look at the Actions tab / `gh run list`, not
+Pages settings.** A `tsc -b` error fails the `build` job and the site silently keeps serving
+the previous deploy.
 
-**Change control (non-negotiable):** never push to `ui` without Eston's explicit green
-light — the push deploys to production. Never merge or touch `main` yourself; ui→main
-lands via Ouri (the backend partner). See **gloki-change-control**.
+**Change control (non-negotiable):** a push to `ui` no longer deploys; Ouri merges `ui`
+into `server-side`, which deploys. Rule 1 still holds: never push without Eston's explicit
+go, because Ouri may merge at any time. Never merge or touch `main` yourself; `main` is
+Ouri's stale old line (`d28594a`) — `ui`→`server-side` is the current landing path, and it's
+Ouri's own merge (the backend partner). See **gloki-change-control**.
 
 ### Checking a deploy
 
 ```bash
-gh run list --limit 3                 # expect: completed  success  <commit msg>  Deploy to GitHub Pages  ui  push ...
+gh run list --limit 3                 # expect: completed  success  <commit msg>  Deploy to GitHub Pages  server-side  push ...
 gh run watch                          # follow an in-flight run
 curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/   # expect 200
 ```
@@ -251,13 +255,17 @@ curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.
 Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`) by direct reads of package.json,
 vite.config.ts, .github/workflows/deploy.yml, tsconfig.app.json, index.html,
 public/404.html, .claude/launch.json, and live greps/curl. Incident details ("recorded in
-project memory") date from Apr–Jul 2026 sessions. Volatile facts and how to re-check them:
+project memory") date from Apr–Jul 2026 sessions.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).
+
+Volatile facts and how to re-check them:
 
 | Fact | Re-verify with |
 |---|---|
 | npm scripts (dev/build/build:prod/lint/preview/preview:prod; no test) | `grep -A8 '"scripts"' package.json` |
 | Base path switch on `--mode production` → `/gloki-engage/` | `grep base: vite.config.ts` |
-| Deploy trigger = push to `ui`, Node 22, build:prod, deploy-pages | `cat .github/workflows/deploy.yml` |
+| Deploy trigger = push to `server-side`, Node 22, build:prod, deploy-pages | `cat .github/workflows/deploy.yml` |
 | No .nvmrc / no engines field | `ls .nvmrc; grep engines package.json` |
 | Live URL returns 200 | `curl -s -o /dev/null -w '%{http_code}' https://young-world-federalists.github.io/gloki-engage/` |
 | noUnusedLocals/Parameters + src/obsolete exclusion | `cat tsconfig.app.json` |
