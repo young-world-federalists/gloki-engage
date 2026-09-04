@@ -243,10 +243,12 @@ npm run lint                             # gate 3: manual — CI won't catch lin
 # then STOP: present results and wait for Eston's explicit green light before any push
 ```
 
-After Eston green-lights and the push lands:
+After Eston green-lights and the push lands on `ui`:
 
 ```bash
-gh run list --limit 1                    # expect: completed  success  ...  Deploy to GitHub Pages  ui
+# A plain ui push does not trigger a Pages deploy (see "Deploy lore that prevents wasted debugging").
+# After Ouri merges ui → server-side, THEN check for the deploy run:
+gh run list --limit 1                    # expect: completed  success  ...  Deploy to GitHub Pages  server-side
 curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/  # expect 200
 ```
 
