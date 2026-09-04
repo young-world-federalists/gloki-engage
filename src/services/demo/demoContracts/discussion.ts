@@ -143,7 +143,8 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         id: newId(),
         author: caller,
         text,
-        parentId: (method.values?.parentId as string | null | undefined) ?? null,
+        // discussionApi sends `parent_id` (wire name); accept the legacy camelCase too.
+        parentId: ((method.values?.parent_id ?? method.values?.parentId) as string | null | undefined) || null,
         timestamp: Date.now(),
         category: method.values?.category as DiscussionComment['category'],
         likes: [],
