@@ -481,6 +481,68 @@ where a role in the product had no interface.
 - **Only one published mandate exists**, so the organization home reads thin until more communities
   finish a pipeline.
 
+**P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ BUILT (S35, 2026-09-05;
+push pending)** (`2e3aada..15b9d59`, 29 commits). Spec
+[docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md](docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md);
+decision record
+[docs/superpowers/specs/2026-09-02-s34-decision-record.md](docs/superpowers/specs/2026-09-02-s34-decision-record.md)
+(D1–D12, F1–F10); plan
+[docs/superpowers/plans/2026-09-02-prompt1-causes-impact-status.md](docs/superpowers/plans/2026-09-02-prompt1-causes-impact-status.md).
+Three Sonnet advocates argued, an Opus judge ruled. Scope classes: UI + **five contract-method
+additions** (`vote_comment`, `get_comment_votes`, `add_proposal.cause_id`, `add_impact_assessment`,
+`get_impact_assessments`) delivered as a patch for `server-side`
+(`docs/contracts/s34-initiative-contract-additions.py` + a FOR_OURI S35 addendum) + **fixture
+change** (⇒ `DEMO_VERSION` `global-v17` → `global-v18`).
+
+- ✅ **W0 — deploy-branch reality + demo defects.** `CLAUDE.md`/skills corrected: Ouri merges `ui` →
+  `server-side`, which deploys; a push to `ui` alone does not (**D11**). Fixed two pre-existing demo
+  stub defects found while re-grounding: `add_comment` dropped `parent_id`, and `get_roles` /
+  `endorse_expert` had no demo handlers.
+- ✅ **W1 — Causes (the Discussion rename).** Root comments on a per-problem discussion are now
+  votable, ranked "Causes" — up/down is roots-only, **enforced in the demo contract stub** mirroring
+  the real-contract patch (**D4**); rank chips on the top 15; a once-per-user dismissible hint above
+  the first list (**F6**); labels renamed "Discussion" → "Causes" app-wide, URL/`stageKey`/contract
+  slot unchanged (**D3**). New `src/utils/causes.ts` (`rankCauses`), `voteComment`/`getCommentVotes`
+  wrappers, Causes UI in `ThreadedDiscussion`.
+- ✅ **W2 — discussion status pill.** `src/utils/discussionStatus.ts` computes a five-band read
+  (New/Contested/Divided/Converging/Consensus) over the ≤10 most-voted root comments, with sparse-
+  data floors (**D6, F3**); `DiscussionStatusPill`/`DiscussionStatusBadge` on every initiative card,
+  `DiscussionPill`, the community feed summary and the Causes page subtitle; off-app "Consensus"
+  always carries the scoped `{n} Gloki participants in {community}` string, never bare (**F4**); the
+  pill word never truncates — degrades to dot + accessible name at 360px (**F5**). DESIGN_SYSTEM rows
+  added.
+- ✅ **W3 — Causes → Solutions.** New solutions require picking a top-5 cause, pre-selected to #1,
+  changeable, never empty (**D5**); demo stub gained `cause_id` on `add_proposal`; a solution's
+  addressed cause is immutable once written, with a neutral "no longer ranked" / "before any cause
+  was ranked" chip on demotion or absence (**F2**) — shared `CauseLine` component adopted on the
+  Solutions board, QV ballot, vote preview and mandate card; `TopCausesPanel` shows the ranked list
+  above the Add-solution row; "Implementation measures" relabel disambiguates from the new
+  cause-alignment prompt in the same modal.
+- ✅ **W4 — impact assessment.** Any of the top-10 writers by `causeScore + solutionScore` (with a
+  self-dealing exclusion on the solution's own authors and co-authors across every solution sharing
+  its cause, and a documented 3-rung relaxation ladder when too few qualify) can submit a structured
+  assessment — target, cause-vs-symptom, mechanism, broader effects, risks, opportunity costs, time
+  horizon — on a solution they didn't write (**D7, F7, F8**). New `src/utils/writerRank.ts`
+  (`eligibleAssessors`/`canAssess`), `add_impact_assessment`/`get_impact_assessments` demo stub +
+  wire patch, form/card/board CTA/QV-ballot and results folds/mandate "Why we expected this to
+  work" section. **D12 — accepted and logged, not fixed:** eligibility is UI-gated only; the
+  contract enforces no self-dealing/floor/rank checks server-side (follow-up filed below).
+  `DEMO_VERSION` bumped to seed comment votes, cause links and impact assessments across both demo
+  discussions.
+
+**Verification.** i18n +64 keys / 1 retired (`mechanisms.qv.commitsMetricsN` → split into
+`mechanisms.qv.measuresN` + `mechanisms.qv.metricsN` + the new `impact.foldN`) at fr/sw parity
+1246/1246, appended to the native-review packet. `tsc -b` + `npm run build` clean at every wave;
+each of the 14 build tasks passed its own subagent review (several with 1 fix round; task 14 caught
+an Important — the impact CTA/rung computing from empty discussion data before `TopCausesPanel`'s
+fetch resolved — same session). Preview-walked 360px light+dark on the databroker and misinfo demo
+communities: Causes voting, the five status bands ("Divided"/"Converging" verified against the
+actual seeded vote counts), required cause pre-select with truncation/clamp fixes at 360px, and one
+full impact-assessment submission end to end. **Not pushed** — awaiting Eston's explicit go; the
+whole-branch Opus review (0 Crit/0 Imp target) runs as part of that gate. **D2** (the sample-content
+fallback ruled "restore" in the decision record) was **not built this session** — it stays Eston's
+call, filed as optional Task 16 in the plan.
+
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
 - ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
@@ -538,10 +600,38 @@ where a role in the product had no interface.
 - **D-apply — fr/sw native review.** The packet is verified-current
   ([docs/i18n-native-review-candidates.md](docs/i18n-native-review-candidates.md)); needs an actual native
   fr + sw speaker, then apply confirmed fixes.
+- **D12 follow-up — server-side eligibility enforcement** for `add_impact_assessment` (top-10
+  writers, `causeScore > 0`, no self-dealing) and `add_proposal.cause_id` alignment; UI-gated only
+  on `ui`. Ouri's contract roadmap; patch in `docs/contracts/s34-initiative-contract-additions.py`.
 
 ---
 
 ## 8. Changelog
+
+- **2026-09-05 — S35: P10 Causes forum, discussion status pill, impact assessment (BUILT, push
+  pending; `2e3aada..15b9d59`, 29 commits).** Spec
+  `docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md`; rulings
+  `docs/superpowers/specs/2026-09-02-s34-decision-record.md` (D3–D7 and D12 drove the build; D1/D2/
+  D8–D11/F9/F10 needed no code here). Scope classes: UI + **five contract-method additions**
+  (`vote_comment`, `get_comment_votes`, `add_proposal.cause_id`, `add_impact_assessment`,
+  `get_impact_assessments`) delivered as a patch for `server-side`
+  (`docs/contracts/s34-initiative-contract-additions.py` + FOR_OURI S35 addendum) + **fixture
+  change** (⇒ `DEMO_VERSION` `global-v17` → `global-v18`, reseeding comment votes, cause links and
+  impact assessments). **D11** first: `CLAUDE.md`/skills corrected in W0 that Ouri merges `ui` →
+  `server-side` (which deploys), not a direct `ui` push. W1 root-comment voting as "Causes"
+  (labels only — URL/`stageKey`/contract slot unchanged, D3), roots-only enforced in both the demo
+  stub and the real-contract patch (D4). W2 the five-band `DiscussionStatusPill` (D6) on every
+  initiative card. W3 required cause alignment on new solutions with a #1 pre-select and a shared
+  `CauseLine` demotion chip (D5). W4 the writer-rank eligibility ladder (D7) and the impact-
+  assessment form/card/CTA/mandate section — **D12 accepted on the record: eligibility is UI-gated
+  only**, filed as a follow-up for Ouri's contract roadmap in §7 Blocked/coordination. i18n +64
+  keys / 1 retired at fr/sw parity 1246/1246, appended to the native-review packet. Per-task
+  subagent review clean (one Important caught and fixed at task 14: the impact CTA/rung computed
+  from unloaded discussion data); the whole-branch Opus review and push decision are Eston's gate,
+  run separately from this closeout. **D2** (the sample-content fallback) stays **Eston's call, not
+  built this session** — optional Task 16 in the plan. ★ Learning: the S33 conviction-subsystem
+  lesson repeats in reverse — this time the wire patch, FOR_OURI addendum and UI-gated-only
+  disclosure were written *in the same session* as the feature, not retrofitted after a gap.
 
 - **2026-08-05 — S33: P9 actor completeness — conviction editing, the author's view, the
   organization actor (SHIPPED+PUSHED; `1094375..0381f7c`, 17 commits; Pages deploy green).** Spec
