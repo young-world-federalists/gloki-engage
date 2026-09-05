@@ -95,7 +95,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
                 contractId={contractId!}
                 communityId={communityId}
                 canParticipate={canParticipate}
-                emptyHint={t('deliberation.thread.empty', 'Start the conversation about this problem.')}
+                emptyHint={t('causes.empty', 'Name a cause of this problem to start.')}
               />
             )}
           </ErrorBoundary>

@@ -1221,6 +1221,28 @@ page.
 
 ---
 
+## Session 35 (2026-09-05) — Causes
+
+**+8 keys** (parity 1190 → 1198 in both fr and sw). The Discussion tab becomes a Causes forum:
+root comments are candidate causes voted up/down (1p1v); replies are unchanged conversation and
+keep the Heart. All eight keys are new under `causes.*`.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.vote.group` | Vote on this cause | Voter sur cette cause | Piga kura kuhusu sababu hii | `role="group"` label wrapping the up/down pair. |
+| `causes.vote.up` | Vote up — a real driver of the problem | Voter pour — un véritable facteur du problème | Piga kura ya ndiyo — sababu halisi ya tatizo | **⚠ confirm** the sw phrasing reads as "vote yes" rather than a literal up/down direction, which may not translate as cleanly. |
+| `causes.vote.down` | Vote down — not a real driver | Voter contre — pas un véritable facteur | Piga kura ya hapana — si sababu halisi | Same up/down-as-yes/no framing as above in sw. |
+| `causes.vote.score` | Net score {n} | Score net {n} | Alama halisi {n} | `{n}` can be negative; accessible label only (visual chip shows the signed number directly). |
+| `causes.rank` | #{n} | #{n} | #{n} | Rank chip text, shown only on root comments with ≥1 vote and rank ≤15 (carried into Solutions). |
+| `causes.hint` | Vote up if this is a real driver of the problem, down if it isn't. | Votez pour si c'est un véritable facteur du problème, contre sinon. | Piga kura ya ndiyo ikiwa hii ni sababu halisi ya tatizo, hapana kama sivyo. | First-use dismissible hint (Banner), shown above the comment list until dismissed. |
+| `causes.composer.placeholder` | What is causing this problem? | Quelle est la cause de ce problème ? | Ni nini kinachosababisha tatizo hili? | Replaces the generic "Add to the discussion…" placeholder on this surface. |
+| `causes.empty` | Name a cause of this problem to start. | Nommez une cause de ce problème pour commencer. | Taja sababu ya tatizo hili ili kuanza. | Empty-state body, replaces `deliberation.thread.empty` at this call site only (that key is kept as the component's own internal fallback and used elsewhere). |
+
+`common.dismiss` (existing key, both languages) is reused for the hint banner's dismiss button
+rather than adding a new `causes.hint.dismiss` key.
+
+---
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the

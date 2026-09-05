@@ -1,17 +1,21 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Reply, Trash2, Heart, MessageSquare, CornerDownRight, ArrowLeft, ChevronDown, ChevronRight,
+  ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import { useAppSelector } from '../../../../store/hooks';
 import { useI18n, useT } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
-import { EmptyState, SegmentedControl, UserIdentity, SourceLinks, SourcesInput } from '../../../shared';
+import { EmptyState, SegmentedControl, UserIdentity, SourceLinks, SourcesInput, Banner } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import type { SourceLink } from '../../../../utils/sources';
+import { tallyVotes, myVote, rankCauses, TOP_CAUSES_CARRIED } from '../../../../utils/causes';
+import type { VoteTally } from '../../../../utils/causes';
+import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './discussionApi';
-import type { Comment } from './discussionApi';
+import type { Comment, CommentVote } from './discussionApi';
 import styles from './ThreadedDiscussion.module.scss';
 
 // Indent levels 0..DEPTH_CAP render inline; at the cap a node with children
@@ -22,7 +26,7 @@ type SortMode = 'top' | 'newest';
 type CommentNode = Comment & { children: CommentNode[] };
 type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string; displayName?: string }>;
 
-function buildTree(flat: Comment[], sort: SortMode): CommentNode[] {
+function buildTree(flat: Comment[], sort: SortMode, tally: Record<string, VoteTally>): CommentNode[] {
   const map = new Map<string, CommentNode>();
   flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
   const roots: CommentNode[] = [];
@@ -31,15 +35,27 @@ function buildTree(flat: Comment[], sort: SortMode): CommentNode[] {
     if (c.parentId && map.has(c.parentId)) map.get(c.parentId)!.children.push(node);
     else roots.push(node);
   });
-  const cmp =
+  // ROOT comments are Causes candidates: 'top' ranks by vote score (up − down),
+  // ties → older first. Replies aren't votable, so child nodes keep the
+  // Heart-count comparator under both sort modes (D4).
+  const rootCmp =
+    sort === 'top'
+      ? (a: CommentNode, b: CommentNode) => {
+          const scoreA = (tally[a.id]?.up ?? 0) - (tally[a.id]?.down ?? 0);
+          const scoreB = (tally[b.id]?.up ?? 0) - (tally[b.id]?.down ?? 0);
+          return scoreB - scoreA || a.timestamp - b.timestamp;
+        }
+      : (a: CommentNode, b: CommentNode) => b.timestamp - a.timestamp;
+  const childCmp =
     sort === 'top'
       ? (a: CommentNode, b: CommentNode) => b.likes.length - a.likes.length || a.timestamp - b.timestamp
       : (a: CommentNode, b: CommentNode) => b.timestamp - a.timestamp;
-  const sortRec = (nodes: CommentNode[]) => {
-    nodes.sort(cmp);
-    nodes.forEach((n) => sortRec(n.children));
+  const sortChildren = (nodes: CommentNode[]) => {
+    nodes.sort(childCmp);
+    nodes.forEach((n) => sortChildren(n.children));
   };
-  sortRec(roots);
+  roots.sort(rootCmp);
+  roots.forEach((n) => sortChildren(n.children));
   return roots;
 }
 
@@ -122,11 +138,15 @@ const CommentItem: React.FC<{
   onReply: (parentId: string, text: string, sources: SourceLink[]) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
+  onVote: (id: string, direction: 'up' | 'down') => void | Promise<void>;
+  tally: Record<string, VoteTally>;
+  voteOf: (id: string) => 'up' | 'down' | null;
+  rankOf: (id: string) => number | undefined;
   onFocus: (id: string) => void;
   newCommentId?: string | null;
   newCommentRef?: React.RefCallback<HTMLDivElement>;
   onNewCommentBlur?: (id: string) => void;
-}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onFocus, newCommentId, newCommentRef, onNewCommentBlur }) => {
+}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onVote, tally, voteOf, rankOf, onFocus, newCommentId, newCommentRef, onNewCommentBlur }) => {
   const { t, locale } = useI18n();
   const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -137,6 +157,12 @@ const CommentItem: React.FC<{
   const liked = node.likes.includes(currentUserKey);
   const atCap = depth >= DEPTH_CAP;
   const hasChildren = node.children.length > 0;
+
+  // Root-only Causes voting (D4): candidate causes are the ROOT comments.
+  const nodeTally = tally[node.id] ?? { up: 0, down: 0 };
+  const score = nodeTally.up - nodeTally.down;
+  const mine = voteOf(node.id);
+  const rank = rankOf(node.id);
 
   const isNewComment = node.id === newCommentId;
 
@@ -177,16 +203,39 @@ const CommentItem: React.FC<{
 
         {!node.deleted && (
           <div className={styles.commentActions}>
-            <button
-              type="button"
-              className={`${styles.actionBtn} ${liked ? styles.liked : ''}`}
-              onClick={() => onLike(node.id)}
-              aria-pressed={liked}
-            >
-              {/* Visible "Like" label matches the labeled Reply/Delete neighbors (D5);
-                  aria-pressed carries state, so no separate aria-label. */}
-              <Heart size={16} fill={liked ? 'currentColor' : 'none'} aria-hidden /> {t('deliberation.thread.like', 'Like')}{likeCount > 0 && <span> ({likeCount})</span>}
-            </button>
+            {depth === 0 ? (
+              <>
+                <div className={styles.voteGroup} role="group" aria-label={t('causes.vote.group', 'Vote on this cause')}>
+                  <button type="button" className={`${styles.voteBtn} ${mine === 'up' ? styles.voteOn : ''}`}
+                    aria-pressed={mine === 'up'} disabled={!canParticipate}
+                    onClick={() => onVote(node.id, 'up')}
+                    aria-label={t('causes.vote.up', 'Vote up — a real driver of the problem')}>
+                    <ThumbsUp size={16} aria-hidden />
+                  </button>
+                  <span className={styles.voteScore} aria-label={t('causes.vote.score', 'Net score {n}', { n: score })}>{score > 0 ? `+${score}` : score}</span>
+                  <button type="button" className={`${styles.voteBtn} ${mine === 'down' ? styles.voteOn : ''}`}
+                    aria-pressed={mine === 'down'} disabled={!canParticipate}
+                    onClick={() => onVote(node.id, 'down')}
+                    aria-label={t('causes.vote.down', 'Vote down — not a real driver')}>
+                    <ThumbsDown size={16} aria-hidden />
+                  </button>
+                </div>
+                {rank != null && (
+                  <span className={styles.rankChip}>{t('causes.rank', '#{n}', { n: rank })}</span>
+                )}
+              </>
+            ) : (
+              <button
+                type="button"
+                className={`${styles.actionBtn} ${liked ? styles.liked : ''}`}
+                onClick={() => onLike(node.id)}
+                aria-pressed={liked}
+              >
+                {/* Visible "Like" label matches the labeled Reply/Delete neighbors (D5);
+                    aria-pressed carries state, so no separate aria-label. */}
+                <Heart size={16} fill={liked ? 'currentColor' : 'none'} aria-hidden /> {t('deliberation.thread.like', 'Like')}{likeCount > 0 && <span> ({likeCount})</span>}
+              </button>
+            )}
             {canParticipate && (
               <button type="button" className={styles.actionBtn} onClick={() => setReplying((v) => !v)}>
                 <Reply size={16} aria-hidden /> {t('deliberation.thread.reply', 'Reply')}
@@ -234,6 +283,10 @@ const CommentItem: React.FC<{
                 onReply={onReply}
                 onDelete={onDelete}
                 onLike={onLike}
+                onVote={onVote}
+                tally={tally}
+                voteOf={voteOf}
+                rankOf={rankOf}
                 onFocus={onFocus}
                 newCommentId={newCommentId}
                 newCommentRef={newCommentRef}
@@ -272,7 +325,9 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const trust = useCommunityTrust(communityId);
 
   const [flat, setFlat] = useState<Comment[]>([]);
+  const [votes, setVotes] = useState<CommentVote[]>([]);
   const [sort, setSort] = useState<SortMode>('top');
+  const [showVoteHint, setShowVoteHint] = useState(() => !getHintSeen('causesVoteHint'));
   const [focusRootId, setFocusRootId] = useState<string | null>(null);
   const [postedStatus, setPostedStatus] = useState('');
   const [newCommentId, setNewCommentId] = useState<string | null>(null);
@@ -290,7 +345,12 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const refresh = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
     try {
-      setFlat(await api.getComments(serverUrl, publicKey, contractId));
+      const [list, v] = await Promise.all([
+        api.getComments(serverUrl, publicKey, contractId),
+        api.getCommentVotes(serverUrl, publicKey, contractId),
+      ]);
+      setFlat(list);
+      setVotes(v);
     } catch (err) {
       console.error('[ThreadedDiscussion] Failed to fetch comments:', err);
     }
@@ -363,7 +423,31 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
-  const tree = useMemo(() => buildTree(flat, sort), [flat, sort]);
+  const handleVote = useCallback(async (id: string, direction: 'up' | 'down') => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    const current = myVote(votes, publicKey, id);
+    const next = current === direction ? 'none' : direction; // tap again to clear
+    await api.voteComment(serverUrl, publicKey, contractId, id, next);
+    // isDemoContract is not importable here (seam rule) — always refresh; real
+    // contracts also refresh via useContractSync upstream, this is a no-op there.
+    await refresh();
+  }, [serverUrl, publicKey, contractId, votes, refresh]);
+
+  const tally = useMemo(() => tallyVotes(votes), [votes]);
+  const ranks = useMemo(() => rankCauses(flat, votes), [flat, votes]);
+  // Rank chips are noise on an unvoted root — only show for roots carried into
+  // Solutions (rank ≤ TOP_CAUSES_CARRIED) that have at least one vote either way.
+  const rankById = useMemo(() => {
+    const m: Record<string, number> = {};
+    ranks.forEach((r) => {
+      if (r.up + r.down > 0 && r.rank <= TOP_CAUSES_CARRIED) m[r.comment.id] = r.rank;
+    });
+    return m;
+  }, [ranks]);
+  const voteOf = useCallback((id: string) => myVote(votes, currentUserKey, id), [votes, currentUserKey]);
+  const rankOf = useCallback((id: string) => rankById[id], [rankById]);
+
+  const tree = useMemo(() => buildTree(flat, sort, tally), [flat, sort, tally]);
   const liveCount = useMemo(() => flat.filter((c) => !c.deleted).length, [flat]);
   const visibleRoots = useMemo(() => {
     if (!focusRootId) return tree;
@@ -392,7 +476,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
       {canParticipate && (
         <Composer
-          placeholder={t('deliberation.thread.addPlaceholder', 'Add to the discussion…')}
+          placeholder={t('causes.composer.placeholder', 'What is causing this problem?')}
           submitLabel={t('deliberation.thread.comment', 'Comment')}
           onSubmit={handleTopLevel}
         />
@@ -420,6 +504,16 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
         </button>
       )}
 
+      {showVoteHint && (
+        <Banner
+          tone="info"
+          onDismiss={() => { markHintSeen('causesVoteHint'); setShowVoteHint(false); }}
+          dismissLabel={t('common.dismiss', 'Dismiss')}
+        >
+          {t('causes.hint', "Vote up if this is a real driver of the problem, down if it isn't.")}
+        </Banner>
+      )}
+
       {visibleRoots.length === 0 ? (
         <EmptyState
           compact
@@ -441,6 +535,10 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
               onReply={handleReply}
               onDelete={handleDelete}
               onLike={handleLike}
+              onVote={handleVote}
+              tally={tally}
+              voteOf={voteOf}
+              rankOf={rankOf}
               onFocus={setFocusRootId}
               newCommentId={newCommentId}
               newCommentRef={newCommentRefCallback}

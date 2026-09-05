@@ -213,3 +213,44 @@
   &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
 }
 .children { display: flex; flex-direction: column; gap: $spacing-md; margin-top: $spacing-md; }
+
+/* Causes voting (S35 D4) — up/down on ROOT comments only; replies keep .actionBtn/.liked above. */
+.voteGroup { display: inline-flex; align-items: center; gap: $spacing-xs; }
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: $radius-full;
+  border: 1px solid $gray-300;
+  background: transparent;
+  color: $gray-600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  &.voteOn { border-color: $primary; color: $primary; background: rgba($primary, 0.1); }
+
+  @include dark {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+    &.voteOn { border-color: $primary-on-dark; color: $primary-on-dark; background: rgba($primary-on-dark, 0.15); }
+  }
+}
+.voteScore {
+  font-variant-numeric: tabular-nums;
+  font-size: $text-sm;
+  min-width: 2ch;
+  text-align: center;
+  color: $gray-600;
+  @include dark { color: $dark-text-secondary; }
+}
+.rankChip {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin-left: $spacing-xs;
+  @include dark { color: $dark-text-secondary; }
+}
