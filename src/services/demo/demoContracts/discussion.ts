@@ -46,6 +46,7 @@ interface DiscussionState {
   comments: DiscussionComment[];
   statement: Statement;
   edits: Record<string, StoredEdit>;
+  commentVotes?: Record<string, { voter: string; commentId: string; direction: 'up' | 'down' }>; // key `${voter}:${commentId}` (F1)
 }
 
 function byId<T extends { id: string }>(items: readonly T[]): Record<string, T> {
@@ -127,6 +128,8 @@ export function discussionRead(contractId: string, method: IMethod, _caller: str
       return s.statement;
     case 'get_edits':
       return Object.values(s.edits);
+    case 'get_comment_votes':
+      return s.commentVotes ?? {};
     default:
       return null;
   }
@@ -189,6 +192,22 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
           };
         }),
       }));
+      return null;
+    }
+    // S35 (D4/F1): 1p1v up/down on ROOT comments only — replies return without writing.
+    case 'vote_comment': {
+      const id = method.values?.comment_id as string | undefined;
+      const direction = method.values?.direction as 'up' | 'down' | 'none' | undefined;
+      if (!id || !direction) return null;
+      const target = (load(contractId).comments ?? []).find((c) => c.id === id);
+      if (!target || target.deleted || target.parentId) return null;
+      const key = `${caller}:${id}`;
+      updateState<DiscussionState>(contractId, (s) => {
+        const votes = { ...(s.commentVotes ?? {}) };
+        if (direction === 'none') delete votes[key];
+        else votes[key] = { voter: caller, commentId: id, direction };
+        return { ...defaultState(), ...s, commentVotes: votes };
+      });
       return null;
     }
 
