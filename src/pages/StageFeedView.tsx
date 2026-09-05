@@ -104,7 +104,10 @@ const StageFeedCard: React.FC<{
           </button>
           {/* No "In discussion" badge (W3, §5 rule 10): a discussion-stage item in
               this feed is still a problem — the expanded panel's Discussion pill
-              (with its live count) carries the activity signal. */}
+              (with its live count) carries the activity signal. The collapsed
+              summary below carries exactly ONE discussion signal — the five-band
+              Causes status pill (S35 D6) — never a comment count or an
+              "In discussion" label. */}
           {item.authorName && item.author ? (
             <UserIdentity
               name={item.authorName}

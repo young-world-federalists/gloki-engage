@@ -6,7 +6,7 @@ import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
 import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
 import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
-import { DiscussionStatusBadge } from './DiscussionStatusPill';
+import { DiscussionStatusBadge, statusAccessibleName } from './DiscussionStatusPill';
 import styles from './DiscussionPill.module.scss';
 
 export interface DiscussionPillProps {
@@ -73,10 +73,16 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   // Always the neutral function label (W3, campaign §5 rule 10): the live
   // comment count — not a stage-styled skin — signals activity.
   const label = t('stage.discussionPill', 'Causes');
-  const ariaLabel =
+  const baseAriaLabel =
     count != null && count > 0
       ? t('stage.discussionPillCount', '{label} — {n} causes', { label, n: count })
       : label;
+  // The status badge is rendered `decorative` (no aria-label/title of its own)
+  // because the outer button's aria-label already carries its accessible name
+  // here — otherwise the nested badge's label would be unreachable inside the
+  // button's own name computation (S35 fix-round F1).
+  const statusName = status ? statusAccessibleName(t, status, communityName) : null;
+  const ariaLabel = statusName ? `${baseAriaLabel}. ${statusName}` : baseAriaLabel;
 
   return (
     <button
@@ -96,7 +102,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
           {count}
         </span>
       )}
-      {status && <DiscussionStatusBadge status={status} communityName={communityName} />}
+      {status && <DiscussionStatusBadge status={status} communityName={communityName} decorative />}
     </button>
   );
 };

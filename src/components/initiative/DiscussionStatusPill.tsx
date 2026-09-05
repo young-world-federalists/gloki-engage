@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
@@ -7,11 +7,42 @@ import { computeDiscussionStatus, STATUS_META, type DiscussionStatus } from '../
 import Badge from '../shared/Badge';
 import styles from './DiscussionStatusPill.module.scss';
 
+/**
+ * The five-band status's accessible name (S35 F1/F4): the scoped "Consensus
+ * among {n} Gloki participants in {community}" sentence for `consensus`,
+ * otherwise the plain "Causes discussion: {word}" sentence. Exported so
+ * surfaces that fold the status into a larger control's own `aria-label`
+ * (e.g. `DiscussionPill`, S35 fix-round F1) can compute it without rendering
+ * a second accessible name for the same information.
+ */
+export function statusAccessibleName(
+  t: ReturnType<typeof useT>,
+  status: DiscussionStatus,
+  communityName?: string,
+): string {
+  const meta = STATUS_META[status.key];
+  const word = t(meta.labelKey, meta.labelDefault);
+  const community = communityName ?? '';
+  return status.key === 'consensus'
+    ? t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
+        n: status.participants,
+        community,
+      })
+    : t('causes.status.aria', 'Causes discussion: {word}', { word });
+}
+
 export interface DiscussionStatusBadgeProps {
   status: DiscussionStatus;
   /** Community display name — feeds the scoped Consensus sentence (S35 F4). */
   communityName?: string;
   className?: string;
+  /**
+   * When true, the badge carries no accessible name of its own (`aria-hidden`,
+   * no `aria-label`/`title`) — for a host control that already folds the
+   * status word into its own `aria-label` (S35 fix-round F1), so the status
+   * isn't announced twice.
+   */
+  decorative?: boolean;
 }
 
 /**
@@ -23,44 +54,58 @@ export interface DiscussionStatusBadgeProps {
  *
  * Width guard (F5): the word is capped at 12ch and never ellipsized. If it
  * would overflow at narrow widths, the word is hidden off-screen (sr-only) and
- * the Badge's leading dot + accessible name alone carry the status.
+ * the Badge's leading dot + accessible name alone carry the status. Measured
+ * with `ResizeObserver` (not just on word change) so a card that resizes after
+ * mount — orientation change, sidebar collapse, font load — re-evaluates.
  */
-export const DiscussionStatusBadge: React.FC<DiscussionStatusBadgeProps> = ({ status, communityName, className }) => {
+export const DiscussionStatusBadge: React.FC<DiscussionStatusBadgeProps> = ({
+  status,
+  communityName,
+  className,
+  decorative,
+}) => {
   const t = useT();
   const meta = STATUS_META[status.key];
   const word = t(meta.labelKey, meta.labelDefault);
-  const community = communityName ?? '';
-  const scoped =
-    status.key === 'consensus'
-      ? t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
-          n: status.participants,
-          community,
-        })
-      : t('causes.status.aria', 'Causes discussion: {word}', { word });
+  const scoped = statusAccessibleName(t, status, communityName);
 
   const wordRef = useRef<HTMLSpanElement | null>(null);
+  const overflowRef = useRef(false);
   const [overflow, setOverflow] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = wordRef.current;
     if (!el) return;
-    setOverflow(el.scrollWidth > el.clientWidth);
+    const measure = () => {
+      const next = el.scrollWidth > el.clientWidth;
+      if (next !== overflowRef.current) {
+        overflowRef.current = next;
+        setOverflow(next);
+      }
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el.parentElement ?? el);
+    return () => ro.disconnect();
   }, [word]);
 
-  return (
+  const badge = (
     <Badge
       tone={meta.tone}
       dot
       size="sm"
       className={overflow ? `${styles.dotOnly} ${className ?? ''}` : className}
-      aria-label={scoped}
-      title={scoped}
+      aria-label={decorative ? undefined : scoped}
+      title={decorative ? undefined : scoped}
     >
       <span ref={wordRef} className={styles.word}>
         {word}
       </span>
     </Badge>
   );
+
+  return decorative ? <span aria-hidden="true">{badge}</span> : badge;
 };
 
 export interface DiscussionStatusPillProps {

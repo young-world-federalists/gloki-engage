@@ -458,7 +458,10 @@ see *Discussion is a function, not a stage* below). Props: `initiativeId`,
 **Discussion is a function, not a stage** (W3 / campaign §5 rule 10; IA locked
 S16). Discussion is a per-post capability available at every stage, never a
 browseable 5th pipeline step. Enforced rules — a component must not:
-- render the **banned status wordlist** ("In discussion") anywhere a user reads it;
+- render the **banned status wordlist** ("In discussion") anywhere a user reads it — a
+  collapsed card summary (e.g. `StageFeedView`) carries exactly **one** discussion
+  signal, the five-band Causes status pill (S35, ruling D6), never a comment count
+  or an "In discussion" label;
 - key visible state, copy, or tone on `post.stage === 'discussion'` (the DiscussionPill
   takes no `active` prop; cards show no stage badge for it);
 - give `STAGE_META` a `discussion` peer entry — a discussion-data card falls back to
