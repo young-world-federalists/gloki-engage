@@ -11,6 +11,11 @@ export interface ImpactAssessmentFormProps {
   /** The solution's own text, shown at the top of the form for context. */
   solutionText: string;
   submitting: boolean;
+  /** F13: a contract-thrown error message (e.g. "max 3 per proposal", "one
+   *  per author") from the last submit attempt — shown above the footer and
+   *  the modal stays open so the user's draft isn't lost. Null/undefined
+   *  renders nothing. */
+  error?: string | null;
 }
 
 const FIELD_MAX = 700;
@@ -24,7 +29,7 @@ const FIELD_MAX = 700;
  * Fields reset whenever the modal closes, so a later re-open (a different
  * solution, or the same one again) never leaks a stale draft.
  */
-const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onClose, onSubmit, solutionText, submitting }) => {
+const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onClose, onSubmit, solutionText, submitting, error }) => {
   const t = useT();
   // Task 14 fix-round 1 (Minor 6) — prefix every element id from useId() so
   // the form stays safe to mount twice (e.g. two SolutionsBoard instances,
@@ -189,6 +194,8 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
             onChange={(e) => setTimeHorizon(e.target.value)}
           />
         </div>
+
+        {error && <p role="alert" className={styles.error}>{error}</p>}
       </div>
     </Modal>
   );

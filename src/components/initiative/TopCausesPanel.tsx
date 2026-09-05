@@ -144,7 +144,14 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
                         {r.score > 0 ? `+${r.score}` : r.score}
                       </span>
                       <Badge tone="neutral" size="sm">
-                        {t('causes.panel.solutions', '{k} solutions', { k: solutionCountFor(r.comment.id) })}
+                        {(() => {
+                          const k = solutionCountFor(r.comment.id);
+                          return t(
+                            k === 1 ? 'causes.panel.solutions.one' : 'causes.panel.solutions.many',
+                            k === 1 ? '1 solution' : '{k} solutions',
+                            { k },
+                          );
+                        })()}
                       </Badge>
                     </div>
                   </div>

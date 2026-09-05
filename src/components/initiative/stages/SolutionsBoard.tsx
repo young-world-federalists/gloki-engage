@@ -207,6 +207,7 @@ const SolutionEvidence: React.FC<{
 /** Task 14 (D12) — the eligibility-panel copy naming a rung below `strict`. */
 const rungCopy = (t: ReturnType<typeof useT>, rung: EligibilityRung): string | null => {
   switch (rung) {
+    case 'strict': return t('impact.rung.strict', 'Open to the top 10 writers who have named a cause');
     case 'no-floor': return t('impact.rung.noFloor', 'Open to the top 10 writers');
     case 'top-25': return t('impact.rung.top25', 'Open to the top 25 writers');
     case 'any-verified': return t('impact.rung.anyVerified', 'Open to any verified member');
@@ -275,6 +276,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [assessments, setAssessments] = useState<ImpactAssessment[]>([]);
   const [assessFor, setAssessFor] = useState<string | null>(null);
   const [assessSubmitting, setAssessSubmitting] = useState(false);
+  const [assessError, setAssessError] = useState<string | null>(null);
 
   // Task 14 — verifiedKeys (the any-verified eligibility floor) comes from the
   // community's member list + trust, never a made-up enumeration. Mirrors
@@ -393,17 +395,25 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   // successful submit always ends in a refetch (never assumed local state);
   // this is the SAME re-fetch-after-write pattern every other action on this
   // board uses (handleAdd, handleAddReview, handleToggleApproval, …).
-  const handleCloseAssess = () => setAssessFor(null);
+  const handleCloseAssess = () => {
+    setAssessFor(null);
+    setAssessError(null);
+  };
 
   const handleSubmitAssess = async (values: Omit<ImpactAssessment, 'author' | 'timestamp' | 'proposalId'>) => {
     if (!serverUrl || !publicKey || !contractId || !assessFor) return;
     setAssessSubmitting(true);
+    setAssessError(null);
     try {
       await api.addImpactAssessment(serverUrl, publicKey, contractId, { proposalId: assessFor, ...values });
       setAssessFor(null);
       await fetchData();
     } catch (err) {
+      // F13: a thrown contract error (`throwIfContractError`, e.g. "max 3 per
+      // proposal" or "one per author") must keep the modal open with the
+      // message visible, not silently discard the user's input.
       console.error('Failed to add impact assessment:', err);
+      setAssessError(err instanceof Error ? err.message : String(err));
     } finally {
       setAssessSubmitting(false);
     }
@@ -741,6 +751,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         onSubmit={handleSubmitAssess}
         solutionText={assessFor ? (proposals[assessFor]?.text ?? '') : ''}
         submitting={assessSubmitting}
+        error={assessError}
       />
 
       {mergeSource && (

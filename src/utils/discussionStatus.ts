@@ -31,7 +31,11 @@ export function computeDiscussionStatus(comments: Comment[], votes: CommentVote[
     .sort((a, b) => (b.up + b.down) - (a.up + a.down))
     .slice(0, STATUS_SAMPLE);
   const totalVotes = roots.reduce((n, c) => n + ((tally[c.id]?.up ?? 0) + (tally[c.id]?.down ?? 0)), 0);
-  const participants = new Set(votes.map((v) => v.voter)).size;
+  // F12: count unique voters over votes on ROOT non-deleted comments only — a
+  // vote left on a reply (never possible via the UI, D4) or on a since-deleted
+  // root must not inflate the "N Gloki participants" sentence.
+  const rootIds = new Set(roots.map((c) => c.id));
+  const participants = new Set(votes.filter((v) => rootIds.has(v.commentId)).map((v) => v.voter)).size;
   const base = { votes: totalVotes, votedComments: voted.length, participants };
   if (totalVotes < STATUS_VOTE_FLOOR || voted.length < MIN_VOTED_COMMENTS) return { key: 'open', agreement: 0, ...base };
   const num = voted.reduce((s, r) => s + Math.abs(r.up - r.down), 0);

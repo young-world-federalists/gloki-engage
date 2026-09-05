@@ -21,9 +21,14 @@
   &:focus { border-color: $primary; outline: none; }
 }
 
+// F13: a contract-thrown submit error (e.g. "max 3 per proposal"), shown
+// above the modal footer so the draft stays visible while it's fixed.
+.error { margin: 0; font-size: $text-sm; font-weight: $font-medium; color: $error; }
+
 @include dark {
   .solutionText { background: rgba($primary, 0.16); border-color: rgba($primary, 0.4); color: $dark-text; }
   .intro, .helper { color: $dark-text-secondary; }
   .label { color: $dark-text; }
   .textarea { background: $dark-bg; border-color: $dark-border; color: $dark-text; }
+  .error { color: $error-on-dark; }
 }

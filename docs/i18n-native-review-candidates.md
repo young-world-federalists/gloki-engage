@@ -1392,6 +1392,14 @@ prompt (readiness gates, singular/plural counts, strict-rung copy).
 | Key | English | fr | sw | Note |
 | --- | --- | --- | --- | --- |
 | `causes.align.loading` | Loading causes… | Chargement des causes… | Inapakia sababu… | `SolutionsBoard`'s "+ Add a solution" button `title` while `discussionReady` is still false. |
+| `causes.panel.solutions.one` | 1 solution | 1 solution | Suluhisho 1 | `TopCausesPanel`'s per-cause solution-count badge, singular case (F9). |
+| `causes.panel.solutions.many` | {k} solutions | {k} solutions | Suluhisho {k} | Same badge, plural/zero case — replaces the retired `causes.panel.solutions` below. |
+| `impact.rung.strict` | Open to the top 10 writers who have named a cause | Ouvert aux 10 premiers rédacteurs ayant nommé une cause | Wazi kwa waandishi 10 bora waliotaja sababu | `rungCopy`'s `'strict'` case (F10) — previously returned `null` (no rung note shown) even at the strictest, most-common rung. |
+
+**Key retired** — `causes.panel.solutions` ("{k} solutions" / fr "{k} solutions" / sw "Suluhisho
+{k}"): replaced by the singular/plural pair above, following the `deliberation.thread.count.one`/
+`.many` precedent. Confirmed unused app-wide (`grep -rn "causes.panel.solutions'" src`) before
+removing it from both `fr.ts` and `sw.ts`.
 
 ---
 
