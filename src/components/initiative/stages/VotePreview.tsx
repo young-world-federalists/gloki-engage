@@ -56,7 +56,7 @@ const VotePreview: React.FC<VotePreviewProps> = ({ initiativeId }) => {
           ? Promise.all([
               getComments(serverUrl, publicKey, discRef.contractId),
               getCommentVotes(serverUrl, publicKey, discRef.contractId),
-            ])
+            ]).catch(() => null)
           : Promise.resolve(null),
       ]);
       setQv((p as Record<string, QvProposal>) || {});
