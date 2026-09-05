@@ -45,6 +45,26 @@ interface Proposal {
   causeId?: string;
 }
 
+const CAUSE_LABEL_MAX = 90;
+
+/**
+ * Display-only label for a cause option in the "Add a solution" alignment
+ * select (S35 fix-round F-preview-walk). Cause comment text can run to a full
+ * sentence (~300 chars); the SearchableSelect trigger has no truncation of its
+ * own, so build the truncated label here and keep `value` as the untouched
+ * comment id. Cuts on a word boundary when one is close to the limit; never
+ * trims the `#n ` rank prefix.
+ */
+const causeLabel = (rank: number, text: string): string => {
+  const prefix = `#${rank} `;
+  if (prefix.length + text.length <= CAUSE_LABEL_MAX) return `${prefix}${text}`;
+  const budget = CAUSE_LABEL_MAX - prefix.length - 1; // room for trailing …
+  let cut = text.slice(0, budget);
+  const lastSpace = cut.lastIndexOf(' ');
+  if (lastSpace > budget * 0.6) cut = cut.slice(0, lastSpace);
+  return `${prefix}${cut}…`;
+};
+
 /**
  * The folded "Evidence & expert review" for one solution (S15 recomposition).
  * Inline expand (button + aria-expanded + chevron + panel) — the same dive-on-tap
@@ -477,12 +497,14 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             <>
               <p className={styles.commitPrompt}>{t('causes.align.prompt', 'Which cause does this address?')}</p>
               <p className={styles.commitHint}>{t('causes.align.hint', 'Your metrics and implementation measures should follow from this cause.')}</p>
-              <SearchableSelect
-                options={alignable.map((c) => ({ value: c.comment.id, label: `#${c.rank} ${c.comment.text}` }))}
-                value={newCauseId}
-                onChange={setNewCauseId}
-                placeholder={t('causes.align.placeholder', 'Choose a cause')}
-              />
+              <div className={styles.causeSelect}>
+                <SearchableSelect
+                  options={alignable.map((c) => ({ value: c.comment.id, label: causeLabel(c.rank, c.comment.text) }))}
+                  value={newCauseId}
+                  onChange={setNewCauseId}
+                  placeholder={t('causes.align.placeholder', 'Choose a cause')}
+                />
+              </div>
             </>
           )}
           <textarea
