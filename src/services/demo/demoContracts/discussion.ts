@@ -199,6 +199,7 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
       const id = method.values?.comment_id as string | undefined;
       const direction = method.values?.direction as 'up' | 'down' | 'none' | undefined;
       if (!id || !direction) return null;
+      if (direction !== 'up' && direction !== 'down' && direction !== 'none') return null; // mirrors the Python guard
       const target = (load(contractId).comments ?? []).find((c) => c.id === id);
       if (!target || target.deleted || target.parentId) return null;
       const key = `${caller}:${id}`;
