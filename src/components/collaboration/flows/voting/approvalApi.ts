@@ -215,3 +215,92 @@ export async function decideMergeSuggestion(
     } as IMethod,
   }));
 }
+
+// ─── Impact assessment (S35, W4). Eligibility is UI-gated (D12) — see
+// `src/utils/writerRank.ts` and `docs/FOR_OURI_seam.md`. The contract enforces only:
+// proposal exists, max 3 per proposal, one per author. Wire truth:
+// `docs/contracts/s34-initiative-contract-additions.py`. ─────────────────────────
+export type TargetsCause = 'cause' | 'symptom' | 'both';
+
+export interface ImpactAssessment {
+  author: string;
+  proposalId: string;
+  timestamp: number;
+  target: string;
+  targetsCause: TargetsCause;
+  mechanism: string;
+  broaderEffects: string;
+  risks: string;
+  opportunityCosts: string;
+  timeHorizon: string;
+}
+
+export async function addImpactAssessment(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  a: Omit<ImpactAssessment, 'author' | 'timestamp'>,
+) {
+  return throwIfContractError(await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: {
+      name: 'add_impact_assessment',
+      values: {
+        proposal_id: a.proposalId,
+        target: a.target,
+        targets_cause: a.targetsCause,
+        mechanism: a.mechanism,
+        broader_effects: a.broaderEffects,
+        risks: a.risks,
+        opportunity_costs: a.opportunityCosts,
+        time_horizon: a.timeHorizon,
+      },
+    } as IMethod,
+  }));
+}
+
+const TARGETS_CAUSE_VALUES = new Set(['cause', 'symptom', 'both']);
+
+function normalizeImpactAssessment(raw: unknown): ImpactAssessment | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.author !== 'string' || !r.author) return null;
+  if (typeof r.proposalId !== 'string' || !r.proposalId) return null;
+  if (typeof r.targetsCause !== 'string' || !TARGETS_CAUSE_VALUES.has(r.targetsCause)) return null;
+  const textFields = ['target', 'mechanism', 'broaderEffects', 'risks', 'opportunityCosts', 'timeHorizon'] as const;
+  for (const f of textFields) {
+    if (typeof r[f] !== 'string') return null;
+  }
+  return {
+    author: r.author,
+    proposalId: r.proposalId,
+    timestamp: Number(r.timestamp),
+    target: r.target as string,
+    targetsCause: r.targetsCause as TargetsCause,
+    mechanism: r.mechanism as string,
+    broaderEffects: r.broaderEffects as string,
+    risks: r.risks as string,
+    opportunityCosts: r.opportunityCosts as string,
+    timeHorizon: r.timeHorizon as string,
+  };
+}
+
+export async function getImpactAssessments(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<ImpactAssessment[]> {
+  const raw = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_impact_assessments', values: {} } as IMethod,
+  });
+  const obj = (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}) as Record<string, unknown>;
+  return Object.values(obj)
+    .map(normalizeImpactAssessment)
+    .filter((a): a is ImpactAssessment => a !== null)
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
