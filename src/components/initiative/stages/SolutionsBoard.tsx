@@ -413,6 +413,10 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   // `alignable` holds right now — never on every render, so the user's own
   // change is never overwritten while the modal stays open.
   const handleOpenAdd = () => {
+    // D5: causes must be loaded before the modal opens, or the cause
+    // pre-select below silently falls back to "no cause" for a discussion
+    // that actually has ranked causes.
+    if (!discussionReady) return;
     setNewCauseId(alignable[0]?.comment.id ?? '');
     setAddOpen(true);
   };
@@ -584,7 +588,14 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       {/* The (i) sits beside the action it explains (S23) — not a lone icon
           floating above the board. */}
       <div className={styles.addRow}>
-        <button type="button" className={styles.addBtn} onClick={handleOpenAdd}>
+        <button
+          type="button"
+          className={styles.addBtn}
+          onClick={handleOpenAdd}
+          disabled={!discussionReady}
+          aria-disabled={!discussionReady}
+          title={!discussionReady ? t('causes.align.loading', 'Loading causes…') : undefined}
+        >
           + {t('mechanisms.approval.addSolutionCta', 'Add a solution to this problem')}
         </button>
         <InfoDisclosure

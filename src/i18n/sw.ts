@@ -820,6 +820,7 @@ const sw: Dictionary = {
   'causes.align.prompt': 'Suluhisho hili linashughulikia sababu ipi?',
   'causes.align.hint': 'Viashiria vyako na hatua za utekelezaji zinapaswa kutokana na sababu hii.',
   'causes.align.placeholder': 'Chagua sababu',
+  'causes.align.loading': 'Inapakia sababu…',
   'causes.addresses': 'Inashughulikia sababu: {text}',
   'causes.rankNow': 'Sababu sasa imeorodheshwa #{n}',
   'causes.unranked': 'Sababu haiorodheshwi tena',

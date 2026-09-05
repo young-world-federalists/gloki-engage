@@ -821,6 +821,7 @@ const fr: Dictionary = {
   'causes.align.prompt': 'Quelle cause cette solution traite-t-elle ?',
   'causes.align.hint': 'Vos indicateurs et mesures de mise en œuvre devraient découler de cette cause.',
   'causes.align.placeholder': 'Choisir une cause',
+  'causes.align.loading': 'Chargement des causes…',
   'causes.addresses': 'Traite la cause : {text}',
   'causes.rankNow': 'Cause désormais classée #{n}',
   'causes.unranked': 'Cause qui n’est plus classée',

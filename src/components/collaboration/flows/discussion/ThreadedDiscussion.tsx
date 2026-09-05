@@ -332,6 +332,10 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
   const [flat, setFlat] = useState<Comment[]>([]);
   const [votes, setVotes] = useState<CommentVote[]>([]);
+  // D5 fix-round: `onStatus` must not fire on the empty initial state — that
+  // would compute a status off zero comments/votes and flash "New" in a host
+  // header's subtitle before the first real fetch lands.
+  const [loaded, setLoaded] = useState(false);
   const [sort, setSort] = useState<SortMode>('top');
   const [showVoteHint, setShowVoteHint] = useState(() => !getHintSeen('causesVoteHint'));
   const [focusRootId, setFocusRootId] = useState<string | null>(null);
@@ -357,6 +361,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
       ]);
       setFlat(list);
       setVotes(v);
+      setLoaded(true);
     } catch (err) {
       console.error('[ThreadedDiscussion] Failed to fetch comments:', err);
     }
@@ -442,10 +447,14 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const tally = useMemo(() => tallyVotes(votes), [votes]);
 
   // Five-band Causes status (S35 D6): mirrored up to the caller so the page
-  // header can show it without a second comments/votes fetch.
+  // header can show it without a second comments/votes fetch. Gated on
+  // `loaded` (D5 fix-round) — otherwise this fires once on mount with `flat`/
+  // `votes` still at their empty initial state, and a host header's subtitle
+  // flashes "New" before the first real fetch lands.
   useEffect(() => {
+    if (!loaded) return;
     if (onStatus) onStatus(computeDiscussionStatus(flat, votes));
-  }, [flat, votes, onStatus]);
+  }, [loaded, flat, votes, onStatus]);
 
   const ranks = useMemo(() => rankCauses(flat, votes), [flat, votes]);
   // Rank chips are noise on an unvoted root — only show for roots carried into
@@ -517,7 +526,10 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
         </button>
       )}
 
-      {showVoteHint && (
+      {/* F6: the vote hint only makes sense above a list the viewer can
+          actually vote on — an empty discussion, or a viewer who can't
+          participate, never shows it. */}
+      {showVoteHint && canParticipate && visibleRoots.length > 0 && (
         <Banner
           tone="info"
           onDismiss={() => { markHintSeen('causesVoteHint'); setShowVoteHint(false); }}

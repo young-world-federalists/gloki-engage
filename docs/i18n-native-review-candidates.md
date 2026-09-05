@@ -1384,6 +1384,15 @@ unused app-wide (`grep -rn "commitsMetricsN" src`) before removing it from both 
 `mechanisms.approval.author.you` (existing key) is reused as-is for the "You" byline on
 `ImpactAssessmentCard` when the viewer is the assessment's own author — no new key needed.
 
+### Task — Final-review fix wave (2026-09-05)
+
+Keys added while applying the whole-branch review findings for the 2026-09-02 Causes/Impact
+prompt (readiness gates, singular/plural counts, strict-rung copy).
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.align.loading` | Loading causes… | Chargement des causes… | Inapakia sababu… | `SolutionsBoard`'s "+ Add a solution" button `title` while `discussionReady` is still false. |
+
 ---
 
 ## How to deliver fixes
