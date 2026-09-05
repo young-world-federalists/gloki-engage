@@ -1,4 +1,10 @@
-# Additions to gloki_engage_initiative_contract.py (server-side). Additive only.
+# Additions to gloki_engage_initiative_contract.py (server-side). Four additive
+# methods (vote_comment, get_comment_votes, add_impact_assessment,
+# get_impact_assessments) PLUS one signature replacement: add_proposal gains a
+# trailing cause_id='' parameter. This is NOT additive-only — the UI sends
+# cause_id on every add_proposal call from this merge onward, so the
+# add_proposal hunk below must be applied in the same change as the merge or
+# solution submission fails on the live site.
 # S35 / rulings D4, D5, F1, F2, D12. Apply inside class GlokiEngageInitiative.
 # Also: vote_comment refuses soft-deleted roots (mirrors the ui demo stub).
 
