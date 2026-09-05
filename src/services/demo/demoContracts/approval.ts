@@ -78,6 +78,10 @@ export function initApproval(
   contractId: string,
   proposals: Proposal[] = [],
   approvals: Record<string, string[]> = {},
+  // S35 (W4): seeded impact assessments, written keyed `${proposalId}:${author}`
+  // to match `add_impact_assessment` above — so a solution can open already
+  // partway through its 3-assessment cap.
+  impactAssessments: ImpactAssessmentDoc[] = [],
 ): void {
   const map: Record<string, Proposal> = {};
   for (const p of proposals) map[p.id] = p;
@@ -86,10 +90,13 @@ export function initApproval(
     approvalDict[voter] = {};
     for (const id of ids) approvalDict[voter][id] = true;
   }
+  const impactDict: Record<string, ImpactAssessmentDoc> = {};
+  for (const a of impactAssessments) impactDict[`${a.proposalId}:${a.author}`] = a;
   writeState<ApprovalState>(contractId, {
     proposals: map,
     count: proposals.length,
     approvals: approvalDict,
+    impactAssessments: impactDict,
   });
 }
 

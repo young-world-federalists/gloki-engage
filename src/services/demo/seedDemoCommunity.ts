@@ -7,14 +7,14 @@ import { initCommunity, communityWrite } from './demoContracts/community';
 import { fundingWrite } from './demoContracts/funding';
 import { initInitiative, initiativeWrite } from './demoContracts/initiative';
 import { initProblemVote } from './demoContracts/problemVote';
-import { initApproval, type Proposal as SeedProposal } from './demoContracts/approval';
+import { initApproval, type Proposal as SeedProposal, type ImpactAssessmentDoc } from './demoContracts/approval';
 import { initQV } from './demoContracts/qv';
 import { initConviction } from './demoContracts/conviction';
 import { initModification } from './demoContracts/modification';
 import { initDiscussion } from './demoContracts/discussion';
 import { PERSONAS, pick } from './fixtures/identity';
 import { INITIATIVES, type SeedInitiative } from './fixtures/problems';
-import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed, PROPOSAL_COMMITMENTS_BY_KEY, PROPOSAL_EXPERT_REVIEWS_BY_KEY, PROPOSAL_AUTHOR_EXTRAS_BY_KEY, EXPERTS } from './fixtures/deliberation';
+import { PROPOSALS_BY_KEY, DISCUSSION_SEED_BY_KEY, type DiscussionSeed, PROPOSAL_COMMITMENTS_BY_KEY, PROPOSAL_EXPERT_REVIEWS_BY_KEY, PROPOSAL_AUTHOR_EXTRAS_BY_KEY, PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY, DISCUSSION_VOTES_BY_KEY, EXPERTS } from './fixtures/deliberation';
 import { CONVICTION_BY_KEY } from './fixtures/mandate';
 import {
   votePattern,
@@ -178,7 +178,9 @@ export function seedDemoCommunity(
     const discSeed = DISCUSSION_SEED_BY_KEY[seed.key];
     if (discSeed) {
       const discId = deployStageContract('discussion_contract.py', initiativeId, seed.title);
-      initDiscussion(discId, discSeed);
+      // S35 (F3): seeded comment votes, keyed by the same initiative `key`, spread
+      // onto the discussion seed so the causes-status pill reads a real band.
+      initDiscussion(discId, { ...discSeed, votes: DISCUSSION_VOTES_BY_KEY[seed.key] });
       initiativeWrite(initiativeId, {
         name: 'register_stage_contract',
         values: { stage_key: 'discussionContractId', contract_id: discId, address: '', agent: publicKey },
@@ -208,6 +210,9 @@ export function seedDemoCommunity(
         ...(extras.sources ? { sources: extras.sources } : {}),
         ...(extras.requests ? { expertReviewRequests: extras.requests } : {}),
         ...(reviews.length > 0 ? { expertReviews: reviews } : {}),
+        // S35 (D5, F2): links this seeded solution back to the root comment
+        // (cause) it addresses; absent → "Proposed before any cause was ranked".
+        ...(extras.causeId ? { causeId: extras.causeId } : {}),
       };
     });
     // S33 — one solution authored by the VIEWER, so the author's perspective is
@@ -235,8 +240,24 @@ export function seedDemoCommunity(
       });
     }
 
+    // S35 (W4): seeded impact assessments, keyed like the other proposal fixtures.
+    // 'VIEWER' is a placeholder the seeder resolves to the real viewer publicKey.
+    const impactSeeds = PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY[seed.key] ?? [];
+    const impactAssessments: ImpactAssessmentDoc[] = impactSeeds.map((a, k) => ({
+      author: a.author === 'VIEWER' ? publicKey : a.author,
+      proposalId: 'p' + a.proposalIndex,
+      timestamp: Date.now() - (k + 1) * 3_600_000,
+      target: a.target,
+      targetsCause: a.targetsCause,
+      mechanism: a.mechanism,
+      broaderEffects: a.broaderEffects,
+      risks: a.risks,
+      opportunityCosts: a.opportunityCosts,
+      timeHorizon: a.timeHorizon,
+    }));
+
     const propId = deployStageContract('approval_contract.py', initiativeId, seed.title);
-    initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2));
+    initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2), impactAssessments);
     initiativeWrite(initiativeId, {
       name: 'register_stage_contract',
       values: { stage_key: 'proposalsContractId', contract_id: propId, address: '', agent: publicKey },

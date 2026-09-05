@@ -270,6 +270,10 @@ export interface DiscussionSeed {
   statement: SeedStatement;
   edits: SeedEdit[];
   comments: SeedComment[]; // threaded-chat seed (S2 discussion-as-chat)
+  /** S35 (F3): seeded 1p1v up/down votes on ROOT comments, so the causes-status
+   * pill reads a real band on first load without anyone voting. Optional — a
+   * discussion seed with no `votes` simply opens in the 'open' (New) band. */
+  votes?: Array<{ voter: string; commentId: string; direction: 'up' | 'down' }>;
 }
 
 const EDIT_SUPPORTERS: Record<string, string[]> = {
@@ -281,7 +285,9 @@ const EDIT_SUPPORTERS: Record<string, string[]> = {
 // misinformation showcase so the redesigned Discussion stage opens alive rather
 // than empty. One branch (d1 → d1a → d1b → d1c → d1d) runs 5 deep so the
 // "Continue this thread →" affordance (depth cap 3) is demoable; like counts
-// vary so the Top sort is meaningful. Eight distinct authors → "9 comments · 8 people".
+// vary so the Top sort is meaningful. Eight distinct authors → "10 comments · 8 people".
+// d4 (S35, F3): a fourth ROOT comment so this discussion clears the causes-status
+// floor (MIN_VOTED_COMMENTS = 3) with real margin — see DISCUSSION_VOTES_BY_KEY below.
 const DISCUSSION_THREAD: SeedComment[] = [
   { id: 'd1', author: 'demo-user-kr-jiwoo', parentId: null, minutesAgo: 420,
     text: "Where I am, deepfake audio of a candidate went viral on messaging apps 48 hours before polls — too late for any fact-check to catch up.",
@@ -304,6 +310,9 @@ const DISCUSSION_THREAD: SeedComment[] = [
     text: "Media-literacy programs help, but they work slowly. We need both the slow and the fast fixes.", likes: ['demo-user-ng-amina'] },
   { id: 'd3a', author: 'demo-user-de-anika', parentId: 'd3', minutesAgo: 370,
     text: "Friction near elections is smart — but who defines the 'election window'? That power can be abused too.", likes: ['demo-user-cn-mei', 'demo-user-it-sofia'] },
+  { id: 'd4', author: 'demo-user-it-sofia', parentId: null, minutesAgo: 150,
+    text: "Stepping back from all of this: the real driver is the business model. Engagement-based ranking rewards outrage and speed over accuracy, so no moderation policy fixes this without changing what the algorithm is paid to optimise for.",
+    likes: ['demo-user-kr-jiwoo', 'demo-user-de-anika'] },
 ];
 
 function buildDiscussionSeed(): DiscussionSeed {
@@ -387,12 +396,66 @@ const DATABROKER_DISCUSSION: DiscussionSeed = {
       text: "Agreed on machine-readable. And the right to deletion has to come with a short deadline — 14 days maximum — or brokers just wait out complaints.",
       likes: ['demo-user-it-sofia'],
     },
+    // db-c4 (S35, F3): a fourth ROOT comment — only db-c1/db-c2/db-c3 were roots
+    // before this, which clears MIN_VOTED_COMMENTS = 3 with no margin at all.
+    // A cause statement (who bears the harm), not a reply to an existing thread.
+    {
+      id: 'db-c4',
+      author: 'demo-user-ng-amina',
+      parentId: null,
+      minutesAgo: 150,
+      text: "The deeper issue is who these profiles hurt most: recent immigrants, people already in debt, gig workers with unstable addresses. They have the least power to notice a bad profile, let alone correct one. Any fix has to protect those groups first, not just the median user who has time to file a request.",
+      likes: ['demo-user-de-anika', 'demo-user-br-lucas'],
+    },
   ],
 };
 
 export const DISCUSSION_SEED_BY_KEY: Record<string, DiscussionSeed> = {
   misinfo: DISCUSSION_SEED,
   databroker: DATABROKER_DISCUSSION,
+};
+
+// ---------------------------------------------------------------------------
+// S35 (F3) — seeded comment votes, keyed by discussion `key`, so the causes-
+// status pill (src/utils/discussionStatus.ts) reads a real band on first load
+// without anyone voting. Voters are persona keys (never the viewer's own key —
+// the viewer should be free to cast the "first" vote in a walkthrough).
+// agreement = Σ|up−down| / Σ(up+down) over the ≤10 most-voted ROOT comments;
+// bands: <0.25 contested, <0.5 divided, <0.75 converging, else consensus
+// (open unless total votes ≥ 10 AND ≥ 3 voted roots).
+// ---------------------------------------------------------------------------
+type SeedVote = { voter: string; commentId: string; direction: 'up' | 'down' };
+
+const VOTER_POOL: string[] = PERSONAS.map((p) => p.publicKey);
+
+/** Deterministically assigns voters from `pool` to each [commentId, up, down] triple. */
+function buildVotes(triples: Array<[string, number, number]>, pool: string[]): SeedVote[] {
+  const votes: SeedVote[] = [];
+  let cursor = 0;
+  for (const [commentId, up, down] of triples) {
+    for (let i = 0; i < up; i += 1) { votes.push({ voter: pool[cursor % pool.length], commentId, direction: 'up' }); cursor += 1; }
+    for (let i = 0; i < down; i += 1) { votes.push({ voter: pool[cursor % pool.length], commentId, direction: 'down' }); cursor += 1; }
+  }
+  return votes;
+}
+
+export const DISCUSSION_VOTES_BY_KEY: Record<string, SeedVote[]> = {
+  // misinfo → converging: votes (up/down) d1=6/1, d2=5/2, d3=4/1, d4=2/1.
+  // Σ|up−down| = 5+3+3+1 = 12; Σ(up+down) = 7+7+5+3 = 22; agreement ≈ 0.545 ∈ [0.5, 0.75) → converging.
+  misinfo: buildVotes([
+    ['d1', 6, 1],
+    ['d2', 5, 2],
+    ['d3', 4, 1],
+    ['d4', 2, 1],
+  ], VOTER_POOL),
+  // databroker → divided: votes (up/down) db-c1=5/1, db-c2=3/3, db-c3=2/2, db-c4=2/1.
+  // Σ|up−down| = 4+0+0+1 = 5; Σ(up+down) = 6+6+4+3 = 19; agreement ≈ 0.263 ∈ [0.25, 0.5) → divided.
+  databroker: buildVotes([
+    ['db-c1', 5, 1],
+    ['db-c2', 3, 3],
+    ['db-c3', 2, 2],
+    ['db-c4', 2, 1],
+  ], VOTER_POOL),
 };
 
 // ---------------------------------------------------------------------------
@@ -541,17 +604,70 @@ export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{
 // `requests` seeds expertReviewRequests (1p1v member signals) so the reader-facing
 // loop is legible: a request that HAS a review renders as "requested by N · reviewed
 // by {names}" (resolved); one WITHOUT renders "requested by N — awaiting an expert".
-export const PROPOSAL_AUTHOR_EXTRAS_BY_KEY: Record<string, Record<number, { metrics?: string[]; sources?: SourceLink[]; requests?: string[] }>> = {
+// `causeId` (S35, D5/F2): links a seeded solution back to the ROOT comment
+// (cause) it addresses. p2 is deliberately left WITHOUT one so the "Proposed
+// before any cause was ranked" fallback copy is also demoable.
+export const PROPOSAL_AUTHOR_EXTRAS_BY_KEY: Record<string, Record<number, { metrics?: string[]; sources?: SourceLink[]; requests?: string[]; causeId?: string }>> = {
   databroker: {
     // p0 HAS an expert review → the request resolves to the reviewer's name.
-    0: { requests: ['demo-user-de-anika', 'demo-user-kr-jiwoo'] },
+    // causeId → db-c1 (the "I looked up my own profile" cause: no visibility/consent).
+    0: { requests: ['demo-user-de-anika', 'demo-user-kr-jiwoo'], causeId: 'db-c1' },
     // p1 has author-proposed indicators + a source, and an OPEN request (no review yet).
+    // causeId → db-c2 (the credit-scoring-proxy cause: sensitive-category harms).
     1: {
       metrics: ['Sensitive data categories reviewed each year', 'Share of consent records passing audit'],
       sources: [{ url: 'https://www.ohchr.org/en/topic/digital-space-and-human-rights', label: 'OHCHR — data & human rights' }],
       requests: ['demo-user-br-lucas'],
+      causeId: 'db-c2',
     },
+    // p2 (index 2) intentionally has no causeId.
   },
+};
+
+// S35 (W4) — seeded impact assessments, keyed like the other proposal fixtures.
+// TWO assessments on databroker's p0 (the registry/access proposal): one by a
+// seeded persona who did NOT author or co-author any databroker solution
+// (verified against the proposal authors computed in seedDemoCommunity.ts —
+// p0/p1/p2 there are authored by demo-user-za-thabo, demo-user-gh-kwame and
+// demo-user-de-anika respectively; demo-user-it-sofia, a digital-rights lawyer,
+// is neither), and one by the VIEWER (the seeder substitutes its own publicKey
+// for the literal string 'VIEWER'). This puts p0 at "Assessment 2 of 3" with
+// one slot still open, so both that copy and the remaining-CTA are demoable.
+export const PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY: Record<string, Array<{
+  proposalIndex: number;
+  author: string | 'VIEWER';
+  target: string;
+  targetsCause: 'cause' | 'symptom' | 'both';
+  mechanism: string;
+  broaderEffects: string;
+  risks: string;
+  opportunityCosts: string;
+  timeHorizon: string;
+}>> = {
+  databroker: [
+    {
+      proposalIndex: 0,
+      author: 'demo-user-it-sofia',
+      target: 'Whether a public registry actually changes what the largest data brokers do with people\'s data, not just what they disclose about it.',
+      targetsCause: 'cause',
+      mechanism: 'Public registration plus a free access right forces brokers to keep accurate, current records, because members and regulators can now check them directly — replacing a system where profiles exist but no one outside the broker can see them.',
+      broaderEffects: 'Journalists and researchers gain a map of the industry for the first time. Smaller brokers may consolidate or exit rather than absorb the compliance cost, which could concentrate the market further.',
+      risks: 'A registry that lists brokers without real audit power becomes a checkbox — brokers could register on paper while their underlying practices stay exactly as sloppy as before.',
+      opportunityCosts: 'Money and staff time spent standing up the registry delay the enforcement body in proposal 3, which is the piece that actually penalises bad behaviour.',
+      timeHorizon: 'A basic public registry could launch within a year; real data quality and broad public uptake more likely take two to three years.',
+    },
+    {
+      proposalIndex: 0,
+      author: 'VIEWER',
+      target: 'Whether ordinary people, not just experts and journalists, will actually use the free access-and-correction right once it exists.',
+      targetsCause: 'both',
+      mechanism: 'A legal right only changes outcomes if the request process is simple enough for a non-expert to use — one form and a guaranteed response window turns a right on paper into something people actually exercise.',
+      broaderEffects: 'High uptake would surface, in public, which brokers hold the most inaccurate or unwanted profiles — informally naming the worst actors well before any enforcement fine lands.',
+      risks: 'If the process is slow or bureaucratic, most people give up after one try and the right stays theoretical, the same fate that has met similar "request your data" laws elsewhere.',
+      opportunityCosts: 'Every hour a broker spends answering individual requests is an hour not spent fixing the upstream data practices that created the bad profile in the first place.',
+      timeHorizon: 'Early usage patterns should be visible within 6 months of the registry going live; a measurable change in broker behaviour likely takes 1–2 years.',
+    },
+  ],
 };
 
 // ---------------------------------------------------------------------------

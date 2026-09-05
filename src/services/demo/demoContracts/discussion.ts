@@ -76,6 +76,13 @@ function defaultState(): DiscussionState {
  */
 export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
   const now = Date.now();
+  // S35 (F3): seeded 1p1v up/down votes on ROOT comments, keyed `${voter}:${commentId}`
+  // to match the live `vote_comment` write path above — so the causes-status pill
+  // reads a real band on first load. Optional: a seed with no `votes` leaves this empty.
+  const commentVotes: NonNullable<DiscussionState['commentVotes']> = {};
+  for (const v of seed.votes ?? []) {
+    commentVotes[`${v.voter}:${v.commentId}`] = { voter: v.voter, commentId: v.commentId, direction: v.direction };
+  }
   writeState<DiscussionState>(contractId, {
     // Threaded-chat seed (S2): convert relative minutesAgo → absolute timestamps
     // at seed time; likes ride along (1p1v). The co-authoring group below stays
@@ -90,6 +97,7 @@ export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
     })),
     statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
     edits: byId(seed.edits),
+    commentVotes,
   });
 }
 
