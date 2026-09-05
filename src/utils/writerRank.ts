@@ -2,6 +2,9 @@ import type { Comment, CommentVote } from '../components/collaboration/flows/dis
 import type { ImpactAssessment } from '../components/collaboration/flows/voting/approvalApi';
 import { tallyVotes } from './causes';
 
+/** Plain UTF-16 code-unit comparison (reproducible across locales, no locale-sensitive collation). */
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 /**
  * Writer ranking + assessor eligibility ladder (S35, rulings D7/F7/F8/D12). Pure; no I/O.
  *
@@ -14,7 +17,7 @@ import { tallyVotes } from './causes';
  * replies is not a writer.
  *
  * F7 sort (pinned, all four keys are stored data): `total desc → causeScore desc →
- * firstAt asc → publicKey asc`.
+ * firstAt asc → publicKey asc (plain UTF-16 code-unit order, never localeCompare — reproducible across locales)`.
  */
 export interface WriterScore {
   publicKey: string;
@@ -69,18 +72,19 @@ export function rankWriters(
     for (const author of authors) {
       const acc = get(author);
       acc.solutionScore += count;
-      acc.timestamps.push(ts);
+      if (Number.isFinite(ts)) acc.timestamps.push(ts);
     }
   }
 
   const scores: WriterScore[] = [];
   for (const [publicKey, acc] of byWriter) {
+    const finiteTimestamps = acc.timestamps.filter(Number.isFinite);
     scores.push({
       publicKey,
       causeScore: acc.causeScore,
       solutionScore: acc.solutionScore,
       total: acc.causeScore + acc.solutionScore,
-      firstAt: Math.min(...acc.timestamps),
+      firstAt: finiteTimestamps.length > 0 ? Math.min(...finiteTimestamps) : Number.POSITIVE_INFINITY,
     });
   }
 
@@ -88,7 +92,7 @@ export function rankWriters(
     b.total - a.total
     || b.causeScore - a.causeScore
     || a.firstAt - b.firstAt
-    || a.publicKey.localeCompare(b.publicKey));
+    || byCodeUnit(a.publicKey, b.publicKey));
 }
 
 function authorsOf(p: { author: string; coAuthors?: string[] }): string[] {
@@ -101,12 +105,12 @@ function authorsOf(p: { author: string; coAuthors?: string[] }): string[] {
 function orderByRank(keys: string[], writers: WriterScore[]): string[] {
   const rankIndex = new Map(writers.map((w, i) => [w.publicKey, i]));
   const ranked = keys.filter((k) => rankIndex.has(k)).sort((a, b) => rankIndex.get(a)! - rankIndex.get(b)!);
-  const unranked = keys.filter((k) => !rankIndex.has(k)).sort((a, b) => a.localeCompare(b));
+  const unranked = keys.filter((k) => !rankIndex.has(k)).sort((a, b) => byCodeUnit(a, b));
   return [...ranked, ...unranked];
 }
 
 /**
- * F8 eligibility ladder. `never(k)` — the solution's author/co-authors, the author/co-authors
+ * F8 eligibility ladder. `excluded(k)` — the solution's author/co-authors, the author/co-authors
  * of every OTHER solution sharing its `causeId` (only when `causeId` is non-empty), and every
  * existing assessor's author — is NEVER relaxed at any rung. Rungs, in order: `strict` (top 10
  * by `total` ∧ `causeScore > 0`) → `no-floor` (top 10, no floor) → `top-25` (top 25) →
@@ -126,15 +130,15 @@ export function eligibleAssessors(args: {
 
   if (existing.length >= ASSESSORS_PER_SOLUTION) return { keys: [], rung: 'strict' };
 
-  const never = new Set<string>(authorsOf(proposal));
+  const excluded = new Set<string>(authorsOf(proposal));
   if (proposal.causeId) {
     for (const p of allProposals) {
       if (p.causeId === proposal.causeId) {
-        for (const k of authorsOf(p)) never.add(k);
+        for (const k of authorsOf(p)) excluded.add(k);
       }
     }
   }
-  for (const a of existing) never.add(a.author);
+  for (const a of existing) excluded.add(a.author);
 
   const needed = ASSESSORS_PER_SOLUTION - existing.length;
 
@@ -142,10 +146,10 @@ export function eligibleAssessors(args: {
   const top25 = writers.slice(0, WIDE_WRITERS);
 
   const rungs: Array<{ rung: EligibilityRung; keys: string[] }> = [
-    { rung: 'strict', keys: top10.filter((w) => w.causeScore > 0 && !never.has(w.publicKey)).map((w) => w.publicKey) },
-    { rung: 'no-floor', keys: top10.filter((w) => !never.has(w.publicKey)).map((w) => w.publicKey) },
-    { rung: 'top-25', keys: top25.filter((w) => !never.has(w.publicKey)).map((w) => w.publicKey) },
-    { rung: 'any-verified', keys: verifiedKeys.filter((k) => !never.has(k)) },
+    { rung: 'strict', keys: top10.filter((w) => w.causeScore > 0 && !excluded.has(w.publicKey)).map((w) => w.publicKey) },
+    { rung: 'no-floor', keys: top10.filter((w) => !excluded.has(w.publicKey)).map((w) => w.publicKey) },
+    { rung: 'top-25', keys: top25.filter((w) => !excluded.has(w.publicKey)).map((w) => w.publicKey) },
+    { rung: 'any-verified', keys: verifiedKeys.filter((k) => !excluded.has(k)) },
   ];
 
   for (const r of rungs) {
