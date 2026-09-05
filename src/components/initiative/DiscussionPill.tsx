@@ -4,7 +4,9 @@ import { MessageCircle } from 'lucide-react';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
-import { getComments } from '../collaboration/flows/discussion/discussionApi';
+import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
+import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
+import { DiscussionStatusBadge } from './DiscussionStatusPill';
 import styles from './DiscussionPill.module.scss';
 
 export interface DiscussionPillProps {
@@ -12,6 +14,9 @@ export interface DiscussionPillProps {
   communityId: string;
   hostServer: string;
   hostAgent: string;
+  /** Community display name — feeds the S35 F4 scoped Consensus sentence. Omit
+   *  where a name isn't in scope; the badge's aria then reads without one. */
+  communityName?: string;
   className?: string;
 }
 
@@ -32,6 +37,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   communityId,
   hostServer,
   hostAgent,
+  communityName,
   className,
 }) => {
   const t = useT();
@@ -39,6 +45,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const [count, setCount] = useState<number | null>(null);
+  const [status, setStatus] = useState<DiscussionStatus | null>(null);
 
   useEffect(() => {
     if (!serverUrl || !publicKey || !initiativeId) return;
@@ -46,11 +53,16 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
     resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'discussionContractId')
       .then((stageContract) => {
         if (cancelled || !stageContract) return null;
-        return getComments(serverUrl, publicKey, stageContract.contractId);
+        return Promise.all([
+          getComments(serverUrl, publicKey, stageContract.contractId),
+          getCommentVotes(serverUrl, publicKey, stageContract.contractId),
+        ]);
       })
-      .then((list) => {
-        if (cancelled || !list) return;
+      .then((result) => {
+        if (cancelled || !result) return;
+        const [list, votes] = result;
         setCount(list.filter((c) => !c.parentId && !c.deleted).length); // a cause = a root comment (D3/D4)
+        setStatus(computeDiscussionStatus(list, votes));
       })
       .catch(() => {});
     return () => {
@@ -84,6 +96,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
           {count}
         </span>
       )}
+      {status && <DiscussionStatusBadge status={status} communityName={communityName} />}
     </button>
   );
 };

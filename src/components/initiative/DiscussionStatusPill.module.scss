@@ -1,0 +1,24 @@
+@use '../../styles/variables' as *;
+
+// Width guard for the five-band Causes status word (S35 ruling F5). The word
+// holds to 12ch and is NEVER ellipsized — when it would overflow at narrow
+// widths the word is hidden off-screen (sr-only) and the Badge's leading dot
+// + accessible name alone carry the status.
+
+.word {
+  display: inline-block;
+  max-width: 12ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.dotOnly {
+  .word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

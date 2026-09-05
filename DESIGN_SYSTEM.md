@@ -475,6 +475,26 @@ engage, the journey copy in HowGlokiWorks/CreateInitiativePage) — this rule go
 *presentation*, not the pipeline model. The `stage.discussion` i18n key is kept for
 the dynamic `` t(`stage.${id}`) `` journey consumers.
 
+**Discussion status** (`src/utils/discussionStatus.ts` + `src/components/initiative/DiscussionStatusPill.tsx`,
+S35 D6/F3–F5) — a five-band read of how much agreement a problem's Causes discussion
+has reached: **New → Contested → Divided → Converging → Consensus**
+(`neutral` / `warning` / `info` / `primary` / `success`). Computed over **root**
+comments only (replies aren't votable, D4). Sample = the ≤10 root comments with
+the most total votes; `agreement = Σ|up−down| / Σ(up+down)` over that sample,
+banded at `0.25 / 0.5 / 0.75`. **Floors** below which the band is always `open`
+("New"), regardless of agreement: fewer than 10 total votes, or fewer than 3
+voted-on root comments. `DiscussionStatusBadge` is the presentational half
+(renders from an already-computed `DiscussionStatus`, for surfaces that already
+hold comments+votes); `DiscussionStatusPill` wraps it with the same read-only
+`resolveInitiativeStageContract` + fetch pattern as `DiscussionPill` — it
+renders **nothing** while loading or before a discussion contract exists (never
+shows "New" for an undiscussed problem). Width guard (F5): the status word caps
+at 12ch and is **never ellipsized** — on overflow the word is hidden off-screen
+(sr-only) and the Badge's leading dot + accessible name alone carry the status.
+Off-app contexts (the aria/tooltip) use a scoped sentence naming the community —
+`t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}')`
+on Consensus, `t('causes.status.aria', 'Causes discussion: {word}')` otherwise.
+
 **`CountryMultiSelect`** (`src/components/shared/CountryMultiSelect.tsx`) — removable
 selected chips + a search over **all 197 countries** (composes `SearchableSelect`,
 plus an "Other" catch-all). Replaces hardcoded 4–5 country-chip rows so a
@@ -587,6 +607,7 @@ scratch** — they already encode the tokens above.
 | `UserIdentity` | Inline person identity — `[flag] Name [verified-shield]`. The verified-only shield renders as an exponent (small, raised, `$success` tint). Use in feed/card bylines and author lines. Replaces the text-based `TrustBadge` in those contexts. `TrustBadge` remains on the dedicated verification page (`IdentityTrust`). Props: `publicKey`, `size` (`sm`/`md`). |
 | `CountryMultiSelect` | Chips + search over all 197 countries. Use instead of hardcoded country chips. |
 | `Badge` | Small status or count label. |
+| `DiscussionStatusPill` | Five-band Causes status (New / Contested / Divided / Converging / Consensus → neutral / warning / info / primary / success), `Badge dot size="sm"`; overflow at 360px degrades to dot + accessible name, never ellipsis. Off-app surfaces use the scoped "Consensus among {n} Gloki participants in {community}". Rules in S34 decision record D6/F3–F5. |
 | `EmptyState` | Centered icon + message + CTA for empty lists/feeds. |
 | `ErrorBoundary` | Wraps a subtree to catch render errors. |
 | `SearchableSelect` | Searchable dropdown. |

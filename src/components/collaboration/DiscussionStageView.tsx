@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
@@ -10,6 +10,8 @@ import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
 import useCommunityTrust from '../../hooks/useCommunityTrust';
 import ThreadedDiscussion from './flows/discussion/ThreadedDiscussion';
+import { STATUS_META } from '../../utils/discussionStatus';
+import type { DiscussionStatus } from '../../utils/discussionStatus';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 
@@ -60,6 +62,13 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
   const { canCurrentUserParticipate } = useCommunityTrust(communityId);
   const canParticipate = canCurrentUserParticipate('discussion');
 
+  // Five-band Causes status (S35 D6), mirrored up from ThreadedDiscussion (which
+  // already holds comments+votes) rather than a second fetch. AppHeader's
+  // `subtitle` is string-only (no ReactNode passthrough), so this passes just
+  // the translated status word, not the full dot+Badge treatment.
+  const [status, setStatus] = useState<DiscussionStatus | null>(null);
+  const statusWord = status ? t(STATUS_META[status.key].labelKey, STATUS_META[status.key].labelDefault) : undefined;
+
   return (
     <div className={cs.container}>
       {/* The discussed item is the headline (S23): h1 = the initiative title,
@@ -69,6 +78,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
         onBack={() => navigate(-1)}
         eyebrow={`${t('header.section.discussion', 'Causes')} — ${communityName}`}
         title={title}
+        subtitle={statusWord}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>
@@ -102,6 +112,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
                 communityId={communityId}
                 canParticipate={canParticipate}
                 emptyHint={t('causes.empty', 'Name a cause of this problem to start.')}
+                onStatus={setStatus}
               />
             )}
           </ErrorBoundary>

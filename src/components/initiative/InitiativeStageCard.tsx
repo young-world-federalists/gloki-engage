@@ -8,6 +8,7 @@ import { useT } from '../../i18n';
 import type { PipelineStage } from '../../types/initiative';
 import InitiativeStageStrip from './InitiativeStageStrip';
 import DiscussionPill from './DiscussionPill';
+import { DiscussionStatusPill } from './DiscussionStatusPill';
 import styles from './InitiativeStageCard.module.scss';
 
 /** The read-zone data for one initiative card, independent of stage. */
@@ -108,6 +109,11 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
               {t(meta.labelKey, meta.labelDefault)}
             </span>
           </Badge>
+          {/* Five-band Causes status (S35 D6/F3-F5): read-only, resolves its own
+              discussion sub-contract — renders nothing until one exists. No
+              `communityName` is in scope on this shared card shell, so the
+              off-app scoped Consensus sentence falls back to an unscoped one. */}
+          {stageNav && <DiscussionStatusPill initiativeId={stageNav.initiativeId} />}
           {expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
         </span>
 

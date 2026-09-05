@@ -13,6 +13,8 @@ import { formatDateTime } from '../../../../utils/formatDateTime';
 import type { SourceLink } from '../../../../utils/sources';
 import { tallyVotes, myVote, rankCauses, TOP_CAUSES_CARRIED } from '../../../../utils/causes';
 import type { VoteTally } from '../../../../utils/causes';
+import { computeDiscussionStatus } from '../../../../utils/discussionStatus';
+import type { DiscussionStatus } from '../../../../utils/discussionStatus';
 import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './discussionApi';
 import type { Comment, CommentVote } from './discussionApi';
@@ -309,6 +311,10 @@ export interface ThreadedDiscussionProps {
   canParticipate: boolean;
   /** Empty-state body copy. */
   emptyHint?: string;
+  /** Fires whenever the computed five-band Causes status changes (S35 D6),
+   *  so a caller (e.g. the page header subtitle) can mirror it without a
+   *  second comments/votes fetch. */
+  onStatus?: (status: DiscussionStatus) => void;
 }
 
 /**
@@ -316,7 +322,7 @@ export interface ThreadedDiscussionProps {
  * heart, Top/Newest sort, indent-to-cap then "Continue this thread →". No
  * categories, no participation gate — discussion is conversation, not a threshold.
  */
-const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, communityId, canParticipate, emptyHint }) => {
+const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, communityId, canParticipate, emptyHint, onStatus }) => {
   const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -434,6 +440,13 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   }, [serverUrl, publicKey, contractId, votes, refresh]);
 
   const tally = useMemo(() => tallyVotes(votes), [votes]);
+
+  // Five-band Causes status (S35 D6): mirrored up to the caller so the page
+  // header can show it without a second comments/votes fetch.
+  useEffect(() => {
+    if (onStatus) onStatus(computeDiscussionStatus(flat, votes));
+  }, [flat, votes, onStatus]);
+
   const ranks = useMemo(() => rankCauses(flat, votes), [flat, votes]);
   // Rank chips are noise on an unvoted root — only show for roots carried into
   // Solutions (rank ≤ TOP_CAUSES_CARRIED) that have at least one vote either way.

@@ -1274,6 +1274,30 @@ place rather than being added as new keys.
 - `initiative.stages.discussion.desc` on `CreateInitiativePage` — describes the participation
   mechanic, not named in the task's file list; left unchanged.
 
+### Task 8 — Discussion status pill (D6, F3–F5)
+
+**+7 keys** (parity 1199 → 1206 in both fr and sw). A five-band read of Causes-discussion
+agreement (New / Contested / Divided / Converging / Consensus), shown as a small dot+word
+Badge on every initiative card and as the discussion page's header subtitle.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.status.open` | New | Nouveau | Mpya | Floor band — fewer than 10 total votes or fewer than 3 voted-on root comments. |
+| `causes.status.contested` | Contested | Contesté | Inapingwa | agreement < 0.25. |
+| `causes.status.divided` | Divided | Divisé | Imegawanyika | 0.25 ≤ agreement < 0.5. |
+| `causes.status.converging` | Converging | Convergent | Inakaribiana | 0.5 ≤ agreement < 0.75. |
+| `causes.status.consensus` | Consensus | Consensus | Makubaliano | agreement ≥ 0.75. |
+| `causes.status.scoped` | Consensus among {n} Gloki participants in {community} | Consensus parmi {n} participants Gloki à {community} | Makubaliano kati ya washiriki {n} wa Gloki katika {community} | Off-app accessible name / tooltip, Consensus band only (F4). `{n}` = distinct voters, `{community}` may be `''` where no name is in scope (e.g. `InitiativeStageCard`'s shared shell). |
+| `causes.status.aria` | Causes discussion: {word} | Discussion des causes : {word} | Majadiliano ya sababu: {word} | Off-app accessible name / tooltip for the other four bands; `{word}` is the already-translated status word. |
+
+**⚠ width-risk (F5), not a translation defect:** several sw words exceed the 12-character
+en/fr budget the pill's `.word` box is sized to — `Inapingwa` (9), `Imegawanyika` (12, exactly
+at the limit), `Inakaribiana` (12, exactly at the limit) fit; none actually overflow at the
+current 12ch cap, but they were the words used to build and hand-verify the dot-only overflow
+degradation (F5: the word never ellipsizes — on overflow it hides off-screen and the Badge's
+dot + accessible name carry the status instead). Re-check this budget if any of the five words
+change length in native review.
+
 ---
 
 ## How to deliver fixes

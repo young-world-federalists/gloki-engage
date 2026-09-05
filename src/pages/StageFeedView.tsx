@@ -9,6 +9,7 @@ import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
 import { UserIdentity, Banner } from '../components/shared';
 import FeedEngagePanel from '../components/initiative/FeedEngagePanel';
+import { DiscussionStatusPill } from '../components/initiative/DiscussionStatusPill';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
@@ -115,6 +116,9 @@ const StageFeedCard: React.FC<{
             <span className={styles.author}>{item.authorName}</span>
           ) : null}
           {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
+          {/* Five-band Causes status (S35 D6/F3-F5): renders nothing until the
+              initiative's discussion has actually started. */}
+          <DiscussionStatusPill initiativeId={item.id} communityName={item.communityName} />
         </div>
 
         <h3 className={styles.cardTitle}>
