@@ -22,7 +22,8 @@ caption token (`$gray-500`), and the correct action was a no-op. (Recorded in pr
 **Nothing in this campaign ships by itself.** The campaign session is read-only + report. All fixes
 route through change control: recommend-then-confirm with Eston for anything product-adjacent, a
 normal build session for the fixes, Opus whole-branch review, and Eston's explicit green light
-before any push (push to `ui` IS a production deploy of the live demo). See `gloki-change-control`.
+before any push (a push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which
+deploys the live demo — never push without Eston's explicit go). See `gloki-change-control`.
 
 ### Vocabulary (defined once)
 
@@ -427,3 +428,5 @@ has not yet been run end-to-end against the live preview (do so at campaign time
 selector list if noisy); the Phase 1f kit-adoption greps are heuristics — expect and prune false
 positives; the unaided-completion fraction from Phase 4 is a *sample proxy* for the ≥70% KPI, not
 the KPI itself (the real KPI needs real pilot participants).
+
+Deploy-branch model updated 2026-09-05 (S35, D11).

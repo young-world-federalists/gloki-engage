@@ -30,8 +30,9 @@ Jargon used throughout (defined once):
   must byte-match Ouri's real Python contracts; UI vocabulary ("Solutions", "Mandate") is
   presentation-only. Ouri is the backend partner who swaps the stubs for real calls.
 - **PR #20** — the long-lived `ui`→`main` review PR. It never merges; see entry 4.
-- **Eston** — the founder driving your session; he gates every push (a push to `ui` IS a
-  production deploy — see `gloki-change-control`).
+- **Eston** — the founder driving your session; he gates every push (a push to `ui` no longer
+  deploys — Ouri merges `ui` into `server-side`, which deploys; never push without Eston's
+  explicit go — see `gloki-change-control`).
 
 ## Quick triage table
 
@@ -477,3 +478,5 @@ Volatile facts — re-verify before relying on them:
 Line numbers drift; the grep commands above are the durable pointers. If a table entry's
 premise stops reproducing (e.g. the demo layer starts emitting events, or PR #20 finally
 closes), update the entry rather than deleting it — note the date it stopped being true.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).

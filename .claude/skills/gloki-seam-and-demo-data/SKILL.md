@@ -9,9 +9,9 @@ description: Use when touching any data read/write in Communities2/Gloki — add
 
 **Core principle: every component reads and writes data through ONE seam — `src/services/api.ts` — which on this branch is backed entirely by a localStorage mock (`src/services/demo/`). The seam's method and field names are Ouri's real Python contract wire names and must byte-match them forever; everything behind the seam is disposable demo plumbing.**
 
-Context a zero-knowledge session needs: this repo is the `ui` branch of a three-branch flow (`ui` = UI built on stubs → `new-features` = Ouri, the backend partner, wires real server calls → `main` = live). The whole point of the seam is that Ouri swaps the internals of `src/services/` without touching a single component. Anything that leaks past the seam — a direct fetch, a "consistent" method rename, a component importing the mock router — silently breaks that hand-off in a way nothing on this branch can detect (there is no test framework and no real server here).
+Context a zero-knowledge session needs: this repo is the `ui` branch of a three-branch flow (`ui` = UI built on stubs → `server-side` = Ouri, the backend partner, wires real server calls (deploys) → `main` = stale). The whole point of the seam is that Ouri swaps the internals of `src/services/` without touching a single component. Anything that leaks past the seam — a direct fetch, a "consistent" method rename, a component importing the mock router — silently breaks that hand-off in a way nothing on this branch can detect (there is no test framework and no real server here).
 
-The demo layer is not a toy: it is the production deploy. Push to `ui` deploys to GitHub Pages, and every visitor's "backend" is this localStorage mock. Demo-data mistakes are live-site mistakes.
+The demo layer is not a toy: it eventually reaches the production deploy. A push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which deploys, and every visitor's "backend" there is this localStorage mock until Ouri wires real calls. Never push without Eston's explicit go. Demo-data mistakes are still live-site mistakes once they land.
 
 ## When NOT to use this skill
 
@@ -198,3 +198,5 @@ All facts verified 2026-07-02 against branch `ui` @ commit `c26cdc4` by direct f
 | Seam doc current | `head -15 docs/FOR_OURI_seam.md` |
 
 Slow-drive discipline applies to every command above: run them one at a time, with specific paths — never a broad recursive grep (see gloki-build-env-run).
+
+Deploy-branch model updated 2026-09-05 (S35, D11).
