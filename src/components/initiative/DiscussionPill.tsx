@@ -55,7 +55,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
         if (cancelled || !stageContract) return null;
         return Promise.all([
           getComments(serverUrl, publicKey, stageContract.contractId),
-          getCommentVotes(serverUrl, publicKey, stageContract.contractId),
+          getCommentVotes(serverUrl, publicKey, stageContract.contractId).catch(() => []),
         ]);
       })
       .then((result) => {

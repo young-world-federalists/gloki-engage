@@ -353,7 +353,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     try {
       const [list, v] = await Promise.all([
         api.getComments(serverUrl, publicKey, contractId),
-        api.getCommentVotes(serverUrl, publicKey, contractId),
+        api.getCommentVotes(serverUrl, publicKey, contractId).catch(() => []),
       ]);
       setFlat(list);
       setVotes(v);
