@@ -144,8 +144,8 @@ export async function getCommentVotes(serverUrl: string, publicKey: string, cont
   });
   const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Partial<CommentVote>>;
   return Object.values(obj)
-    .filter((v) => v && (v.direction === 'up' || v.direction === 'down') && v.commentId && v.voter)
-    .map((v) => ({ voter: String(v.voter), commentId: String(v.commentId), direction: v.direction as 'up' | 'down' }));
+    .filter((v) => v && (v.direction === 'up' || v.direction === 'down') && typeof v.voter === 'string' && v.voter !== '' && typeof v.commentId === 'string' && v.commentId !== '')
+    .map((v) => ({ voter: v.voter, commentId: v.commentId, direction: v.direction as 'up' | 'down' }) as CommentVote);
 }
 
 export async function getComments(
