@@ -1258,6 +1258,7 @@ place rather than being added as new keys.
 | `stage.discussionPill` | Causes (was "Discussion", en had no dict entry — inline default only) | Causes (was "Discussion") | Sababu (was "Majadiliano") | The chin pill on initiative cards. |
 | `stage.discussionPillCount` | {label} — {n} causes (was "… comments", en inline default only) | {label} — {n} causes (was "… commentaires") | {label} — sababu {n} (was "… maoni {n}") | Count aria for the chin pill; `{label}`/`{n}` tokens preserved. |
 | `deliberation.empty.title` | No causes yet (was "No discussion yet", en inline default only) | Pas encore de causes (was "Pas encore de discussion") | Bado hakuna sababu (was "Bado hakuna majadiliano") | `DiscussionEngage` empty-state title (the Causes teaser card on the initiative panel). |
+| `card.teaserDiscussion` | Name a cause (was "Join the discussion") | Nommer une cause (was "Rejoindre la discussion") | Taja sababu (was "Jiunge na majadiliano") | **Fix round (D3 label-sweep leftover).** `DiscussionActivityCard`'s collapsed-card teaser on the community feed — missed by the original D3 sweep since its default text didn't contain the literal word "Discussion". |
 
 **Left unchanged, out of scope for D3** — see task report for full reasoning:
 - `nav.discussion` (en "Discuss") — drives the global StageFooter bottom nav (cross-community

@@ -345,7 +345,7 @@ const sw: Dictionary = {
   'card.teaserVote': 'Piga kura yako',
   'card.viewMandate': 'Tazama agizo lililochapishwa',
   'card.teaserMandate': 'Agizo la jumuiya',
-  'card.teaserDiscussion': 'Jiunge na majadiliano',
+  'card.teaserDiscussion': 'Taja sababu',
   'card.suggestToAuthor': 'Tuma pendekezo kwa mwandishi',
   'card.suggestToAuthorShort': 'Pendekeza',
 

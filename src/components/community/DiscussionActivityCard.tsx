@@ -94,7 +94,7 @@ const DiscussionActivityCard: React.FC<DiscussionActivityCardProps> = ({
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
       communityName={communityName}
-      collapsedTeaser={t('card.teaserDiscussion', 'Join the discussion')}
+      collapsedTeaser={t('card.teaserDiscussion', 'Name a cause')}
     >
       <DiscussionEngage initiativeId={item.id} />
       {/* Discussion → proposals. Ungated, so omit ready/notReadyReason — the bar

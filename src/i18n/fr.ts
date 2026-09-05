@@ -346,7 +346,7 @@ const fr: Dictionary = {
   'card.teaserVote': 'Votez',
   'card.viewMandate': 'Voir le mandat publié',
   'card.teaserMandate': 'Mandat de la communauté',
-  'card.teaserDiscussion': 'Rejoindre la discussion',
+  'card.teaserDiscussion': 'Nommer une cause',
   'card.suggestToAuthor': 'Envoyer une suggestion à l’auteur',
   'card.suggestToAuthorShort': 'Suggérer',
 
