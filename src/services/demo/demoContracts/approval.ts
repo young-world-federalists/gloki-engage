@@ -34,12 +34,34 @@ export interface Proposal {
   expertReviews?: ExpertReview[];   // experts who reviewed, each attaching metrics
   mergeSuggestions?: MergeSuggestion[]; // solution→solution merge suggestions (suggest-only)
   mergedInto?: string;              // S33: set when the author ACCEPTS a merge suggestion
+  // S35 cause alignment (D5, F2): set once at creation from `add_proposal`'s
+  // `cause_id` and never changed afterward — there is deliberately no method
+  // that edits it later. '' = proposed before any cause was ranked.
+  causeId?: string;
+}
+
+// S35 (W4): a member's assessment of a solution's downstream impact. The
+// contract enforces only existence/count/author-uniqueness (D12: eligibility
+// itself is UI-gated). Mirrors add_impact_assessment in
+// docs/contracts/s34-initiative-contract-additions.py.
+export interface ImpactAssessmentDoc {
+  author: string;
+  proposalId: string;
+  timestamp: number;
+  target: string;
+  targetsCause: 'cause' | 'symptom' | 'both';
+  mechanism: string;
+  broaderEffects: string;
+  risks: string;
+  opportunityCosts: string;
+  timeHorizon: string;
 }
 
 interface ApprovalState {
   proposals: Record<string, Proposal>;
   count: number;
   approvals: Record<string, Record<string, boolean>>;
+  impactAssessments?: Record<string, ImpactAssessmentDoc>;
 }
 
 function load(contractId: string): ApprovalState {
@@ -89,6 +111,11 @@ function cleanStringList(raw: unknown, maxItems: number, maxLen: number): string
     .slice(0, maxItems);
 }
 
+// S35: trim + cap a required impact-assessment text field to 700 chars.
+function cleanImpactField(raw: unknown): string {
+  return String(raw ?? '').trim().slice(0, 700);
+}
+
 export function approvalRead(contractId: string, method: IMethod, caller: string): unknown {
   const s = load(contractId);
   switch (method.name) {
@@ -108,6 +135,8 @@ export function approvalRead(contractId: string, method: IMethod, caller: string
     }
     case 'get_my_approvals':
       return s.approvals[caller] ?? {};
+    case 'get_impact_assessments':
+      return s.impactAssessments ?? {};
     default:
       return null;
   }
@@ -130,7 +159,10 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       // latter). FOR OURI: `add_proposal` gains optional `metrics` + `sources`.
       const metrics = cleanStringList(method.values?.metrics, 3, 280);
       const sources = normalizeSources(method.values?.sources);
-      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors, commitments, metrics, sources };
+      // S35 (D5, F2): id of the cause (root comment) this solution addresses.
+      // Immutable once written — never read elsewhere in this handler.
+      const causeId = typeof method.values?.cause_id === 'string' ? method.values.cause_id.slice(0, 64) : '';
+      s.proposals[id] = { id, text, author: caller, timestamp: Date.now(), coAuthors, commitments, metrics, sources, causeId };
       s.count += 1;
       writeState(contractId, s);
       return id;
@@ -235,6 +267,46 @@ export function approvalWrite(contractId: string, method: IMethod, caller: strin
       // move approval counts (folding the tallies is a governance change, not a
       // display one).
       p.mergedInto = decision === 'accepted' ? targetId : undefined;
+      writeState(contractId, s);
+      return null;
+    }
+    case 'add_impact_assessment': {
+      // S35 (W4): a member's assessment of a solution's downstream impact.
+      // Eligibility (who may assess) is UI-gated (D12); the contract enforces
+      // only: proposal exists, max 3 per proposal, one per author. Mirrors
+      // add_impact_assessment in docs/contracts/s34-initiative-contract-additions.py.
+      const pid = method.values?.proposal_id as string | undefined;
+      if (!pid || !(pid in s.proposals)) return { error: 'Unknown proposal' };
+      const targetsCause = method.values?.targets_cause;
+      if (targetsCause !== 'cause' && targetsCause !== 'symptom' && targetsCause !== 'both') {
+        return { error: 'targets_cause must be cause, symptom or both' };
+      }
+      const target = cleanImpactField(method.values?.target);
+      const mechanism = cleanImpactField(method.values?.mechanism);
+      const broaderEffects = cleanImpactField(method.values?.broader_effects);
+      const risks = cleanImpactField(method.values?.risks);
+      const opportunityCosts = cleanImpactField(method.values?.opportunity_costs);
+      const timeHorizon = cleanImpactField(method.values?.time_horizon);
+      if (!target || !mechanism || !broaderEffects || !risks || !opportunityCosts || !timeHorizon) {
+        return { error: 'All assessment fields are required' };
+      }
+      const assessments = s.impactAssessments ?? {};
+      const existing = Object.values(assessments).filter((a) => a.proposalId === pid);
+      if (existing.length >= 3) return { error: 'This solution already has three impact assessments' };
+      if (existing.some((a) => a.author === caller)) return { error: 'You already assessed this solution' };
+      assessments[`${pid}:${caller}`] = {
+        author: caller,
+        proposalId: pid,
+        timestamp: Date.now(),
+        target,
+        targetsCause,
+        mechanism,
+        broaderEffects,
+        risks,
+        opportunityCosts,
+        timeHorizon,
+      };
+      s.impactAssessments = assessments;
       writeState(contractId, s);
       return null;
     }
