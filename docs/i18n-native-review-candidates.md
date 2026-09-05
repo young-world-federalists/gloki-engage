@@ -1300,6 +1300,37 @@ degradation (F5: the word never ellipsizes — on overflow it hides off-screen a
 dot + accessible name carry the status instead). Re-check this budget if any of the five words
 change length in native review.
 
+### Task 10 — TopCausesPanel + required cause alignment (D5, F2)
+
+**+10 keys, 1 value changed** (parity 1207 → 1217 in both fr and sw). Adding a solution now
+requires picking which of the top-5 ranked causes it addresses (once any exist); the pre-filled
+`SearchableSelect` shows `#{rank} {text}`. The Solutions board gains a collapsible "Top causes"
+panel above the Add-solution row, and every solution card now carries a one-line cause-alignment
+chip (Addresses cause / Cause no longer ranked / Proposed before any cause was ranked).
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.align.prompt` | Which cause does this address? | Quelle cause cette solution traite-t-elle ? | Suluhisho hili linashughulikia sababu ipi? | Shown above the cause `SearchableSelect` in the add-solution modal, only when ≥1 cause is ranked. |
+| `causes.align.hint` | Your metrics and implementation measures should follow from this cause. | Vos indicateurs et mesures de mise en œuvre devraient découler de cette cause. | Viashiria vyako na hatua za utekelezaji zinapaswa kutokana na sababu hii. | Hint line under the prompt above. |
+| `causes.align.placeholder` | Choose a cause | Choisir une cause | Chagua sababu | `SearchableSelect` placeholder (not shown once pre-selected). |
+| `causes.addresses` | Addresses cause: {text} | Traite la cause : {text} | Inashughulikia sababu: {text} | Per-solution chip first line; `{text}` is the cause comment's own text (already user-authored, not re-translated). |
+| `causes.rankNow` | Cause now ranked #{n} | Cause désormais classée #{n} | Sababu sasa imeorodheshwa #{n} | Badge shown when the addressed cause is still in the carried top 15. |
+| `causes.unranked` | Cause no longer ranked | Cause qui n'est plus classée | Sababu haiorodheshwi tena | Badge shown when the addressed cause fell below the top 15, or (rarely) was deleted — in the deleted case this badge shows alone, with no `causes.addresses` line, since the text isn't recoverable. |
+| `causes.beforeRank` | Proposed before any cause was ranked | Proposée avant qu'aucune cause ne soit classée | Ilipendekezwa kabla ya sababu yoyote kuorodheshwa | Badge shown when the solution has no cause id at all (created before D5 shipped, or the discussion had no ranked causes yet). |
+| `causes.panel.title` | Top causes ({n}) | Causes principales ({n}) | Sababu kuu ({n}) | `TopCausesPanel`'s collapsible header; `{n}` is the number of rows shown (capped at 15, the carried boundary). |
+| `causes.panel.solutions` | {k} solutions | {k} solutions | Suluhisho {k} | Per-row solution count inside the panel; `{k}` = solutions whose `causeId` matches that row's comment id. |
+| `causes.none` | No causes ranked yet — start in the Causes discussion. | Aucune cause classée pour l'instant — commencez dans la discussion Causes. | Hakuna sababu iliyoorodheshwa bado — anza kwenye majadiliano ya Sababu. | `EmptyState` body inside the panel when no root comments exist yet. |
+
+**Value changed in place** — `mechanisms.approval.commitmentsPrompt`: was "Who and what needs to
+change?" / fr "Qui et quoi doivent changer ?" / sw "Nani na nini lazima vibadilike?"; now "Implementation
+measures — who and what needs to change?" / fr "Mesures de mise en œuvre — qui et quoi doivent changer ?"
+/ sw "Hatua za utekelezaji — nani na nini lazima vibadilike?" (disambiguates from the new cause-alignment
+prompt directly above it in the same modal; wire key/value stays `commitments`).
+
+`causes.rank` and `causes.vote.score` (both existing keys from the Task 6 causes-voting batch) are
+reused as-is inside `TopCausesPanel`'s rows and `SolutionEvidence`'s cause chip — no new keys needed
+for those.
+
 ---
 
 ## How to deliver fixes

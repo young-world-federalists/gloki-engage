@@ -1,0 +1,97 @@
+@use '../../styles/variables' as *;
+
+// Top causes roll-up on the Solutions board (S35 D5/F2) — a collapsible Card,
+// closed by default. No built-in Card affordance for this, so a plain
+// button + aria-expanded + chevron (the same pattern as SolutionEvidence's
+// "Details" toggle and InitiativeStageCard's own chevron).
+
+.card { overflow: hidden; }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px; // touch-target law
+  padding: $spacing-md $spacing-lg;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: $gray-800;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
+}
+
+.toggleTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: 0 $spacing-lg $spacing-lg;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.row + .row { border-top: 1px solid $gray-100; padding-top: $spacing-md; }
+
+.rank {
+  flex-shrink: 0;
+  font-size: $text-xs;
+  font-weight: $font-bold;
+  color: $gray-500;
+  min-width: 2.5ch;
+}
+
+.rowMain { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: $spacing-xs; }
+
+// 2-line clamp — the row stays scannable no matter how long the cause text is.
+.rowText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-800;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rowMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.score {
+  font-variant-numeric: tabular-nums;
+  font-size: $text-xs;
+  color: $gray-600;
+}
+
+@include dark {
+  .toggle { color: $dark-text; }
+  .row + .row { border-top-color: $dark-border; }
+  .rank { color: $dark-text-secondary; }
+  .rowText { color: $dark-text; }
+  .score { color: $dark-text-secondary; }
+}

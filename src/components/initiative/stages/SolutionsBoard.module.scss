@@ -66,6 +66,11 @@
 .reviewedTag { font-size: $text-xs; color: $success-on-surface; } // AA on white (S16: $success was 2.54:1)
 .reviewStatus { margin: $spacing-xs 0 0; font-size: $text-xs; color: $gray-600; }
 
+// ─── Cause alignment chip (S35 F2) — always the first line, above the
+// folded "Details" toggle; every solution has one of the three cause states.
+.causeChip { display: flex; align-items: center; gap: $spacing-sm; flex-wrap: wrap; margin-top: $spacing-xs; }
+.causeLine { margin: 0; font-size: $text-xs; color: $gray-600; }
+
 // ─── Evidence & expert review — inline expand (S15: was nested green box) ─
 .evidence { margin-top: $spacing-xs; }
 .evidenceToggle {
@@ -134,7 +139,7 @@
 
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @include dark {
-  .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
+  .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus, .causeLine { color: $dark-text-secondary; }
   .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
   .reviewedTag { color: $success; } // the light green IS the AA choice on dark cards
   .solution + .solution { border-top-color: $dark-border; }

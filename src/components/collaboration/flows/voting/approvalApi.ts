@@ -23,12 +23,13 @@ export async function addProposal(
   commitments: string[] = [],
   sources: SourceLink[] = [],
   metrics: string[] = [],
+  causeId = '',
 ) {
   return throwIfContractError(await contractWrite({
     serverUrl,
     publicKey,
     contractId,
-    method: { name: 'add_proposal', values: { text, co_authors: coAuthors, commitments, sources, metrics } } as IMethod,
+    method: { name: 'add_proposal', values: { text, co_authors: coAuthors, commitments, sources, metrics, cause_id: causeId } } as IMethod,
   }));
 }
 

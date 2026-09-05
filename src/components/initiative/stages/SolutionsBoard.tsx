@@ -5,11 +5,13 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
-import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput } from '../../shared';
+import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput, SearchableSelect, Badge } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import type { SourceLink } from '../../../utils/sources';
+import { TOP_CAUSES_ALIGN, TOP_CAUSES_CARRIED, type CauseRank } from '../../../utils/causes';
 import { useT } from '../../../i18n';
 import SolutionAuthorPanel from './SolutionAuthorPanel';
+import TopCausesPanel from '../TopCausesPanel';
 import styles from './SolutionsBoard.module.scss';
 
 export interface SolutionsBoardProps {
@@ -17,6 +19,9 @@ export interface SolutionsBoardProps {
   communityId: string;
   /** Active community member count — denominator for the 50%-upvote threshold. */
   communityMemberCount?: number;
+  /** Community display name, threaded through to the TopCausesPanel header's
+   *  discussion status badge (S35 fix-round F4 pattern). */
+  communityName?: string;
 }
 
 interface ExpertReview { expert: string; metrics: string[]; note?: string; assessment?: string; credentials?: string; sources?: SourceLink[]; timestamp: number }
@@ -34,14 +39,21 @@ interface Proposal {
   expertReviews?: ExpertReview[];
   mergeSuggestions?: MergeSuggestion[];
   mergedInto?: string;
+  // S35 cause alignment (D5, F2): set once at creation from `add_proposal`'s
+  // `cause_id` and never changed afterward. '' = proposed before any cause
+  // was ranked.
+  causeId?: string;
 }
 
 /**
  * The folded "Evidence & expert review" for one solution (S15 recomposition).
  * Inline expand (button + aria-expanded + chevron + panel) — the same dive-on-tap
  * pattern InitiativeStageCard uses — NOT the kit InfoDisclosure, which opens a
- * Modal (built for rules/explainer prose, wrong for per-solution content). Renders
- * only when there's something to fold: author indicators, sources, or reviews.
+ * Modal (built for rules/explainer prose, wrong for per-solution content). The
+ * S35 cause-alignment chip (F2) is always shown as the first line — every
+ * solution has one of the three cause states (addresses/unranked/beforeRank) —
+ * the "Details" toggle below it still folds only when there's commitments,
+ * author indicators, sources, or reviews to fold.
  * Its own open-state keeps SolutionsBoard from growing per-solution state.
  */
 const SolutionEvidence: React.FC<{
@@ -49,21 +61,50 @@ const SolutionEvidence: React.FC<{
   indicators: string[];
   sources: SourceLink[];
   reviews: ExpertReview[];
+  causeId?: string;
+  causes: CauseRank[];
   authorName: (key: string) => string;
   profiles: Record<string, { country?: string } | undefined>;
   t: ReturnType<typeof useT>;
-}> = ({ commitments, indicators, sources, reviews, authorName, profiles, t }) => {
+}> = ({ commitments, indicators, sources, reviews, causeId, causes, authorName, profiles, t }) => {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const reviewed = reviews.length > 0;
+  const hasFoldedDetails = commitments.length > 0 || indicators.length > 0 || sources.length > 0 || reviewed;
   // W5 D1: commitments + evidence fold under one "Details" disclosure so the
   // card holds ≤5 co-equal blocks (text · byline · Details · actions).
   const label = reviewed
     ? t('mechanisms.approval.detailsToggleReviewed', 'Details ({n})', { n: reviews.length })
     : t('mechanisms.approval.detailsToggle', 'Details');
 
+  // Cause chip (S35 F2). causeId is '' (or absent, on older data) for a
+  // solution proposed before any cause had been ranked. Otherwise resolve the
+  // cause's current rank from `causes` — it may have fallen off the carried
+  // top 15, or (rarely) been deleted, in which case its text isn't
+  // recoverable and only the badge shows.
+  let causeLine: React.ReactNode;
+  if (!causeId) {
+    causeLine = <Badge tone="neutral" size="sm">{t('causes.beforeRank', 'Proposed before any cause was ranked')}</Badge>;
+  } else {
+    const found = causes.find((c) => c.comment.id === causeId);
+    causeLine = found ? (
+      <>
+        <p className={styles.causeLine}>{t('causes.addresses', 'Addresses cause: {text}', { text: found.comment.text })}</p>
+        {found.rank <= TOP_CAUSES_CARRIED ? (
+          <Badge tone="neutral" size="sm">{t('causes.rankNow', 'Cause now ranked #{n}', { n: found.rank })}</Badge>
+        ) : (
+          <Badge tone="neutral" size="sm">{t('causes.unranked', 'Cause no longer ranked')}</Badge>
+        )}
+      </>
+    ) : (
+      <Badge tone="neutral" size="sm">{t('causes.unranked', 'Cause no longer ranked')}</Badge>
+    );
+  }
+
   return (
     <div className={styles.evidence}>
+      <div className={styles.causeChip}>{causeLine}</div>
+      {hasFoldedDetails && (
       <button
         type="button"
         className={styles.evidenceToggle}
@@ -74,7 +115,8 @@ const SolutionEvidence: React.FC<{
         {open ? <ChevronUp size={16} aria-hidden /> : <ChevronDown size={16} aria-hidden />}
         {label}
       </button>
-      {open && (
+      )}
+      {open && hasFoldedDetails && (
         <div id={panelId} className={styles.evidencePanel}>
           {commitments.length > 0 && (
             <ul className={styles.commitments}>
@@ -127,7 +169,7 @@ const SolutionEvidence: React.FC<{
   );
 };
 
-const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, communityMemberCount = 0 }) => {
+const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, communityMemberCount = 0, communityName }) => {
   const t = useT();
   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
     `${initiativeId}_proposals`,
@@ -156,7 +198,17 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const [newSources, setNewSources] = useState<SourceLink[]>([{ url: '' }]);
   const [submitting, setSubmitting] = useState(false);
 
-  const canSubmit = newText.trim().length > 0 && newCommitments.some((c) => c.trim().length > 0);
+  // S35 cause alignment (D5, F2): populated by TopCausesPanel's onCauses so
+  // the board never fetches comments/votes a second time.
+  const [causes, setCauses] = useState<CauseRank[]>([]);
+  const handleCauses = useCallback((ranks: CauseRank[]) => setCauses(ranks), []);
+  const alignable = causes.slice(0, TOP_CAUSES_ALIGN);
+  const [newCauseId, setNewCauseId] = useState('');
+
+  const canSubmit =
+    newText.trim().length > 0 &&
+    newCommitments.some((c) => c.trim().length > 0) &&
+    (alignable.length === 0 || newCauseId !== '');
 
   const [roles, setRoles] = useState<InitiativeRoles | null>(null);
   useEffect(() => {
@@ -222,13 +274,22 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     setNewText(''); setNewCommitments(['', '', '']); setNewMetrics(['', '']); setNewSources([{ url: '' }]); setAddOpen(false);
   };
 
+  // D5: the pre-select happens ONLY when the modal opens, from whatever
+  // `alignable` holds right now — never on every render, so the user's own
+  // change is never overwritten while the modal stays open.
+  const handleOpenAdd = () => {
+    setNewCauseId(alignable[0]?.comment.id ?? '');
+    setAddOpen(true);
+  };
+
   const handleAdd = async () => {
     if (!serverUrl || !publicKey || !contractId || !canSubmit) return;
     setSubmitting(true);
     try {
       const commitments = newCommitments.map((c) => c.trim()).filter(Boolean);
       const metrics = newMetrics.map((m) => m.trim()).filter(Boolean);
-      await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments, newSources, metrics);
+      const causeId = alignable.length > 0 ? newCauseId : '';
+      await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments, newSources, metrics, causeId);
       resetAdd();
       await fetchData();
     } catch (err) {
@@ -379,10 +440,17 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         </div>
       </div>
 
+      <TopCausesPanel
+        initiativeId={initiativeId}
+        communityName={communityName}
+        solutions={proposalList}
+        onCauses={handleCauses}
+      />
+
       {/* The (i) sits beside the action it explains (S23) — not a lone icon
           floating above the board. */}
       <div className={styles.addRow}>
-        <button type="button" className={styles.addBtn} onClick={() => setAddOpen(true)}>
+        <button type="button" className={styles.addBtn} onClick={handleOpenAdd}>
           + {t('mechanisms.approval.addSolutionCta', 'Add a solution to this problem')}
         </button>
         <InfoDisclosure
@@ -405,6 +473,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         }
       >
         <div className={styles.addForm}>
+          {alignable.length > 0 && (
+            <>
+              <p className={styles.commitPrompt}>{t('causes.align.prompt', 'Which cause does this address?')}</p>
+              <p className={styles.commitHint}>{t('causes.align.hint', 'Your metrics and implementation measures should follow from this cause.')}</p>
+              <SearchableSelect
+                options={alignable.map((c) => ({ value: c.comment.id, label: `#${c.rank} ${c.comment.text}` }))}
+                value={newCauseId}
+                onChange={setNewCauseId}
+                placeholder={t('causes.align.placeholder', 'Choose a cause')}
+              />
+            </>
+          )}
           <textarea
             className={styles.addTextarea}
             placeholder={t('mechanisms.approval.solutionPlaceholder', 'Describe your solution')}
@@ -413,7 +493,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             maxLength={500}
             rows={3}
           />
-          <p className={styles.commitPrompt}>{t('mechanisms.approval.commitmentsPrompt', 'Who and what needs to change?')}</p>
+          <p className={styles.commitPrompt}>{t('mechanisms.approval.commitmentsPrompt', 'Implementation measures — who and what needs to change?')}</p>
           <p className={styles.commitHint}>{t('mechanisms.approval.commitmentsHint', 'List up to three commitments. At least one.')}</p>
           {newCommitments.map((c, i) => (
             <input
@@ -526,7 +606,6 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             const reviews = p.expertReviews ?? [];
             const reviewed = reviews.length > 0;
             const requestCount = p.expertReviewRequests?.length ?? 0;
-            const hasDetails = (p.commitments?.length ?? 0) > 0 || (p.metrics?.length ?? 0) > 0 || (p.sources?.length ?? 0) > 0 || reviewed;
             // S33 — the author's own view of this solution.
             const isMine = !!publicKey && p.author === publicKey;
             return (
@@ -558,17 +637,17 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                     {t('mechanisms.approval.reviewPending', 'Review requested by {count} — awaiting an expert', { count: requestCount })}
                   </p>
                 )}
-                {hasDetails && (
-                  <SolutionEvidence
-                    commitments={p.commitments ?? []}
-                    indicators={p.metrics ?? []}
-                    sources={p.sources ?? []}
-                    reviews={reviews}
-                    authorName={authorName}
-                    profiles={profiles}
-                    t={t}
-                  />
-                )}
+                <SolutionEvidence
+                  commitments={p.commitments ?? []}
+                  indicators={p.metrics ?? []}
+                  sources={p.sources ?? []}
+                  reviews={reviews}
+                  causeId={p.causeId}
+                  causes={causes}
+                  authorName={authorName}
+                  profiles={profiles}
+                  t={t}
+                />
                 {!mergeSource && (
                   <div className={styles.actionRow}>
                     {/* Icon+count on top, short caption beneath (D1 finding). The

@@ -102,6 +102,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
         hostServer={hostServer}
         hostAgent={hostAgent}
         communityMemberCount={activeMemberCount}
+        communityName={communityName}
       />
       {/* Proposals → vote. Readiness is ungated for proposals, so omit
           ready/notReadyReason — the bar defaults to ready. */}
