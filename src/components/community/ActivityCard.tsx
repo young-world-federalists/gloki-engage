@@ -99,6 +99,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }

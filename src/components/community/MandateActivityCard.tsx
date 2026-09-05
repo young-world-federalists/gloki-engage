@@ -25,6 +25,7 @@ export interface MandateActivityCardProps {
   hostAgent: string;
   expanded: boolean;
   onToggle: () => void;
+  communityName?: string;
 }
 
 /**
@@ -46,6 +47,7 @@ const MandateActivityCard: React.FC<MandateActivityCardProps> = ({
   hostAgent,
   expanded,
   onToggle,
+  communityName,
 }) => {
   const t = useT();
   const navigate = useNavigate();
@@ -97,6 +99,7 @@ const MandateActivityCard: React.FC<MandateActivityCardProps> = ({
       onOpen={openMandate}
       openLabel={t('card.viewMandate', 'View the published mandate')}
       collapsedTeaser={t('card.teaserMandate', 'Community mandate')}
+      communityName={communityName}
     >
       {/* Shell appends its own blue "View the published mandate" — suppress the
           recap's duplicate so there's a single CTA. */}
