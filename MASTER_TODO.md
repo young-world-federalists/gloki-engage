@@ -482,7 +482,7 @@ where a role in the product had no interface.
   finish a pipeline.
 
 **P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ BUILT (S35, 2026-09-05;
-push pending)** (`2e3aada..15b9d59`, 29 commits). Spec
+push pending)** (`2e3aada..15b9d59`, 38 commits after the 2026-09-05 final-review fix wave). Spec
 [docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md](docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md);
 decision record
 [docs/superpowers/specs/2026-09-02-s34-decision-record.md](docs/superpowers/specs/2026-09-02-s34-decision-record.md)
@@ -609,7 +609,7 @@ call, filed as optional Task 16 in the plan.
 ## 8. Changelog
 
 - **2026-09-05 — S35: P10 Causes forum, discussion status pill, impact assessment (BUILT, push
-  pending; `2e3aada..15b9d59`, 29 commits).** Spec
+  pending; `2e3aada..15b9d59`, 38 commits after the same-day final-review fix wave).** Spec
   `docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md`; rulings
   `docs/superpowers/specs/2026-09-02-s34-decision-record.md` (D3–D7 and D12 drove the build; D1/D2/
   D8–D11/F9/F10 needed no code here). Scope classes: UI + **five contract-method additions**
