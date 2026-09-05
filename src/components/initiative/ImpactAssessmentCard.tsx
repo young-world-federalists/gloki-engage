@@ -6,6 +6,7 @@ import { formatDateTime } from '../../utils/formatDateTime';
 import { UserIdentity } from '../shared';
 import type { ImpactAssessment, TargetsCause } from '../collaboration/flows/voting/approvalApi';
 import type { TrustState } from '../../services/trustModel';
+import { ASSESSORS_PER_SOLUTION } from '../../utils/writerRank';
 import styles from './ImpactAssessmentCard.module.scss';
 
 export interface ImpactAssessmentCardProps {
@@ -32,7 +33,7 @@ const TARGETS_KEY: Record<TargetsCause, string> = {
  * self-contained renderer across the four surfaces that show assessments
  * (SolutionsBoard, QVFlow ballot + results, VotePreview, MandateCard).
  */
-const ImpactAssessmentCard: React.FC<ImpactAssessmentCardProps> = ({ assessment, index, max = 3, trustState }) => {
+const ImpactAssessmentCard: React.FC<ImpactAssessmentCardProps> = ({ assessment, index, max = ASSESSORS_PER_SOLUTION, trustState }) => {
   const { t, locale } = useI18n();
   const profiles = useAppSelector((s) => s.communities.profiles);
   const publicKey = useAppSelector((s) => s.user.publicKey);

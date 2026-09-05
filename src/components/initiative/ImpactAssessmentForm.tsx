@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { Modal, Button, SegmentedControl } from '../shared';
 import { useT } from '../../i18n';
 import type { ImpactAssessment, TargetsCause } from '../collaboration/flows/voting/approvalApi';
@@ -26,6 +26,10 @@ const FIELD_MAX = 700;
  */
 const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onClose, onSubmit, solutionText, submitting }) => {
   const t = useT();
+  // Task 14 fix-round 1 (Minor 6) — prefix every element id from useId() so
+  // the form stays safe to mount twice (e.g. two SolutionsBoard instances,
+  // or a future side-by-side review layout) without id collisions.
+  const uid = useId();
   const [target, setTarget] = useState('');
   const [targetsCause, setTargetsCause] = useState<TargetsCause>('cause');
   const [mechanism, setMechanism] = useState('');
@@ -84,10 +88,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </p>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-target">{t('impact.field.targetLabel', 'Target')}</label>
-          <p className={styles.helper}>{t('impact.field.target', 'What cause or mechanism does this solution target?')}</p>
+          <label className={styles.label} htmlFor={`${uid}-target`}>{t('impact.field.targetLabel', 'Target')}</label>
+          <p className={styles.helper} id={`${uid}-target-helper`}>{t('impact.field.target', 'What cause or mechanism does this solution target?')}</p>
           <textarea
-            id="impact-target"
+            id={`${uid}-target`}
+            aria-describedby={`${uid}-target-helper`}
             className={styles.textarea}
             value={target}
             maxLength={FIELD_MAX}
@@ -97,7 +102,10 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <span className={styles.label} id="impact-targets-cause-label">{t('impact.field.targetsCauseLabel', 'Cause or symptom')}</span>
+          {/* Minor 5 (fix-round 1) — SegmentedControl takes ariaLabel (a text
+              string), not aria-describedby/aria-labelledby, so this label span
+              needs no id: an id here would be dead weight, not a11y wiring. */}
+          <span className={styles.label}>{t('impact.field.targetsCauseLabel', 'Cause or symptom')}</span>
           <p className={styles.helper}>{t('impact.field.targetsCause', 'Does it target the cause or a symptom?')}</p>
           <SegmentedControl<TargetsCause>
             options={[
@@ -113,10 +121,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-mechanism">{t('impact.field.mechanismLabel', 'Mechanism')}</label>
-          <p className={styles.helper}>{t('impact.field.mechanism', 'How is it expected to produce its intended effect?')}</p>
+          <label className={styles.label} htmlFor={`${uid}-mechanism`}>{t('impact.field.mechanismLabel', 'Mechanism')}</label>
+          <p className={styles.helper} id={`${uid}-mechanism-helper`}>{t('impact.field.mechanism', 'How is it expected to produce its intended effect?')}</p>
           <textarea
-            id="impact-mechanism"
+            id={`${uid}-mechanism`}
+            aria-describedby={`${uid}-mechanism-helper`}
             className={styles.textarea}
             value={mechanism}
             maxLength={FIELD_MAX}
@@ -126,10 +135,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-broader-effects">{t('impact.field.broaderEffectsLabel', 'Broader effects')}</label>
-          <p className={styles.helper}>{t('impact.field.broaderEffects', 'Expected broader effects and consequences')}</p>
+          <label className={styles.label} htmlFor={`${uid}-broader-effects`}>{t('impact.field.broaderEffectsLabel', 'Broader effects')}</label>
+          <p className={styles.helper} id={`${uid}-broader-effects-helper`}>{t('impact.field.broaderEffects', 'Expected broader effects and consequences')}</p>
           <textarea
-            id="impact-broader-effects"
+            id={`${uid}-broader-effects`}
+            aria-describedby={`${uid}-broader-effects-helper`}
             className={styles.textarea}
             value={broaderEffects}
             maxLength={FIELD_MAX}
@@ -139,10 +149,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-risks">{t('impact.field.risksLabel', 'Risks')}</label>
-          <p className={styles.helper}>{t('impact.field.risks', 'Potential risks and trade-offs')}</p>
+          <label className={styles.label} htmlFor={`${uid}-risks`}>{t('impact.field.risksLabel', 'Risks')}</label>
+          <p className={styles.helper} id={`${uid}-risks-helper`}>{t('impact.field.risks', 'Potential risks and trade-offs')}</p>
           <textarea
-            id="impact-risks"
+            id={`${uid}-risks`}
+            aria-describedby={`${uid}-risks-helper`}
             className={styles.textarea}
             value={risks}
             maxLength={FIELD_MAX}
@@ -152,10 +163,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-opportunity-costs">{t('impact.field.opportunityCostsLabel', 'Opportunity costs')}</label>
-          <p className={styles.helper}>{t('impact.field.opportunityCosts', 'Opportunity costs — what is given up by choosing this?')}</p>
+          <label className={styles.label} htmlFor={`${uid}-opportunity-costs`}>{t('impact.field.opportunityCostsLabel', 'Opportunity costs')}</label>
+          <p className={styles.helper} id={`${uid}-opportunity-costs-helper`}>{t('impact.field.opportunityCosts', 'Opportunity costs — what is given up by choosing this?')}</p>
           <textarea
-            id="impact-opportunity-costs"
+            id={`${uid}-opportunity-costs`}
+            aria-describedby={`${uid}-opportunity-costs-helper`}
             className={styles.textarea}
             value={opportunityCosts}
             maxLength={FIELD_MAX}
@@ -165,10 +177,11 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="impact-time-horizon">{t('impact.field.timeHorizonLabel', 'Time horizon')}</label>
-          <p className={styles.helper}>{t('impact.field.timeHorizon', 'Time horizon — how quickly it should work, and how long the effect should last')}</p>
+          <label className={styles.label} htmlFor={`${uid}-time-horizon`}>{t('impact.field.timeHorizonLabel', 'Time horizon')}</label>
+          <p className={styles.helper} id={`${uid}-time-horizon-helper`}>{t('impact.field.timeHorizon', 'Time horizon — how quickly it should work, and how long the effect should last')}</p>
           <textarea
-            id="impact-time-horizon"
+            id={`${uid}-time-horizon`}
+            aria-describedby={`${uid}-time-horizon-helper`}
             className={styles.textarea}
             value={timeHorizon}
             maxLength={FIELD_MAX}

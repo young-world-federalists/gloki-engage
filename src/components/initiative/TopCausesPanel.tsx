@@ -76,7 +76,12 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
         onDiscussionData?.({ comments, votes });
       })
       .catch(() => {
-        if (!cancelled) { setRanks([]); setStatus(null); }
+        // Task 14 fix-round 1 (F1) — the success path below always calls
+        // onDiscussionData (even with empty arrays, when there's no
+        // discussion sub-contract to resolve); this .catch must match, or
+        // SolutionsBoard's discussionReady flag never flips on a failed
+        // fetch and the eligibility ladder stays stuck waiting forever.
+        if (!cancelled) { setRanks([]); setStatus(null); onDiscussionData?.({ comments: [], votes: [] }); }
       })
       .finally(() => {
         if (!cancelled) setLoaded(true);

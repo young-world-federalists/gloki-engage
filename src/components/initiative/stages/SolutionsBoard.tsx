@@ -256,9 +256,18 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   // costs the board a second fetch of the discussion sub-contract.
   const [discussionComments, setDiscussionComments] = useState<Comment[]>([]);
   const [discussionVotes, setDiscussionVotes] = useState<CommentVote[]>([]);
+  // Task 14 fix-round 1 (F1) — until this flips true, `discussionComments`/
+  // `discussionVotes` are just their empty initial state (not "no discussion
+  // exists"), so every writer's causeScore is 0 and the ladder falls to
+  // `no-floor`. TopCausesPanel now calls onDiscussionData with empty arrays
+  // on both its .catch and its no-contract path, so `discussionReady` still
+  // becomes true (legitimately, with no cause floor) when there is nothing
+  // to fetch or the fetch failed — see eligibilityReady below.
+  const [discussionReady, setDiscussionReady] = useState(false);
   const handleDiscussionData = useCallback((d: { comments: Comment[]; votes: CommentVote[] }) => {
     setDiscussionComments(d.comments);
     setDiscussionVotes(d.votes);
+    setDiscussionReady(true);
   }, []);
 
   // Task 14 — impact assessments, keyed by proposal id below via .filter, and
@@ -285,8 +294,16 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
   const trust = useCommunityTrust(communityId);
   const verifiedKeys = useMemo(
     () => members.filter((pk) => trust.trustOf(pk) === 'verified'),
-    [members, trust],
+    [members, trust.trustOf],
   );
+  // Task 14 fix-round 1 (F1) — `members` above always resolves to an array
+  // (it falls back to `[]` before the slice has loaded), so it can't signal
+  // "not loaded yet" on its own. Read the raw slice entry to know whether the
+  // fetch has actually landed, and gate the assessor CTA + rung copy on both
+  // that and `discussionReady` so a not-yet-eligible member is never shown
+  // an eligible-looking screen while data is still in flight.
+  const membersLoaded = Array.isArray(communityMembers[communityId]);
+  const eligibilityReady = discussionReady && membersLoaded;
 
   // Sorted once per `proposals` change (a hook, so it must run unconditionally
   // on every render — computed here, ABOVE the early-return checks below,
@@ -740,8 +757,11 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             // eligibility recompute — they always show, up to ASSESSORS_PER_SOLUTION.
             const solutionAssessments = assessments.filter((a) => a.proposalId === p.id);
             const elig = eligibleAssessors({ proposal: p, allProposals: proposalList, writers, verifiedKeys, existing: solutionAssessments });
-            const canAssessThis = !!publicKey && elig.keys.includes(publicKey);
-            const rungNote = rungCopy(t, elig.rung);
+            // F1 — eligibility is only trustworthy once discussion data and the
+            // members list have both loaded; before then, don't offer the CTA
+            // or name a rung (the count line below is always safe to show).
+            const canAssessThis = eligibilityReady && !!publicKey && elig.keys.includes(publicKey);
+            const rungNote = eligibilityReady ? rungCopy(t, elig.rung) : null;
             return (
               <div
                 key={p.id}
