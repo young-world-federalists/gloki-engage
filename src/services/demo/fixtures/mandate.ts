@@ -110,6 +110,14 @@ export interface PublishedMandate {
   indicators: MandateIndicator[];
   provenance: MandateProvenance;
   adopters: MandateAdopter[];
+  // S35 F2 (Task 11) — the winning solution's cause alignment, read back from
+  // its approval-contract twin + the discussion contract's rank. Absent on
+  // the hand-authored fixture (no spine to derive it from); populated in
+  // `useMandate` once a live winner resolves. Rendered via the shared
+  // <CauseLine> on MandateCard.
+  causeId?: string;
+  causeText?: string;
+  causeRank?: number | null;
   /** Machine-readable spec version. */
   specVersion: string;
 }

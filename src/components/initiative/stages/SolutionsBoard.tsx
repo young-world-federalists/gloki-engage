@@ -5,13 +5,14 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import { getInitiativeRoles, type InitiativeRoles } from '../../../services/initiativeRoles';
 import { useAppSelector } from '../../../store/hooks';
-import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput, SearchableSelect, Badge } from '../../shared';
+import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput, SearchableSelect } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import type { SourceLink } from '../../../utils/sources';
-import { TOP_CAUSES_ALIGN, TOP_CAUSES_CARRIED, type CauseRank } from '../../../utils/causes';
+import { TOP_CAUSES_ALIGN, type CauseRank } from '../../../utils/causes';
 import { useT } from '../../../i18n';
 import SolutionAuthorPanel from './SolutionAuthorPanel';
 import TopCausesPanel from '../TopCausesPanel';
+import CauseLine from '../CauseLine';
 import styles from './SolutionsBoard.module.scss';
 
 export interface SolutionsBoardProps {
@@ -97,33 +98,21 @@ const SolutionEvidence: React.FC<{
     ? t('mechanisms.approval.detailsToggleReviewed', 'Details ({n})', { n: reviews.length })
     : t('mechanisms.approval.detailsToggle', 'Details');
 
-  // Cause chip (S35 F2). causeId is '' (or absent, on older data) for a
-  // solution proposed before any cause had been ranked. Otherwise resolve the
-  // cause's current rank from `causes` — it may have fallen off the carried
-  // top 15, or (rarely) been deleted, in which case its text isn't
-  // recoverable and only the badge shows.
-  let causeLine: React.ReactNode;
-  if (!causeId) {
-    causeLine = <Badge tone="neutral" size="sm">{t('causes.beforeRank', 'Proposed before any cause was ranked')}</Badge>;
-  } else {
-    const found = causes.find((c) => c.comment.id === causeId);
-    causeLine = found ? (
-      <>
-        <p className={styles.causeLine}>{t('causes.addresses', 'Addresses cause: {text}', { text: found.comment.text })}</p>
-        {found.rank <= TOP_CAUSES_CARRIED ? (
-          <Badge tone="neutral" size="sm">{t('causes.rankNow', 'Cause now ranked #{n}', { n: found.rank })}</Badge>
-        ) : (
-          <Badge tone="neutral" size="sm">{t('causes.unranked', 'Cause no longer ranked')}</Badge>
-        )}
-      </>
-    ) : (
-      <Badge tone="neutral" size="sm">{t('causes.unranked', 'Cause no longer ranked')}</Badge>
-    );
-  }
+  // Cause chip (S35 F2, shared via CauseLine — Task 11). causeId is '' (or
+  // absent, on older data) for a solution proposed before any cause had been
+  // ranked. Otherwise resolve the cause's current rank from `causes` — it may
+  // have fallen off the carried top 15, or (rarely) been deleted, in which
+  // case its text isn't recoverable and only the "no longer ranked" badge shows.
+  const found = causeId ? causes.find((c) => c.comment.id === causeId) : undefined;
 
   return (
     <div className={styles.evidence}>
-      <div className={styles.causeChip}>{causeLine}</div>
+      <CauseLine
+        className={styles.causeChip}
+        causeId={causeId}
+        causeText={found?.comment.text}
+        causeRank={found?.rank}
+      />
       {hasFoldedDetails && (
       <button
         type="button"

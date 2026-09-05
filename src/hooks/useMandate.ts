@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFlowContract } from '../components/collaboration/flows/shared/useFlowContract';
 import * as qvApi from '../components/collaboration/flows/voting/qvApi';
 import * as approvalApi from '../components/collaboration/flows/voting/approvalApi';
+import { resolveInitiativeStageContract } from '../services/contracts/initiative';
+import { getComments, getCommentVotes } from '../components/collaboration/flows/discussion/discussionApi';
+import { rankCauses, type CauseRank } from '../utils/causes';
 import { getRatification } from '../services/mandateRatification';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
@@ -20,6 +23,7 @@ interface ApprovalProposal {
   text: string;
   commitments?: string[];
   expertReviews?: { expert: string; metrics: string[]; note?: string; timestamp: number }[];
+  causeId?: string;
 }
 
 export interface UseMandateResult {
@@ -63,6 +67,10 @@ export function useMandate(
   const [proposals, setProposals] = useState<Record<string, ApprovalProposal> | null>(null);
   const [voters, setVoters] = useState<number | null>(null);
   const [ratification, setRatification] = useState<MandateRatification | null>(null);
+  // Causes ranked in the discussion contract (S35 F2, Task 11) — resolved
+  // read-only alongside the vote/proposals contracts below, so the winning
+  // solution's cause alignment can be shown on the mandate card.
+  const [causes, setCauses] = useState<CauseRank[]>([]);
 
   // Clear derived state the instant the initiative changes so the memo falls back
   // to the new id's fixture rather than flashing the previous mandate's spine
@@ -72,6 +80,7 @@ export function useMandate(
     setProposals(null);
     setVoters(null);
     setRatification(null);
+    setCauses([]);
   }, [initiativeId]);
 
   // Eligible denominator N — mirror MandateActivityCard: fetch the community's
@@ -106,6 +115,24 @@ export function useMandate(
       } catch {
         if (!cancelled) { setResults({}); setProposals({}); setVoters(0); setRatification(null); }
       }
+      // Causes (S35 F2, Task 11) — read-only resolve of the discussion
+      // sub-contract, same pattern as TopCausesPanel/DiscussionPill: never
+      // useFlowContract, which can deploy + register from a display path.
+      try {
+        const discRef = await resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'discussionContractId');
+        if (cancelled) return;
+        if (discRef?.contractId) {
+          const [comments, votes] = await Promise.all([
+            getComments(serverUrl, publicKey, discRef.contractId),
+            getCommentVotes(serverUrl, publicKey, discRef.contractId),
+          ]);
+          if (!cancelled) setCauses(rankCauses(comments, votes));
+        } else if (!cancelled) {
+          setCauses([]);
+        }
+      } catch {
+        if (!cancelled) setCauses([]);
+      }
     })();
     return () => { cancelled = true; };
   }, [initiativeId, serverUrl, publicKey, voteReady, voteContractId, proposalsReady, proposalsContractId, refreshToken]);
@@ -137,6 +164,10 @@ export function useMandate(
     // the flagship still reads sensibly before member/allocation reads land.
     const liveEligible = eligible > 0 ? eligible : fixture.provenance.eligible;
     const liveVoters = voters ?? fixture.provenance.voters;
+    // Cause alignment (S35 F2, Task 11) — the winning solution's causeId,
+    // resolved to text/rank against the discussion contract's current ranks
+    // (the same "found or unranked" lookup CauseLine's other three callers do).
+    const foundCause = winner?.causeId ? causes.find((c) => c.comment.id === winner.causeId) : undefined;
     return {
       ...fixture,
       status: isMandateRatified(indicators) ? 'ratified' : 'published',
@@ -148,8 +179,11 @@ export function useMandate(
         eligible: liveEligible,
         voters: liveVoters,
       },
+      causeId: winner?.causeId,
+      causeText: foundCause?.comment.text,
+      causeRank: foundCause?.rank,
     };
-  }, [results, proposals, ratification, voters, eligible, fixture]);
+  }, [results, proposals, ratification, voters, eligible, fixture, causes]);
 
   return { mandate };
 }

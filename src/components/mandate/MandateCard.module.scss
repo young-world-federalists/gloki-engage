@@ -142,6 +142,10 @@
   }
 }
 
+// Cause alignment line (S35 F2, Task 11) — one line under the winning
+// solution's boxed text, via the shared <CauseLine>.
+.causeChip { margin-top: $spacing-xs; }
+
 .linkBtn {
   position: relative;
   display: inline-flex;

@@ -10,20 +10,26 @@ import { useT } from '../../../../i18n';
 import { Button, ProgressBar, UserIdentity } from '../../../shared';
 import { displayNameFor } from '../../../../utils/displayName';
 import { REGIONS, regionOf, regionColorVar, type RegionId } from '../../../../utils/regions';
+import { resolveInitiativeStageContract } from '../../../../services/contracts/initiative';
+import { getComments, getCommentVotes } from '../discussion/discussionApi';
+import { rankCauses, type CauseRank } from '../../../../utils/causes';
+import CauseLine from '../../../initiative/CauseLine';
 import styles from './QVFlow.module.scss';
 
 interface QvProposal { id: string; text: string; author: string; timestamp: string | number }
 interface ExpertReview { expert: string; metrics: string[]; note?: string; timestamp: number }
 interface ApprovalProposal {
   id: string; text: string; author: string; timestamp: number | string;
-  commitments?: string[]; expertReviews?: ExpertReview[];
+  commitments?: string[]; expertReviews?: ExpertReview[]; causeId?: string;
 }
 interface Config { credits_per_voter: number; status: string }
 
-// A ballot row: hearts/results from qv, commitments/metrics/reviewed from approval.
+// A ballot row: hearts/results from qv, commitments/metrics/reviewed from approval,
+// causeId/causeText/causeRank from the discussion contract (S35 F2, Task 11).
 interface BallotSolution {
   id: string; text: string; author: string;
   commitments: string[]; metrics: string[]; reviewed: boolean;
+  causeId?: string; causeText?: string; causeRank?: number | null;
 }
 
 export interface QVFlowProps extends FlowProps {
@@ -56,6 +62,9 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
 
   const [qvProposals, setQvProposals] = useState<Record<string, QvProposal>>({});
   const [approvalProposals, setApprovalProposals] = useState<Record<string, ApprovalProposal>>({});
+  // Causes ranked in the discussion contract (S35 F2, Task 11) — resolved
+  // read-only, once, so each ballot row can show which cause it addresses.
+  const [causes, setCauses] = useState<CauseRank[]>([]);
   const [config, setConfig] = useState<Config>({ credits_per_voter: 100, status: 'open' });
   const [allAllocations, setAllAllocations] = useState<Record<string, Record<string, number>>>({});
   const [results, setResults] = useState<Record<string, number>>({});
@@ -108,9 +117,29 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
       setAllAllocations((aa as Record<string, Record<string, number>>) || {});
       setResults((r as Record<string, number>) || {});
       if (ap) setApprovalProposals(ap as Record<string, ApprovalProposal>);
+
+      // Cause ranks (S35 F2, Task 11) — read-only resolve of the discussion
+      // sub-contract (mirrors TopCausesPanel/DiscussionPill; never useFlowContract,
+      // which can deploy + register from a display path). parentContractId is the
+      // initiative id here — QVFlow's own contract is already looked up above via
+      // useFlowContract on `parentContractId`.
+      try {
+        const discRef = parentContractId
+          ? await resolveInitiativeStageContract(serverUrl, publicKey, parentContractId, 'discussionContractId')
+          : null;
+        if (discRef?.contractId) {
+          const [comments, votes] = await Promise.all([
+            getComments(serverUrl, publicKey, discRef.contractId),
+            getCommentVotes(serverUrl, publicKey, discRef.contractId),
+          ]);
+          setCauses(rankCauses(comments, votes));
+        } else {
+          setCauses([]);
+        }
+      } catch (err) { console.error('Failed to resolve causes for QV ballot:', err); setCauses([]); }
     } catch (err) { console.error('Failed to fetch QV data:', err); }
     finally { setLoading(false); }
-  }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady]);
+  }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady, parentContractId]);
 
   useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
 
@@ -121,6 +150,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
   const merged: BallotSolution[] = qvList.map((q) => {
     const twin = approvalProposals[q.id];
     const reviews = twin?.expertReviews ?? [];
+    const found = twin?.causeId ? causes.find((c) => c.comment.id === twin.causeId) : undefined;
     return {
       id: q.id,
       text: twin?.text ?? q.text,
@@ -128,6 +158,9 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
       commitments: twin?.commitments ?? [],
       metrics: reviews.flatMap((rv) => rv.metrics),
       reviewed: reviews.length > 0,
+      causeId: twin?.causeId,
+      causeText: found?.comment.text,
+      causeRank: found?.rank,
     };
   });
   const reviewedList = merged.filter((m) => m.reviewed);
@@ -310,6 +343,12 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                 <div className={styles.solByline}>
                   <UserIdentity name={authorName(s.author)} countryCode={profiles[s.author]?.country} size="sm" />
                 </div>
+                <CauseLine
+                  className={styles.causeChip}
+                  causeId={s.causeId}
+                  causeText={s.causeText}
+                  causeRank={s.causeRank}
+                />
                 {detailCount > 0 && (
                   <details className={styles.dcard}>
                     <summary className={styles.dsummary}>
@@ -374,6 +413,12 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                 <div className={styles.rescount}>
                   {t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(total) })}{idx === 0 ? ` · ${t('mechanisms.qv.leading', 'leading')}` : ''}
                 </div>
+                <CauseLine
+                  className={styles.causeChip}
+                  causeId={s.causeId}
+                  causeText={s.causeText}
+                  causeRank={s.causeRank}
+                />
                 {(s.commitments.length > 0 || s.metrics.length > 0) && (
                   <details className={styles.dcard}>
                     <summary className={styles.dsummary}>

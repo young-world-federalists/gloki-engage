@@ -4,6 +4,7 @@ import { Button, Badge } from '../shared';
 import { useI18n } from '../../i18n';
 import { getCountryName } from '../../utils/countries';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
+import CauseLine from '../initiative/CauseLine';
 import styles from './MandateCard.module.scss';
 
 /** The scroll target id MandatePage puts on the full document. */
@@ -108,6 +109,12 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
           </dt>
           <dd className={styles.rowValue}>
             <span className={styles.solBox}>{provenance.voteWinner}</span>
+            <CauseLine
+              className={styles.causeChip}
+              causeId={mandate.causeId}
+              causeText={mandate.causeText}
+              causeRank={mandate.causeRank}
+            />
           </dd>
         </div>
 

@@ -16,6 +16,10 @@
 .solText { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
 .count { font-size: $text-xs; color: $gray-500; }
 
+// Cause alignment line (S35 F2, Task 11) — .sol is already a flex column with
+// its own gap, so override CauseLine's own margin-top to avoid double-spacing.
+.causeChip { margin-top: 0; }
+
 @include dark {
   .explainerLabel, .previewHead, .disclosure, .count { color: $dark-text-secondary; }
   .solText { color: $dark-text; }
