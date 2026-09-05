@@ -189,3 +189,13 @@ caller must never be able to create, change, or withdraw another key's backing.
 with the same `instanceId`/`parentContractId`/`stageKey` triple, because the mandate
 route's `:mandateId` IS the initiative contract id. They are the same contract, not
 two copies — backing on one surface must show on the other.
+
+### S35 addendum — Causes, discussion status, impact assessment (`docs/contracts/s34-initiative-contract-additions.py`)
+
+Wire truth for these methods is the patch file above (apply to `gloki_engage_initiative_contract.py` on `server-side`). Rulings: `docs/superpowers/specs/2026-09-02-s34-decision-record.md`.
+
+- **`vote_comment(comment_id, direction)`** — `'up' | 'down' | 'none'`; ROOT comments only (the contract returns without writing when the comment has a `parentId`). Storage: flat `comment_votes` collection keyed `caller + ':' + comment_id` → `{voter, commentId, direction}`. Read: **`get_comment_votes()`**. Ranking (top 15 / top 5) and the five-band discussion status are computed client-side from this read; no status method on chain. Votes on soft-deleted roots are also refused.
+- **`add_proposal(..., cause_id='')`** — trailing optional arg, stored as `causeId`; immutable; `''` means "proposed before any cause was ranked".
+- **`add_impact_assessment(proposal_id, target, targets_cause, mechanism, broader_effects, risks, opportunity_costs, time_horizon)`** — flat `impact_assessments` collection keyed `proposal_id + ':' + caller`; contract guards: proposal exists, max 3 per proposal, one per author. Read: **`get_impact_assessments()`**.
+- **D12 (on the record):** assessor eligibility (top-10 writers, `causeScore > 0`, no self-dealing on the same solution or the same cause) and cause alignment are **UI-gated only** in this wave, exactly like the `add_expert_review` expert gate. Server-side eligibility checks belong on the contract roadmap.
+- S13 gap (still open): `set_property` / `get_properties` on the initiative contract are used by the UI and undocumented here.
