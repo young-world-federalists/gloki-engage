@@ -243,18 +243,36 @@ export function seedDemoCommunity(
     // S35 (W4): seeded impact assessments, keyed like the other proposal fixtures.
     // 'VIEWER' is a placeholder the seeder resolves to the real viewer publicKey.
     const impactSeeds = PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY[seed.key] ?? [];
-    const impactAssessments: ImpactAssessmentDoc[] = impactSeeds.map((a, k) => ({
-      author: a.author === 'VIEWER' ? publicKey : a.author,
-      proposalId: 'p' + a.proposalIndex,
-      timestamp: Date.now() - (k + 1) * 3_600_000,
-      target: a.target,
-      targetsCause: a.targetsCause,
-      mechanism: a.mechanism,
-      broaderEffects: a.broaderEffects,
-      risks: a.risks,
-      opportunityCosts: a.opportunityCosts,
-      timeHorizon: a.timeHorizon,
-    }));
+    // D7 self-dealing: an assessor must never be an author/co-author of any
+    // solution on this initiative. Compute the exclusion set from the actual
+    // seeded proposals (not hand-picked) so a future reorder of INITIATIVES
+    // or PERSONAS can't silently turn a fixture's assessor into an author.
+    const solutionAuthors = new Set(propProposals.flatMap((p) => [p.author, ...(p.coAuthors ?? [])]));
+    const allPersonaKeys = PERSONAS.map((p) => p.publicKey);
+    const usedAssessorsByProposal = new Map<string, Set<string>>();
+    const impactAssessments: ImpactAssessmentDoc[] = impactSeeds.map((a, k) => {
+      const proposalId = 'p' + a.proposalIndex;
+      const used = usedAssessorsByProposal.get(proposalId) ?? new Set<string>();
+      const author = a.author === 'VIEWER'
+        ? publicKey
+        : solutionAuthors.has(a.author)
+          ? allPersonaKeys.find((key) => key !== publicKey && !solutionAuthors.has(key) && !used.has(key))!
+          : a.author;
+      used.add(author);
+      usedAssessorsByProposal.set(proposalId, used);
+      return {
+        author,
+        proposalId,
+        timestamp: Date.now() - (k + 1) * 3_600_000,
+        target: a.target,
+        targetsCause: a.targetsCause,
+        mechanism: a.mechanism,
+        broaderEffects: a.broaderEffects,
+        risks: a.risks,
+        opportunityCosts: a.opportunityCosts,
+        timeHorizon: a.timeHorizon,
+      };
+    });
 
     const propId = deployStageContract('approval_contract.py', initiativeId, seed.title);
     initApproval(propId, propProposals, approvalPattern(voters, propProposals.map((p) => p.id), seedInt + 2), impactAssessments);
