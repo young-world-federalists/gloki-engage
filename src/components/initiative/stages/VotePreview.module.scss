@@ -20,9 +20,29 @@
 // its own gap, so override CauseLine's own margin-top to avoid double-spacing.
 .causeChip { margin-top: 0; }
 
+// Read-only folds (Task 14) — implementation measures / metrics / impact
+// assessments. Same .dcard/.dsummary/.chev/.dinner vocabulary as QVFlow's
+// ballot + results folds, so the fold reads identically across surfaces.
+.dcard { margin-top: 0; }
+.dsummary {
+  list-style: none; cursor: pointer; min-height: 44px;
+  display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm;
+  font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
+  &::-webkit-details-marker { display: none; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
+}
+.chev { flex: 0 0 auto; transition: transform $transition-base; }
+.dcard[open] > .dsummary .chev { transform: rotate(180deg); }
+.dinner { padding: 0 0 $spacing-sm; }
+.dinner ul { margin: 0; padding-left: $spacing-lg; }
+.dinner li { font-size: $text-xs; line-height: 1.6; color: $gray-600; }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+
 @include dark {
   .explainerLabel, .previewHead, .disclosure, .count { color: $dark-text-secondary; }
   .solText { color: $dark-text; }
   .preview { border-top-color: $dark-border; }
   .sol { background: $dark-surface; border-color: $dark-border; }
+  .dsummary { color: $dark-text; }
+  .dinner li { color: $dark-text-secondary; }
 }

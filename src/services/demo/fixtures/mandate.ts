@@ -9,6 +9,8 @@
 //
 // All hardcoded UI data — read through the demo layer, never a backend.
 
+import type { ImpactAssessment } from '../../../components/collaboration/flows/voting/approvalApi';
+
 export interface ConvictionConfig {
   participationRate: number; // 0..1 fraction of members who stake
   maxAmount: number; // max stake per member
@@ -118,6 +120,12 @@ export interface PublishedMandate {
   causeId?: string;
   causeText?: string;
   causeRank?: number | null;
+  // Task 14 — the winning solution's impact assessments, read back from the
+  // same approval contract as `articles`/`indicators`. Absent on the
+  // hand-authored fixture (no spine to derive it from); populated in
+  // `useMandate` once a live winner resolves (possibly `[]`, when the winner
+  // has none). Rendered by MandateCard only when non-empty.
+  assessments?: ImpactAssessment[];
   /** Machine-readable spec version. */
   specVersion: string;
 }

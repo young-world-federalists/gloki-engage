@@ -151,6 +151,38 @@
 @keyframes mergeRingPulse { 0%, 100% { border-color: $primary; } 50% { border-color: $gray-200; } }
 @media (prefers-reduced-motion: reduce) { .mergeTargetCard { animation: none; } }
 
+// ─── Impact assessments fold (Task 14) — inside SolutionEvidence, right after
+// the cause chip. Native <details>, same flush-row vocabulary QVFlow's
+// commitments/metrics folds use (.dcard/.dsummary/.chev/.dinner) — one fold
+// pattern shared across the board and the three voter surfaces.
+.dcard { margin-top: $spacing-xs; }
+.dsummary {
+  list-style: none; cursor: pointer; min-height: 44px;
+  display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm;
+  font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
+  &::-webkit-details-marker { display: none; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
+}
+.chev { flex: 0 0 auto; transition: transform $transition-base; }
+.dcard[open] > .dsummary .chev { transform: rotate(180deg); }
+.dinner { padding: 0 0 $spacing-sm; display: flex; flex-direction: column; }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+
+// ─── Impact assessments chin (Task 14, D12) — count + eligibility-gated CTA
+// pill, below the evidence fold and above the approve/review/merge row. The
+// pill follows the chin-pill law: outlined, fully rounded, ≥44px target.
+.impactChin { display: flex; align-items: center; flex-wrap: wrap; gap: $spacing-sm; margin-top: $spacing-sm; }
+.impactCount { font-size: $text-xs; color: $gray-600; }
+.impactCta {
+  margin-left: auto; min-height: 44px; padding: 0 $spacing-md;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1.5px solid $primary; border-radius: $radius-full;
+  color: $primary; font-size: $text-xs; font-weight: $font-semibold; cursor: pointer;
+  &:hover { background: rgba($primary, 0.08); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.impactRungNote { flex-basis: 100%; margin: 0; font-size: $text-xs; color: $gray-600; font-style: italic; }
+
 // ─── Dark mode ─────────────────────────────────────────────────────────
 @include dark {
   .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
@@ -168,4 +200,7 @@
   .actionRow { border-top-color: $dark-border; }
   .actionBtn { border-color: $dark-border; color: $dark-text-secondary; }
   .mergeSourceCard { opacity: 0.5; }
+  .dsummary { color: $dark-text; }
+  .impactCount, .impactRungNote { color: $dark-text-secondary; }
+  .impactCta { color: $primary-on-dark; border-color: $primary-on-dark; &:hover { background: rgba($primary-on-dark, 0.12); } }
 }

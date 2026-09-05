@@ -207,6 +207,32 @@
 .supportBtn { flex: 1; min-width: 0; }
 .shareBtn { flex: 0 0 auto; }
 
+// "Why we expected this to work" (Task 14) — the winning solution's impact
+// assessments, shown only when at least one exists. Sits after the provenance
+// rows, before the primary actions.
+.impactSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-top: $spacing-md;
+  border-top: 1px solid $gray-100;
+
+  @include dark {
+    border-top-color: $dark-border;
+  }
+}
+
+.impactHeading {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
 .srStatus {
   position: absolute;
   width: 1px;

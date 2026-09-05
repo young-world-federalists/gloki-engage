@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
-import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
+import { getComments, getCommentVotes, type Comment, type CommentVote } from '../collaboration/flows/discussion/discussionApi';
 import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
 import { rankCauses, TOP_CAUSES_CARRIED, type CauseRank } from '../../utils/causes';
 import { displayNameFor } from '../../utils/displayName';
@@ -24,6 +24,10 @@ export interface TopCausesPanelProps {
    *  Solutions board can populate its cause-select without a second
    *  fetch (S35 D5). */
   onCauses?: (ranks: CauseRank[]) => void;
+  /** Called with the raw comments + votes behind those ranks (Task 14) — lets
+   *  the Solutions board compute `rankWriters`/assessor eligibility without a
+   *  second fetch of the discussion sub-contract. */
+  onDiscussionData?: (d: { comments: Comment[]; votes: CommentVote[] }) => void;
 }
 
 /**
@@ -39,7 +43,7 @@ export interface TopCausesPanelProps {
  * `useFlowContract` in a display component silently deploys). Renders nothing
  * until that lookup + fetch resolves once.
  */
-const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, communityName, solutions, onCauses }) => {
+const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, communityName, solutions, onCauses, onDiscussionData }) => {
   const t = useT();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
@@ -69,6 +73,7 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
         setRanks(computed);
         setStatus(comments.length > 0 ? computeDiscussionStatus(comments, votes) : null);
         onCauses?.(computed);
+        onDiscussionData?.({ comments, votes });
       })
       .catch(() => {
         if (!cancelled) { setRanks([]); setStatus(null); }
@@ -77,7 +82,7 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
         if (!cancelled) setLoaded(true);
       });
     return () => { cancelled = true; };
-  }, [serverUrl, publicKey, initiativeId, onCauses]);
+  }, [serverUrl, publicKey, initiativeId, onCauses, onDiscussionData]);
 
   if (!loaded) return null;
 

@@ -13,23 +13,27 @@ import { REGIONS, regionOf, regionColorVar, type RegionId } from '../../../../ut
 import { resolveInitiativeStageContract } from '../../../../services/contracts/initiative';
 import { getComments, getCommentVotes } from '../discussion/discussionApi';
 import { rankCauses, type CauseRank } from '../../../../utils/causes';
+import type { ImpactAssessment } from './approvalApi';
 import CauseLine from '../../../initiative/CauseLine';
+import ImpactAssessmentCard from '../../../initiative/ImpactAssessmentCard';
 import styles from './QVFlow.module.scss';
 
 interface QvProposal { id: string; text: string; author: string; timestamp: string | number }
 interface ExpertReview { expert: string; metrics: string[]; note?: string; timestamp: number }
 interface ApprovalProposal {
   id: string; text: string; author: string; timestamp: number | string;
-  commitments?: string[]; expertReviews?: ExpertReview[]; causeId?: string;
+  commitments?: string[]; metrics?: string[]; expertReviews?: ExpertReview[]; causeId?: string;
 }
 interface Config { credits_per_voter: number; status: string }
 
 // A ballot row: hearts/results from qv, commitments/metrics/reviewed from approval,
-// causeId/causeText/causeRank from the discussion contract (S35 F2, Task 11).
+// causeId/causeText/causeRank from the discussion contract (S35 F2, Task 11),
+// assessments from the same approval contract (Task 14).
 interface BallotSolution {
   id: string; text: string; author: string;
   commitments: string[]; metrics: string[]; reviewed: boolean;
   causeId?: string; causeText?: string; causeRank?: number | null;
+  assessments: ImpactAssessment[];
 }
 
 export interface QVFlowProps extends FlowProps {
@@ -62,6 +66,9 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
 
   const [qvProposals, setQvProposals] = useState<Record<string, QvProposal>>({});
   const [approvalProposals, setApprovalProposals] = useState<Record<string, ApprovalProposal>>({});
+  // Task 14 — impact assessments, read from the same approval contract as
+  // commitments/expert reviews; isolated so a failed read never blanks the ballot.
+  const [impactAssessments, setImpactAssessments] = useState<ImpactAssessment[]>([]);
   // Causes ranked in the discussion contract (S35 F2, Task 11) — resolved
   // read-only, once, so each ballot row can show which cause it addresses.
   const [causes, setCauses] = useState<CauseRank[]>([]);
@@ -91,7 +98,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     if (!serverUrl || !publicKey || !contractId) return;
     setLoading(true);
     try {
-      const [p, c, ma, aa, r, ap] = await Promise.all([
+      const [p, c, ma, aa, r, ap, ia] = await Promise.all([
         api.getProposals(serverUrl, publicKey, contractId),
         api.getConfig(serverUrl, publicKey, contractId),
         api.getMyAllocation(serverUrl, publicKey, contractId),
@@ -100,6 +107,9 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
         proposalsReady && proposalsContractId
           ? approvalApi.getProposals(serverUrl, publicKey, proposalsContractId)
           : Promise.resolve(null),
+        proposalsReady && proposalsContractId
+          ? approvalApi.getImpactAssessments(serverUrl, publicKey, proposalsContractId).catch(() => [])
+          : Promise.resolve([]),
       ]);
       setQvProposals((p as Record<string, QvProposal>) || {});
       setConfig((c as Config) || { credits_per_voter: 100, status: 'open' });
@@ -117,6 +127,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
       setAllAllocations((aa as Record<string, Record<string, number>>) || {});
       setResults((r as Record<string, number>) || {});
       if (ap) setApprovalProposals(ap as Record<string, ApprovalProposal>);
+      setImpactAssessments((ia as ImpactAssessment[]) || []);
 
       // Cause ranks (S35 F2, Task 11) — read-only resolve of the discussion
       // sub-contract (mirrors TopCausesPanel/DiscussionPill; never useFlowContract,
@@ -151,16 +162,20 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     const twin = approvalProposals[q.id];
     const reviews = twin?.expertReviews ?? [];
     const found = twin?.causeId ? causes.find((c) => c.comment.id === twin.causeId) : undefined;
+    // Task 14 — author-proposed indicators + expert-validated metrics, deduped
+    // (a review can name a metric the author already proposed).
+    const metrics = Array.from(new Set([...(twin?.metrics ?? []), ...reviews.flatMap((rv) => rv.metrics)]));
     return {
       id: q.id,
       text: twin?.text ?? q.text,
       author: twin?.author ?? q.author,
       commitments: twin?.commitments ?? [],
-      metrics: reviews.flatMap((rv) => rv.metrics),
+      metrics,
       reviewed: reviews.length > 0,
       causeId: twin?.causeId,
       causeText: found?.comment.text,
       causeRank: found?.rank,
+      assessments: impactAssessments.filter((a) => a.proposalId === q.id),
     };
   });
   const reviewedList = merged.filter((m) => m.reviewed);
@@ -307,7 +322,6 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
           <ul className={styles.ballot}>
           {ballot.map((s, i) => {
             const hearts = draft[s.id] || 0;
-            const detailCount = s.commitments.length + s.metrics.length;
             return (
               <li key={s.id} className={styles.sol}>
                 <div className={styles.solHead}>
@@ -349,13 +363,35 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                   causeText={s.causeText}
                   causeRank={s.causeRank}
                 />
-                {detailCount > 0 && (
+                {s.commitments.length > 0 && (
                   <details className={styles.dcard}>
                     <summary className={styles.dsummary}>
-                      <span>{t('mechanisms.qv.commitsMetricsN', 'Commitments & metrics ({n})', { n: detailCount })}</span>
+                      <span>{t('mechanisms.qv.measuresN', 'Implementation measures ({n})', { n: s.commitments.length })}</span>
                       <ChevronDown size={16} className={styles.chev} aria-hidden />
                     </summary>
-                    <div className={styles.dinner}><ul>{[...s.commitments, ...s.metrics].map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                    <div className={styles.dinner}><ul>{s.commitments.map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                  </details>
+                )}
+                {s.metrics.length > 0 && (
+                  <details className={styles.dcard}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('mechanisms.qv.metricsN', 'Metrics ({n})', { n: s.metrics.length })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
+                    </summary>
+                    <div className={styles.dinner}><ul>{s.metrics.map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                  </details>
+                )}
+                {s.assessments.length > 0 && (
+                  <details className={styles.dcard}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('impact.foldN', 'Impact assessments ({n})', { n: s.assessments.length })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
+                    </summary>
+                    <div className={styles.dinner}>
+                      {s.assessments.map((a, k) => (
+                        <ImpactAssessmentCard key={a.author} assessment={a} index={k + 1} />
+                      ))}
+                    </div>
                   </details>
                 )}
               </li>
@@ -419,13 +455,35 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                   causeText={s.causeText}
                   causeRank={s.causeRank}
                 />
-                {(s.commitments.length > 0 || s.metrics.length > 0) && (
+                {s.commitments.length > 0 && (
                   <details className={styles.dcard}>
                     <summary className={styles.dsummary}>
-                      <span>{t('mechanisms.qv.commitsMetricsN', 'Commitments & metrics ({n})', { n: s.commitments.length + s.metrics.length })}</span>
+                      <span>{t('mechanisms.qv.measuresN', 'Implementation measures ({n})', { n: s.commitments.length })}</span>
                       <ChevronDown size={16} className={styles.chev} aria-hidden />
                     </summary>
-                    <div className={styles.dinner}><ul>{[...s.commitments, ...s.metrics].map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                    <div className={styles.dinner}><ul>{s.commitments.map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                  </details>
+                )}
+                {s.metrics.length > 0 && (
+                  <details className={styles.dcard}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('mechanisms.qv.metricsN', 'Metrics ({n})', { n: s.metrics.length })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
+                    </summary>
+                    <div className={styles.dinner}><ul>{s.metrics.map((x, k) => <li key={k}>{x}</li>)}</ul></div>
+                  </details>
+                )}
+                {s.assessments.length > 0 && (
+                  <details className={styles.dcard}>
+                    <summary className={styles.dsummary}>
+                      <span>{t('impact.foldN', 'Impact assessments ({n})', { n: s.assessments.length })}</span>
+                      <ChevronDown size={16} className={styles.chev} aria-hidden />
+                    </summary>
+                    <div className={styles.dinner}>
+                      {s.assessments.map((a, k) => (
+                        <ImpactAssessmentCard key={a.author} assessment={a} index={k + 1} />
+                      ))}
+                    </div>
                   </details>
                 )}
               </li>

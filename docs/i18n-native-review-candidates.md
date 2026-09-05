@@ -1331,6 +1331,59 @@ prompt directly above it in the same modal; wire key/value stays `commitments`).
 reused as-is inside `TopCausesPanel`'s rows and `SolutionEvidence`'s cause chip — no new keys needed
 for those.
 
+### Task 14 — Impact assessment form, card, board CTA, voter surfaces (D7, D12)
+
+**+30 keys, 1 key retired** (parity 1217 → 1246 in both fr and sw). Any of the top-10 writers
+(or a wider rung when too few qualify — D12's eligibility ladder) can submit a structured
+"impact assessment" on a solution they didn't write: what it targets, whether that's the cause
+or a symptom, its mechanism, broader effects, risks, opportunity costs, and time horizon. Up to
+3 per solution. Shown as cards on the Solutions board (folded, after the cause chip), and —
+because they ride the same approval contract as commitments/metrics — also on the QV ballot,
+QV results, the read-only vote preview, and the published Mandate card ("Why we expected this to
+work").
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `impact.field.targetLabel` | Target | Cible | Lengo | Form field label + `ImpactAssessmentCard` row label. |
+| `impact.field.target` | What cause or mechanism does this solution target? | Quelle cause ou quel mécanisme cette solution vise-t-elle ? | Suluhisho hili linalenga sababu au utaratibu gani? | Helper prompt under the target field (brief's verbatim text). |
+| `impact.field.targetsCauseLabel` | Cause or symptom | Cause ou symptôme | Sababu au dalili | SegmentedControl field label + card row label. |
+| `impact.field.targetsCause` | Does it target the cause or a symptom? | Vise-t-elle la cause ou un symptôme ? | Je, linalenga sababu au dalili? | Helper prompt above the Cause/Symptom/Both control. |
+| `impact.field.mechanismLabel` | Mechanism | Mécanisme | Utaratibu | Form field label + card row label. |
+| `impact.field.mechanism` | How is it expected to produce its intended effect? | Comment est-elle censée produire son effet attendu ? | Linatarajiwa kuleta athari yake iliyokusudiwa vipi? | Helper prompt. |
+| `impact.field.broaderEffectsLabel` | Broader effects | Effets plus larges | Athari pana zaidi | Form field label + card row label. |
+| `impact.field.broaderEffects` | Expected broader effects and consequences | Effets et conséquences plus larges attendus | Athari na matokeo pana zaidi yanayotarajiwa | Helper prompt. |
+| `impact.field.risksLabel` | Risks | Risques | Hatari | Form field label + card row label. |
+| `impact.field.risks` | Potential risks and trade-offs | Risques potentiels et compromis | Hatari zinazowezekana na mizani ya kubadilishana | Helper prompt. |
+| `impact.field.opportunityCostsLabel` | Opportunity costs | Coûts d'opportunité | Gharama za fursa | Form field label + card row label. |
+| `impact.field.opportunityCosts` | Opportunity costs — what is given up by choosing this? | Coûts d'opportunité — à quoi renonce-t-on en choisissant cette solution ? | Gharama za fursa — ni nini kinachopotea kwa kuchagua hili? | Helper prompt (brief's verbatim text; repeats the label as a lead-in). |
+| `impact.field.timeHorizonLabel` | Time horizon | Horizon temporel | Muda unaotarajiwa | Form field label + card row label. |
+| `impact.field.timeHorizon` | Time horizon — how quickly it should work, and how long the effect should last | Horizon temporel — à quelle vitesse elle devrait agir, et combien de temps l'effet devrait durer | Muda unaotarajiwa — litafanya kazi haraka kiasi gani, na athari itadumu kwa muda gani | Helper prompt (brief's verbatim text). |
+| `impact.targets.cause` | Cause | Cause | Sababu | SegmentedControl option + the card's rendered word for `targetsCause: 'cause'`. |
+| `impact.targets.symptom` | Symptom | Symptôme | Dalili | SegmentedControl option + rendered word. |
+| `impact.targets.both` | Both | Les deux | Zote mbili | SegmentedControl option + rendered word. |
+| `impact.formTitle` | Assess this solution's impact | Évaluer l'impact de cette solution | Tathmini athari ya suluhisho hili | `ImpactAssessmentForm`'s Modal title. |
+| `impact.intro` | Summarise, in plain words, what this solution is meant to change and what it will cost. | Résumez, en mots simples, ce que cette solution est censée changer et ce qu'elle va coûter. | Fupisha, kwa maneno rahisi, kile suluhisho hili linalokusudiwa kubadilisha na gharama itakayosababisha. | Intro line, brief's verbatim text. |
+| `impact.submit` | Submit assessment | Envoyer l'évaluation | Tuma tathmini | Form submit button. |
+| `impact.nOfMax` | Assessment {i} of {max} | Évaluation {i} sur {max} | Tathmini {i} kati ya {max} | `ImpactAssessmentCard` header; `{max}` is always 3 (`ASSESSORS_PER_SOLUTION`). |
+| `impact.count` | Impact assessments · {n}/3 | Évaluations d'impact · {n}/3 | Tathmini za athari · {n}/3 | Board per-solution chin count. |
+| `impact.cta` | Assess impact | Évaluer l'impact | Tathmini athari | Board chin CTA pill (outlined, `$radius-full`, shown only when `canAssess`). |
+| `impact.rung.noFloor` | Open to the top 10 writers | Ouvert aux 10 premiers rédacteurs | Wazi kwa waandishi 10 bora | Rung copy shown when the eligibility ladder relaxed past `strict` (top 10, no `causeScore>0` floor). |
+| `impact.rung.top25` | Open to the top 25 writers | Ouvert aux 25 premiers rédacteurs | Wazi kwa waandishi 25 bora | Rung copy for the `top-25` step. |
+| `impact.rung.anyVerified` | Open to any verified member | Ouvert à tout membre vérifié | Wazi kwa mwanachama yeyote aliyethibitishwa | Rung copy for the `any-verified` floor. |
+| `impact.foldN` | Impact assessments ({n}) | Évaluations d'impact ({n}) | Tathmini za athari ({n}) | `<details>` fold summary — Solutions board evidence fold, QV ballot + results, VotePreview. |
+| `impact.mandateHeading` | Why we expected this to work | Pourquoi nous pensions que cela fonctionnerait | Kwa nini tulitarajia hili lifanye kazi | MandateCard section heading, shown only when the winning solution has ≥1 assessment. |
+| `mechanisms.qv.measuresN` | Implementation measures ({n}) | Mesures de mise en œuvre ({n}) | Hatua za utekelezaji ({n}) | New fold (was folded into the retired `commitsMetricsN`) — commitments only, QV ballot + results + VotePreview. |
+| `mechanisms.qv.metricsN` | Metrics ({n}) | Indicateurs ({n}) | Vipimo ({n}) | New fold — author-proposed + expert-validated metrics, deduped (`Array.from(new Set([...]))`). |
+
+**Keys retired** — `mechanisms.qv.commitsMetricsN` ("Commitments & metrics ({n})" / fr "Engagements
+et indicateurs ({n})" / sw "Ahadi na vipimo ({n})"): the single flattened commitments+metrics fold
+it labelled was replaced by the two separate `measuresN`/`metricsN` folds above (plus the new
+`impact.foldN` fold) on both the QV ballot and results views — its only two call sites. Confirmed
+unused app-wide (`grep -rn "commitsMetricsN" src`) before removing it from both `fr.ts` and `sw.ts`.
+
+`mechanisms.approval.author.you` (existing key) is reused as-is for the "You" byline on
+`ImpactAssessmentCard` when the viewer is the assessment's own author — no new key needed.
+
 ---
 
 ## How to deliver fixes

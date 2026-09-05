@@ -1,0 +1,29 @@
+@use '../../styles/variables' as *;
+
+// "Assess impact" form (Task 14) — seven label+helper fields inside a kit
+// Modal. Mirrors SolutionsBoard's .addForm/.commitPrompt/.commitHint/.addTextarea
+// vocabulary so this reads as the same form language, not a bespoke one-off.
+.form { display: flex; flex-direction: column; gap: $spacing-md; }
+.solutionText {
+  margin: 0; padding: $spacing-sm $spacing-md;
+  background: rgba($primary, 0.06); border: 1px solid rgba($primary, 0.2); border-radius: $radius-md;
+  font-size: $text-sm; font-weight: $font-medium; color: $gray-800;
+}
+.intro { margin: 0; font-size: $text-sm; color: $gray-600; }
+
+.field { display: flex; flex-direction: column; gap: 2px; }
+.label { font-size: $text-sm; font-weight: $font-semibold; color: $gray-800; }
+.helper { margin: 0 0 $spacing-xs; font-size: $text-xs; color: $gray-600; }
+.textarea {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  padding: $spacing-sm $spacing-md; border: 1px solid $gray-200; border-radius: $radius-md;
+  font-size: $text-sm; color: $gray-800;
+  &:focus { border-color: $primary; outline: none; }
+}
+
+@include dark {
+  .solutionText { background: rgba($primary, 0.16); border-color: rgba($primary, 0.4); color: $dark-text; }
+  .intro, .helper { color: $dark-text-secondary; }
+  .label { color: $dark-text; }
+  .textarea { background: $dark-bg; border-color: $dark-border; color: $dark-text; }
+}
