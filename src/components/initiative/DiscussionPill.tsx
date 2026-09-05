@@ -50,7 +50,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
       })
       .then((list) => {
         if (cancelled || !list) return;
-        setCount(list.filter((c) => !c.deleted).length);
+        setCount(list.filter((c) => !c.parentId && !c.deleted).length); // a cause = a root comment (D3/D4)
       })
       .catch(() => {});
     return () => {
