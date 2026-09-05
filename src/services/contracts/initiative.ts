@@ -62,12 +62,31 @@ export function normalizeStageContract(
   };
 }
 
+// Perf (S35 fix-round): a stage contract, once registered on the initiative,
+// never changes — so a resolved (non-null) result can be cached forever. A
+// `null` result (not yet registered) must NEVER be cached: the stage contract
+// can be deployed later by a completely different code path (first write
+// wins), and a cached null would then be permanently stale. Keyed by
+// `${contractId}:${stageKey}` so distinct initiatives/stages don't collide.
+const stageContractCache = new Map<string, InitiativeStageContract>();
+
+/** Clears the memoised stage-contract cache. Call this from any path that
+ *  wipes/reseeds demo state (e.g. a DEMO_VERSION bump) so a resolved
+ *  reference from a prior demo generation can't leak into the new one. */
+export function clearStageContractCache(): void {
+  stageContractCache.clear();
+}
+
 export async function resolveInitiativeStageContract(
   serverUrl: string,
   publicKey: string,
   contractId: string,
   stageKey: string,
 ): Promise<InitiativeStageContract | null> {
+  const cacheKey = `${contractId}:${stageKey}`;
+  const cached = stageContractCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     const stageContract = await contractRead({
       serverUrl,
@@ -76,7 +95,10 @@ export async function resolveInitiativeStageContract(
       method: { name: 'get_stage_contract', values: { stage_key: stageKey } } as IMethod,
     });
     const normalized = normalizeStageContract(stageContract);
-    if (normalized) return normalized;
+    if (normalized) {
+      stageContractCache.set(cacheKey, normalized);
+      return normalized;
+    }
   } catch {
     // Older immutable initiative contracts may only expose these references via get_details.
   }
@@ -90,7 +112,9 @@ export async function resolveInitiativeStageContract(
     });
     if (!details || typeof details !== 'object') return null;
 
-    return normalizeStageContract((details as Record<string, unknown>)[stageKey]);
+    const normalized = normalizeStageContract((details as Record<string, unknown>)[stageKey]);
+    if (normalized) stageContractCache.set(cacheKey, normalized);
+    return normalized;
   } catch {
     return null;
   }
