@@ -125,6 +125,29 @@ export async function likeComment(
   });
 }
 
+export interface CommentVote { voter: string; commentId: string; direction: 'up' | 'down' }
+
+export async function voteComment(
+  serverUrl: string, publicKey: string, contractId: string,
+  commentId: string, direction: 'up' | 'down' | 'none',
+) {
+  return await contractWrite({
+    serverUrl, publicKey, contractId,
+    method: { name: 'vote_comment', values: { comment_id: commentId, direction } } as IMethod,
+  });
+}
+
+export async function getCommentVotes(serverUrl: string, publicKey: string, contractId: string): Promise<CommentVote[]> {
+  const raw = await contractRead({
+    serverUrl, publicKey, contractId,
+    method: { name: 'get_comment_votes', values: {} } as IMethod,
+  });
+  const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Partial<CommentVote>>;
+  return Object.values(obj)
+    .filter((v) => v && (v.direction === 'up' || v.direction === 'down') && v.commentId && v.voter)
+    .map((v) => ({ voter: String(v.voter), commentId: String(v.commentId), direction: v.direction as 'up' | 'down' }));
+}
+
 export async function getComments(
   serverUrl: string,
   publicKey: string,
