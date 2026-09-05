@@ -70,6 +70,7 @@ function load(contractId: string): ApprovalState {
     proposals: s.proposals ?? {},
     count: s.count ?? 0,
     approvals: s.approvals ?? {},
+    impactAssessments: s.impactAssessments ?? {},
   };
 }
 
