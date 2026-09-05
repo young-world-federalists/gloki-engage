@@ -67,7 +67,7 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
       <AppHeader
         showBack
         onBack={() => navigate(-1)}
-        eyebrow={`${t('header.section.discussion', 'Discussion')} — ${communityName}`}
+        eyebrow={`${t('header.section.discussion', 'Causes')} — ${communityName}`}
         title={title}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
@@ -76,6 +76,12 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
               the h1 already carries the initiative title (S23), so passing the
               title here too would double it. */}
           <ContextCard body={description} ariaLabel={t('context.discussion.aria', 'The problem under discussion')} />
+          <p className={styles.explainer}>
+            {t(
+              'causes.explainer',
+              'Causes are ranked by votes. The top 15 are carried into Solutions; a solution must address one of the top 5.',
+            )}
+          </p>
           <ErrorBoundary fallbackMessage={t('deliberation.error', 'The discussion section encountered an error.')}>
             {hasError ? (
               <div className={`${styles.status} ${styles.statusError}`}>

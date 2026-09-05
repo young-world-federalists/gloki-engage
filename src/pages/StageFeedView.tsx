@@ -46,7 +46,7 @@ export const SAMPLE_INITIATIVES: Record<string, Array<{ id: string; title: strin
 // here is the English fallback). Per-stage banner copy lives in the render.
 const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
   problem: { label: 'Problem', icon: AlertCircle },
-  discussion: { label: 'Discussion', icon: MessageCircle },
+  discussion: { label: 'Causes', icon: MessageCircle },
   proposals: { label: 'Solutions', icon: Lightbulb },
   vote: { label: 'Vote', icon: Vote },
   mandate: { label: 'Mandate', icon: ScrollText },

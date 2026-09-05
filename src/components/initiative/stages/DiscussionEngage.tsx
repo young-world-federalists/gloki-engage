@@ -58,7 +58,7 @@ const DiscussionEngage: React.FC<DiscussionEngageProps> = ({ initiativeId }) => 
         <EmptyState
           compact
           icon={<MessageSquare size={28} aria-hidden />}
-          title={t('deliberation.empty.title', 'No discussion yet')}
+          title={t('deliberation.empty.title', 'No causes yet')}
           message={t('deliberation.empty.body', 'Be the first to weigh in on this problem.')}
         />
       )}

@@ -32,7 +32,7 @@ const STAGES = [
   },
   {
     id: 'discussion',
-    name: 'Discussion',
+    name: 'Causes',
     icon: MessageSquare,
     description: 'Community members discuss the problem openly. At least 33% of members must participate in the conversation. Members can also suggest modifications to the initiative\'s framing.',
   },

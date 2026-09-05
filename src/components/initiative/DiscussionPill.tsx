@@ -60,10 +60,10 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
 
   // Always the neutral function label (W3, campaign §5 rule 10): the live
   // comment count — not a stage-styled skin — signals activity.
-  const label = t('stage.discussionPill', 'Discussion');
+  const label = t('stage.discussionPill', 'Causes');
   const ariaLabel =
     count != null && count > 0
-      ? t('stage.discussionPillCount', '{label} — {n} comments', { label, n: count })
+      ? t('stage.discussionPillCount', '{label} — {n} causes', { label, n: count })
       : label;
 
   return (

@@ -47,7 +47,7 @@ const en: Dictionary = {
   'nav.browseByStage': 'Browse by stage',
 
   // AppHeader section eyebrows (Wave 1)
-  'header.section.discussion': 'Discussion',
+  'header.section.discussion': 'Causes',
   'header.section.collaboration': 'Collaboration',
 
   // Canonical FULL stage labels (CommunityHome badges, InitiativeDashboard
@@ -55,7 +55,7 @@ const en: Dictionary = {
   // stage.* = full. The old dashboard.stage.{id}.label aliases are collapsed
   // into this family; dashboard.stage.{id}.desc remains dashboard copy.
   'stage.problem': 'Problem',
-  'stage.discussion': 'Discussion',
+  'stage.discussion': 'Causes',
   'stage.proposals': 'Solutions',
   'stage.vote': 'Vote',
   'stage.mandate': 'Mandate',

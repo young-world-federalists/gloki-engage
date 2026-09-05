@@ -17,6 +17,16 @@
   gap: $spacing-md;
 }
 
+.explainer {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: $spacing-xs 0 $spacing-md;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
 .status {
   display: flex;
   flex-direction: column;

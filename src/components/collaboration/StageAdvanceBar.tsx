@@ -16,7 +16,7 @@ import styles from './StageAdvanceBar.module.scss';
 const PIPELINE_ORDER: PipelineStage[] = ['problem', 'discussion', 'proposals', 'vote', 'mandate'];
 const STAGE_LABEL: Record<PipelineStage, string> = {
   problem: 'Problem',
-  discussion: 'Discussion',
+  discussion: 'Causes',
   proposals: 'Solutions',
   vote: 'Vote',
   mandate: 'Mandate',

@@ -1241,6 +1241,39 @@ keep the Heart. All eight keys are new under `causes.*`.
 `common.dismiss` (existing key, both languages) is reused for the hint banner's dismiss button
 rather than adding a new `causes.hint.dismiss` key.
 
+### Task 7 — Rename surfaces to "Causes" (labels only, D3)
+
+**+1 key, 5 values changed** (parity 1198 → 1199 in both fr and sw). Ruling D3: the per-problem
+Discussion function reads "Causes" everywhere its display default named it as a noun — key names,
+`stageKey: 'discussion'`, `/discussion` paths, and `discussionContractId` are all unchanged. The five
+existing keys below already had an English/fr/sw entry from an earlier session and are shared across
+several call sites (see the task report for the full call-site list), so their **values** changed in
+place rather than being added as new keys.
+
+| Key | English (new) | fr (new) | sw (new) | Note |
+| --- | --- | --- | --- | --- |
+| `causes.explainer` | Causes are ranked by votes. The top 15 are carried into Solutions; a solution must address one of the top 5. | Les causes sont classées par votes. Les 15 premières sont transmises aux solutions ; une solution doit traiter l'une des 5 premières. | Sababu zinapangwa kwa kura. Sababu 15 za juu huchukuliwa hadi Suluhisho; suluhisho lazima lishughulikie mojawapo ya sababu 5 za juu. | **New key.** Caption under the `ContextCard` on `DiscussionStageView`. |
+| `header.section.discussion` | Causes (was "Discussion") | Causes (was "Discussion") | Sababu (was "Majadiliano") | AppHeader eyebrow on the per-problem Causes page. |
+| `stage.discussion` | Causes (was "Discussion") | Causes (was "Discussion") | Sababu (was "Majadiliano") | Shared "full stage label" family — feeds `StageAdvanceBar`, `InitiativeStagePanel`, and `CreateInitiativePage`'s stepper. |
+| `stage.discussionPill` | Causes (was "Discussion", en had no dict entry — inline default only) | Causes (was "Discussion") | Sababu (was "Majadiliano") | The chin pill on initiative cards. |
+| `stage.discussionPillCount` | {label} — {n} causes (was "… comments", en inline default only) | {label} — {n} causes (was "… commentaires") | {label} — sababu {n} (was "… maoni {n}") | Count aria for the chin pill; `{label}`/`{n}` tokens preserved. |
+| `deliberation.empty.title` | No causes yet (was "No discussion yet", en inline default only) | Pas encore de causes (was "Pas encore de discussion") | Bado hakuna sababu (was "Bado hakuna majadiliano") | `DiscussionEngage` empty-state title (the Causes teaser card on the initiative panel). |
+
+**Left unchanged, out of scope for D3** — see task report for full reasoning:
+- `nav.discussion` (en "Discuss") — drives the global StageFooter bottom nav (cross-community
+  "browse by stage"), `HowGlokiWorks` onboarding, and a demo fixture label. The controller's grep for
+  literal `'Discussion'` defaults did not surface this key (its value is "Discuss", not "Discussion"),
+  and renaming it would touch app-wide navigation beyond this task's stated scope. **⚠ flag for a
+  future wave** if the bottom nav should also read "Causes" for consistency with the header/pill.
+- `collab.flow.discussion` (registry.ts label "Discussion") — a *different* feature: the generic
+  "Add Tab" Teamwork flow for collaboration groups, unrelated to the per-problem pipeline stage.
+- `deliberation.discussion.teaser` ("{c} comments · {p} people") and `deliberation.empty.body` ("Be
+  the first to weigh in on this problem.") — generic, don't name the function; left as-is.
+- `context.discussion.aria` ("The problem under discussion") — generic noun use of "discussion",
+  not a display default naming the renamed function.
+- `initiative.stages.discussion.desc` on `CreateInitiativePage` — describes the participation
+  mechanic, not named in the task's file list; left unchanged.
+
 ---
 
 ## How to deliver fixes
