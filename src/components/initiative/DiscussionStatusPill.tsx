@@ -118,6 +118,19 @@ export interface DiscussionStatusPillProps {
   /** Community display name — feeds the scoped Consensus sentence (S35 F4). */
   communityName?: string;
   className?: string;
+  /**
+   * When true, forwarded to {@link DiscussionStatusBadge} so the badge carries
+   * no accessible name of its own — for a host control (e.g. a card's
+   * expand/collapse toggle) that folds the status word into its own
+   * `aria-label` instead (S35 fix-round F4).
+   */
+  decorative?: boolean;
+  /**
+   * Called whenever a status is computed, so a host component can fold the
+   * status name into its own `aria-label` without re-fetching (S35 fix-round
+   * F4). Not called while loading or when no discussion contract exists yet.
+   */
+  onStatus?: (status: DiscussionStatus) => void;
 }
 
 /**
@@ -128,10 +141,18 @@ export interface DiscussionStatusPillProps {
  * Renders nothing while loading or when no discussion contract exists yet — a
  * card must not show "New" for a problem whose discussion has not started.
  */
-export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({ initiativeId, communityName, className }) => {
+export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({
+  initiativeId,
+  communityName,
+  className,
+  decorative,
+  onStatus,
+}) => {
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const [status, setStatus] = useState<DiscussionStatus | null>(null);
+  const onStatusRef = useRef(onStatus);
+  onStatusRef.current = onStatus;
 
   useEffect(() => {
     setStatus(null);
@@ -148,7 +169,9 @@ export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({ init
       .then((result) => {
         if (cancelled || !result) return;
         const [comments, votes] = result;
-        setStatus(computeDiscussionStatus(comments, votes));
+        const next = computeDiscussionStatus(comments, votes);
+        setStatus(next);
+        onStatusRef.current?.(next);
       })
       .catch(() => {});
     return () => {
@@ -157,7 +180,7 @@ export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({ init
   }, [serverUrl, publicKey, initiativeId]);
 
   if (!status) return null;
-  return <DiscussionStatusBadge status={status} communityName={communityName} className={className} />;
+  return <DiscussionStatusBadge status={status} communityName={communityName} className={className} decorative={decorative} />;
 };
 
 export default DiscussionStatusPill;

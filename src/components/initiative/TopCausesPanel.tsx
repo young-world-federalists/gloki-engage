@@ -8,7 +8,7 @@ import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/disc
 import { rankCauses, TOP_CAUSES_CARRIED, type CauseRank } from '../../utils/causes';
 import { displayNameFor } from '../../utils/displayName';
 import { Card, Badge, EmptyState, UserIdentity } from '../shared';
-import { DiscussionStatusBadge } from './DiscussionStatusPill';
+import { DiscussionStatusBadge, statusAccessibleName } from './DiscussionStatusPill';
 import styles from './TopCausesPanel.module.scss';
 
 export interface TopCausesPanelProps {
@@ -93,6 +93,13 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
 
   const rows = ranks.slice(0, TOP_CAUSES_CARRIED);
   const solutionCountFor = (causeId: string) => solutions.filter((s) => s.causeId === causeId).length;
+  const toggleTitleText = t('causes.panel.title', 'Top causes ({n})', { n: rows.length });
+  // The toggle button's own accessible name (S35 fix-round F4): the status
+  // badge inside it is `decorative`, so its name is folded in here instead of
+  // being announced a second time.
+  const toggleAriaLabel = status
+    ? `${toggleTitleText}. ${statusAccessibleName(t, status, communityName)}`
+    : undefined;
 
   return (
     <Card className={styles.card} padded={false}>
@@ -101,12 +108,13 @@ const TopCausesPanel: React.FC<TopCausesPanelProps> = ({ initiativeId, community
         className={styles.toggle}
         aria-expanded={open}
         aria-controls={panelId}
+        aria-label={toggleAriaLabel}
         onClick={() => setOpen((o) => !o)}
       >
         <span className={styles.toggleTitle}>
-          {t('causes.panel.title', 'Top causes ({n})', { n: rows.length })}
+          {toggleTitleText}
         </span>
-        {status && <DiscussionStatusBadge status={status} communityName={communityName} />}
+        {status && <DiscussionStatusBadge status={status} communityName={communityName} decorative />}
         {open ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
       </button>
       {open && (
