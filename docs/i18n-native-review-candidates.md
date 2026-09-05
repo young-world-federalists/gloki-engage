@@ -1288,6 +1288,7 @@ Badge on every initiative card and as the discussion page's header subtitle.
 | `causes.status.converging` | Converging | Convergent | Inakaribiana | 0.5 ≤ agreement < 0.75. |
 | `causes.status.consensus` | Consensus | Consensus | Makubaliano | agreement ≥ 0.75. |
 | `causes.status.scoped` | Consensus among {n} Gloki participants in {community} | Consensus parmi {n} participants Gloki à {community} | Makubaliano kati ya washiriki {n} wa Gloki katika {community} | Off-app accessible name / tooltip, Consensus band only (F4). `{n}` = distinct voters, `{community}` may be `''` where no name is in scope (e.g. `InitiativeStageCard`'s shared shell). |
+| `causes.status.scopedNoCommunity` | Consensus among {n} Gloki participants | Consensus entre {n} participants Gloki | Makubaliano kati ya washiriki {n} wa Gloki | **New key (fix round, F4 walk finding).** `statusAccessibleName` fallback when `communityName` is empty/undefined — fixes the preview bug where the community-feed card pill announced "…in " with a trailing blank. Used instead of `causes.status.scoped` (never with an empty `{community}` interpolation) whenever no community name is in scope. |
 | `causes.status.aria` | Causes discussion: {word} | Discussion des causes : {word} | Majadiliano ya sababu: {word} | Off-app accessible name / tooltip for the other four bands; `{word}` is the already-translated status word. |
 
 **⚠ width-risk (F5), not a translation defect:** several sw words exceed the 12-character

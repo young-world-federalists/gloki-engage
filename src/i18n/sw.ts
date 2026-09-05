@@ -815,6 +815,7 @@ const sw: Dictionary = {
   'causes.status.converging': 'Inakaribiana',
   'causes.status.consensus': 'Makubaliano',
   'causes.status.scoped': 'Makubaliano kati ya washiriki {n} wa Gloki katika {community}',
+  'causes.status.scopedNoCommunity': 'Makubaliano kati ya washiriki {n} wa Gloki',
   'causes.status.aria': 'Majadiliano ya sababu: {word}',
   'context.discussion.aria': 'Tatizo linalojadiliwa',
   'deliberation.thread.disclosure': 'Maoni ni ya wazi kwa jamii na yanahifadhiwa kama sehemu ya kumbukumbu ya majadiliano.',

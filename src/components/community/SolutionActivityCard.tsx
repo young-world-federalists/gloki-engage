@@ -20,6 +20,9 @@ export interface SolutionActivityCardProps {
   hostAgent: string;
   expanded: boolean;
   onToggle: () => void;
+  /** Community display name, threaded through to the discussion status pill's
+   *  scoped Consensus sentence (S35 fix-round F4). */
+  communityName?: string;
 }
 
 /**
@@ -42,6 +45,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
   hostAgent,
   expanded,
   onToggle,
+  communityName,
 }) => {
   const t = useT();
   const dispatch = useAppDispatch();
@@ -88,6 +92,7 @@ const SolutionActivityCard: React.FC<SolutionActivityCardProps> = ({
       expanded={expanded}
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
+      communityName={communityName}
       collapsedTeaser={t('card.teaserSolution', 'Weigh in on the solutions')}
     >
       <SolutionEngage

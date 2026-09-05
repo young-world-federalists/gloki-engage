@@ -22,13 +22,18 @@ export function statusAccessibleName(
 ): string {
   const meta = STATUS_META[status.key];
   const word = t(meta.labelKey, meta.labelDefault);
-  const community = communityName ?? '';
-  return status.key === 'consensus'
-    ? t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
-        n: status.participants,
-        community,
-      })
-    : t('causes.status.aria', 'Causes discussion: {word}', { word });
+  if (status.key !== 'consensus') {
+    return t('causes.status.aria', 'Causes discussion: {word}', { word });
+  }
+  if (!communityName) {
+    return t('causes.status.scopedNoCommunity', 'Consensus among {n} Gloki participants', {
+      n: status.participants,
+    });
+  }
+  return t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
+    n: status.participants,
+    community: communityName,
+  });
 }
 
 export interface DiscussionStatusBadgeProps {

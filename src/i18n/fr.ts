@@ -816,6 +816,7 @@ const fr: Dictionary = {
   'causes.status.converging': 'Convergent',
   'causes.status.consensus': 'Consensus',
   'causes.status.scoped': 'Consensus parmi {n} participants Gloki à {community}',
+  'causes.status.scopedNoCommunity': 'Consensus entre {n} participants Gloki',
   'causes.status.aria': 'Discussion des causes : {word}',
   'context.discussion.aria': 'Le problème en discussion',
   'deliberation.thread.disclosure': 'Les commentaires sont publics au sein de la communauté et conservés dans l’historique de la discussion.',

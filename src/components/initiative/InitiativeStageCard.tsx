@@ -62,6 +62,10 @@ export interface InitiativeStageCardProps {
    *  before the blue open action — e.g. the Problem card's "Suggest" pill + code
    *  chip (S30 A-5, {@link ProblemChinExtras}). */
   chinExtras?: React.ReactNode;
+  /** Community display name, when cheaply in scope at the call site — feeds the
+   *  scoped Consensus sentence on the five-band {@link DiscussionStatusPill}
+   *  (S35 fix-round F4). Omit to fall back to the unscoped sentence. */
+  communityName?: string;
   /** The per-stage Engage UI — rendered only when expanded, in the shaded panel. */
   children?: React.ReactNode;
 }
@@ -86,6 +90,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   stageNav,
   chinExtras,
   children,
+  communityName,
 }) => {
   const t = useT();
   const meta = STAGE_META[post.stage] || STAGE_META.problem;
@@ -110,10 +115,13 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
             </span>
           </Badge>
           {/* Five-band Causes status (S35 D6/F3-F5): read-only, resolves its own
-              discussion sub-contract — renders nothing until one exists. No
-              `communityName` is in scope on this shared card shell, so the
-              off-app scoped Consensus sentence falls back to an unscoped one. */}
-          {stageNav && <DiscussionStatusPill initiativeId={stageNav.initiativeId} />}
+              discussion sub-contract — renders nothing until one exists.
+              `communityName` is passed through when the call site has one in
+              scope (S35 fix-round F4); otherwise the off-app scoped Consensus
+              sentence falls back to an unscoped one. */}
+          {stageNav && (
+            <DiscussionStatusPill initiativeId={stageNav.initiativeId} communityName={communityName} />
+          )}
           {expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
         </span>
 
