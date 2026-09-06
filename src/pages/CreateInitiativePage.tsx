@@ -28,13 +28,13 @@ const STAGES = [
     id: 'problem',
     name: 'Problem',
     icon: AlertTriangle,
-    description: 'Your community votes on whether this is a real problem. At least 50% of voters must agree it\'s worth addressing before it moves forward.',
+    description: 'Your community votes on whether this is a real problem worth addressing before it moves forward.',
   },
   {
     id: 'discussion',
     name: 'Causes',
     icon: MessageSquare,
-    description: 'Community members discuss the problem openly. At least 33% of members must participate in the conversation. Members can also suggest modifications to the initiative\'s framing.',
+    description: 'Community members name the causes of the problem and vote them up or down. The most-supported causes are carried into Solutions.',
   },
   {
     id: 'proposals',
