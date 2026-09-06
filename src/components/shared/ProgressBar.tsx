@@ -25,6 +25,12 @@ export interface ProgressBarProps {
    * announcing the raw percentage. Clamped to [0, 100].
    */
   fillPct?: number;
+  /**
+   * Render N discrete cells instead of a continuous fill (S36 — the "{X} of 4
+   * approvals" bar). The first round(value / max × segments) cells fill in the
+   * variant colour; ARIA is identical to the continuous bar.
+   */
+  segments?: number;
   /** Layout hook (flex sizing etc.) — visual styling stays in the kit. */
   className?: string;
 }
@@ -41,9 +47,28 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   variant = 'primary',
   size = 'sm',
   fillPct,
+  segments,
   className,
 }) => {
   const pct = Math.max(0, Math.min(100, fillPct ?? (max > 0 ? (value / max) * 100 : 0)));
+
+  if (segments && segments > 0) {
+    const filled = Math.max(0, Math.min(segments, Math.round((pct / 100) * segments)));
+    return (
+      <div
+        className={clsx(styles.segmented, styles[size], className)}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-valuenow={Math.round(value)}
+        aria-label={label}
+      >
+        {Array.from({ length: segments }, (_, i) => (
+          <span key={i} className={clsx(styles.segment, i < filled && styles.segmentOn, i < filled && styles[variant])} />
+        ))}
+      </div>
+    );
+  }
   return (
     <div
       className={clsx(styles.track, styles[size], className)}

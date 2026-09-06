@@ -1,0 +1,59 @@
+@use '../../styles/variables' as *;
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: 44px;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $gray-100;
+  list-style: none;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @include dark {
+    border-bottom-color: $dark-border;
+  }
+}
+
+.dot {
+  flex-shrink: 0;
+  width: $spacing-sm;
+  height: $spacing-sm;
+  border-radius: $radius-full;
+}
+
+.online {
+  background: $success;
+}
+
+.offline {
+  background: $gray-300;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.meta {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.action {
+  flex-shrink: 0;
+}

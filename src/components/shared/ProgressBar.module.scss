@@ -39,8 +39,39 @@
   background: $gray-500;
 }
 
+// Segmented variant (S36): N cells on the same track tokens.
+.segmented {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.segment {
+  flex: 1;
+  height: 100%;
+  border-radius: $radius-full;
+  background: $gray-100;
+  transition: background $transition-base ease;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+// Compound selectors so the filled colour outranks the dark track rule.
+.segmentOn.primary {
+  background: $primary;
+}
+
+.segmentOn.success {
+  background: $success;
+}
+
+.segmentOn.neutral {
+  background: $gray-500;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .fill {
+  .fill, .segment {
     transition: none;
   }
 }
