@@ -243,10 +243,13 @@ export function seedDemoCommunity(
     // S35 (W4): seeded impact assessments, keyed like the other proposal fixtures.
     // 'VIEWER' is a placeholder the seeder resolves to the real viewer publicKey.
     const impactSeeds = PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY[seed.key] ?? [];
-    // D7 self-dealing: an assessor must never be an author/co-author of any
-    // solution on this initiative. Compute the exclusion set from the actual
-    // seeded proposals (not hand-picked) so a future reorder of INITIATIVES
-    // or PERSONAS can't silently turn a fixture's assessor into an author.
+    // D7 self-dealing (decision record :34): an assessor must not author the solution they
+    // assess, nor any solution sharing its causeId. This seed is additionally strict — it
+    // avoids every solution author it can — but the persona branch below is the only branch
+    // that enforces it; the VIEWER branch relies on the ruled rule, which it satisfies.
+    // Compute the exclusion set from the actual seeded proposals (not hand-picked) so a
+    // future reorder of INITIATIVES or PERSONAS can't silently turn a fixture's assessor
+    // into an author.
     const solutionAuthors = new Set(propProposals.flatMap((p) => [p.author, ...(p.coAuthors ?? [])]));
     const allPersonaKeys = PERSONAS.map((p) => p.publicKey);
     const usedAssessorsByProposal = new Map<string, Set<string>>();
