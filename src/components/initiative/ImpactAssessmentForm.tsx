@@ -80,7 +80,7 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>{t('common.cancel', 'Cancel')}</Button>
-          <Button variant="primary" onClick={handleSubmit} loading={submitting} disabled={!canSubmit}>
+          <Button variant="primary" onClick={handleSubmit} loading={submitting} disabled={!canSubmit} aria-describedby={`${uid}-required`}>
             {t('impact.submit', 'Submit assessment')}
           </Button>
         </>
@@ -91,6 +91,7 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
         <p className={styles.intro}>
           {t('impact.intro', 'Summarise, in plain words, what this solution is meant to change and what it will cost.')}
         </p>
+        <p id={`${uid}-required`} className={styles.helper}>{t('impact.allRequired', 'All fields are required.')}</p>
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor={`${uid}-target`}>{t('impact.field.targetLabel', 'Target')}</label>

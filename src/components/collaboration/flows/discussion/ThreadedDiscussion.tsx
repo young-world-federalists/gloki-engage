@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef, useId } from 'react';
 import {
   Reply, Trash2, Heart, MessageSquare, CornerDownRight, ArrowLeft, ChevronDown, ChevronRight,
   ThumbsUp, ThumbsDown,
@@ -148,7 +148,10 @@ const CommentItem: React.FC<{
   newCommentId?: string | null;
   newCommentRef?: React.RefCallback<HTMLDivElement>;
   onNewCommentBlur?: (id: string) => void;
-}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onVote, tally, voteOf, rankOf, onFocus, newCommentId, newCommentRef, onNewCommentBlur }) => {
+  /** id of the "voting is locked" explanation (P15); undefined when the
+   *  viewer can participate. Only consumed by the root vote buttons. */
+  lockedId?: string;
+}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onVote, tally, voteOf, rankOf, onFocus, newCommentId, newCommentRef, onNewCommentBlur, lockedId }) => {
   const { t, locale } = useI18n();
   const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -209,14 +212,14 @@ const CommentItem: React.FC<{
               <>
                 <div className={styles.voteGroup} role="group" aria-label={t('causes.vote.group', 'Vote on this cause')}>
                   <button type="button" className={`${styles.voteBtn} ${mine === 'up' ? styles.voteOn : ''}`}
-                    aria-pressed={mine === 'up'} disabled={!canParticipate}
+                    aria-pressed={mine === 'up'} disabled={!canParticipate} aria-describedby={lockedId}
                     onClick={() => onVote(node.id, 'up')}
                     aria-label={t('causes.vote.up', 'Vote up — a real driver of the problem')}>
                     <ThumbsUp size={16} aria-hidden />
                   </button>
                   <span className={styles.voteScore} aria-label={t('causes.vote.score', 'Net score {n}', { n: score })}>{score > 0 ? `+${score}` : score}</span>
                   <button type="button" className={`${styles.voteBtn} ${mine === 'down' ? styles.voteOn : ''}`}
-                    aria-pressed={mine === 'down'} disabled={!canParticipate}
+                    aria-pressed={mine === 'down'} disabled={!canParticipate} aria-describedby={lockedId}
                     onClick={() => onVote(node.id, 'down')}
                     aria-label={t('causes.vote.down', 'Vote down — not a real driver')}>
                     <ThumbsDown size={16} aria-hidden />
@@ -340,6 +343,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const [showVoteHint, setShowVoteHint] = useState(() => !getHintSeen('causesVoteHint'));
   const [focusRootId, setFocusRootId] = useState<string | null>(null);
   const [postedStatus, setPostedStatus] = useState('');
+  const lockedId = useId();
   const [newCommentId, setNewCommentId] = useState<string | null>(null);
   const newCommentElRef = useRef<HTMLDivElement | null>(null);
   const announceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -496,12 +500,16 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
         {postedStatus}
       </span>
 
-      {canParticipate && (
+      {canParticipate ? (
         <Composer
           placeholder={t('causes.composer.placeholder', 'What is causing this problem?')}
           submitLabel={t('deliberation.thread.comment', 'Comment')}
           onSubmit={handleTopLevel}
         />
+      ) : (
+        <p id={lockedId} className={styles.lockedNote}>
+          {t('causes.vote.locked', 'Voting on causes is open to verified community members.')}
+        </p>
       )}
 
       <div className={styles.toolbar}>
@@ -568,6 +576,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
               newCommentId={newCommentId}
               newCommentRef={newCommentRefCallback}
               onNewCommentBlur={handleNewCommentBlur}
+              lockedId={canParticipate ? undefined : lockedId}
             />
           ))}
         </div>

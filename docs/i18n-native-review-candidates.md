@@ -1401,6 +1401,46 @@ prompt (readiness gates, singular/plural counts, strict-rung copy).
 `.many` precedent. Confirmed unused app-wide (`grep -rn "causes.panel.solutions'" src`) before
 removing it from both `fr.ts` and `sw.ts`.
 
+### Task — Panel R3 judge MUST fix wave (2026-09-06)
+
+**+2 keys** (parity 1249 → 1251 in both fr and sw at the wave's start; see "How to deliver fixes"
+for the re-measured final count). Both are new accessibility/explanation strings from the
+adversarial-panel judge ruling — no existing key's value changed.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.vote.locked` | Voting on causes is open to verified community members. | Le vote sur les causes est réservé aux membres vérifiés de la communauté. | Kupiga kura kuhusu sababu ni kwa wanachama waliothibitishwa wa jumuiya. | `ThreadedDiscussion`'s locked-vote explanation (P15) — visible line + `aria-describedby` on both disabled vote buttons for a viewer who cannot participate (an organization/ministry account is the reachable case, `useCommunityTrust.ts`). Copy states the rule rather than "get verified" because that account type can never satisfy it. |
+| `impact.allRequired` | All fields are required. | Tous les champs sont obligatoires. | Sehemu zote zinahitajika. | `ImpactAssessmentForm`'s required-fields note (D5a) — the one string that states why the seven-field Submit button is disabled; previously only a stub-only error string that a working `canSubmit` guard made unreachable. |
+
+**Also fixed in this wave (values changed, no new keys):**
+- `causes.status.scoped` (fr) — `'Consensus parmi {n} participants Gloki à {community}'` →
+  `'Consensus parmi {n} participants Gloki dans {community}'` (D8: `à` reads wrong before an
+  organisation name, which is what every seeded community name is).
+- `causes.status.scopedNoCommunity` (fr) — `'Consensus entre {n} participants Gloki'` →
+  `'Consensus parmi {n} participants Gloki'` (D8: the sibling function must not switch
+  `parmi`/`entre` between its two branches).
+- `initiative.stages.discussion.desc` / `initiative.stages.problem.desc` (fr + sw) — rewritten to
+  match the renamed "Causes" stage and to drop threshold numbers ("50%"/"33%") that no code
+  enforces (P11, D3-companion).
+
+**Explicitly not added** — `causes.status.scoped.one`/`.many` singular forms: the judge ruled a
+third status-formula floor (`MIN_PARTICIPANTS = 3`, `src/utils/discussionStatus.ts`) that makes
+`status.participants < 3` structurally unreachable inside `computeDiscussionStatus`, so the
+singular "Consensus among 1 Gloki participant" string this would have served can never render.
+Do not add these keys unless that floor is later lowered.
+
+**Routed to native review, not fixed in this wave** (judge D8/D9/D12, LATER):
+- `sw.ts` `impact.field.risks` — "Hatari zinazowezekana na mizani ya kubadilishana" calques
+  "trade-offs" literally ("scales of exchanging") where the sibling `impact.field.opportunityCosts`
+  glosses the same concept in plain Swahili instead. Proposed native-review alternative: replace
+  "mizani ya kubadilishana" with a plain-language gloss consistent with `opportunityCosts`'s style.
+- `fr.ts` — gender agreement of `Contesté / Divisé / Convergent` inside `'Discussion des causes :
+  {word}'`, and `rédacteurs` → `contributeurs` (the latter blocked on an English "writers" →
+  "contributors" product-vocabulary decision that has not been made).
+- `fr.ts` `causes.panel.solutions.one`/`.many` — French takes the singular for zero, so a discussion
+  with zero solutions renders "0 solution" not "0 solutions"; flag for a native reviewer to confirm
+  whether the singular form should special-case zero.
+
 ---
 
 ## How to deliver fixes

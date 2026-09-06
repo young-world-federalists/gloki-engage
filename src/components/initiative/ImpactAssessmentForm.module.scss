@@ -18,7 +18,7 @@
   width: 100%; box-sizing: border-box; resize: vertical;
   padding: $spacing-sm $spacing-md; border: 1px solid $gray-200; border-radius: $radius-md;
   font-size: $text-sm; color: $gray-800;
-  &:focus { border-color: $primary; outline: none; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
 }
 
 // F13: a contract-thrown submit error (e.g. "max 3 per proposal"), shown

@@ -16,6 +16,11 @@
 }
 
 /* Composer */
+.lockedNote {
+  font-size: $text-xs;
+  color: $gray-500;
+  @include dark { color: $dark-text-secondary; }
+}
 .composeBox { display: flex; flex-direction: column; gap: $spacing-sm; }
 .composeTextarea {
   width: 100%;
@@ -157,7 +162,7 @@
   @include dark { color: $dark-text; }
 }
 
-.commentActions { display: flex; align-items: center; gap: $spacing-md; }
+.commentActions { display: flex; align-items: center; gap: $spacing-md; flex-wrap: wrap; row-gap: $spacing-xs; }
 .actionBtn {
   display: inline-flex;
   align-items: center;

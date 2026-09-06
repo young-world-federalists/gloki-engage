@@ -12,6 +12,7 @@ import useCommunityTrust from '../../hooks/useCommunityTrust';
 import ThreadedDiscussion from './flows/discussion/ThreadedDiscussion';
 import { STATUS_META } from '../../utils/discussionStatus';
 import type { DiscussionStatus } from '../../utils/discussionStatus';
+import { statusAccessibleName } from '../initiative/DiscussionStatusPill';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 
@@ -64,8 +65,9 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
 
   // Five-band Causes status (S35 D6), mirrored up from ThreadedDiscussion (which
   // already holds comments+votes) rather than a second fetch. AppHeader's
-  // `subtitle` is string-only (no ReactNode passthrough), so this passes just
-  // the translated status word, not the full dot+Badge treatment.
+  // `subtitle` accepts a ReactNode (F4), so the visible word carries an
+  // sr-only scoped sentence via statusAccessibleName — this is the largest,
+  // most screenshot-prone render of the word, so it must honour F4 too.
   const [status, setStatus] = useState<DiscussionStatus | null>(null);
   const statusWord = status ? t(STATUS_META[status.key].labelKey, STATUS_META[status.key].labelDefault) : undefined;
 
@@ -78,7 +80,12 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
         onBack={() => navigate(-1)}
         eyebrow={`${t('header.section.discussion', 'Causes')} — ${communityName}`}
         title={title}
-        subtitle={statusWord}
+        subtitle={status ? (
+          <>
+            {statusWord}
+            <span className={styles.srOnly}> — {statusAccessibleName(t, status, communityName)}</span>
+          </>
+        ) : undefined}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>

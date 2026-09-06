@@ -21,7 +21,7 @@ export interface BadgeProps {
 /** Small pill label for status/metadata. Pass translated text as children. */
 const Badge: React.FC<BadgeProps> = ({ tone = 'neutral', size = 'md', dot, children, className, title, 'aria-label': ariaLabel }) => {
   return (
-    <span className={clsx(styles.badge, styles[tone], styles[size], className)} title={title} aria-label={ariaLabel}>
+    <span className={clsx(styles.badge, styles[tone], styles[size], className)} role={ariaLabel ? 'img' : undefined} title={title} aria-label={ariaLabel}>
       {dot && <span className={styles.dot} aria-hidden />}
       {children}
     </span>

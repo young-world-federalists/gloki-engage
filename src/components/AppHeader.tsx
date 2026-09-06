@@ -26,7 +26,7 @@ export interface AppHeaderProps {
    * h1 — one box, tight spacing. Page intros live HERE, never as a floating
    * paragraph at the top of the content (S23).
    */
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   /**
    * Keep `title` as the page's programmatic `<h1>` but hide it visually — for
    * pages whose content already shows the name (e.g. the community card), so the

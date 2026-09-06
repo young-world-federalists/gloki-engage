@@ -104,7 +104,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   // instead of being announced a second time.
   const toggleBaseName = post.title || post.headline;
   const toggleAriaLabel = discussionStatus
-    ? `${toggleBaseName}. ${statusAccessibleName(t, discussionStatus, communityName)}`
+    ? `${toggleBaseName.replace(/[.!?]+$/, '')}. ${statusAccessibleName(t, discussionStatus, communityName)}`
     : undefined;
 
   return (
