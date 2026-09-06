@@ -125,6 +125,7 @@ const SolutionEvidence: React.FC<{
         causeId={causeId}
         causeText={found?.comment.text}
         causeRank={found?.rank}
+        causesLoaded={causes.length > 0}
       />
       {assessments.length > 0 && (
         <details className={styles.dcard}>

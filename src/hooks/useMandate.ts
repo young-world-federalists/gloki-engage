@@ -192,6 +192,7 @@ export function useMandate(
       causeId: winner?.causeId,
       causeText: foundCause?.comment.text,
       causeRank: foundCause?.rank,
+      causeResolvable: causes.length > 0,
       assessments: winnerAssessments,
     };
   }, [results, proposals, ratification, voters, eligible, fixture, causes, assessments]);

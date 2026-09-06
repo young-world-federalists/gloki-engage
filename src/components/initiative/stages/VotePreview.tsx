@@ -121,6 +121,7 @@ const VotePreview: React.FC<VotePreviewProps> = ({ initiativeId }) => {
             causeId={s.causeId}
             causeText={s.causeText}
             causeRank={s.causeRank}
+            causesLoaded={causes.length > 0}
           />
           <UserIdentity name={displayNameFor(profiles[s.author], s.author)} countryCode={profiles[s.author]?.country} size="sm" />
           <span className={styles.count}>{t('mechanisms.qv.votesCount', '{n} votes', { n: Math.round(results[s.id] || 0) })}</span>

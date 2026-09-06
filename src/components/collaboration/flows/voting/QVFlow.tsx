@@ -362,6 +362,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                   causeId={s.causeId}
                   causeText={s.causeText}
                   causeRank={s.causeRank}
+                  causesLoaded={causes.length > 0}
                 />
                 {s.commitments.length > 0 && (
                   <details className={styles.dcard}>
@@ -454,6 +455,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
                   causeId={s.causeId}
                   causeText={s.causeText}
                   causeRank={s.causeRank}
+                  causesLoaded={causes.length > 0}
                 />
                 {s.commitments.length > 0 && (
                   <details className={styles.dcard}>

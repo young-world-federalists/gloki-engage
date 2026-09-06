@@ -14,6 +14,12 @@ export interface CauseLineProps {
   /** The cause's current rank, when resolvable. null/undefined behaves like
    *  "no longer ranked" whenever `causeText` is present. */
   causeRank?: number | null;
+  /** Whether the caller's rank list has loaded. Defaults to `true` so
+   *  untouched call sites keep today's behaviour. When `false`, an
+   *  unresolvable `causeText` renders nothing instead of claiming
+   *  "no longer ranked" — we cannot tell "not loaded" from "demoted"
+   *  until the ranks are in (P12). */
+  causesLoaded?: boolean;
   className?: string;
 }
 
@@ -30,7 +36,7 @@ export interface CauseLineProps {
  * Used by SolutionsBoard, QVFlow's ballot + results, VotePreview, and
  * MandateCard — one renderer for all four surfaces (Task 11).
  */
-const CauseLine: React.FC<CauseLineProps> = ({ causeId, causeText, causeRank, className }) => {
+const CauseLine: React.FC<CauseLineProps> = ({ causeId, causeText, causeRank, causesLoaded = true, className }) => {
   const t = useT();
 
   if (!causeId) {
@@ -42,6 +48,7 @@ const CauseLine: React.FC<CauseLineProps> = ({ causeId, causeText, causeRank, cl
   }
 
   if (!causeText) {
+    if (!causesLoaded) return null;
     return (
       <div className={clsx(styles.causeLine, className)}>
         <Badge tone="neutral" size="sm">{t('causes.unranked', 'Cause no longer ranked')}</Badge>

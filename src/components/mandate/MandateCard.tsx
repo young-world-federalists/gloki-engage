@@ -115,6 +115,7 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
               causeId={mandate.causeId}
               causeText={mandate.causeText}
               causeRank={mandate.causeRank}
+              causesLoaded={mandate.causeResolvable}
             />
           </dd>
         </div>

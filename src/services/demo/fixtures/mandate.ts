@@ -120,6 +120,10 @@ export interface PublishedMandate {
   causeId?: string;
   causeText?: string;
   causeRank?: number | null;
+  // P12 — whether the caller's rank list had loaded when this mandate was
+  // derived. Lets <CauseLine> tell "not loaded" from "demoted" instead of
+  // asserting "no longer ranked" for a cause that simply hasn't resolved yet.
+  causeResolvable?: boolean;
   // Task 14 — the winning solution's impact assessments, read back from the
   // same approval contract as `articles`/`indicators`. Absent on the
   // hand-authored fixture (no spine to derive it from); populated in
