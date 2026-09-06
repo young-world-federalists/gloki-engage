@@ -38,7 +38,7 @@ const PathwayCards: React.FC = () => {
           <span className={styles.icon}>{p.icon}</span>
           <h3 className={styles.title}>{p.title}</h3>
           <p className={styles.body}>{p.body}</p>
-          <Button size="sm" variant="secondary" fullWidth onClick={() => navigate(p.to)}>
+          <Button size="md" variant="secondary" fullWidth onClick={() => navigate(p.to)}>
             {p.cta}
           </Button>
         </Card>

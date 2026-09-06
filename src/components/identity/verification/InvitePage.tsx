@@ -27,12 +27,17 @@ const InvitePage: React.FC = () => {
   const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!ctx || !e.currentTarget.checkValidity()) return;
+    const who = name.trim();
     setSending(true);
-    await sendInvitation(ctx, { name: name.trim(), email: email.trim(), vouch });
-    setSending(false);
+    try {
+      await sendInvitation(ctx, { name: who, email: email.trim(), vouch });
+      await refetch(); // demo seam emits no write events
+    } finally {
+      setSending(false);
+    }
     toast.show({
       tone: 'success',
-      message: t('verification.invite.sentToast', 'Invitation recorded for {name} — this demo sends no email.', { name: name.trim() }),
+      message: t('verification.invite.sentToast', 'Invitation recorded for {name} — this demo sends no email.', { name: who }),
     });
     setName('');
     setEmail('');
@@ -41,9 +46,12 @@ const InvitePage: React.FC = () => {
   const handleRequest = async (member: MemberSummary) => {
     if (!ctx) return;
     setRequesting(member.publicKey);
-    await requestInvitation(ctx, member.publicKey);
-    await refetch();
-    setRequesting(null);
+    try {
+      await requestInvitation(ctx, member.publicKey);
+      await refetch();
+    } finally {
+      setRequesting(null);
+    }
     toast.show({ tone: 'success', message: t('verification.invite.requestedToast', 'Invitation request sent to {name}', { name: member.name }) });
   };
 
@@ -82,7 +90,7 @@ const InvitePage: React.FC = () => {
       {loading ? (
         <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
       ) : members.length === 0 ? (
-        <EmptyState compact icon={<Users size={48} aria-hidden />} title={t('verification.request.empty', 'No members match.')} />
+        <EmptyState compact icon={<Users size={48} aria-hidden />} title={t('verification.invite.empty', 'No verified members yet.')} />
       ) : (
         <ul className={pages.list}>
           {members.map((m) => (

@@ -63,6 +63,9 @@ const RequestPage: React.FC = () => {
       <p className={pages.intro}>
         {t('verification.request.intro', 'Members you know can confirm you\'re a real person. Each approval counts toward your four.')}
       </p>
+      <p className={pages.intro}>
+        {t('verification.demoNote', 'Demo: these members reply automatically. No real person is contacted.')}
+      </p>
       <div className={pages.field}>
         <label htmlFor="verification-search" className={pages.fieldLabel}>
           {t('verification.request.search', 'Search by name')}

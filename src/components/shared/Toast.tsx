@@ -104,7 +104,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               onClick={() => dismiss(item.id)}
               aria-label={t('common.dismiss', 'Dismiss')}
             >
-              <X size={16} />
+              <X size={16} aria-hidden />
             </button>
           </div>
         ))}

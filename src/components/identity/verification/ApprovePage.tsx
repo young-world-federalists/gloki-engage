@@ -24,19 +24,25 @@ const ApprovePage: React.FC = () => {
   const { ctx, state, refetch, trust } = useVerification();
   const { byKey } = useVerifiedMembers();
   const [leaving, setLeaving] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const verified = trust === 'verified';
   const pending = state?.pending ?? [];
 
   const respond = async (request: VouchRequest, approve: boolean) => {
-    if (!ctx) return;
+    if (!ctx || busy) return;
     const name = byKey.get(request.requester)?.name ?? request.requester.slice(0, 8);
-    if (approve) {
-      setLeaving(request.id);
-      await new Promise((resolve) => setTimeout(resolve, LEAVE_MS));
+    setBusy(true);
+    try {
+      if (approve) {
+        setLeaving(request.id);
+        await new Promise((resolve) => setTimeout(resolve, LEAVE_MS));
+      }
+      await respondToRequest(ctx, request.id, approve);
+      await refetch();
+    } finally {
+      setLeaving(null);
+      setBusy(false);
     }
-    await respondToRequest(ctx, request.id, approve);
-    await refetch();
-    setLeaving(null);
     if (approve) {
       toast.show({ tone: 'success', message: t('verification.approve.approvedToast', 'You vouched for {name}', { name }) });
     }
@@ -51,6 +57,9 @@ const ApprovePage: React.FC = () => {
       <p className={pages.intro}>
         {t('verification.approve.intro', 'Approve only people you know are real. Your vouch counts toward their four.')}
       </p>
+      <p className={pages.intro}>
+        {t('verification.demoNote', 'Demo: these members reply automatically. No real person is contacted.')}
+      </p>
       {pending.length === 0 ? (
         <EmptyState
           icon={<Inbox size={48} aria-hidden />}
@@ -61,7 +70,7 @@ const ApprovePage: React.FC = () => {
           }
           action={
             verified ? undefined : (
-              <Button size="sm" onClick={() => navigate('/identity/verification')}>
+              <Button size="md" onClick={() => navigate('/identity/verification')}>
                 {t('gate.getVerified', 'Get verified')}
               </Button>
             )
@@ -87,14 +96,14 @@ const ApprovePage: React.FC = () => {
                   {isLeaving ? (
                     <span className={styles.done}>
                       <CheckCircle2 size={18} aria-hidden />
-                      {t('verification.approve.approve', 'Approve')}
+                      {t('verification.approve.approved', 'Approved')}
                     </span>
                   ) : (
                     <>
-                      <Button size="md" onClick={() => void respond(request, true)} disabled={leaving !== null}>
+                      <Button size="md" onClick={() => void respond(request, true)} disabled={busy}>
                         {t('verification.approve.approve', 'Approve')}
                       </Button>
-                      <Button size="md" variant="ghost" onClick={() => void respond(request, false)} disabled={leaving !== null}>
+                      <Button size="md" variant="ghost" onClick={() => void respond(request, false)} disabled={busy}>
                         {t('verification.approve.decline', 'Decline')}
                       </Button>
                     </>

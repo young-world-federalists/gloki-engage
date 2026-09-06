@@ -226,5 +226,14 @@ Verification is **platform-wide on the Digital Agent** (S34 D8), not per communi
   receive requests; the demo hides `pending` below the threshold — the contract may enforce it.
 - **Invitations** (`sendInvitation`, `requestInvitation`) are off-platform (email) and need no contract
   method; the demo records them locally and sends nothing.
+- **`listVerifiedMembers(query)`** (read) — the directory a newcomer picks approvers from. No contract
+  method exists for this yet: the demo serves a 30-person fixture. The real layer needs a platform-wide
+  read of verified members (proposed **`list_verified_members(query)`** on the Digital Agent side, or a
+  union of community member lists filtered to `approvals.length >= 4`) — until one exists this call
+  stays fixture-backed.
+- **Request ids vs public keys:** the UI's `respondToRequest(ctx, requestId, approve)` carries the
+  request's id; `vouch` / `decline_vouch` take the requester's `public_key`. The seam resolves
+  `requestId → requester` from `get_vouches().pending` before calling either — one extra read, no
+  change to the method surface.
 - **Demo-only, not for production:** the four simulated outcomes (`declines` flags in
   `src/services/demo/fixtures/verification.ts`) and the dev scenario switcher.

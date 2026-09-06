@@ -652,8 +652,8 @@ const fr: Dictionary = {
   'trust.vouched': 'Parrainé·e par {count}',
   'trust.vouchAdded': 'Parrainage ajouté — davantage de membres se portent garants de vous.',
   'trust.your.title': 'Votre vérification',
-  'trust.your.progress': 'Parrainé·e par {count} sur {threshold} requis pour être vérifié. Rencontrez plus de membres pour bâtir la confiance.',
-  'trust.your.verified': 'Vous êtes membre vérifié de cette communauté.',
+  'trust.your.progress': 'Parrainé·e par {count} sur {threshold} nécessaires pour être vérifié·e. Demandez à des membres que vous connaissez de se porter garants.',
+  'trust.your.verified': 'Vous êtes vérifié·e — cela compte dans chaque communauté.',
   'trust.your.barLabel': 'Progression de la vérification',
 
   // ── Per-stage permission labels ────────────────────────────────────────
@@ -1385,7 +1385,8 @@ const fr: Dictionary = {
   // ── S36 — Verification (Prompt 2 Wave 1) ──
   'verification.title': 'Se faire vérifier',
   'verification.eyebrow': 'Vérification',
-  'verification.hub.progress': '{count} approbations sur {threshold} reçues',
+  'verification.hub.progress': 'Approbations reçues : {count} sur {threshold}',
+  'verification.demoNote': 'Démo : ces membres répondent automatiquement. Aucune personne réelle n’est contactée.',
   'verification.hub.explain': 'Quatre membres attestant qu’ils vous connaissent comme une vraie personne vous rendent Vérifié·e partout sur Gloki — sans papiers d’identité ni reconnaissance faciale.',
   'verification.hub.verifiedTitle': 'Vous êtes vérifié·e',
   'verification.hub.verifiedBody': 'Les membres vérifiés peuvent voter et soutenir des mandats dans chaque communauté qu’ils rejoignent.',
@@ -1421,6 +1422,7 @@ const fr: Dictionary = {
   'verification.approve.intro': "N'approuvez que des personnes dont vous savez qu'elles sont réelles. Votre caution compte parmi leurs quatre.",
   'verification.approve.asked': 'vous demande de vous porter garant·e',
   'verification.approve.approve': 'Approuver',
+  'verification.approve.approved': 'Approuvé·e',
   'verification.approve.decline': 'Refuser',
   'verification.approve.emptyVerified': "Aucune demande pour l'instant.",
   'verification.approve.emptyUnverified': 'Les membres pourront vous demander une caution une fois que vous serez vérifié·e.',
@@ -1435,6 +1437,7 @@ const fr: Dictionary = {
   'verification.invite.requestCta': "Demander une invitation",
   'verification.invite.requested': 'Demandé ✓',
   'verification.invite.requestedToast': "Demande d'invitation envoyée à {name}",
+  'verification.invite.empty': 'Aucun membre vérifié pour l’instant.',
   'demo.verification.menu': 'Démo : état de vérification',
   'demo.verification.title': 'État de vérification (démo)',
   'demo.verification.body': 'Applique un scénario et recharge la page.',

@@ -1,7 +1,9 @@
 // DEMO-ONLY sidecar (dev builds): applies a verification scenario from the
 // mock layer and reloads. Reaches past the seam on purpose — the
-// `.demo.tsx` suffix marks it, like ProblemStage.demo.ts. Never imported by
-// production paths (HomepageMenu gates the entry on import.meta.env.DEV).
+// `.demo.tsx` suffix marks it, like ProblemStage.demo.ts. HomepageMenu imports
+// it statically in every build; only the menu entry that opens it is gated on
+// import.meta.env.DEV, so it ships inert in production (a React.lazy DEV-only
+// import is the later hardening).
 import React from 'react';
 import { Modal, Button } from '../../shared';
 import { useAppSelector } from '../../../store/hooks';

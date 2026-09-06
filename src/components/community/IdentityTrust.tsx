@@ -56,8 +56,8 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
         />
         <p className={styles.verifyStatus}>
           {trust.currentUserTrust === 'verified'
-            ? t('trust.your.verified', "You're a verified member of this community.")
-            : t('trust.your.progress', 'Vouched by {count} of {threshold} needed to verify. Meet more members to build trust.', {
+            ? t('trust.your.verified', "You're verified — this counts in every community.")
+            : t('trust.your.progress', 'Vouched by {count} of {threshold} needed to verify. Ask members you know to vouch for you.', {
                 count: trust.currentUserVouchCount,
                 threshold: VERIFIED_THRESHOLD,
               })}
