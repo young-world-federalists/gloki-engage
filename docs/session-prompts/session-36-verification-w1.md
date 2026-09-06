@@ -1,14 +1,15 @@
 # Session 36 — Prompt 2 Wave 1: Community verification
 
-**Context recap (as of 2026-09-05, `ui` @ `15b9d59`).** S35 built Prompt 1 in full (W0→W4 —
+**Context recap (as of 2026-09-06, `ui` @ `8e49972`).** S35 built Prompt 1 in full (W0→W4 —
 Causes forum, the five-band discussion status pill, required cause alignment on new solutions,
-and impact assessment) from the S34 decision record, 29 commits `2e3aada..15b9d59`, plus an
-8-commit same-day final-review fix wave (A–H) applying the whole-branch review findings — 38
-commits total `origin/ui..ui`. Per-task subagent review ran clean throughout (one Important
-caught and fixed at task 14); the whole-branch Opus review and the push decision are Eston's
-gate and were handled separately from the closeout docs. **Push state: `ui` is 38 commits ahead
-of `origin/ui` and has NOT been pushed** — confirm with Eston before this session touches
-anything, since a stale local `ui` changes several premises below. Per **D11**, a push to `ui` does not deploy on its own; deploy
+and impact assessment) from the S34 decision record, plus a same-day 8-commit final-review fix
+wave (A–H) applying the whole-branch review findings, and a further nine-commit adversarial-panel
+(R3 judge) MUST fix wave — `origin/ui..ui` (`101e4a3..8e49972`, 47 commits) total. Per-task
+subagent review ran clean throughout (one Important caught and fixed at task 14); the
+whole-branch Opus review and the push decision are Eston's gate and were handled separately from
+the closeout docs. **Push state: `ui` is 47 commits ahead of `origin/ui` and has NOT been
+pushed** — confirm with Eston before this session touches anything, since a stale local `ui`
+changes several premises below. Per **D11**, a push to `ui` does not deploy on its own; deploy
 happens only when Ouri merges `ui` → `server-side`, so pushing S35 and getting it live are two
 separate asks of two different people.
 

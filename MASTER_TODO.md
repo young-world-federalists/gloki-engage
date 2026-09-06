@@ -482,7 +482,8 @@ where a role in the product had no interface.
   finish a pipeline.
 
 **P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ BUILT (S35, 2026-09-05;
-push pending)** (`2e3aada..15b9d59`, 38 commits after the 2026-09-05 final-review fix wave). Spec
+push pending)** (`origin/ui..ui`, `101e4a3..8e49972`, 47 commits after the 2026-09-05
+final-review fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave). Spec
 [docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md](docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md);
 decision record
 [docs/superpowers/specs/2026-09-02-s34-decision-record.md](docs/superpowers/specs/2026-09-02-s34-decision-record.md)
@@ -542,6 +543,19 @@ full impact-assessment submission end to end. **Not pushed** — awaiting Eston'
 whole-branch Opus review (0 Crit/0 Imp target) runs as part of that gate. **D2** (the sample-content
 fallback ruled "restore" in the decision record) was **not built this session** — it stays Eston's
 call, filed as optional Task 16 in the plan.
+
+**2026-09-06 update — adversarial panel R3 (whole-branch gate).** Two Sonnet advocates (prosecutor
+P1–P15, defender D1–D13) argued the branch at `18b54c6`; an Opus judge, with a read-only copy of
+Ouri's real initiative contract the panellists didn't have, ruled 34 MUST fixes (docs only: D1, D2;
+formula guards: P6/D4 via a third `MIN_PARTICIPANTS` floor and a net-score band cap, both additive
+to the D6/F3-ruled formula) applied as 9 further commits before push, plus 11 LATER items ledgered for S36 in the
+judge ruling's §B (four fr/sw register items additionally routed into
+`docs/i18n-native-review-candidates.md`, below). Full ruling:
+`.superpowers/sdd/2026-09-02-prompt1-causes-impact-status/panel-R3-judge.md`; fix report:
+`.superpowers/sdd/2026-09-02-prompt1-causes-impact-status/panel-fix-report.md`. i18n +2 keys
+(`causes.vote.locked`, `impact.allRequired`) this wave, fr/sw parity 1251/1251 — see the changelog
+entry below for the full-wave i18n delta. **Still not pushed** — the whole-branch push decision
+remains Eston's gate.
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
@@ -609,7 +623,8 @@ call, filed as optional Task 16 in the plan.
 ## 8. Changelog
 
 - **2026-09-05 — S35: P10 Causes forum, discussion status pill, impact assessment (BUILT, push
-  pending; `2e3aada..15b9d59`, 38 commits after the same-day final-review fix wave).** Spec
+  pending; `origin/ui..ui`, `101e4a3..8e49972`, 47 commits after the same-day final-review
+  fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave).** Spec
   `docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md`; rulings
   `docs/superpowers/specs/2026-09-02-s34-decision-record.md` (D3–D7 and D12 drove the build; D1/D2/
   D8–D11/F9/F10 needed no code here). Scope classes: UI + **five contract-method additions**
@@ -624,10 +639,15 @@ call, filed as optional Task 16 in the plan.
   initiative card. W3 required cause alignment on new solutions with a #1 pre-select and a shared
   `CauseLine` demotion chip (D5). W4 the writer-rank eligibility ladder (D7) and the impact-
   assessment form/card/CTA/mandate section — **D12 accepted on the record: eligibility is UI-gated
-  only**, filed as a follow-up for Ouri's contract roadmap in §7 Blocked/coordination. i18n +64
-  keys / 1 retired at fr/sw parity 1246/1246, appended to the native-review packet. Per-task
-  subagent review clean (one Important caught and fixed at task 14: the impact CTA/rung computed
-  from unloaded discussion data); the whole-branch Opus review and push decision are Eston's gate,
+  only**, filed as a follow-up for Ouri's contract roadmap in §7 Blocked/coordination. i18n +62
+  keys / 1 retired at fr/sw parity 1251/1251 (`grep -oE "'[A-Za-z0-9_.]+':" src/i18n/{fr,sw}.ts |
+  sort -u | wc -l` — layout-independent; the earlier line-anchored count under-reported by missing
+  a shared-line double key, corrected by the R3 judge fix wave), appended to the native-review
+  packet. Per-task subagent review clean (one Important caught and fixed at task 14: the impact
+  CTA/rung computed from unloaded discussion data); an adversarial 3-advocate/1-judge whole-branch
+  panel (R3) then found 38 more issues, of which 34 were MUST-fixed in a further 9-commit wave (2
+  new i18n keys, `causes.vote.locked`/`impact.allRequired`) before push; the remaining LATER items
+  are ledgered in §7. The whole-branch Opus review and push decision are Eston's gate,
   run separately from this closeout. **D2** (the sample-content fallback) stays **Eston's call, not
   built this session** — optional Task 16 in the plan. ★ Learning: the S33 conviction-subsystem
   lesson repeats in reverse — this time the wire patch, FOR_OURI addendum and UI-gated-only
