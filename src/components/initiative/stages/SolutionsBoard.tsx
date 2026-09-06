@@ -9,7 +9,7 @@ import { getInitiativeRoles, type InitiativeRoles } from '../../../services/init
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { fetchCommunityMembers } from '../../../store/slices/communitiesSlice';
 import { useCommunityTrust } from '../../../hooks/useCommunityTrust';
-import { rankWriters, eligibleAssessors, type EligibilityRung } from '../../../utils/writerRank';
+import { rankWriters, eligibleAssessors, ASSESSORS_PER_SOLUTION, type EligibilityRung } from '../../../utils/writerRank';
 import { Button, UserIdentity, InfoDisclosure, Modal, ProgressBar, SourceLinks, SourcesInput, SearchableSelect } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import type { SourceLink } from '../../../utils/sources';
@@ -784,7 +784,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
             // members list have both loaded; before then, don't offer the CTA
             // or name a rung (the count line below is always safe to show).
             const canAssessThis = eligibilityReady && !!publicKey && elig.keys.includes(publicKey);
-            const rungNote = eligibilityReady ? rungCopy(t, elig.rung) : null;
+            const rungNote = eligibilityReady && elig.keys.length > 0 && solutionAssessments.length < ASSESSORS_PER_SOLUTION ? rungCopy(t, elig.rung) : null;
             return (
               <div
                 key={p.id}
