@@ -15,7 +15,7 @@ import { initCommunity } from './demoContracts/community';
 import { seedAllDemoCommunities } from './seedDemoCommunity';
 import { clearStageContractCache } from '../contracts/initiative';
 
-const DEMO_VERSION = 'global-v18';
+const DEMO_VERSION = 'global-v19';
 const DEMO_VERSION_KEY = 'gloki_demo_version';
 
 // Remove all demo-owned localStorage (registry, per-contract state, seed flags)

@@ -201,3 +201,30 @@ Wire truth for these methods is the patch file above (apply to `gloki_engage_ini
 - **D12 (on the record):** assessor eligibility (top-10 writers, `causeScore > 0`, no self-dealing on the same solution or the same cause) and cause alignment are **UI-gated only** in this wave, exactly like the `add_expert_review` expert gate. Server-side eligibility checks belong on the contract roadmap.
 - S13 gap (still open): `set_property` / `get_properties` on the initiative contract are used by the UI and undocumented here.
 - **Question for Ouri (not a patch change):** `vote_comment` and `add_impact_assessment` guard with `if <id> not in self.comments / self.proposals`, the same form as the live `delete_comment`, `like_comment`, `request_expert_review` and `add_expert_review`. If the storage bridge's `Collection.__contains__` does not coerce a hex string to an `ObjectId` on an `append()`-keyed collection, all of these — old and new — refuse silently. Please confirm on a live community; if it bites, the one-word fix for all six is `self.comments[comment_id].exists()`.
+
+### S36 addendum — Community verification, Wave 1 (`src/services/verification.ts`)
+
+Verification is **platform-wide on the Digital Agent** (S34 D8), not per community. The UI's seam is
+`src/services/verification.ts`; today it delegates to a localStorage demo module
+(`src/services/demo/verificationDemo.ts`). Neither `digital_agent_contract.py` nor
+`gloki_engage_community_contract.py` has these methods yet — they are what the real layer needs:
+
+- **`request_vouch(public_key)`** — the caller asks `public_key` to vouch for them. Creates a pending
+  request addressed to `public_key`. UI: `requestVouch(ctx, approverKey)`.
+- **`vouch(public_key, method)`** — the caller vouches for `public_key`. `method` is one of
+  `direct | call | invitation | daily` (Wave 1 only ever sends `direct`; `call`/`daily` arrive with
+  Waves 2–3). Settles any pending request from `public_key` to the caller as approved. UI:
+  `respondToRequest(ctx, requestId, true)`. **The real contract must record the vouch as BY THE CALLER
+  only — no key may vouch on another's behalf.** One vouch per (voucher, vouchee) pair; re-vouching is
+  a no-op.
+- **`decline_vouch(public_key)`** — settles the pending request from `public_key` as declined. UI:
+  `respondToRequest(ctx, requestId, false)`.
+- **`get_vouches()`** (read) → `{ approvals: [{ approver, method, at }], pending: [{ id, requester, at }],
+  sent: [{ id, approver, at, status }] }` — vouches the caller holds, requests waiting on the caller, and
+  the caller's own requests. UI: `getVerificationState(ctx)`. The UI derives Verified as
+  `approvals.length >= 4` (`VERIFIED_THRESHOLD`, locked at Batch 4). Only verified members should
+  receive requests; the demo hides `pending` below the threshold — the contract may enforce it.
+- **Invitations** (`sendInvitation`, `requestInvitation`) are off-platform (email) and need no contract
+  method; the demo records them locally and sends nothing.
+- **Demo-only, not for production:** the four simulated outcomes (`declines` flags in
+  `src/services/demo/fixtures/verification.ts`) and the dev scenario switcher.
