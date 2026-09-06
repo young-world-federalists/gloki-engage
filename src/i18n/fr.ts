@@ -1426,6 +1426,16 @@ const fr: Dictionary = {
   'verification.approve.emptyVerified': "Aucune demande pour l'instant.",
   'verification.approve.emptyUnverified': 'Les membres pourront vous demander une caution une fois que vous serez vérifié·e.',
   'verification.approve.approvedToast': 'Vous vous êtes porté·e garant·e de {name}',
+  'verification.invite.formIntro': "Invitez quelqu'un que vous connaissez. Cocher la case vaut caution de votre part.",
+  'verification.invite.name': 'Son nom',
+  'verification.invite.email': "Son e-mail",
+  'verification.invite.vouch': 'Je connais cette personne et je me porte garant·e',
+  'verification.invite.send': "Envoyer l'invitation",
+  'verification.invite.sentToast': "Invitation enregistrée pour {name} — cette démo n'envoie aucun e-mail.",
+  'verification.invite.requestIntro': "Les membres vérifiés peuvent vous inviter. Demandez à quelqu'un qui vous connaît.",
+  'verification.invite.requestCta': "Demander une invitation",
+  'verification.invite.requested': 'Demandé ✓',
+  'verification.invite.requestedToast': "Demande d'invitation envoyée à {name}",
 };
 
 export default fr;

@@ -9,6 +9,7 @@ import ContactPage from '../components/identity/ContactPage';
 import VerificationHub from '../components/identity/verification/VerificationHub';
 import RequestPage from '../components/identity/verification/RequestPage';
 import ApprovePage from '../components/identity/verification/ApprovePage';
+import InvitePage from '../components/identity/verification/InvitePage';
 import { useT } from '../i18n';
 import styles from './Container.module.scss';
 
@@ -61,6 +62,7 @@ const IdentityView: React.FC = () => {
             <Route path="verification" element={<VerificationHub />} />
             <Route path="verification/request" element={<RequestPage />} />
             <Route path="verification/approve" element={<ApprovePage />} />
+            <Route path="verification/invite" element={<InvitePage />} />
             <Route path="hidden" element={<Communities showHidden />} />
             <Route path="*" element={<Navigate to="/identity/communities" replace />} />
           </Routes>

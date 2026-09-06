@@ -1425,6 +1425,16 @@ const sw: Dictionary = {
   'verification.approve.emptyVerified': 'Hakuna maombi kwa sasa.',
   'verification.approve.emptyUnverified': 'Wanachama wataweza kukuomba udhamini ukishathibitishwa.',
   'verification.approve.approvedToast': 'Umemdhamini {name}',
+  'verification.invite.formIntro': 'Alika mtu unayemjua. Kutia alama kwenye kisanduku ni udhamini wako kwake.',
+  'verification.invite.name': 'Jina lake',
+  'verification.invite.email': 'Barua pepe yake',
+  'verification.invite.vouch': 'Namjua mtu huyu na ninamdhamini',
+  'verification.invite.send': 'Tuma mwaliko',
+  'verification.invite.sentToast': 'Mwaliko umerekodiwa kwa {name} — demo hii haitumi barua pepe.',
+  'verification.invite.requestIntro': 'Wanachama waliothibitishwa wanaweza kukualika. Muombe mtu anayekujua.',
+  'verification.invite.requestCta': 'Omba mwaliko',
+  'verification.invite.requested': 'Imeombwa ✓',
+  'verification.invite.requestedToast': 'Ombi la mwaliko limetumwa kwa {name}',
 };
 
 export default sw;
