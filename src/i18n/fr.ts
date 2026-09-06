@@ -1419,6 +1419,13 @@ const fr: Dictionary = {
   'verification.request.approvedToast': "{name} s'est porté·e garant·e de vous",
   'verification.request.declinedToast': "{name} n'a pas répondu cette fois",
   'verification.request.empty': "Aucun membre ne correspond.",
+  'verification.approve.intro': "N'approuvez que des personnes dont vous savez qu'elles sont réelles. Votre caution compte parmi leurs quatre.",
+  'verification.approve.asked': 'vous demande de vous porter garant·e',
+  'verification.approve.approve': 'Approuver',
+  'verification.approve.decline': 'Refuser',
+  'verification.approve.emptyVerified': "Aucune demande pour l'instant.",
+  'verification.approve.emptyUnverified': 'Les membres pourront vous demander une caution une fois que vous serez vérifié·e.',
+  'verification.approve.approvedToast': 'Vous vous êtes porté·e garant·e de {name}',
 };
 
 export default fr;

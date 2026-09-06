@@ -1418,6 +1418,13 @@ const sw: Dictionary = {
   'verification.request.approvedToast': '{name} amekudhamini',
   'verification.request.declinedToast': '{name} hakujibu wakati huu',
   'verification.request.empty': 'Hakuna mwanachama anayelingana.',
+  'verification.approve.intro': 'Idhinisha tu watu unaojua ni halisi. Udhamini wako unahesabiwa kati ya nne zao.',
+  'verification.approve.asked': 'anakuomba umdhamini',
+  'verification.approve.approve': 'Idhinisha',
+  'verification.approve.decline': 'Kataa',
+  'verification.approve.emptyVerified': 'Hakuna maombi kwa sasa.',
+  'verification.approve.emptyUnverified': 'Wanachama wataweza kukuomba udhamini ukishathibitishwa.',
+  'verification.approve.approvedToast': 'Umemdhamini {name}',
 };
 
 export default sw;
