@@ -650,7 +650,6 @@ const sw: Dictionary = {
   'trust.unverified': 'Hajathibitishwa',
   'trust.vouched': 'Amedhaminiwa na {count}',
   'trust.vouchAdded': 'Udhamini umeongezwa — sasa umedhaminiwa na wanachama zaidi.',
-  'trust.meetMember': 'Kutana na mwanachama (demo)',
   'trust.your.title': 'Uthibitisho wako',
   'trust.your.progress': 'Umedhaminiwa na {count} kati ya {threshold} wanaohitajika ili kuthibitishwa. Kutana na wanachama zaidi ili kujenga uaminifu.',
   'trust.your.verified': 'Wewe ni mwanachama aliyethibitishwa wa jumuiya hii.',
@@ -1435,6 +1434,13 @@ const sw: Dictionary = {
   'verification.invite.requestCta': 'Omba mwaliko',
   'verification.invite.requested': 'Imeombwa ✓',
   'verification.invite.requestedToast': 'Ombi la mwaliko limetumwa kwa {name}',
+  'demo.verification.menu': 'Demo: hali ya uthibitisho',
+  'demo.verification.title': 'Hali ya uthibitisho (demo)',
+  'demo.verification.body': 'Inaweka hali na kupakia upya ukurasa.',
+  'demo.verification.unverified': 'Hajathibitishwa (idhini 0)',
+  'demo.verification.partial': 'Amedhaminiwa kwa sehemu (2 kati ya 4)',
+  'demo.verification.verified': 'Amethibitishwa (4 kati ya 4)',
+  'demo.verification.memberView': 'Mwanachama aliyethibitishwa mwenye maombi yanayosubiri',
 };
 
 export default sw;

@@ -651,7 +651,6 @@ const fr: Dictionary = {
   'trust.unverified': 'Non vérifié',
   'trust.vouched': 'Parrainé·e par {count}',
   'trust.vouchAdded': 'Parrainage ajouté — davantage de membres se portent garants de vous.',
-  'trust.meetMember': 'Rencontrer un membre (démo)',
   'trust.your.title': 'Votre vérification',
   'trust.your.progress': 'Parrainé·e par {count} sur {threshold} requis pour être vérifié. Rencontrez plus de membres pour bâtir la confiance.',
   'trust.your.verified': 'Vous êtes membre vérifié de cette communauté.',
@@ -1436,6 +1435,13 @@ const fr: Dictionary = {
   'verification.invite.requestCta': "Demander une invitation",
   'verification.invite.requested': 'Demandé ✓',
   'verification.invite.requestedToast': "Demande d'invitation envoyée à {name}",
+  'demo.verification.menu': 'Démo : état de vérification',
+  'demo.verification.title': 'État de vérification (démo)',
+  'demo.verification.body': 'Applique un scénario et recharge la page.',
+  'demo.verification.unverified': 'Non vérifié (0 approbation)',
+  'demo.verification.partial': 'Partiellement cautionné (2 sur 4)',
+  'demo.verification.verified': 'Vérifié (4 sur 4)',
+  'demo.verification.memberView': 'Membre vérifié avec des demandes en attente',
 };
 
 export default fr;

@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 import {
   User, QrCode, Plus, LogOut, EyeOff, Info, Mail, LayoutGrid, Sparkles,
-  PlusCircle, PenLine, Users2, MessageSquare, Coins, Users, Shield, Settings,
+  PlusCircle, PenLine, Users2, MessageSquare, Coins, Users, Shield, Settings, FlaskConical,
 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import { MenuSettings, SlideOutMenu, type SlideOutMenuItem } from '../shared';
+import VerificationDemoStateDialog from './verification/VerificationDemoState.demo';
 
 interface HomepageMenuProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
   const navigate = useNavigate();
   const location = useLocation();
   const hiddenCount = useAppSelector((s) => s.preferences.hidden.length);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   // Each entry runs its action then closes the menu.
   const close = (fn: () => void) => () => {
@@ -69,20 +71,26 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
     { key: 'hidden', icon: EyeOff, label: t('menu.hidden', 'Hidden Communities'), onClick: close(() => onNavigate('hidden')), badge: hiddenCount, dividerBefore: true },
     { key: 'about', icon: Info, label: t('menu.about', 'About'), onClick: close(() => onNavigate('about')) },
     { key: 'contact', icon: Mail, label: t('menu.contact', 'Contact'), onClick: close(() => onNavigate('contact')) },
+    ...(import.meta.env.DEV
+      ? [{ key: 'demo-verification', icon: FlaskConical, label: t('demo.verification.menu', 'Demo: verification state'), onClick: close(() => setDemoOpen(true)), dividerBefore: true } as SlideOutMenuItem]
+      : []),
   ];
 
   const items: SlideOutMenuItem[] = [...communityNav, ...globalItems];
 
   return (
-    <SlideOutMenu
-      isOpen={isOpen}
-      onClose={onClose}
-      title={t('menu.title', 'Menu')}
-      items={items}
-      side="right"
-      closeLabel={t('menu.close', 'Close menu')}
-      footer={<MenuSettings />}
-    />
+    <>
+      <SlideOutMenu
+        isOpen={isOpen}
+        onClose={onClose}
+        title={t('menu.title', 'Menu')}
+        items={items}
+        side="right"
+        closeLabel={t('menu.close', 'Close menu')}
+        footer={<MenuSettings />}
+      />
+      <VerificationDemoStateDialog isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
+    </>
   );
 };
 
