@@ -7,6 +7,7 @@ import {
   DEFAULT_STAGE_PERMISSIONS,
   type PipelineStage,
   type StageRule,
+  type VouchMeta,
 } from './trustModel';
 
 export * from './trustModel';
@@ -52,10 +53,16 @@ export async function setStagePermissions(
 /**
  * The current user's own vouches live in the Digital Agent store (localStorage,
  * reactive), extending the onboarding pattern. Dedup append. Used by the QR scan
- * and the "meet a member" demo action so a pending user can cross 2 -> 4.
+ * and the verification request flow (S36). `meta` records how the vouch was
+ * given; callers that don't know (QR scan) get `direct` now.
  */
-export function addUserVouch(voucherPk: string): void {
-  const current = getAgent()?.vouchedBy ?? [];
+export function addUserVouch(voucherPk: string, meta?: VouchMeta): void {
+  const agent = getAgent();
+  const current = agent?.vouchedBy ?? [];
   if (!voucherPk || current.includes(voucherPk)) return;
-  saveAgent({ vouchedBy: [...current, voucherPk] });
+  const entry: VouchMeta = meta ?? { method: 'direct', at: Date.now() };
+  saveAgent({
+    vouchedBy: [...current, voucherPk],
+    vouchMeta: { ...(agent?.vouchMeta ?? {}), [voucherPk]: entry },
+  });
 }

@@ -5,6 +5,8 @@
 // Lives inside the Lane A owned tree because the demo plumbing isn't ours to edit.
 // No backend, no contract writes.
 
+import type { VouchMeta } from '../../../services/trustModel';
+
 const AGENT_KEY = 'gloki.digitalAgent';
 const ONBOARDING_KEY = 'gloki.onboarding';
 
@@ -16,6 +18,12 @@ export interface DigitalAgent {
   createdAt: number;
   invitedBy?: string; // voucher publicKey
   vouchedBy: string[]; // publicKeys; length = "vouched by N"
+  /**
+   * S36 — how/when each key in `vouchedBy` vouched. Optional and sparse: agents
+   * created before S36 and the onboarding's two seeded vouchers have no entry —
+   * readers default those to direct/createdAt (invitation for `invitedBy`).
+   */
+  vouchMeta?: Record<string, VouchMeta>;
   consentedAt?: number; // set when the user accepts the deliberation rules
 }
 
