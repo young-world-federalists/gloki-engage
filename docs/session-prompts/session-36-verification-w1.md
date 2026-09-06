@@ -116,6 +116,48 @@ screens. Waves 2–4 (call, daily session, notification centre) are separate fut
    for consistency with the header/pill "Causes" label, explicitly left unchanged pending a
    decision on whether the bottom nav should also read "Causes".
 
+## Carried from the S35 adversarial panel (deferred, ship-as-is on `ui` today)
+
+Three Opus reviewers (prosecutor · defender · judge) argued the S35 branch at `18b54c6`; the
+judge's MUST list shipped in `935bcdb..e536880`. These are the items it ruled LATER — each is
+real, each was verified, none blocks anything. Full argument:
+`docs/superpowers/specs/2026-09-06-s35-panel-verdict.md`.
+
+- **Status-pill width guard is a one-way latch.** `DiscussionStatusPill` measures overflow on the
+  same element `.dotOnly` collapses to `1px`, so once the word hides it can never return. No
+  one-line fix: measure an `aria-hidden`, never-collapsed clone instead. Trigger unproven (12-glyph
+  Swahili vs `12ch`), failure benign (`clip` sr-only keeps the word for AT).
+- **`aria-label` on role-less spans** — `ThreadedDiscussion.tsx` net-score readout and
+  `TopCausesPanel.tsx`; ARIA prohibits naming `generic`, so AT reads a bare "+7". Same fix shape as
+  the `Badge role="img"` change already shipped.
+- **Silent refusals are seam-wide.** Ouri's real contract returns a bare `return` on *every*
+  refusal (`like_comment`, `approve`, `request_expert_review`, …); `{error}` is a demo-stub
+  convention the contract has never spoken. Decide the convention, give the stub stable codes +
+  i18n keys, and state it once in `docs/FOR_OURI_seam.md`. Until then the S35 assessment form's
+  error panel is demo-only.
+- **Seeded showcase optic** — the viewer assesses `databroker` `p0` while their own `p3` carries a
+  merge suggestion into `p0`. Permitted by D7 as ruled (no shared `causeId`), but it reads badly in
+  a demo. Needs a fixture pass.
+- **`toggleAriaLabel` changes after mount** when the status resolves, dropping the stage badge from
+  the card's accessible name.
+- **fr/sw register defects → the native-review packet, not a fix wave:** French gender on the three
+  band adjectives inside "Discussion des causes : {word}"; `rédacteurs` → `contributeurs`; the
+  Swahili `mizani ya kubadilishana` calque for "trade-offs"; French singular-for-zero on
+  `causes.panel.solutions.one|many`.
+- **The Causes page promises Solutions with no route there**, and `causes.none` has the same gap in
+  reverse. Navigation change.
+- **"Writers" and "driver" are undefined vocabulary.** Both translators independently un-metaphored
+  "driver" (fr *facteur*, sw *sababu halisi*) — when both translations rewrite the source, the
+  source is the string to fix. Decide the English first, then re-translate `impact.rung.*`,
+  `causes.hint`, `causes.vote.up`/`.down` together.
+- **`writeTogether.submittedNote`** (`DraftEditor.tsx`) is missing from both locales — pre-existing,
+  off the S35 path.
+- **"Add a solution" is disabled with only a `title`** while causes load, and `TopCausesPanel`
+  renders nothing until loaded, so there is no on-screen loading state. `title` never fires on
+  touch.
+- **An expanded stage card shows the status word twice** (badge row + chin pill). Redundancy, not a
+  law violation — the DESIGN_SYSTEM rule is scoped to the collapsed summary.
+
 ## Kickoff
 
 Confirm the S35 push question with Eston first (premise #1 above). Once clear, start from spec
