@@ -1443,6 +1443,116 @@ Do not add these keys unless that floor is later lowered.
 
 ---
 
+## Session 36 (2026-09-06) — Community verification, Wave 1
+
+**+59 keys, −1 retired** (parity 1251 → 1309 in both fr and sw). Prompt 2 Wave 1 ships the platform-wide
+verification hub and its request / approve / invite pages under `/identity/verification/*`, plus a dev-only
+scenario switcher. All new keys live under `verification.*` and `demo.verification.*`. Spec:
+`docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md`.
+
+**Register questions for both reviewers, up front:**
+- **fr — the inclusive `·e` forms** (`vérifié·e`, `garant·e`, `parrainé·e`, `invité·e`). These follow the
+  overlay's existing habit (`Vérifié·e`) — confirm the house style is to keep the median point everywhere the
+  addressee's gender is unknown, or prefer a neutral rewrite ("vous êtes une personne vérifiée").
+- **fr — "caution" / "se porter garant" for *vouch*.** The overlay already uses "parrainage" for the trust
+  count (`trust.vouched`: "Parrainé·e par {count}"). The new pages mix *garant* (the act) with *parrainé*
+  (the state). Please settle on one family.
+- **sw — "udhamini" / "kudhamini" for *vouch*** (the overlay already uses "Amedhaminiwa na {count}").
+  Confirm this reads as "vouch for a person" rather than "sponsor/guarantee financially" in everyday Swahili.
+- **sw — "Thibitishwa" as the page title** (imperative/passive "Be verified"). An alternative is "Pata
+  uthibitisho".
+- **Both — the "✓" glyph** in `verification.request.sent` / `verification.invite.requested` is part of the
+  string; keep it or drop it consistently across the three locales.
+
+### Task 5 — Hub, pathway cards, approval history (`verification.*`, 25 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.title` | Get verified | Se faire vérifier | Thibitishwa | AppHeader h1 of the hub; reuses the wording of the existing `gate.getVerified`. |
+| `verification.eyebrow` | Verification | Vérification | Uthibitisho | Eyebrow above every verification page title. |
+| `verification.hub.progress` | {count} of {threshold} approvals received | {count} approbations sur {threshold} reçues | Umepokea idhini {count} kati ya {threshold} | `{threshold}` is always 4. Heading of the status card. |
+| `verification.hub.explain` | Four members vouching that they know you as a real person makes you Verified everywhere on Gloki — no ID papers, no face scans. | Quatre membres attestant qu’ils vous connaissent comme une vraie personne vous rendent Vérifié·e partout sur Gloki — sans papiers d’identité ni reconnaissance faciale. | Wanachama wanne wanaothibitisha kuwa wanakujua kama mtu halisi hukufanya Uthibitishwe kila mahali kwenye Gloki — bila vitambulisho wala uchanganuzi wa uso. | Claims-honesty line; must keep "no ID papers, no face scans". |
+| `verification.hub.verifiedTitle` | You’re verified | Vous êtes vérifié·e | Umethibitishwa | |
+| `verification.hub.verifiedBody` | Verified members can vote and back mandates in every community they join. | Les membres vérifiés peuvent voter et soutenir des mandats dans chaque communauté qu’ils rejoignent. | Wanachama waliothibitishwa wanaweza kupiga kura na kuunga mkono maagizo katika kila jumuiya wanayojiunga nayo. | "back mandates" = conviction backing; sw "kuunga mkono maagizo" — confirm "maagizo" is the overlay's word for mandate (it is on `nav.mandate`). |
+| `verification.hub.goHome` | Go to Home | Aller à l’accueil | Nenda Mwanzo | Button. |
+| `verification.hub.pathways` | Ways to get approvals | Comment obtenir des approbations | Njia za kupata idhini | Section h2. |
+| `verification.hub.requestsLink` | Requests to vouch | Demandes de caution | Maombi ya udhamini | Navigation row to the approve page. |
+| `verification.hub.requestsPending` | {n} waiting | {n} en attente | {n} yanasubiri | Badge; `{n}` ≥ 1 only. |
+| `verification.history.title` | Your approvals | Vos approbations | Idhini zako | Section h2. |
+| `verification.history.empty` | No approvals yet. Ask a member to vouch for you. | Aucune approbation pour l’instant. Demandez à un membre de se porter garant. | Bado hakuna idhini. Muombe mwanachama akudhamini. | Empty state. |
+| `verification.method.direct` | Vouched for you | S’est porté·e garant·e de vous | Alikudhamini | Caption under an approver's name. |
+| `verification.method.invitation` | Invited you | Vous a invité·e | Alikualika | Caption for the inviter. |
+| `verification.member.online` | Online | En ligne | Mtandaoni | `aria-label` of the presence dot (never visible text). |
+| `verification.member.offline` | Offline | Hors ligne | Nje ya mtandao | Same. |
+| `verification.pathway.request.title` | Ask a member | Demander à un membre | Muombe mwanachama | Card h3. |
+| `verification.pathway.request.body` | Choose verified members who know you and ask them to vouch. | Choisissez des membres vérifiés qui vous connaissent et demandez-leur de se porter garants. | Chagua wanachama waliothibitishwa wanaokujua na uwaombe wakudhamini. | |
+| `verification.pathway.request.cta` | Ask a member | Demander à un membre | Muombe mwanachama | Button; deliberately identical to the title. |
+| `verification.pathway.invite.title` | Invitations | Invitations | Mialiko | Card h3. |
+| `verification.pathway.invite.body` | Get invited by a verified member — or, once verified, invite people you know. | Faites-vous inviter par un membre vérifié — ou, une fois vérifié·e, invitez des personnes que vous connaissez. | Alikwa na mwanachama aliyethibitishwa — au, ukishathibitishwa, waalike watu unaowajua. | |
+| `verification.pathway.invite.cta` | Invitations | Invitations | Mialiko | Button. |
+| `verification.request.title` | Ask a member to vouch | Demander une caution | Omba udhamini | AppHeader h1 of the request page. |
+| `verification.approve.title` | Requests to vouch | Demandes de caution | Maombi ya udhamini | AppHeader h1 of the approve page. |
+| `verification.invite.title` | Invitations | Invitations | Mialiko | AppHeader h1 of the invite page. |
+
+### Task 6 — Request page (`verification.request.*`, 10 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.request.intro` | Members you know can confirm you’re a real person. Each approval counts toward your four. | Les membres qui vous connaissent peuvent confirmer que vous êtes une vraie personne. Chaque approbation compte parmi vos quatre. | Wanachama wanaokujua wanaweza kuthibitisha kuwa wewe ni mtu halisi. Kila idhini inahesabiwa kati ya nne zako. | |
+| `verification.request.search` | Search by name | Rechercher par nom | Tafuta kwa jina | `<label>` of the search field. |
+| `verification.request.searchPlaceholder` | Name | Nom | Jina | Placeholder. |
+| `verification.request.cta` | Request | Demander | Omba | 32px-tall row button — keep it one short word. |
+| `verification.request.sent` | Requested ✓ | Demandé ✓ | Imeombwa ✓ | Disabled state; see the ✓ question above. |
+| `verification.request.vouched` | Vouched | Garant·e | Amekudhamini | Badge on members who already vouched. |
+| `verification.request.noResponse` | No response | Sans réponse | Hakuna jibu | Disabled state after a decline (E2). |
+| `verification.request.approvedToast` | {name} vouched for you | {name} s’est porté·e garant·e de vous | {name} amekudhamini | Toast; `{name}` is a person. |
+| `verification.request.declinedToast` | {name} didn’t respond this time | {name} n’a pas répondu cette fois | {name} hakujibu wakati huu | Toast. |
+| `verification.request.empty` | No members match. | Aucun membre ne correspond. | Hakuna mwanachama anayelingana. | Empty search; also reused by the invite page's list. |
+
+### Task 7 — Approve page (`verification.approve.*`, 7 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.approve.intro` | Approve only people you know are real. Your vouch counts toward their four. | N’approuvez que des personnes dont vous savez qu’elles sont réelles. Votre caution compte parmi leurs quatre. | Idhinisha tu watu unaojua ni halisi. Udhamini wako unahesabiwa kati ya nne zao. | |
+| `verification.approve.asked` | asked you to vouch | vous demande de vous porter garant·e | anakuomba umdhamini | Lower-case fragment after the requester's name: "Wanjiru Kamau · asked you to vouch · 5h ago". |
+| `verification.approve.approve` | Approve | Approuver | Idhinisha | Primary button; also the check-state label. |
+| `verification.approve.decline` | Decline | Refuser | Kataa | Ghost button. |
+| `verification.approve.emptyVerified` | No requests right now. | Aucune demande pour l’instant. | Hakuna maombi kwa sasa. | |
+| `verification.approve.emptyUnverified` | Members can ask you to vouch once you’re verified. | Les membres pourront vous demander une caution une fois que vous serez vérifié·e. | Wanachama wataweza kukuomba udhamini ukishathibitishwa. | |
+| `verification.approve.approvedToast` | You vouched for {name} | Vous vous êtes porté·e garant·e de {name} | Umemdhamini {name} | Toast. |
+
+### Task 8 — Invite page (`verification.invite.*`, 10 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.invite.formIntro` | Invite someone you know. Ticking the box counts as your vouch for them. | Invitez quelqu’un que vous connaissez. Cocher la case vaut caution de votre part. | Alika mtu unayemjua. Kutia alama kwenye kisanduku ni udhamini wako kwake. | Verified branch only. |
+| `verification.invite.name` | Their name | Son nom | Jina lake | `<label>`. |
+| `verification.invite.email` | Their email | Son e-mail | Barua pepe yake | `<label>`. |
+| `verification.invite.vouch` | I know this person and vouch for them | Je connais cette personne et je me porte garant·e | Namjua mtu huyu na ninamdhamini | Checkbox label. |
+| `verification.invite.send` | Send invitation | Envoyer l’invitation | Tuma mwaliko | Submit button. |
+| `verification.invite.sentToast` | Invitation recorded for {name} — this demo sends no email. | Invitation enregistrée pour {name} — cette démo n’envoie aucun e-mail. | Mwaliko umerekodiwa kwa {name} — demo hii haitumi barua pepe. | Claims-honesty: the demo sends nothing; keep that clause. |
+| `verification.invite.requestIntro` | Verified members can invite you. Ask someone who knows you. | Les membres vérifiés peuvent vous inviter. Demandez à quelqu’un qui vous connaît. | Wanachama waliothibitishwa wanaweza kukualika. Muombe mtu anayekujua. | Unverified branch. |
+| `verification.invite.requestCta` | Request invitation | Demander une invitation | Omba mwaliko | 32px-tall row button — fr is the longest; it fits at 360px today. |
+| `verification.invite.requested` | Requested ✓ | Demandé ✓ | Imeombwa ✓ | Disabled state. |
+| `verification.invite.requestedToast` | Invitation request sent to {name} | Demande d’invitation envoyée à {name} | Ombi la mwaliko limetumwa kwa {name} | Toast. |
+
+### Task 9 — Dev-only scenario switcher (`demo.verification.*`, 7 keys)
+
+Only reachable in development builds (`import.meta.env.DEV`); low priority for the native pass, listed for parity.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `demo.verification.menu` | Demo: verification state | Démo : état de vérification | Demo: hali ya uthibitisho | Global-menu item. |
+| `demo.verification.title` | Verification demo state | État de vérification (démo) | Hali ya uthibitisho (demo) | Modal title. |
+| `demo.verification.body` | Applies a scenario and reloads. | Applique un scénario et recharge la page. | Inaweka hali na kupakia upya ukurasa. | |
+| `demo.verification.unverified` | Unverified (0 approvals) | Non vérifié (0 approbation) | Hajathibitishwa (idhini 0) | |
+| `demo.verification.partial` | Partly vouched (2 of 4) | Partiellement cautionné (2 sur 4) | Amedhaminiwa kwa sehemu (2 kati ya 4) | |
+| `demo.verification.verified` | Verified (4 of 4) | Vérifié (4 sur 4) | Amethibitishwa (4 kati ya 4) | |
+| `demo.verification.memberView` | Verified member with requests waiting | Membre vérifié avec des demandes en attente | Mwanachama aliyethibitishwa mwenye maombi yanayosubiri | |
+
+**Keys retired this session:** `trust.meetMember` ("Meet a member (demo)") — **[removed]** from fr and sw; the
+hub's request flow replaced the demo shortcut on the per-community identity page.
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
