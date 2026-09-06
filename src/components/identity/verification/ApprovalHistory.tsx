@@ -31,7 +31,7 @@ const ApprovalHistory: React.FC<Props> = ({ approvals, byKey, loading }) => {
       ) : approvals.length === 0 ? (
         <EmptyState
           compact
-          icon={<ShieldCheck size={48} />}
+          icon={<ShieldCheck size={48} aria-hidden />}
           title={t('verification.history.empty', 'No approvals yet. Ask a member to vouch for you.')}
         />
       ) : (

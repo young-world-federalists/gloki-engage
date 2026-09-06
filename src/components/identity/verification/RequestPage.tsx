@@ -25,20 +25,23 @@ const RequestPage: React.FC = () => {
   const handleRequest = async (member: MemberSummary) => {
     if (!ctx) return;
     setInFlight((prev) => new Set(prev).add(member.publicKey));
-    const outcome = requestVouch(ctx, member.publicKey);
-    void refetch(); // shows "Requested ✓" from the seam's own state
-    const settled = await outcome;
-    setInFlight((prev) => {
-      const next = new Set(prev);
-      next.delete(member.publicKey);
-      return next;
-    });
-    await refetch();
-    toast.show(
-      settled.status === 'approved'
-        ? { tone: 'success', message: t('verification.request.approvedToast', '{name} vouched for you', { name: member.name }) }
-        : { tone: 'info', message: t('verification.request.declinedToast', '{name} didn\'t respond this time', { name: member.name }) },
-    );
+    try {
+      const outcome = requestVouch(ctx, member.publicKey);
+      void refetch(); // shows "Requested ✓" from the seam's own state
+      const settled = await outcome;
+      toast.show(
+        settled.status === 'approved'
+          ? { tone: 'success', message: t('verification.request.approvedToast', '{name} vouched for you', { name: member.name }) }
+          : { tone: 'info', message: t('verification.request.declinedToast', '{name} didn\'t respond this time', { name: member.name }) },
+      );
+      await refetch();
+    } finally {
+      setInFlight((prev) => {
+        const next = new Set(prev);
+        next.delete(member.publicKey);
+        return next;
+      });
+    }
   };
 
   const actionFor = (member: MemberSummary): React.ReactNode => {
@@ -77,7 +80,7 @@ const RequestPage: React.FC = () => {
       {loading ? (
         <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
       ) : members.length === 0 ? (
-        <EmptyState compact icon={query ? <Search size={48} /> : <Users size={48} />} title={t('verification.request.empty', 'No members match.')} />
+        <EmptyState compact icon={query ? <Search size={48} aria-hidden /> : <Users size={48} aria-hidden />} title={t('verification.request.empty', 'No members match.')} />
       ) : (
         <ul className={pages.list}>
           {members.map((m) => (
