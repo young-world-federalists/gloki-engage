@@ -176,3 +176,28 @@ existing keys: `gate.getVerified`, `trust.your.barLabel`, `trust.verified`/`vouc
 Verification call (`CallFlow`, `VerifierPicker`, `WaitingRoom`, `InCallView`, `CallSummary`), the daily
 session, the notification centre and the bell's new types, the call/daily pathway cards, F10's
 camera+data line. The bell stays effectively empty until Wave 4 (D10 dissent, on the record).
+
+## 8. Post-review amendments (whole-branch review, 2026-09-06)
+
+The Opus whole-branch review (`.superpowers/sdd/…/final-review-report.md` at the time; findings summarised in
+MASTER_TODO §8) found two places where this spec was silent and the build followed the silence:
+
+- **Honesty line on surfaces that simulate a person's judgement of the user (I1).** §5 asked for no demo
+  marker on the request/approve pages, and the branch had retired the only "(demo)" label on the vouch path.
+  Amended: both pages render `verification.demoNote` ("Demo: these members reply automatically. No real
+  person is contacted.") under their intro. **Rule for Wave 2+:** any surface where a fixture person appears
+  to judge the user carries an honesty line.
+- **Every seam function gets a wire-name row (I4).** §3.3 omitted `listVerifiedMembers`. Amended in
+  `docs/FOR_OURI_seam.md`: no contract method exists yet (proposed `list_verified_members(query)`;
+  fixture-backed until Ouri has a directory read), and `respondToRequest(requestId)` resolves the requester
+  via `get_vouches().pending` before `vouch` / `decline_vouch`.
+- **44px on the journey's core taps (I2).** `MemberCard`'s action slot extends a `size="sm"` button to a 44px
+  hit area (`::after`, the `Toast` dismiss pattern); the pathway CTAs and the approve page's empty-state CTA
+  are `size="md"`.
+- **E1 consequence in existing copy (I5).** `trust.your.verified` / `trust.your.progress` no longer assert a
+  per-community count.
+- **fr plural.** `verification.hub.progress` is agreement-free in French.
+- Also folded in: `busy` guard + `try/finally` on the approve page, `try/finally` + refetch on the invite page,
+  an `approved` done-state key, an `invite.empty` key, `aria-hidden` on the toast glyph, an accurate sidecar
+  header comment. Parked for Wave 2: focus management after approve, the focus ring under the confetti's
+  `overflow: hidden`, the member-list render duplication (extract when the verifier picker makes a third copy).

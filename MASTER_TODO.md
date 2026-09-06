@@ -559,6 +559,36 @@ written in has been deleted; that spec is the durable record). i18n +2 keys
 entry below for the full-wave i18n delta. **Pushed to `origin/ui` 2026-09-06** on Eston's explicit
 go, after the adversarial panel.
 
+**P11 — Prompt 2: Community verification (S34 design §3, 2026-09-02).** 🔨 **Wave 1 BUILT + reviewed
+(S36, 2026-09-06; `628b574..dc213f9`, 13 commits, `DEMO_VERSION` v18 → **v19**; push HELD for Eston's gate).**
+Spec addendum
+[docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md](docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md)
+(E1–E3 rulings + §8 post-review amendments); plan
+[docs/superpowers/plans/2026-09-06-s36-verification-w1.md](docs/superpowers/plans/2026-09-06-s36-verification-w1.md).
+Scope classes: UI + **fixture change** (30-member verification fixture, seeded requests, scenarios ⇒ v19) +
+**seam surface** `src/services/verification.ts` documented for Ouri (FOR_OURI S36 addendum: `request_vouch`,
+`vouch`, `decline_vouch`, `get_vouches`, and a needed `list_verified_members` read — no patch file; the Digital
+Agent contract has none of these yet).
+
+- ✅ **W1 — hub · request · approve · invite** at `/identity/verification/*` (D8 platform-wide, D9 nested):
+  segmented "{X} of 4" bar, two pathway cards (E3), approval history with method + time, requests-to-vouch
+  row; request page with optimistic "Requested ✓" and deterministic simulated outcomes (E2: 4 decliners among
+  the 14 non-member fixture people, E1); approve page with slide-out; invite page (verified form / unverified
+  request list); demo-honesty line on both simulated-judgement surfaces; dev-only scenario switcher. Kit:
+  `Toast` (one polite live region), `ProgressBar segments`, `MemberCard` (44px hit-area on `size="sm"`
+  actions). `vouchMeta` on the Digital Agent; `useCommunityTrust` counts the user's own vouches
+  platform-wide (E1). `trust.meetMember` retired. Opus whole-branch review 0 Critical / 5 Important / 16 Minor
+  → one fix wave, scoped re-review clean, preview-verified 360px light+dark en/fr/sw.
+- ⬜ **W2 — verification call** (`docs/session-prompts/session-37-verification-w2.md`; F10 line ships here).
+- ⬜ **W3 — daily session.** ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
+  permanently empty" follow-up; W1's `given` state and the notification fixtures land here).
+
+**Open follow-ups (parked, S36 final review):** focus management after an approved card leaves; focus ring
+under the hub card's `overflow: hidden`; `listVerifiedMembers` can list the current user; demo verification
+state is per-browser, not per-key; the member-list render duplicated across request/invite (extract when
+W2's verifier picker makes a third copy); the demo sidecar ships inert in prod (`React.lazy` behind
+`import.meta.env.DEV` is the hardening).
+
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
 - ✅ **S17 — small fix tail from the S16 findings log — DONE 2026-07-03** (C4 SegmentedControl
@@ -623,6 +653,19 @@ go, after the adversarial panel.
 ---
 
 ## 8. Changelog
+
+- **2026-09-06 — S36: P11 Prompt 2 Wave 1, community verification hub / request / approve / invite
+  (BUILT + reviewed, NOT pushed; `628b574..dc213f9`, 13 commits).** Spec addendum
+  `docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md` (Eston's E1–E3 rulings: 16 personas + 14
+  non-member fixture people with the user's own count platform-wide; deterministic request outcomes; two
+  pathway cards), plan `docs/superpowers/plans/2026-09-06-s36-verification-w1.md` (9 delegated tasks, 1 fix
+  round). Scope classes: UI + fixture change (⇒ `DEMO_VERSION` `global-v18` → `global-v19`) + seam surface
+  for Ouri (FOR_OURI S36 addendum). Kit: `Toast`, `ProgressBar segments`, `MemberCard`. Whole-branch Opus
+  review (0 Critical / 5 Important / 16 Minor) → fix wave `dc213f9`: demo-honesty line (the branch had
+  retired the only "(demo)" label on the vouch path), 44px hit areas on the journey's core taps, `busy` +
+  `try/finally` guards, E1-consistent `IdentityTrust` copy, an agreement-free fr count string, FOR_OURI rows
+  for `listVerifiedMembers` and the `requestId → requester` resolution. i18n +62 keys / −1 / 3 values changed
+  (parity 1312/1312), packet Session 36 section with 9 native flags. Next: S37 (Wave 2, the call).
 
 - **2026-09-05/06 — S35: P10 Causes forum, discussion status pill, impact assessment
   (SHIPPED+PUSHED; `101e4a3..03d6f5d`, 49 commits, pushed 2026-09-06 — includes the same-day

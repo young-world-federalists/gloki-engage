@@ -1445,7 +1445,7 @@ Do not add these keys unless that floor is later lowered.
 
 ## Session 36 (2026-09-06) — Community verification, Wave 1
 
-**+59 keys, −1 retired** (parity 1251 → 1309 in both fr and sw). Prompt 2 Wave 1 ships the platform-wide
+**+62 keys, −1 retired, 3 values changed in place** (parity 1251 → 1312 in both fr and sw; the whole-branch review's fix wave added three keys and changed three existing values — tables at the end of this section). Prompt 2 Wave 1 ships the platform-wide
 verification hub and its request / approve / invite pages under `/identity/verification/*`, plus a dev-only
 scenario switcher. All new keys live under `verification.*` and `demo.verification.*`. Spec:
 `docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md`.
@@ -1463,6 +1463,23 @@ scenario switcher. All new keys live under `verification.*` and `demo.verificati
   uthibitisho".
 - **Both — the "✓" glyph** in `verification.request.sent` / `verification.invite.requested` is part of the
   string; keep it or drop it consistently across the three locales.
+- **fr — plural agreement in count templates.** `verification.hub.progress` shipped as "{count} approbations sur
+  {threshold} reçues", which renders "1 approbations … reçues" at count = 1 (the hub headline). Rewritten
+  agreement-free in the fix wave ("Approbations reçues : {count} sur {threshold}"). Please scan the other fr
+  `{count}`/`{n}` strings in this section for the same trap.
+- **fr — `verification.request.vouched` = "Garant·e" as a *badge*** on a member row. English "Vouched" means
+  "this person vouched for you"; "Garant·e" reads as the person's role — confirm it is not read as "you are
+  their guarantor".
+- **fr — tense in `verification.approve.asked`** ("vous demande de vous porter garant·e", present) is rendered
+  as "{asked} · il y a 5h"; English is past ("asked you to vouch"). Present + "5h ago" is slightly off.
+- **sw — `verification.request.vouched` = "Amekudhamini"** is a full clause ("s/he has vouched for you") used as
+  a badge — check sense and length in the 360px row's action slot.
+- **sw — `verification.hub.goHome` = "Nenda Mwanzo"** — confirm "Mwanzo" matches the app's existing sw Home label.
+- **sw — person shift:** `verification.hub.verifiedTitle` = "Umethibitishwa" (2nd person) vs
+  `demo.verification.verified` = "Amethibitishwa" (3rd person). Deliberate (scenario labels describe the user
+  from outside) — confirm it does not read as an inconsistency.
+- **Both — the inclusive midpoint at `$text-sm`:** does "·e" render legibly on a cheap Android, and how do
+  fr screen readers pronounce it?
 
 ### Task 5 — Hub, pathway cards, approval history (`verification.*`, 25 keys)
 
@@ -1549,6 +1566,24 @@ Only reachable in development builds (`import.meta.env.DEV`); low priority for t
 | `demo.verification.partial` | Partly vouched (2 of 4) | Partiellement cautionné (2 sur 4) | Amedhaminiwa kwa sehemu (2 kati ya 4) | |
 | `demo.verification.verified` | Verified (4 of 4) | Vérifié (4 sur 4) | Amethibitishwa (4 kati ya 4) | |
 | `demo.verification.memberView` | Verified member with requests waiting | Membre vérifié avec des demandes en attente | Mwanachama aliyethibitishwa mwenye maombi yanayosubiri | |
+
+### Fix wave — whole-branch review (2026-09-06)
+
+**+3 keys.**
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.demoNote` | Demo: these members reply automatically. No real person is contacted. | Démo : ces membres répondent automatiquement. Aucune personne réelle n’est contactée. | Demo: wanachama hawa hujibu kiotomatiki. Hakuna mtu halisi anayewasiliana naye. | Claims-honesty line under the intro of the request AND approve pages (review I1). |
+| `verification.approve.approved` | Approved | Approuvé·e | Imeidhinishwa | The 300 ms check state after Approve (was reusing the imperative `approve`). |
+| `verification.invite.empty` | No verified members yet. | Aucun membre vérifié pour l’instant. | Bado hakuna mwanachama aliyethibitishwa. | Empty list on the unverified invite page (was reusing the search-empty string). |
+
+**3 values changed in place** (existing keys; English defaults live inline in the components):
+
+| Key | English (new) | fr (new) | sw (new) | Why |
+| --- | --- | --- | --- | --- |
+| `verification.hub.progress` | *(unchanged)* {count} of {threshold} approvals received | Approbations reçues : {count} sur {threshold} | *(unchanged)* | fr plural bug at count = 1. |
+| `trust.your.verified` | You’re verified — this counts in every community. | Vous êtes vérifié·e — cela compte dans chaque communauté. | Umethibitishwa — hii inahesabika katika kila jumuiya. | E1 made the count platform-wide; the old copy said "verified member of this community". |
+| `trust.your.progress` | Vouched by {count} of {threshold} needed to verify. Ask members you know to vouch for you. | Parrainé·e par {count} sur {threshold} nécessaires pour être vérifié·e. Demandez à des membres que vous connaissez de se porter garants. | Umedhaminiwa na {count} kati ya {threshold} wanaohitajika ili kuthibitishwa. Waombe wanachama unaowajua wakudhamini. | Old copy said "Meet more members" — the hub, not this community's member list, is now the path. |
 
 **Keys retired this session:** `trust.meetMember` ("Meet a member (demo)") — **[removed]** from fr and sw; the
 hub's request flow replaced the demo shortcut on the per-community identity page.
