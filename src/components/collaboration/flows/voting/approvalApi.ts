@@ -1,6 +1,7 @@
 import { contractRead, contractWrite } from '../../../../services/api';
 import type { IMethod } from '../../../../services/interfaces';
 import type { SourceLink } from '../../../../utils/sources';
+import { normalizeTimestamp } from '../discussion/discussionApi';
 
 function throwIfContractError(response: unknown) {
   if (
@@ -276,7 +277,7 @@ function normalizeImpactAssessment(raw: unknown): ImpactAssessment | null {
   return {
     author: r.author,
     proposalId: r.proposalId,
-    timestamp: Number(r.timestamp),
+    timestamp: normalizeTimestamp(r.timestamp as number | string | undefined),
     target: r.target as string,
     targetsCause: r.targetsCause as TargetsCause,
     mechanism: r.mechanism as string,

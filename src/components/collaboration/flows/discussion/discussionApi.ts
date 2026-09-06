@@ -28,27 +28,34 @@ interface RawComment {
   sources?: unknown;
 }
 
-function normalizeTimestamp(raw: number | string | undefined): number {
+export function normalizeTimestamp(raw: number | string | undefined): number {
   if (typeof raw === 'number') return raw;
   if (typeof raw !== 'string' || !raw) return 0;
 
   // Gloki's `timestamp()` returns a packed digit string: YYYYMMDDHHMMSS + fractional digits.
   // Parse to a JS epoch ms if we can, else fall through.
-  if (/^\d{14,}$/.test(raw)) {
-    const year = parseInt(raw.slice(0, 4), 10);
-    const month = parseInt(raw.slice(4, 6), 10) - 1;
-    const day = parseInt(raw.slice(6, 8), 10);
-    const hour = parseInt(raw.slice(8, 10), 10);
-    const minute = parseInt(raw.slice(10, 12), 10);
-    const second = parseInt(raw.slice(12, 14), 10);
-    const fractional = raw.slice(14);
+  if (/^\d{14,}(\.\d+)?$/.test(raw)) {
+    const digits = raw.replace('.', '');
+    const year = parseInt(digits.slice(0, 4), 10);
+    const month = parseInt(digits.slice(4, 6), 10) - 1;
+    const day = parseInt(digits.slice(6, 8), 10);
+    const hour = parseInt(digits.slice(8, 10), 10);
+    const minute = parseInt(digits.slice(10, 12), 10);
+    const second = parseInt(digits.slice(12, 14), 10);
+    const fractional = digits.slice(14);
     const millis = fractional ? Math.floor(parseInt(fractional.padEnd(6, '0').slice(0, 6), 10) / 1000) : 0;
     const ms = Date.UTC(year, month, day, hour, minute, second, millis);
-    if (!Number.isNaN(ms)) return ms;
+    if (!Number.isNaN(ms)) {
+      if (ms > Date.now() + 3_155_760_000_000) return 0;
+      return ms;
+    }
   }
 
   const parsed = Number(raw);
-  if (!Number.isNaN(parsed)) return parsed;
+  if (!Number.isNaN(parsed)) {
+    if (parsed > Date.now() + 3_155_760_000_000) return 0;
+    return parsed;
+  }
   const asDate = Date.parse(raw);
   if (!Number.isNaN(asDate)) return asDate;
   return 0;

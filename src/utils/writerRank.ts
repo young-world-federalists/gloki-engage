@@ -1,4 +1,6 @@
 import type { Comment, CommentVote } from '../components/collaboration/flows/discussion/discussionApi';
+import { normalizeTimestamp } from '../components/collaboration/flows/discussion/discussionApi';
+
 import type { ImpactAssessment } from '../components/collaboration/flows/voting/approvalApi';
 import { tallyVotes } from './causes';
 
@@ -66,7 +68,7 @@ export function rankWriters(
   }
 
   for (const p of proposals) {
-    const ts = Number(p.timestamp);
+    const ts = normalizeTimestamp(p.timestamp);
     const count = approvalCounts[p.id] ?? 0;
     const authors = [p.author, ...(p.coAuthors ?? [])];
     for (const author of authors) {
