@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
 import { OfflineBanner } from './components/shared/connectivity';
+import { ToastProvider } from './components/shared/Toast';
 import NotFound from './pages/NotFound';
 import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
@@ -112,26 +113,28 @@ function AppContent() {
   return (
     <ErrorBoundary locale={locale} fallbackMessage={t('errorBoundary.appMessage', 'Gloki encountered an unexpected error. Please refresh the page.')}>
       <Router basename={getBasename()}>
-        <OfflineBanner />
-        <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
-          <Routes>
-            <Route path="/" element={<RootRoute />} />
-            <Route path="/welcome/*" element={<OnboardingFlow />} />
-            <Route path="/stage/:stageId" element={<StageFeedView />} />
-            <Route path="/identity/*" element={<IdentityView />} />
-            <Route path="/create-community" element={<CreateCommunityPage />} />
-            <Route path="/community/:communityId/*" element={<CommunityView />} />
-            <Route
-              path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
-              element={<InitiativeView />}
-            />
-            <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
-            <Route path="/organization" element={<OrganizationHome />} />
-            <Route path="/lab/presence" element={<PresenceLabRoute />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <StageFooter />
-        </Suspense>
+        <ToastProvider>
+          <OfflineBanner />
+          <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
+            <Routes>
+              <Route path="/" element={<RootRoute />} />
+              <Route path="/welcome/*" element={<OnboardingFlow />} />
+              <Route path="/stage/:stageId" element={<StageFeedView />} />
+              <Route path="/identity/*" element={<IdentityView />} />
+              <Route path="/create-community" element={<CreateCommunityPage />} />
+              <Route path="/community/:communityId/*" element={<CommunityView />} />
+              <Route
+                path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
+                element={<InitiativeView />}
+              />
+              <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
+              <Route path="/organization" element={<OrganizationHome />} />
+              <Route path="/lab/presence" element={<PresenceLabRoute />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <StageFooter />
+          </Suspense>
+        </ToastProvider>
       </Router>
     </ErrorBoundary>
   );

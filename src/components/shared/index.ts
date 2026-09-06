@@ -46,6 +46,9 @@ export type { ProgressBarProps, ProgressBarVariant } from './ProgressBar';
 export { default as MemberCard } from './MemberCard';
 export type { MemberCardProps } from './MemberCard';
 
+export { default as ToastProvider, useToast } from './Toast';
+export type { ToastOptions, ToastTone } from './Toast';
+
 export { default as TrustBadge } from './TrustBadge';
 export type { TrustBadgeProps } from './TrustBadge';
 
