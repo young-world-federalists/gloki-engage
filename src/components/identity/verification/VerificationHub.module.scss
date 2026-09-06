@@ -1,0 +1,123 @@
+@use 'sass:math';
+@use '../../../styles/variables' as *;
+
+.statusCard {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.statusHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.statusTitle {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-900;
+  @include tabular-nums;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.statusBody {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// Row to the approve page — a navigation row, not an action button (DS: list-row buttons stay bespoke).
+.requestsRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  background: white;
+  color: $gray-900;
+  font: inherit;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: $shadow-base;
+  transition: box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.requestsLabel {
+  flex: 1;
+}
+
+// CSS-only confetti (spec §3.2): 12 token-coloured pieces, plays once, off under reduced motion.
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  top: -$spacing-md;
+  width: $spacing-sm;
+  height: $spacing-md;
+  border-radius: $radius-sm;
+  opacity: 0;
+  animation: confettiFall 1.8s ease-out forwards;
+
+  @for $i from 1 through 12 {
+    &:nth-child(#{$i}) {
+      left: math.percentage(math.div($i - 0.5, 12));
+      animation-delay: #{($i % 4) * 0.12}s;
+    }
+  }
+
+  &:nth-child(4n + 1) { background: $primary; }
+  &:nth-child(4n + 2) { background: $success; }
+  &:nth-child(4n + 3) { background: $warning; }
+  &:nth-child(4n + 4) { background: $stage-solutions; }
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(160px) rotate(540deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}

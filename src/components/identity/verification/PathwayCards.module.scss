@@ -1,0 +1,52 @@
+@use '../../../styles/variables' as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.icon {
+  display: flex;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.body {
+  flex: 1;
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

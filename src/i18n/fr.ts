@@ -1382,6 +1382,33 @@ const fr: Dictionary = {
   'writeTogether.submitFailed': 'Impossible de soumettre. Veuillez réessayer.',
   'writeTogether.explainerTitle': 'Comment fonctionne l’écriture collective',
   'writeTogether.explainerBody': 'Rédigez un problème ou une solution en communauté — écrivez une première version, laissez les autres suggérer des modifications soumises au vote, puis soumettez-le à une communauté.',
+
+  // ── S36 — Verification (Prompt 2 Wave 1) ──
+  'verification.title': 'Se faire vérifier',
+  'verification.eyebrow': 'Vérification',
+  'verification.hub.progress': '{count} approbations sur {threshold} reçues',
+  'verification.hub.explain': 'Quatre membres attestant qu’ils vous connaissent comme une vraie personne vous rendent Vérifié·e partout sur Gloki — sans papiers d’identité ni reconnaissance faciale.',
+  'verification.hub.verifiedTitle': 'Vous êtes vérifié·e',
+  'verification.hub.verifiedBody': 'Les membres vérifiés peuvent voter et soutenir des mandats dans chaque communauté qu’ils rejoignent.',
+  'verification.hub.goHome': 'Aller à l’accueil',
+  'verification.hub.pathways': 'Comment obtenir des approbations',
+  'verification.hub.requestsLink': 'Demandes de caution',
+  'verification.hub.requestsPending': '{n} en attente',
+  'verification.history.title': 'Vos approbations',
+  'verification.history.empty': 'Aucune approbation pour l’instant. Demandez à un membre de se porter garant.',
+  'verification.method.direct': 'S’est porté·e garant·e de vous',
+  'verification.method.invitation': 'Vous a invité·e',
+  'verification.member.online': 'En ligne',
+  'verification.member.offline': 'Hors ligne',
+  'verification.pathway.request.title': 'Demander à un membre',
+  'verification.pathway.request.body': 'Choisissez des membres vérifiés qui vous connaissent et demandez-leur de se porter garants.',
+  'verification.pathway.request.cta': 'Demander à un membre',
+  'verification.pathway.invite.title': 'Invitations',
+  'verification.pathway.invite.body': 'Faites-vous inviter par un membre vérifié — ou, une fois vérifié·e, invitez des personnes que vous connaissez.',
+  'verification.pathway.invite.cta': 'Invitations',
+  'verification.request.title': 'Demander une caution',
+  'verification.approve.title': 'Demandes de caution',
+  'verification.invite.title': 'Invitations',
 };
 
 export default fr;

@@ -1381,6 +1381,33 @@ const sw: Dictionary = {
   'writeTogether.submitFailed': 'Haikuweza kuwasilisha. Tafadhali jaribu tena.',
   'writeTogether.explainerTitle': 'Jinsi uandishi wa pamoja unavyofanya kazi',
   'writeTogether.explainerBody': 'Andika tatizo au suluhisho kwa jumuiya — andika toleo la kwanza, ruhusu wengine kupendekeza mabadiliko yanayoidhinishwa kwa kura, kisha liwasilishe kwa jumuiya.',
+
+  // ── S36 — Verification (Prompt 2 Wave 1) ──
+  'verification.title': 'Thibitishwa',
+  'verification.eyebrow': 'Uthibitisho',
+  'verification.hub.progress': 'Umepokea idhini {count} kati ya {threshold}',
+  'verification.hub.explain': 'Wanachama wanne wanaothibitisha kuwa wanakujua kama mtu halisi hukufanya Uthibitishwe kila mahali kwenye Gloki — bila vitambulisho wala uchanganuzi wa uso.',
+  'verification.hub.verifiedTitle': 'Umethibitishwa',
+  'verification.hub.verifiedBody': 'Wanachama waliothibitishwa wanaweza kupiga kura na kuunga mkono maagizo katika kila jumuiya wanayojiunga nayo.',
+  'verification.hub.goHome': 'Nenda Mwanzo',
+  'verification.hub.pathways': 'Njia za kupata idhini',
+  'verification.hub.requestsLink': 'Maombi ya udhamini',
+  'verification.hub.requestsPending': '{n} yanasubiri',
+  'verification.history.title': 'Idhini zako',
+  'verification.history.empty': 'Bado hakuna idhini. Muombe mwanachama akudhamini.',
+  'verification.method.direct': 'Alikudhamini',
+  'verification.method.invitation': 'Alikualika',
+  'verification.member.online': 'Mtandaoni',
+  'verification.member.offline': 'Nje ya mtandao',
+  'verification.pathway.request.title': 'Muombe mwanachama',
+  'verification.pathway.request.body': 'Chagua wanachama waliothibitishwa wanaokujua na uwaombe wakudhamini.',
+  'verification.pathway.request.cta': 'Muombe mwanachama',
+  'verification.pathway.invite.title': 'Mialiko',
+  'verification.pathway.invite.body': 'Alikwa na mwanachama aliyethibitishwa — au, ukishathibitishwa, waalike watu unaowajua.',
+  'verification.pathway.invite.cta': 'Mialiko',
+  'verification.request.title': 'Omba udhamini',
+  'verification.approve.title': 'Maombi ya udhamini',
+  'verification.invite.title': 'Mialiko',
 };
 
 export default sw;
