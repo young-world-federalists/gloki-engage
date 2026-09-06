@@ -482,7 +482,7 @@ where a role in the product had no interface.
   finish a pipeline.
 
 **P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ BUILT (S35, 2026-09-05;
-push pending)** (`origin/ui..ui`, `101e4a3..8e49972`, 47 commits after the 2026-09-05
+push pending)** (`origin/ui..ui`, `101e4a3..HEAD`, 48 commits after the 2026-09-05
 final-review fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave). Spec
 [docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md](docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md);
 decision record
@@ -623,7 +623,7 @@ remains Eston's gate.
 ## 8. Changelog
 
 - **2026-09-05 — S35: P10 Causes forum, discussion status pill, impact assessment (BUILT, push
-  pending; `origin/ui..ui`, `101e4a3..8e49972`, 47 commits after the same-day final-review
+  pending; `origin/ui..ui`, `101e4a3..HEAD`, 48 commits after the same-day final-review
   fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave).** Spec
   `docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md`; rulings
   `docs/superpowers/specs/2026-09-02-s34-decision-record.md` (D3–D7 and D12 drove the build; D1/D2/
