@@ -8,7 +8,7 @@
 # S35 / rulings D4, D5, F1, F2, D12. Apply inside class GlokiEngageInitiative.
 # Also: vote_comment refuses soft-deleted roots (mirrors the ui demo stub).
 
-# __init__ additions
+# --- add these two lines to __init__ (do this FIRST) ---
 #     self.comment_votes = Storage('comment_votes')          # F1: flat, key = caller + ':' + comment_id
 #     self.impact_assessments = Storage('impact_assessments') # F1: flat, key = proposal_id + ':' + caller
 
@@ -65,6 +65,11 @@ def add_impact_assessment(self, proposal_id, target, targets_cause, mechanism,
         return
     for k in existing:
         if self.impact_assessments[k]['author'] == caller:
+            return
+    if targets_cause != 'cause' and targets_cause != 'symptom' and targets_cause != 'both':
+        return
+    for field in [target, mechanism, broader_effects, risks, opportunity_costs, time_horizon]:
+        if not field:
             return
     key = proposal_id + ':' + caller
     self.impact_assessments[key] = {
