@@ -1,14 +1,14 @@
 # Session 37 — Prompt 2 Wave 2: the verification call
 
-**Context recap (as of 2026-09-06, `ui` @ `dc213f9`, push HELD for Eston's gate).** S36 built Prompt 2
+**Context recap (as of 2026-09-06, `ui` @ `54ec183`, PUSHED to `origin/ui`).** S36 built Prompt 2
 Wave 1 — the platform-wide verification hub, request, approve and invite pages under
 `/identity/verification/*` (D8/D9), the seam `src/services/verification.ts` over a localStorage demo
 module, the kit additions `Toast` / `ProgressBar segments` / `MemberCard`, `vouchMeta` on the Digital
 Agent, the 30-member fixture (16 personas + 14 verification-only non-members, E1), deterministic request
-outcomes (E2), two pathway cards (E3), `DEMO_VERSION` v19, and the FOR_OURI S36 addendum. 13 commits
-`628b574..dc213f9`: nine plan tasks (one fix round), an Opus whole-branch review (0 Critical / 5 Important /
+outcomes (E2), two pathway cards (E3), `DEMO_VERSION` v19, and the FOR_OURI S36 addendum. 14 commits
+`628b574..54ec183`: nine plan tasks (one fix round), an Opus whole-branch review (0 Critical / 5 Important /
 16 Minor) and one fix wave, a scoped re-review, and a controller preview walk at 360px light+dark in
-en/fr/sw. **Push state: NOT pushed when this prompt was written** — see premise #1.
+en/fr/sw. **Push state: PUSHED 2026-09-06.** Per D11 a `ui` push does not deploy — Ouri merges `ui` → `server-side`.
 
 This session builds **Prompt 2 Wave 2 only** — the simulated verification call (spec §3.3 W2, screen 5
 states A–D). Wave 3 (daily session) and Wave 4 (notification centre + bell) stay separate (F9).
@@ -44,8 +44,8 @@ states A–D). Wave 3 (daily session) and Wave 4 (notification centre + bell) st
 
 ## Re-verify these premises vs HEAD (S10–S36 lesson — prompts go stale between sessions)
 
-- `git log --oneline origin/ui..ui | wc -l` → **13 if S36 is still unpushed, 0 if Eston pushed it.** If
-  nonzero, ask Eston about the push gate before building on top (Ouri may merge `ui` at any time).
+- `git log --oneline origin/ui..ui | wc -l` → expect **0** (S36 pushed 2026-09-06). Anything above 0 is work
+  committed after this prompt was written — read it before trusting the premises below.
 - `git log --oneline origin/server-side | head -3` and
   `git show origin/server-side:src/assets/contracts/gloki_engage_initiative_contract.py | grep -c "comment_votes\|impact_assessments"`
   → was **0** at S36 close (the S35 patch not yet applied by Ouri).
@@ -116,7 +116,7 @@ states A–D). Wave 3 (daily session) and Wave 4 (notification centre + bell) st
 
 ## Kickoff
 
-Confirm the push gate (premise #1) with Eston. Then spec addendum → plan → build W2 in the order spec
+Re-verify the premises, then spec addendum → plan → build W2 in the order spec
 §3.3 lists (`VerifierPicker` → `WaitingRoom` → `InCallView` → `CallSummary` → `CallFlow` + route + the
 third pathway card with F10's line). Report after each screen with the commit, what the preview walk
 showed, and any premise above that turned out stale.

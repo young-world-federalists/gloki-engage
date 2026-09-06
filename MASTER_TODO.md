@@ -560,7 +560,7 @@ entry below for the full-wave i18n delta. **Pushed to `origin/ui` 2026-09-06** o
 go, after the adversarial panel.
 
 **P11 — Prompt 2: Community verification (S34 design §3, 2026-09-02).** 🔨 **Wave 1 BUILT + reviewed
-(S36, 2026-09-06; `628b574..dc213f9`, 13 commits, `DEMO_VERSION` v18 → **v19**; push HELD for Eston's gate).**
+(S36, 2026-09-06; `628b574..dc213f9`, 14 commits, `DEMO_VERSION` v18 → **v19**; PUSHED to `origin/ui` 2026-09-06 — Ouri's merge to `server-side` deploys).**
 Spec addendum
 [docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md](docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md)
 (E1–E3 rulings + §8 post-review amendments); plan
@@ -655,7 +655,7 @@ W2's verifier picker makes a third copy); the demo sidecar ships inert in prod (
 ## 8. Changelog
 
 - **2026-09-06 — S36: P11 Prompt 2 Wave 1, community verification hub / request / approve / invite
-  (BUILT + reviewed, NOT pushed; `628b574..dc213f9`, 13 commits).** Spec addendum
+  (BUILT + reviewed + PUSHED 2026-09-06; `628b574..54ec183`, 14 commits).** Spec addendum
   `docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md` (Eston's E1–E3 rulings: 16 personas + 14
   non-member fixture people with the user's own count platform-wide; deterministic request outcomes; two
   pathway cards), plan `docs/superpowers/plans/2026-09-06-s36-verification-w1.md` (9 delegated tasks, 1 fix
