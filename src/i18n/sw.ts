@@ -1408,6 +1408,16 @@ const sw: Dictionary = {
   'verification.request.title': 'Omba udhamini',
   'verification.approve.title': 'Maombi ya udhamini',
   'verification.invite.title': 'Mialiko',
+  'verification.request.intro': 'Wanachama wanaokujua wanaweza kuthibitisha kuwa wewe ni mtu halisi. Kila idhini inahesabiwa kati ya nne zako.',
+  'verification.request.search': 'Tafuta kwa jina',
+  'verification.request.searchPlaceholder': 'Jina',
+  'verification.request.cta': 'Omba',
+  'verification.request.sent': 'Imeombwa ✓',
+  'verification.request.vouched': 'Amekudhamini',
+  'verification.request.noResponse': 'Hakuna jibu',
+  'verification.request.approvedToast': '{name} amekudhamini',
+  'verification.request.declinedToast': '{name} hakujibu wakati huu',
+  'verification.request.empty': 'Hakuna mwanachama anayelingana.',
 };
 
 export default sw;

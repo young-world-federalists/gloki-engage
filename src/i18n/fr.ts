@@ -1409,6 +1409,16 @@ const fr: Dictionary = {
   'verification.request.title': 'Demander une caution',
   'verification.approve.title': 'Demandes de caution',
   'verification.invite.title': 'Invitations',
+  'verification.request.intro': "Les membres qui vous connaissent peuvent confirmer que vous êtes une vraie personne. Chaque approbation compte parmi vos quatre.",
+  'verification.request.search': "Rechercher par nom",
+  'verification.request.searchPlaceholder': "Nom",
+  'verification.request.cta': "Demander",
+  'verification.request.sent': "Demandé ✓",
+  'verification.request.vouched': "Garant·e",
+  'verification.request.noResponse': "Sans réponse",
+  'verification.request.approvedToast': "{name} s'est porté·e garant·e de vous",
+  'verification.request.declinedToast': "{name} n'a pas répondu cette fois",
+  'verification.request.empty': "Aucun membre ne correspond.",
 };
 
 export default fr;
