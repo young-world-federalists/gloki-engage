@@ -485,8 +485,11 @@ has reached: **New → Contested → Divided → Converging → Consensus**
 comments only (replies aren't votable, D4). Sample = the ≤10 root comments with
 the most total votes; `agreement = Σ|up−down| / Σ(up+down)` over that sample,
 banded at `0.25 / 0.5 / 0.75`. **Floors** below which the band is always `open`
-("New"), regardless of agreement: fewer than 10 total votes, or fewer than 3
-voted-on root comments. `DiscussionStatusBadge` is the presentational half
+("New"), regardless of agreement: fewer than 10 total votes, fewer than 3
+voted-on root comments, or fewer than 3 distinct voters. And because `agreement`
+is sign-blind (`Σ|up−down|`), a sample whose **net** score is not positive
+is capped at `Divided` — a unanimously *rejected* causes list must never read
+"Consensus" (F4). `DiscussionStatusBadge` is the presentational half
 (renders from an already-computed `DiscussionStatus`, for surfaces that already
 hold comments+votes); `DiscussionStatusPill` wraps it with the same read-only
 `resolveInitiativeStageContract` + fetch pattern as `DiscussionPill` — it

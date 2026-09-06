@@ -205,7 +205,7 @@ const CommentItem: React.FC<{
 
         {!node.deleted && (
           <div className={styles.commentActions}>
-            {depth === 0 ? (
+            {!node.parentId ? (
               <>
                 <div className={styles.voteGroup} role="group" aria-label={t('causes.vote.group', 'Vote on this cause')}>
                   <button type="button" className={`${styles.voteBtn} ${mine === 'up' ? styles.voteOn : ''}`}

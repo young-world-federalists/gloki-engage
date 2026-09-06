@@ -12,6 +12,7 @@ export type DiscussionStatusKey = 'open' | 'contested' | 'divided' | 'converging
 export interface DiscussionStatus { key: DiscussionStatusKey; agreement: number; votes: number; votedComments: number; participants: number }
 export const STATUS_VOTE_FLOOR = 10;
 export const MIN_VOTED_COMMENTS = 3;
+export const MIN_PARTICIPANTS = 3;   // beside STATUS_VOTE_FLOOR / MIN_VOTED_COMMENTS
 export const STATUS_SAMPLE = 10;
 export const STATUS_THRESHOLDS = { contested: 0.25, divided: 0.5, converging: 0.75 } as const;
 export const STATUS_META: Record<DiscussionStatusKey, { labelKey: string; labelDefault: string; tone: BadgeTone }> = {
@@ -37,14 +38,24 @@ export function computeDiscussionStatus(comments: Comment[], votes: CommentVote[
   const rootIds = new Set(roots.map((c) => c.id));
   const participants = new Set(votes.filter((v) => rootIds.has(v.commentId)).map((v) => v.voter)).size;
   const base = { votes: totalVotes, votedComments: voted.length, participants };
-  if (totalVotes < STATUS_VOTE_FLOOR || voted.length < MIN_VOTED_COMMENTS) return { key: 'open', agreement: 0, ...base };
+  // F3 + S35 R3 guard 1: three floors, all counted before the formula runs. MIN_PARTICIPANTS is
+  // what makes `status.participants >= 3`, which is why causes.status.scoped needs no singular form.
+  if (totalVotes < STATUS_VOTE_FLOOR || voted.length < MIN_VOTED_COMMENTS || participants < MIN_PARTICIPANTS) {
+    return { key: 'open', agreement: 0, ...base };
+  }
   const num = voted.reduce((s, r) => s + Math.abs(r.up - r.down), 0);
   const den = voted.reduce((s, r) => s + r.up + r.down, 0);
   const agreement = den === 0 ? 0 : num / den;
-  const key: DiscussionStatusKey =
+  const band: DiscussionStatusKey =
     agreement < STATUS_THRESHOLDS.contested ? 'contested'
     : agreement < STATUS_THRESHOLDS.divided ? 'divided'
     : agreement < STATUS_THRESHOLDS.converging ? 'converging'
     : 'consensus';
+  // S35 R3 guard 2 (F4): `agreement` is D6's ruled formula and is sign-blind — a sample the
+  // community unanimously REJECTED scores 1.0. The formula and its thresholds are untouched; a
+  // non-positive net score simply cannot reach the two bands that make an external claim.
+  const net = voted.reduce((s, r) => s + r.up - r.down, 0);
+  const key: DiscussionStatusKey =
+    net > 0 || (band !== 'converging' && band !== 'consensus') ? band : 'divided';
   return { key, agreement, ...base };
 }
