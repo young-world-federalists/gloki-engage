@@ -1,15 +1,15 @@
 # Session 36 — Prompt 2 Wave 1: Community verification
 
-**Context recap (as of 2026-09-06, `ui` @ HEAD (48 commits ahead of `origin/ui`)).** S35 built Prompt 1 in full (W0→W4 —
+**Context recap (as of 2026-09-06, `ui` @ `03d6f5d`, pushed).** S35 built Prompt 1 in full (W0→W4 —
 Causes forum, the five-band discussion status pill, required cause alignment on new solutions,
 and impact assessment) from the S34 decision record, plus a same-day 8-commit final-review fix
 wave (A–H) applying the whole-branch review findings, and a further nine-commit adversarial-panel
-(R3 judge) MUST fix wave — `origin/ui..ui` (`101e4a3..HEAD`, 48 commits) total. Per-task
+(R3 judge) MUST fix wave — `101e4a3..03d6f5d`, 49 commits total. Per-task
 subagent review ran clean throughout (one Important caught and fixed at task 14); the
-whole-branch Opus review and the push decision are Eston's gate and were handled separately from
-the closeout docs. **Push state: `ui` is 47 commits ahead of `origin/ui` and has NOT been
-pushed** — confirm with Eston before this session touches anything, since a stale local `ui`
-changes several premises below. Per **D11**, a push to `ui` does not deploy on its own; deploy
+whole-branch Opus review, an adversarial three-reviewer Opus panel, and Eston's push gate all ran
+before it shipped. **Push state: PUSHED to `origin/ui` 2026-09-06 (`03d6f5d`); nothing is
+outstanding locally.** Per **D11**, a push to `ui` does not deploy on its own — confirmed after
+this push, when no workflow run fired; deploy
 happens only when Ouri merges `ui` → `server-side`, so pushing S35 and getting it live are two
 separate asks of two different people.
 
@@ -43,8 +43,15 @@ screens. Waves 2–4 (call, daily session, notification centre) are separate fut
 
 ## Re-verify these premises vs HEAD (S10–S35 lesson — prompts go stale between sessions)
 
-- `git log --oneline origin/ui..ui | wc -l` → expect **48** (unpushed). If 0, S35 was pushed since
-  this prompt was written — re-read the push/deploy framing above, it may be stale.
+- `git log --oneline origin/ui..ui | wc -l` → expect **0**: S35 was pushed on 2026-09-06. Anything
+  above 0 is work committed after this prompt was written — read it before trusting the premises
+  below.
+- `git log --oneline origin/server-side | head -3` → has Ouri merged `ui` → `server-side` yet? If he
+  has, the S35 features are live and `docs/contracts/s34-initiative-contract-additions.py` should
+  have been applied — verify with
+  `git show origin/server-side:src/assets/contracts/gloki_engage_initiative_contract.py | grep -c comment_votes`
+  (0 = not applied, so `vote_comment` is missing in production and the Causes UI writes into a
+  method that does not exist).
 - `grep -n "DEMO_VERSION = " src/services/demo/mockApi.ts` → expect `'global-v18'`. Wave 1 seeds
   30 verification-fixture members and picks the next `DEMO_VERSION` value when it ships.
 - `grep -rn "export function eligibleAssessors" src/utils/writerRank.ts` → should still exist

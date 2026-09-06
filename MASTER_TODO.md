@@ -481,9 +481,11 @@ where a role in the product had no interface.
 - **Only one published mandate exists**, so the organization home reads thin until more communities
   finish a pipeline.
 
-**P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ BUILT (S35, 2026-09-05;
-push pending)** (`origin/ui..ui`, `101e4a3..HEAD`, 48 commits after the 2026-09-05
-final-review fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave). Spec
+**P10 — Causes · status · impact assessment (S34 design, 2026-09-02). ✅ SHIPPED+PUSHED (S35,
+2026-09-05/06)** (`101e4a3..03d6f5d`, 49 commits, pushed to `origin/ui` 2026-09-06 — includes the
+2026-09-05 final-review fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave).
+A push to `ui` does **not** deploy (verified: no workflow run fired); the deploy happens when Ouri
+merges `ui` → `server-side`. Spec
 [docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md](docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md);
 decision record
 [docs/superpowers/specs/2026-09-02-s34-decision-record.md](docs/superpowers/specs/2026-09-02-s34-decision-record.md)
@@ -551,11 +553,11 @@ formula guards: P6/D4 via a third `MIN_PARTICIPANTS` floor and a net-score band 
 to the D6/F3-ruled formula) applied as 9 further commits before push, plus 11 LATER items ledgered for S36 in the
 judge ruling's §B (four fr/sw register items additionally routed into
 `docs/i18n-native-review-candidates.md`, below). Full ruling:
-`.superpowers/sdd/2026-09-02-prompt1-causes-impact-status/panel-R3-judge.md`; fix report:
-`.superpowers/sdd/2026-09-02-prompt1-causes-impact-status/panel-fix-report.md`. i18n +2 keys
+[docs/superpowers/specs/2026-09-06-s35-panel-verdict.md](docs/superpowers/specs/2026-09-06-s35-panel-verdict.md) (the session scratch workspace it was
+written in has been deleted; that spec is the durable record). i18n +2 keys
 (`causes.vote.locked`, `impact.allRequired`) this wave, fr/sw parity 1251/1251 — see the changelog
-entry below for the full-wave i18n delta. **Still not pushed** — the whole-branch push decision
-remains Eston's gate.
+entry below for the full-wave i18n delta. **Pushed to `origin/ui` 2026-09-06** on Eston's explicit
+go, after the adversarial panel.
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
 
@@ -622,9 +624,9 @@ remains Eston's gate.
 
 ## 8. Changelog
 
-- **2026-09-05 — S35: P10 Causes forum, discussion status pill, impact assessment (BUILT, push
-  pending; `origin/ui..ui`, `101e4a3..HEAD`, 48 commits after the same-day final-review
-  fix wave and the 2026-09-06 adversarial-panel R3 judge MUST fix wave).** Spec
+- **2026-09-05/06 — S35: P10 Causes forum, discussion status pill, impact assessment
+  (SHIPPED+PUSHED; `101e4a3..03d6f5d`, 49 commits, pushed 2026-09-06 — includes the same-day
+  final-review fix wave and the adversarial-panel R3 judge MUST fix wave).** Spec
   `docs/superpowers/specs/2026-09-02-s34-review-causes-impact-verification-design.md`; rulings
   `docs/superpowers/specs/2026-09-02-s34-decision-record.md` (D3–D7 and D12 drove the build; D1/D2/
   D8–D11/F9/F10 needed no code here). Scope classes: UI + **five contract-method additions**
