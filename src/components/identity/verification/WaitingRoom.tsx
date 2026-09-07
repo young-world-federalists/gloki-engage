@@ -107,6 +107,8 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({ session, onUpdate, onStart, o
         <MemberList
           members={session.verifiers.map(toMemberSummary)}
           action={actionFor}
+          onlineLabel={t('verification.call.joined', 'Joined')}
+          offlineLabel={t('verification.call.waiting', 'Waiting')}
           empty={
             // Unreachable in practice — VerifierPicker requires >=1 selected
             // verifier before a session can exist — but MemberList's `empty`

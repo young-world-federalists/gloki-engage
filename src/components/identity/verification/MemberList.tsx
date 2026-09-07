@@ -13,6 +13,15 @@ export interface MemberListProps {
   empty: React.ReactNode;
   /** Extra props per row, e.g. selection styling in the picker. */
   rowClassName?: (member: MemberSummary) => string | undefined;
+  /**
+   * Accessible labels for the presence dot. Default to the generic
+   * "Online"/"Offline" strings — override when a caller repurposes
+   * `MemberSummary.online` for a different boolean (e.g. WaitingRoom's
+   * "joined this call" state) so the dot's label agrees with whatever the
+   * row's own action slot (e.g. a Badge) says about that same state.
+   */
+  onlineLabel?: string;
+  offlineLabel?: string;
 }
 
 /**
@@ -23,7 +32,15 @@ export interface MemberListProps {
  * per-row action slot. `trustState="verified"` is fixed: every member in
  * these lists is verified by definition.
  */
-const MemberList: React.FC<MemberListProps> = ({ members, action, loading = false, empty, rowClassName }) => {
+const MemberList: React.FC<MemberListProps> = ({
+  members,
+  action,
+  loading = false,
+  empty,
+  rowClassName,
+  onlineLabel,
+  offlineLabel,
+}) => {
   const t = useT();
 
   if (loading) {
@@ -43,8 +60,8 @@ const MemberList: React.FC<MemberListProps> = ({ members, action, loading = fals
           name={member.name}
           countryCode={member.country}
           online={member.online}
-          onlineLabel={t('verification.member.online', 'Online')}
-          offlineLabel={t('verification.member.offline', 'Offline')}
+          onlineLabel={onlineLabel ?? t('verification.member.online', 'Online')}
+          offlineLabel={offlineLabel ?? t('verification.member.offline', 'Offline')}
           trustState="verified"
           action={action(member)}
           className={rowClassName?.(member)}
