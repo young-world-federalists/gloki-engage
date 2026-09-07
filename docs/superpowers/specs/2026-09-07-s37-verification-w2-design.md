@@ -160,7 +160,14 @@ startCall(ctx, sessionId): Promise<CallSession>
 verifyInCall(ctx, sessionId, verifierKey): Promise<CallSession>
 leaveCall(ctx, sessionId): Promise<void>
 pendingCandidate(ctx): Promise<CallParticipant | null>
+joinAsVerifier(ctx): Promise<CallSession>   // E6 verifier role — see the C1 amendment below
 ```
+
+**C1 amendment (controller, 2026-09-07, preflight).** `inviteToCall` implies the caller is the
+candidate. E6's verifier role inverts that — the user is the sole *verifier* and the candidate is a
+fixture member — which no signature above could express, so the eighth function `joinAsVerifier(ctx)`
+creates that session (candidate from `pendingCandidate()`, `ctx.publicKey` as the only verifier).
+`pendingCandidate` stays, for showing who is waiting before joining.
 
 Types live in `src/services/verificationModel.ts` (pure) and are re-exported from the seam, matching
 the W1 arrangement.
@@ -169,7 +176,7 @@ the W1 arrangement.
 
 The call needs **no new contract method**: `vouch(public_key, method)` already accepts
 `method: 'call'` (S36 addendum). But I4 says every seam function is documented, so
-`docs/FOR_OURI_seam.md` gains an S37 addendum recording that the seven functions above are
+`docs/FOR_OURI_seam.md` gains an S37 addendum recording that the eight functions above are
 **simulation-only, with no contract counterpart** — and that the one durable effect of a call is a
 `vouch(public_key, 'call')` by each verifier, subject to the same "the vouch is always BY THE CALLER"
 auth rule. Documenting the absence is the point: it stops a future session inventing a

@@ -255,14 +255,17 @@ no i18n change.
   - `pendingCandidate()` — a deterministic fixture member for the verifier role (E6). Pick by a
     fixed index from `allVerificationMembers()`, excluding anyone in the user's vouchers. **No
     fixture file edit.**
+  - `joinAsVerifier(candidateKey, verifierKey)` — the C1 amendment. Builds a session whose candidate
+    is `pendingCandidate()` and whose sole verifier is the current user, `state: 'active'`, that
+    verifier already `joined`. **No auto-verify schedule** — this user taps for themselves (E6).
 
-- [ ] **Step 3: The seam.** Add the 7 functions from spec §4 to `src/services/verification.ts`, each
+- [ ] **Step 3: The seam.** Add the 8 functions from spec §4 (including `joinAsVerifier`, the C1 amendment) to `src/services/verification.ts`, each
   a one-line delegation with a doc comment, in the same style as the W1 six. `joinCallStream` is the
   one non-Promise export (it returns an unsubscribe) — comment why.
 
 - [ ] **Step 4: FOR_OURI S37 addendum.** Append a section to `docs/FOR_OURI_seam.md` after the S36
   addendum. Content: the call is a **UI simulation with no contract counterpart**; a wire-name row
-  for each of the 7 seam functions saying "simulation only — no contract method"; and the one durable
+  for each of the 8 seam functions saying "simulation only — no contract method"; and the one durable
   effect, `vouch(public_key, 'call')` by each verifier, already accepted by the S36-documented
   method, subject to the same "the vouch is always BY THE CALLER" rule. State explicitly that no
   `start_call` / `join_call` method should be invented — this row exists so a future session doesn't
@@ -364,8 +367,9 @@ join, the 20 s timeout banner appears and is not a dead end, Cancel returns to t
 - [ ] **Step 2: Role split (E6).**
   - **Candidate:** subscribes to `joinCallStream`; the sim's staggered verifications drive the count.
     No `VerifyButton` (you cannot verify yourself).
-  - **Verifier:** `CallFlow` resolves `pendingCandidate(ctx)` and opens a session with the current
-    user as the sole verifier. Renders `VerifyButton` under the candidate tile: tap →
+  - **Verifier:** `CallFlow` calls `joinAsVerifier(ctx)` (the C1 amendment — `inviteToCall` assumes
+    the caller is the candidate, so it cannot express this role), optionally showing
+    `pendingCandidate(ctx)` first. Renders `VerifyButton` under the candidate tile: tap →
     `state='loading'` → `verifyInCall` in `try/finally` → `state='confirmed'`. The vouch is **not**
     banked for the verifier's own agent (they are giving, not receiving) — the sim's
     `verifyInCall` already guards this by checking whose session it is.
@@ -450,7 +454,7 @@ page.
   text-vouch path linked, and non-video pathways stay first in `PathwayCards`.
 - **Is the S36 §8 honesty rule satisfied?** The demo line is on the picker and inside the call — the
   two surfaces where fixture people appear to judge the user.
-- **Is I4 satisfied?** Task 4 Step 4 adds a wire-name row for all seven new seam functions, including
+- **Is I4 satisfied?** Task 4 Step 4 adds a wire-name row for all eight new seam functions, including
   the deliberate "no contract method — do not invent one" note.
 - **Can a demo visitor be stranded?** No: decliners never join but every other invitee does; Start
   works at ≥1; the timeout keeps both actions live; a partial call still banks its vouches (E5).
