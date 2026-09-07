@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Search, Users } from 'lucide-react';
-import { Button, Badge, EmptyState, MemberCard, useToast } from '../../shared';
+import { Button, Badge, EmptyState, useToast } from '../../shared';
 import { useT } from '../../../i18n';
 import { useVerification, useVerifiedMembers } from '../../../hooks/useVerification';
 import { requestVouch, type MemberSummary } from '../../../services/verification';
+import MemberList from './MemberList';
 import pages from './VerificationPages.module.scss';
 
 /**
@@ -80,27 +81,12 @@ const RequestPage: React.FC = () => {
           autoComplete="off"
         />
       </div>
-      {loading ? (
-        <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
-      ) : members.length === 0 ? (
-        <EmptyState compact icon={query ? <Search size={48} aria-hidden /> : <Users size={48} aria-hidden />} title={t('verification.request.empty', 'No members match.')} />
-      ) : (
-        <ul className={pages.list}>
-          {members.map((m) => (
-            <MemberCard
-              as="li"
-              key={m.publicKey}
-              name={m.name}
-              countryCode={m.country}
-              online={m.online}
-              onlineLabel={t('verification.member.online', 'Online')}
-              offlineLabel={t('verification.member.offline', 'Offline')}
-              trustState="verified"
-              action={actionFor(m)}
-            />
-          ))}
-        </ul>
-      )}
+      <MemberList
+        members={members}
+        loading={loading}
+        action={actionFor}
+        empty={<EmptyState compact icon={query ? <Search size={48} aria-hidden /> : <Users size={48} aria-hidden />} title={t('verification.request.empty', 'No members match.')} />}
+      />
     </div>
   );
 };

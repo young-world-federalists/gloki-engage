@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Users } from 'lucide-react';
-import { Button, EmptyState, MemberCard, useToast } from '../../shared';
+import { Button, EmptyState, useToast } from '../../shared';
 import { useT } from '../../../i18n';
 import { useVerification, useVerifiedMembers } from '../../../hooks/useVerification';
 import { requestInvitation, sendInvitation, type MemberSummary } from '../../../services/verification';
+import MemberList from './MemberList';
 import pages from './VerificationPages.module.scss';
 
 /**
@@ -55,6 +56,13 @@ const InvitePage: React.FC = () => {
     toast.show({ tone: 'success', message: t('verification.invite.requestedToast', 'Invitation request sent to {name}', { name: member.name }) });
   };
 
+  const actionFor = (member: MemberSummary): React.ReactNode =>
+    requested.has(member.publicKey) || requesting === member.publicKey ? (
+      <Button size="sm" variant="secondary" disabled>{t('verification.invite.requested', 'Requested ✓')}</Button>
+    ) : (
+      <Button size="sm" onClick={() => void handleRequest(member)}>{t('verification.invite.requestCta', 'Request invitation')}</Button>
+    );
+
   if (trust === 'verified') {
     return (
       <form className={pages.page} onSubmit={(e) => void handleSend(e)}>
@@ -87,33 +95,12 @@ const InvitePage: React.FC = () => {
       <p className={pages.intro}>
         {t('verification.invite.requestIntro', 'Verified members can invite you. Ask someone who knows you.')}
       </p>
-      {loading ? (
-        <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
-      ) : members.length === 0 ? (
-        <EmptyState compact icon={<Users size={48} aria-hidden />} title={t('verification.invite.empty', 'No verified members yet.')} />
-      ) : (
-        <ul className={pages.list}>
-          {members.map((m) => (
-            <MemberCard
-              as="li"
-              key={m.publicKey}
-              name={m.name}
-              countryCode={m.country}
-              online={m.online}
-              onlineLabel={t('verification.member.online', 'Online')}
-              offlineLabel={t('verification.member.offline', 'Offline')}
-              trustState="verified"
-              action={
-                requested.has(m.publicKey) || requesting === m.publicKey ? (
-                  <Button size="sm" variant="secondary" disabled>{t('verification.invite.requested', 'Requested ✓')}</Button>
-                ) : (
-                  <Button size="sm" onClick={() => void handleRequest(m)}>{t('verification.invite.requestCta', 'Request invitation')}</Button>
-                )
-              }
-            />
-          ))}
-        </ul>
-      )}
+      <MemberList
+        members={members}
+        loading={loading}
+        action={actionFor}
+        empty={<EmptyState compact icon={<Users size={48} aria-hidden />} title={t('verification.invite.empty', 'No verified members yet.')} />}
+      />
     </div>
   );
 };
