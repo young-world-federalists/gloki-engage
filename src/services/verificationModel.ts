@@ -51,3 +51,30 @@ export interface InvitationDraft {
   email: string;
   vouch: boolean;
 }
+
+// ── Call simulation (S37 — Prompt 2 Wave 2) ─────────────────────────────────
+// Still pure: no new imports needed. `verificationSim.ts` and the seam both
+// import these; nothing here depends on the sim, so there is no cycle.
+
+export type CallState = 'waiting' | 'active' | 'complete';
+
+/** One person in a call — the candidate being verified, or an invited verifier. */
+export interface CallParticipant {
+  publicKey: string;
+  name: string;
+  country: string;
+  joined: boolean;
+  verified: boolean;
+}
+
+export interface CallSession {
+  id: string;
+  /** The person being verified. */
+  candidate: CallParticipant;
+  /** Invited; `joined` fills in over time. */
+  verifiers: CallParticipant[];
+  state: CallState;
+  startedAt: number;
+  /** The 5-min timeout, simulated at 20 s. */
+  timedOut: boolean;
+}

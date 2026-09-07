@@ -237,3 +237,39 @@ Verification is **platform-wide on the Digital Agent** (S34 D8), not per communi
   change to the method surface.
 - **Demo-only, not for production:** the four simulated outcomes (`declines` flags in
   `src/services/demo/fixtures/verification.ts`) and the dev scenario switcher.
+
+### S37 addendum — Verification call, Wave 2 (`src/services/verification.ts`, `src/services/demo/verificationSim.ts`)
+
+The verification call (S37 spec §3–4) is a **UI simulation with no contract counterpart** — an
+in-memory `CallSession` (`src/services/demo/verificationSim.ts`) that dies with the tab, with no
+localStorage and no fixture edit either. I4 (§8 above) says every seam function gets a wire-name
+row even when the row is "none needed"; this addendum is that row, times eight, specifically so
+nothing here gets invented later:
+
+- **`inviteToCall(ctx, verifierKeys)`** — simulation only, no contract method.
+- **`availableVerifiers(ctx, excludeKeys)`** — simulation only, no contract method.
+- **`joinCallStream(sessionId, onUpdate)`** — simulation only, no contract method.
+- **`startCall(ctx, sessionId, autoVerify?)`** — simulation only, no contract method.
+- **`verifyInCall(ctx, sessionId, verifierKey)`** — simulation only, no contract method of its
+  own (see below for its one durable effect).
+- **`leaveCall(ctx, sessionId)`** — simulation only, no contract method.
+- **`pendingCandidate(ctx)`** — simulation only, no contract method.
+- **`joinAsVerifier(ctx)`** — simulation only, no contract method. The C1 amendment: an eighth
+  seam function, added because `inviteToCall` assumes the caller is the candidate and the
+  verifier role (E6) inverts that — no signature above `pendingCandidate` could express it.
+
+**The one durable effect.** Every in-call verification (`verifyInCall`) calls
+`addUserVouch(verifierKey, { method: 'call', at })` — the same Digital Agent write the
+request/approve path uses, through the same **`vouch(public_key, method)`** the S36 addendum
+above already documents, with `method: 'call'` (an accepted value already, not a new one).
+Subject to the same rule as every other vouch: **the vouch is always BY THE CALLER.** Concretely
+here, that means it lands on the session's candidate only when the candidate IS the local user
+(the normal candidate-role call); a verified user verifying a fixture candidate (`joinAsVerifier`)
+never banks anything onto their own agent — there is nothing on the other end of that vouch to
+receive it, since the fixture candidate has no persistent store in this demo.
+
+**Do not add `start_call` / `join_call` (or any call-lifecycle method) to the contract.** A call
+session is UI-only and disposable by design; the only thing a real call needs to leave behind is
+the vouch, and `vouch(public_key, 'call')` already covers it. This row exists specifically to stop
+that method from being invented by a future session that sees eight new seam functions and assumes
+one of them needs a wire counterpart.

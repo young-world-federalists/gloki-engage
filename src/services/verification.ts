@@ -3,6 +3,10 @@
 // FOR OURI swaps these bodies for contractRead/contractWrite against the
 // Digital Agent contract (get_vouches / request_vouch / vouch / decline_vouch —
 // docs/FOR_OURI_seam.md, S36 addendum) without touching a component.
+//
+// The call functions (S37 — Wave 2) are the one exception: they simulate a
+// call in memory and have no contract counterpart to swap to — see the S37
+// addendum in the same doc.
 import {
   demoGetState,
   demoListMembers,
@@ -11,7 +15,19 @@ import {
   demoSendInvitation,
   demoRequestInvitation,
 } from './demo/verificationDemo';
+import {
+  simAvailableNow,
+  simInviteToCall,
+  simJoinAsVerifier,
+  simJoinStream,
+  simLeaveCall,
+  simPendingCandidate,
+  simStartCall,
+  simVerifyInCall,
+} from './demo/verificationSim';
 import type {
+  CallParticipant,
+  CallSession,
   InvitationDraft,
   MemberSummary,
   VerificationCtx,
@@ -21,6 +37,9 @@ import type {
 
 export type {
   Approval,
+  CallParticipant,
+  CallSession,
+  CallState,
   InvitationDraft,
   MemberSummary,
   VerificationCtx,
@@ -57,4 +76,66 @@ export function sendInvitation(ctx: VerificationCtx, draft: InvitationDraft): Pr
 
 export function requestInvitation(ctx: VerificationCtx, memberKey: string): Promise<void> {
   return demoRequestInvitation(ctx.publicKey, memberKey);
+}
+
+// ── Call simulation (S37 — Prompt 2 Wave 2) ─────────────────────────────────
+// No contract counterpart — see docs/FOR_OURI_seam.md, S37 addendum.
+
+/** Creates a waiting call session with the caller as candidate; nobody has joined yet. */
+export function inviteToCall(ctx: VerificationCtx, verifierKeys: string[]): Promise<CallSession> {
+  return Promise.resolve(simInviteToCall(ctx.publicKey, verifierKeys));
+}
+
+/** 8–10 online members the picker can invite, minus `excludeKeys` (already-vouched, E5). */
+export function availableVerifiers(_ctx: VerificationCtx, excludeKeys: string[]): Promise<CallParticipant[]> {
+  return Promise.resolve(simAvailableNow(excludeKeys));
+}
+
+/**
+ * Live join/verify updates for one call session. The one non-Promise export:
+ * a subscription needs a synchronous unsubscribe to call from an effect's
+ * cleanup, not a value to await. Clears every timer it started, so a
+ * component that unmounts mid-call never leaks one.
+ */
+export function joinCallStream(sessionId: string, onUpdate: (session: CallSession) => void): () => void {
+  return simJoinStream(sessionId, onUpdate);
+}
+
+/**
+ * `waiting` → `active`; auto-verifies already-joined verifiers on a staggered
+ * schedule unless `autoVerify` is false (the verifier role taps for
+ * themselves instead, and never calls this — see `joinAsVerifier`).
+ */
+export function startCall(_ctx: VerificationCtx, sessionId: string, autoVerify = true): Promise<CallSession> {
+  return Promise.resolve(simStartCall(sessionId, autoVerify));
+}
+
+/**
+ * Marks `verifierKey` verified in the call. Banks `addUserVouch(verifierKey,
+ * { method: 'call', at })` only when the session's own candidate is the local
+ * user — never onto a verifier's own agent for verifying someone else's call.
+ */
+export function verifyInCall(_ctx: VerificationCtx, sessionId: string, verifierKey: string): Promise<CallSession> {
+  return Promise.resolve(simVerifyInCall(sessionId, verifierKey));
+}
+
+/** Ends the call session and clears every timer it still holds. */
+export function leaveCall(_ctx: VerificationCtx, sessionId: string): Promise<void> {
+  return Promise.resolve(simLeaveCall(sessionId));
+}
+
+/** The fixture member a verified user sees waiting to be verified (E6); deterministic, never one the caller already vouched for. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ctx kept for signature parity with the rest of the seam (spec §4); nothing here needs it yet.
+export function pendingCandidate(_ctx: VerificationCtx): Promise<CallParticipant | null> {
+  return Promise.resolve(simPendingCandidate());
+}
+
+/**
+ * The E6 verifier role (C1 amendment — `inviteToCall` assumes the caller is
+ * the candidate, and this role inverts that). Joins an already-active session
+ * against `pendingCandidate()` as its sole verifier; no auto-verify schedule,
+ * this user taps for themselves.
+ */
+export function joinAsVerifier(ctx: VerificationCtx): Promise<CallSession> {
+  return Promise.resolve(simJoinAsVerifier(ctx.publicKey));
 }
