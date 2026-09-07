@@ -102,12 +102,17 @@ export function joinCallStream(sessionId: string, onUpdate: (session: CallSessio
 }
 
 /**
- * `waiting` → `active`; auto-verifies already-joined verifiers on a staggered
- * schedule unless `autoVerify` is false (the verifier role taps for
- * themselves instead, and never calls this — see `joinAsVerifier`).
+ * `waiting` → `active`; from there the session auto-verifies every verifier,
+ * both those already joined and those still arriving. Only the candidate role
+ * calls this — the verifier role gets an already-active session from
+ * `joinAsVerifier` and taps for itself.
+ *
+ * `async`, not `Promise.resolve(...)`: the sim throws synchronously on an
+ * unknown session, and inside a plain (non-async) function that error would
+ * escape before the promise existed — past any `.catch()` a caller attached.
  */
-export function startCall(_ctx: VerificationCtx, sessionId: string, autoVerify = true): Promise<CallSession> {
-  return Promise.resolve(simStartCall(sessionId, autoVerify));
+export async function startCall(_ctx: VerificationCtx, sessionId: string): Promise<CallSession> {
+  return simStartCall(sessionId);
 }
 
 /**
@@ -115,8 +120,9 @@ export function startCall(_ctx: VerificationCtx, sessionId: string, autoVerify =
  * { method: 'call', at })` only when the session's own candidate is the local
  * user — never onto a verifier's own agent for verifying someone else's call.
  */
-export function verifyInCall(_ctx: VerificationCtx, sessionId: string, verifierKey: string): Promise<CallSession> {
-  return Promise.resolve(simVerifyInCall(sessionId, verifierKey));
+// `async` for the same reason as `startCall`: an unknown session throws synchronously in the sim.
+export async function verifyInCall(_ctx: VerificationCtx, sessionId: string, verifierKey: string): Promise<CallSession> {
+  return simVerifyInCall(sessionId, verifierKey);
 }
 
 /** Ends the call session and clears every timer it still holds. */
@@ -135,7 +141,10 @@ export function pendingCandidate(_ctx: VerificationCtx): Promise<CallParticipant
  * the candidate, and this role inverts that). Joins an already-active session
  * against `pendingCandidate()` as its sole verifier; no auto-verify schedule,
  * this user taps for themselves.
+ *
+ * `async` for the same reason as `startCall`: "no eligible pending candidate"
+ * throws synchronously in the sim, and a caller's `.catch()` must see it.
  */
-export function joinAsVerifier(ctx: VerificationCtx): Promise<CallSession> {
-  return Promise.resolve(simJoinAsVerifier(ctx.publicKey));
+export async function joinAsVerifier(ctx: VerificationCtx): Promise<CallSession> {
+  return simJoinAsVerifier(ctx.publicKey);
 }
