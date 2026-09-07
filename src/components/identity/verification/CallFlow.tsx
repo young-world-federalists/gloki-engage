@@ -184,6 +184,9 @@ const CallFlow: React.FC = () => {
   // call that one prop, which is why neither needs its own branch here.
   // Guarded for the type checker: InCallView requires a `session` to render
   // at all, so this step is never reached without one already set.
+  // `role` passed straight through from the frozen state above (W6, fix
+  // round 1) — never re-derived from live trust, same reasoning as the
+  // `inCall` branch's InCallView call just above.
   if (!session) {
     return (
       <div className={pages.page}>
@@ -191,7 +194,7 @@ const CallFlow: React.FC = () => {
       </div>
     );
   }
-  return <CallSummary session={session} />;
+  return <CallSummary session={session} role={role} />;
 };
 
 export default CallFlow;

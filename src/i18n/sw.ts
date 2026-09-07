@@ -1493,6 +1493,11 @@ const sw: Dictionary = {
   'verification.call.summaryVerifiers': 'Waliothibitisha',
   'verification.call.summaryNone': 'Hakuna aliyethibitisha kwenye simu hii.',
   'verification.call.summaryNext': 'Mwombe mwanachama akudhamini',
+  // W6, fix round 1 — verifier-role branch. The 'm-' object marker in
+  // 'kumthibitisha' (kiambishi cha nafsi ya tatu) is gender-neutral, matching
+  // 'kumthibitisha' already used in demoNoteVerifier above.
+  'verification.call.summaryVerifiedName': 'Umemthibitisha {name}.',
+  'verification.call.summaryLeftEarly': 'Umeondoka kabla ya kumthibitisha {name}.',
   'verification.pathway.call.title': 'Simu ya video',
   'verification.pathway.call.body': 'Thibitishwa moja kwa moja kwa video na wanachama wanaojiunga na simu yako.',
   'verification.pathway.call.cta': 'Anzisha simu',

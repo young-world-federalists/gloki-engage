@@ -1494,6 +1494,12 @@ const fr: Dictionary = {
   'verification.call.summaryVerifiers': 'Garants qui ont confirmé',
   'verification.call.summaryNone': 'Personne n’a confirmé pendant cet appel.',
   'verification.call.summaryNext': 'Demander à un membre de se porter garant',
+  // W6, fix round 1 — verifier-role branch. Agreement-free on {name}: the
+  // avoir-participle ('vérifié', 'quitté') agrees with a PRECEDING direct
+  // object only, and {name} always follows the verb here, so neither form
+  // ever inflects for the name's gender.
+  'verification.call.summaryVerifiedName': 'Vous avez vérifié {name}.',
+  'verification.call.summaryLeftEarly': 'Vous avez quitté l’appel avant de vérifier {name}.',
   'verification.pathway.call.title': 'Appel vidéo',
   'verification.pathway.call.body': 'Faites-vous vérifier en direct par vidéo avec des membres qui rejoignent votre appel.',
   'verification.pathway.call.cta': 'Démarrer un appel',
