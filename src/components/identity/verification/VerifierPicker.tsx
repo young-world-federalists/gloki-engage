@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import { RefreshCw, VideoOff } from 'lucide-react';
 import { Button, EmptyState } from '../../shared';
 import { useT } from '../../../i18n';
@@ -42,6 +43,7 @@ const toMemberSummary = (p: CallParticipant): MemberSummary => ({
  */
 const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKeys, onToggleKey, onStarted }) => {
   const t = useT();
+  const navigate = useNavigate();
   const { ctx } = useVerification();
   const [available, setAvailable] = useState<CallParticipant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,29 +110,32 @@ const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKe
           leftIcon={<RefreshCw size={16} />}
           onClick={() => void load()}
           disabled={loading}
+          className={styles.refreshButton}
         >
           {t('verification.call.refresh', 'Refresh')}
         </Button>
       </div>
-      <MemberList
-        members={available.map(toMemberSummary)}
-        loading={loading}
-        action={actionFor}
-        rowClassName={(member) => (selected.has(member.publicKey) ? styles.selectedRow : undefined)}
-        empty={
-          <EmptyState
-            icon={<VideoOff size={48} aria-hidden />}
-            title={t('verification.call.pickerEmpty', 'No one is available right now.')}
-            action={
-              <Link to="/identity/verification/request" className={styles.link}>
-                {t('verification.call.pickerEmptyCta', 'Ask a member to vouch instead')}
-              </Link>
-            }
-          />
-        }
-      />
+      <div className={styles.listGuard}>
+        <MemberList
+          members={available.map(toMemberSummary)}
+          loading={loading}
+          action={actionFor}
+          rowClassName={(member) => (selected.has(member.publicKey) ? styles.selectedRow : undefined)}
+          empty={
+            <EmptyState
+              icon={<VideoOff size={48} aria-hidden />}
+              title={t('verification.call.pickerEmpty', 'No one is available right now.')}
+              action={
+                <Button size="md" onClick={() => navigate('/identity/verification/request')}>
+                  {t('verification.call.pickerEmptyCta', 'Ask a member to vouch instead')}
+                </Button>
+              }
+            />
+          }
+        />
+      </div>
 
-      <div className={pages.actions}>
+      <div className={clsx(pages.actions, styles.stickyActions)}>
         <Button fullWidth disabled={selectedKeys.length === 0 || busy} loading={busy} onClick={() => void handleStart()}>
           {t('verification.call.startWith', 'Start call with {count}', { count: selectedKeys.length })}
         </Button>

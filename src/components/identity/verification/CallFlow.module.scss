@@ -27,6 +27,47 @@
   gap: $spacing-sm;
 }
 
+// Refresh is a bare size="sm" button (32px) — R7: extend its hit area to the
+// 44px touch floor without changing the visual, same ::after technique as
+// MemberCard.module.scss's `.action button::after` / Toast's `.dismiss`.
+.refreshButton {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// R8 — reserves room below the list so the sticky actions bar (below) never
+// visually covers the last row while scrolling; matches the bar's own
+// button height (44px, a sanctioned touch-floor raw value).
+.listGuard {
+  padding-bottom: 44px;
+}
+
+// R8 — the primary CTA must clear the fold at 360px instead of sitting
+// behind the whole member list. Sticky within normal flow, parked at
+// $footer-clearance exactly like Toast.module.scss's `.region`;
+// Container.module.scss already reserves that same clearance at the bottom
+// of the scroll region, so this never collides with the global fixed
+// StageFooter. Opaque background matches the page (Container's `.container`)
+// so list rows scrolling underneath don't show through.
+.stickyActions {
+  position: sticky;
+  bottom: $footer-clearance;
+  background: $gray-50;
+
+  @include dark {
+    background: $dark-surface;
+  }
+}
+
 // Selected-row highlight in the VerifierPicker's MemberList (rowClassName).
 // Background only — MemberCard's own children own their text colour (same
 // shape as SolutionAuthorPanel's .panel: the tint doesn't need its own
