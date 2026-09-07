@@ -579,7 +579,23 @@ Agent contract has none of these yet).
   actions). `vouchMeta` on the Digital Agent; `useCommunityTrust` counts the user's own vouches
   platform-wide (E1). `trust.meetMember` retired. Opus whole-branch review 0 Critical / 5 Important / 16 Minor
   → one fix wave, scoped re-review clean, preview-verified 360px light+dark en/fr/sw.
-- ⬜ **W2 — verification call** (`docs/session-prompts/session-37-verification-w2.md`; F10 line ships here).
+- ✅ **W2 — verification call BUILT + reviewed** (S37, 2026-09-07; `64c3abe..666a8e5`, 22 commits;
+  **no `DEMO_VERSION` bump** — UI + a demo module only, no fixture or seed data changed). Spec addendum
+  [docs/superpowers/specs/2026-09-07-s37-verification-w2-design.md](docs/superpowers/specs/2026-09-07-s37-verification-w2-design.md)
+  (E4–E7 rulings, C1/R9–R13 as-built notes); plan
+  [docs/superpowers/plans/2026-09-07-s37-verification-w2.md](docs/superpowers/plans/2026-09-07-s37-verification-w2.md).
+  Four screens at `/identity/verification/call` (D9 nested, `App.tsx` untouched): `VerifierPicker`
+  ("Available now" only — E4 dropped the 7×12 availability grid, logged below), `WaitingRoom` (live
+  "{n} of {m} joined", Start at ≥1, 20 s simulated timeout that keeps both actions live), `InCallView`
+  (**both roles**, E6), `CallSummary`. Simulation in `src/services/demo/verificationSim.ts` — in-memory,
+  no localStorage, no contract; 8 seam functions incl. `joinAsVerifier` (C1), all documented in the
+  FOR_OURI S37 addendum as **simulation-only, invent no `start_call`**. Kit: `VerifyButton`, `VideoTile`,
+  `CountdownTimer` + `useCountdown`; `MemberList` extracted (closes the S36 parked duplication). F10's
+  camera/data line on both entry points with the text-vouch path linked, non-video pathways first; the
+  demo honesty line on every surface where a fixture person judges the user, in a role-accurate variant
+  (E7, R11). 46 new keys at fr/sw parity (1312 → 1358). Opus whole-branch review **0 Critical / 2
+  Important / 7 Minor** → one fix wave, scoped re-review clean. Preview-verified at 360px light+dark in
+  en/fr/sw, **both roles walked end to end**.
   - ⬜ **Open (I2, S37 Opus whole-branch review):** the verifier role has no in-product entry point.
     `VerificationHub` renders `PathwayCards` only for unverified users, and that card is the only
     in-product link to `/identity/verification/call` — so the verifier half of this wave (its own
@@ -587,13 +603,15 @@ Agent contract has none of these yet).
     typing the URL or via the dev scenario switcher. Needs a founder IA decision on where a verifier's
     door lives; the existing pathway card's copy is candidate-framed and cannot simply be shown to
     verified users without its own verifier-framed strings. Design doc §6.7.
+- ⬜ **W2 follow-up — "Schedule for later" (E4).** The spec's `AvailabilityGrid` (7 days × 12 hours +
+  timezone select + "Find matching times") did not ship: a simulation cannot honour a future slot, and
+  an honest version needs W4's notification centre to exist first. Revisit with W4.
 - ⬜ **W3 — daily session.** ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
   permanently empty" follow-up; W1's `given` state and the notification fixtures land here).
 
 **Open follow-ups (parked, S36 final review):** focus management after an approved card leaves; focus ring
 under the hub card's `overflow: hidden`; `listVerifiedMembers` can list the current user; demo verification
-state is per-browser, not per-key; the member-list render duplicated across request/invite (extract when
-W2's verifier picker makes a third copy); the demo sidecar ships inert in prod (`React.lazy` behind
+state is per-browser, not per-key; ~~the member-list render duplicated across request/invite~~ (**DONE S37 Task 1** — `MemberList` extracted, now three consumers); the demo sidecar ships inert in prod (`React.lazy` behind
 `import.meta.env.DEV` is the hardening).
 
 ### Handoff-blocking (finish before Ouri derives `new-features`)
@@ -661,6 +679,37 @@ W2's verifier picker makes a third copy); the demo sidecar ships inert in prod (
 
 ## 8. Changelog
 
+- **2026-09-07 — S37: P11 Prompt 2 Wave 2, the simulated verification call (BUILT + reviewed; NOT
+  pushed — awaiting the founder's gate).** `64c3abe..666a8e5`, 22 commits. Four screens at
+  `/identity/verification/call` — verifier picker, waiting room, in-call (both roles), summary — over a
+  new in-memory simulation (`src/services/demo/verificationSim.ts`) behind the existing seam, plus the
+  third pathway card. **No `DEMO_VERSION` bump**: UI and a demo module only, no fixture or seed data
+  touched (mockApi.ts unchanged at v19). Kit gained `VerifyButton`, `VideoTile`, `CountdownTimer` +
+  `useCountdown`; `MemberList` was extracted, closing S36's parked duplication at its third consumer.
+  46 new i18n keys, fr/sw parity 1312 → 1358.
+  **Decisions (Eston, 2026-09-07):** E4 "Schedule for later" does not ship — a simulation cannot honour
+  a future slot and 84 toggles fight north star 1 (logged as a W4 follow-up); E5 each in-call
+  verification is one `method: 'call'` vouch, up to four, so a full call verifies outright, and the
+  picker excludes members who already vouched; E6 both roles ship, role derived from trust; E7 F10's
+  camera/data line stays verbatim at the entry points **plus** a separate demo honesty line, because
+  the demo never opens a camera.
+  **Controller rulings during the build:** C1 an 8th seam function `joinAsVerifier` (E6's role inverts
+  `inviteToCall`'s assumption); R2 the green fill is `$success-on-surface` — white on `$success` is
+  2.54:1, the same ratio that gets `$gray-400` banned, and the locked brand-blue exception covers
+  `$primary` only; R4 `CallFlow` owns `leaveCall` on unmount; R6/R10 completion and counts use the
+  joined set so a call with a decliner cannot announce "3 of 4" as complete; R7/R8 44px hit areas and a
+  sticky CTA (the plan had dropped "sticky" from the spec); R9 the completion panel is inline, not a
+  scrim borrowing Modal's look without its obligations; R11/W6 role-accurate honesty and summary copy;
+  R13 the zero-joined timeout keeps its inline banner and the **spec text** was corrected instead.
+  **The wave's most valuable catch:** role was derived from live trust, so a candidate's own call
+  banked vouches, crossed the threshold mid-call, flipped them to the verifier role — freezing the
+  count, killing completion, and offering a "Verify" button under their own face. Found by both the
+  task review (statically) and the controller's browser walk (running), and fixed by freezing role at
+  flow entry. Opus whole-branch review **0 Critical / 2 Important / 7 Minor** → one fix wave (selection
+  desync on Refresh; the verifier role's missing door recorded as open work), scoped re-review clean.
+  Verified at 360px light+dark in en/fr/sw with both roles walked end to end; `tsc -b` and
+  `npm run build` clean, grep gates clean, parity OK. Packet: Session 37 section, 46 keys, lead
+  question whether Swahili `simu` reads as a video call or a phone call.
 - **2026-09-06 — S36: P11 Prompt 2 Wave 1, community verification hub / request / approve / invite
   (BUILT + reviewed + PUSHED 2026-09-06; `628b574..54ec183`, 14 commits).** Spec addendum
   `docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md` (Eston's E1–E3 rulings: 16 personas + 14
