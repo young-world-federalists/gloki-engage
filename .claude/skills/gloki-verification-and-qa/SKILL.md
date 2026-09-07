@@ -243,6 +243,36 @@ driving; persona reviewers run one at a time.
    verified — needs controller/manual pass")
 ```
 
+### Timer throttling in a hidden pane (S37, 2026-09-07)
+
+**A hidden Browser pane throttles `setTimeout`.** Any eval that waits inside itself is affected, and an
+eval that waits too long is killed at the harness's 45 s limit. This bites hardest when the thing you are
+verifying is *itself* timer-driven (the S37 call simulation: 1.5 s join stagger, 2 s verify stagger, a 20 s
+timeout).
+
+- **Split the waiting across several short evals** (~14 s of sampling each) rather than one long one. State
+  persists between evals, so a sampling loop can span calls.
+- **The killer is a loop of small `await`s, not the total.** A `for` loop with a 400 ms wait per click
+  overran 45 s; a loop of 6 × 2.2 s sampling the same page did not.
+- `document.hidden` / `visibilityState` tells you whether throttling is in play — check it before blaming
+  the code under test.
+- Navigation kills the current eval (`Promise was collected` / `Inspected target navigated`). Do
+  `location.href = …` in its OWN eval and read the result in the next one. `navigate` on a path may silently
+  land on `/` when the app redirects — `location.href` from inside the page is the reliable route change.
+
+### Verify the aria, not just the visible text (S37)
+
+A walk that reads `innerText` will miss a state that is wrong only to a screen reader. In S37 a member row
+rendered the badge "Waiting" while its presence dot carried `aria-label="Offline"` — contradictory, and
+factually wrong. Read `[role="img"]` labels, `aria-live` contents and accessible names alongside the text.
+
+### An off-screen element makes `elementFromPoint` lie
+
+`elementFromPoint` returns `null` for coordinates outside the viewport, which looks exactly like "the hit
+area is missing". In S37 that read as a broken 44px `::after` when the real problem was that the whole
+controls bar sat below the fold. **Check the element's `getBoundingClientRect().top` against
+`window.innerHeight` before concluding anything about a hit area.**
+
 ## Review tiers
 
 Severity everywhere is judged against the **two north stars** (MASTER_TODO.md §1, in
