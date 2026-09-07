@@ -1,0 +1,47 @@
+@use '../../styles/variables' as *;
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.value {
+  @include tabular-nums;
+  font-size: $text-3xl;
+  font-weight: $font-bold;
+  line-height: 1;
+  color: $success;
+  animation: pulse 2s ease-in-out infinite;
+
+  @include dark {
+    color: $success-on-dark;
+  }
+}
+
+.label {
+  font-size: $text-sm;
+  color: $gray-500;
+  text-align: center;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .value {
+    animation: none;
+  }
+}

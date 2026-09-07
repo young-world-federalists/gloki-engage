@@ -76,6 +76,9 @@ export type { VerifyButtonProps, VerifyButtonState } from './VerifyButton';
 export { default as VideoTile } from './VideoTile';
 export type { VideoTileProps } from './VideoTile';
 
+export { default as CountdownTimer } from './CountdownTimer';
+export type { CountdownTimerProps } from './CountdownTimer';
+
 // Existing stable primitives (re-exported for discoverability).
 export { default as CountryParticipation } from './CountryParticipation';
 export { default as GlokiMark } from './GlokiMark';
