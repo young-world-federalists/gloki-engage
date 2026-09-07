@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { VerifyButton, type VerifyButtonState } from '../../shared';
+import { VerifyButton, useToast, type VerifyButtonState } from '../../shared';
 import { useT } from '../../../i18n';
 import { verifyInCall, type CallSession, type VerificationCtx } from '../../../services/verification';
 import styles from './CallFlow.module.scss';
@@ -28,6 +28,7 @@ export interface InCallVerifyActionProps {
  */
 const InCallVerifyAction: React.FC<InCallVerifyActionProps> = ({ ctx, sessionId, verifierKey, onVerified }) => {
   const t = useT();
+  const toast = useToast();
   const [state, setState] = useState<VerifyButtonState>('idle');
 
   const handleVerify = async () => {
@@ -37,6 +38,14 @@ const InCallVerifyAction: React.FC<InCallVerifyActionProps> = ({ ctx, sessionId,
       const updated = await verifyInCall(ctx, sessionId, verifierKey);
       onVerified(updated);
       setState('confirmed');
+    } catch {
+      // Fix round 1 (M2): `verifyInCall` is deliberately async so a caller can
+      // see a failure — but nobody up the tree catches, so a throw was landing
+      // as an unhandled rejection while the button quietly snapped back to
+      // 'idle' with no explanation. The seam's throw is real (`simVerifyInCall`
+      // rejects an unknown session id — e.g. one already torn down by
+      // `leaveCall`), so say so rather than swallowing it.
+      toast.show({ tone: 'error', message: t('verification.call.verifyFailed', "That didn't go through. Try again.") });
     } finally {
       // Only reset on failure — a successful tap must stay 'confirmed'
       // (terminal, one vouch per verifier per call), not bounce back to

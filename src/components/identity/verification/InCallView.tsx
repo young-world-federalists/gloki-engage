@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from 'lucide-react';
 import { Button, CountdownTimer, VideoTile } from '../../shared';
 import { useT } from '../../../i18n';
@@ -12,11 +13,11 @@ import styles from './CallFlow.module.scss';
 export interface InCallViewProps {
   /** The session CallFlow holds; this component never creates or destroys it (mirrors WaitingRoom). */
   session: CallSession;
-  /** Decided once in CallFlow from trust (E6) — the whole layout branches on this. */
+  /** Frozen once in CallFlow from trust at first render (E6); the whole layout branches on this. */
   role: 'candidate' | 'verifier';
   /** Every push (candidate's `joinCallStream`) or direct return (verifier's `verifyInCall`) lands here. */
   onUpdate: (session: CallSession) => void;
-  /** Fires on an explicit Leave tap or the completion overlay's Dismiss; CallFlow advances to `summary`. */
+  /** Fires on an explicit Leave tap or the completion panel's Dismiss; CallFlow advances to `summary`. */
   onLeave: () => void;
 }
 
@@ -24,23 +25,29 @@ export interface InCallViewProps {
  * InCallView — CallFlow's `inCall` step (state C, S37 Wave 2 Task 7). Where
  * both roles finally meet (E6):
  *
- * - CANDIDATE (trust !== 'verified'): the top `lg` tile IS the local user.
- *   Subscribes to `joinCallStream` — the sim's own auto-verify schedule
- *   (armed by WaitingRoom's `startCall`) drives the verifier grid's count
- *   upward with no timer of this component's own. No `VerifyButton`: you
- *   cannot verify yourself.
- * - VERIFIER (trust === 'verified'): CallFlow already called `joinAsVerifier`
- *   before this mounts, so `session.verifiers` holds exactly one entry — the
- *   local user. It never subscribes: the only change left is its own tap,
- *   and `verifyInCall`'s return value IS that update, handed to `onUpdate`
- *   directly by `InCallVerifyAction`.
+ * - CANDIDATE (not verified when the call began): the top `lg` tile IS the
+ *   local user. Subscribes to `joinCallStream` — the sim's own auto-verify
+ *   schedule (armed by WaitingRoom's `startCall`) drives the verifier grid's
+ *   count upward with no timer of this component's own. No `VerifyButton`:
+ *   you cannot verify yourself.
+ * - VERIFIER (already verified when the call began): CallFlow already called
+ *   `joinAsVerifier` before this mounts, so `session.verifiers` holds exactly
+ *   one entry — the local user. It never subscribes: the only change left is
+ *   its own tap, and `verifyInCall`'s return value IS that update, handed to
+ *   `onUpdate` directly by `InCallVerifyAction`.
+ *
+ * `role` is frozen by CallFlow at first render and never re-derived here — see
+ * the long comment there: a candidate's live trust crosses the threshold
+ * BECAUSE of this call, so a live-derived role would swap them into the
+ * verifier branch partway through (fix round 1, Critical 1).
  *
  * Mute/video are LOCAL SIMULATION TOGGLES ONLY — they flip whichever tile
  * represents "you" (the candidate tile for the candidate role, your one
  * entry in the grid for the verifier role) and touch nothing else; no
  * backing field exists on `CallParticipant` for them, and the honesty line
- * rendered under the controls says so in-product (E7 — reusing
- * `verification.call.demoNote` verbatim, not a second copy of that line).
+ * rendered under the controls says so in-product (E7 — and says it per role,
+ * since "these members verify automatically" is false for the role that is
+ * doing the verifying by hand).
  */
 const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeave }) => {
   const t = useT();
@@ -55,14 +62,24 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
   // subscription; the call-sim module's TIMER CONTRACT (its header comment)
   // is explicit that this handoff (WaitingRoom unsubscribes, InCallView
   // subscribes again on the same session id) neither restarts the join
-  // sequence nor re-arms the waiting-room timeout.
+  // sequence nor re-arms the waiting-room timeout. `role` is frozen upstream,
+  // so this subscription is installed once and never torn down mid-call.
   useEffect(() => {
     if (role !== 'candidate') return undefined;
     return joinCallStream(session.id, onUpdate);
   }, [role, session.id, onUpdate]);
 
-  const total = session.verifiers.length;
-  const verifiedCount = session.verifiers.filter((v) => v.verified).length;
+  // R10 (fix round 1): the in-call denominator is the JOINED set, not the
+  // invited set. With a decliner in the invite list the sim completes the
+  // call once every JOINED verifier has verified — counting invitees would
+  // announce "verification complete" beside a permanently unreachable "3 of
+  // 4 verified". The grid renders the same set for the same reason: a
+  // VideoTile for someone who never joined is indistinguishable from one for
+  // someone who did. (WaitingRoom deliberately keeps the invited denominator
+  // — there the question is "who is still coming".)
+  const joinedVerifiers = session.verifiers.filter((v) => v.joined);
+  const total = joinedVerifiers.length;
+  const verifiedCount = joinedVerifiers.filter((v) => v.verified).length;
   const isComplete = session.state === 'complete';
   const selfKey = ctx?.publicKey;
 
@@ -83,6 +100,11 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
 
   return (
     <div className={pages.page}>
+      {/* AppHeader owns the page's single h1 (IdentityView's "Verification
+          call"); this is the step's own in-content heading, matching
+          WaitingRoom's h2. */}
+      <h2 className={pages.sectionTitle}>{t('verification.call.inCallTitle', 'On the call')}</h2>
+
       <VideoTile
         size="lg"
         name={session.candidate.name}
@@ -96,7 +118,9 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
         cameraOffLabel={cameraOffLabel}
       />
 
-      {role === 'verifier' && ctx && (
+      {/* Gated on `!isComplete` (fix round 1, M5) so a finished call can never
+          leave a live Verify control mounted beside the completion panel. */}
+      {role === 'verifier' && ctx && !isComplete && (
         <InCallVerifyAction ctx={ctx} sessionId={session.id} verifierKey={ctx.publicKey} onVerified={onUpdate} />
       )}
 
@@ -107,28 +131,38 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
         {t('verification.call.verifiedCount', '{verified} of {total} verified', { verified: verifiedCount, total })}
       </p>
 
-      <div className={styles.tileGrid}>
-        {session.verifiers.map((v) => {
-          const isSelf = role === 'verifier' && v.publicKey === selfKey;
-          return (
-            <VideoTile
-              key={v.publicKey}
-              size="sm"
-              name={v.name}
-              countryCode={v.country}
-              muted={isSelf ? muted : undefined}
-              cameraOff={isSelf ? cameraOff : undefined}
-              verified={v.verified}
-              mutedLabel={mutedLabel}
-              cameraOffLabel={cameraOffLabel}
-              verifiedLabel={verifiedLabel}
-            />
-          );
-        })}
+      {/* R8's pairing, applied here too (fix round 1, Important 4): the guard
+          reserves the sticky bar's height so the last tile row is never left
+          under it. */}
+      <div className={styles.listGuard}>
+        <div className={styles.tileGrid}>
+          {joinedVerifiers.map((v) => {
+            const isSelf = role === 'verifier' && v.publicKey === selfKey;
+            return (
+              <VideoTile
+                key={v.publicKey}
+                size="sm"
+                name={v.name}
+                countryCode={v.country}
+                muted={isSelf ? muted : undefined}
+                cameraOff={isSelf ? cameraOff : undefined}
+                verified={v.verified}
+                mutedLabel={mutedLabel}
+                cameraOffLabel={cameraOffLabel}
+                verifiedLabel={verifiedLabel}
+              />
+            );
+          })}
+        </div>
       </div>
 
+      {/* R8 (fix round 1, Important 4): measured at 360px, this bar's top sat
+          at y=808 in a 780px viewport — mute, camera and, worst, "Leave call"
+          (the only escape from a call) all below the fold. Sticky in normal
+          flow, same treatment VerifierPicker and WaitingRoom already give
+          their primary actions in this very stylesheet. */}
       {!isComplete && (
-        <div className={styles.controls}>
+        <div className={clsx(styles.controls, styles.stickyActions)}>
           <Button
             variant="ghost"
             size="sm"
@@ -160,43 +194,66 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
       )}
 
       {/* The honesty line (E7) — this call view is exactly the surface where
-          fixture people appear to judge the user, so it carries the same
-          demo note VerifierPicker already shows, verbatim (one sentence, one
-          home). Placed right under the controls, hidden once the call is
-          over (the completion overlay below takes its place). */}
+          fixture people appear to judge the user, so it carries a demo note.
+          R11 (fix round 1): the shared line says "these members join and
+          verify automatically", which is FALSE for the verifier role — there
+          the user is the one verifying, by hand. That role gets its own,
+          accurate line; the candidate keeps the shared one. Both now also
+          disclose that the mic toggle is as inert as the camera. Hidden once
+          the call is over — the completion panel below takes its place. */}
       {!isComplete && (
         <p className={pages.intro}>
-          {t(
-            'verification.call.demoNote',
-            'Demo: no real call is made and your camera stays off — these members join and verify automatically.',
-          )}
+          {role === 'verifier'
+            ? t(
+                'verification.call.demoNoteVerifier',
+                'Demo: no real call is made — your camera and microphone stay off, and the person above is a sample profile, so verifying them changes nothing outside this demo.',
+              )
+            : t(
+                'verification.call.demoNote',
+                'Demo: no real call is made — your camera and microphone stay off, and these members join and verify automatically.',
+              )}
         </p>
       )}
 
+      {/* R9 (fix round 1): rendered INLINE, in the page flow where the
+          controls bar has just unmounted — no scrim, no fixed layer. The old
+          overlay borrowed Modal's entire visual contract while providing none
+          of its obligations (no focus move, no trap, no Escape, no scroll
+          lock, header/nav still tab-reachable but invisible underneath).
+          Sighted users got modal behaviour; keyboard and AT users got a page
+          they could still tab through blind. Dropping the scrim deletes that
+          whole class of problem instead of solving it with machinery, and
+          costs nothing the brief asked for: announced once, 5 s countdown,
+          Dismiss always reachable, never a trap. */}
       {isComplete && (
-        <div className={styles.completeOverlay}>
-          {/* role="status" (not "dialog"): this announces the outcome ONCE on
-              mount. CountdownTimer's own `aria-live="off"` keeps its per-second
-              digit out of that announcement (see its doc comment) — nesting an
-              off region inside a polite one excludes that subtree from being
-              read again, so "5… 4… 3…" never floods the region. Dismiss is
-              always reachable so the countdown is never a trap. */}
-          <div className={styles.completeCard} role="status">
-            <h2 className={styles.completeTitle}>{t('verification.call.completeTitle', 'Verification complete')}</h2>
-            <p className={styles.completeBody}>
-              {t('verification.call.completeBody', 'This call has finished. Thanks for taking part.')}
-            </p>
-            <CountdownTimer
-              seconds={5}
-              onDone={() => navigate('/identity/verification')}
-              label={(n) => t('verification.call.returningIn', 'Returning to verification in {n}s', { n })}
-            />
-            <Button fullWidth variant="ghost" onClick={onLeave}>
-              {t('common.dismiss', 'Dismiss')}
-            </Button>
-          </div>
+        <div className={styles.completeCard}>
+          <h2 className={styles.completeTitle}>{t('verification.call.completeTitle', 'Verification complete')}</h2>
+          <p className={styles.completeBody}>
+            {t('verification.call.completeBody', 'This call has finished. Thanks for taking part.')}
+          </p>
+          {/* CountdownTimer carries its own aria-live="off" (see its doc
+              comment) so "5… 4… 3…" is never announced; the status node
+              below announces the outcome once instead. */}
+          <CountdownTimer
+            seconds={5}
+            onDone={() => navigate('/identity/verification')}
+            label={(n) => t('verification.call.returningIn', 'Returning to verification in {n}s', { n })}
+          />
+          <Button fullWidth variant="ghost" onClick={onLeave}>
+            {t('common.dismiss', 'Dismiss')}
+          </Button>
         </div>
       )}
+
+      {/* The completion announcement (fix round 1, Important 2). The region is
+          ALWAYS in the DOM and empty until the call completes — a role="status"
+          element that arrives already populated generally is not announced at
+          all, which is exactly why Toast.tsx keeps its own polite region
+          permanently mounted. Populating an existing empty region is the
+          change screen readers actually report. */}
+      <p className={pages.srOnly} role="status">
+        {isComplete ? t('verification.call.completeTitle', 'Verification complete') : ''}
+      </p>
     </div>
   );
 };

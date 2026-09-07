@@ -1450,7 +1450,7 @@ const fr: Dictionary = {
   'verification.call.title': 'Appel de vérification',
   'verification.call.bandwidth': 'Utilise votre caméra et vos données mobiles.',
   'verification.call.bandwidthLink': 'Pas de caméra ? Demandez plutôt à un membre de se porter garant pour vous.',
-  'verification.call.demoNote': 'Démo : aucun appel réel n’est passé et votre caméra reste éteinte — ces membres rejoignent et vérifient automatiquement.',
+  'verification.call.demoNote': 'Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et ces membres rejoignent et vérifient automatiquement.',
   'verification.call.availableNow': 'Disponibles maintenant',
   'verification.call.refresh': 'Actualiser',
   'verification.call.startWith': 'Démarrer l’appel avec {count}',
@@ -1483,6 +1483,12 @@ const fr: Dictionary = {
   'verification.call.completeTitle': 'Vérification terminée',
   'verification.call.completeBody': 'Cet appel est terminé. Merci d’y avoir participé.',
   'verification.call.returningIn': 'Retour à la vérification dans {n} s',
+
+  // ── Verification call — in-call view (S37 Wave 2 — Task 7, fix round 1) ─
+  'verification.call.inCallTitle': 'En appel',
+  'verification.call.demoNoteVerifier': 'Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et la personne ci-dessus est un profil d’exemple : la vérifier ne change rien en dehors de cette démo.',
+  'verification.call.verifyFailed': 'La vérification n’a pas abouti. Réessayez.',
+  'verification.call.backToHub': 'Retour à la vérification',
 };
 
 export default fr;

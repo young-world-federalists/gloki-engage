@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Hammer } from 'lucide-react';
-import { EmptyState } from '../../shared';
+import { useNavigate } from 'react-router-dom';
+import { Hammer, VideoOff } from 'lucide-react';
+import { Button, EmptyState } from '../../shared';
 import { useT } from '../../../i18n';
 import { useVerification } from '../../../hooks/useVerification';
 import { joinAsVerifier, leaveCall, type CallSession } from '../../../services/verification';
@@ -24,8 +25,22 @@ type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
  */
 const CallFlow: React.FC = () => {
   const t = useT();
+  const navigate = useNavigate();
   const { ctx, state, trust } = useVerification();
-  const role: 'candidate' | 'verifier' = trust === 'verified' ? 'verifier' : 'candidate';
+  // FROZEN AT FIRST RENDER ON PURPOSE (fix round 1, Critical 1). `trust` is
+  // LIVE — useVerification -> useDigitalAgent -> useSyncExternalStore, and
+  // every simulated verification in THIS call banks a vouch onto the local
+  // agent (addUserVouch -> saveAgent -> notify). A candidate therefore crosses
+  // VERIFIED_THRESHOLD *during* their own call (the canonical 2-vouch agent
+  // does it on the 2nd of 4), and a role derived from live trust would flip
+  // them from candidate to verifier mid-call: InCallView's subscription effect
+  // would unsubscribe and install nothing (the count freezes, completion never
+  // arrives), and a Verify button would appear under the user's own face,
+  // which E6 forbids outright. The role of the person who walked into this
+  // call cannot change because of what the call did to them. `trust` is
+  // already correct on this first render — `getAgent` reads a module-level
+  // cache synchronously — so a lazy initialiser is safe here.
+  const [role] = useState<'candidate' | 'verifier'>(() => (trust === 'verified' ? 'verifier' : 'candidate'));
   const [step, setStep] = useState<CallStep>(role === 'verifier' ? 'inCall' : 'select');
   const [session, setSession] = useState<CallSession | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -131,13 +146,21 @@ const CallFlow: React.FC = () => {
     // Rare: nobody eligible for this verifier to see right now (§4's fixture
     // pool exhausted by their own prior vouches). Reuses `pickerEmpty` — same
     // "no one available" fact as the candidate-side empty state, just from
-    // the other role.
+    // the other role. `VideoOff` (not `Hammer`, fix round 1 M1): this is a
+    // working feature with nobody to show, not the unbuilt-yet placeholder
+    // below, and VerifierPicker already pairs that icon with this same key.
+    // The back-to-hub button keeps it from being a dead end.
     if (verifierJoinFailed) {
       return (
         <div className={pages.page}>
           <EmptyState
-            icon={<Hammer size={48} aria-hidden />}
+            icon={<VideoOff size={48} aria-hidden />}
             title={t('verification.call.pickerEmpty', 'No one is available right now.')}
+            action={
+              <Button size="md" onClick={() => navigate('/identity/verification')}>
+                {t('verification.call.backToHub', 'Back to verification')}
+              </Button>
+            }
           />
         </div>
       );

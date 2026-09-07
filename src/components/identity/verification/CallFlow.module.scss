@@ -47,8 +47,8 @@
 // R8 — reserves room below the list so the sticky actions bar (below) never
 // visually covers the last row while scrolling; matches the bar's own
 // button height (44px, a sanctioned touch-floor raw value). Shared by
-// VerifierPicker (Task 5) and WaitingRoom (S37 Task 6) — both list a
-// scrollable MemberList above a sticky action bar.
+// VerifierPicker (Task 5), WaitingRoom (S37 Task 6) and InCallView's tile
+// grid (fix round 1) — each puts a scrollable list above a sticky bar.
 .listGuard {
   padding-bottom: 44px;
 }
@@ -60,9 +60,11 @@
 // of the scroll region, so this never collides with the global fixed
 // StageFooter. Opaque background matches the page (Container's `.container`)
 // so list rows scrolling underneath don't show through. Shared by
-// VerifierPicker's single Start button and WaitingRoom's stacked
-// Start/Cancel pair (S37 Task 6) — `pages.actions` already lays out
-// multiple children in a column, so no per-caller variant is needed.
+// VerifierPicker's single Start button, WaitingRoom's stacked Start/Cancel
+// pair (S37 Task 6) and InCallView's mute/camera/leave row (fix round 1 —
+// measured at y=808 in a 780px viewport before this, i.e. "Leave call" below
+// the fold). It only supplies stickiness and an opaque background, so it
+// composes with `pages.actions` (column) or `.controls` (row) alike.
 .stickyActions {
   position: sticky;
   bottom: $footer-clearance;
@@ -112,7 +114,8 @@
   width: 100%;
 }
 
-// Mute / video / leave row under the tile grid.
+// Mute / video / leave row under the tile grid. Composed with
+// `.stickyActions` above so it clears the 360px fold (R8's pairing).
 .controls {
   display: flex;
   align-items: center;
@@ -140,33 +143,28 @@
   }
 }
 
-// Completion overlay (Step 3) — same layer as Modal.module.scss's `.overlay`
-// (z-index 1000, $overlay-bg scrim) but deliberately NOT the shared Modal:
-// the card below is role="status", not role="dialog" — no focus trap, no
-// Esc handler — so Dismiss (always rendered) is the only thing standing
-// between the user and leaving; the countdown can never trap them.
-.completeOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-lg;
-  background: $overlay-bg;
-}
-
+// Completion panel (R9, fix round 1) — INLINE, in the page flow, exactly
+// where the controls bar unmounts. It was a `position: fixed` scrim on
+// Modal's own z-layer, which borrowed Modal's entire visual contract while
+// providing none of its obligations: no focus move, no trap, no Esc, no
+// scroll lock, and the header/nav still tab-reachable behind an opaque
+// scrim. Sighted users got modal behaviour, keyboard and AT users got a page
+// they could tab through blind. The notice is self-resolving (5 s countdown,
+// Dismiss always present) and announces via a permanently-mounted status
+// node in InCallView, not via this box — so there is nothing left for a
+// fixed layer to buy. `.completeOverlay` is deleted with the scrim.
 .completeCard {
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: center;
   gap: $spacing-md;
   width: 100%;
   max-width: 360px;
   padding: $spacing-2xl $spacing-xl;
   border-radius: $radius-xl;
   background: white;
-  box-shadow: $shadow-lg;
+  box-shadow: $shadow-md;
   text-align: center;
 
   @include dark {

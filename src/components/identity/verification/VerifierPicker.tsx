@@ -98,7 +98,7 @@ const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKe
       <p className={pages.intro}>
         {t(
           'verification.call.demoNote',
-          'Demo: no real call is made and your camera stays off — these members join and verify automatically.',
+          'Demo: no real call is made — your camera and microphone stay off, and these members join and verify automatically.',
         )}
       </p>
 

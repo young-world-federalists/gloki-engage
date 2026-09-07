@@ -1449,7 +1449,7 @@ const sw: Dictionary = {
   'verification.call.title': 'Simu ya uthibitisho',
   'verification.call.bandwidth': 'Inatumia kamera yako na data ya simu.',
   'verification.call.bandwidthLink': 'Huna kamera? Mwombe mwanachama akudhamini badala yake.',
-  'verification.call.demoNote': 'Demo: hakuna simu halisi inayopigwa na kamera yako inabaki imezimwa — wanachama hawa hujiunga na kuthibitisha kiotomatiki.',
+  'verification.call.demoNote': 'Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na wanachama hawa hujiunga na kuthibitisha kiotomatiki.',
   'verification.call.availableNow': 'Wanaopatikana sasa',
   'verification.call.refresh': 'Sasisha',
   'verification.call.startWith': 'Anzisha simu na {count}',
@@ -1482,6 +1482,12 @@ const sw: Dictionary = {
   'verification.call.completeTitle': 'Uthibitisho umekamilika',
   'verification.call.completeBody': 'Simu hii imekamilika. Asante kwa kushiriki.',
   'verification.call.returningIn': 'Unarudi kwenye uthibitisho baada ya sekunde {n}',
+
+  // ── Verification call — in-call view (S37 Wave 2 — Task 7, fix round 1) ─
+  'verification.call.inCallTitle': 'Kwenye simu',
+  'verification.call.demoNoteVerifier': 'Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na mtu aliye hapo juu ni wasifu wa mfano, hivyo kumthibitisha hakubadilishi chochote nje ya demo hii.',
+  'verification.call.verifyFailed': 'Uthibitisho haukufanikiwa. Jaribu tena.',
+  'verification.call.backToHub': 'Rudi kwenye uthibitisho',
 };
 
 export default sw;

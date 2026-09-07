@@ -98,3 +98,21 @@
   flex-direction: column;
   gap: $spacing-sm;
 }
+
+// Visually hidden, still announced — same clip-rect pattern as
+// VideoTile.module.scss's `.srOnly`. Used for the S37 call's completion
+// status node, which must be in the DOM from mount (empty) and only then be
+// populated: a live region that arrives already populated generally is not
+// announced at all (the reason Toast.tsx keeps its polite region mounted for
+// the life of the app).
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
