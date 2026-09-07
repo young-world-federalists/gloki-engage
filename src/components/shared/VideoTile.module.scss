@@ -1,0 +1,115 @@
+@use '../../styles/variables' as *;
+
+.tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3; // fixed ratio, not a fixed height — stays honest at any grid width down to 360px
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: $radius-lg;
+  background: $gray-100;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.initials {
+  font-weight: $font-semibold;
+  letter-spacing: 0.05em;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.lg .initials {
+  font-size: $text-3xl;
+}
+
+.sm .initials {
+  font-size: $text-lg;
+}
+
+// Verified badge — a small $success circle pinned to the corner. Decorative
+// (aria-hidden); .srOnly beside it carries the "verified" text.
+.verifiedBadge {
+  position: absolute;
+  top: $spacing-xs;
+  right: $spacing-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: $radius-full;
+  background: $success;
+  color: white;
+}
+
+.sm .verifiedBadge {
+  width: 16px;
+  height: 16px;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.flag {
+  flex-shrink: 0;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+}
+
+.status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.statusIcon {
+  display: flex;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

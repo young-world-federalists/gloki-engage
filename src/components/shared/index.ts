@@ -70,6 +70,12 @@ export type { CountryPresenceProps } from './CountryPresence';
 export { default as CountryMultiSelect } from './CountryMultiSelect';
 export type { CountryMultiSelectProps } from './CountryMultiSelect';
 
+export { default as VerifyButton } from './VerifyButton';
+export type { VerifyButtonProps, VerifyButtonState } from './VerifyButton';
+
+export { default as VideoTile } from './VideoTile';
+export type { VideoTileProps } from './VideoTile';
+
 // Existing stable primitives (re-exported for discoverability).
 export { default as CountryParticipation } from './CountryParticipation';
 export { default as GlokiMark } from './GlokiMark';

@@ -1,0 +1,43 @@
+@use '../../styles/variables' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  min-height: 48px; // taller than the 44px floor — this is the call's primary action
+  padding: 0 $spacing-xl;
+  border: none;
+  border-radius: $radius-md;
+  background: $success;
+  color: white;
+  font-family: inherit;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: background-color $transition-base ease;
+
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    background: $success-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $success-dark;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
