@@ -244,6 +244,13 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
             onDone={() => navigate('/identity/verification')}
             label={(n) => t('verification.call.returningIn', 'Returning to verification in {n}s', { n })}
           />
+          {/* Dismiss fires `onLeave` directly, not `handleLeave` — it does not
+              await `leaveCall` (fix round, M5, judged safe not fixed). Proof:
+              we only reach here once `isComplete`, at which point no
+              `verifyInCall` can still be pending, and the sim's own 20s
+              waiting-room timeout early-returns whenever the session's state
+              isn't 'waiting' (verificationSim.ts) — so there is no pending
+              timer left for an un-awaited leave to race. */}
           <Button fullWidth variant="ghost" onClick={onLeave}>
             {t('common.dismiss', 'Dismiss')}
           </Button>

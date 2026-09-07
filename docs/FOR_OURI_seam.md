@@ -249,7 +249,7 @@ nothing here gets invented later:
 - **`inviteToCall(ctx, verifierKeys)`** — simulation only, no contract method.
 - **`availableVerifiers(ctx, excludeKeys)`** — simulation only, no contract method.
 - **`joinCallStream(sessionId, onUpdate)`** — simulation only, no contract method.
-- **`startCall(ctx, sessionId, autoVerify?)`** — simulation only, no contract method.
+- **`startCall(ctx, sessionId)`** — simulation only, no contract method.
 - **`verifyInCall(ctx, sessionId, verifierKey)`** — simulation only, no contract method of its
   own (see below for its one durable effect).
 - **`leaveCall(ctx, sessionId)`** — simulation only, no contract method.

@@ -136,7 +136,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({ session, onUpdate, onStart, o
           {canStart
             ? t(
                 'verification.call.timeoutBody',
-                "It's been a few minutes and no one new has joined. You can start with who's here, or cancel and try again later.",
+                "No one new has joined. You can start with who's here, or cancel and try again later.",
               )
             : t('verification.call.timeoutEmpty', 'Nobody joined this time. Cancel and ask a member to vouch for you instead.')}
         </Banner>

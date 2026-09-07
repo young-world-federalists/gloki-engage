@@ -261,6 +261,24 @@ Adds the call pathway. **Non-video pathways stay first** (F10): request, invitat
 card carries F10's line; E3's "only built pathways render" is satisfied because the call now exists.
 The daily-session card remains Wave 3.
 
+### 6.7 Known gap (Opus whole-branch review, I2) — the verifier role has no in-product entry point
+
+`VerificationHub.tsx` renders `<PathwayCards />` only when the user is NOT verified (`!verified`) —
+that card is the ONLY in-product link to `/identity/verification/call`. But `role === 'verifier'`
+(E6) only happens for a user who IS verified. The consequence: the verifier half of this wave — its
+own honesty line (`demoNoteVerifier`), its own `CallSummary` branch (§6.5's "Role branch"), and its
+share of this wave's 46 new strings — is reachable today only by typing the URL directly or via the
+dev-only scenario switcher. There is no button, link, or card a verified user can tap to get there.
+
+This is recorded rather than fixed here on purpose: giving the verifier role its own door is a
+product/IA decision (where does it live — the hub, a notification, somewhere else entirely — and
+does it interrupt the verified user or wait for them to look), not a bug this wave's code can
+silently patch. It is also not as simple as showing the existing pathway card to verified users too:
+that card's copy (`verification.pathway.call.*`) is written candidate-framed throughout — it invites
+the reader to get verified by starting a call, which is not what a verifier does — so it would need
+its own verifier-framed strings (title, body, CTA) before it could be shown outside the `!verified`
+branch. Filed as open work: MASTER_TODO §7, under the P11 entry.
+
 ---
 
 ## 7. i18n

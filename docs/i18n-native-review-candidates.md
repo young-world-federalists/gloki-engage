@@ -1614,10 +1614,20 @@ roles) and call summary — plus the third pathway card on the hub. All new keys
   `mkutano wa video` in the titles at least. This is the single most consequential question in this
   batch: the whole feature is a **video** call, and ruling F10 warns people about camera and data use
   precisely because it is video.
-- **fr — the agreement-free `{count}` forms.** `'{joined} sur {total} ont rejoint'` and
-  `'{verified} sur {total} ont confirmé'` deliberately use an invariant verb so the string is correct
-  at any count (the house pattern from `mandate.turnoutLine`). Confirm this reads naturally, or give a
-  phrasing that stays invariant — we cannot inflect on a runtime number.
+- **fr / sw — OPEN QUESTION: the `{count}` forms read as plural and are wrong at a count of 1.**
+  `'{joined} sur {total} ont rejoint'` and `'{verified} sur {total} ont confirmé'` were written on the
+  belief that they use an invariant verb, citing `mandate.turnoutLine` as precedent. That belief does
+  not hold up: "ont" is the PLURAL form of *avoir*, and at `joined = 1` French wants "a rejoint," not
+  "ont rejoint" — the cited precedent is not actually parallel, since it keeps a plural noun
+  (`membres`) anchoring the phrase, which these strings drop. The sw strings have the same shape
+  (`wamejiunga` / `wamethibitisha` are plural-agreement forms). This matters concretely: a count of 1
+  is exactly the state that enables the Start button, so the incorrect form is not an edge case.
+  **We have not changed the fr/sw strings** — that decision needs the native speaker this packet
+  exists to reach. Please give us a phrasing that is correct at every count. One option already in
+  the house style: a fixed noun-phrase label ahead of the numbers, so no verb needs to agree with the
+  runtime count at all — `hub.progress` does this (`'Approbations reçues : {count} sur {threshold}'`).
+  Whether that pattern, a genuinely invariant construction, or something else reads best here is your
+  call.
 - **fr — `garant` continues to sit next to S36's `parrainé`.** The waiting room says
   `En attente des garants`; S36's open question about settling on ONE family (*garant* vs *parrainage*)
   now spans two waves. A decision here would let us normalise both at once.

@@ -580,6 +580,13 @@ Agent contract has none of these yet).
   platform-wide (E1). `trust.meetMember` retired. Opus whole-branch review 0 Critical / 5 Important / 16 Minor
   → one fix wave, scoped re-review clean, preview-verified 360px light+dark en/fr/sw.
 - ⬜ **W2 — verification call** (`docs/session-prompts/session-37-verification-w2.md`; F10 line ships here).
+  - ⬜ **Open (I2, S37 Opus whole-branch review):** the verifier role has no in-product entry point.
+    `VerificationHub` renders `PathwayCards` only for unverified users, and that card is the only
+    in-product link to `/identity/verification/call` — so the verifier half of this wave (its own
+    honesty line, its own `CallSummary` branch, its share of the 46 new strings) is reachable only by
+    typing the URL or via the dev scenario switcher. Needs a founder IA decision on where a verifier's
+    door lives; the existing pathway card's copy is candidate-framed and cannot simply be shown to
+    verified users without its own verifier-framed strings. Design doc §6.7.
 - ⬜ **W3 — daily session.** ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
   permanently empty" follow-up; W1's `given` state and the notification fixtures land here).
 

@@ -22,6 +22,14 @@ export interface VerifierPickerProps {
   /** Lifted to CallFlow (it "holds ... the selected keys", per the task brief) so a later step can see who was invited. */
   selectedKeys: string[];
   onToggleKey: (key: string) => void;
+  /**
+   * Fires with the fresh key set on every load (initial mount AND every
+   * Refresh) — `availableVerifiers` reshuffles and re-slices the online
+   * fixture pool each call, so a previously-selected member can silently drop
+   * out of the list. CallFlow uses this to prune `selectedKeys`, or the
+   * sticky CTA keeps counting someone the picker no longer shows (I1).
+   */
+  onAvailable: (keys: string[]) => void;
   /** Fires once inviteToCall resolves; CallFlow banks the session and advances the machine to 'waiting'. */
   onStarted: (session: CallSession) => void;
 }
@@ -41,7 +49,7 @@ const toMemberSummary = (p: CallParticipant): MemberSummary => ({
  * now" only: no scheduling grid, no timezone picker (E4 — a simulation can't
  * honour a future slot, and 84 toggles fights north star 1 at 360px).
  */
-const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKeys, onToggleKey, onStarted }) => {
+const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKeys, onToggleKey, onAvailable, onStarted }) => {
   const t = useT();
   const navigate = useNavigate();
   const { ctx } = useVerification();
@@ -54,11 +62,13 @@ const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKe
     if (!ctx) return;
     setLoading(true);
     try {
-      setAvailable(await availableVerifiers(ctx, excludeKeys));
+      const fresh = await availableVerifiers(ctx, excludeKeys);
+      setAvailable(fresh);
+      onAvailable(fresh.map((p) => p.publicKey));
     } finally {
       setLoading(false);
     }
-  }, [ctx, excludeKeys]);
+  }, [ctx, excludeKeys, onAvailable]);
 
   useEffect(() => {
     void load();

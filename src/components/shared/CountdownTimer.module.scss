@@ -12,7 +12,7 @@
   font-size: $text-3xl;
   font-weight: $font-bold;
   line-height: 1;
-  color: $success-on-surface; /* 2.54:1 on white */
+  color: $success-on-surface; /* 7.68:1 on white (AA) — contrast fix, ruling R2 */
   animation: pulse 2s ease-in-out infinite;
 
   @include dark {

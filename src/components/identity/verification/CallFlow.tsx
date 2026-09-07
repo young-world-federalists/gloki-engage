@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VideoOff } from 'lucide-react';
 import { Button, EmptyState } from '../../shared';
@@ -60,6 +60,23 @@ const CallFlow: React.FC = () => {
     setSelectedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
+  // I1 fix (Opus whole-branch review, S37): `availableVerifiers` reshuffles
+  // and re-slices the online fixture pool on every call, including Refresh —
+  // a selected member can vanish from the list while staying selected, so the
+  // sticky CTA keeps counting someone the picker no longer shows and Start
+  // would invite someone the user can't see or deselect. Pruned here on every
+  // VerifierPicker load (initial mount AND Refresh), not just on Cancel — the
+  // same list does not return. `useCallback` with no deps keeps this prop's
+  // identity stable across renders (VerifierPicker's `load` depends on it);
+  // returning `prev` unchanged when nothing was pruned avoids a same-content
+  // re-render on every load.
+  const handleAvailable = useCallback((keys: string[]) => {
+    setSelectedKeys((prev) => {
+      const pruned = prev.filter((k) => keys.includes(k));
+      return pruned.length === prev.length ? prev : pruned;
+    });
+  }, []);
+
   const handleStarted = (started: CallSession) => {
     setSession(started);
     setStep('waiting');
@@ -112,7 +129,13 @@ const CallFlow: React.FC = () => {
       );
     }
     return (
-      <VerifierPicker excludeKeys={excludeKeys} selectedKeys={selectedKeys} onToggleKey={toggleKey} onStarted={handleStarted} />
+      <VerifierPicker
+        excludeKeys={excludeKeys}
+        selectedKeys={selectedKeys}
+        onToggleKey={toggleKey}
+        onAvailable={handleAvailable}
+        onStarted={handleStarted}
+      />
     );
   }
 

@@ -1463,7 +1463,7 @@ const sw: Dictionary = {
   'verification.call.waiting': 'Anasubiri',
   'verification.call.start': 'Anza',
   'verification.call.timeoutTitle': 'Hakuna mwingine anayejiunga',
-  'verification.call.timeoutBody': 'Imepita dakika kadhaa na hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye.',
+  'verification.call.timeoutBody': 'Hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye.',
   'verification.call.timeoutEmpty': 'Hakuna aliyejiunga wakati huu. Ghairi na umwombe mwanachama akudhamini badala yake.',
 
   // ── Verification call — in-call view (S37 Wave 2 — Task 7) ─────────────

@@ -1464,7 +1464,7 @@ const fr: Dictionary = {
   'verification.call.waiting': 'En attente',
   'verification.call.start': 'Démarrer',
   'verification.call.timeoutTitle': 'Personne d’autre ne rejoint',
-  'verification.call.timeoutBody': 'Cela fait quelques minutes et personne de nouveau n’a rejoint. Vous pouvez démarrer avec les personnes présentes, ou annuler et réessayer plus tard.',
+  'verification.call.timeoutBody': 'Personne de nouveau n’a rejoint. Vous pouvez démarrer avec les personnes présentes, ou annuler et réessayer plus tard.',
   'verification.call.timeoutEmpty': 'Personne n’a rejoint cette fois. Annulez et demandez à un membre de se porter garant pour vous à la place.',
 
   // ── Verification call — in-call view (S37 Wave 2 — Task 7) ─────────────
