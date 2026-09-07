@@ -73,7 +73,7 @@ Read the S37 spec before any task.
 | `src/components/shared/index.ts` | barrel exports | 2, 3 |
 | `src/services/verificationModel.ts` | `CallSession`, `CallParticipant`, `CallState` | 4 |
 | `src/services/demo/verificationSim.ts` | the whole simulation + timers | 4 |
-| `src/services/verification.ts` | 7 call functions on the seam | 4 |
+| `src/services/verification.ts` | 8 call functions on the seam (C1) | 4 |
 | `docs/FOR_OURI_seam.md` | S37 addendum (simulation-only rows, I4) | 4 |
 | `src/pages/IdentityView.tsx` | `call` route + `verificationTitles.call` | 5 |
 | `src/components/identity/verification/CallFlow.tsx` | state machine + role | 5–8 |
