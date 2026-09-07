@@ -46,7 +46,13 @@
   width: 22px;
   height: 22px;
   border-radius: $radius-full;
-  background: $success;
+  // Contrast fix (S37 fix round 1, ruling R2). Same white-on-$success pairing
+  // flagged on VerifyButton (2.54:1 — below AA, the same ratio that bans
+  // $gray-400 as text). $success-on-surface (#065f46) gives the white glyph
+  // 7.68:1. See VerifyButton.module.scss for the full ratio table; this badge
+  // is a static status indicator with no hover/active state, so there's no
+  // $success-dark step here.
+  background: $success-on-surface;
   color: white;
 }
 

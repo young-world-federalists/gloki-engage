@@ -9,7 +9,17 @@
   padding: 0 $spacing-xl;
   border: none;
   border-radius: $radius-md;
-  background: $success;
+  // Contrast fix (S37 fix round 1, ruling R2). White on $success (#10b981) is
+  // only 2.54:1 — the same failing ratio that bans $gray-400 as a text colour
+  // in this codebase (see SharedStatement.module.scss) — so it cannot be the
+  // resting fill for all three states (idle/loading/confirmed all share this
+  // class). $success-on-surface (#065f46) gives white 7.68:1 (AA). Hover/active
+  // below stays $success-dark (#059669, 3.77:1): transient, effectively
+  // mouse-only, and already above the project's accepted 3.68:1 locked
+  // brand-blue baseline (white on $primary) — that baseline is a deviation
+  // granted for $primary specifically and does not license a second below-AA
+  // resting surface here. Do not "brighten" this back to $success.
+  background: $success-on-surface;
   color: white;
   font-family: inherit;
   font-size: $text-base;
