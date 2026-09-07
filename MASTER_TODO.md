@@ -596,7 +596,11 @@ Agent contract has none of these yet).
   (E7, R11). 46 new keys at fr/sw parity (1312 → 1358). Opus whole-branch review **0 Critical / 2
   Important / 7 Minor** → one fix wave, scoped re-review clean. Preview-verified at 360px light+dark in
   en/fr/sw, **both roles walked end to end**.
-  - ⬜ **Open (I2, S37 Opus whole-branch review):** the verifier role has no in-product entry point.
+  - 🔒 **DECIDED (Eston, 2026-09-07) — the daily session (W3) is the verifier's door.** A standing
+    "verify someone now" entry would invite idle judgement; arriving via a session the verifier opted
+    into gives the act a reason, and W3 already selects verifiers. Build the entry point as part of W3;
+    do NOT add a hub card for it. Original finding (I2, S37 Opus whole-branch review):
+    the verifier role has no in-product entry point.
     `VerificationHub` renders `PathwayCards` only for unverified users, and that card is the only
     in-product link to `/identity/verification/call` — so the verifier half of this wave (its own
     honesty line, its own `CallSummary` branch, its share of the 46 new strings) is reachable only by
@@ -679,8 +683,8 @@ state is per-browser, not per-key; ~~the member-list render duplicated across re
 
 ## 8. Changelog
 
-- **2026-09-07 — S37: P11 Prompt 2 Wave 2, the simulated verification call (BUILT + reviewed; NOT
-  pushed — awaiting the founder's gate).** `64c3abe..666a8e5`, 22 commits. Four screens at
+- **2026-09-07 — S37: P11 Prompt 2 Wave 2, the simulated verification call (BUILT + reviewed +
+  PUSHED to `origin/ui` 2026-09-07 on Eston's explicit go — Ouri's merge to `server-side` deploys).** `64c3abe..666a8e5`, 22 commits. Four screens at
   `/identity/verification/call` — verifier picker, waiting room, in-call (both roles), summary — over a
   new in-memory simulation (`src/services/demo/verificationSim.ts`) behind the existing seam, plus the
   third pathway card. **No `DEMO_VERSION` bump**: UI and a demo module only, no fixture or seed data

@@ -11,7 +11,7 @@ consumer, closing S36's parked duplication. 22 commits `64c3abe..666a8e5` plus c
 (parity 1312 → 1358), **no `DEMO_VERSION` bump** (UI + a demo module only). Opus whole-branch review
 0 Critical / 2 Important / 7 Minor → one fix wave, scoped re-review clean.
 
-**Push state: NOT PUSHED.** S37 ended at the founder's gate. Per D11 a `ui` push does not deploy — Ouri
+**Push state: PUSHED to `origin/ui` 2026-09-07** (Eston's explicit go at S37 close). Per D11 a `ui` push does not deploy — Ouri
 merges `ui` → `server-side`. **Confirm with Eston whether S37 was pushed before assuming anything below.**
 
 This session builds **Wave 3 only** — the daily session (spec §3.3 W3, screen 6). Wave 4 (notification
@@ -21,8 +21,8 @@ centre + bell) stays separate (F9).
 
 Every claim below is mine and WILL rot. Check each before planning around it.
 
-* `git log --oneline origin/ui..ui | wc -l` → expect **22** if S37 was never pushed, **0** if Eston green-lit
-  it after this prompt was written. Anything else means work landed after S37 closed — read it first.
+* `git log --oneline origin/ui..ui | wc -l` → expect **0** (S37 was pushed 2026-09-07). Anything above 0
+  is work committed after this prompt was written — read it before trusting the premises below.
 * `git log --oneline -1` → expect `1c7a41a docs(s37): closeout …`.
 * `grep -n "DEMO_VERSION = " src/services/demo/mockApi.ts` → expect `'global-v19'`. W3 seeds a daily-session
   fixture only if you add one; bump ONLY if fixtures change (S37 correctly shipped without a bump).
@@ -59,14 +59,14 @@ Every claim below is mine and WILL rot. Check each before planning around it.
 
 ## Open decisions to lock (recommend-then-confirm with Eston)
 
-* **The verifier's door (I2, carried from S37's gate — decide this first, it may belong in W3).**
-  `VerificationHub` hides `PathwayCards` from verified users, and that card is the only in-product link to
-  `/identity/verification/call`. So the verifier role built in W2 is reachable only by URL or the dev
-  scenario switcher. Options: (a) a verifier-framed hub entry — needs its own strings, the current card
-  copy is candidate-framed and would be false; (b) the daily session becomes the verifier's door, which is
-  arguably its natural home; (c) W4's notification centre delivers it ("you've been selected to verify").
-  Recommendation: **(b) or (c)** — a standing "verify someone now" entry invites idle verification, whereas
-  the daily session and a notification both arrive with a reason attached.
+* **The verifier's door — LOCKED (Eston, 2026-09-07): the daily session IS the door.** S37 shipped the
+  verifier role with no in-product entry point (`VerificationHub` hides `PathwayCards` from verified users,
+  and that card is the only link to `/identity/verification/call`). Ruling: build the verifier's entry as
+  part of W3 rather than adding a hub card — a standing "verify someone now" button invites idle judgement,
+  whereas arriving through a session you opted into gives the act a reason. So W3 owns two jobs: the daily
+  session itself, AND becoming the way a verified member reaches `InCallView`'s verifier branch. Do not
+  re-open this; do design where in the W3 flow it sits.
+
 * **The demo clock.** 21:00 UTC is almost never "now" during a demo walk. Spec says a clock override in the
   state switcher. Confirm the override is dev-only and that the pre-session screen is honest about it.
 * **How many verifiers a daily session selects, and whether selection is deterministic.** E2's principle
@@ -102,6 +102,6 @@ Every claim below is mine and WILL rot. Check each before planning around it.
 
 ## Kickoff
 
-Re-verify the premises, confirm the push state of S37 with Eston, lock the open decisions (the verifier's
-door first), then spec addendum → plan → build W3 in the order spec §3.3 lists. Report after each screen
+Re-verify the premises, lock the remaining open decisions (the verifier's door is already ruled — see
+above), then spec addendum → plan → build W3 in the order spec §3.3 lists. Report after each screen
 with the commit, what the preview walk showed, and any premise above that turned out stale.
