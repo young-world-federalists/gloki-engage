@@ -1457,7 +1457,6 @@ const sw: Dictionary = {
   'verification.call.deselect': 'Ondoa uchaguzi',
   'verification.call.pickerEmpty': 'Hakuna mtu anayepatikana kwa sasa.',
   'verification.call.pickerEmptyCta': 'Mwombe mwanachama akudhamini',
-  'verification.call.placeholder': 'Sehemu hii ya simu bado haijatengenezwa.',
   'verification.call.waitingTitle': 'Inasubiri wanachama',
   'verification.call.joinedCount': '{joined} kati ya {total} wamejiunga',
   'verification.call.joined': 'Amejiunga',
@@ -1488,6 +1487,15 @@ const sw: Dictionary = {
   'verification.call.demoNoteVerifier': 'Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na mtu aliye hapo juu ni wasifu wa mfano, hivyo kumthibitisha hakubadilishi chochote nje ya demo hii.',
   'verification.call.verifyFailed': 'Uthibitisho haukufanikiwa. Jaribu tena.',
   'verification.call.backToHub': 'Rudi kwenye uthibitisho',
+
+  // ── Verification call summary + pathway card (S37 Wave 2 — Task 8) ─────
+  'verification.call.summaryTitle': 'Muhtasari wa simu',
+  'verification.call.summaryVerifiers': 'Waliothibitisha',
+  'verification.call.summaryNone': 'Hakuna aliyethibitisha kwenye simu hii.',
+  'verification.call.summaryNext': 'Mwombe mwanachama akudhamini',
+  'verification.pathway.call.title': 'Simu ya video',
+  'verification.pathway.call.body': 'Thibitishwa moja kwa moja kwa video na wanachama wanaojiunga na simu yako.',
+  'verification.pathway.call.cta': 'Anzisha simu',
 };
 
 export default sw;

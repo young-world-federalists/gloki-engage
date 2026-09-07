@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Hammer, VideoOff } from 'lucide-react';
+import { VideoOff } from 'lucide-react';
 import { Button, EmptyState } from '../../shared';
 import { useT } from '../../../i18n';
 import { useVerification } from '../../../hooks/useVerification';
 import { joinAsVerifier, leaveCall, type CallSession } from '../../../services/verification';
+import CallSummary from './CallSummary';
 import InCallView from './InCallView';
 import VerifierPicker from './VerifierPicker';
 import WaitingRoom from './WaitingRoom';
@@ -19,9 +20,8 @@ type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
  * and enters at `select` to pick who to invite. Holds the CallSession and the
  * selected verifier keys, passed down to whichever step is mounted.
  *
- * `select` (state A, Task 5), `waiting` (state B, Task 6) and `inCall`
- * (state C, Task 7) are built. Task 8 replaces `summary` with CallSummary —
- * until then it renders the placeholder below.
+ * `select` (state A, Task 5), `waiting` (state B, Task 6), `inCall` (state C,
+ * Task 7) and `summary` (state D, Task 8 — `CallSummary`) are all built.
  */
 const CallFlow: React.FC = () => {
   const t = useT();
@@ -179,15 +179,19 @@ const CallFlow: React.FC = () => {
     return <InCallView session={session} role={role} onUpdate={setSession} onLeave={() => setStep('summary')} />;
   }
 
-  // Task 8 placeholder — see the file doc comment above.
-  return (
-    <div className={pages.page}>
-      <EmptyState
-        icon={<Hammer size={48} aria-hidden />}
-        title={t('verification.call.placeholder', "This part of the call isn't built yet.")}
-      />
-    </div>
-  );
+  // 'summary' (state D, Task 8) — CallSummary. Reached from InCallView's
+  // `onLeave`: the explicit Leave tap and the completion panel's Dismiss both
+  // call that one prop, which is why neither needs its own branch here.
+  // Guarded for the type checker: InCallView requires a `session` to render
+  // at all, so this step is never reached without one already set.
+  if (!session) {
+    return (
+      <div className={pages.page}>
+        <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
+      </div>
+    );
+  }
+  return <CallSummary session={session} />;
 };
 
 export default CallFlow;

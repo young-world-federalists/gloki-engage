@@ -1458,7 +1458,6 @@ const fr: Dictionary = {
   'verification.call.deselect': 'Désélectionner',
   'verification.call.pickerEmpty': 'Personne n’est disponible pour le moment.',
   'verification.call.pickerEmptyCta': 'Demander à un membre de se porter garant',
-  'verification.call.placeholder': 'Cette partie de l’appel n’est pas encore disponible.',
   'verification.call.waitingTitle': 'En attente des garants',
   'verification.call.joinedCount': '{joined} sur {total} ont rejoint',
   'verification.call.joined': 'A rejoint',
@@ -1489,6 +1488,15 @@ const fr: Dictionary = {
   'verification.call.demoNoteVerifier': 'Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et la personne ci-dessus est un profil d’exemple : la vérifier ne change rien en dehors de cette démo.',
   'verification.call.verifyFailed': 'La vérification n’a pas abouti. Réessayez.',
   'verification.call.backToHub': 'Retour à la vérification',
+
+  // ── Verification call summary + pathway card (S37 Wave 2 — Task 8) ─────
+  'verification.call.summaryTitle': 'Résumé de l’appel',
+  'verification.call.summaryVerifiers': 'Garants qui ont confirmé',
+  'verification.call.summaryNone': 'Personne n’a confirmé pendant cet appel.',
+  'verification.call.summaryNext': 'Demander à un membre de se porter garant',
+  'verification.pathway.call.title': 'Appel vidéo',
+  'verification.pathway.call.body': 'Faites-vous vérifier en direct par vidéo avec des membres qui rejoignent votre appel.',
+  'verification.pathway.call.cta': 'Démarrer un appel',
 };
 
 export default fr;
