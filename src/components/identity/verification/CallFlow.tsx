@@ -3,7 +3,8 @@ import { Hammer } from 'lucide-react';
 import { EmptyState } from '../../shared';
 import { useT } from '../../../i18n';
 import { useVerification } from '../../../hooks/useVerification';
-import { leaveCall, type CallSession } from '../../../services/verification';
+import { joinAsVerifier, leaveCall, type CallSession } from '../../../services/verification';
+import InCallView from './InCallView';
 import VerifierPicker from './VerifierPicker';
 import WaitingRoom from './WaitingRoom';
 import pages from './VerificationPages.module.scss';
@@ -17,11 +18,9 @@ type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
  * and enters at `select` to pick who to invite. Holds the CallSession and the
  * selected verifier keys, passed down to whichever step is mounted.
  *
- * `select` (state A, Task 5) and `waiting` (state B, Task 6) are built.
- * Task 7 replaces `inCall` with InCallView, Task 8 replaces `summary` with
- * CallSummary — until then those two render the placeholder below. `inCall`
- * is reachable TODAY by any already-verified user visiting this route, so
- * the placeholder is live UI, not dead code.
+ * `select` (state A, Task 5), `waiting` (state B, Task 6) and `inCall`
+ * (state C, Task 7) are built. Task 8 replaces `summary` with CallSummary —
+ * until then it renders the placeholder below.
  */
 const CallFlow: React.FC = () => {
   const t = useT();
@@ -30,6 +29,12 @@ const CallFlow: React.FC = () => {
   const [step, setStep] = useState<CallStep>(role === 'verifier' ? 'inCall' : 'select');
   const [session, setSession] = useState<CallSession | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  // C1 amendment: the verifier role has no `select`/`waiting` step to create
+  // its session from, so CallFlow creates it here instead, the moment `ctx`
+  // is ready. `simJoinAsVerifier` throws when nobody eligible is waiting
+  // (everyone the fixtures offer is already among this user's own vouchers) —
+  // rare, but real, so it's caught rather than left as an unhandled rejection.
+  const [verifierJoinFailed, setVerifierJoinFailed] = useState(false);
 
   // E5: never offer someone who has already vouched — addUserVouch dedupes,
   // so a repeat invite would be a silent no-op. Memoized so toggling a
@@ -56,6 +61,29 @@ const CallFlow: React.FC = () => {
       if (ctx) void leaveCall(ctx, sessionId);
     };
   }, [session?.id, ctx]);
+
+  // The verifier entry (C1 amendment). `inviteToCall` assumes the caller is
+  // the candidate, so a verified user reaching this route goes through
+  // `joinAsVerifier` instead — there is no `select`/`waiting` step to hand it
+  // a session, so CallFlow builds one itself, once `ctx` is ready. Guarded on
+  // `session`/`verifierJoinFailed` so it runs exactly once; cancelled on
+  // unmount so a slow resolve after the user navigates away never calls
+  // setState on a gone component.
+  useEffect(() => {
+    if (role !== 'verifier' || !ctx || session || verifierJoinFailed) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const started = await joinAsVerifier(ctx);
+        if (!cancelled) setSession(started);
+      } catch {
+        if (!cancelled) setVerifierJoinFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [role, ctx, session, verifierJoinFailed]);
 
   if (step === 'select') {
     // Wait for the real approvals list before sampling verifiers — starting
@@ -99,7 +127,36 @@ const CallFlow: React.FC = () => {
     );
   }
 
-  // Task 7/8 placeholder — see the file doc comment above.
+  if (step === 'inCall') {
+    // Rare: nobody eligible for this verifier to see right now (§4's fixture
+    // pool exhausted by their own prior vouches). Reuses `pickerEmpty` — same
+    // "no one available" fact as the candidate-side empty state, just from
+    // the other role.
+    if (verifierJoinFailed) {
+      return (
+        <div className={pages.page}>
+          <EmptyState
+            icon={<Hammer size={48} aria-hidden />}
+            title={t('verification.call.pickerEmpty', 'No one is available right now.')}
+          />
+        </div>
+      );
+    }
+    // Guarded for the type checker: the candidate path always sets session
+    // and step together (handleStarted / WaitingRoom's onStart), and the
+    // verifier-entry effect above sets it as soon as `ctx` resolves — this
+    // only shows while that effect's `joinAsVerifier` call is in flight.
+    if (!session) {
+      return (
+        <div className={pages.page}>
+          <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
+        </div>
+      );
+    }
+    return <InCallView session={session} role={role} onUpdate={setSession} onLeave={() => setStep('summary')} />;
+  }
+
+  // Task 8 placeholder — see the file doc comment above.
   return (
     <div className={pages.page}>
       <EmptyState

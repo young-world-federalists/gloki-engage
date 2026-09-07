@@ -1466,6 +1466,22 @@ const sw: Dictionary = {
   'verification.call.timeoutTitle': 'Hakuna mwingine anayejiunga',
   'verification.call.timeoutBody': 'Imepita dakika kadhaa na hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye.',
   'verification.call.timeoutEmpty': 'Hakuna aliyejiunga wakati huu. Ghairi na umwombe mwanachama akudhamini badala yake.',
+
+  // ── Verification call — in-call view (S37 Wave 2 — Task 7) ─────────────
+  'verification.call.verifiedCount': '{verified} kati ya {total} wamethibitisha',
+  'verification.call.mute': 'Zima mikrofoni',
+  'verification.call.unmute': 'Washa mikrofoni',
+  'verification.call.camera': 'Zima kamera',
+  'verification.call.cameraOff': 'Washa kamera',
+  'verification.call.leave': 'Ondoka kwenye simu',
+  'verification.call.statusMuted': 'Mikrofoni imezimwa',
+  'verification.call.statusCameraOff': 'Kamera imezimwa',
+  'verification.call.verifyIdle': 'Thibitisha',
+  'verification.call.verifyLoading': 'Inathibitisha…',
+  'verification.call.verifyConfirmed': 'Imethibitishwa',
+  'verification.call.completeTitle': 'Uthibitisho umekamilika',
+  'verification.call.completeBody': 'Simu hii imekamilika. Asante kwa kushiriki.',
+  'verification.call.returningIn': 'Unarudi kwenye uthibitisho baada ya sekunde {n}',
 };
 
 export default sw;

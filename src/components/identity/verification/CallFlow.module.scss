@@ -85,3 +85,112 @@
     background: $info-surface-dark;
   }
 }
+
+// ── InCallView (S37 Task 7, state C) ────────────────────────────────────────
+
+// Verifier tile grid: 2 columns, holding at the 360px floor. `pages.page`
+// carries no horizontal padding of its own — the page column
+// (`page-column` mixin, Container.module.scss) is what applies
+// $content-gutter (16px) each side, so at a 360px viewport the available
+// width here is 360 - 2×16 = 328px. Two columns with one $spacing-sm (8px)
+// gutter between them is (328 - 8) / 2 = 160px per column — comfortably
+// above VideoTile's `sm` minimum (its aspect-ratio + truncating name keep it
+// legible well below that).
+.tileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+}
+
+// The verifier's VerifyButton (InCallVerifyAction) sits directly under the
+// candidate tile. `pages.page`'s flex column defaults to `align-items:
+// stretch`, which would already make it full width, but that's this
+// selector's own decision, not an accident of the parent — same width as the
+// call's primary CTAs everywhere else in this flow (WaitingRoom's
+// Start/Cancel, VerifierPicker's Start-with-N).
+.verifyButton {
+  width: 100%;
+}
+
+// Mute / video / leave row under the tile grid.
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+}
+
+// Each control is an icon-only size="sm" Button (32px, no visible label) —
+// its accessible name comes from `aria-label` (Step: EVERY tap >= 44px).
+// Same ::after hit-area technique as `.refreshButton` above, but a fixed
+// 44x44 box (not `width: 100%`) since there's no visible label to stretch
+// across — matches Toast.module.scss's `.dismiss::after` for the same
+// icon-only shape.
+.controlButton {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// Completion overlay (Step 3) — same layer as Modal.module.scss's `.overlay`
+// (z-index 1000, $overlay-bg scrim) but deliberately NOT the shared Modal:
+// the card below is role="status", not role="dialog" — no focus trap, no
+// Esc handler — so Dismiss (always rendered) is the only thing standing
+// between the user and leaving; the countdown can never trap them.
+.completeOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  background: $overlay-bg;
+}
+
+.completeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  width: 100%;
+  max-width: 360px;
+  padding: $spacing-2xl $spacing-xl;
+  border-radius: $radius-xl;
+  background: white;
+  box-shadow: $shadow-lg;
+  text-align: center;
+
+  @include dark {
+    background: $dark-surface;
+  }
+}
+
+.completeTitle {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.completeBody {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

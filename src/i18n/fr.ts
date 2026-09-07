@@ -1467,6 +1467,22 @@ const fr: Dictionary = {
   'verification.call.timeoutTitle': 'Personne d’autre ne rejoint',
   'verification.call.timeoutBody': 'Cela fait quelques minutes et personne de nouveau n’a rejoint. Vous pouvez démarrer avec les personnes présentes, ou annuler et réessayer plus tard.',
   'verification.call.timeoutEmpty': 'Personne n’a rejoint cette fois. Annulez et demandez à un membre de se porter garant pour vous à la place.',
+
+  // ── Verification call — in-call view (S37 Wave 2 — Task 7) ─────────────
+  'verification.call.verifiedCount': '{verified} sur {total} ont confirmé',
+  'verification.call.mute': 'Couper le micro',
+  'verification.call.unmute': 'Réactiver le micro',
+  'verification.call.camera': 'Désactiver la caméra',
+  'verification.call.cameraOff': 'Activer la caméra',
+  'verification.call.leave': 'Quitter l’appel',
+  'verification.call.statusMuted': 'Micro coupé',
+  'verification.call.statusCameraOff': 'Caméra désactivée',
+  'verification.call.verifyIdle': 'Vérifier',
+  'verification.call.verifyLoading': 'Vérification…',
+  'verification.call.verifyConfirmed': 'Vérifié',
+  'verification.call.completeTitle': 'Vérification terminée',
+  'verification.call.completeBody': 'Cet appel est terminé. Merci d’y avoir participé.',
+  'verification.call.returningIn': 'Retour à la vérification dans {n} s',
 };
 
 export default fr;
