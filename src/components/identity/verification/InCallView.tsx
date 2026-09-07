@@ -45,9 +45,10 @@ export interface InCallViewProps {
  * represents "you" (the candidate tile for the candidate role, your one
  * entry in the grid for the verifier role) and touch nothing else; no
  * backing field exists on `CallParticipant` for them, and the honesty line
- * rendered under the controls says so in-product (E7 — and says it per role,
- * since "these members verify automatically" is false for the role that is
- * doing the verifying by hand).
+ * rendered directly under the candidate tile — above the fold, before the
+ * verifier's Verify action (W5, fix round 2) — says so in-product (E7, and
+ * per role, since "these members verify automatically" is false for the
+ * role that is doing the verifying by hand).
  */
 const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeave }) => {
   const t = useT();
@@ -117,6 +118,32 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
         mutedLabel={mutedLabel}
         cameraOffLabel={cameraOffLabel}
       />
+
+      {/* W5, fix round 2 — moved here (directly under the candidate tile,
+          before the verifier's Verify action) from after the controls bar,
+          where it sat below the fold entirely. Measured live at 360x780 in
+          the VERIFIER role: the Verify button was fully visible at top 480
+          while this line sat at top 841 — a user could verify a fixture
+          "person" without ever seeing the note that no real call happens
+          and no vouch is real (S36-I1). Placing it here puts it before the
+          Verify button in both reading order and visual order, in both
+          roles, and it no longer depends on the sticky controls bar (left
+          untouched — still `.stickyActions`, still after the tile grid).
+          Still gated on `!isComplete`: the completion panel takes its place
+          once the call ends (R9, fix round 1). */}
+      {!isComplete && (
+        <p className={pages.intro}>
+          {role === 'verifier'
+            ? t(
+                'verification.call.demoNoteVerifier',
+                'Demo: no real call is made — your camera and microphone stay off, and the person above is a sample profile, so verifying them changes nothing outside this demo.',
+              )
+            : t(
+                'verification.call.demoNote',
+                'Demo: no real call is made — your camera and microphone stay off, and these members join and verify automatically.',
+              )}
+        </p>
+      )}
 
       {/* Gated on `!isComplete` (fix round 1, M5) so a finished call can never
           leave a live Verify control mounted beside the completion panel. */}
@@ -191,28 +218,6 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
             className={styles.controlButton}
           />
         </div>
-      )}
-
-      {/* The honesty line (E7) — this call view is exactly the surface where
-          fixture people appear to judge the user, so it carries a demo note.
-          R11 (fix round 1): the shared line says "these members join and
-          verify automatically", which is FALSE for the verifier role — there
-          the user is the one verifying, by hand. That role gets its own,
-          accurate line; the candidate keeps the shared one. Both now also
-          disclose that the mic toggle is as inert as the camera. Hidden once
-          the call is over — the completion panel below takes its place. */}
-      {!isComplete && (
-        <p className={pages.intro}>
-          {role === 'verifier'
-            ? t(
-                'verification.call.demoNoteVerifier',
-                'Demo: no real call is made — your camera and microphone stay off, and the person above is a sample profile, so verifying them changes nothing outside this demo.',
-              )
-            : t(
-                'verification.call.demoNote',
-                'Demo: no real call is made — your camera and microphone stay off, and these members join and verify automatically.',
-              )}
-        </p>
       )}
 
       {/* R9 (fix round 1): rendered INLINE, in the page flow where the
