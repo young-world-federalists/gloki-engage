@@ -10,6 +10,7 @@ import VerificationHub from '../components/identity/verification/VerificationHub
 import RequestPage from '../components/identity/verification/RequestPage';
 import ApprovePage from '../components/identity/verification/ApprovePage';
 import InvitePage from '../components/identity/verification/InvitePage';
+import CallFlow from '../components/identity/verification/CallFlow';
 import { useT } from '../i18n';
 import styles from './Container.module.scss';
 
@@ -36,6 +37,7 @@ const IdentityView: React.FC = () => {
     request: { title: t('verification.request.title', 'Ask a member to vouch'), eyebrow: verificationEyebrow },
     approve: { title: t('verification.approve.title', 'Requests to vouch'), eyebrow: verificationEyebrow },
     invite: { title: t('verification.invite.title', 'Invitations'), eyebrow: verificationEyebrow },
+    call: { title: t('verification.call.title', 'Verification call'), eyebrow: verificationEyebrow },
   };
   const [, , sub = 'communities', leaf] = pathname.split('/');
   const isVerification = sub === 'verification';
@@ -63,6 +65,7 @@ const IdentityView: React.FC = () => {
             <Route path="verification/request" element={<RequestPage />} />
             <Route path="verification/approve" element={<ApprovePage />} />
             <Route path="verification/invite" element={<InvitePage />} />
+            <Route path="verification/call" element={<CallFlow />} />
             <Route path="hidden" element={<Communities showHidden />} />
             <Route path="*" element={<Navigate to="/identity/communities" replace />} />
           </Routes>

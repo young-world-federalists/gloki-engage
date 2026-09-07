@@ -1445,6 +1445,20 @@ const fr: Dictionary = {
   'demo.verification.partial': 'Partiellement cautionné (2 sur 4)',
   'demo.verification.verified': 'Vérifié (4 sur 4)',
   'demo.verification.memberView': 'Membre vérifié avec des demandes en attente',
+
+  // ── Verification call (S37 Wave 2 — Task 5) ────────────────────────────
+  'verification.call.title': 'Appel de vérification',
+  'verification.call.bandwidth': 'Utilise votre caméra et vos données mobiles.',
+  'verification.call.bandwidthLink': 'Pas de caméra ? Demandez plutôt à un membre de se porter garant pour vous.',
+  'verification.call.demoNote': 'Démo : aucun appel réel n’est passé et votre caméra reste éteinte — ces membres rejoignent et vérifient automatiquement.',
+  'verification.call.availableNow': 'Disponibles maintenant',
+  'verification.call.refresh': 'Actualiser',
+  'verification.call.startWith': 'Démarrer l’appel avec {count}',
+  'verification.call.selected': 'Sélectionner',
+  'verification.call.deselect': 'Désélectionner',
+  'verification.call.pickerEmpty': 'Personne n’est disponible pour le moment.',
+  'verification.call.pickerEmptyCta': 'Demander à un membre de se porter garant',
+  'verification.call.placeholder': 'Cette partie de l’appel n’est pas encore disponible.',
 };
 
 export default fr;

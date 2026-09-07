@@ -1,0 +1,41 @@
+@use '../../../styles/variables' as *;
+
+// F10's bandwidth line links out to the text-vouch pathway (E7 — the second
+// sentence of the F10 line is a react-router <Link>). Styled as an ordinary
+// inline link inside a pages.intro paragraph; also reused for the empty
+// state's "ask a member instead" CTA (S37 Task 5).
+.link {
+  color: $primary;
+  font-weight: $font-medium;
+  text-decoration: underline;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+// "Available now" heading + Refresh button, side by side above the list.
+.pickerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+// Selected-row highlight in the VerifierPicker's MemberList (rowClassName).
+// Background only — MemberCard's own children own their text colour (same
+// shape as SolutionAuthorPanel's .panel: the tint doesn't need its own
+// dark-mode text re-declare because it never sets one in light mode either).
+.selectedRow {
+  background: $info-surface;
+  border-radius: $radius-md;
+
+  @include dark {
+    background: $info-surface-dark;
+  }
+}

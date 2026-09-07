@@ -1444,6 +1444,20 @@ const sw: Dictionary = {
   'demo.verification.partial': 'Amedhaminiwa kwa sehemu (2 kati ya 4)',
   'demo.verification.verified': 'Amethibitishwa (4 kati ya 4)',
   'demo.verification.memberView': 'Mwanachama aliyethibitishwa mwenye maombi yanayosubiri',
+
+  // ── Verification call (S37 Wave 2 — Task 5) ────────────────────────────
+  'verification.call.title': 'Simu ya uthibitisho',
+  'verification.call.bandwidth': 'Inatumia kamera yako na data ya simu.',
+  'verification.call.bandwidthLink': 'Huna kamera? Mwombe mwanachama akudhamini badala yake.',
+  'verification.call.demoNote': 'Demo: hakuna simu halisi inayopigwa na kamera yako inabaki imezimwa — wanachama hawa hujiunga na kuthibitisha kiotomatiki.',
+  'verification.call.availableNow': 'Wanaopatikana sasa',
+  'verification.call.refresh': 'Sasisha',
+  'verification.call.startWith': 'Anzisha simu na {count}',
+  'verification.call.selected': 'Chagua',
+  'verification.call.deselect': 'Ondoa uchaguzi',
+  'verification.call.pickerEmpty': 'Hakuna mtu anayepatikana kwa sasa.',
+  'verification.call.pickerEmptyCta': 'Mwombe mwanachama akudhamini',
+  'verification.call.placeholder': 'Sehemu hii ya simu bado haijatengenezwa.',
 };
 
 export default sw;
