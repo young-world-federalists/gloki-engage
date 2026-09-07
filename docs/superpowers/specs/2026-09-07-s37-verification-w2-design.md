@@ -238,8 +238,22 @@ the candidate tile. On reaching the last verification, a completion overlay with
 
 What the call produced: the verifiers who verified, the new approval count ("{X} of 4 approvals"),
 and the next step — verified → "Go to Home"; short → "Ask a member to vouch" linking the request
-page. Reached by `leave`, by timeout-with-no-verifiers, and as the countdown's destination if the
-user dismisses the overlay.
+page. Reached by `leave` and by the completion panel's Dismiss.
+
+**As-built correction (R13, 2026-09-07).** This paragraph originally listed a third route —
+timeout-with-no-verifiers. The build does not take it, deliberately. `WaitingRoom`'s zero-joined
+timeout instead shows an inline banner offering Cancel and "Ask a member to vouch instead", which was
+walked in the browser and is not a dead end. Routing that case here would navigate the user to a
+summary saying "nobody verified you, you are still at {X} of 4, ask a member" — exactly what the
+banner already says in place, without the navigation. The spec's intent (the user always lands
+somewhere with a next step) holds; its letter is corrected rather than the code.
+
+**Role branch (W6).** The summary takes `CallFlow`'s frozen `role` as a prop — never re-derived from
+trust, which would reintroduce the Critical that froze it. The candidate branch is the paragraph
+above. The **verifier** branch names the person they verified ("You verified {name}."), shows no
+confirmed-verifier list, and does not present the viewer's own approval count, because a verifier's
+count does not change: they are giving a vouch, not receiving one. A verifier who leaves before
+verifying is told so rather than being credited with a verification.
 
 ### 6.6 `PathwayCards.tsx` — the third card
 

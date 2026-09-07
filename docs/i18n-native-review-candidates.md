@@ -1593,3 +1593,98 @@ hub's request flow replaced the demo shortcut on the per-community identity page
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
 two files. Run the parity scanner (`RESULT: PARITY OK`) and a 360px fr/sw layout spot-check on any touched
 screen. Small commits per family are easiest to review.
+
+
+---
+
+## Session 37 (2026-09-07) — Community verification, Wave 2: the simulated call
+
+**+46 keys** (parity 1312 → 1358 in both fr and sw; identical key sets, verified by set-diff, and all
+`{var}` tokens match). Prompt 2 Wave 2 ships the simulated verification call at
+`/identity/verification/call` — verifier picker, waiting room, in-call view (candidate **and** verifier
+roles) and call summary — plus the third pathway card on the hub. All new keys live under
+`verification.call.*` and `verification.pathway.call.*`. Spec:
+`docs/superpowers/specs/2026-09-07-s37-verification-w2-design.md`.
+
+**Register questions for both reviewers, up front:**
+
+- **sw — is `simu` right for a *video* call?** Every call string uses it (`Simu ya uthibitisho`,
+  `Anzisha simu na {count}`, `Kwenye simu`). In everyday Swahili *simu* reads first as *phone*. If a
+  reader would picture a voice phone call rather than a video call, we need `simu ya video` or
+  `mkutano wa video` in the titles at least. This is the single most consequential question in this
+  batch: the whole feature is a **video** call, and ruling F10 warns people about camera and data use
+  precisely because it is video.
+- **fr — the agreement-free `{count}` forms.** `'{joined} sur {total} ont rejoint'` and
+  `'{verified} sur {total} ont confirmé'` deliberately use an invariant verb so the string is correct
+  at any count (the house pattern from `mandate.turnoutLine`). Confirm this reads naturally, or give a
+  phrasing that stays invariant — we cannot inflect on a runtime number.
+- **fr — `garant` continues to sit next to S36's `parrainé`.** The waiting room says
+  `En attente des garants`; S36's open question about settling on ONE family (*garant* vs *parrainage*)
+  now spans two waves. A decision here would let us normalise both at once.
+- **sw — `kudhamini` / `Amethibitishwa` vs `wamethibitisha`.** The count strings switch noun-class
+  agreement between singular (`Amejiunga`, `Amethibitishwa`) on a row badge and plural
+  (`wamejiunga`, `wamethibitisha`) in the running count. That is believed correct — please confirm.
+- **Both — the honesty lines are load-bearing, not boilerplate.** `verification.call.demoNote` and
+  `verification.call.demoNoteVerifier` are the only text telling a user that no real call happens, the
+  camera and mic stay off, and (for a verifier) that the person they are judging is a sample profile.
+  They must read as plainly, obviously true to a non-technical reader — not as a disclaimer people skim.
+  Two separate strings exist deliberately: the candidate's version would be FALSE for a verifier, who
+  verifies by hand rather than watching members verify automatically.
+- **fr — `Démo :` keeps the French space before the colon.** Intentional; confirm it matches house
+  typography across the overlay.
+
+**Copy that changed meaning during the session** (all from review findings, noted so a reviewer does
+not read them as drafting churn): `demoNote` gained the microphone (it previously disclosed only the
+camera); `verifiedCount` counts *joined* verifiers rather than invited, so a call with a non-joining
+member cannot announce "3 of 4 verified" as complete; and the summary gained
+`summaryVerifiedName` / `summaryLeftEarly` because the shared candidate-framed copy read as
+self-verification in the verifier role.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `verification.call.availableNow` | Available now | Disponibles maintenant | Wanaopatikana sasa |
+| `verification.call.backToHub` | Back to verification | Retour à la vérification | Rudi kwenye uthibitisho |
+| `verification.call.bandwidth` | Uses your camera and mobile data. | Utilise votre caméra et vos données mobiles. | Inatumia kamera yako na data ya simu. |
+| `verification.call.bandwidthLink` | No camera? Ask a member to vouch for you instead. | Pas de caméra ? Demandez plutôt à un membre de se porter garant pour vous. | Huna kamera? Mwombe mwanachama akudhamini badala yake. |
+| `verification.call.camera` | Turn off camera | Désactiver la caméra | Zima kamera |
+| `verification.call.cameraOff` | Turn on camera | Activer la caméra | Washa kamera |
+| `verification.call.completeBody` | This call has finished. Thanks for taking part. | Cet appel est terminé. Merci d’y avoir participé. | Simu hii imekamilika. Asante kwa kushiriki. |
+| `verification.call.completeTitle` | Verification complete | Vérification terminée | Uthibitisho umekamilika |
+| `verification.call.demoNote` | — | Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et ces membres rejoignent et vérifient automatiquement. | Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na wanachama hawa hujiunga na kuthibitisha kiotomatiki. |
+| `verification.call.demoNoteVerifier` | — | Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et la personne ci-dessus est un profil d’exemple : la vérifier ne change rien en dehors de cette démo. | Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na mtu aliye hapo juu ni wasifu wa mfano, hivyo kumthibitisha hakubadilishi chochote nje ya demo hii. |
+| `verification.call.deselect` | Deselect | Désélectionner | Ondoa uchaguzi |
+| `verification.call.inCallTitle` | On the call | En appel | Kwenye simu |
+| `verification.call.joined` | Joined | A rejoint | Amejiunga |
+| `verification.call.joinedCount` | {joined} of {total} joined | {joined} sur {total} ont rejoint | {joined} kati ya {total} wamejiunga |
+| `verification.call.leave` | Leave call | Quitter l’appel | Ondoka kwenye simu |
+| `verification.call.mute` | Mute | Couper le micro | Zima mikrofoni |
+| `verification.call.pickerEmpty` | No one is available right now. | Personne n’est disponible pour le moment. | Hakuna mtu anayepatikana kwa sasa. |
+| `verification.call.pickerEmptyCta` | Ask a member to vouch instead | Demander à un membre de se porter garant | Mwombe mwanachama akudhamini |
+| `verification.call.refresh` | Refresh | Actualiser | Sasisha |
+| `verification.call.returningIn` | Returning to verification in {n}s | Retour à la vérification dans {n} s | Unarudi kwenye uthibitisho baada ya sekunde {n} |
+| `verification.call.selected` | Select | Sélectionner | Chagua |
+| `verification.call.start` | Start | Démarrer | Anza |
+| `verification.call.startWith` | Start call with {count} | Démarrer l’appel avec {count} | Anzisha simu na {count} |
+| `verification.call.statusCameraOff` | Camera off | Caméra désactivée | Kamera imezimwa |
+| `verification.call.statusMuted` | Muted | Micro coupé | Mikrofoni imezimwa |
+| `verification.call.summaryLeftEarly` | You left before verifying {name}. | Vous avez quitté l’appel avant de vérifier {name}. | Umeondoka kabla ya kumthibitisha {name}. |
+| `verification.call.summaryNext` | Ask a member to vouch | Demander à un membre de se porter garant | Mwombe mwanachama akudhamini |
+| `verification.call.summaryNone` | Nobody confirmed on this call. | Personne n’a confirmé pendant cet appel. | Hakuna aliyethibitisha kwenye simu hii. |
+| `verification.call.summaryTitle` | Call summary | Résumé de l’appel | Muhtasari wa simu |
+| `verification.call.summaryVerifiedName` | You verified {name}. | Vous avez vérifié {name}. | Umemthibitisha {name}. |
+| `verification.call.summaryVerifiers` | Verifiers who confirmed | Garants qui ont confirmé | Waliothibitisha |
+| `verification.call.timeoutBody` | — | Cela fait quelques minutes et personne de nouveau n’a rejoint. Vous pouvez démarrer avec les personnes présentes, ou annuler et réessayer plus tard. | Imepita dakika kadhaa na hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye. |
+| `verification.call.timeoutEmpty` | Nobody joined this time. Cancel and ask a member to vouch for you instead. | Personne n’a rejoint cette fois. Annulez et demandez à un membre de se porter garant pour vous à la place. | Hakuna aliyejiunga wakati huu. Ghairi na umwombe mwanachama akudhamini badala yake. |
+| `verification.call.timeoutTitle` | Nobody else is joining | Personne d’autre ne rejoint | Hakuna mwingine anayejiunga |
+| `verification.call.title` | — | Appel de vérification | Simu ya uthibitisho |
+| `verification.call.unmute` | Unmute | Réactiver le micro | Washa mikrofoni |
+| `verification.call.verifiedCount` | {verified} of {total} verified | {verified} sur {total} ont confirmé | {verified} kati ya {total} wamethibitisha |
+| `verification.call.verifyConfirmed` | Verified | Vérifié | Imethibitishwa |
+| `verification.call.verifyFailed` | — | La vérification n’a pas abouti. Réessayez. | Uthibitisho haukufanikiwa. Jaribu tena. |
+| `verification.call.verifyIdle` | Verify | Vérifier | Thibitisha |
+| `verification.call.verifyLoading` | Verifying… | Vérification… | Inathibitisha… |
+| `verification.call.waiting` | Waiting | En attente | Anasubiri |
+| `verification.call.waitingTitle` | Waiting for verifiers | En attente des garants | Inasubiri wanachama |
+| `verification.pathway.call.body` | Get verified live by video with members who join your call. | Faites-vous vérifier en direct par vidéo avec des membres qui rejoignent votre appel. | Thibitishwa moja kwa moja kwa video na wanachama wanaojiunga na simu yako. |
+| `verification.pathway.call.cta` | Start a call | Démarrer un appel | Anzisha simu |
+| `verification.pathway.call.title` | Video call | Appel vidéo | Simu ya video |
