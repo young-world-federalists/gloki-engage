@@ -5,6 +5,7 @@ import { useT } from '../../../i18n';
 import { useVerification } from '../../../hooks/useVerification';
 import { leaveCall, type CallSession } from '../../../services/verification';
 import VerifierPicker from './VerifierPicker';
+import WaitingRoom from './WaitingRoom';
 import pages from './VerificationPages.module.scss';
 
 type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
@@ -16,12 +17,11 @@ type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
  * and enters at `select` to pick who to invite. Holds the CallSession and the
  * selected verifier keys, passed down to whichever step is mounted.
  *
- * This task builds only the `select` branch (VerifierPicker, state A).
- * Task 6 replaces `waiting` with WaitingRoom, Task 7 replaces `inCall` with
- * InCallView, Task 8 replaces `summary` with CallSummary — until then those
- * three render the placeholder below. `inCall` is reachable TODAY by any
- * already-verified user visiting this route, so the placeholder is live UI,
- * not dead code.
+ * `select` (state A, Task 5) and `waiting` (state B, Task 6) are built.
+ * Task 7 replaces `inCall` with InCallView, Task 8 replaces `summary` with
+ * CallSummary — until then those two render the placeholder below. `inCall`
+ * is reachable TODAY by any already-verified user visiting this route, so
+ * the placeholder is live UI, not dead code.
  */
 const CallFlow: React.FC = () => {
   const t = useT();
@@ -73,7 +73,33 @@ const CallFlow: React.FC = () => {
     );
   }
 
-  // Task 6/7/8 placeholder — see the file doc comment above.
+  if (step === 'waiting') {
+    // Guarded for the type checker: handleStarted always sets session and
+    // step together, so this is unreachable in practice.
+    if (!session) {
+      return (
+        <div className={pages.page}>
+          <p className={pages.intro}>{t('common.loading', 'Loading…')}</p>
+        </div>
+      );
+    }
+    return (
+      <WaitingRoom
+        session={session}
+        onUpdate={setSession}
+        onStart={(started) => {
+          setSession(started);
+          setStep('inCall');
+        }}
+        onCancel={() => {
+          setSession(null);
+          setStep('select');
+        }}
+      />
+    );
+  }
+
+  // Task 7/8 placeholder — see the file doc comment above.
   return (
     <div className={pages.page}>
       <EmptyState

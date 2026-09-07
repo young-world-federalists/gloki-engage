@@ -1458,6 +1458,14 @@ const sw: Dictionary = {
   'verification.call.pickerEmpty': 'Hakuna mtu anayepatikana kwa sasa.',
   'verification.call.pickerEmptyCta': 'Mwombe mwanachama akudhamini',
   'verification.call.placeholder': 'Sehemu hii ya simu bado haijatengenezwa.',
+  'verification.call.waitingTitle': 'Inasubiri wanachama',
+  'verification.call.joinedCount': '{joined} kati ya {total} wamejiunga',
+  'verification.call.joined': 'Amejiunga',
+  'verification.call.waiting': 'Anasubiri',
+  'verification.call.start': 'Anza',
+  'verification.call.timeoutTitle': 'Hakuna mwingine anayejiunga',
+  'verification.call.timeoutBody': 'Imepita dakika kadhaa na hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye.',
+  'verification.call.timeoutEmpty': 'Hakuna aliyejiunga wakati huu. Ghairi na umwombe mwanachama akudhamini badala yake.',
 };
 
 export default sw;

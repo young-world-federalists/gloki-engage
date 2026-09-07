@@ -46,7 +46,9 @@
 
 // R8 — reserves room below the list so the sticky actions bar (below) never
 // visually covers the last row while scrolling; matches the bar's own
-// button height (44px, a sanctioned touch-floor raw value).
+// button height (44px, a sanctioned touch-floor raw value). Shared by
+// VerifierPicker (Task 5) and WaitingRoom (S37 Task 6) — both list a
+// scrollable MemberList above a sticky action bar.
 .listGuard {
   padding-bottom: 44px;
 }
@@ -57,7 +59,10 @@
 // Container.module.scss already reserves that same clearance at the bottom
 // of the scroll region, so this never collides with the global fixed
 // StageFooter. Opaque background matches the page (Container's `.container`)
-// so list rows scrolling underneath don't show through.
+// so list rows scrolling underneath don't show through. Shared by
+// VerifierPicker's single Start button and WaitingRoom's stacked
+// Start/Cancel pair (S37 Task 6) — `pages.actions` already lays out
+// multiple children in a column, so no per-caller variant is needed.
 .stickyActions {
   position: sticky;
   bottom: $footer-clearance;
