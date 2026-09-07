@@ -309,7 +309,10 @@ no i18n change.
   `state.approvals` (E5 — never offer someone who already vouched). Render through **`MemberList`**
   (Task 1) with a select/deselect action per row: a `size="sm"` secondary/primary `Button` toggling
   selection (the `MemberCard` action slot's `::after` gives it 44px). A `Refresh` button re-samples.
-  A footer action `Start call with {count}` (`verification.call.startWith`, agreement-free French),
+  A **sticky** footer action `Start call with {count}` (`verification.call.startWith`, agreement-free
+  French) — `position: sticky; bottom: $footer-clearance` (the `Toast.module.scss` precedent;
+  `Container.module.scss` already reserves that clearance, so it cannot collide with the global
+  fixed `StageFooter`),
   disabled at 0 selected, calls `inviteToCall` in a `try/finally` with a `busy` guard and advances
   the machine to `waiting`.
   Empty state (no one online after exclusions): `EmptyState` with an `aria-hidden` icon, copy
