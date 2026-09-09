@@ -610,7 +610,18 @@ Agent contract has none of these yet).
 - ⬜ **W2 follow-up — "Schedule for later" (E4).** The spec's `AvailabilityGrid` (7 days × 12 hours +
   timezone select + "Find matching times") did not ship: a simulation cannot honour a future slot, and
   an honest version needs W4's notification centre to exist first. Revisit with W4.
-- ⬜ **W3 — daily session.** ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
+- ✅ **W3 — daily session BUILT + reviewed locally** (S38, 2026-09-09; `ac8523b..5aaa30a`, five
+  implementation commits plus review fix `95d5bad`;
+  push pending Eston's gate). `/identity/verification/daily` now covers pre-session, lobby,
+  deterministic selection, candidate, selected-verifier, observer, empty/partial and result states.
+  The candidate pathway card and verified-volunteer hub row are both live product doors. Eight daily
+  seam functions are simulation-only; daily vouches persist through the existing Digital Agent write.
+  Shared countdowns now follow absolute deadlines and reconcile visibility return. No fixture/seed
+  change and no `DEMO_VERSION` bump (`global-v19`). French/Swahili parity is 1413/1413; native review
+  remains open. Task reviews and whole-session review findings were fixed; controller browser walks
+  covered both roles, 0/2 approvals, empty/partial/observer, cancellation, dark 360px en/fr/sw. The
+  local multi-model panel was not run because its separate authorization was not given.
+- ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
   permanently empty" follow-up; W1's `given` state and the notification fixtures land here).
 
 **Open follow-ups (parked, S36 final review):** focus management after an approved card leaves; focus ring
@@ -683,6 +694,24 @@ state is per-browser, not per-key; ~~the member-list render duplicated across re
 
 ## 8. Changelog
 
+- **2026-09-09 — S38: P11 Prompt 2 Wave 3, the daily verification session (BUILT + reviewed locally;
+  push pending Eston's gate).** `ac8523b..5aaa30a`, five implementation commits from saved base
+  `ac8523b`, plus review fix `95d5bad`. Added the
+  nested `/identity/verification/daily` route, scheduled 21:00 UTC entry and five-minute join gate,
+  2m30s lobby selection, deterministic groups of at most four, candidate/selected-verifier/observer
+  branches, empty and partial outcomes, shared W2 calls, result summaries, candidate and verified-member
+  hub doors, and dev-only clock/roster walkthroughs. The eight new seam functions are all explicitly
+  simulation-only; queued writes carry an owner guard and `method: 'daily'`, selections/roles freeze,
+  and route cleanup cancels child and parent timers. The shared countdown moved to wall-clock deadlines
+  with visibility reconciliation and once-only completion. No fixture/seed edit; `DEMO_VERSION` stayed
+  `global-v19`. i18n +55 keys at fr/sw parity 1413/1413; Session 38 packet added, native review pending.
+  Controller walks covered candidate 0/2, selected verifier, observer, empty/partial pools, prior-voucher
+  exclusion, frozen-role threshold crossing, reminder lifetime, daily metadata and route-away cancellation;
+  dark 360×780 checked in en/fr/sw. Typecheck, production build, grep gates, parity and whitespace passed.
+  Task reviews fixed five runtime ownership/result defects and five UI disclosure/focus/i18n defects;
+  whole-session review found four P2 items, all fixed. Audible screen-reader verification remains manual.
+  The local multi-model panel was not run because it requires separate authorization. W4 handoff:
+  `docs/session-prompts/session-39-verification-w4.md`.
 - **2026-09-07 — S37: P11 Prompt 2 Wave 2, the simulated verification call (BUILT + reviewed +
   PUSHED to `origin/ui` 2026-09-07 on Eston's explicit go — Ouri's merge to `server-side` deploys).** `64c3abe..666a8e5`, 22 commits. Four screens at
   `/identity/verification/call` — verifier picker, waiting room, in-call (both roles), summary — over a

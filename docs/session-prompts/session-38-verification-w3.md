@@ -3,8 +3,9 @@
 > **Planning handoff added 2026-09-09:** Read the [implementation plan for Sol](../superpowers/plans/2026-09-09-s38-verification-w3-sol.md)
 > before executing this prompt. It reviews S34–S37 against local `ui` at `ac8523b`, corrects the
 > baseline/file-count/grep premises below, and specifies the daily-to-call handoff and verification
-> matrix. Its additional product choices are recommendations pending confirmation, not new locked
-> rulings. S38 implementation has not started. The original S37 closeout context follows unchanged.
+> matrix. Its additional product choices were adopted during implementation. S38 is now built and
+> browser-verified locally; see the closeout at the end of this prompt. The original S37 context
+> follows unchanged.
 
 ## Context recap (as of 2026-09-07, `ui` @ `1c7a41a`, **NOT PUSHED**)
 
@@ -111,3 +112,19 @@ Every claim below is mine and WILL rot. Check each before planning around it.
 Re-verify the premises, lock the remaining open decisions (the verifier's door is already ruled — see
 above), then spec addendum → plan → build W3 in the order spec §3.3 lists. Report after each screen
 with the commit, what the preview walk showed, and any premise above that turned out stale.
+
+## S38 closeout (2026-09-09)
+
+Built locally in five implementation commits (`ac8523b..5aaa30a`) plus review fix `95d5bad`, from
+saved base `ac8523b`; push and deployment remain pending Eston's gate. The daily runtime exposes the
+eight functions documented above, reuses the W2 call
+registry, freezes role/selection, guards queued daily writes against account changes, and persists
+only `method: 'daily'` vouches. No fixture or seed changed; `DEMO_VERSION` remains `global-v19`.
+
+Controller walkthroughs covered candidate 0/2, selected verifier, observer, empty and partial pools,
+prior-voucher exclusion, manual verifier action, frozen candidate role after crossing four, daily
+history metadata, reminder persistence, real/dev clocks, and route-away cancellation with zero later
+vouches. The 360×780 dark pass covered English, French and Swahili. Typecheck, production build, grep
+gates, i18n parity and whitespace checks passed. Native-language and audible screen-reader review
+remain external follow-ups; the local multi-model panel was not run because it requires separate
+authorization. W4 starts from `session-39-verification-w4.md`.
