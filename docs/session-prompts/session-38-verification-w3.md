@@ -1,5 +1,11 @@
 # Session 38 — Prompt 2 Wave 3: the daily verification session
 
+> **Planning handoff added 2026-09-09:** Read the [implementation plan for Sol](../superpowers/plans/2026-09-09-s38-verification-w3-sol.md)
+> before executing this prompt. It reviews S34–S37 against local `ui` at `ac8523b`, corrects the
+> baseline/file-count/grep premises below, and specifies the daily-to-call handoff and verification
+> matrix. Its additional product choices are recommendations pending confirmation, not new locked
+> rulings. S38 implementation has not started. The original S37 closeout context follows unchanged.
+
 ## Context recap (as of 2026-09-07, `ui` @ `1c7a41a`, **NOT PUSHED**)
 
 S37 built Prompt 2 Wave 2 — the simulated verification call. Four screens at
