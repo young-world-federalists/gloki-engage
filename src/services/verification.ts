@@ -25,9 +25,21 @@ import {
   simStartCall,
   simVerifyInCall,
 } from './demo/verificationSim';
+import {
+  DAILY_SESSION_RESET_EVENT,
+  simDailySessionState,
+  simEnterDailyCall,
+  simFinishDailyCall,
+  simJoinDaily,
+  simJoinDailyStream,
+  simLeaveDaily,
+  simSelectVerifiers,
+  simSetDailyReminder,
+} from './demo/dailyVerificationSim';
 import type {
   CallParticipant,
   CallSession,
+  DailySnapshot,
   InvitationDraft,
   MemberSummary,
   VerificationCtx,
@@ -40,6 +52,12 @@ export type {
   CallParticipant,
   CallSession,
   CallState,
+  DailyAssignment,
+  DailyDemoScenario,
+  DailyParticipant,
+  DailyPhase,
+  DailyRole,
+  DailySnapshot,
   InvitationDraft,
   MemberSummary,
   VerificationCtx,
@@ -49,6 +67,8 @@ export type {
   VouchRequest,
   VouchRequestStatus,
 } from './verificationModel';
+
+export { DAILY_SESSION_RESET_EVENT };
 
 /** Vouches held, requests waiting on the user (verified users only), requests sent. */
 export function getVerificationState(ctx: VerificationCtx): Promise<VerificationState> {
@@ -94,8 +114,8 @@ export function availableVerifiers(_ctx: VerificationCtx, excludeKeys: string[])
 /**
  * Live join/verify updates for one call session. The one non-Promise export:
  * a subscription needs a synchronous unsubscribe to call from an effect's
- * cleanup, not a value to await. Clears every timer it started, so a
- * component that unmounts mid-call never leaks one.
+ * cleanup, not a value to await. Unsubscribing removes that listener only;
+ * `leaveCall` owns the session timers and is the lifecycle cancellation point.
  */
 export function joinCallStream(sessionId: string, onUpdate: (session: CallSession) => void): () => void {
   return simJoinStream(sessionId, onUpdate);
@@ -117,7 +137,7 @@ export async function startCall(_ctx: VerificationCtx, sessionId: string): Promi
 
 /**
  * Marks `verifierKey` verified in the call. Banks `addUserVouch(verifierKey,
- * { method: 'call', at })` only when the session's own candidate is the local
+ * { method: session.method, at })` only when the session's own candidate is the local
  * user — never onto a verifier's own agent for verifying someone else's call.
  */
 // `async` for the same reason as `startCall`: an unknown session throws synchronously in the sim.
@@ -147,4 +167,40 @@ export function pendingCandidate(_ctx: VerificationCtx): Promise<CallParticipant
  */
 export async function joinAsVerifier(ctx: VerificationCtx): Promise<CallSession> {
   return simJoinAsVerifier(ctx.publicKey);
+}
+
+// ── Daily verification simulation (S38 — Prompt 2 Wave 3) ────────────────
+// No contract counterpart. The only durable effect is the already-documented
+// vouch(public_key, 'daily'); lifecycle and reminder state die with the tab.
+
+export async function dailySessionState(ctx: VerificationCtx): Promise<DailySnapshot> {
+  return simDailySessionState(ctx.publicKey);
+}
+
+export function joinDailyStream(id: string, onUpdate: (snapshot: DailySnapshot) => void): () => void {
+  return simJoinDailyStream(id, onUpdate);
+}
+
+export async function joinDaily(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
+  return simJoinDaily(ctx.publicKey, id);
+}
+
+export async function selectVerifiers(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
+  return simSelectVerifiers(ctx.publicKey, id);
+}
+
+export async function enterDailyCall(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
+  return simEnterDailyCall(ctx.publicKey, id);
+}
+
+export async function finishDailyCall(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
+  return simFinishDailyCall(ctx.publicKey, id);
+}
+
+export async function setDailyReminder(ctx: VerificationCtx, id: string, enabled: boolean): Promise<DailySnapshot> {
+  return simSetDailyReminder(ctx.publicKey, id, enabled);
+}
+
+export async function leaveDaily(ctx: VerificationCtx, id: string): Promise<void> {
+  simLeaveDaily(ctx.publicKey, id);
 }

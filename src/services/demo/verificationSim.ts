@@ -26,6 +26,7 @@
 // `leaveCall` from its unmount cleanup. That is binding on the UI tasks.
 import { getAgent } from '../../components/identity/agent/digitalAgentStore';
 import { addUserVouch } from '../trust';
+import { store } from '../../store';
 import { allVerificationMembers, findVerificationMember, memberDeclines } from './fixtures/verification';
 import type { CallParticipant, CallSession, MemberSummary } from '../verificationModel';
 
@@ -49,6 +50,12 @@ const driven = new Set<string>();
 const autoVerifying = new Set<string>();
 /** Per-session stagger slot for the auto-verify schedule; only ever climbs, so a late join queues behind the last one. */
 const verifyCursor = new Map<string, number>();
+/** Owner captured by daily calls; checked again at the instant a queued vouch would bank. */
+const dailyOwners = new Map<string, string>();
+/** Daily constructors supply an already-joined roster and must never run the W2 join timeline. */
+const dailyManualVerifiers = new Map<string, string | null>();
+/** Lets the daily runtime tear down its parent run if the authenticated owner changes before a queued write. */
+const dailyInvalidators = new Map<string, () => void>();
 
 const JOIN_STAGGER_MS = 1500;
 const JOIN_JITTER_MS = 200;
@@ -150,10 +157,19 @@ function applyVerification(sessionId: string, verifierKey: string): void {
   if (!current) return;
   const verifier = current.verifiers.find((v) => v.publicKey === verifierKey);
   if (!verifier || verifier.verified) return;
+  if (selfIsCandidate.get(sessionId)) {
+    const ownerKey = dailyOwners.get(sessionId);
+    if (ownerKey !== undefined && store.getState().user.publicKey !== ownerKey) {
+      const invalidate = dailyInvalidators.get(sessionId);
+      if (invalidate) invalidate();
+      else simLeaveCall(sessionId);
+      return;
+    }
+  }
   const next = patchVerifier(sessionId, verifierKey, { verified: true });
   if (!next) return;
   if (selfIsCandidate.get(sessionId)) {
-    addUserVouch(verifierKey, { method: 'call', at: Date.now() });
+    addUserVouch(verifierKey, { method: current.method, at: Date.now() });
   }
   const joined = next.verifiers.filter((v) => v.joined);
   // "Every joined verifier has verified" is only the whole story once nobody
@@ -230,6 +246,7 @@ export function simInviteToCall(candidateKey: string, verifierKeys: string[]): C
     state: 'waiting',
     startedAt: Date.now(),
     timedOut: false,
+    method: 'call',
   };
   sessions.set(id, session);
   selfIsCandidate.set(id, true);
@@ -333,6 +350,48 @@ export function simStartCall(sessionId: string): CallSession {
   return next;
 }
 
+/**
+ * Creates an active daily child call in the existing registry. The roster is
+ * already selected and joined, so subscribing only starts daily verification;
+ * it never schedules W2's join stagger or waiting-room timeout.
+ */
+export function simCreateDailyCall(
+  ownerPublicKey: string,
+  candidate: CallParticipant,
+  verifiers: CallParticipant[],
+): CallSession {
+  const id = newSessionId();
+  const session: CallSession = {
+    id,
+    candidate: { ...candidate, joined: true },
+    verifiers: verifiers.map((verifier) => ({ ...verifier, joined: true })),
+    state: 'active',
+    startedAt: Date.now(),
+    timedOut: false,
+    method: 'daily',
+  };
+  sessions.set(id, session);
+  selfIsCandidate.set(id, candidate.publicKey === ownerPublicKey);
+  dailyOwners.set(id, ownerPublicKey);
+  dailyManualVerifiers.set(
+    id,
+    candidate.publicKey === ownerPublicKey
+      ? null
+      : verifiers.some((verifier) => verifier.publicKey === ownerPublicKey) ? ownerPublicKey : null,
+  );
+  driven.add(id);
+  autoVerifying.add(id);
+  session.verifiers.forEach((verifier) => {
+    if (verifier.publicKey !== dailyManualVerifiers.get(id)) scheduleVerify(id, verifier.publicKey);
+  });
+  return session;
+}
+
+/** Internal daily-runtime hook; deliberately absent from the public verification seam. */
+export function simSetDailyCallInvalidator(sessionId: string, invalidate: () => void): void {
+  if (dailyOwners.has(sessionId)) dailyInvalidators.set(sessionId, invalidate);
+}
+
 /** Marks `verifierKey` verified; see `applyVerification` for where — and where not — the vouch lands. */
 export function simVerifyInCall(sessionId: string, verifierKey: string): CallSession {
   const current = sessions.get(sessionId);
@@ -359,6 +418,9 @@ export function simLeaveCall(sessionId: string): void {
   driven.delete(sessionId);
   autoVerifying.delete(sessionId);
   verifyCursor.delete(sessionId);
+  dailyOwners.delete(sessionId);
+  dailyManualVerifiers.delete(sessionId);
+  dailyInvalidators.delete(sessionId);
 }
 
 /** The fixture member a verified user (E6) sees waiting for a verifier — deterministic, excluding anyone already in the user's vouchers. */
@@ -388,6 +450,7 @@ export function simJoinAsVerifier(verifierKey: string): CallSession {
     state: 'active',
     startedAt: Date.now(),
     timedOut: false,
+    method: 'call',
   };
   sessions.set(id, session);
   selfIsCandidate.set(id, false);

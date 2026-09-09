@@ -273,3 +273,23 @@ session is UI-only and disposable by design; the only thing a real call needs to
 the vouch, and `vouch(public_key, 'call')` already covers it. This row exists specifically to stop
 that method from being invented by a future session that sees eight new seam functions and assumes
 one of them needs a wire counterpart.
+
+### S38 addendum — Daily verification session, Wave 3
+
+The 21:00 UTC daily session is also an in-memory UI simulation. Every public
+daily seam function has **no contract counterpart**:
+
+- `dailySessionState(ctx)` — simulation only.
+- `joinDailyStream(id, onUpdate)` — simulation-only subscription.
+- `joinDaily(ctx, id)` — simulation-only opt-in.
+- `selectVerifiers(ctx, id)` — simulation-only deterministic assignment.
+- `enterDailyCall(ctx, id)` — simulation-only child-call creation.
+- `finishDailyCall(ctx, id)` — simulation-only result snapshot and cleanup.
+- `setDailyReminder(ctx, id, enabled)` — tab-only demo preference; it sends no notification.
+- `leaveDaily(ctx, id)` — simulation-only cleanup.
+
+**Do not add `join_daily`, `select_verifiers`, or any session-lifecycle method.**
+The one durable effect uses the existing `vouch(public_key, method)` method
+with `method: 'daily'`, always by the verifier/caller for the candidate. The
+demo's schedule, roster, assignments, local result count, reminder and dev
+clock have no production wire meaning.

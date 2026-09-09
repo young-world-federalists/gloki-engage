@@ -77,4 +77,49 @@ export interface CallSession {
   startedAt: number;
   /** The 5-min timeout, simulated at 20 s. */
   timedOut: boolean;
+  /** Durable vouches produced by the call use this source. */
+  method: 'call' | 'daily';
 }
+
+export type DailyRole = 'candidate' | 'verifier';
+export type DailyPhase = 'preSession' | 'lobby' | 'selection' | 'inCall' | 'finished';
+export type DailyAssignment = 'candidate' | 'selectedVerifier' | 'observer' | 'unavailable';
+
+export interface DailyParticipant extends MemberSummary {
+  role: DailyRole;
+  joined: boolean;
+  /** Actual or explicitly simulated baseline; never inferred from presence. */
+  approvalCount: number;
+}
+
+export interface DailySnapshot {
+  id: string;
+  dayKey: string;
+  role: DailyRole;
+  phase: DailyPhase;
+  now: number;
+  startsAt: number;
+  joinOpensAt: number;
+  selectionAt: number;
+  joinAllowed: boolean;
+  joined: boolean;
+  reminderEnabled: boolean;
+  demoClock: boolean;
+  clockGeneration: number;
+  participants: DailyParticipant[];
+  candidate: CallParticipant;
+  selectedVerifierKeys: string[];
+  assignment: DailyAssignment | null;
+  call: CallSession | null;
+  newlyVerifiedCount: number;
+}
+
+export type DailyDemoScenario =
+  | 'real'
+  | 'pre-session'
+  | 'join-window'
+  | 'lobby'
+  | 'selected-verifier'
+  | 'observer'
+  | 'empty-pool'
+  | 'partial-pool';
