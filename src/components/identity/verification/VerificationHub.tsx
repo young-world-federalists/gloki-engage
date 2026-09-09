@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Inbox, ChevronRight } from 'lucide-react';
+import { CalendarClock, Inbox, ChevronRight } from 'lucide-react';
 import { Card, Button, Badge, TrustBadge, ProgressBar } from '../../shared';
 import { useT } from '../../../i18n';
 import { VERIFIED_THRESHOLD } from '../../../services/trustModel';
@@ -66,6 +66,16 @@ const VerificationHub: React.FC = () => {
           <Button onClick={() => navigate('/')}>{t('verification.hub.goHome', 'Go to Home')}</Button>
         )}
       </Card>
+
+      {verified && (
+        <button type="button" className={styles.requestsRow} onClick={() => navigate('/identity/verification/daily')}>
+          <CalendarClock size={20} aria-hidden />
+          <span className={styles.requestsLabel}>
+            {t('verification.hub.dailyVolunteer', 'Join the daily session to help verify a member')}
+          </span>
+          <ChevronRight size={18} aria-hidden />
+        </button>
+      )}
 
       {!verified && (
         <section aria-labelledby="verification-pathways-title">

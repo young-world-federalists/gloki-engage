@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserCheck, Mail, Video } from 'lucide-react';
+import { CalendarClock, UserCheck, Mail, Video } from 'lucide-react';
 import { Card, Button } from '../../shared';
 import { useT } from '../../../i18n';
 import styles from './PathwayCards.module.scss';
@@ -51,6 +51,22 @@ const PathwayCards: React.FC = () => {
       to: '/identity/verification/call',
       // F10's line, VERBATIM — the same two keys Task 5 put on the call's own
       // `select` step, not a second copy of the sentence under a new key.
+      extra: (
+        <p className={styles.body}>
+          {t('verification.call.bandwidth', 'Uses your camera and mobile data.')}{' '}
+          <Link to="/identity/verification/request" className={styles.link}>
+            {t('verification.call.bandwidthLink', 'No camera? Ask a member to vouch for you instead.')}
+          </Link>
+        </p>
+      ),
+    },
+    {
+      key: 'daily',
+      icon: <CalendarClock size={24} aria-hidden />,
+      title: t('verification.pathway.daily.title', 'Daily verification'),
+      body: t('verification.pathway.daily.body', 'Join the scheduled daily group and receive approvals from selected verified volunteers.'),
+      cta: t('verification.pathway.daily.cta', 'View daily session'),
+      to: '/identity/verification/daily',
       extra: (
         <p className={styles.body}>
           {t('verification.call.bandwidth', 'Uses your camera and mobile data.')}{' '}
