@@ -24,7 +24,7 @@ const DailySessionResult: React.FC<Props> = ({ snapshot, busy, onEnterCall, onFi
 
   useEffect(() => {
     headingRef.current?.focus();
-  }, [snapshot.assignment, snapshot.phase]);
+  }, [settled, snapshot.assignment, snapshot.phase]);
 
   if (snapshot.assignment === 'unavailable') {
     return (

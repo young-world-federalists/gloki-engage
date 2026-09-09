@@ -58,6 +58,8 @@ const DailySession: React.FC = () => {
       : null;
   const announcement = snapshot.phase === 'finished'
     ? t('verification.daily.resultTitle', 'Daily session result')
+    : snapshot.assignment === 'observer' && snapshot.call?.state === 'complete'
+      ? t('verification.daily.observerDoneTitle', 'Thanks for joining today')
     : snapshot.assignment === 'candidate'
       ? t('verification.daily.candidateTitle', 'Your verification group is ready')
       : snapshot.assignment === 'selectedVerifier'
@@ -74,7 +76,7 @@ const DailySession: React.FC = () => {
         <span key="daily-status" className={styles.srOnly} role="status">{announcement}</span>
         {snapshot.demoClock && <Badge tone="warning">{t('verification.daily.demoClock', 'Demo clock')}</Badge>}
         {errorText && (
-          <Banner tone="error" action={<Button size="sm" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
+          <Banner tone="error" action={<Button size="md" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
             {errorText}
           </Banner>
         )}
@@ -90,7 +92,7 @@ const DailySession: React.FC = () => {
         {snapshot.demoClock && <Badge tone="warning">{t('verification.daily.demoClock', 'Demo clock')}</Badge>}
         <p className={styles.demoNote}>{t('verification.daily.demoNote', 'Demo: this session uses sample profiles and simulated selection and calls.')}</p>
         {errorText && (
-          <Banner tone="error" action={<Button size="sm" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
+          <Banner tone="error" action={<Button size="md" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
             {errorText}
           </Banner>
         )}
@@ -111,7 +113,7 @@ const DailySession: React.FC = () => {
         {snapshot.demoClock && <Badge tone="warning">{t('verification.daily.demoClock', 'Demo clock')}</Badge>}
         <p className={styles.demoNote}>{t('verification.daily.demoNote', 'Demo: this session uses sample profiles and simulated selection and calls.')}</p>
         {errorText && (
-          <Banner tone="error" action={<Button size="sm" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
+          <Banner tone="error" action={<Button size="md" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
             {errorText}
           </Banner>
         )}
@@ -175,7 +177,7 @@ const DailySession: React.FC = () => {
           <p className={styles.hint}>{t('verification.daily.joinClosed', 'Join opens five minutes before the session.')}</p>
         )}
         {errorText && (
-          <Banner tone="error" action={<Button size="sm" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
+          <Banner tone="error" action={<Button size="md" onClick={retry}>{t('common.retry', 'Retry')}</Button>}>
             {errorText}
           </Banner>
         )}

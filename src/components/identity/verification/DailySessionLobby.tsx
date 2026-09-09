@@ -39,7 +39,7 @@ const DailySessionLobby: React.FC<Props> = ({ snapshot, busy, onLeave }) => {
         {t('verification.daily.lobbyTitle', 'Daily session lobby')}
       </h2>
       <p className={styles.copy} aria-live="polite">
-        {t('verification.daily.joinedCount', '{count} people have joined', { count: joined })}
+        {t('verification.daily.joinedCount', 'People in this session: {count}', { count: joined })}
       </p>
       <CountdownTimer
         key={`${snapshot.id}:${target}:${snapshot.clockGeneration}`}

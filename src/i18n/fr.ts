@@ -1521,7 +1521,7 @@ const fr: Dictionary = {
   'verification.daily.back': 'Retour à la vérification',
   'verification.daily.leave': 'Quitter la session',
   'verification.daily.lobbyTitle': 'Salle d’attente de la session quotidienne',
-  'verification.daily.joinedCount': '{count} personnes ont rejoint',
+  'verification.daily.joinedCount': 'Présence dans cette session : {count}',
   'verification.daily.joined': 'A rejoint',
   'verification.daily.waiting': 'En attente',
   'verification.daily.unavailableTitle': 'Aucun groupe de vérification disponible',

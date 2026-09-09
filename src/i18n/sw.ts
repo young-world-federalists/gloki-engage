@@ -1519,7 +1519,7 @@ const sw: Dictionary = {
   'verification.daily.back': 'Rudi kwenye uthibitisho',
   'verification.daily.leave': 'Ondoka kwenye kikao',
   'verification.daily.lobbyTitle': 'Sebule ya kikao cha kila siku',
-  'verification.daily.joinedCount': 'Watu {count} wamejiunga',
+  'verification.daily.joinedCount': 'Waliojiunga na kikao hiki: {count}',
   'verification.daily.joined': 'Amejiunga',
   'verification.daily.waiting': 'Anasubiri',
   'verification.daily.unavailableTitle': 'Hakuna kundi la uthibitisho linalopatikana',

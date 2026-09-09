@@ -1718,7 +1718,7 @@ must continue to say that no notification is sent and that reloading the tab cle
 | `verification.daily.demoNote` | Demo: this session uses sample profiles and simulated selection and calls. | Démo : cette session utilise des profils d’exemple, ainsi qu’une sélection et des appels simulés. | Demo: kikao hiki kinatumia wasifu wa mfano pamoja na uchaguzi na simu zilizoigwa. |
 | `verification.daily.reminder` | Set reminder (demo) | Définir un rappel (démo) | Weka ukumbusho (demo) |
 | `verification.daily.reminderHelp` | This demo saves your choice while this tab stays open; it sends no reminder. | Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel. | Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho. |
-| `verification.daily.joinedCount` | {count} people have joined | {count} personnes ont rejoint | Watu {count} wamejiunga |
+| `verification.daily.joinedCount` | People in this session: {count} | Présence dans cette session : {count} | Waliojiunga na kikao hiki: {count} |
 | `verification.daily.candidateTitle` | Your verification group is ready | Votre groupe de vérification est prêt | Kundi lako la uthibitisho liko tayari |
 | `verification.daily.selectedTitle` | You've been selected to help verify {name} | Vous avez été sélectionné·e pour aider à vérifier {name} | Umechaguliwa kusaidia kumthibitisha {name} |
 | `verification.daily.observerTitle` | Other volunteers were selected | D’autres volontaires ont été sélectionnés | Wajitolea wengine wamechaguliwa |
