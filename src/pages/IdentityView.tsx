@@ -11,6 +11,7 @@ import RequestPage from '../components/identity/verification/RequestPage';
 import ApprovePage from '../components/identity/verification/ApprovePage';
 import InvitePage from '../components/identity/verification/InvitePage';
 import CallFlow from '../components/identity/verification/CallFlow';
+import DailySession from '../components/identity/verification/DailySession';
 import { useT } from '../i18n';
 import styles from './Container.module.scss';
 
@@ -38,6 +39,7 @@ const IdentityView: React.FC = () => {
     approve: { title: t('verification.approve.title', 'Requests to vouch'), eyebrow: verificationEyebrow },
     invite: { title: t('verification.invite.title', 'Invitations'), eyebrow: verificationEyebrow },
     call: { title: t('verification.call.title', 'Verification call'), eyebrow: verificationEyebrow },
+    daily: { title: t('verification.daily.title', 'Daily verification'), eyebrow: verificationEyebrow },
   };
   const [, , sub = 'communities', leaf] = pathname.split('/');
   const isVerification = sub === 'verification';
@@ -66,6 +68,7 @@ const IdentityView: React.FC = () => {
             <Route path="verification/approve" element={<ApprovePage />} />
             <Route path="verification/invite" element={<InvitePage />} />
             <Route path="verification/call" element={<CallFlow />} />
+            <Route path="verification/daily" element={<DailySession />} />
             <Route path="hidden" element={<Communities showHidden />} />
             <Route path="*" element={<Navigate to="/identity/communities" replace />} />
           </Routes>

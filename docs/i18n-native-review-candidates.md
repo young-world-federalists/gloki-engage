@@ -1698,3 +1698,41 @@ self-verification in the verifier role.
 | `verification.pathway.call.body` | Get verified live by video with members who join your call. | Faites-vous vérifier en direct par vidéo avec des membres qui rejoignent votre appel. | Thibitishwa moja kwa moja kwa video na wanachama wanaojiunga na simu yako. |
 | `verification.pathway.call.cta` | Start a call | Démarrer un appel | Anzisha simu |
 | `verification.pathway.call.title` | Video call | Appel vidéo | Simu ya video |
+
+## Session 38 — daily verification (machine draft; native review required)
+
+The daily route adds scheduled-session, selection, observer and result copy. The French and Swahili
+entries below preserve interpolation tokens and passed the repository parity checker, but have not
+been approved by native speakers. Please review the volunteer/candidate distinction, the neutral
+observer wording, and whether the count phrases remain natural at 0, 1 and 4. The reminder sentence
+must continue to say that no notification is sent and that reloading the tab clears it.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `verification.daily.title` | Daily verification | Vérification quotidienne | Uthibitisho wa kila siku |
+| `verification.daily.schedule` | Every day at 21:00 UTC ({localTime} your time) | Chaque jour à 21 h 00 UTC ({localTime} chez vous) | Kila siku saa 21:00 UTC ({localTime} kwa saa yako) |
+| `verification.daily.startsIn` | Session starts in {time} | La session commence dans {time} | Kikao kinaanza baada ya {time} |
+| `verification.daily.selectingIn` | Selecting verifiers in {time} | Sélection des garants dans {time} | Wathibitishaji watachaguliwa baada ya {time} |
+| `verification.daily.timeHours` | {hours}h {minutes}m {seconds}s | {hours} h {minutes} min {seconds} s | saa {hours}, dk {minutes}, sek {seconds} |
+| `verification.daily.timeMinutes` | {minutes}m {seconds}s | {minutes} min {seconds} s | dk {minutes}, sek {seconds} |
+| `verification.daily.demoNote` | Demo: this session uses sample profiles and simulated selection and calls. | Démo : cette session utilise des profils d’exemple, ainsi qu’une sélection et des appels simulés. | Demo: kikao hiki kinatumia wasifu wa mfano pamoja na uchaguzi na simu zilizoigwa. |
+| `verification.daily.reminder` | Set reminder (demo) | Définir un rappel (démo) | Weka ukumbusho (demo) |
+| `verification.daily.reminderHelp` | This demo saves your choice while this tab stays open; it sends no reminder. | Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel. | Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho. |
+| `verification.daily.joinedCount` | {count} people have joined | {count} personnes ont rejoint | Watu {count} wamejiunga |
+| `verification.daily.candidateTitle` | Your verification group is ready | Votre groupe de vérification est prêt | Kundi lako la uthibitisho liko tayari |
+| `verification.daily.selectedTitle` | You've been selected to help verify {name} | Vous avez été sélectionné·e pour aider à vérifier {name} | Umechaguliwa kusaidia kumthibitisha {name} |
+| `verification.daily.observerTitle` | Other volunteers were selected | D’autres volontaires ont été sélectionnés | Wajitolea wengine wamechaguliwa |
+| `verification.daily.observerBody` | The selected group is verifying the sample member now. You can leave at any time. | Le groupe sélectionné vérifie maintenant le membre d’exemple. Vous pouvez partir à tout moment. | Kundi lililochaguliwa linamthibitisha mwanachama wa mfano sasa. Unaweza kuondoka wakati wowote. |
+| `verification.daily.unavailableTitle` | No verification group is available | Aucun groupe de vérification disponible | Hakuna kundi la uthibitisho linalopatikana |
+| `verification.daily.partialProgress` | The approvals from this session were recorded, but nobody crossed four yet. | Les approbations de cette session ont été enregistrées, mais personne n’a encore atteint quatre. | Idhini za kikao hiki zimerekodiwa, lakini bado hakuna aliyefikisha nne. |
+| `verification.daily.verifiedCount` | New members verified in this demo session: {count} | Nouveaux membres vérifiés dans cette session de démonstration : {count} | Wanachama wapya waliothibitishwa katika kikao hiki cha demo: {count} |
+| `verification.pathway.daily.body` | Join the scheduled daily group and receive approvals from selected verified volunteers. | Rejoignez le groupe quotidien programmé et recevez des approbations de volontaires vérifiés sélectionnés. | Jiunge na kundi la kila siku lililopangwa na upokee idhini kutoka kwa wajitolea waliothibitishwa waliochaguliwa. |
+| `verification.hub.dailyVolunteer` | Join the daily session to help verify a member | Rejoindre la session quotidienne pour aider à vérifier un membre | Jiunge na kikao cha kila siku ili kusaidia kumthibitisha mwanachama |
+| `verification.method.call` | Vouched by video call | Caution reçue par appel vidéo | Alikudhamini kupitia simu ya video |
+| `verification.method.daily` | Vouched in the daily session | Caution reçue pendant la session quotidienne | Alikudhamini katika kikao cha kila siku |
+
+Also review the short action/status family in `src/i18n/fr.ts` and `src/i18n/sw.ts` under the
+`Daily verification (S38 Wave 3)` marker: pre-session, join/back/leave, lobby presence, selected
+roster, call entry, result dismissal/stay, error/retry context, pathway labels, and the eight
+development walkthrough labels. These are conventional UI labels; the table above contains the
+meaning-bearing claims and every new interpolation.

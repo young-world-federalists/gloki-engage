@@ -7,7 +7,10 @@ import {
 import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import { MenuSettings, SlideOutMenu, type SlideOutMenuItem } from '../shared';
-import VerificationDemoStateDialog from './verification/VerificationDemoState.demo';
+
+const VerificationDemoStateDialog = import.meta.env.DEV
+  ? React.lazy(() => import('./verification/VerificationDemoState.demo'))
+  : null;
 
 interface HomepageMenuProps {
   isOpen: boolean;
@@ -89,7 +92,11 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
         closeLabel={t('menu.close', 'Close menu')}
         footer={<MenuSettings />}
       />
-      <VerificationDemoStateDialog isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
+      {VerificationDemoStateDialog && (
+        <React.Suspense fallback={null}>
+          <VerificationDemoStateDialog isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
+        </React.Suspense>
+      )}
     </>
   );
 };

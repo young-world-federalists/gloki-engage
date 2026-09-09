@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from 'lucide-react';
@@ -19,6 +19,8 @@ export interface InCallViewProps {
   onUpdate: (session: CallSession) => void;
   /** Fires on an explicit Leave tap or the completion panel's Dismiss; CallFlow advances to `summary`. */
   onLeave: () => void;
+  /** Daily sessions capture their result before destroying the child call. */
+  onComplete?: () => void;
 }
 
 /**
@@ -50,13 +52,18 @@ export interface InCallViewProps {
  * per role, since "these members verify automatically" is false for the
  * role that is doing the verifying by hand).
  */
-const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeave }) => {
+const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeave, onComplete }) => {
   const t = useT();
   const navigate = useNavigate();
   const { ctx } = useVerification();
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
 
   // Candidate only — see the role split in the doc comment above. Returned
   // straight through as this effect's cleanup, same shape as WaitingRoom's
@@ -66,9 +73,9 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
   // sequence nor re-arms the waiting-room timeout. `role` is frozen upstream,
   // so this subscription is installed once and never torn down mid-call.
   useEffect(() => {
-    if (role !== 'candidate') return undefined;
+    if (role !== 'candidate' && session.method !== 'daily') return undefined;
     return joinCallStream(session.id, onUpdate);
-  }, [role, session.id, onUpdate]);
+  }, [role, session.id, session.method, onUpdate]);
 
   // R10 (fix round 1): the in-call denominator is the JOINED set, not the
   // invited set. With a decliner in the invite list the sim completes the
@@ -88,7 +95,7 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
     if (!ctx || leaving) return;
     setLeaving(true);
     try {
-      await leaveCall(ctx, session.id);
+      if (session.method !== 'daily') await leaveCall(ctx, session.id);
       onLeave();
     } finally {
       setLeaving(false);
@@ -104,7 +111,7 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
       {/* AppHeader owns the page's single h1 (IdentityView's "Verification
           call"); this is the step's own in-content heading, matching
           WaitingRoom's h2. */}
-      <h2 className={pages.sectionTitle}>{t('verification.call.inCallTitle', 'On the call')}</h2>
+      <h2 ref={headingRef} tabIndex={-1} className={pages.sectionTitle}>{t('verification.call.inCallTitle', 'On the call')}</h2>
 
       <VideoTile
         size="lg"
@@ -241,7 +248,7 @@ const InCallView: React.FC<InCallViewProps> = ({ session, role, onUpdate, onLeav
               below announces the outcome once instead. */}
           <CountdownTimer
             seconds={5}
-            onDone={() => navigate('/identity/verification')}
+            onDone={() => (onComplete ? onComplete() : navigate('/identity/verification'))}
             label={(n) => t('verification.call.returningIn', 'Returning to verification in {n}s', { n })}
           />
           {/* Dismiss fires `onLeave` directly, not `handleLeave` — it does not

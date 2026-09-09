@@ -20,6 +20,8 @@ export interface CallSummaryProps {
    *  the bug that freeze fixed). Branches the whole screen: see W6, fix
    *  round 1. */
   role: 'candidate' | 'verifier';
+  /** DailySession supplies its own result actions around this shared summary. */
+  embedded?: boolean;
 }
 
 // Only the verifiers who actually verified — "what the call produced" (spec
@@ -57,7 +59,7 @@ const toMemberSummary = (p: CallSession['verifiers'][number]): MemberSummary => 
  * the seam never banks a vouch onto a verifier's own agent for verifying
  * someone else's call), so nothing here should look like it did.
  */
-const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
+const CallSummary: React.FC<CallSummaryProps> = ({ session, role, embedded = false }) => {
   const t = useT();
   const navigate = useNavigate();
   const { vouchCount, trust, ctx } = useVerification();
@@ -74,7 +76,11 @@ const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
         {/* AppHeader owns the page's single h1; this is the step's own
             in-content heading, same key as the candidate branch — the title
             itself ("Call summary") is true for both roles. */}
-        <h2 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h2>
+        {embedded ? (
+          <h3 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h3>
+        ) : (
+          <h2 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h2>
+        )}
         <p className={pages.intro}>
           {didVerify
             ? t('verification.call.summaryVerifiedName', 'You verified {name}.', { name: session.candidate.name })
@@ -82,11 +88,13 @@ const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
                 name: session.candidate.name,
               })}
         </p>
-        <div className={clsx(pages.actions, styles.stickyActions)}>
-          <Button fullWidth onClick={() => navigate('/')}>
-            {t('verification.hub.goHome', 'Go to Home')}
-          </Button>
-        </div>
+        {!embedded && (
+          <div className={clsx(pages.actions, styles.stickyActions)}>
+            <Button fullWidth onClick={() => navigate('/')}>
+              {t('verification.hub.goHome', 'Go to Home')}
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -101,7 +109,11 @@ const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
     <div className={pages.page}>
       {/* AppHeader owns the page's single h1 ("Verification call"); this is
           the step's own in-content heading, matching WaitingRoom/InCallView. */}
-      <h2 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h2>
+      {embedded ? (
+        <h3 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h3>
+      ) : (
+        <h2 className={pages.sectionTitle}>{t('verification.call.summaryTitle', 'Call summary')}</h2>
+      )}
 
       {/* Reuses the hub's own progress sentence (verification.hub.progress /
           .verifiedTitle) rather than a second copy of the same fact — the
@@ -135,7 +147,7 @@ const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
         />
       </div>
 
-      <div className={clsx(pages.actions, styles.stickyActions)}>
+      {!embedded && <div className={clsx(pages.actions, styles.stickyActions)}>
         {verified ? (
           <Button fullWidth onClick={() => navigate('/')}>
             {t('verification.hub.goHome', 'Go to Home')}
@@ -145,7 +157,7 @@ const CallSummary: React.FC<CallSummaryProps> = ({ session, role }) => {
             {t('verification.call.summaryNext', 'Ask a member to vouch')}
           </Button>
         )}
-      </div>
+      </div>}
     </div>
   );
 };

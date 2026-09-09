@@ -16,10 +16,18 @@ interface Props {
 /** Who vouched for the user, how, and when (spec §3.3 "ApprovalHistory"). */
 const ApprovalHistory: React.FC<Props> = ({ approvals, byKey, loading }) => {
   const t = useT();
-  const methodLabel = (method: Approval['method']): string =>
-    method === 'invitation'
-      ? t('verification.method.invitation', 'Invited you')
-      : t('verification.method.direct', 'Vouched for you');
+  const methodLabel = (method: Approval['method']): string => {
+    switch (method) {
+      case 'invitation':
+        return t('verification.method.invitation', 'Invited you');
+      case 'call':
+        return t('verification.method.call', 'Vouched by video call');
+      case 'daily':
+        return t('verification.method.daily', 'Vouched in the daily session');
+      default:
+        return t('verification.method.direct', 'Vouched for you');
+    }
+  };
 
   return (
     <section aria-labelledby="verification-history-title">

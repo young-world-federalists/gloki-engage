@@ -1,14 +1,17 @@
 // DEMO-ONLY sidecar (dev builds): applies a verification scenario from the
 // mock layer and reloads. Reaches past the seam on purpose — the
-// `.demo.tsx` suffix marks it, like ProblemStage.demo.ts. HomepageMenu imports
-// it statically in every build; only the menu entry that opens it is gated on
-// import.meta.env.DEV, so it ships inert in production (a React.lazy DEV-only
-// import is the later hardening).
+// `.demo.tsx` suffix marks it, like ProblemStage.demo.ts. HomepageMenu loads
+// this module lazily only in development builds.
 import React from 'react';
 import { Modal, Button } from '../../shared';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
 import { applyDemoScenario, DEMO_SCENARIOS, type DemoScenario } from '../../../services/demo/verificationDemo';
+import {
+  applyDailyDemoScenario,
+  DAILY_DEMO_SCENARIOS,
+} from '../../../services/demo/dailyVerificationSim';
+import type { DailyDemoScenario } from '../../../services/verificationModel';
 import pages from './VerificationPages.module.scss';
 
 interface Props {
@@ -30,6 +33,21 @@ const VerificationDemoStateDialog: React.FC<Props> = ({ isOpen, onClose }) => {
     applyDemoScenario(scenario, publicKey);
     window.location.reload();
   };
+  const dailyLabels: Record<DailyDemoScenario, string> = {
+    real: t('demo.verification.daily.real', 'Daily: real clock'),
+    'pre-session': t('demo.verification.daily.pre', 'Daily: before join opens'),
+    'join-window': t('demo.verification.daily.join', 'Daily: join window'),
+    lobby: t('demo.verification.daily.lobby', 'Daily: lobby near selection'),
+    'selected-verifier': t('demo.verification.daily.selected', 'Daily: selected verifier'),
+    observer: t('demo.verification.daily.observer', 'Daily: observer'),
+    'empty-pool': t('demo.verification.daily.empty', 'Daily: empty pool (use unverified state)'),
+    'partial-pool': t('demo.verification.daily.partial', 'Daily: partial verifier pool'),
+  };
+  const applyDaily = (scenario: DailyDemoScenario) => {
+    if (!publicKey || !import.meta.env.DEV) return;
+    applyDailyDemoScenario(scenario, publicKey);
+    onClose();
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('demo.verification.title', 'Verification demo state')} closeLabel={t('common.close', 'Close')} size="sm">
       <p className={pages.intro}>{t('demo.verification.body', 'Applies a scenario and reloads.')}</p>
@@ -37,6 +55,17 @@ const VerificationDemoStateDialog: React.FC<Props> = ({ isOpen, onClose }) => {
         {DEMO_SCENARIOS.map((scenario) => (
           <Button key={scenario} variant="secondary" fullWidth onClick={() => apply(scenario)}>
             {labels[scenario]}
+          </Button>
+        ))}
+      </div>
+      <h3 className={pages.sectionTitle}>{t('demo.verification.daily.title', 'Daily session walkthrough')}</h3>
+      <p className={pages.intro}>
+        {t('demo.verification.daily.help', 'Choose a trust state above first, let the page reload, then choose a daily clock and roster.')}
+      </p>
+      <div className={pages.actions}>
+        {DAILY_DEMO_SCENARIOS.map((scenario) => (
+          <Button key={scenario} variant="secondary" fullWidth onClick={() => applyDaily(scenario)}>
+            {dailyLabels[scenario]}
           </Button>
         ))}
       </div>
