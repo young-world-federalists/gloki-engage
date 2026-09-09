@@ -6,6 +6,10 @@ import styles from './CountdownTimer.module.scss';
 export interface CountdownTimerProps {
   seconds: number;
   onDone?: () => void;
+  /** Fixed wall-clock deadline used instead of deriving one from `seconds`. */
+  deadlineMs?: number;
+  /** Formats the prominent value while `label` continues to receive seconds. */
+  formatValue?: (remaining: number) => React.ReactNode;
   /**
    * Translated caption, given the live `remaining` count on every tick so it
    * can interpolate the number into a full, correctly-ordered sentence, e.g.
@@ -36,12 +40,19 @@ export interface CountdownTimerProps {
  * "Returning to verification in 5s" → "...4s"). Only the visible text
  * updates; `aria-live="off"` above still suppresses the per-tick announcement.
  */
-const CountdownTimer: React.FC<CountdownTimerProps> = ({ seconds, onDone, label, className }) => {
-  const { remaining } = useCountdown(seconds, onDone);
+const CountdownTimer: React.FC<CountdownTimerProps> = ({
+  seconds,
+  onDone,
+  deadlineMs,
+  formatValue,
+  label,
+  className,
+}) => {
+  const { remaining } = useCountdown(seconds, onDone, deadlineMs === undefined ? undefined : { deadlineMs });
 
   return (
     <div className={clsx(styles.timer, className)} role="timer" aria-live="off">
-      <span className={styles.value}>{remaining}</span>
+      <span className={styles.value}>{formatValue?.(remaining) ?? remaining}</span>
       <span className={styles.label}>{label(remaining)}</span>
     </div>
   );

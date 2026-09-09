@@ -7,6 +7,14 @@ export interface UseCountdown {
   done: boolean;
 }
 
+export interface UseCountdownOptions {
+  /** Fixed wall-clock deadline. When omitted, one is derived at mount. */
+  deadlineMs: number;
+}
+
+const remainingAt = (deadline: number, now: number) =>
+  Math.max(0, Math.ceil((deadline - now) / 1000));
+
 /**
  * The ONLY sanctioned timer in component-land (S37 spec §3.3) — every other
  * timer in this wave (joins, the 5-minute call timeout, staggered in-call
@@ -14,11 +22,11 @@ export interface UseCountdown {
  * that via `joinCallStream` in an effect instead of running their own clock.
  * This hook is the sole exception, for the 5 s completion countdown.
  *
- * One `setInterval` at 1 s. It is cleared both on unmount and the instant
- * `remaining` reaches 0 — it never ticks past zero. `onDone` fires EXACTLY
- * once, guarded by a ref rather than by dependency-array shape, so a
- * re-render that hands in a new `onDone` closure (or React 18 Strict Mode's
- * dev-only double-invoke) can never re-fire it.
+ * One `setInterval` at 1 s samples the wall clock against a fixed deadline.
+ * A visibility listener samples again when the tab returns, so a throttled
+ * hidden tab catches up immediately. Both are cleaned up on unmount and once
+ * the deadline is reached. `onDone` fires EXACTLY once from its own effect,
+ * guarded by a ref so Strict Mode's dev-only effect replay cannot re-fire it.
  *
  * `seconds` is read ONLY once, as the initial value — changing it on a later
  * render does nothing, by design. **Restarting the countdown requires
@@ -27,8 +35,17 @@ export interface UseCountdown {
  * single source of truth instead of trying to reconcile a live prop against
  * an in-flight interval.
  */
-export function useCountdown(seconds: number, onDone?: () => void): UseCountdown {
-  const [remaining, setRemaining] = useState(() => Math.max(0, Math.floor(seconds)));
+export function useCountdown(
+  seconds: number,
+  onDone?: () => void,
+  options?: UseCountdownOptions,
+): UseCountdown {
+  const deadlineRef = useRef<number | null>(null);
+  if (deadlineRef.current === null) {
+    deadlineRef.current = options?.deadlineMs ?? Date.now() + Math.max(0, Math.floor(seconds)) * 1000;
+  }
+
+  const [remaining, setRemaining] = useState(() => remainingAt(deadlineRef.current!, Date.now()));
   const onDoneRef = useRef(onDone);
   const firedRef = useRef(false);
 
@@ -36,34 +53,36 @@ export function useCountdown(seconds: number, onDone?: () => void): UseCountdown
   // an inline arrow from the caller must not restart the interval below.
   onDoneRef.current = onDone;
 
-  const fireOnceDone = () => {
-    if (firedRef.current) return;
-    firedRef.current = true;
-    onDoneRef.current?.();
-  };
-
   useEffect(() => {
-    // Nothing to count down from — done immediately, no interval to start.
-    if (remaining <= 0) {
-      fireOnceDone();
-      return;
-    }
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
-    const id = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(id);
-          fireOnceDone();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const stop = () => {
+      if (intervalId !== undefined) clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+    const sample = () => {
+      const next = remainingAt(deadlineRef.current!, Date.now());
+      setRemaining(next);
+      if (next === 0) stop();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') sample();
+    };
 
-    return () => clearInterval(id);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    intervalId = setInterval(sample, 1000);
+    sample();
+
+    return stop;
     // Mount-only: see the "restart needs a key change" note above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (remaining > 0 || firedRef.current) return;
+    firedRef.current = true;
+    onDoneRef.current?.();
+  }, [remaining]);
 
   return { remaining, done: remaining <= 0 };
 }
