@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { initializeUser, setCurrentUser, clearUser, fetchContracts } from '../store/slices/userSlice';
 import type { AppDispatch, RootState } from '../store';
 import { buildFlowContractsScope, hydrateContracts } from '../components/collaboration/flows/shared/flowContractsSlice';
+import { buildNotificationsScope, hydrateNotifications } from '../store/slices/notificationsSlice';
 import { eventStreamService } from '../services/eventStream';
 import { clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
@@ -39,10 +40,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!(user.publicKey && user.serverUrl);
 
   useEffect(() => {
-    const scopeKey = user.publicKey && user.serverUrl
+    const flowScopeKey = user.publicKey && user.serverUrl
       ? buildFlowContractsScope(user.serverUrl, user.publicKey)
       : null;
-    dispatch(hydrateContracts({ scopeKey }));
+    const notificationsScopeKey = user.publicKey && user.serverUrl
+      ? buildNotificationsScope(user.serverUrl, user.publicKey)
+      : null;
+    dispatch(hydrateContracts({ scopeKey: flowScopeKey }));
+    dispatch(hydrateNotifications({ scopeKey: notificationsScopeKey }));
   }, [dispatch, user.publicKey, user.serverUrl]);
 
   useEffect(() => {
