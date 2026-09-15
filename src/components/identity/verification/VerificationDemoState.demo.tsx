@@ -45,8 +45,8 @@ const VerificationDemoStateDialog: React.FC<Props> = ({ isOpen, onClose }) => {
     'partial-pool': t('demo.verification.daily.partial', 'Daily: partial verifier pool'),
   };
   const applyDaily = (scenario: DailyDemoScenario) => {
-    if (!publicKey || !import.meta.env.DEV) return;
-    applyDailyDemoScenario(scenario, publicKey);
+    if (!publicKey || !serverUrl || !import.meta.env.DEV) return;
+    applyDailyDemoScenario(scenario, { publicKey, serverUrl });
     onClose();
   };
   return (

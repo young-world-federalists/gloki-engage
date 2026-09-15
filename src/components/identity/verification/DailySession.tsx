@@ -172,7 +172,12 @@ const DailySession: React.FC = () => {
           />
           <span>{t('verification.daily.reminder', 'Set reminder (demo)')}</span>
         </label>
-        <p className={styles.hint}>{t('verification.daily.reminderHelp', 'This demo saves your choice while this tab stays open; it sends no reminder.')}</p>
+        <p className={styles.hint}>
+          {t(
+            'verification.daily.reminderHelp',
+            'This demo can remind you elsewhere in Gloki while this tab stays open. Reloading or closing the tab clears it.',
+          )}
+        </p>
         {!snapshot.joinAllowed && (
           <p className={styles.hint}>{t('verification.daily.joinClosed', 'Join opens five minutes before the session.')}</p>
         )}

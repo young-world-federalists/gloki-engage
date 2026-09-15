@@ -1515,7 +1515,7 @@ const fr: Dictionary = {
   'verification.daily.demoClock': 'Horloge de démonstration',
   'verification.daily.demoNote': 'Démo : cette session utilise des profils d’exemple, ainsi qu’une sélection et des appels simulés.',
   'verification.daily.reminder': 'Définir un rappel (démo)',
-  'verification.daily.reminderHelp': 'Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel.',
+  'verification.daily.reminderHelp': 'Cette démo peut vous rappeler ailleurs dans Gloki tant que cet onglet reste ouvert. Le rechargement ou la fermeture de l’onglet efface le rappel.',
   'verification.daily.joinClosed': 'Vous pourrez rejoindre la session cinq minutes avant son début.',
   'verification.daily.join': 'Rejoindre la session quotidienne',
   'verification.daily.back': 'Retour à la vérification',

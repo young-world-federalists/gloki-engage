@@ -3,6 +3,7 @@
 // only src/services/verification.ts; the dev-only scenario dialog is the one
 // sanctioned direct consumer of the controls at the bottom of this file.
 import { getAgent } from '../../components/identity/agent/digitalAgentStore';
+import { publishNotification, updateNotificationEvent, type NotificationOwner } from '../notificationEvents';
 import { VERIFIED_THRESHOLD } from '../trustModel';
 import type {
   CallParticipant,
@@ -15,12 +16,18 @@ import type {
   MemberSummary,
 } from '../verificationModel';
 import { allVerificationMembers, memberDeclines } from './fixtures/verification';
+import {
+  cancelDemoDailyReminder,
+  isDemoDailyReminderEnabled,
+  scheduleDemoDailyReminder,
+} from './notificationRuntime';
 import { simCreateDailyCall, simJoinStream, simLeaveCall, simSetDailyCallInvalidator } from './verificationSim';
 
 type TimerHandle = ReturnType<typeof setTimeout>;
 
 interface DailyRun {
-  owner: string;
+  owner: NotificationOwner;
+  ownerKey: string;
   snapshot: DailySnapshot;
   timer?: TimerHandle;
   visibility?: () => void;
@@ -36,7 +43,6 @@ interface DemoConfig {
 const runs = new Map<string, DailyRun>();
 const runByOwner = new Map<string, string>();
 const subscribers = new Map<string, Set<(snapshot: DailySnapshot) => void>>();
-const reminders = new Map<string, boolean>();
 const configs = new Map<string, DemoConfig>();
 const completedCandidates = new Set<string>();
 let sequence = 0;
@@ -55,6 +61,10 @@ export const DAILY_DEMO_SCENARIOS: DailyDemoScenario[] = [
 const DAY_MS = 86_400_000;
 const SELECT_AFTER_MS = 150_000;
 const JOIN_BEFORE_MS = 300_000;
+
+function ownerScope(owner: NotificationOwner): string {
+  return `${encodeURIComponent(owner.serverUrl)}::${owner.publicKey}`;
+}
 
 const clone = (snapshot: DailySnapshot): DailySnapshot => ({
   ...snapshot,
@@ -93,8 +103,8 @@ function selfMember(publicKey: string): MemberSummary {
   };
 }
 
-function serviceNow(owner: string): number {
-  return Date.now() + (configs.get(owner)?.offsetMs ?? 0);
+function serviceNow(owner: NotificationOwner): number {
+  return Date.now() + (configs.get(ownerScope(owner))?.offsetMs ?? 0);
 }
 
 function nextSchedule(now: number): Pick<DailySnapshot, 'dayKey' | 'startsAt' | 'joinOpensAt' | 'selectionAt'> {
@@ -128,7 +138,7 @@ function deterministicSelection(candidateKey: string, dayKey: string, members: D
 function selectedAssignment(run: DailyRun, selected: string[]): DailyAssignment {
   if (selected.length === 0) return 'unavailable';
   if (run.snapshot.role === 'candidate') return 'candidate';
-  return selected.includes(run.owner) ? 'selectedVerifier' : 'observer';
+  return selected.includes(run.owner.publicKey) ? 'selectedVerifier' : 'observer';
 }
 
 function updateResult(run: DailyRun, call: CallSession): void {
@@ -159,7 +169,7 @@ function createChildCall(run: DailyRun): CallSession {
   const verifiers = run.snapshot.participants
     .filter((participant) => selected.has(participant.publicKey))
     .map(memberToCallParticipant);
-  const call = simCreateDailyCall(run.owner, run.snapshot.candidate, verifiers);
+  const call = simCreateDailyCall(run.owner.publicKey, run.snapshot.candidate, verifiers);
   simSetDailyCallInvalidator(call.id, () => simLeaveDaily(run.owner, run.snapshot.id));
   return call;
 }
@@ -176,6 +186,19 @@ function selectRun(run: DailyRun): void {
     selectedVerifierKeys: selected,
     assignment,
   };
+  if (assignment === 'selectedVerifier') {
+    publishNotification(run.owner, {
+      id: `verifier-selected:${run.snapshot.id}:${run.owner.publicKey}`,
+      type: 'verifier_selected',
+      createdAt: Date.now(),
+      payload: {
+        runId: run.snapshot.id,
+        dayKey: run.snapshot.dayKey,
+        candidateKey: run.snapshot.candidate.publicKey,
+        candidateName: run.snapshot.candidate.name,
+      },
+    });
+  }
   if (assignment === 'observer') {
     const call = createChildCall(run);
     run.snapshot = { ...run.snapshot, call };
@@ -278,16 +301,18 @@ function observerStart(owner: string, baseStart: number): number {
   return baseStart;
 }
 
-function createRun(owner: string): DailyRun {
+function createRun(owner: NotificationOwner): DailyRun {
+  const key = ownerScope(owner);
   const now = serviceNow(owner);
   const schedule = nextSchedule(now);
   const role: DailyRole = (getAgent()?.vouchedBy?.length ?? 0) >= VERIFIED_THRESHOLD ? 'verifier' : 'candidate';
-  const config = configs.get(owner);
+  const config = configs.get(key);
   const scenario = config?.scenario ?? 'real';
-  const roster = buildRoster(owner, role, scenario);
+  const roster = buildRoster(owner.publicKey, role, scenario);
   const id = `daily-${Date.now().toString(36)}-${(sequence += 1).toString(36)}`;
   const run: DailyRun = {
     owner,
+    ownerKey: key,
     snapshot: {
       id,
       ...schedule,
@@ -296,7 +321,7 @@ function createRun(owner: string): DailyRun {
       now,
       joinAllowed: now >= schedule.joinOpensAt && now < schedule.selectionAt,
       joined: false,
-      reminderEnabled: reminders.get(owner) ?? false,
+      reminderEnabled: isDemoDailyReminderEnabled(owner, schedule.dayKey),
       demoClock: scenario !== 'real',
       clockGeneration: config?.generation ?? 0,
       participants: roster.participants,
@@ -315,20 +340,23 @@ function createRun(owner: string): DailyRun {
   };
   if (typeof document !== 'undefined') document.addEventListener('visibilitychange', run.visibility);
   runs.set(id, run);
-  runByOwner.set(owner, id);
+  runByOwner.set(key, id);
   scheduleBoundary(run);
   return run;
 }
 
-function ownedRun(owner: string, id: string): DailyRun {
+function ownedRun(owner: NotificationOwner, id: string): DailyRun {
   const run = runs.get(id);
-  if (!run || run.owner !== owner) throw new Error('[dailyVerificationSim] unknown or unowned session');
+  if (!run || run.ownerKey !== ownerScope(owner)) {
+    throw new Error('[dailyVerificationSim] unknown or unowned session');
+  }
   reconcile(run);
   return run;
 }
 
-export function simDailySessionState(owner: string): DailySnapshot {
-  const existingId = runByOwner.get(owner);
+export function simDailySessionState(owner: NotificationOwner): DailySnapshot {
+  const key = ownerScope(owner);
+  const existingId = runByOwner.get(key);
   const existing = existingId ? runs.get(existingId) : undefined;
   const run = existing ?? createRun(owner);
   reconcile(run);
@@ -348,7 +376,7 @@ export function simJoinDailyStream(id: string, onUpdate: (snapshot: DailySnapsho
   return () => subscribers.get(id)?.delete(onUpdate);
 }
 
-export function simJoinDaily(owner: string, id: string): DailySnapshot {
+export function simJoinDaily(owner: NotificationOwner, id: string): DailySnapshot {
   const run = ownedRun(owner, id);
   if (!run.snapshot.joinAllowed) throw new Error('[dailyVerificationSim] daily session is not open');
   run.snapshot = { ...run.snapshot, joined: true, phase: 'lobby', joinAllowed: false };
@@ -357,7 +385,7 @@ export function simJoinDaily(owner: string, id: string): DailySnapshot {
   return clone(run.snapshot);
 }
 
-export function simSelectVerifiers(owner: string, id: string): DailySnapshot {
+export function simSelectVerifiers(owner: NotificationOwner, id: string): DailySnapshot {
   const run = ownedRun(owner, id);
   if (!run.snapshot.joined) throw new Error('[dailyVerificationSim] join before selection');
   if (serviceNow(owner) < run.snapshot.selectionAt) throw new Error('[dailyVerificationSim] selection is not ready');
@@ -365,7 +393,7 @@ export function simSelectVerifiers(owner: string, id: string): DailySnapshot {
   return clone(run.snapshot);
 }
 
-export function simEnterDailyCall(owner: string, id: string): DailySnapshot {
+export function simEnterDailyCall(owner: NotificationOwner, id: string): DailySnapshot {
   const run = ownedRun(owner, id);
   if (run.snapshot.assignment !== 'candidate' && run.snapshot.assignment !== 'selectedVerifier') {
     throw new Error('[dailyVerificationSim] this participant has no call assignment');
@@ -381,7 +409,7 @@ export function simEnterDailyCall(owner: string, id: string): DailySnapshot {
   return clone(run.snapshot);
 }
 
-export function simFinishDailyCall(owner: string, id: string): DailySnapshot {
+export function simFinishDailyCall(owner: NotificationOwner, id: string): DailySnapshot {
   const run = ownedRun(owner, id);
   const lastCall = run.snapshot.call;
   if (lastCall) {
@@ -391,40 +419,71 @@ export function simFinishDailyCall(owner: string, id: string): DailySnapshot {
     simLeaveCall(lastCall.id);
   }
   run.snapshot = { ...run.snapshot, phase: 'finished', call: lastCall };
+  updateNotificationEvent(
+    run.owner,
+    `verifier-selected:${run.snapshot.id}:${run.owner.publicKey}`,
+    'expired',
+  );
+  publishNotification(run.owner, {
+    id: `session-thanks:${run.snapshot.id}:${run.owner.publicKey}`,
+    type: 'session_thanks',
+    createdAt: Date.now(),
+    payload: {
+      runId: run.snapshot.id,
+      dayKey: run.snapshot.dayKey,
+      role: run.snapshot.assignment ?? run.snapshot.role,
+      candidateName: run.snapshot.candidate.name,
+      newlyVerified: run.snapshot.newlyVerifiedCount > 0,
+    },
+  });
   if (run.timer) clearTimeout(run.timer);
   emit(run);
   return clone(run.snapshot);
 }
 
-export function simSetDailyReminder(owner: string, id: string, enabled: boolean): DailySnapshot {
+export function simSetDailyReminder(owner: NotificationOwner, id: string, enabled: boolean): DailySnapshot {
   const run = ownedRun(owner, id);
-  reminders.set(owner, enabled);
+  if (enabled) {
+    const realDelay = Math.max(0, run.snapshot.joinOpensAt - serviceNow(run.owner));
+    scheduleDemoDailyReminder(run.owner, {
+      dayKey: run.snapshot.dayKey,
+      joinOpensAt: Date.now() + realDelay,
+    });
+  } else {
+    cancelDemoDailyReminder(run.owner, run.snapshot.dayKey);
+  }
   run.snapshot = { ...run.snapshot, reminderEnabled: enabled };
   emit(run);
   return clone(run.snapshot);
 }
 
-export function simLeaveDaily(owner: string, id: string): void {
+export function simLeaveDaily(owner: NotificationOwner, id: string): void {
   const run = runs.get(id);
-  if (!run || run.owner !== owner) return;
+  if (!run || run.ownerKey !== ownerScope(owner)) return;
   if (run.timer) clearTimeout(run.timer);
+  updateNotificationEvent(
+    run.owner,
+    `verifier-selected:${run.snapshot.id}:${run.owner.publicKey}`,
+    'expired',
+  );
   run.callUnsubscribe?.();
   if (run.snapshot.call) simLeaveCall(run.snapshot.call.id);
   if (run.visibility && typeof document !== 'undefined') document.removeEventListener('visibilitychange', run.visibility);
   subscribers.delete(id);
   runs.delete(id);
-  if (runByOwner.get(owner) === id) runByOwner.delete(owner);
+  if (runByOwner.get(run.ownerKey) === id) runByOwner.delete(run.ownerKey);
 }
 
 /** DEV-only control. Normal UI must never import this function. */
-export function applyDailyDemoScenario(scenario: DailyDemoScenario, owner: string): void {
+export function applyDailyDemoScenario(scenario: DailyDemoScenario, owner: NotificationOwner): void {
   if (!import.meta.env.DEV) return;
-  const oldId = runByOwner.get(owner);
+  const key = ownerScope(owner);
+  const oldId = runByOwner.get(key);
   if (oldId) simLeaveDaily(owner, oldId);
   const real = Date.now();
   const date = new Date(real);
   const start = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 21, 0, 0);
-  const observerSessionStart = observerStart(owner, start);
+  const observerSessionStart = observerStart(owner.publicKey, start);
   const targetOffset: Partial<Record<DailyDemoScenario, number>> = {
     'pre-session': start - 360_000,
     'join-window': start - 240_000,
@@ -434,8 +493,8 @@ export function applyDailyDemoScenario(scenario: DailyDemoScenario, owner: strin
     'empty-pool': start + 130_000,
     'partial-pool': start + 130_000,
   };
-  const previous = configs.get(owner);
-  configs.set(owner, {
+  const previous = configs.get(key);
+  configs.set(key, {
     scenario,
     offsetMs: scenario === 'real' ? 0 : (targetOffset[scenario] ?? start) - real,
     generation: (previous?.generation ?? 0) + 1,

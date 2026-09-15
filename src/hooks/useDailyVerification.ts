@@ -50,9 +50,10 @@ export function useDailyVerification(): UseDailyVerification {
     }
 
     const capturedCtx = ctx;
+    const capturedOwner = `${encodeURIComponent(capturedCtx.serverUrl)}::${capturedCtx.publicKey}`;
     const token = loadToken.current + 1;
     loadToken.current = token;
-    claimedOwner.current.set(capturedCtx.publicKey, token);
+    claimedOwner.current.set(capturedOwner, token);
     let disposed = false;
     let activeId: string | null = null;
     let unsubscribe: (() => void) | undefined;
@@ -65,7 +66,7 @@ export function useDailyVerification(): UseDailyVerification {
           // StrictMode may already have started a replacement load for this
           // same owner. That replacement is allowed to claim the shared run;
           // a real unmount/account change disposes the orphan immediately.
-          if (claimedOwner.current.get(capturedCtx.publicKey) === token) {
+          if (claimedOwner.current.get(capturedOwner) === token) {
             void leaveDaily(capturedCtx, next.id);
           }
           return;

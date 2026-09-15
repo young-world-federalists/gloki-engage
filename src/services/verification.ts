@@ -175,7 +175,7 @@ export async function joinAsVerifier(ctx: VerificationCtx, offerEventId?: string
 // vouch(public_key, 'daily'); lifecycle and reminder state die with the tab.
 
 export async function dailySessionState(ctx: VerificationCtx): Promise<DailySnapshot> {
-  return simDailySessionState(ctx.publicKey);
+  return simDailySessionState(ctx);
 }
 
 export function joinDailyStream(id: string, onUpdate: (snapshot: DailySnapshot) => void): () => void {
@@ -183,25 +183,25 @@ export function joinDailyStream(id: string, onUpdate: (snapshot: DailySnapshot) 
 }
 
 export async function joinDaily(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
-  return simJoinDaily(ctx.publicKey, id);
+  return simJoinDaily(ctx, id);
 }
 
 export async function selectVerifiers(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
-  return simSelectVerifiers(ctx.publicKey, id);
+  return simSelectVerifiers(ctx, id);
 }
 
 export async function enterDailyCall(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
-  return simEnterDailyCall(ctx.publicKey, id);
+  return simEnterDailyCall(ctx, id);
 }
 
 export async function finishDailyCall(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
-  return simFinishDailyCall(ctx.publicKey, id);
+  return simFinishDailyCall(ctx, id);
 }
 
 export async function setDailyReminder(ctx: VerificationCtx, id: string, enabled: boolean): Promise<DailySnapshot> {
-  return simSetDailyReminder(ctx.publicKey, id, enabled);
+  return simSetDailyReminder(ctx, id, enabled);
 }
 
 export async function leaveDaily(ctx: VerificationCtx, id: string): Promise<void> {
-  simLeaveDaily(ctx.publicKey, id);
+  simLeaveDaily(ctx, id);
 }

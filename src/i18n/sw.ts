@@ -1513,7 +1513,7 @@ const sw: Dictionary = {
   'verification.daily.demoClock': 'Saa ya demo',
   'verification.daily.demoNote': 'Demo: kikao hiki kinatumia wasifu wa mfano pamoja na uchaguzi na simu zilizoigwa.',
   'verification.daily.reminder': 'Weka ukumbusho (demo)',
-  'verification.daily.reminderHelp': 'Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho.',
+  'verification.daily.reminderHelp': 'Demo hii inaweza kukukumbusha mahali pengine ndani ya Gloki wakati kichupo hiki kipo wazi. Kupakia upya au kufunga kichupo huondoa ukumbusho.',
   'verification.daily.joinClosed': 'Kujiunga kutafunguliwa dakika tano kabla ya kikao.',
   'verification.daily.join': 'Jiunge na kikao cha kila siku',
   'verification.daily.back': 'Rudi kwenye uthibitisho',
