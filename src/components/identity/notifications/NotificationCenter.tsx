@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlarmClock,
@@ -42,7 +42,7 @@ function presentNotification(
   notification: AppNotification,
   t: TFunction,
 ): NotificationPresentation | null {
-  const memberFallback = t('notifications.memberFallback', 'A member');
+  const memberFallback = t('notifications.memberFallback', 'a member');
 
   switch (notification.type) {
     case 'merge_absorbed': {
@@ -75,7 +75,7 @@ function presentNotification(
         icon: <UserCheck size={22} />,
         title: t('notifications.verificationRequest.title', 'Vouch request'),
         body: notification.status === 'active'
-          ? t('notifications.verificationRequest.body', '{name} asked you to vouch for them.', { name })
+          ? t('notifications.verificationRequest.body', 'A vouch request from {name} is waiting for you.', { name })
           : t('notifications.verificationRequest.bodyEnded', 'This vouch request from {name} is no longer pending.', { name }),
         action: notification.status === 'active' && requestId && requesterKey
           ? {
@@ -93,7 +93,7 @@ function presentNotification(
       return {
         icon: <BadgeCheck size={22} />,
         title: t('notifications.approvalReceived.title', 'Vouch received'),
-        body: t('notifications.approvalReceived.body', '{name} vouched for you.', { name }),
+        body: t('notifications.approvalReceived.body', 'A vouch from {name} was added to your verification.', { name }),
         action: requestId && approverKey
           ? {
               label: t('notifications.approvalReceived.action', 'View verification'),
@@ -128,7 +128,7 @@ function presentNotification(
         title: t('notifications.callInvite.title', 'Verification call invitation'),
         body: ended
           ? t('notifications.callInvite.bodyEnded', 'This demo call invitation from {name} has ended.', { name })
-          : t('notifications.callInvite.body', '{name} is ready to join a verification call.', { name }),
+          : t('notifications.callInvite.body', 'A verification call with {name} is ready to join.', { name }),
         action: !ended && inviteId && candidateKey
           ? {
               label: t('notifications.callInvite.action', 'Join call'),
@@ -195,6 +195,7 @@ const NotificationCenter: React.FC = () => {
   const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state.notifications.items);
   const [liveStatus, setLiveStatus] = useState('');
+  useEffect(() => setLiveStatus(''), [t]);
   const unreadCount = items.filter((notification) => !notification.read).length;
   const presented = items.flatMap((notification) => {
     const presentation = presentNotification(notification, t);

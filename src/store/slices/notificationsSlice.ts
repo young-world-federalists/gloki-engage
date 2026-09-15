@@ -21,9 +21,6 @@ export interface AppNotification {
   payload: NotificationPayload;
 }
 
-/** @deprecated Use AppNotification. Kept until the S39 bell migration lands. */
-export type Notification = AppNotification;
-
 interface NotificationsState {
   items: AppNotification[];
   storageScope: string | null;

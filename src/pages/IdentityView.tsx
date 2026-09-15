@@ -12,6 +12,7 @@ import ApprovePage from '../components/identity/verification/ApprovePage';
 import InvitePage from '../components/identity/verification/InvitePage';
 import CallFlow from '../components/identity/verification/CallFlow';
 import DailySession from '../components/identity/verification/DailySession';
+import NotificationCenter from '../components/identity/notifications/NotificationCenter';
 import { useT } from '../i18n';
 import styles from './Container.module.scss';
 
@@ -32,6 +33,7 @@ const IdentityView: React.FC = () => {
     about: { title: t('about.title', 'About Gloki') },
     contact: { title: t('contact.title', 'Contact Gloki') },
     verification: { title: t('verification.title', 'Get verified'), eyebrow: verificationEyebrow },
+    notifications: { title: t('notifications.title', 'Notifications'), eyebrow: accountEyebrow },
   };
   // S36 — verification sub-pages (D9: nested here, no new top-level route).
   const verificationTitles: Record<string, { title: string; eyebrow?: string }> = {
@@ -43,6 +45,7 @@ const IdentityView: React.FC = () => {
   };
   const [, , sub = 'communities', leaf] = pathname.split('/');
   const isVerification = sub === 'verification';
+  const isNotifications = sub === 'notifications';
   const head = (isVerification && leaf && verificationTitles[leaf]) || titles[sub] || titles.communities;
 
   return (
@@ -50,7 +53,7 @@ const IdentityView: React.FC = () => {
       <AppHeader
         title={head.title}
         eyebrow={head.eyebrow}
-        showBack={isVerification}
+        showBack={isVerification || isNotifications}
         onBack={isVerification && leaf ? () => navigate('/identity/verification') : undefined}
       />
 
@@ -69,6 +72,7 @@ const IdentityView: React.FC = () => {
             <Route path="verification/invite" element={<InvitePage />} />
             <Route path="verification/call" element={<CallFlow />} />
             <Route path="verification/daily" element={<DailySession />} />
+            <Route path="notifications" element={<NotificationCenter />} />
             <Route path="hidden" element={<Communities showHidden />} />
             <Route path="*" element={<Navigate to="/identity/communities" replace />} />
           </Routes>
