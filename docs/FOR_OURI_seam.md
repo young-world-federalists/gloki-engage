@@ -199,7 +199,8 @@ Wire truth for these methods is the patch file above (apply to `gloki_engage_ini
 - **`add_proposal(..., cause_id='')`** — trailing optional arg, stored as `causeId`; immutable; `''` means "proposed before any cause was ranked". The UI sends `cause_id` unconditionally from this merge onward — apply the `add_proposal` hunk in the same change as the merge, or solution submission fails on the live site.
 - **`add_impact_assessment(proposal_id, target, targets_cause, mechanism, broader_effects, risks, opportunity_costs, time_horizon)`** — flat `impact_assessments` collection keyed `proposal_id + ':' + caller`; contract guards: proposal exists, max 3 per proposal, one per author. Read: **`get_impact_assessments()`**.
 - **D12 (on the record):** assessor eligibility (top-10 writers, `causeScore > 0`, no self-dealing on the same solution or the same cause) and cause alignment are **UI-gated only** in this wave, exactly like the `add_expert_review` expert gate. Server-side eligibility checks belong on the contract roadmap.
-- S13 gap (still open): `set_property` / `get_properties` on the initiative contract are used by the UI and undocumented here.
+- S13 property bag is documented in the S13 addendum above: `set_property` / `get_properties` on
+  the initiative contract, including the `mandate_ratification` property in use.
 - **Question for Ouri (not a patch change):** `vote_comment` and `add_impact_assessment` guard with `if <id> not in self.comments / self.proposals`, the same form as the live `delete_comment`, `like_comment`, `request_expert_review` and `add_expert_review`. If the storage bridge's `Collection.__contains__` does not coerce a hex string to an `ObjectId` on an `append()`-keyed collection, all of these — old and new — refuse silently. Please confirm on a live community; if it bites, the one-word fix for all six is `self.comments[comment_id].exists()`.
 
 ### S36 addendum — Community verification, Wave 1 (`src/services/verification.ts`)
@@ -285,7 +286,8 @@ daily seam function has **no contract counterpart**:
 - `selectVerifiers(ctx, id)` — simulation-only deterministic assignment.
 - `enterDailyCall(ctx, id)` — simulation-only child-call creation.
 - `finishDailyCall(ctx, id)` — simulation-only result snapshot and cleanup.
-- `setDailyReminder(ctx, id, enabled)` — tab-only demo preference; it sends no notification.
+- `setDailyReminder(ctx, id, enabled)` — tab-only demo preference. As of S39 it schedules or
+  cancels an in-app notification while this tab remains open; see the S39 addendum below.
 - `leaveDaily(ctx, id)` — simulation-only cleanup.
 
 **Do not add `join_daily`, `select_verifiers`, or any session-lifecycle method.**
@@ -293,3 +295,40 @@ The one durable effect uses the existing `vouch(public_key, method)` method
 with `method: 'daily'`, always by the verifier/caller for the candidate. The
 demo's schedule, roster, assignments, local result count, reminder and dev
 clock have no production wire meaning.
+
+### S39 addendum — Notification centre and authenticated simulation lifecycle
+
+The notification centre adds **no contract method and no browser/OS notification**. Every function
+below has wire method **none — simulation/UI lifecycle only**. The owner is always the authenticated
+`{ serverUrl, publicKey }` pair; the demo store persists at most 100 sanitized rows under that scope.
+
+- `publishNotification(owner, event)` — owner-guarded stable-id upsert into the active Redux/storage
+  scope. Wire method: **none — simulation/UI lifecycle only**.
+- `updateNotificationEvent(owner, id, status, payload?)` — owner-guarded transition to `active`,
+  `consumed` or `expired`. Wire method: **none — simulation/UI lifecycle only**.
+- `startNotificationRuntime(owner)` — starts the authenticated W1/W2 producer lifecycle and returns
+  its cleanup. `startDemoNotificationRuntime(owner)` is the demo implementation. Wire method:
+  **none — simulation/UI lifecycle only**.
+- `recordMergeAbsorbed(owner, input)` — records the UI event after the existing merge workflow
+  succeeds. It adds no merge or notification contract call. Wire method:
+  **none — simulation/UI lifecycle only**.
+- `simOfferCallInvite(owner)`, `simExpireCallOffers(owner)`, `simRestoreCallOffers(owner)` and
+  `simForgetExpiredCallOffers(owner)` — create and reconcile one stable daily call-offer event for
+  the active owner, including React StrictMode restoration. Wire method:
+  **none — simulation/UI lifecycle only**.
+- `scheduleDemoDailyReminder(owner, { dayKey, joinOpensAt })` and
+  `cancelDemoDailyReminder(owner, dayKey)` — schedule/cancel the off-route, tab-lifetime in-app
+  reminder. Reload, tab closure, logout or owner change cancels it. Wire method:
+  **none — simulation/UI lifecycle only**.
+- `simDailySessionState(owner)`, `simSelectVerifiers(owner, id)`,
+  `simFinishDailyCall(owner, id)` and `simLeaveDaily(owner, id)` now publish or expire the stable
+  W3 reminder/selection/thank-you event family. The public daily seam names remain the S38 names.
+  Wire method: **none — simulation/UI lifecycle only**.
+
+**What a real notification system still needs.** Authenticated recipient routing must happen on the
+server, with stable server event ids, replay/cursor semantics, strict account isolation and delivery
+while the notifications route is not mounted. This UI-only tab runtime proves the product lifecycle;
+it is not that backend. **Do not invent `create_notification`, `schedule_reminder`, `join_daily`,
+`select_verifiers`, or any call/session lifecycle wire method.** Existing durable domain writes stay
+on their documented methods (`vouch`, merge methods, and so on); notifications describe those events
+but do not replace them.

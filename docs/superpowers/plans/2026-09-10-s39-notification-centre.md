@@ -632,4 +632,24 @@ Present the reviewed diff and concrete evidence. Do not push until Eston explici
 - Planning baseline, 2026-09-10: local `ui` `5a8ea4f`; cached `origin/ui` `ac8523b`; only `.agents/`
   untracked. Baseline typecheck, local build, grep gates, parity 1413/1413 and whitespace passed.
 - Design approved by Eston and committed as `74fe1a0`.
-- Implementation, browser evidence, review and push remain pending.
+- Tasks 1–6 implemented on `ui` in `cd332c9..f9251c4`: owner-scoped hydration and sanitization;
+  stable W1/W2/W3 producers; tab-lifetime reminders; shared `NotificationItem`; localized centre;
+  direct-link bell and nested route. `global-v19` and verification fixtures remain unchanged.
+- Reducer probe: 101 records capped to 100; malformed and duplicate records dropped; `createdAt` /
+  read state preserved on stable-id upsert; wrong-owner writes blocked; logout empty; legacy key removed.
+- W1/W2 probe: four stable incoming requests plus one daily call offer; StrictMode cleanup/restoration;
+  consume/expire lifecycle; approval-only outcome; merge dedupe; wrong-owner suppression. W3 probe:
+  off-route reminder delivery/cancel, selected-verifier expiry, no observer selection event and one
+  role-accurate thank-you per candidate/observer/selected-verifier finish.
+- Controller browser matrix: valid seven-family data plus recognized missing-payload fallbacks;
+  invalid timestamp/type/nested-payload and duplicate rows sanitized; expired call action absent;
+  per-row and mark-all state persisted after reload; initiative route canonicalized safely; bell
+  counts 0/1/9/100 showed `99+` only visually; back returned to the prior account page. Checked at
+  360×780, light/dark, en/fr/sw: one h1 and `scrollWidth === innerWidth === 360`. Prior demo data,
+  language, theme and viewport were restored; temporary probe files were removed. Audible
+  screen-reader verification remains manual/pending.
+- Task 7 gates: typecheck, local build, production build, grep gates, parity 1449/1449, interpolation
+  tokens and whitespace all clean; only the pre-existing Sass `darken()` deprecations appeared.
+  Targeted architecture greps found only the legacy-key constant and explicit do-not-invent wire
+  prose; component producer/media API/fixture diffs were empty. S39's 41 cited current/reused i18n
+  keys exist in both overlays. Whole-session adversarial review, closeout and push remain pending.

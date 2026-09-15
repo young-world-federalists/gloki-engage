@@ -1704,8 +1704,9 @@ self-verification in the verifier role.
 The daily route adds scheduled-session, selection, observer and result copy. The French and Swahili
 entries below preserve interpolation tokens and passed the repository parity checker, but have not
 been approved by native speakers. Please review the volunteer/candidate distinction, the neutral
-observer wording, and whether the count phrases remain natural at 0, 1 and 4. The reminder sentence
-must continue to say that no notification is sent and that reloading the tab clears it.
+observer wording, and whether the count phrases remain natural at 0, 1 and 4. The S38 reminder
+sentence below is retained as a struck historical snapshot; S39 replaced it with a real tab-lifetime
+in-app reminder and the current review target appears in the Session 39 section.
 
 | Key | English | French | Swahili |
 |---|---|---|---|
@@ -1717,7 +1718,7 @@ must continue to say that no notification is sent and that reloading the tab cle
 | `verification.daily.timeMinutes` | {minutes}m {seconds}s | {minutes} min {seconds} s | dk {minutes}, sek {seconds} |
 | `verification.daily.demoNote` | Demo: this session uses sample profiles and simulated selection and calls. | Démo : cette session utilise des profils d’exemple, ainsi qu’une sélection et des appels simulés. | Demo: kikao hiki kinatumia wasifu wa mfano pamoja na uchaguzi na simu zilizoigwa. |
 | `verification.daily.reminder` | Set reminder (demo) | Définir un rappel (démo) | Weka ukumbusho (demo) |
-| `verification.daily.reminderHelp` | This demo saves your choice while this tab stays open; it sends no reminder. | Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel. | Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho. |
+| ~~`verification.daily.reminderHelp`~~ **[superseded S39]** | ~~This demo saves your choice while this tab stays open; it sends no reminder.~~ | ~~Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel.~~ | ~~Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho.~~ |
 | `verification.daily.joinedCount` | People in this session: {count} | Présence dans cette session : {count} | Waliojiunga na kikao hiki: {count} |
 | `verification.daily.candidateTitle` | Your verification group is ready | Votre groupe de vérification est prêt | Kundi lako la uthibitisho liko tayari |
 | `verification.daily.selectedTitle` | You've been selected to help verify {name} | Vous avez été sélectionné·e pour aider à vérifier {name} | Umechaguliwa kusaidia kumthibitisha {name} |
@@ -1736,3 +1737,68 @@ Also review the short action/status family in `src/i18n/fr.ts` and `src/i18n/sw.
 roster, call entry, result dismissal/stay, error/retry context, pathway labels, and the eight
 development walkthrough labels. These are conventional UI labels; the table above contains the
 meaning-bearing claims and every new interpolation.
+
+## Session 39 (2026-09-15) — Notification centre and bell
+
+**+36 keys and 1 reframed key** (parity 1413 → 1449 in both fr and sw; identical key sets and
+matching interpolation tokens). The centre presents seven event families and independently
+controlled read state. Existing `notifications.title`, `notifications.empty`,
+`notifications.markAllRead` and `notifications.anotherInitiative` are reused unchanged.
+
+**Register questions for both reviewers:**
+
+- **Bell-count grammar:** `notifications.bellUnread` must work unchanged at 1, 9 and 100; the UI
+  deliberately uses one agreement-free string rather than singular/plural branches.
+- **Read state:** confirm that "read/unread" clearly means message state, especially French feminine
+  agreement with *notification* and Swahili noun-class agreement with *arifa*.
+- **Demo expiry:** `callInvite.bodyEnded` and `verifierSelected.bodyEnded` must clearly say the old
+  demo event ended and is no longer actionable, without implying a real person waited.
+- **Call-invite register:** confirm that the short invitation title/action sounds natural for an
+  in-app video verification call, continuing S37's open `simu` vs `simu ya video` question.
+- **Reminder disclosure:** `verification.daily.reminderHelp` changed meaning. It must say the demo
+  can notify elsewhere inside Gloki only while the current tab remains open; reload or tab closure
+  clears it. It must not imply browser/OS or background delivery.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `notifications.subtitle` | Updates from your verification activity and communities. | Les mises à jour de vos activités de vérification et de vos communautés. | Taarifa mpya kutoka kwenye shughuli zako za uthibitisho na jumuiya. |
+| `notifications.emptyBody` | Vouch requests, calls and community updates will appear here. | Les demandes de caution, les appels et les mises à jour des communautés apparaîtront ici. | Maombi ya udhamini, simu na taarifa mpya za jumuiya zitaonekana hapa. |
+| `notifications.unread` | Unread | Non lue | Haijasomwa |
+| `notifications.markRead` | Mark as read | Marquer comme lue | Weka imesomwa |
+| `notifications.markUnread` | Mark as unread | Marquer comme non lue | Weka haijasomwa |
+| `notifications.status.read` | Notification marked as read. | Notification marquée comme lue. | Arifa imewekwa kuwa imesomwa. |
+| `notifications.status.unread` | Notification marked as unread. | Notification marquée comme non lue. | Arifa imewekwa kuwa haijasomwa. |
+| `notifications.status.allRead` | All notifications marked as read. | Toutes les notifications ont été marquées comme lues. | Arifa zote zimewekwa kuwa zimesomwa. |
+| `notifications.memberFallback` | a member | un membre | mwanachama |
+| `notifications.mergeAccepted.body` | An initiative you supported merged into {title}. | Une initiative que vous souteniez a fusionné avec {title}. | Mpango uliouunga mkono umeunganishwa na {title}. |
+| `notifications.mergeAccepted.action` | View initiative | Voir l’initiative | Ona mpango |
+| `notifications.verificationRequest.title` | Vouch request | Demande de caution | Ombi la udhamini |
+| `notifications.verificationRequest.body` | A vouch request from {name} is waiting for you. | Demande de caution envoyée par {name}. | Ombi la udhamini kutoka kwa {name} linakusubiri. |
+| `notifications.verificationRequest.bodyEnded` | This vouch request from {name} is no longer pending. | La demande de caution envoyée par {name} n’est plus en attente. | Ombi hili la udhamini kutoka kwa {name} halisubiri tena. |
+| `notifications.verificationRequest.action` | Review request | Examiner la demande | Kagua ombi |
+| `notifications.approvalReceived.title` | Vouch received | Caution reçue | Udhamini umepokelewa |
+| `notifications.approvalReceived.body` | A vouch from {name} was added to your verification. | Caution accordée par {name}. | Udhamini kutoka kwa {name} umeongezwa kwenye uthibitisho wako. |
+| `notifications.approvalReceived.action` | View verification | Voir la vérification | Ona uthibitisho |
+| `notifications.dailyReminder.title` | Daily verification is opening | La vérification quotidienne va commencer | Uthibitisho wa kila siku unakaribia kuanza |
+| `notifications.dailyReminder.body` | Your daily verification session is ready to join. | Votre session de vérification quotidienne est prête. | Kikao chako cha uthibitisho wa kila siku kiko tayari. |
+| `notifications.dailyReminder.action` | Join daily session | Rejoindre la session | Jiunge na kikao |
+| `notifications.callInvite.title` | Verification call invitation | Invitation à un appel de vérification | Mwaliko wa simu ya uthibitisho |
+| `notifications.callInvite.body` | A verification call with {name} is ready to join. | Un appel de vérification avec {name} est prêt à démarrer. | Simu ya uthibitisho na {name} iko tayari kuanza. |
+| `notifications.callInvite.bodyEnded` | This demo call invitation from {name} has ended. | L’invitation de démonstration associée à {name} a expiré. | Mwaliko huu wa simu ya demo kutoka kwa {name} umeisha. |
+| `notifications.callInvite.action` | Join call | Rejoindre l’appel | Jiunge na simu |
+| `notifications.verifierSelected.title` | You were selected | Vous avez été sélectionné·e | Umechaguliwa |
+| `notifications.verifierSelected.body` | {name}'s daily verification session is ready. | La session de vérification quotidienne avec {name} est prête. | Kikao cha uthibitisho wa kila siku na {name} kiko tayari. |
+| `notifications.verifierSelected.bodyEnded` | This demo verifier selection for {name} has ended. | La sélection de garant·e de démonstration avec {name} a expiré. | Uchaguzi huu wa mdhamini wa demo kwa {name} umeisha. |
+| `notifications.verifierSelected.action` | Open daily session | Ouvrir la session quotidienne | Fungua kikao cha kila siku |
+| `notifications.sessionThanks.title` | Thanks for taking part | Merci pour votre participation | Asante kwa kushiriki |
+| `notifications.sessionThanks.body` | Thanks for taking part in today’s daily verification session. | Merci d’avoir participé à la session de vérification quotidienne. | Asante kwa kushiriki katika kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.sessionThanks.bodyCandidate` | Thanks for completing today’s daily verification session. | Merci d’avoir terminé la session de vérification quotidienne. | Asante kwa kukamilisha kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.sessionThanks.bodyCandidateVerified` | Thanks for completing today’s session. You’re now verified. | Merci d’avoir terminé la session. Votre compte est maintenant vérifié. | Asante kwa kukamilisha kikao cha leo. Akaunti yako sasa imethibitishwa. |
+| `notifications.sessionThanks.bodyVerifier` | Thanks for helping verify a candidate in today’s daily session. | Merci d’avoir aidé à vérifier une personne lors de la session quotidienne. | Asante kwa kusaidia kumthibitisha mshiriki katika kikao cha leo. |
+| `notifications.sessionThanks.bodyObserver` | Thanks for staying with today’s daily verification session. | Merci d’être resté·e pendant la session de vérification quotidienne. | Asante kwa kubaki katika kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.bellUnread` | Notifications, {count} unread | Notifications, non lues : {count} | Arifa, {count} hazijasomwa |
+| `verification.daily.reminderHelp` *(reframed)* | This demo can remind you elsewhere in Gloki while this tab stays open. Reloading or closing the tab clears it. | Cette démo peut vous rappeler ailleurs dans Gloki tant que cet onglet reste ouvert. Le rechargement ou la fermeture de l’onglet efface le rappel. | Demo hii inaweza kukukumbusha mahali pengine ndani ya Gloki wakati kichupo hiki kipo wazi. Kupakia upya au kufunga kichupo huondoa ukumbusho. |
+
+All 37 cited keys were cross-checked against both overlays at S39 HEAD. The 360px browser pass
+covered English, French and Swahili with no horizontal overflow or exposed interpolation tokens;
+native register and idiom remain intentionally open for human review.
