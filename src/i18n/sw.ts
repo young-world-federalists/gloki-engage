@@ -101,6 +101,7 @@ const sw: Dictionary = {
   'notifications.mergeAccepted.action': 'Ona mpango',
   'notifications.verificationRequest.title': 'Ombi la udhamini',
   'notifications.verificationRequest.body': '{name} anakuomba umdhamini.',
+  'notifications.verificationRequest.bodyEnded': 'Ombi hili la udhamini kutoka kwa {name} halisubiri tena.',
   'notifications.verificationRequest.action': 'Kagua ombi',
   'notifications.approvalReceived.title': 'Udhamini umepokelewa',
   'notifications.approvalReceived.body': '{name} amekudhamini.',
@@ -117,8 +118,11 @@ const sw: Dictionary = {
   'notifications.verifierSelected.bodyEnded': 'Uchaguzi huu wa mdhamini wa demo kwa {name} umeisha.',
   'notifications.verifierSelected.action': 'Fungua kikao cha kila siku',
   'notifications.sessionThanks.title': 'Asante kwa kushiriki',
-  'notifications.sessionThanks.body': 'Asante kwa kusaidia katika kikao cha leo cha uthibitisho wa kila siku.',
-  'notifications.sessionThanks.bodyVerified': 'Asante kwa kusaidia kukamilisha kikao cha leo. Mshiriki sasa amethibitishwa.',
+  'notifications.sessionThanks.body': 'Asante kwa kushiriki katika kikao cha leo cha uthibitisho wa kila siku.',
+  'notifications.sessionThanks.bodyCandidate': 'Asante kwa kukamilisha kikao cha leo cha uthibitisho wa kila siku.',
+  'notifications.sessionThanks.bodyCandidateVerified': 'Asante kwa kukamilisha kikao cha leo. Akaunti yako sasa imethibitishwa.',
+  'notifications.sessionThanks.bodyVerifier': 'Asante kwa kusaidia kumthibitisha mshiriki katika kikao cha leo.',
+  'notifications.sessionThanks.bodyObserver': 'Asante kwa kubaki katika kikao cha leo cha uthibitisho wa kila siku.',
 
   // ── SearchableSelect ───────────────────────────────────────────────────
   'select.placeholder': 'Chagua…',

@@ -74,7 +74,9 @@ function presentNotification(
       return {
         icon: <UserCheck size={22} />,
         title: t('notifications.verificationRequest.title', 'Vouch request'),
-        body: t('notifications.verificationRequest.body', '{name} asked you to vouch for them.', { name }),
+        body: notification.status === 'active'
+          ? t('notifications.verificationRequest.body', '{name} asked you to vouch for them.', { name })
+          : t('notifications.verificationRequest.bodyEnded', 'This vouch request from {name} is no longer pending.', { name }),
         action: notification.status === 'active' && requestId && requesterKey
           ? {
               label: t('notifications.verificationRequest.action', 'Review request'),
@@ -157,13 +159,25 @@ function presentNotification(
     }
 
     case 'session_thanks': {
+      const role = payloadText(notification, 'role');
       const newlyVerified = notification.payload.newlyVerified === true;
+      let body = t(
+        'notifications.sessionThanks.body',
+        'Thanks for taking part in today’s daily verification session.',
+      );
+      if (role === 'candidate') {
+        body = newlyVerified
+          ? t('notifications.sessionThanks.bodyCandidateVerified', 'Thanks for completing today’s session. You’re now verified.')
+          : t('notifications.sessionThanks.bodyCandidate', 'Thanks for completing today’s daily verification session.');
+      } else if (role === 'selectedVerifier') {
+        body = t('notifications.sessionThanks.bodyVerifier', 'Thanks for helping verify a candidate in today’s daily session.');
+      } else if (role === 'observer') {
+        body = t('notifications.sessionThanks.bodyObserver', 'Thanks for staying with today’s daily verification session.');
+      }
       return {
         icon: <HandHeart size={22} />,
         title: t('notifications.sessionThanks.title', 'Thanks for taking part'),
-        body: newlyVerified
-          ? t('notifications.sessionThanks.bodyVerified', 'Thanks for helping complete today’s session. The candidate is now verified.')
-          : t('notifications.sessionThanks.body', 'Thanks for helping with today’s daily verification session.'),
+        body,
       };
     }
 

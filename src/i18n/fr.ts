@@ -102,6 +102,7 @@ const fr: Dictionary = {
   'notifications.mergeAccepted.action': 'Voir l’initiative',
   'notifications.verificationRequest.title': 'Demande de caution',
   'notifications.verificationRequest.body': '{name} vous demande de vous porter garant·e.',
+  'notifications.verificationRequest.bodyEnded': 'Cette demande de caution de {name} n’est plus en attente.',
   'notifications.verificationRequest.action': 'Examiner la demande',
   'notifications.approvalReceived.title': 'Caution reçue',
   'notifications.approvalReceived.body': '{name} s’est porté·e garant·e de vous.',
@@ -118,8 +119,11 @@ const fr: Dictionary = {
   'notifications.verifierSelected.bodyEnded': 'Cette sélection de garant·e de démonstration pour {name} a expiré.',
   'notifications.verifierSelected.action': 'Ouvrir la session quotidienne',
   'notifications.sessionThanks.title': 'Merci pour votre participation',
-  'notifications.sessionThanks.body': 'Merci d’avoir contribué à la session de vérification quotidienne.',
-  'notifications.sessionThanks.bodyVerified': 'Merci d’avoir contribué à la session. La personne candidate est maintenant vérifiée.',
+  'notifications.sessionThanks.body': 'Merci d’avoir participé à la session de vérification quotidienne.',
+  'notifications.sessionThanks.bodyCandidate': 'Merci d’avoir terminé la session de vérification quotidienne.',
+  'notifications.sessionThanks.bodyCandidateVerified': 'Merci d’avoir terminé la session. Votre compte est maintenant vérifié.',
+  'notifications.sessionThanks.bodyVerifier': 'Merci d’avoir aidé à vérifier une personne lors de la session quotidienne.',
+  'notifications.sessionThanks.bodyObserver': 'Merci d’être resté·e pendant la session de vérification quotidienne.',
 
   // ── SearchableSelect ───────────────────────────────────────────────────
   'select.placeholder': 'Sélectionner…',
