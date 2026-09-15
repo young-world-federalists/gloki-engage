@@ -29,6 +29,9 @@ export type { SegmentedControlProps, SegmentOption } from './SegmentedControl';
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
+export { default as NotificationItem } from './NotificationItem';
+export type { NotificationItemProps } from './NotificationItem';
+
 export { default as SlideOutMenu } from './SlideOutMenu';
 export type { SlideOutMenuProps, SlideOutMenuItem } from './SlideOutMenu';
 

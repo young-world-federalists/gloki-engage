@@ -1,0 +1,163 @@
+@use '../../styles/variables' as *;
+
+.item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  transition: background-color $transition-base, border-color $transition-base;
+}
+
+.unread {
+  border-color: $primary;
+  background: $info-surface;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: $primary;
+  background: $gray-100;
+  border-radius: $radius-full;
+}
+
+.content {
+  min-width: 0;
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0;
+  color: $gray-900;
+  font-family: $font-body;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.timestamp {
+  flex: 0 0 auto;
+  color: $gray-500;
+  font-size: $text-xs;
+  white-space: nowrap;
+}
+
+.body {
+  margin-top: $spacing-xs;
+  color: $gray-600;
+  font-size: $text-sm;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.unreadStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+  color: $info-on-surface;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+}
+
+.unreadMarker {
+  width: 6px;
+  height: 6px;
+  background: $primary;
+  border-radius: $radius-full;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.action,
+.readControl {
+  display: flex;
+  align-items: center;
+}
+
+.readControl {
+  margin-left: auto;
+}
+
+@media (max-width: 359px) {
+  .item {
+    grid-template-columns: 1fr;
+  }
+
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  .controls,
+  .action,
+  .readControl {
+    width: 100%;
+  }
+
+  .readControl {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}
+
+@include dark {
+  .item {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .unread {
+    background: $info-surface-dark;
+    border-color: $primary-on-dark;
+  }
+
+  .icon {
+    color: $primary-on-dark;
+    background: $dark-tint-raised;
+  }
+
+  .title {
+    color: $dark-text;
+  }
+
+  .timestamp,
+  .body {
+    color: $dark-text-secondary;
+  }
+
+  .unreadStatus {
+    color: $dark-text;
+  }
+
+  .unreadMarker {
+    background: $primary-on-dark;
+  }
+}
