@@ -8,6 +8,7 @@ import { buildNotificationsScope, hydrateNotifications } from '../store/slices/n
 import { eventStreamService } from '../services/eventStream';
 import { clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
+import { startNotificationRuntime } from '../services/notifications';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -48,6 +49,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       : null;
     dispatch(hydrateContracts({ scopeKey: flowScopeKey }));
     dispatch(hydrateNotifications({ scopeKey: notificationsScopeKey }));
+    if (!user.publicKey || !user.serverUrl) return undefined;
+    return startNotificationRuntime({ serverUrl: user.serverUrl, publicKey: user.publicKey });
   }, [dispatch, user.publicKey, user.serverUrl]);
 
   useEffect(() => {

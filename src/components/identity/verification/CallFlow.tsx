@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VideoOff } from 'lucide-react';
 import { Button, EmptyState } from '../../shared';
 import { useT } from '../../../i18n';
@@ -26,6 +26,7 @@ type CallStep = 'select' | 'waiting' | 'inCall' | 'summary';
 const CallFlow: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { ctx, state, trust } = useVerification();
   // FROZEN AT FIRST RENDER ON PURPOSE (fix round 1, Critical 1). `trust` is
   // LIVE — useVerification -> useDigitalAgent -> useSyncExternalStore, and
@@ -50,6 +51,7 @@ const CallFlow: React.FC = () => {
   // (everyone the fixtures offer is already among this user's own vouchers) —
   // rare, but real, so it's caught rather than left as an unhandled rejection.
   const [verifierJoinFailed, setVerifierJoinFailed] = useState(false);
+  const inviteId = searchParams.get('invite') || undefined;
 
   // E5: never offer someone who has already vouched — addUserVouch dedupes,
   // so a repeat invite would be a silent no-op. Memoized so toggling a
@@ -106,7 +108,7 @@ const CallFlow: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const started = await joinAsVerifier(ctx);
+        const started = await joinAsVerifier(ctx, inviteId);
         if (!cancelled) setSession(started);
       } catch {
         if (!cancelled) setVerifierJoinFailed(true);
@@ -115,7 +117,7 @@ const CallFlow: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [role, ctx, session, verifierJoinFailed]);
+  }, [role, ctx, session, verifierJoinFailed, inviteId]);
 
   if (step === 'select') {
     // Wait for the real approvals list before sampling verifiers — starting

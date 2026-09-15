@@ -26,9 +26,11 @@
 // `leaveCall` from its unmount cleanup. That is binding on the UI tasks.
 import { getAgent } from '../../components/identity/agent/digitalAgentStore';
 import { addUserVouch } from '../trust';
+import { VERIFIED_THRESHOLD } from '../trustModel';
+import { publishNotification, updateNotificationEvent, type NotificationOwner } from '../notificationEvents';
 import { store } from '../../store';
 import { allVerificationMembers, findVerificationMember, memberDeclines } from './fixtures/verification';
-import type { CallParticipant, CallSession, MemberSummary } from '../verificationModel';
+import type { CallInviteOffer, CallParticipant, CallSession, MemberSummary } from '../verificationModel';
 
 type TimerHandle = ReturnType<typeof setTimeout>;
 
@@ -56,6 +58,14 @@ const dailyOwners = new Map<string, string>();
 const dailyManualVerifiers = new Map<string, string | null>();
 /** Lets the daily runtime tear down its parent run if the authenticated owner changes before a queued write. */
 const dailyInvalidators = new Map<string, () => void>();
+interface StoredCallOffer {
+  owner: NotificationOwner;
+  offer: CallInviteOffer;
+  cleanupExpired: boolean;
+}
+const callOffers = new Map<string, StoredCallOffer>();
+const offerIdsByOwnerDay = new Map<string, string>();
+const offerIdsBySession = new Map<string, string>();
 
 const JOIN_STAGGER_MS = 1500;
 const JOIN_JITTER_MS = 200;
@@ -68,6 +78,50 @@ const PENDING_CANDIDATE_INDEX = 0;
 const newSessionId = (): string => `call-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 /** ±spread, small jitter on a delay that is already staggered — presentation only (§3.2). */
 const jitter = (spread: number): number => Math.random() * spread * 2 - spread;
+
+function utcDayKey(now = Date.now()): string {
+  return new Date(now).toISOString().slice(0, 10);
+}
+
+function ownerDayKey(owner: NotificationOwner, dayKey: string): string {
+  return `${encodeURIComponent(owner.serverUrl)}::${owner.publicKey}::${dayKey}`;
+}
+
+function ownerIsCurrentAndVerified(owner: NotificationOwner): boolean {
+  const user = store.getState().user;
+  return user.serverUrl === owner.serverUrl
+    && user.publicKey === owner.publicKey
+    && (getAgent()?.vouchedBy.length ?? 0) >= VERIFIED_THRESHOLD;
+}
+
+function publishCallOffer(stored: StoredCallOffer): void {
+  const { owner, offer } = stored;
+  publishNotification(owner, {
+    id: offer.eventId,
+    type: 'call_invite',
+    createdAt: offer.createdAt,
+    status: offer.status === 'pending' ? 'active' : offer.status,
+    payload: {
+      inviteId: offer.eventId,
+      candidateKey: offer.candidate.publicKey,
+      candidateName: offer.candidate.name,
+      candidateCountry: offer.candidate.country,
+      dayKey: offer.dayKey,
+    },
+  });
+}
+
+function setCallOfferStatus(
+  eventId: string,
+  status: 'consumed' | 'expired',
+  cleanupExpired = false,
+): void {
+  const stored = callOffers.get(eventId);
+  if (!stored || stored.offer.status === 'expired') return;
+  stored.offer = { ...stored.offer, status };
+  stored.cleanupExpired = cleanupExpired;
+  updateNotificationEvent(stored.owner, eventId, status);
+}
 
 function shuffled<T>(items: T[]): T[] {
   const copy = [...items];
@@ -421,6 +475,11 @@ export function simLeaveCall(sessionId: string): void {
   dailyOwners.delete(sessionId);
   dailyManualVerifiers.delete(sessionId);
   dailyInvalidators.delete(sessionId);
+  const offerEventId = offerIdsBySession.get(sessionId);
+  if (offerEventId) {
+    setCallOfferStatus(offerEventId, 'expired');
+    offerIdsBySession.delete(sessionId);
+  }
 }
 
 /** The fixture member a verified user (E6) sees waiting for a verifier — deterministic, excluding anyone already in the user's vouchers. */
@@ -432,21 +491,116 @@ export function simPendingCandidate(): CallParticipant | null {
   return { publicKey: member.publicKey, name: member.name, country: member.country, joined: true, verified: false };
 }
 
+/** Publish at most one stable pending verifier-role offer per owner and UTC day. */
+export function simOfferCallInvite(owner: NotificationOwner): CallInviteOffer | null {
+  if (!ownerIsCurrentAndVerified(owner)) return null;
+  const dayKey = utcDayKey();
+  const key = ownerDayKey(owner, dayKey);
+  const existingId = offerIdsByOwnerDay.get(key);
+  const existing = existingId ? callOffers.get(existingId) : undefined;
+  if (existing?.offer.status === 'pending') {
+    publishCallOffer(existing);
+    return existing.offer;
+  }
+  if (existing) return null;
+
+  const candidate = simPendingCandidate();
+  if (!candidate) return null;
+  const eventId = `call-invite:${candidate.publicKey}:${dayKey}:${owner.publicKey}`;
+  const persisted = store.getState().notifications.items.find((item) => item.id === eventId);
+  if (persisted && persisted.status !== 'active') return null;
+  const stored: StoredCallOffer = {
+    owner,
+    cleanupExpired: false,
+    offer: {
+      eventId,
+      ownerPublicKey: owner.publicKey,
+      candidate,
+      createdAt: Date.now(),
+      dayKey,
+      status: 'pending',
+    },
+  };
+  callOffers.set(eventId, stored);
+  offerIdsByOwnerDay.set(key, eventId);
+  publishCallOffer(stored);
+  return stored.offer;
+}
+
+/** Auth cleanup: pending offers cannot survive an owner change in this tab. */
+export function simExpireCallOffers(owner: NotificationOwner): void {
+  for (const eventId of offerIdsByOwnerDay.values()) {
+    const stored = callOffers.get(eventId);
+    if (!stored
+      || stored.owner.serverUrl !== owner.serverUrl
+      || stored.owner.publicKey !== owner.publicKey
+      || stored.offer.status !== 'pending') continue;
+    setCallOfferStatus(eventId, 'expired', true);
+  }
+}
+
+/** StrictMode remount hook: restore only offers expired by the immediately preceding auth cleanup. */
+export function simRestoreCallOffers(owner: NotificationOwner): void {
+  for (const eventId of offerIdsByOwnerDay.values()) {
+    const stored = callOffers.get(eventId);
+    if (!stored
+      || stored.owner.serverUrl !== owner.serverUrl
+      || stored.owner.publicKey !== owner.publicKey
+      || stored.offer.dayKey !== utcDayKey()
+      || stored.offer.status !== 'expired'
+      || !stored.cleanupExpired) continue;
+    stored.offer = { ...stored.offer, status: 'pending' };
+    stored.cleanupExpired = false;
+    publishCallOffer(stored);
+  }
+}
+
+/** Drop private offer records after cleanup; persisted notifications stay safely expired. */
+export function simForgetExpiredCallOffers(owner: NotificationOwner): void {
+  for (const [key, eventId] of offerIdsByOwnerDay) {
+    const stored = callOffers.get(eventId);
+    if (!stored
+      || stored.owner.serverUrl !== owner.serverUrl
+      || stored.owner.publicKey !== owner.publicKey
+      || stored.offer.status !== 'expired'
+      || !stored.cleanupExpired) continue;
+    callOffers.delete(eventId);
+    offerIdsByOwnerDay.delete(key);
+  }
+}
+
 /**
  * The C1 amendment (E6's verifier role) — an eighth seam function because
  * `inviteToCall` assumes the caller is the candidate, and this role inverts
  * that. Joins a session already `active`, candidate from
- * `simPendingCandidate()`, `verifierKey` as its sole, already-joined
+ * `simPendingCandidate()`, the owner as its sole, already-joined
  * verifier. No schedule — this user verifies by tapping, not by simulation.
  */
-export function simJoinAsVerifier(verifierKey: string): CallSession {
-  const candidate = simPendingCandidate();
+export function simJoinAsVerifier(owner: NotificationOwner, offerEventId?: string): CallSession {
+  if (!ownerIsCurrentAndVerified(owner)) {
+    throw new Error('[verificationSim] simJoinAsVerifier: owner is no longer eligible');
+  }
+  let candidate: CallParticipant | null;
+  let storedOffer: StoredCallOffer | undefined;
+  if (offerEventId) {
+    storedOffer = callOffers.get(offerEventId);
+    if (!storedOffer
+      || storedOffer.owner.serverUrl !== owner.serverUrl
+      || storedOffer.offer.ownerPublicKey !== owner.publicKey
+      || storedOffer.offer.dayKey !== utcDayKey()
+      || storedOffer.offer.status !== 'pending') {
+      throw new Error('[verificationSim] simJoinAsVerifier: invalid or expired call offer');
+    }
+    candidate = storedOffer.offer.candidate;
+  } else {
+    candidate = simPendingCandidate();
+  }
   if (!candidate) throw new Error('[verificationSim] simJoinAsVerifier: no eligible pending candidate');
   const id = newSessionId();
   const session: CallSession = {
     id,
     candidate,
-    verifiers: [selfParticipant(verifierKey)],
+    verifiers: [selfParticipant(owner.publicKey)],
     state: 'active',
     startedAt: Date.now(),
     timedOut: false,
@@ -454,5 +608,9 @@ export function simJoinAsVerifier(verifierKey: string): CallSession {
   };
   sessions.set(id, session);
   selfIsCandidate.set(id, false);
+  if (storedOffer) {
+    offerIdsBySession.set(id, storedOffer.offer.eventId);
+    setCallOfferStatus(storedOffer.offer.eventId, 'consumed');
+  }
   return session;
 }

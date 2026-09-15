@@ -182,36 +182,6 @@ const slice = createSlice({
       const nextState = current(state);
       saveToStorage(nextState.storageScope, nextState.items);
     },
-    /** @deprecated S39 compatibility action; domain producers move to the event service. */
-    addNotification(
-      state,
-      action: PayloadAction<{
-        type: 'merge_absorbed';
-        payload: NotificationPayload;
-      }>,
-    ) {
-      if (!state.storageScope) return;
-      const sourceId = String(action.payload.payload.sourceInitiativeId ?? 'unknown-source');
-      const targetId = String(action.payload.payload.targetInitiativeId ?? 'unknown-target');
-      const id = `merge-absorbed:${sourceId}:${targetId}`;
-      const existing = state.items.find((item) => item.id === id);
-      if (existing) {
-        existing.status = 'active';
-        existing.payload = action.payload.payload;
-      } else {
-        state.items.unshift({
-          id,
-          type: action.payload.type,
-          createdAt: Date.now(),
-          read: false,
-          status: 'active',
-          payload: action.payload.payload,
-        });
-        if (state.items.length > MAX_NOTIFICATIONS) state.items.length = MAX_NOTIFICATIONS;
-      }
-      const nextState = current(state);
-      saveToStorage(nextState.storageScope, nextState.items);
-    },
     setNotificationStatus(
       state,
       action: PayloadAction<{
@@ -263,7 +233,6 @@ const slice = createSlice({
 export const {
   hydrateNotifications,
   upsertNotification,
-  addNotification,
   setNotificationStatus,
   markRead,
   markUnread,

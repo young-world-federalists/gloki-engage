@@ -22,6 +22,7 @@ interface Props {
 const VerificationDemoStateDialog: React.FC<Props> = ({ isOpen, onClose }) => {
   const t = useT();
   const publicKey = useAppSelector((s) => s.user.publicKey);
+  const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const labels: Record<DemoScenario, string> = {
     'unverified-0': t('demo.verification.unverified', 'Unverified (0 approvals)'),
     'partial-2': t('demo.verification.partial', 'Partly vouched (2 of 4)'),
@@ -29,8 +30,8 @@ const VerificationDemoStateDialog: React.FC<Props> = ({ isOpen, onClose }) => {
     'member-view': t('demo.verification.memberView', 'Verified member with requests waiting'),
   };
   const apply = (scenario: DemoScenario) => {
-    if (!publicKey) return;
-    applyDemoScenario(scenario, publicKey);
+    if (!publicKey || !serverUrl) return;
+    applyDemoScenario(scenario, { publicKey, serverUrl });
     window.location.reload();
   };
   const dailyLabels: Record<DailyDemoScenario, string> = {

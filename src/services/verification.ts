@@ -49,6 +49,7 @@ import type {
 
 export type {
   Approval,
+  CallInviteOffer,
   CallParticipant,
   CallSession,
   CallState,
@@ -72,7 +73,7 @@ export { DAILY_SESSION_RESET_EVENT };
 
 /** Vouches held, requests waiting on the user (verified users only), requests sent. */
 export function getVerificationState(ctx: VerificationCtx): Promise<VerificationState> {
-  return demoGetState(ctx.publicKey);
+  return demoGetState(ctx);
 }
 
 /** The verified members a user can ask; `query` filters by name. */
@@ -82,20 +83,20 @@ export function listVerifiedMembers(_ctx: VerificationCtx, query?: string): Prom
 
 /** Records a pending request at once; resolves 2–5 s later with the settled request. */
 export function requestVouch(ctx: VerificationCtx, approverKey: string): Promise<VouchRequest> {
-  return demoRequestVouch(ctx.publicKey, approverKey);
+  return demoRequestVouch(ctx, approverKey);
 }
 
-export function respondToRequest(_ctx: VerificationCtx, requestId: string, approve: boolean): Promise<void> {
-  return demoRespondToRequest(requestId, approve);
+export function respondToRequest(ctx: VerificationCtx, requestId: string, approve: boolean): Promise<void> {
+  return demoRespondToRequest(ctx, requestId, approve);
 }
 
 /** Off-platform (email) — the demo records it locally and sends nothing. */
 export function sendInvitation(ctx: VerificationCtx, draft: InvitationDraft): Promise<void> {
-  return demoSendInvitation(ctx.publicKey, draft);
+  return demoSendInvitation(ctx, draft);
 }
 
 export function requestInvitation(ctx: VerificationCtx, memberKey: string): Promise<void> {
-  return demoRequestInvitation(ctx.publicKey, memberKey);
+  return demoRequestInvitation(ctx, memberKey);
 }
 
 // ── Call simulation (S37 — Prompt 2 Wave 2) ─────────────────────────────────
@@ -165,8 +166,8 @@ export function pendingCandidate(_ctx: VerificationCtx): Promise<CallParticipant
  * `async` for the same reason as `startCall`: "no eligible pending candidate"
  * throws synchronously in the sim, and a caller's `.catch()` must see it.
  */
-export async function joinAsVerifier(ctx: VerificationCtx): Promise<CallSession> {
-  return simJoinAsVerifier(ctx.publicKey);
+export async function joinAsVerifier(ctx: VerificationCtx, offerEventId?: string): Promise<CallSession> {
+  return simJoinAsVerifier(ctx, offerEventId);
 }
 
 // ── Daily verification simulation (S38 — Prompt 2 Wave 3) ────────────────

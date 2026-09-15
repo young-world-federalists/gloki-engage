@@ -81,6 +81,15 @@ export interface CallSession {
   method: 'call' | 'daily';
 }
 
+export interface CallInviteOffer {
+  eventId: string;
+  ownerPublicKey: string;
+  candidate: CallParticipant;
+  createdAt: number;
+  dayKey: string;
+  status: 'pending' | 'consumed' | 'expired';
+}
+
 export type DailyRole = 'candidate' | 'verifier';
 export type DailyPhase = 'preSession' | 'lobby' | 'selection' | 'inCall' | 'finished';
 export type DailyAssignment = 'candidate' | 'selectedVerifier' | 'observer' | 'unavailable';
