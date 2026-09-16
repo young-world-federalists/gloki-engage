@@ -135,30 +135,53 @@ then `discussion.get_comments` for the live count. It never deploys or writes �
 the discussion page itself remains the deploy-on-intent surface. No contract work
 needed beyond what already exists.
 
-### Conviction / backing (`demoContracts/conviction.ts`) — documented S33
+### Conviction / backing (`demoContracts/conviction.ts`) — S33 + S40 handoff
 
 **This subsystem was missing from this doc entirely** (it predates it). Full surface,
 including the two methods S33 adds. Resolved in **shared mode** from the initiative
 contract: `initiative.get_stage_contract { stage_key: 'convictionContractId' }`.
 Client wrappers live in `src/components/collaboration/flows/voting/convictionApi.ts`.
 
+#### S40 addendum — time-accrued strength
+
+The server target is `server-side/src/assets/contracts/gloki_engage_initiative_contract.py`.
+Its conviction block was re-verified against the current `origin/server-side` baseline
+`a81218f` on 2026-09-16. Ouri has **not** yet applied S40. The complete replacement block
+is in `docs/contracts/s40-conviction-accrual.py`.
+
+All public method names and argument lists remain exactly as documented in S33; S40 only
+tightens `stake` validation and adds derived fields/semantics to the existing reads.
+
 Stake record shape: `{ amount, duration, timestamp, country, voter }`.
-`duration` is one of `1w | 1m | 3m | 6m | 1y`, with weights **1 / 2 / 4 / 7 / 12**.
+`duration` is one of `1w | 1m | 3m | 6m | 1y`, with maximum strengths
+**1 / 2 / 4 / 7 / 12**.
 
 Reads:
 
-- `get_my_stake` (no args) → the caller's stake record, or `null`.
+- `get_my_stake` (no args) → the caller's stake record plus additive `weight`, or
+  `null`. `weight` is derived for the response only; it is never persisted.
 - `get_stakes` (no args) → `{ [voter]: stake }`.
-- `get_total_conviction` (no args) → `{ total, count }` — `total` sums
-  `amount × durationWeight`; `count` is the number of backers.
+- `get_total_conviction` (no args) →
+  `{ total, count, model: 'time_accrual_v1' }`. `model` is additive and is the UI's
+  compatibility signal; `count` is the number of backers.
 - `get_conviction_by_country` (no args) → `{ [ISO-alpha-2]: weight }`.
+
+All strength reads use the same formula:
+
+```text
+cap = {1w: 1, 1m: 2, 3m: 4, 6m: 7, 1y: 12}[duration]
+strength = min(cap, 1 + max(0, elapsed_seconds) / (30 * 24 * 60 * 60))
+```
+
+Missing/invalid/future timestamps safely return strength `1`. Totals and country
+breakdowns sum this strength directly and never multiply by stored `amount`.
 
 Writes:
 
 - `stake` (`{ amount, duration, country }`) — creates the caller's backing.
-  **The UI always sends `amount: 1`**: conviction here is *time-only*, so the
-  duration weight is the entire weight and support can never be wealth-weighted
-  (this is what keeps it consistent with the locked one-person-one-vote decision).
+  The contract must require **exactly** `amount == 1`; any other value returns
+  `{ error: 'Stake amount must be exactly 1' }`. Conviction is time-only and support
+  can never be wealth-weighted.
   **Rejects a second `stake` from the same caller** (`{ error: 'Already backing —
   use update_stake' }`). It previously *added* to the existing amount, which made
   one-person-one-commitment depend on the client having read `get_my_stake` first
@@ -167,22 +190,22 @@ Writes:
 - `update_stake` (`{ duration, country }`) — **new in S33.** Changes the caller's
   duration and nothing else; the amount is never touched, so re-committing cannot
   inflate one person's weight. Returns `{ error }` if the caller has no stake.
-  **Timestamp handling:** lengthening the commitment preserves the original
-  `timestamp`; shortening resets it to now.
-  ⚠️ **Be clear about what this does and doesn't buy.** Today `timestamp` is
-  *display metadata only* — it drives the "Backing since {date}" line and nothing
-  else. Weight is computed purely from the currently-declared `duration`
-  (`get_total_conviction` / `get_conviction_by_country` multiply
-  `amount × DURATION_MULTIPLIERS[duration]`), and withdrawal is free, so nothing
-  currently stops a caller declaring `1y` for maximum weight and withdrawing a
-  moment later. The timestamp rule only becomes a real anti-harvest guarantee once
-  weight accrues from time *held* — see the open item in MASTER_TODO §7. Implement
-  the rule, but don't rely on it as a defence yet.
+  **Timestamp handling:** changing to an equal or longer commitment preserves the
+  original `timestamp`; shortening resets it to now, so current strength returns to
+  `1`. With S40 the timestamp is authoritative input to strength, not display-only
+  metadata.
 - `withdraw_stake` (no args) — **new in S33.** Removes the caller's stake. Returns
   `{ error }` if there is none.
 
 **Auth the real contract must enforce:** all three writes act on `caller` only — a
 caller must never be able to create, change, or withdraw another key's backing.
+
+**Deployment compatibility.** Initiative contracts are immutable after deployment.
+`global-v20` only resets UI demo fixtures; it is not a server migration. Newly
+deployed contracts containing the S40 replacement report `model: 'time_accrual_v1'`.
+Existing contracts omit `model` and remain legacy instant-strength contracts. The UI
+detects that absence, retains usable controls and totals, and states that the chosen
+strength applies immediately instead of making a false accrual claim.
 
 **Two UI surfaces, one contract.** `MandateStage` (community page / stage feed) and
 `MandateBacking` (the published mandate page, S33) both mount `ConvictionStaking`

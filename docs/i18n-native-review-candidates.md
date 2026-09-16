@@ -1802,3 +1802,29 @@ controlled read state. Existing `notifications.title`, `notifications.empty`,
 All 37 cited keys were cross-checked against both overlays at S39 HEAD. The 360px browser pass
 covered English, French and Swahili with no horizontal overflow or exposed interpolation tokens;
 native register and idiom remain intentionally open for human review.
+
+## Session 40 (2026-09-16) — conviction strength accrual
+
+**9 changed/new keys.** The repository parity checker reports `fr = sw = 1455` keys, with identical
+key sets and matching interpolation tokens (`RESULT: PARITY OK`). English remains the inline fallback.
+The 360px browser pass covered English, French and Swahili in light and dark modes; the strings below
+wrapped without clipping, and the duration controls retained their 44px minimum height.
+
+Please answer these three meaning questions before polishing style:
+
+1. Do French *force* and Swahili *nguvu* read as civic support strength rather than physical force?
+2. Does “applied immediately” clearly distinguish the immutable legacy model without sounding like
+   an error or warning?
+3. Does the modern shortening sentence unmistakably say that accrued strength returns to `1`?
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `mechanisms.conviction.intro` | Every backing starts at 1 strength and gains 1 point for every 30 days it is held, up to the maximum for your commitment. | Chaque soutien commence avec une force de 1 et gagne 1 point tous les 30 jours où il est maintenu, jusqu’au maximum de votre engagement. | Kila uungaji mkono huanza na nguvu 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea, hadi kiwango cha juu cha ahadi yako. |
+| `mechanisms.conviction.maxStrength` | Maximum strength: {strength} | Force maximale : {strength} | Nguvu ya juu zaidi: {strength} |
+| `mechanisms.conviction.currentStrength` | Current strength: {current} of {max} | Force actuelle : {current} sur {max} | Nguvu ya sasa: {current} kati ya {max} |
+| `mechanisms.conviction.legacyIntro` | This community uses the earlier model: the full strength of your chosen commitment applies immediately. | Cette communauté utilise le modèle précédent : la force maximale de l’engagement choisi s’applique immédiatement. | Jumuiya hii inatumia mfumo wa awali: nguvu yote ya ahadi uliyochagua hutumika mara moja. |
+| `mechanisms.conviction.legacyNotice` | This community uses the earlier instant-strength model. | Cette communauté utilise l’ancien modèle de force immédiate. | Jumuiya hii inatumia mfumo wa awali wa nguvu ya papo hapo. |
+| `mechanisms.conviction.legacyStrength` | Current strength: {strength} (applied immediately) | Force actuelle : {strength} (appliquée immédiatement) | Nguvu ya sasa: {strength} (imetumika mara moja) |
+| `mechanisms.conviction.how2` | Strength starts at 1 and gains 1 point for every 30 days you keep backing, up to the maximum for your chosen commitment. | La force commence à 1 et gagne 1 point tous les 30 jours pendant lesquels vous maintenez votre soutien, jusqu’au maximum de l’engagement choisi. | Nguvu huanza kwa 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea kuunga mkono, hadi kiwango cha juu cha ahadi uliyochagua. |
+| `mechanisms.conviction.how3` | You can change or withdraw at any time. Committing for longer keeps your original start date; shortening restarts your strength at 1. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir ramène la force à 1. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda hurudisha nguvu hadi 1. |
+| `mechanisms.conviction.legacyHow3` | You can change or withdraw at any time. Committing for longer keeps your original backing date; shortening restarts that date. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir réinitialise cette date. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda huanzisha tarehe hiyo upya. |
