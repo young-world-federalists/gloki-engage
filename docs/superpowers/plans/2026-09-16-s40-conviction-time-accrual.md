@@ -311,8 +311,9 @@ Import the shared types/constants. Keep the existing deterministic LCG and durat
 ```ts
 const duration = DURATIONS[s % DURATIONS.length];
 s = (s * 1103515245 + 12345) & 0x7fffffff;
-const maturityMs = CONVICTION_MATURITY_DAYS[duration] * 24 * 60 * 60 * 1000;
-const ageMs = maturityMs === 0 ? s % (7 * 24 * 60 * 60 * 1000) : s % (maturityMs + 1);
+const maturityDays = CONVICTION_MATURITY_DAYS[duration];
+const ageDays = maturityDays === 0 ? s % 7 : s % (maturityDays + 1);
+const ageMs = ageDays * 24 * 60 * 60 * 1000;
 ```
 
 Return `StoredConvictionStake[]`; keep `amount: 1`, country and participation behavior unchanged. Timestamp is `now - ageMs`.

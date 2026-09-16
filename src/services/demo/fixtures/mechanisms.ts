@@ -6,6 +6,11 @@
 // Lane D extends this file with delegation sample data.
 
 import type { Persona } from './identity';
+import {
+  CONVICTION_MATURITY_DAYS,
+  type ConvictionDuration,
+  type StoredConvictionStake,
+} from '../../convictionModel';
 
 export function votePattern(personas: Persona[], seed: number): Record<string, 'up' | 'down'> {
   const votes: Record<string, 'up' | 'down'> = {};
@@ -68,7 +73,7 @@ export function qvAllocationPattern(
   return alloc;
 }
 
-const DURATIONS: Array<'1w' | '1m' | '3m' | '6m' | '1y'> = ['1w', '1m', '3m', '6m', '1y'];
+const DURATIONS: ConvictionDuration[] = ['1w', '1m', '3m', '6m', '1y'];
 
 // Conviction is time-only: everyone backs equally (amount = 1) and the duration
 // is the sole lever, so seeded support is never wealth-weighted. `maxAmount` is
@@ -78,9 +83,9 @@ export function convictionPattern(
   participationRate: number,
   _maxAmount: number,
   seed: number,
-): Array<{ voter: string; amount: number; duration: '1w' | '1m' | '3m' | '6m' | '1y'; country: string; timestamp: number }> {
+): StoredConvictionStake[] {
   void _maxAmount;
-  const stakes: Array<{ voter: string; amount: number; duration: '1w' | '1m' | '3m' | '6m' | '1y'; country: string; timestamp: number }> = [];
+  const stakes: StoredConvictionStake[] = [];
   let s = seed || 1;
   const now = Date.now();
   for (const p of personas) {
@@ -88,12 +93,16 @@ export function convictionPattern(
     if ((s % 100) / 100 >= participationRate) continue;
     s = (s * 1103515245 + 12345) & 0x7fffffff;
     const duration = DURATIONS[s % DURATIONS.length];
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    const maturityDays = CONVICTION_MATURITY_DAYS[duration];
+    const ageDays = maturityDays === 0 ? s % 7 : s % (maturityDays + 1);
+    const ageMs = ageDays * 24 * 60 * 60 * 1000;
     stakes.push({
       voter: p.publicKey,
       amount: 1,
       duration,
       country: p.country,
-      timestamp: now - (s % (7 * 24 * 3600 * 1000)),
+      timestamp: now - ageMs,
     });
   }
   return stakes;
