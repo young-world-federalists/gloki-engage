@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Clock, TrendingUp, Check, Pencil } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
 import * as api from './convictionApi';
@@ -53,26 +53,33 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   const [countryBreakdown, setCountryBreakdown] = useState<Record<string, number>>({});
   const [duration, setDuration] = useState<ConvictionDuration>('1m');
   const [submitting, setSubmitting] = useState(false);
-  const [hasLoadedData, setHasLoadedData] = useState(false);
+  const [loadedContractId, setLoadedContractId] = useState<string | null>(null);
+  const currentContractId = useRef(contractId);
+  currentContractId.current = contractId;
+  const hasLoadedData = Boolean(contractId) && loadedContractId === contractId;
   // S33: a commitment is changeable, not frozen. `editing` swaps the summary
   // back to the picker, pre-set to what you already chose.
   const [editing, setEditing] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!serverUrl || !publicKey || !contractId) return;
+    const requestContractId = contractId;
+    if (!serverUrl || !publicKey || !requestContractId) return;
     try {
       const [stake, total, byCountry] = await Promise.all([
-        api.getMyStake(serverUrl, publicKey, contractId),
-        api.getTotalConviction(serverUrl, publicKey, contractId),
-        api.getConvictionByCountry(serverUrl, publicKey, contractId),
+        api.getMyStake(serverUrl, publicKey, requestContractId),
+        api.getTotalConviction(serverUrl, publicKey, requestContractId),
+        api.getConvictionByCountry(serverUrl, publicKey, requestContractId),
       ]);
+      if (currentContractId.current !== requestContractId) return;
       setMyStake(stake || null);
       setTotalConviction(total || { total: 0, count: 0 });
       setCountryBreakdown(byCountry || {});
     } catch (err) {
       console.error('Failed to fetch conviction data:', err);
     } finally {
-      setHasLoadedData(true);
+      if (currentContractId.current === requestContractId) {
+        setLoadedContractId(requestContractId);
+      }
     }
   }, [serverUrl, publicKey, contractId]);
 
@@ -110,7 +117,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
     try {
       // Amount is always 1 — time is the only lever, never quantity. Changing an
       // existing commitment goes through `update_stake`, which leaves the amount
-      // alone; calling `stake` twice would add to it.
+      // alone; a second `stake` is rejected by the contract.
       if (myStake) {
         await api.updateStake(serverUrl, publicKey, contractId, duration, myCountry);
       } else {

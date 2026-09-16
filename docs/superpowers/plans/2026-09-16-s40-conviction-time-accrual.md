@@ -451,7 +451,7 @@ useEffect(() => {
 }, [isReady, hasLoadedData, fetchData]);
 ```
 
-Track `hasLoadedData` in `fetchData`'s `finally` branch and keep the loading state visible until the first read attempt settles. This prevents a modern contract from briefly showing the legacy branch before its model marker arrives. Do not write on the interval and do not add a live region for fractional changes.
+Track the contract id whose first read has settled and derive `hasLoadedData` by comparing it with the current contract id. Ignore stale read responses after the contract id changes. Keep the loading state visible until the current contract's first read attempt settles; this prevents a modern contract from briefly showing the legacy branch before its model marker arrives or a previous mandate's values. Do not write on the interval and do not add a live region for fractional changes.
 
 - [ ] **Step 5: Add only the styling needed for truthful state labels**
 

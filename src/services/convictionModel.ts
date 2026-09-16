@@ -38,7 +38,7 @@ export interface ConvictionTotal {
 }
 
 export function isConvictionDuration(value: string): value is ConvictionDuration {
-  return value in CONVICTION_CAPS;
+  return Object.prototype.hasOwnProperty.call(CONVICTION_CAPS, value);
 }
 
 export function convictionCap(duration: string): number {
@@ -51,7 +51,7 @@ export function strengthForStake(
 ): number {
   const cap = convictionCap(stake.duration);
   const startedAt = Number(stake.timestamp);
-  if (!Number.isFinite(startedAt)) return 1;
+  if (!Number.isFinite(startedAt) || startedAt <= 0) return 1;
   const elapsed = Math.max(0, now - startedAt);
   return Math.min(cap, 1 + elapsed / ACCRUAL_PERIOD_MS);
 }
