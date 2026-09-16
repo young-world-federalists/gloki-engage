@@ -1169,7 +1169,12 @@ const sw: Dictionary = {
   'mechanisms.qv.regionOther': 'Nyingine',
   'mechanisms.qv.expertReviewed': 'imekaguliwa na mtaalam',
 
-  'mechanisms.conviction.intro': 'Uungaji mkono unaokua kadiri unavyoendelea kuunga. Jitolee kwa muda mrefu zaidi na msaada wako uwe na uzito zaidi — kwa sababu kujitolea kwa kudumu kuna maana kuliko kura ya kupita.',
+  'mechanisms.conviction.intro': 'Kila uungaji mkono huanza na nguvu 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea, hadi kiwango cha juu cha ahadi yako.',
+  'mechanisms.conviction.maxStrength': 'Nguvu ya juu zaidi: {strength}',
+  'mechanisms.conviction.currentStrength': 'Nguvu ya sasa: {current} kati ya {max}',
+  'mechanisms.conviction.legacyIntro': 'Jumuiya hii inatumia mfumo wa awali: nguvu yote ya ahadi uliyochagua hutumika mara moja.',
+  'mechanisms.conviction.legacyNotice': 'Jumuiya hii inatumia mfumo wa awali wa nguvu ya papo hapo.',
+  'mechanisms.conviction.legacyStrength': 'Nguvu ya sasa: {strength} (imetumika mara moja)',
   'mechanisms.conviction.heading': 'Utaliunga mkono kwa muda gani?',
   'mechanisms.conviction.back': 'Liunge mkono',
   'mechanisms.conviction.backing': 'Inaweka…',
@@ -1199,8 +1204,9 @@ const sw: Dictionary = {
   'mechanisms.conviction.howLabel': 'Jinsi uungaji mkono unavyofanya kazi',
   'mechanisms.conviction.howTitle': 'Jinsi uungaji mkono unavyofanya kazi',
   'mechanisms.conviction.how1': 'Kila mtu ana uungaji mkono mmoja tu kwa kila agizo. Hakuna bajeti wala akiba ya kutumia — huwezi kuunga mkono mara mbili ili uzito wako uongezeke.',
-  'mechanisms.conviction.how2': 'Nguvu yako inatokana na muda wa ahadi yako pekee. Mwaka mmoja una uzito zaidi ya wiki moja, kwa sababu ahadi ya muda mrefu ni ngumu zaidi kutoa kuliko kura ya papo hapo.',
-  'mechanisms.conviction.how3': 'Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda kunahifadhi tarehe uliyoanza kuunga mkono; kupunguza muda kunaanzisha upya hesabu hiyo.',
+  'mechanisms.conviction.how2': 'Nguvu huanza kwa 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea kuunga mkono, hadi kiwango cha juu cha ahadi uliyochagua.',
+  'mechanisms.conviction.how3': 'Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda hurudisha nguvu hadi 1.',
+  'mechanisms.conviction.legacyHow3': 'Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda huanzisha tarehe hiyo upya.',
 
   // ── Translation affordances ────────────────────────────────────────────
   'translate.translate': 'Tafsiri',

@@ -101,6 +101,21 @@
   }
 }
 
+.legacyNotice {
+  font-size: $text-xs;
+  line-height: 1.5;
+  margin: 0 0 $spacing-lg 0;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  background: $info-surface;
+  color: $info-on-surface;
+
+  @include dark {
+    background: $info-surface-dark;
+    color: $primary-on-dark;
+  }
+}
+
 // ─── Duration picker (the only lever) ──────────────────────────────────────
 .durationPicker {
   display: flex;

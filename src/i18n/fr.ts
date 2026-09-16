@@ -1170,7 +1170,12 @@ const fr: Dictionary = {
   'mechanisms.qv.regionOther': 'Autre',
   'mechanisms.qv.expertReviewed': 'examiné par un expert',
 
-  'mechanisms.conviction.intro': 'Un soutien qui grandit avec le temps. Engagez-vous plus longtemps et votre soutien compte davantage — parce qu’un engagement durable vaut plus qu’un vote de passage.',
+  'mechanisms.conviction.intro': 'Chaque soutien commence avec une force de 1 et gagne 1 point tous les 30 jours où il est maintenu, jusqu’au maximum de votre engagement.',
+  'mechanisms.conviction.maxStrength': 'Force maximale : {strength}',
+  'mechanisms.conviction.currentStrength': 'Force actuelle : {current} sur {max}',
+  'mechanisms.conviction.legacyIntro': 'Cette communauté utilise le modèle précédent : la force maximale de l’engagement choisi s’applique immédiatement.',
+  'mechanisms.conviction.legacyNotice': 'Cette communauté utilise l’ancien modèle de force immédiate.',
+  'mechanisms.conviction.legacyStrength': 'Force actuelle : {strength} (appliquée immédiatement)',
   'mechanisms.conviction.heading': 'Combien de temps soutiendrez-vous ceci ?',
   'mechanisms.conviction.back': 'Soutenir',
   'mechanisms.conviction.backing': 'Engagement…',
@@ -1200,8 +1205,9 @@ const fr: Dictionary = {
   'mechanisms.conviction.howLabel': 'Comment fonctionne le soutien',
   'mechanisms.conviction.howTitle': 'Comment fonctionne le soutien',
   'mechanisms.conviction.how1': 'Chaque personne dispose d’un seul soutien par mandat. Il n’y a ni budget ni réserve à dépenser — vous ne pouvez pas soutenir deux fois pour peser davantage.',
-  'mechanisms.conviction.how2': 'Votre force vient uniquement de la durée de votre engagement. Un an compte plus qu’une semaine, parce qu’un engagement durable est plus difficile à donner qu’un vote de passage.',
-  'mechanisms.conviction.how3': 'Vous pouvez changer ou retirer votre soutien à tout moment. Allonger la durée conserve la date de votre premier soutien ; la raccourcir remet ce compteur à zéro.',
+  'mechanisms.conviction.how2': 'La force commence à 1 et gagne 1 point tous les 30 jours pendant lesquels vous maintenez votre soutien, jusqu’au maximum de l’engagement choisi.',
+  'mechanisms.conviction.how3': 'Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir ramène la force à 1.',
+  'mechanisms.conviction.legacyHow3': 'Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir réinitialise cette date.',
 
   // ── Translation affordances ────────────────────────────────────────────
   'translate.translate': 'Traduire',

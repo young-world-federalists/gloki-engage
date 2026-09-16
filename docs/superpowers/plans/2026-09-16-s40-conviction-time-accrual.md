@@ -396,10 +396,13 @@ Use:
 
 ```ts
 const isAccrual = totalConviction.model === CONVICTION_MODEL;
-const strengthFormatter = new Intl.NumberFormat(locale, {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
+const strengthFormatter = useMemo(
+  () => new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }),
+  [locale],
+);
 const formatStrength = (value: number) => strengthFormatter.format(value);
 ```
 
@@ -435,7 +438,7 @@ Keep the existing initial and post-write fetches. Add one effect after the initi
 
 ```ts
 useEffect(() => {
-  if (!isReady) return;
+  if (!isReady || !hasLoadedData) return undefined;
   const refreshWhenVisible = () => {
     if (document.visibilityState === 'visible') void fetchData();
   };
@@ -445,10 +448,10 @@ useEffect(() => {
     document.removeEventListener('visibilitychange', refreshWhenVisible);
     window.clearInterval(intervalId);
   };
-}, [isReady, fetchData]);
+}, [isReady, hasLoadedData, fetchData]);
 ```
 
-Do not write on the interval and do not add a live region for fractional changes.
+Track `hasLoadedData` in `fetchData`'s `finally` branch and keep the loading state visible until the first read attempt settles. This prevents a modern contract from briefly showing the legacy branch before its model marker arrives. Do not write on the interval and do not add a live region for fractional changes.
 
 - [ ] **Step 5: Add only the styling needed for truthful state labels**
 
@@ -468,6 +471,7 @@ Change/add these English inline fallbacks:
 | `mechanisms.conviction.legacyStrength` | Current strength: {strength} (applied immediately) |
 | `mechanisms.conviction.how2` | Strength starts at 1 and gains 1 point for every 30 days you keep backing, up to the maximum for your chosen commitment. |
 | `mechanisms.conviction.how3` | You can change or withdraw at any time. Committing for longer keeps your original start date; shortening restarts your strength at 1. |
+| `mechanisms.conviction.legacyHow3` | You can change or withdraw at any time. Committing for longer keeps your original backing date; shortening restarts that date. |
 
 Use these French overlays:
 
@@ -480,6 +484,7 @@ Use these French overlays:
 'mechanisms.conviction.legacyStrength': 'Force actuelle : {strength} (appliquée immédiatement)',
 'mechanisms.conviction.how2': 'La force commence à 1 et gagne 1 point tous les 30 jours pendant lesquels vous maintenez votre soutien, jusqu’au maximum de l’engagement choisi.',
 'mechanisms.conviction.how3': 'Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir ramène la force à 1.',
+'mechanisms.conviction.legacyHow3': 'Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir réinitialise cette date.',
 ```
 
 Use these Swahili overlays:
@@ -493,6 +498,7 @@ Use these Swahili overlays:
 'mechanisms.conviction.legacyStrength': 'Nguvu ya sasa: {strength} (imetumika mara moja)',
 'mechanisms.conviction.how2': 'Nguvu huanza kwa 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea kuunga mkono, hadi kiwango cha juu cha ahadi uliyochagua.',
 'mechanisms.conviction.how3': 'Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda hurudisha nguvu hadi 1.',
+'mechanisms.conviction.legacyHow3': 'Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda huanzisha tarehe hiyo upya.',
 ```
 
 Keep identical `{strength}`, `{current}` and `{max}` token sets between locales.
@@ -586,7 +592,7 @@ Do not claim Ouri has applied the patch. Name `server-side` target file and curr
 
 - [ ] **Step 3: Append the Session 40 native-review packet**
 
-Add a `## Session 40 (2026-09-16) — conviction strength accrual` section. Include the eight changed/new keys from Task 4 in an English/French/Swahili table. Call out three reviewer questions:
+Add a `## Session 40 (2026-09-16) — conviction strength accrual` section. Include the nine changed/new keys from Task 4 in an English/French/Swahili table. Call out three reviewer questions:
 
 1. whether French *force* and Swahili *nguvu* read as civic support strength rather than physical force;
 2. whether “applied immediately” clearly distinguishes legacy behavior without sounding like an error; and

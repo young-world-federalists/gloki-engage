@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Clock, TrendingUp, Check, Pencil } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
 import * as api from './convictionApi';
@@ -7,6 +7,15 @@ import { getCountryColor } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
 import { CountryFlag, InfoDisclosure } from '../../../shared';
 import { formatDateTime } from '../../../../utils/formatDateTime';
+import {
+  CONVICTION_CAPS,
+  CONVICTION_MODEL,
+  convictionCap,
+  isConvictionDuration,
+  type ConvictionDuration,
+  type ConvictionStakeRead,
+  type ConvictionTotal,
+} from '../../../../services/convictionModel';
 import styles from './ConvictionStaking.module.scss';
 
 const convictionCode = '';
@@ -18,24 +27,13 @@ interface ConvictionStakingProps {
   compact?: boolean;
 }
 
-interface StakeRecord {
-  amount: number;
-  duration: string;
-  timestamp: string;
-  country: string;
-  voter: string;
-}
-
-// Time-only conviction: everyone backs equally (amount = 1). The ONLY lever is
-// how long you commit, so support is never wealth-weighted — it grows purely with
-// the length of your commitment. The duration multiplier IS your weight.
-const MAX_MULTIPLIER = 12;
-const DURATIONS = [
-  { value: '1w', label: '1 week', labelKey: 'mechanisms.conviction.dur1w', strength: 'Quick support', strengthKey: 'mechanisms.conviction.s1w', multiplier: 1 },
-  { value: '1m', label: '1 month', labelKey: 'mechanisms.conviction.dur1m', strength: 'Steady support', strengthKey: 'mechanisms.conviction.s1m', multiplier: 2 },
-  { value: '3m', label: '3 months', labelKey: 'mechanisms.conviction.dur3m', strength: 'Committed support', strengthKey: 'mechanisms.conviction.s3m', multiplier: 4 },
-  { value: '6m', label: '6 months', labelKey: 'mechanisms.conviction.dur6m', strength: 'Strong support', strengthKey: 'mechanisms.conviction.s6m', multiplier: 7 },
-  { value: '1y', label: '1 year', labelKey: 'mechanisms.conviction.dur1y', strength: 'Strongest support', strengthKey: 'mechanisms.conviction.s1y', multiplier: 12 },
+const MAX_STRENGTH = CONVICTION_CAPS['1y'];
+const DURATIONS: Array<{ value: ConvictionDuration; label: string; labelKey: string }> = [
+  { value: '1w', label: '1 week', labelKey: 'mechanisms.conviction.dur1w' },
+  { value: '1m', label: '1 month', labelKey: 'mechanisms.conviction.dur1m' },
+  { value: '3m', label: '3 months', labelKey: 'mechanisms.conviction.dur3m' },
+  { value: '6m', label: '6 months', labelKey: 'mechanisms.conviction.dur6m' },
+  { value: '1y', label: '1 year', labelKey: 'mechanisms.conviction.dur1y' },
 ];
 
 const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
@@ -50,11 +48,12 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   const profiles = useAppSelector((s) => s.communities.profiles);
   const myCountry = publicKey && profiles[publicKey]?.country ? profiles[publicKey].country : 'OTHER';
 
-  const [myStake, setMyStake] = useState<StakeRecord | null>(null);
-  const [totalConviction, setTotalConviction] = useState<{ total: number; count: number }>({ total: 0, count: 0 });
+  const [myStake, setMyStake] = useState<ConvictionStakeRead | null>(null);
+  const [totalConviction, setTotalConviction] = useState<ConvictionTotal>({ total: 0, count: 0 });
   const [countryBreakdown, setCountryBreakdown] = useState<Record<string, number>>({});
-  const [duration, setDuration] = useState('1m');
+  const [duration, setDuration] = useState<ConvictionDuration>('1m');
   const [submitting, setSubmitting] = useState(false);
+  const [hasLoadedData, setHasLoadedData] = useState(false);
   // S33: a commitment is changeable, not frozen. `editing` swaps the summary
   // back to the picker, pre-set to what you already chose.
   const [editing, setEditing] = useState(false);
@@ -67,11 +66,13 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
         api.getTotalConviction(serverUrl, publicKey, contractId),
         api.getConvictionByCountry(serverUrl, publicKey, contractId),
       ]);
-      setMyStake((stake as StakeRecord) || null);
-      setTotalConviction((total as { total: number; count: number }) || { total: 0, count: 0 });
-      setCountryBreakdown((byCountry as Record<string, number>) || {});
+      setMyStake(stake || null);
+      setTotalConviction(total || { total: 0, count: 0 });
+      setCountryBreakdown(byCountry || {});
     } catch (err) {
       console.error('Failed to fetch conviction data:', err);
+    } finally {
+      setHasLoadedData(true);
     }
   }, [serverUrl, publicKey, contractId]);
 
@@ -79,7 +80,29 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
     if (isReady) fetchData();
   }, [isReady, fetchData]);
 
+  // Conviction changes with elapsed time even when nobody writes to the
+  // contract. Refresh occasionally, and when the tab becomes visible again.
+  useEffect(() => {
+    if (!isReady || !hasLoadedData) return undefined;
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void fetchData();
+    };
+    const intervalId = window.setInterval(refreshWhenVisible, 15 * 60 * 1000);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [isReady, hasLoadedData, fetchData]);
+
   const selectedDuration = DURATIONS.find((d) => d.value === duration) || DURATIONS[1];
+  const selectedCap = CONVICTION_CAPS[selectedDuration.value];
+  const isAccrual = totalConviction.model === CONVICTION_MODEL;
+  const strengthFormatter = useMemo(
+    () => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+    [locale],
+  );
+  const formatStrength = (value: number) => strengthFormatter.format(value);
 
   const handleStake = async () => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -117,7 +140,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   };
 
   const startEditing = () => {
-    if (myStake) setDuration(myStake.duration);
+    if (myStake && isConvictionDuration(myStake.duration)) setDuration(myStake.duration);
     setEditing(true);
   };
 
@@ -132,8 +155,14 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
       title={t('mechanisms.conviction.howTitle', 'How backing works')}
     >
       <p>{t('mechanisms.conviction.how1', 'Everyone gets one backing per mandate. There is no budget and nothing to spend — you cannot back something twice to make it count for more.')}</p>
-      <p>{t('mechanisms.conviction.how2', 'Your strength comes only from how long you commit. A year of commitment counts for more than a week, because lasting commitment is harder to give than a passing vote.')}</p>
-      <p>{t('mechanisms.conviction.how3', 'You can change or withdraw your backing at any time. Committing for longer keeps the date you first backed this; shortening it restarts that clock.')}</p>
+      <p>{isAccrual
+        ? t('mechanisms.conviction.how2', 'Strength starts at 1 and gains 1 point for every 30 days you keep backing, up to the maximum for your chosen commitment.')
+        : t('mechanisms.conviction.legacyIntro', 'This community uses the earlier model: the full strength of your chosen commitment applies immediately.')}
+      </p>
+      <p>{isAccrual
+        ? t('mechanisms.conviction.how3', 'You can change or withdraw at any time. Committing for longer keeps your original start date; shortening restarts your strength at 1.')
+        : t('mechanisms.conviction.legacyHow3', 'You can change or withdraw at any time. Committing for longer keeps your original backing date; shortening restarts that date.')}
+      </p>
     </InfoDisclosure>
   );
 
@@ -143,7 +172,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
       <button onClick={retry} className={styles.retryBtn}>{t('common.retry', 'Try again')}</button>
     </div>
   );
-  if (isDeploying || !isReady) return (
+  if (isDeploying || !isReady || !hasLoadedData) return (
     <div className={styles.loading}>
       <div className={styles.spinner} />
       <p>{statusMessage || t('mechanisms.conviction.settingUp', 'Setting up backing…')}</p>
@@ -157,8 +186,18 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
       {/* Pick how long to back — or, once committed, your commitment summary. */}
       {myStake && !editing ? (() => {
         const mine = DURATIONS.find((d) => d.value === myStake.duration) || DURATIONS[0];
-        const myWeight = mine.multiplier; // amount is always 1
-        const share = totalConviction.total > 0 ? (myWeight / totalConviction.total) * 100 : 0;
+        const cap = convictionCap(myStake.duration);
+        const accruedWeight = typeof myStake.weight === 'number' && Number.isFinite(myStake.weight)
+          ? myStake.weight
+          : null;
+        const legacyAmount = Number.isFinite(myStake.amount) ? myStake.amount : 1;
+        const myWeight = isAccrual ? accruedWeight : legacyAmount * cap;
+        const share = myWeight !== null && totalConviction.total > 0
+          ? (myWeight / totalConviction.total) * 100
+          : 0;
+        const strengthPercent = isAccrual && myWeight !== null
+          ? Math.min(100, Math.max(0, (myWeight / cap) * 100))
+          : (cap / MAX_STRENGTH) * 100;
         const since = Number(myStake.timestamp);
         return (
           <div className={styles.commitment}>
@@ -171,12 +210,25 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
                 duration: t(mine.labelKey, mine.label),
               })}
             </p>
-            <div className={styles.strengthMeter} aria-hidden="true">
-              <div className={styles.strengthTrack}>
-                <div className={styles.strengthFill} style={{ width: `${(mine.multiplier / MAX_MULTIPLIER) * 100}%` }} />
+            {(!isAccrual || myWeight !== null) && (
+              <div className={styles.strengthMeter} aria-hidden="true">
+                <div className={styles.strengthTrack}>
+                  <div className={styles.strengthFill} style={{ width: `${strengthPercent}%` }} />
+                </div>
               </div>
-            </div>
-            <p className={styles.strengthLabel}>{t(mine.strengthKey, mine.strength)}</p>
+            )}
+            {myWeight !== null && (
+              <p className={styles.strengthLabel}>
+                {isAccrual
+                  ? t('mechanisms.conviction.currentStrength', 'Current strength: {current} of {max}', {
+                    current: formatStrength(myWeight),
+                    max: formatStrength(cap),
+                  })
+                  : t('mechanisms.conviction.legacyStrength', 'Current strength: {strength} (applied immediately)', {
+                    strength: formatStrength(myWeight),
+                  })}
+              </p>
+            )}
             {Number.isFinite(since) && since > 0 && (
               <p className={styles.sinceLine}>
                 {t('mechanisms.conviction.backingSince', 'Backing since {date}', {
@@ -184,7 +236,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
                 })}
               </p>
             )}
-            {totalConviction.total > 0 && (
+            {myWeight !== null && totalConviction.total > 0 && (
               <p className={styles.shareLine}>
                 {t('mechanisms.conviction.yourShare', 'Your share of the community’s support: {share}%', {
                   share: share.toFixed(1),
@@ -223,11 +275,15 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
             {howItWorks}
           </h4>
           <p className={styles.intro}>
-            {t(
-              'mechanisms.conviction.intro',
-              'Support that grows the longer you back it. Commit for longer and your support counts for more — because lasting commitment matters more than a passing vote.',
-            )}
+            {isAccrual
+              ? t('mechanisms.conviction.intro', 'Every backing starts at 1 strength and gains 1 point for every 30 days it is held, up to the maximum for your commitment.')
+              : t('mechanisms.conviction.legacyIntro', 'This community uses the earlier model: the full strength of your chosen commitment applies immediately.')}
           </p>
+          {!isAccrual && (
+            <p className={styles.legacyNotice}>
+              {t('mechanisms.conviction.legacyNotice', 'This community uses the earlier instant-strength model.')}
+            </p>
+          )}
 
           <div
             className={styles.durationPicker}
@@ -249,16 +305,22 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
             ))}
           </div>
 
-          {/* Strength grows with the chosen duration — the felt version of the
-              multiplier, no raw "12x" exposed. */}
           <div className={styles.strengthMeter}>
             <div className={styles.strengthTrack}>
               <div
                 className={styles.strengthFill}
-                style={{ width: `${(selectedDuration.multiplier / MAX_MULTIPLIER) * 100}%` }}
+                style={{ width: `${(selectedCap / MAX_STRENGTH) * 100}%` }}
               />
             </div>
-            <span className={styles.strengthLabel}>{t(selectedDuration.strengthKey, selectedDuration.strength)}</span>
+            <span className={styles.strengthLabel}>
+              {isAccrual
+                ? t('mechanisms.conviction.maxStrength', 'Maximum strength: {strength}', {
+                  strength: formatStrength(selectedCap),
+                })
+                : t('mechanisms.conviction.legacyStrength', 'Current strength: {strength} (applied immediately)', {
+                  strength: formatStrength(selectedCap),
+                })}
+            </span>
           </div>
 
           <div className={styles.formActions}>
@@ -298,7 +360,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
             <span className={styles.statLabel}>{t('mechanisms.conviction.backers', 'Backers')}</span>
           </div>
           <div className={styles.stat}>
-            <span className={styles.statValue}>{totalConviction.total}</span>
+            <span className={styles.statValue}>{formatStrength(totalConviction.total)}</span>
             <span className={styles.statLabel}>{t('mechanisms.conviction.combinedStrength', 'Combined strength')}</span>
           </div>
         </div>
@@ -322,7 +384,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
                       }}
                     />
                   </div>
-                  <span className={styles.countryWeight}>{weight}</span>
+                  <span className={styles.countryWeight}>{formatStrength(weight)}</span>
                 </div>
               ))}
           </div>
