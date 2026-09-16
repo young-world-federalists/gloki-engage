@@ -1,30 +1,26 @@
 // Mock conviction_contract.py
 import type { IMethod } from '../../interfaces';
+import {
+  CONVICTION_CAPS,
+  CONVICTION_MODEL,
+  convictionCap,
+  isConvictionDuration,
+  strengthForStake,
+  type StoredConvictionStake,
+} from '../../convictionModel';
 import { readState, writeState } from '../demoState';
 
-interface Stake {
-  amount: number;
-  duration: string;
-  timestamp: number;
-  country: string;
-  voter: string;
-}
-
 interface ConvictionState {
-  stakes: Record<string, Stake>;
+  stakes: Record<string, StoredConvictionStake>;
 }
-
-const DURATION_MULTIPLIERS: Record<string, number> = {
-  '1w': 1, '1m': 2, '3m': 4, '6m': 7, '1y': 12,
-};
 
 function load(contractId: string): ConvictionState {
   const s = readState<Partial<ConvictionState>>(contractId);
   return { stakes: s.stakes ?? {} };
 }
 
-export function initConviction(contractId: string, stakes: Stake[] = []): void {
-  const map: Record<string, Stake> = {};
+export function initConviction(contractId: string, stakes: StoredConvictionStake[] = []): void {
+  const map: Record<string, StoredConvictionStake> = {};
   for (const s of stakes) map[s.voter] = s;
   writeState<ConvictionState>(contractId, { stakes: map });
 }
@@ -39,26 +35,26 @@ function normalizeCountry(c: unknown): string {
 export function convictionRead(contractId: string, method: IMethod, caller: string): unknown {
   const s = load(contractId);
   switch (method.name) {
-    case 'get_my_stake':
-      return s.stakes[caller] ?? null;
+    case 'get_my_stake': {
+      const stake = s.stakes[caller];
+      return stake ? { ...stake, weight: strengthForStake(stake) } : null;
+    }
     case 'get_stakes':
       return s.stakes;
     case 'get_total_conviction': {
       let total = 0;
       let count = 0;
       for (const stake of Object.values(s.stakes)) {
-        const mult = DURATION_MULTIPLIERS[stake.duration] ?? 1;
-        total += stake.amount * mult;
+        total += strengthForStake(stake);
         count += 1;
       }
-      return { total, count };
+      return { total, count, model: CONVICTION_MODEL };
     }
     case 'get_conviction_by_country': {
       const result: Record<string, number> = {};
       for (const stake of Object.values(s.stakes)) {
-        const mult = DURATION_MULTIPLIERS[stake.duration] ?? 1;
         const country = stake.country || 'OTHER';
-        result[country] = (result[country] ?? 0) + stake.amount * mult;
+        result[country] = (result[country] ?? 0) + strengthForStake(stake);
       }
       return result;
     }
@@ -74,8 +70,8 @@ export function convictionWrite(contractId: string, method: IMethod, caller: str
       const amount = method.values?.amount as number | undefined;
       const duration = method.values?.duration as string | undefined;
       const country = method.values?.country;
-      if (typeof amount !== 'number' || amount <= 0) return { error: 'Stake amount must be positive' };
-      if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
+      if (amount !== 1) return { error: 'Stake amount must be exactly 1' };
+      if (!duration || !isConvictionDuration(duration)) return { error: 'Invalid duration' };
       const normalized = normalizeCountry(country);
       // S33: one backing per person, enforced HERE. This used to add to an
       // existing amount, which made one-person-one-commitment depend on the
@@ -100,14 +96,14 @@ export function convictionWrite(contractId: string, method: IMethod, caller: str
     case 'update_stake': {
       const duration = method.values?.duration as string | undefined;
       const country = method.values?.country;
-      if (!duration || !(duration in DURATION_MULTIPLIERS)) return { error: 'Invalid duration' };
+      if (!duration || !isConvictionDuration(duration)) return { error: 'Invalid duration' };
       const existing = s.stakes[caller];
       if (!existing) return { error: 'No commitment to change' };
       // Lengthening preserves the original backing date (the record stands);
       // shortening restarts the clock, so a long record can't be harvested and
       // then quietly downgraded. FOR OURI: enforce this server-side too.
-      const wasMult = DURATION_MULTIPLIERS[existing.duration] ?? 1;
-      const nowMult = DURATION_MULTIPLIERS[duration];
+      const wasMult = convictionCap(existing.duration);
+      const nowMult = CONVICTION_CAPS[duration];
       s.stakes[caller] = {
         ...existing,
         duration,

@@ -1,4 +1,9 @@
 import { contractRead, contractWrite } from '../../../../services/api';
+import type {
+  ConvictionStakeRead,
+  ConvictionTotal,
+  StoredConvictionStake,
+} from '../../../../services/convictionModel';
 import type { IMethod } from '../../../../services/interfaces';
 
 function throwIfContractError(response: unknown) {
@@ -45,28 +50,44 @@ export async function withdrawStake(serverUrl: string, publicKey: string, contra
   }));
 }
 
-export async function getMyStake(serverUrl: string, publicKey: string, contractId: string) {
+export async function getMyStake(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<ConvictionStakeRead | null> {
   return await contractRead({
     serverUrl, publicKey, contractId,
     method: { name: 'get_my_stake', values: {} } as IMethod,
   });
 }
 
-export async function getStakes(serverUrl: string, publicKey: string, contractId: string) {
+export async function getStakes(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, StoredConvictionStake>> {
   return await contractRead({
     serverUrl, publicKey, contractId,
     method: { name: 'get_stakes', values: {} } as IMethod,
   });
 }
 
-export async function getTotalConviction(serverUrl: string, publicKey: string, contractId: string) {
+export async function getTotalConviction(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<ConvictionTotal> {
   return await contractRead({
     serverUrl, publicKey, contractId,
     method: { name: 'get_total_conviction', values: {} } as IMethod,
   });
 }
 
-export async function getConvictionByCountry(serverUrl: string, publicKey: string, contractId: string) {
+export async function getConvictionByCountry(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, number>> {
   return await contractRead({
     serverUrl, publicKey, contractId,
     method: { name: 'get_conviction_by_country', values: {} } as IMethod,
