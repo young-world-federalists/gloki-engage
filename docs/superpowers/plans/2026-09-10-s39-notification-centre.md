@@ -669,3 +669,7 @@ Present the reviewed diff and concrete evidence. Do not push until Eston explici
   temporary-probe check and `git diff --check` all passed. The builds emitted only the pre-existing
   Sass `darken()` deprecations. There is no package test script; these are the repository's defined
   S39 completion gates. Native-language and audible screen-reader checks remain external/manual.
+- Eston authorized the push on 2026-09-16. After a fresh deploy-parity build and a remote refresh
+  confirmed local `ui` was a 19-commit fast-forward (0 behind), `ac8523b..0563d22` was pushed to
+  `origin/ui`. This does not deploy by itself: Ouri still owns the `ui` → `server-side` merge that
+  triggers GitHub Pages. This push-state ledger is the only subsequent documentation-only commit.

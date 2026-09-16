@@ -1,11 +1,12 @@
 # Session 40 — Re-ground the next roadmap slice
 
-## Context recap (as of 2026-09-16, local `ui` at S39, not pushed)
+## Context recap (as of 2026-09-16, S39 pushed to `origin/ui`)
 
 S36–S39 built all four planned community-verification waves. S39 added the owner-scoped notification
 centre and bell at `/identity/notifications`, with seven event families and tab-lifetime W1–W3 runtime
-producers. The last local reviewed S39 commit is `289863c`; S38 and S39 are still ahead of cached
-`origin/ui` and must not be pushed without Eston's explicit gate.
+producers. The last reviewed implementation commit is `289863c` and the S39 closeout is `0563d22`.
+Eston authorized the push on 2026-09-16; S38 and S39 are now on `origin/ui`. A push to `ui` does not
+deploy: Ouri still merges `ui` into `server-side`, which triggers GitHub Pages.
 
 P11 still lists one deliberately deferred W2 follow-up: “Schedule for later.” S39 did **not** make
 that promise honest. The centre can display an invite, but the demo still has no real availability
@@ -19,8 +20,9 @@ the deferred schedule grid is automatically next merely because W4 now exists.
 
 Every claim below can go stale. Check it before recommending work:
 
-- Compare local `ui`, cached `origin/ui` and `git status`; enumerate every commit after `ac8523b`.
-  Confirm whether Eston has since authorized a push or Ouri has moved the integration baseline.
+- Compare local `ui`, `origin/ui`, `origin/server-side` and `git status`; enumerate every commit after
+  `ac8523b`. Confirm whether the push-state ledger is the only post-closeout commit and whether Ouri
+  has since moved the integration baseline.
 - Confirm S39's latest reviewed commit and rerun the notification gates. Expect the nested centre,
   seven types, exact owner-scope selectors, stable producer ids, fr/sw parity 1449/1449 and
   `DEMO_VERSION = 'global-v19'`.

@@ -560,7 +560,7 @@ entry below for the full-wave i18n delta. **Pushed to `origin/ui` 2026-09-06** o
 go, after the adversarial panel.
 
 **P11 — Prompt 2: Community verification (S34 design §3, 2026-09-02).** 🔨 **Waves 1–4 BUILT +
-reviewed (W1–W2 pushed; W3–W4 reviewed locally and awaiting Eston's push gate).** W1 (S36,
+reviewed and PUSHED to `origin/ui` through S39 on 2026-09-16.** W1 (S36,
 2026-09-06; `628b574..dc213f9`, 14 commits) moved `DEMO_VERSION` v18 → **v19** and was pushed to
 `origin/ui` 2026-09-06 — Ouri's merge to `server-side` deploys.
 Spec addendum
@@ -612,9 +612,9 @@ Agent contract has none of these yet).
 - ⬜ **W2 follow-up — "Schedule for later" (E4).** The spec's `AvailabilityGrid` (7 days × 12 hours +
   timezone select + "Find matching times") did not ship: a simulation cannot honour a future slot, and
   an honest version needs W4's notification centre to exist first. Revisit with W4.
-- ✅ **W3 — daily session BUILT + reviewed locally** (S38, 2026-09-09; `ac8523b..5aaa30a`, five
-  implementation commits plus review fix `95d5bad`;
-  push pending Eston's gate). `/identity/verification/daily` now covers pre-session, lobby,
+- ✅ **W3 — daily session BUILT + reviewed + PUSHED** (S38, 2026-09-09; `ac8523b..5aaa30a`, five
+  implementation commits plus review fix `95d5bad`; pushed with S39 to `origin/ui` 2026-09-16).
+  `/identity/verification/daily` now covers pre-session, lobby,
   deterministic selection, candidate, selected-verifier, observer, empty/partial and result states.
   The candidate pathway card and verified-volunteer hub row are both live product doors. Eight daily
   seam functions are simulation-only; daily vouches persist through the existing Digital Agent write.
@@ -623,8 +623,8 @@ Agent contract has none of these yet).
   remains open. Task reviews and whole-session review findings were fixed; controller browser walks
   covered both roles, 0/2 approvals, empty/partial/observer, cancellation, dark 360px en/fr/sw. The
   local multi-model panel was not run because its separate authorization was not given.
-- ✅ **W4 — notification centre + bell BUILT + reviewed locally** (S39, 2026-09-15/16; 11 local
-  commits from `74fe1a0` through `289863c`; push pending Eston's gate). The nested
+- ✅ **W4 — notification centre + bell BUILT + reviewed + PUSHED** (S39, 2026-09-15/16; 12 commits
+  from `74fe1a0` through closeout `0563d22`; pushed to `origin/ui` 2026-09-16). The nested
   `/identity/notifications` centre renders seven event families with persisted read/unread state,
   safe expired fallbacks and valid route actions; the direct-link bell exposes the real unread count
   (`99+` visual cap, exact accessible count). Storage is scoped by encoded server URL + public key,
@@ -708,8 +708,8 @@ state is per-browser, not per-key; ~~the member-list render duplicated across re
 
 ## 8. Changelog
 
-- **2026-09-16 — S39: P11 Prompt 2 Wave 4, notification centre and bell (BUILT + reviewed locally;
-  push pending Eston's gate).** Eleven local commits from `74fe1a0` through `289863c`. Added
+- **2026-09-16 — S39: P11 Prompt 2 Wave 4, notification centre and bell (BUILT + reviewed +
+  PUSHED to `origin/ui` 2026-09-16).** Twelve commits from `74fe1a0` through closeout `0563d22`. Added
   owner-scoped notification persistence, strict hydration sanitization/deduplication and the nested
   `/identity/notifications` route; a shared semantic `NotificationItem`; a direct-link bell with an
   exact accessible unread count; and seven localized event families covering accepted merges, W1
@@ -727,8 +727,8 @@ state is per-browser, not per-key; ~~the member-list render duplicated across re
   Sass `darken()` deprecations remain. Audible screen-reader and native-language review remain external
   follow-ups. The local multi-model panel was not run because it requires separate authorization.
   Next-session handoff: `docs/session-prompts/session-40-next-roadmap.md`.
-- **2026-09-09 — S38: P11 Prompt 2 Wave 3, the daily verification session (BUILT + reviewed locally;
-  push pending Eston's gate).** `ac8523b..5aaa30a`, five implementation commits from saved base
+- **2026-09-09 — S38: P11 Prompt 2 Wave 3, the daily verification session (BUILT + reviewed;
+  PUSHED with S39 to `origin/ui` 2026-09-16).** `ac8523b..5aaa30a`, five implementation commits from saved base
   `ac8523b`, plus review fix `95d5bad`. Added the
   nested `/identity/verification/daily` route, scheduled 21:00 UTC entry and five-minute join gate,
   2m30s lobby selection, deterministic groups of at most four, candidate/selected-verifier/observer
