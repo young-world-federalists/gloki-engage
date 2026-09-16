@@ -559,8 +559,10 @@ written in has been deleted; that spec is the durable record). i18n +2 keys
 entry below for the full-wave i18n delta. **Pushed to `origin/ui` 2026-09-06** on Eston's explicit
 go, after the adversarial panel.
 
-**P11 — Prompt 2: Community verification (S34 design §3, 2026-09-02).** 🔨 **Wave 1 BUILT + reviewed
-(S36, 2026-09-06; `628b574..dc213f9`, 14 commits, `DEMO_VERSION` v18 → **v19**; PUSHED to `origin/ui` 2026-09-06 — Ouri's merge to `server-side` deploys).**
+**P11 — Prompt 2: Community verification (S34 design §3, 2026-09-02).** 🔨 **Waves 1–4 BUILT +
+reviewed (W1–W2 pushed; W3–W4 reviewed locally and awaiting Eston's push gate).** W1 (S36,
+2026-09-06; `628b574..dc213f9`, 14 commits) moved `DEMO_VERSION` v18 → **v19** and was pushed to
+`origin/ui` 2026-09-06 — Ouri's merge to `server-side` deploys.
 Spec addendum
 [docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md](docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md)
 (E1–E3 rulings + §8 post-review amendments); plan
@@ -621,8 +623,20 @@ Agent contract has none of these yet).
   remains open. Task reviews and whole-session review findings were fixed; controller browser walks
   covered both roles, 0/2 approvals, empty/partial/observer, cancellation, dark 360px en/fr/sw. The
   local multi-model panel was not run because its separate authorization was not given.
-- ⬜ **W4 — notification centre + bell** (closes the "NotificationsBell is
-  permanently empty" follow-up; W1's `given` state and the notification fixtures land here).
+- ✅ **W4 — notification centre + bell BUILT + reviewed locally** (S39, 2026-09-15/16; 11 local
+  commits from `74fe1a0` through `289863c`; push pending Eston's gate). The nested
+  `/identity/notifications` centre renders seven event families with persisted read/unread state,
+  safe expired fallbacks and valid route actions; the direct-link bell exposes the real unread count
+  (`99+` visual cap, exact accessible count). Storage is scoped by encoded server URL + public key,
+  strictly sanitized, deduplicated and capped at 100; account transitions synchronously hide any
+  stale scope. W1/W2/W3 producers use stable ids behind service seams, and daily reminders survive
+  route changes only while the tab and authenticated owner remain active. No fixture/seed edit;
+  `DEMO_VERSION` remains `global-v19`. French/Swahili parity is 1449/1449 (+36 keys, 1 reframed);
+  native review remains open. Browser coverage included all seven families, malformed/expired data,
+  persistence, 0/1/9/100 counts, back navigation, 360×780 light/dark and en/fr/sw. Adversarial review
+  found two major owner-isolation defects; both were fixed in `289863c`, with scoped re-review clean.
+  Audible screen-reader verification remains manual. The separately authorized local review panel
+  was not run.
 
 **Open follow-ups (parked, S36 final review):** focus management after an approved card leaves; focus ring
 under the hub card's `overflow: hidden`; `listVerifiedMembers` can list the current user; demo verification
@@ -694,6 +708,25 @@ state is per-browser, not per-key; ~~the member-list render duplicated across re
 
 ## 8. Changelog
 
+- **2026-09-16 — S39: P11 Prompt 2 Wave 4, notification centre and bell (BUILT + reviewed locally;
+  push pending Eston's gate).** Eleven local commits from `74fe1a0` through `289863c`. Added
+  owner-scoped notification persistence, strict hydration sanitization/deduplication and the nested
+  `/identity/notifications` route; a shared semantic `NotificationItem`; a direct-link bell with an
+  exact accessible unread count; and seven localized event families covering accepted merges, W1
+  requests/approvals, W2 call offers, and W3 reminders/selections/thanks. Stable producer ids suppress
+  StrictMode/reconciliation duplicates; active offer and selection actions expire honestly. Daily
+  reminders are route-independent but explicitly tab-lifetime and owner-lifetime only. No fixture or
+  seed changed, so `DEMO_VERSION` remains `global-v19`. i18n +36 keys and 1 changed value at fr/sw
+  parity 1449/1449; the Session 39 native-review packet is recorded. Controller probes covered the
+  100-row cap, corrupt/duplicate storage, wrong-owner suppression, W1/W2/W3 transitions and a same-key
+  cross-server invite collision. The 360×780 browser matrix covered all seven families, malformed and
+  expired records, reload persistence, bell counts 0/1/9/100, back navigation and light/dark en/fr/sw
+  without horizontal overflow. Adversarial review found two major isolation defects (a one-render
+  account-switch exposure and a private W2 registry collision); `289863c` fixed both and scoped
+  re-review found 0 blocker / 0 major. Typecheck and production builds are green; only pre-existing
+  Sass `darken()` deprecations remain. Audible screen-reader and native-language review remain external
+  follow-ups. The local multi-model panel was not run because it requires separate authorization.
+  Next-session handoff: `docs/session-prompts/session-40-next-roadmap.md`.
 - **2026-09-09 — S38: P11 Prompt 2 Wave 3, the daily verification session (BUILT + reviewed locally;
   push pending Eston's gate).** `ac8523b..5aaa30a`, five implementation commits from saved base
   `ac8523b`, plus review fix `95d5bad`. Added the

@@ -652,4 +652,20 @@ Present the reviewed diff and concrete evidence. Do not push until Eston explici
   tokens and whitespace all clean; only the pre-existing Sass `darken()` deprecations appeared.
   Targeted architecture greps found only the legacy-key constant and explicit do-not-invent wire
   prose; component producer/media API/fixture diffs were empty. S39's 41 cited current/reused i18n
-  keys exist in both overlays. Whole-session adversarial review, closeout and push remain pending.
+  keys exist in both overlays.
+- Whole-session adversarial review: 0 blocker / 2 major / 0 minor confirmed. The review found a
+  one-render account-switch window where the centre/bell could select the prior hydrated scope, and
+  a W2 private offer map keyed only by a public event id that can be identical for the same public key
+  on two servers. `289863c` gates both UI selectors on the exact active owner scope and keys private
+  call-offer state by owner scope + UTC day. A focused browser probe used identical public event ids
+  across two server scopes: A consumed independently, B remained active then consumed, and the
+  mismatched bell rendered no count. Scoped re-review: 0 blocker / 0 major.
+- Closeout prepared 2026-09-16: P11 W4 and the changelog now record the as-built behavior, review
+  verdict, unchanged `global-v19`, 1449/1449 parity and pending external checks. S40's handoff is a
+  premise-first roadmap decision rather than an invented feature commitment. Push remains pending
+  Eston's explicit gate; the local multi-model panel was not run.
+- Fresh post-closeout gate: `tsc -b --noEmit`, local build, production build, all three repository
+  grep gates, fr/sw parity + interpolation tokens, targeted architecture greps, fixture/version diff,
+  temporary-probe check and `git diff --check` all passed. The builds emitted only the pre-existing
+  Sass `darken()` deprecations. There is no package test script; these are the repository's defined
+  S39 completion gates. Native-language and audible screen-reader checks remain external/manual.
