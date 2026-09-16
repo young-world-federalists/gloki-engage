@@ -2,17 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
+import { buildNotificationsScope } from '../../store/slices/notificationsSlice';
 import { useT } from '../../i18n';
 import styles from './NotificationsBell.module.scss';
 
 const NotificationsBell: React.FC = () => {
   const t = useT();
-  const unreadCount = useAppSelector((state) => (
-    state.user.publicKey
-      ? state.notifications.items.filter((notification) => !notification.read).length
-      : 0
-  ));
   const publicKey = useAppSelector((state) => state.user.publicKey);
+  const unreadCount = useAppSelector((state) => {
+    const { publicKey: ownerKey, serverUrl } = state.user;
+    if (!ownerKey || !serverUrl) return 0;
+    const activeScope = buildNotificationsScope(serverUrl, ownerKey);
+    if (state.notifications.storageScope !== activeScope) return 0;
+    return state.notifications.items.filter((notification) => !notification.read).length;
+  });
 
   if (!publicKey) return null;
 

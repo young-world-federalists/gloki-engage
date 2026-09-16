@@ -64,7 +64,6 @@ interface StoredCallOffer {
   cleanupExpired: boolean;
 }
 const callOffers = new Map<string, StoredCallOffer>();
-const offerIdsByOwnerDay = new Map<string, string>();
 const offerIdsBySession = new Map<string, string>();
 
 const JOIN_STAGGER_MS = 1500;
@@ -112,15 +111,15 @@ function publishCallOffer(stored: StoredCallOffer): void {
 }
 
 function setCallOfferStatus(
-  eventId: string,
+  offerKey: string,
   status: 'consumed' | 'expired',
   cleanupExpired = false,
 ): void {
-  const stored = callOffers.get(eventId);
+  const stored = callOffers.get(offerKey);
   if (!stored || stored.offer.status === 'expired') return;
   stored.offer = { ...stored.offer, status };
   stored.cleanupExpired = cleanupExpired;
-  updateNotificationEvent(stored.owner, eventId, status);
+  updateNotificationEvent(stored.owner, stored.offer.eventId, status);
 }
 
 function shuffled<T>(items: T[]): T[] {
@@ -475,9 +474,9 @@ export function simLeaveCall(sessionId: string): void {
   dailyOwners.delete(sessionId);
   dailyManualVerifiers.delete(sessionId);
   dailyInvalidators.delete(sessionId);
-  const offerEventId = offerIdsBySession.get(sessionId);
-  if (offerEventId) {
-    setCallOfferStatus(offerEventId, 'expired');
+  const offerKey = offerIdsBySession.get(sessionId);
+  if (offerKey) {
+    setCallOfferStatus(offerKey, 'expired');
     offerIdsBySession.delete(sessionId);
   }
 }
@@ -496,8 +495,7 @@ export function simOfferCallInvite(owner: NotificationOwner): CallInviteOffer | 
   if (!ownerIsCurrentAndVerified(owner)) return null;
   const dayKey = utcDayKey();
   const key = ownerDayKey(owner, dayKey);
-  const existingId = offerIdsByOwnerDay.get(key);
-  const existing = existingId ? callOffers.get(existingId) : undefined;
+  const existing = callOffers.get(key);
   if (existing?.offer.status === 'pending') {
     publishCallOffer(existing);
     return existing.offer;
@@ -521,30 +519,25 @@ export function simOfferCallInvite(owner: NotificationOwner): CallInviteOffer | 
       status: 'pending',
     },
   };
-  callOffers.set(eventId, stored);
-  offerIdsByOwnerDay.set(key, eventId);
+  callOffers.set(key, stored);
   publishCallOffer(stored);
   return stored.offer;
 }
 
 /** Auth cleanup: pending offers cannot survive an owner change in this tab. */
 export function simExpireCallOffers(owner: NotificationOwner): void {
-  for (const eventId of offerIdsByOwnerDay.values()) {
-    const stored = callOffers.get(eventId);
-    if (!stored
-      || stored.owner.serverUrl !== owner.serverUrl
+  for (const [offerKey, stored] of callOffers) {
+    if (stored.owner.serverUrl !== owner.serverUrl
       || stored.owner.publicKey !== owner.publicKey
       || stored.offer.status !== 'pending') continue;
-    setCallOfferStatus(eventId, 'expired', true);
+    setCallOfferStatus(offerKey, 'expired', true);
   }
 }
 
 /** StrictMode remount hook: restore only offers expired by the immediately preceding auth cleanup. */
 export function simRestoreCallOffers(owner: NotificationOwner): void {
-  for (const eventId of offerIdsByOwnerDay.values()) {
-    const stored = callOffers.get(eventId);
-    if (!stored
-      || stored.owner.serverUrl !== owner.serverUrl
+  for (const [, stored] of callOffers) {
+    if (stored.owner.serverUrl !== owner.serverUrl
       || stored.owner.publicKey !== owner.publicKey
       || stored.offer.dayKey !== utcDayKey()
       || stored.offer.status !== 'expired'
@@ -557,15 +550,12 @@ export function simRestoreCallOffers(owner: NotificationOwner): void {
 
 /** Drop private offer records after cleanup; persisted notifications stay safely expired. */
 export function simForgetExpiredCallOffers(owner: NotificationOwner): void {
-  for (const [key, eventId] of offerIdsByOwnerDay) {
-    const stored = callOffers.get(eventId);
-    if (!stored
-      || stored.owner.serverUrl !== owner.serverUrl
+  for (const [offerKey, stored] of callOffers) {
+    if (stored.owner.serverUrl !== owner.serverUrl
       || stored.owner.publicKey !== owner.publicKey
       || stored.offer.status !== 'expired'
       || !stored.cleanupExpired) continue;
-    callOffers.delete(eventId);
-    offerIdsByOwnerDay.delete(key);
+    callOffers.delete(offerKey);
   }
 }
 
@@ -582,11 +572,14 @@ export function simJoinAsVerifier(owner: NotificationOwner, offerEventId?: strin
   }
   let candidate: CallParticipant | null;
   let storedOffer: StoredCallOffer | undefined;
+  let storedOfferKey: string | undefined;
   if (offerEventId) {
-    storedOffer = callOffers.get(offerEventId);
+    storedOfferKey = ownerDayKey(owner, utcDayKey());
+    storedOffer = callOffers.get(storedOfferKey);
     if (!storedOffer
       || storedOffer.owner.serverUrl !== owner.serverUrl
       || storedOffer.offer.ownerPublicKey !== owner.publicKey
+      || storedOffer.offer.eventId !== offerEventId
       || storedOffer.offer.dayKey !== utcDayKey()
       || storedOffer.offer.status !== 'pending') {
       throw new Error('[verificationSim] simJoinAsVerifier: invalid or expired call offer');
@@ -608,9 +601,9 @@ export function simJoinAsVerifier(owner: NotificationOwner, offerEventId?: strin
   };
   sessions.set(id, session);
   selfIsCandidate.set(id, false);
-  if (storedOffer) {
-    offerIdsBySession.set(id, storedOffer.offer.eventId);
-    setCallOfferStatus(storedOffer.offer.eventId, 'consumed');
+  if (storedOffer && storedOfferKey) {
+    offerIdsBySession.set(id, storedOfferKey);
+    setCallOfferStatus(storedOfferKey, 'consumed');
   }
   return session;
 }

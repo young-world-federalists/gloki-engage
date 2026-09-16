@@ -16,6 +16,7 @@ import {
   markAllRead,
   markRead,
   markUnread,
+  buildNotificationsScope,
   type AppNotification,
 } from '../../../store/slices/notificationsSlice';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
@@ -193,7 +194,12 @@ const NotificationCenter: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const items = useAppSelector((state) => state.notifications.items);
+  const items = useAppSelector((state) => {
+    const { publicKey, serverUrl } = state.user;
+    if (!publicKey || !serverUrl) return [];
+    const activeScope = buildNotificationsScope(serverUrl, publicKey);
+    return state.notifications.storageScope === activeScope ? state.notifications.items : [];
+  });
   const [liveStatus, setLiveStatus] = useState('');
   useEffect(() => setLiveStatus(''), [t]);
   const unreadCount = items.filter((notification) => !notification.read).length;
