@@ -89,7 +89,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: $spacing-md;
+            width: $touch-target-min;
+            min-width: $touch-target-min;
+            height: $touch-target-min;
+            padding: 0;
+            flex-shrink: 0;
             background-color: $gray-100;
             color: $gray-700;
             border: 1px solid $gray-300;
@@ -292,6 +296,10 @@
             color: $dark-text;
           }
 
+          .fieldHint {
+            color: $dark-text-secondary;
+          }
+
           .inputWithButton {
             .generateButton {
               background-color: $dark-surface;
@@ -374,4 +382,8 @@
   line-height: 1.5;
   text-align: center;
   color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
 }

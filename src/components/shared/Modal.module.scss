@@ -56,8 +56,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: $touch-target-min;
+  height: $touch-target-min;
   border-radius: $radius-md;
   background: transparent;
   color: $gray-500;

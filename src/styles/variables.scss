@@ -71,6 +71,10 @@ $spacing-xl: 1.5rem;
 $spacing-2xl: 2rem;
 $spacing-3xl: 3rem;
 
+// Minimum interactive-control dimension. Shared controls use this instead of
+// repeating the 44px mobile touch floor from DESIGN_SYSTEM.md.
+$touch-target-min: 44px;
+
 // Border radius
 $radius-sm: 0.375rem;
 $radius-md: 0.5rem;
@@ -277,4 +281,3 @@ $sticky-scroll-offset: 76px;
     @content;
   }
 }
-

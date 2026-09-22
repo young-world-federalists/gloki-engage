@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Server, ArrowRight, RefreshCw, Building2 } from 'lucide-react';
 import { useT } from '../i18n';
-import { InfoDisclosure, LanguageSwitcher, StageStrip } from '../components/shared';
+import { Button, InfoDisclosure, LanguageSwitcher, StageStrip } from '../components/shared';
 import OrganizationSignIn, { type OrganizationSignInInput } from '../components/organization/OrganizationSignIn';
 import { saveOrganization, clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
@@ -24,52 +24,32 @@ const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
   const t = useT();
   const [publicKey, setPublicKey] = useState('');
-  const [serverUrl, setServerUrl] = useState('');
-  const [serverUrlHistory, setServerUrlHistory] = useState<string[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [isValid, setIsValid] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
-  const [serverUrlError, setServerUrlError] = useState<string | null>(null);
-  const [orgOpen, setOrgOpen] = useState(false);
-
-  // Check for stored error messages on component mount
-  useEffect(() => {
-    const storedError = localStorage.getItem('loginError');
-    if (storedError) {
-      setLoginError(storedError);
-      localStorage.removeItem('loginError'); // Clear the stored error
-    }
-  }, []);
-
-  useEffect(() => {
-    // Default server URL
-    const defaultServer = 'https://gdi.gloki.contact';
-
-    // Load server URL history from localStorage
+  const [serverUrl, setServerUrl] = useState(DEFAULT_SERVER_URL);
+  const [serverUrlHistory, setServerUrlHistory] = useState<string[]>(() => {
     const history = localStorage.getItem('serverUrlHistory');
     let historyArray: string[] = [];
 
     if (history) {
       try {
         historyArray = JSON.parse(history);
-      } catch (error) {
+      } catch {
         historyArray = [];
       }
     }
 
-    // Always ensure default server is in the list
-    if (!historyArray.includes(defaultServer)) {
-      historyArray = [defaultServer, ...historyArray];
-    } else {
-      // Move default server to the top if it's already in the list
-      historyArray = [defaultServer, ...historyArray.filter(url => url !== defaultServer)];
-    }
+    return historyArray.includes(DEFAULT_SERVER_URL)
+      ? [DEFAULT_SERVER_URL, ...historyArray.filter(url => url !== DEFAULT_SERVER_URL)]
+      : [DEFAULT_SERVER_URL, ...historyArray];
+  });
+  const [showHistory, setShowHistory] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(() => localStorage.getItem('loginError'));
+  const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
+  const [serverUrlError, setServerUrlError] = useState<string | null>(null);
+  const [orgOpen, setOrgOpen] = useState(false);
 
-    setServerUrlHistory(historyArray);
-    if (!serverUrl) {
-      setServerUrl(defaultServer);
-    }
+  // Clear the stored error after its initial value has been loaded into state.
+  useEffect(() => {
+    localStorage.removeItem('loginError');
   }, []);
 
   const validatePublicKey = (value: string): string | null => {
@@ -91,14 +71,8 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const pkErr = validatePublicKey(publicKey);
-    const srvErr = validateServerUrl(serverUrl);
-    setIsValid(
-      publicKey.length > 0 && pkErr === null &&
-      serverUrl.length > 0 && srvErr === null
-    );
-  }, [publicKey, serverUrl]);
+  const isValid = publicKey.length > 0 && validatePublicKey(publicKey) === null &&
+    serverUrl.length > 0 && validateServerUrl(serverUrl) === null;
 
   const generateRandomKey = () => {
     setPublicKey(generateKeyString());
@@ -288,14 +262,19 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          <button
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            fullWidth
             onClick={handleLogin}
-            disabled={!isValid || isLoading}
+            disabled={!isValid}
+            loading={isLoading}
+            rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
             className={styles.loginButton}
           >
-            <span>{isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}</span>
-            {!isLoading && <ArrowRight size={20} />}
-          </button>
+            {isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}
+          </Button>
 
           {/* S33 — the other kind of actor. Organizations don't deliberate or
               vote; they respond to mandates communities have already decided.
