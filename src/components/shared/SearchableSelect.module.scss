@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 40px;
+  height: $touch-target-min;
   padding: 0 $spacing-sm;
   border: 1px solid $gray-200;
   border-radius: $radius-md;
@@ -95,7 +95,7 @@
 
   &.selected {
     background: rgba($primary, 0.1);
-    color: $primary;
+    color: $primary-dark;
   }
 
   @include dark {
@@ -103,6 +103,15 @@
 
     &:hover {
       background: $dark-border;
+    }
+
+    &.selected {
+      background: $dark-tint-raised;
+      color: $primary-on-dark;
+
+      &:hover {
+        background: $dark-tint-strong;
+      }
     }
   }
 }
