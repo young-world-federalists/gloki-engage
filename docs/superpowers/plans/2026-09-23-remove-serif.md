@@ -28,4 +28,8 @@ Parent: verify welcome and representative headings/wordmark on a local productio
 
 ## Status
 
-- Terra map complete; implementation pending.
+- Terra map complete: the shared `$font-display` token was the only serif source for headings and the wordmark.
+- Sol committed the three-file fix as `be19026` on `ui` and `d930a9e` on `server-side`. Both `npm run build:prod` builds passed. Source and built-CSS audits found no remaining serif declarations; intentional monospace remains.
+- Parent reviewed the exact diff with no findings. The local production preview showed sans headings on the 360px welcome screen in English, French, and Swahili, plus a sans modal heading, with no horizontal overflow.
+- GitHub Pages run `35840046810` succeeded for `d930a9e`. A fresh live welcome load with `?release=d930a9e` computed to sans. An older open tab still showed cached serif styling until cache bust.
+- Authenticated routes and dark mode were not manually exercised. The shared-token source and built-CSS audits support the all-screen scope.
