@@ -135,6 +135,10 @@ These are deployed as SCSS tokens in `src/styles/variables.scss` and as CSS cust
 
 ## Typography
 
+Use the shared system sans stack (`$font-body`) throughout the app. `$font-display`
+aliases it for headings and the wordmark; intentional code and identifier text
+may use monospace.
+
 | Level | Token | Weight | Use |
 |-------|-------|--------|-----|
 | Page title | `$page-title-size` (= `$text-xl`, 20px) | `$page-title-weight` (700) | Every in-content page `<h1>`, with `$heading-gap` (8px) below it (S16 normalisation). Sanctioned exceptions: the AppHeader bar title (18px/600), onboarding step heroes (`$text-2xl` centered), the MandateCard document title. |
