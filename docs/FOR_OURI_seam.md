@@ -355,3 +355,173 @@ it is not that backend. **Do not invent `create_notification`, `schedule_reminde
 `select_verifiers`, or any call/session lifecycle wire method.** Existing durable domain writes stay
 on their documented methods (`vouch`, merge methods, and so on); notifications describe those events
 but do not replace them.
+
+### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
+
+The live `gloki_engage_initiative_contract.py` enforces none of the ballot rules the UI enforces
+(re-verified 2026-09-25 on `origin/server-side` @ `d930a9e`, byte-identical to `3b563fa`). Any identity
+key can move the stage, rewrite the text, change the budget, flip the vote's status flag (which nothing
+reads), or `allocate` any number of credits. Because `get_results` sums √credits per voter, one caller
+with 10,000 credits casts 100 votes, as many as ten rule-following voters together. A write sends its
+identity key in the URL with no signature (`/ibc/app/<key>/<contract>/<method>?action=contract_write`),
+so all of this takes nothing but curl, and any non-UI client (an MCP server, a bot) inherits none of
+the UI's gates.
+
+**Rulings (Eston, 2026-09-25).**
+- **R1:** `set_stage` and `set_details` are open to the initiative's author or a co-author only (the
+  UI's `isAuthorOrCoAuthor`). `add_co_author` gets the same guard; otherwise any key could make itself
+  a co-author and pass the rest.
+- **R2:** after creation, `set_details` changes the text only in the Problem stage.
+- **R3:** `set_credits` / `set_status` are fixed at 100 credits per voter, and the vote is open exactly
+  while the stage is `vote`.
+- **R4:** one final ballot per person.
+- Beyond R1–R4, and matching what the UI and the demo stub already do: `set_stage` only accepts the
+  next stage in order, and `remove_vote` closes with `upvote` / `downvote`.
+
+**How to apply it:**
+- Add four private helpers and replace ten methods, as listed in the patch header.
+- No imports, no new `Storage()` entry, no `__init__` change, no signature change.
+- The only builtin used is `str()`, which the contract already relies on (`get_proposals`). The type
+  checks avoid `isinstance` / `int` / `dict` on purpose, since those are unconfirmed in the sandbox and
+  a missing name would stop every ballot.
+- The patch shares no method with the S34 or S40 patches, so the three apply in any order.
+- Every refusal returns `{'error': …}` and writes nothing (the `stake` convention); success returns
+  `None`.
+- Refusal strings reuse the demo stubs' wording wherever the rule is the same.
+
+Each guard, and what the UI does with its refusal today:
+
+- **`set_details`.** Creation is unchanged: with no `details` yet, the first writer becomes `author`.
+  After that the caller must be the author or a co-author (`'Only the author or a co-author can edit
+  this initiative'`), and the stage must be `problem` (`'The initiative text is frozen after the
+  Problem stage'`). *UI:* the UI calls it only at creation (`createInitiativeOnChain` on
+  `server-side`, `createInitiative` in `src/services/contracts/community.ts` for the demo), and there
+  is no edit screen, so in normal use it never meets this refusal. The exception is the creation race
+  under the gaps below: `createInitiativeOnChain` ignores the refusal and publishes the initiative
+  anyway.
+- **`set_stage`.** The caller must be the author or a co-author (`'Only the author or a co-author can
+  advance the stage'`), and the stage id must be known (`'Invalid stage'`). The stage may advance only
+  one step along `problem → discussion → proposals → vote → mandate` (`'Stages can only advance one
+  step at a time'`), the same order and messages as the demo stub. *UI:* `StageAdvanceBar` and
+  `InitiativeStagePanel` only offer an author or co-author a one-step advance, so only a race (two
+  co-authors clicking at once) or a stale view meets the refusal. **Neither component reads the write's result**, so
+  the UI shows a refused advance as successful until the next fetch.
+- **`add_co_author`.** The caller must be the author or a co-author (`'Only the author or a co-author
+  can add a co-author'`). *UI:* both callers already run as author or co-author: accepting a
+  modification suggestion, and accepting a merge *into* this initiative. Both treat a failure as
+  non-fatal. Both flows need suggestion and merge-proposal methods the live initiative contract doesn't
+  have, so today they only run in the demo.
+- **`upvote` / `downvote` / `remove_vote`.** Allowed only in the `problem` stage (`'Problem voting is
+  closed'`). `remove_vote` closes with the other two, so the tally that justified the advance can't
+  change afterwards. *UI:* the vote control only mounts at `problem`, so only a stale view meets the
+  refusal. `problemVoteApi` returns the
+  result unchecked, and the optimistic tally corrects itself on the next fetch (a direct refetch on
+  `ui`, the SSE-driven `useContractSync` on `server-side`).
+- **`get_config`.** Now computed, never stored: `{credits_per_voter: 100, status: 'open' | 'closed'}`,
+  with `'open'` only in the `vote` stage. The shape is unchanged and it is still a pure read. *UI:*
+  QVFlow uses `credits_per_voter` as the heart pool (still 100); nothing reads `status`.
+- **`set_credits` / `set_status`.** Always refused (`'The vote budget is fixed at 100 credits per
+  voter'` / `'Voting opens and closes with the Vote stage'`). *UI:* nothing calls them; `qvApi`'s
+  `setCredits` / `setStatus` are unused exports.
+- **`allocate`.** Every rule, with its refusal:
+  - The stage must be `vote`: `'Voting is not open'`.
+  - The caller must have no earlier ballot: `'You have already voted'`.
+  - The allocations must be a JSON object: `'Allocations must be an object'`.
+  - Every key must be a proposal id as `get_proposals` returns it: `'Unknown proposal'`.
+  - Every value must be a whole number ≥ 0, and JSON booleans are refused: `'Credits must be whole
+    numbers'`.
+  - Zero entries are dropped, and at least one entry must remain: `'Ballot is empty'`.
+  - The total must be ≤ 100: `'Exceeds credit budget'`.
+
+  *UI:* QVFlow sends one ballot, only at `vote`, with h² credits per solution and a total within the
+  pool. It then locks ("votes can't be changed"). `qvApi`'s `throwIfContractError` turns a refusal into
+  a thrown error, which QVFlow catches with **`console.error` only**: no message is shown and the
+  ballot stays open.
+
+**How this was checked.** A scratch harness (not committed) ran the live contract and the patched one
+on the real `storage_interface.py`, with in-memory stand-ins for pymongo/bson. Every UI call sequence
+above still succeeds, every exploit is refused with nothing written, and every read stays write-free
+(76/76 checks). It passes 76/76 again when the contract code gets only the builtins production
+contracts use (`len`, `range`, `round`, `str`). A control run with an `isinstance` check put back
+fails there with `NameError`, so the restricted run does catch unconfirmed builtins. An independent
+review found no way past R1–R4 for a caller using their own key, and no UI call that the patch
+refuses.
+
+**Please confirm (Ouri):** does the `contract_write` SSE event's `reply` carry the method's return
+value? On `server-side`, `contractWrite` resolves with `event.reply` (`watchForChainAck` in
+`eventStream.ts`). If `reply` is only an acknowledgement, the guards still hold, but the UI can't see
+any refusal. The harness can't answer this.
+
+**D1, answered by the bridge code.** In the in-repo `storage_interface.py`, `Collection.__contains__`
+is `find_one({'_id': item})` and does not coerce a hex string to an `ObjectId`; `Document(...)` does
+coerce. So `x in self.proposals` and `x in self.comments` are always False for an `append()` id, and
+`allocate` instead checks ids against `str(key)` over `self.proposals` (the `get_proposals` pattern).
+
+If the server runs this bridge, every live method that uses this test does nothing on every call
+today. That is the four named in the S35 question (`delete_comment`, `like_comment`,
+`request_expert_review`, `add_expert_review`), plus `suggest_proposal_merge` and
+`decide_merge_suggestion`, which use the same test. S34's `vote_comment` and `add_impact_assessment`
+will behave the same once applied. The `.exists()` fix given there applies to all eight; it is not part
+of this patch.
+
+**Deployment compatibility.** Each initiative contract keeps the source it was deployed with. Only
+initiatives deployed by an updated client after this lands are guarded. Existing ones keep the open
+methods, and so does anything a stale cached bundle deploys (see "The client supplies the contract
+source" below). The UI needs no change for either generation, because every call it makes passes the
+guards. The demo stubs are unchanged and stay permissive.
+
+**Known remaining gaps (not in this patch):**
+- **Voter eligibility.** The Members-only and Verified-only stage rules (`DEFAULT_STAGE_PERMISSIONS`,
+  `src/services/trustModel.ts`) are enforced only in the UI. Membership lives on the community contract
+  and verification on the Digital Agent. The authoritative trust root, the signature and key-custody
+  model, and the protected-operation matrix are all part of the open **G2** decision in Eston's
+  production web-of-trust record (`docs/superpowers/specs/2026-09-17-production-wot-decisions.md`).
+  They are deliberately not designed here.
+- **Identity keys are public, so the guards don't stop impersonation.** The guards check *which key*
+  is calling, but the contract publishes the keys it checks:
+  - `get_roles` returns the author and co-authors.
+  - `get_votes`, `get_allocations` and `get_stakes` return every participant's key.
+  - The community's initiative references carry the author's key as `agent`.
+
+  A write sends its key in the URL with no signature, so anyone who reads a key can act as its holder.
+  They can advance stages as the author, or cast a participant's ballot. R4 then makes that forged
+  ballot final, and the real voter gets `'You have already voted'`. The guards still enforce the
+  budget, the vote window and one ballot per key. Stopping a deliberate impersonator is the G2
+  signature and key-custody decision.
+- **Creation race.** Whoever calls `set_details` first becomes the author, and with it gets stage,
+  text and co-author control. A new contract's id can be seen before the creator's `set_details`
+  lands, because the author's `?action=get_contracts` lists it. `createInitiativeOnChain` ignores the
+  `set_details` reply and calls `add_initiative` regardless, so an initiative whose race was lost still
+  gets published. This survives G2.
+  - UI fix: before `add_initiative`, check the reply, or check that `get_roles().author` is the caller.
+  - Question for Ouri: can the runtime fix the author at deploy time? The deploy request already
+    carries `pid`.
+- **The client supplies the contract source.** The deploy request carries the code (a `?raw` import),
+  and the community's `add_initiative` appends any object. So anyone can deploy the old unguarded
+  source, or a modified one with invented results, and register it in any community. A stale cached
+  bundle will also deploy the old source. Closing this needs the server to pin the initiative code
+  (for example, with a hash allow-list), or the UI to check the code before listing an initiative.
+- **Stage readiness is not enforced by the contract.** The member count lives on the community
+  contract, so thresholds such as half the active members seconding before `problem` → `discussion`
+  stay UI-only. Moving from `vote` to `mandate` has no readiness check even in the UI
+  (`VoteActivityCard` passes none), although the ballot says "The vote completes when 75% of members
+  have taken part". With R3, when voting ends is the author's call alone.
+- **`allocate` accepts any stored proposal,** including merged ones and the unreviewed ones the
+  ballot hides (QVFlow shows only expert-reviewed solutions once any exist). `useMandate` picks the
+  winner from all results. This can't happen today, because reviews and merges don't work until the
+  D1 fix, but it can once they do.
+- **`mark_merged_into`** is still open to any key, so anyone can put a "merged into X" banner, linking
+  to X, in front of an initiative's visitors. It can't be author-gated without changing the merge
+  flow, because the *target's* author marks the *source*. It needs a flow decision (for example, the
+  source's author confirms).
+- **`endorse_expert`:** one endorsement, including a self-endorsement, adds a key to `experts`. Any
+  future expert gate (such as `add_expert_review` above) is only as strong as this.
+- **`add_proposal`, `approve` and `withdraw_approval`** have no stage check. A solution added during the
+  vote can appear on the ballot, because the ballot falls back to all solutions when none is
+  expert-reviewed.
+- **Still open from earlier sections:** `add_expert_review` (needs an expert gate) and
+  `decide_merge_suggestion` (needs an author gate) have no caller check on the live contract.
+- **Future writers.** Any new method that writes the `details` or `roles` documents needs the same
+  author/co-author guard, or it reopens R1.
+- **Refusal codes.** Refusals are English strings with no stable code. The seam-wide convention is
+  item 41 in §B of `docs/superpowers/specs/2026-09-06-s35-panel-verdict.md`.
