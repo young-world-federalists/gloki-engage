@@ -56,7 +56,7 @@ DESIGN_SYSTEM.md.
 |---|---|---|---|
 | 1 | Typecheck | `npx tsc -b` (from repo root) | zero errors — strict + `noUnusedLocals`/`noUnusedParameters`, so even an unused import FAILS the GitHub Pages deploy |
 | 2 | Build | `npm run build` | completes clean |
-| 3 | Banned patterns | `sh .Codex/skills/gloki-verification-and-qa/scripts/grep-gates.sh` | prints `ALL GATES CLEAN`, exit 0 |
+| 3 | Banned patterns | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` | prints `ALL GATES CLEAN`, exit 0 |
 | 4 | i18n parity | see **gloki-i18n-playbook** (position-agnostic set diff of fr.ts/sw.ts; never `sed \s` on macOS) | fr = sw key sets, `{var}` tokens intact |
 | 5 | Preview walk | every touched route at **360px width**, **light AND dark**, in **en, fr, sw** | layout holds, strings translated, state renders correctly |
 | 6 | Keyboard | Tab through touched interactive elements | reachable, visible focus, Escape closes modals, no focus lost to remounts |
@@ -89,7 +89,7 @@ The measurement snippet is shipped as **`scripts/contrast-eval.js` in this skill
 ONE home of the contrast code (gloki-ui-review-campaign uses the same file; never fork an
 inline copy). Paste its IIFE into `preview_eval`: `glokiContrast('.selector')` for one
 element, `glokiContrast()` for a whole-page sweep of failing elements. Math self-test:
-`node .Codex/skills/gloki-verification-and-qa/scripts/contrast-eval.js` → prints 3.68 and
+`node .agents/skills/gloki-verification-and-qa/scripts/contrast-eval.js` → prints 3.68 and
 4.83 (the two settled ratios). The ancestor background walk inside it matters: most
 elements have `transparent` backgrounds.
 
@@ -125,7 +125,7 @@ baseline at HEAD `c26cdc4` is clean (any hit after your change was introduced by
 Actual output at c26cdc4 (2026-07-02):
 
 ```
-$ sh .Codex/skills/gloki-verification-and-qa/scripts/grep-gates.sh
+$ sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh
 GATE 1 OK — no $gray-400 text colour
 GATE 2 OK — no raw hex in *.module.scss values
 GATE 3 OK — no network calls outside src/services
@@ -159,7 +159,7 @@ Hard-won toolkit for driving the dev server from an AI session with the
 the mechanics below marked "verified" were re-checked against HEAD c26cdc4.
 
 **Start:** `preview_start` with server name `gloki-dev` (defined in the gitignored
-`.Codex/launch.json`: `npm run dev`, port 5173, autoPort). See gloki-build-env-run
+`.claude/launch.json`: `npm run dev`, port 5173, autoPort). See gloki-build-env-run
 for launch details.
 
 **1. Seed auth via localStorage BEFORE navigating.** Real login cannot complete in the
@@ -229,7 +229,7 @@ driving; persona reviewers run one at a time.
 ```text
 1  npx tsc -b                          → clean
 2  npm run build                       → clean
-3  sh .Codex/skills/gloki-verification-and-qa/scripts/grep-gates.sh → ALL GATES CLEAN
+3  sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh → ALL GATES CLEAN
 4  preview_start gloki-dev
 5  preview_eval: seed localStorage 'user' (snippet above), location.href='/'
 6  preview_resize: width 360, colorScheme dark
@@ -306,7 +306,7 @@ Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`) unless noted. Incidents mar
 | Two north stars wording | `sed -n '9,22p' MASTER_TODO.md` |
 | `$gray-400` gate + `$primary` 3.68:1 accepted deviation | `grep -n 'gray-400\|3.68' DESIGN_SYSTEM.md` (lines 115, 408–409) |
 | 44px targets, 360px flagship, one-h1 rule | `grep -n '44\|360px\|one per page' DESIGN_SYSTEM.md` |
-| grep-gates baseline clean | `sh .Codex/skills/gloki-verification-and-qa/scripts/grep-gates.sh` |
+| grep-gates baseline clean | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` |
 | Auth localStorage shape (`user`, publicKey 64 alnum, serverUrl) | `grep -n localStorage src/contexts/AuthContext.tsx; sed -n '59,64p' src/pages/LoginPage.tsx` |
 | Review-tier docs exist | `ls docs/session-prompts/REVIEW-*.md` |
 | Deploy green + live site 200 | `gh run list --limit 3` and the curl one-liner above |

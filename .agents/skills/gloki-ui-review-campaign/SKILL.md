@@ -93,7 +93,7 @@ npm run build                               # expect: tsc + vite build succeed (
   (and `gloki-debugging-playbook` if the failure is mysterious). Do not review a red build.
 - **If the tree is dirty** → ask the user whether the in-flight work should land or stash first.
 
-Start the preview (config `gloki-dev` in `.Codex/launch.json`, port 5173; the file is gitignored —
+Start the preview (config `gloki-dev` in `.claude/launch.json`, port 5173; the file is gitignored —
 recreate it per the `preview_start` tool doc if missing), then record the route inventory. The
 route map in `src/App.tsx` is FROZEN (comment block, lines 13–31); the walk list at HEAD c26cdc4:
 
@@ -214,7 +214,7 @@ disagrees with them, they win — update this copy:
 | Large text (≥24px, or ≥18.66px bold), UI components, focus rings | ≥ 3:1 | defect below |
 
 Sweep tool: paste the IIFE from
-**`.Codex/skills/gloki-verification-and-qa/scripts/contrast-eval.js`** (the ONE home of the
+**`.agents/skills/gloki-verification-and-qa/scripts/contrast-eval.js`** (the ONE home of the
 contrast code — never fork an inline copy) into `preview_eval` and call `glokiContrast()` per
 route (up to 30 failing elements; large-text 3:1 threshold and ancestor-background walk built
 in), or `glokiContrast('.selector')` for a single element.
@@ -420,7 +420,7 @@ re-verify each:
 | North stars + ≥70% KPI | MASTER_TODO.md §1 |
 | Kit inventory | DESIGN_SYSTEM.md § Shared component inventory |
 | S15 composition method, exemplars, block counts | project memory 2026-07-02 + `docs/superpowers/specs/2026-07-01-solutionsboard-recomposition-design.md` |
-| Preview server name `gloki-dev`, port 5173 | `.Codex/launch.json` (gitignored — may be absent on a fresh clone) |
+| Preview server name `gloki-dev`, port 5173 | `.claude/launch.json` (gitignored — may be absent on a fresh clone) |
 | REVIEW-WAVE "parallel" wording overridden to sequential | standing rule, Eston-confirmed 2026-07-02; re-confirm with Eston if REVIEW-WAVE.md has been rewritten since |
 
 Open/candidate items (not settled, labeled as such): the 2a sweep snippet is verified for math but

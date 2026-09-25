@@ -110,7 +110,7 @@ silently get English. Only the scanner catches it.
 ### Primary: the checked-in scanner (ships with this skill)
 
 ```bash
-node .Codex/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs "/Volumes/2TB Drive/💪Work & Volunteer/🔵 gloki/Gloki Build/Communities2"
+node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs "/Volumes/2TB Drive/💪Work & Volunteer/🔵 gloki/Gloki Build/Communities2"
 ```
 
 (Arg optional when cwd is the repo root.) Actual output at HEAD c26cdc4,
@@ -246,7 +246,7 @@ Volatile facts and how to re-verify:
 
 | Fact | Re-verify with |
 |---|---|
-| Key counts (en=77, fr=sw=1113) and parity status | `node .Codex/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
+| Key counts (en=77, fr=sw=1113) and parity status | `node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
 | Lookup order / storage key `gloki.locale` | `sed -n '40,60p' src/i18n/index.tsx` |
 | en.ts still partial-seed-only | `wc -l src/i18n/en.ts` (~117) vs fr/sw (~1250) |
 | Packet still cites the /tmp scanner (Ground rule 4) | `grep -n "i18ncheck_b12" docs/i18n-native-review-candidates.md` |

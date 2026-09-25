@@ -72,7 +72,7 @@ There is **no `test` script**. Do not go looking for vitest/jest config; it does
 
 ### Dev server for AI sessions: the preview tool
 
-`.Codex/launch.json` (gitignored — per-developer, recreate if missing) defines the preview
+`.claude/launch.json` (gitignored — per-developer, recreate if missing) defines the preview
 server **`gloki-dev`** = `npm run dev` on port 5173 with `autoPort: true`. Start it with the
 `preview_start` tool (name `gloki-dev`), not with a raw Bash `npm run dev`:
 
@@ -256,7 +256,7 @@ curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.
 
 Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`) by direct reads of package.json,
 vite.config.ts, .github/workflows/deploy.yml, tsconfig.app.json, index.html,
-public/404.html, .Codex/launch.json, and live greps/curl. Incident details ("recorded in
+public/404.html, .claude/launch.json, and live greps/curl. Incident details ("recorded in
 project memory") date from Apr–Jul 2026 sessions.
 
 Deploy-branch model updated 2026-09-05 (S35, D11).

@@ -154,7 +154,7 @@ deferral rationale. Any code before that point is scope creep.
 
 **Status at HEAD (verified):** `src/i18n/` contains `en.ts` (partial override), `fr.ts` and
 `sw.ts` (full overlays, **1113 keys each** per the authoritative checked-in scanner
-`.Codex/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs`; the naive `grep -c` one-liner
+`.agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs`; the naive `grep -c` one-liner
 undercounts to 1112 and MASTER_TODO's "≈1109" is a stale estimate), `types.ts` (the `Locale`
 union), `index.tsx` (DICTS + LOCALES for the LanguageSwitcher). No `ny.ts` exists.
 MASTER_TODO.md:241–243 keeps it open.
@@ -353,7 +353,7 @@ Volatile facts and how to re-check them:
 | P5 tail + P6 still open; P0–P5.5 done | Read `MASTER_TODO.md` §7 (lines ~232–272) |
 | No last-view cache exists | `grep -rn "lastView" src --include='*.ts*'` (expect 0 hits) |
 | Connectivity kit contents / SyncBadge+ChannelBadge orphaned outside `/lab/presence` | `ls src/components/shared/connectivity`; `grep -rln "SyncBadge\|ChannelBadge" src` |
-| fr/sw = 1113 keys, no `ny.ts` | `ls src/i18n`; `node .Codex/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` (the `grep -c` one-liner undercounts by 1 — two entries share a line) |
+| fr/sw = 1113 keys, no `ny.ts` | `ls src/i18n`; `node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` (the `grep -c` one-liner undercounts by 1 — two entries share a line) |
 | Delegation = one comment, no code | `grep -rni "delegat" src --include='*.ts*'` (expect only `mechanisms.ts:6`) |
 | Mandate substrate fields (target/baseline/cadence, claimed-vs-verified) | `grep -n "isMandateRatified\|verified:" src/services/demo/fixtures/mandate.ts` |
 | Mandate share prior art | `grep -n "navigator.share" src/components/mandate/MandateCard.tsx` |

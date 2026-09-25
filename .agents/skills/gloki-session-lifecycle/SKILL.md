@@ -267,7 +267,7 @@ Volatile facts — re-verify before relying on them:
 | DEMO_VERSION = `'global-v16'` at `src/services/demo/mockApi.ts:17` | `grep -n "DEMO_VERSION = " src/services/demo/mockApi.ts` |
 | Spec/plan libraries = `docs/superpowers/specs/` (24) + `plans/` (21) | `ls docs/superpowers/specs/ \| tail -3` |
 | 443 commits, zero reverts on `ui` | `git log --oneline ui \| wc -l` ; `git log -i --grep=revert ui` |
-| Preview server name `gloki-dev`, port 5173 | `cat .Codex/launch.json` |
+| Preview server name `gloki-dev`, port 5173 | `cat .claude/launch.json` |
 | `npm run build` = `tsc -b && vite build` | `grep -A6 '"scripts"' package.json` |
 | PR #20 = long-lived expected-conflict review PR | `gh pr view 20 --json mergeable` + `gh pr checks 20` |
 | Src has zero code TODOs (open work lives in §7 only) | `grep -rn -e TODO -e FIXME src --include='*.ts*'` (expect 1 hit: a MASTER_TODO pointer comment in App.tsx) |
