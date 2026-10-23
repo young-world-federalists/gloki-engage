@@ -178,7 +178,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
             <label htmlFor="publicKey">
               <Key size={20} />
               {t('login.key.label', 'Your Identity Key')}
-              <span className={styles.fieldHint}>{t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}</span>
+              <span className={styles.fieldHint}>
+                {isBeta
+                  ? t('beta.keys.hint', "A 64-character code that's yours alone. New here? Tap generate.")
+                  : t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}
+              </span>
             </label>
             <div className={styles.inputWithButton}>
               <input

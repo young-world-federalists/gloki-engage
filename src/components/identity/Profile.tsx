@@ -8,6 +8,9 @@ import { useT, useI18n } from '../../i18n';
 import DigitalAgentCard from './DigitalAgentCard';
 import PhotoPicker from './PhotoPicker';
 import { useDigitalAgent } from './agent/useDigitalAgent';
+import { ACCOUNT_KINDS, accountKindLabel } from '../onboarding/accountKinds';
+import type { AccountKind } from '../../services/interfaces';
+import { isBeta } from '../../appMode';
 import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../utils/languages';
 import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
@@ -29,6 +32,8 @@ const Profile: React.FC = () => {
   const [country, setCountry] = useState('');
   // Single primary language (legacy multi-language agents collapse to their first).
   const [language, setLanguage] = useState('');
+  // S43 — account kind, set once by the beta's Kind step; '' = not stated.
+  const [kind, setKind] = useState<AccountKind | ''>('');
   const [apiKey, setApiKey] = useState('');
 
   const openEdit = () => {
@@ -36,12 +41,19 @@ const Profile: React.FC = () => {
     setPhoto(agent?.photo ?? '');
     setCountry(agent?.country ?? '');
     setLanguage(agent?.languages?.[0] ?? '');
+    setKind(agent?.accountKind ?? '');
     setApiKey(getLocalOpenAIApiKey(user.serverUrl, user.publicKey));
     setEditing(true);
   };
 
   const saveEdit = () => {
-    saveAgent({ displayName: displayName.trim(), photo, country, languages: language ? [language] : [] });
+    saveAgent({
+      displayName: displayName.trim(),
+      photo,
+      country,
+      languages: language ? [language] : [],
+      ...(kind ? { accountKind: kind } : {}),
+    });
     if (user.serverUrl && user.publicKey) setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
     setEditing(false);
   };
@@ -157,6 +169,24 @@ const Profile: React.FC = () => {
               placeholder={t('onboarding.agent.languagePlaceholder', 'Select your language')}
             />
           </div>
+          {(isBeta || !!agent?.accountKind) && (
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="edit-kind">
+                {t('profile.kind.label', 'Account kind')}
+              </label>
+              <select
+                id="edit-kind"
+                className={styles.input}
+                value={kind}
+                onChange={(e) => setKind(e.target.value as AccountKind | '')}
+              >
+                {!kind && <option value="">{t('profile.kind.unset', 'Not stated')}</option>}
+                {ACCOUNT_KINDS.map((k) => (
+                  <option key={k} value={k}>{accountKindLabel(t, k)}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-key">
               {t('agent.aiKey', 'AI API key (stored on this device)')}

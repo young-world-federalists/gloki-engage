@@ -67,8 +67,8 @@ const IdentityView: React.FC = () => {
             <Route path="communities" element={isBeta ? <Navigate to="/" replace /> : <Communities />} />
             <Route path="profile" element={<Profile />} />
             <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <JoinCommunity />} />
-            <Route path="about" element={<AboutPage onBack={() => navigate('/stage/problem')} />} />
-            <Route path="contact" element={<ContactPage onBack={() => navigate('/stage/problem')} />} />
+            <Route path="about" element={<AboutPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
+            <Route path="contact" element={<ContactPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
             <Route path="verification" element={<VerificationHub />} />
             <Route path="verification/request" element={<RequestPage />} />
             <Route path="verification/approve" element={<ApprovePage />} />

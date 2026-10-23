@@ -54,7 +54,7 @@ const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef }) =>
       <h1 className={styles.heading} tabIndex={-1} ref={headingRef}>
         {t('beta.kind.title', 'Who is this account for?')}
       </h1>
-      <p className={styles.lead}>{t('beta.kind.lead', 'Pick the one that fits.')}</p>
+      <p className={styles.lead}>{t('beta.kind.lead', 'Pick the one that fits. You can change it later from your profile.')}</p>
 
       <div className={styles.kindList} role="radiogroup" aria-label={t('beta.kind.title', 'Who is this account for?')}>
         {ACCOUNT_KINDS.map((k) => {

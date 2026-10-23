@@ -6,6 +6,7 @@ import { type DigitalAgent } from './agent/digitalAgentStore';
 import { initialsOf } from '../../utils/initials';
 import { getPersona, DEMO_PARTICIPATION } from '../../services/demo/fixtures/identity';
 import { getLanguageNative } from '../../utils/languages';
+import { accountKindLabel } from '../onboarding/accountKinds';
 import { SmartImage } from '../shared/connectivity';
 import styles from './DigitalAgentCard.module.scss';
 
@@ -34,6 +35,11 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         <div className={styles.identity}>
           <h2 className={styles.name}>{name}</h2>
           {agent.country && <CountryFlag code={agent.country} showName />}
+          {agent.accountKind && (
+            <Badge tone="neutral" size="sm" className={styles.kind}>
+              {accountKindLabel(t, agent.accountKind)}
+            </Badge>
+          )}
           {onEdit && (
             <Button
               className={styles.editBtn}

@@ -1902,3 +1902,23 @@ Please answer these meaning questions before polishing style:
 | `beta.forum.empty` | Be the first to post. | Soyez la première personne à publier. | Kuwa wa kwanza kuchapisha. |
 | `beta.verification.explain` | Four people who know you vouching that you are a real person makes you Verified everywhere on Gloki — no ID papers, no face scans. | Quatre personnes qui vous connaissent et attestent que vous êtes une vraie personne : voilà ce qui vous rend Vérifié·e partout sur Gloki — sans papiers d’identité, sans scan du visage. | Watu wanne wanaokujua wakidhamini kuwa wewe ni mtu halisi hukufanya uthibitishwe kila mahali kwenye Gloki — bila vitambulisho, bila skani ya uso. |
 | `beta.verification.verifiedBody` | Four people who know you have confirmed you are a real person. That is what your account stands on. | Quatre personnes qui vous connaissent ont confirmé que vous êtes une vraie personne. C’est sur cela que repose votre compte. | Watu wanne wanaokujua wamethibitisha kuwa wewe ni mtu halisi. Hicho ndicho akaunti yako inasimamia. |
+
+## Session 43 (2026-10-23) — forum bylines, account kind on the profile
+
+**3 new keys, 1 changed.** Parity checker: `fr = sw = 1510`, `RESULT: PARITY OK`. English stays the
+inline fallback. `beta.*` keys render only in the beta build; `profile.kind.*` renders on the profile
+edit modal in the beta, and in the demo build only for an account that already carries a kind.
+
+Meaning questions first:
+
+1. `beta.kind.lead` now promises the kind can be changed from the profile page. Does "profil" /
+   "wasifu" read as the account's own page, not a public description of someone?
+2. `profile.kind.unset` is the placeholder option in a select when no kind was ever stated. It
+   should read as "not given", with no suggestion that something is missing or wrong.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `beta.kind.lead` (changed) | Pick the one that fits. You can change it later from your profile. | Choisissez ce qui vous correspond. Vous pourrez le changer plus tard depuis votre profil. | Chagua kinachokufaa. Unaweza kukibadilisha baadaye kutoka kwenye wasifu wako. |
+| `beta.keys.hint` | A 64-character code that's yours alone. New here? Tap generate. | Un code de 64 caractères qui n’appartient qu’à vous. Nouveau ici ? Touchez générer. | Msimbo wa herufi 64 ulio wako pekee. Wewe ni mgeni? Gusa tengeneza. |
+| `profile.kind.label` | Account kind | Type de compte | Aina ya akaunti |
+| `profile.kind.unset` | Not stated | Non précisé | Haijatajwa |
