@@ -11,6 +11,7 @@ import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 import { getAgent, getProgress } from './components/identity/agent/digitalAgentStore';
 import { isOrganizationSession } from './services/organizationActor';
+import { isBeta } from './appMode';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FROZEN ROUTE MAP — the Voices-for-the-Climate journey.
@@ -40,6 +41,8 @@ const getBasename = () => {
 };
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+// S42 — the beta's signed-out entry: two sentences and three doors, then the keys screen.
+const BetaDoorsPage = lazy(() => import('./pages/beta/BetaDoorsPage'));
 const HomeView = lazy(() => import('./pages/HomeView'));
 const StageFeedView = lazy(() => import('./pages/StageFeedView'));
 const IdentityView = lazy(() => import('./pages/IdentityView'));
@@ -105,7 +108,7 @@ function AppContent() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
-        <LoginPage />
+        {isBeta ? <BetaDoorsPage /> : <LoginPage />}
       </Suspense>
     );
   }

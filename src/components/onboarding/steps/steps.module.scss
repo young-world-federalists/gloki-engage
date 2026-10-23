@@ -260,3 +260,136 @@
     color: $dark-text;
   }
 }
+
+/* S42 — Backup step (beta) */
+.keyBox {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+.keyText {
+  display: block;
+  padding: $spacing-md;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: $gray-50;
+  color: $gray-900;
+  font-size: $text-sm;
+  line-height: 1.5;
+  word-break: break-all;
+  user-select: all;
+}
+.keyActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+
+  > * {
+    flex: 1 1 140px;
+  }
+}
+.keyStatus {
+  margin: 0;
+  min-height: 1.25em;
+  font-size: $text-sm;
+  color: $success-dark;
+}
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: $touch-target-min;
+  font-size: $text-base;
+  color: $gray-900;
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    accent-color: $primary;
+  }
+}
+
+/* S42 — Kind step (beta) */
+.kindList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+.kindCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: $touch-target-min;
+  width: 100%;
+  padding: $spacing-md;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  text-align: left;
+  color: $gray-900;
+  cursor: pointer;
+  transition: border-color $transition-fast, background-color $transition-fast;
+
+  &:hover {
+    border-color: $primary;
+  }
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+.kindCardOn {
+  border-color: $primary;
+  background: $info-surface;
+}
+.kindIcon {
+  flex-shrink: 0;
+  color: $primary;
+}
+.kindText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+.kindTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+}
+.kindDesc {
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-600;
+}
+.kindNote {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+}
+
+@include dark {
+  .keyText {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+  .checkRow {
+    color: $dark-text;
+  }
+  .kindCard {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+  .kindCardOn {
+    border-color: $primary;
+    background: $info-surface-dark;
+  }
+  .kindDesc,
+  .kindNote {
+    color: $dark-text-secondary;
+  }
+}

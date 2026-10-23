@@ -6,6 +6,7 @@ import { Button, InfoDisclosure, LanguageSwitcher, StageStrip } from '../compone
 import OrganizationSignIn, { type OrganizationSignInInput } from '../components/organization/OrganizationSignIn';
 import { saveOrganization, clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
+import { isBeta } from '../appMode';
 import styles from './LoginPage.module.scss';
 
 const DEFAULT_SERVER_URL = 'https://gdi.gloki.contact';
@@ -20,7 +21,12 @@ function generateKeyString(): string {
   return result;
 }
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  /** S42 — beta only: the doors page renders this as its keys screen and owns "Back". */
+  onBack?: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
   const { login, isLoading } = useAuth();
   const t = useT();
   const [publicKey, setPublicKey] = useState('');
@@ -142,7 +148,7 @@ const LoginPage: React.FC = () => {
           {/* Task-first: the login action is screen one; the warm-up explainer
               prose lives behind the (i) next to the title. */}
           <div className={styles.titleRow}>
-            <h1>{t('login.title', 'Welcome to Gloki')}</h1>
+            <h1>{isBeta ? t('beta.keys.title', 'Your key') : t('login.title', 'Welcome to Gloki')}</h1>
             <InfoDisclosure
               className={styles.infoTrigger}
               size="md"
@@ -154,13 +160,18 @@ const LoginPage: React.FC = () => {
               </div>
             </InfoDisclosure>
           </div>
-          <p>{t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}</p>
+          <p>
+            {isBeta
+              ? t('beta.keys.lead', 'Gloki has no passwords. Generate a key to start, or paste one you saved before.')
+              : t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}
+          </p>
         </div>
 
         {/* The five governance stages — pipeline context before the user even
             logs in (Wave 5c). The login card's mobile padding is trimmed in
-            LoginPage.module.scss so all five labelled stages fit at 360px. */}
-        <StageStrip />
+            LoginPage.module.scss so all five labelled stages fit at 360px.
+            S42: hidden in the beta, which has no pipeline. */}
+        {!isBeta && <StageStrip />}
 
         <div className={styles.form}>
           <div className={styles.inputGroup}>
@@ -276,10 +287,18 @@ const LoginPage: React.FC = () => {
             {isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}
           </Button>
 
+          {/* S42 — beta: the doors page owns the way back. */}
+          {onBack && (
+            <Button type="button" variant="ghost" fullWidth onClick={onBack} disabled={isLoading}>
+              {t('common.back', 'Back')}
+            </Button>
+          )}
+
           {/* S33 — the other kind of actor. Organizations don't deliberate or
               vote; they respond to mandates communities have already decided.
-              Kept as a quiet secondary path so the person flow stays primary. */}
-          <div className={styles.orgRow}>
+              Kept as a quiet secondary path so the person flow stays primary.
+              S42: hidden in the beta — "organisation" is one of its doors. */}
+          {!isBeta && <div className={styles.orgRow}>
             <span className={styles.orgDivider}>{t('login.or', 'or')}</span>
             <button
               type="button"
@@ -293,7 +312,7 @@ const LoginPage: React.FC = () => {
             <p className={styles.orgHint}>
               {t('login.orgHint', 'For bodies that want to endorse or act on finished mandates — not to take part in the vote.')}
             </p>
-          </div>
+          </div>}
         </div>
       </div>
 

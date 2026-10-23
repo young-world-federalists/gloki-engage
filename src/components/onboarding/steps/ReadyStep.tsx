@@ -6,6 +6,7 @@ import { type DigitalAgent } from '../../identity/agent/digitalAgentStore';
 import { initialsOf } from '../../../utils/initials';
 import { getLanguageNative } from '../../../utils/languages';
 import { SmartImage } from '../../shared/connectivity';
+import { accountKindLabel } from '../accountKinds';
 import styles from './steps.module.scss';
 
 interface Props {
@@ -14,10 +15,12 @@ interface Props {
   onExplore: () => void;
   onViewAgent: () => void;
   onConsentNudge: () => void;
+  /** S42 — beta only: "Get verified" becomes the primary action and `onExplore` opens the forum. */
+  onVerify?: () => void;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
 }
 
-const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, onConsentNudge, headingRef }) => {
+const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, onConsentNudge, onVerify, headingRef }) => {
   const t = useT();
   const name = agent?.displayName?.trim();
   return (
@@ -39,6 +42,11 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
         <div className={styles.recapInfo}>
           <span className={styles.recapName}>{name || t('onboarding.ready.anon', 'Your profile')}</span>
           <div className={styles.recapMeta}>
+            {agent?.accountKind && (
+              <Badge tone="info" size="sm">
+                {accountKindLabel(t, agent.accountKind)}
+              </Badge>
+            )}
             {agent?.country && <CountryFlag code={agent.country} showName size="sm" />}
             {agent?.languages?.map((code) => (
               <Badge key={code} tone="neutral" size="sm">
@@ -61,12 +69,25 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
         </Banner>
       )}
       <div className={styles.actions}>
-        <Button fullWidth size="lg" onClick={onExplore}>
-          {t('onboarding.cta.explore', 'Explore Gloki')}
-        </Button>
-        <Button variant="secondary" fullWidth onClick={onViewAgent}>
-          {t('onboarding.cta.viewAgent', 'View my profile')}
-        </Button>
+        {onVerify ? (
+          <>
+            <Button fullWidth size="lg" onClick={onVerify}>
+              {t('beta.ready.verify', 'Get verified')}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={onExplore}>
+              {t('beta.forum.open', 'Open the forum')}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button fullWidth size="lg" onClick={onExplore}>
+              {t('onboarding.cta.explore', 'Explore Gloki')}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={onViewAgent}>
+              {t('onboarding.cta.viewAgent', 'View my profile')}
+            </Button>
+          </>
+        )}
       </div>
     </section>
   );

@@ -32,6 +32,9 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
   // Single primary language (legacy multi-language agents collapse to their first).
   const [language, setLanguage] = useState(agent?.languages?.[0] || voucher.languages?.[0] || '');
 
+  // S42 — an organisation account's name is the organisation's, not a person's.
+  const isOrganisation = agent?.accountKind === 'organisation';
+
   const submit = () =>
     onContinue({ displayName: displayName.trim(), photo, country, languages: language ? [language] : [] });
 
@@ -54,7 +57,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
 
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="agent-name">
-          {t('onboarding.agent.name', 'Your name')}
+          {isOrganisation ? t('beta.agent.orgName', 'Organisation name') : t('onboarding.agent.name', 'Your name')}
         </label>
         <input
           id="agent-name"
@@ -62,7 +65,11 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          placeholder={t('onboarding.agent.namePlaceholder', 'How should we call you?')}
+          placeholder={
+            isOrganisation
+              ? t('beta.agent.orgNamePlaceholder', 'The name people know it by')
+              : t('onboarding.agent.namePlaceholder', 'How should we call you?')
+          }
           autoComplete="name"
         />
       </div>
