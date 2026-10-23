@@ -11,6 +11,8 @@ interface Props {
   onContinue: (kind: AccountKind) => void;
   onBack: () => void;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
+  /** S43: true when `value` came from the doors page, so the lead says so. */
+  fromDoor?: boolean;
 }
 
 const KIND_ICONS: Record<AccountKind, LucideIcon> = {
@@ -25,7 +27,7 @@ const KIND_ICONS: Record<AccountKind, LucideIcon> = {
  * this test. Contributor has no node runtime to point at, so choosing it only
  * records interest (the stored `accountKind`), nothing more.
  */
-const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef }) => {
+const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef, fromDoor }) => {
   const t = useT();
   const [kind, setKind] = useState<AccountKind | null>(value);
 
@@ -54,7 +56,11 @@ const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef }) =>
       <h1 className={styles.heading} tabIndex={-1} ref={headingRef}>
         {t('beta.kind.title', 'Who is this account for?')}
       </h1>
-      <p className={styles.lead}>{t('beta.kind.lead', 'Pick the one that fits. You can change it later from your profile.')}</p>
+      <p className={styles.lead}>
+        {fromDoor
+          ? t('beta.kind.leadDoor', 'You chose this at the door. Change it if it is not right, or later from your profile.')
+          : t('beta.kind.lead', 'Pick the one that fits. You can change it later from your profile.')}
+      </p>
 
       <div className={styles.kindList} role="radiogroup" aria-label={t('beta.kind.title', 'Who is this account for?')}>
         {ACCOUNT_KINDS.map((k) => {

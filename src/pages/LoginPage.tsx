@@ -7,6 +7,7 @@ import OrganizationSignIn, { type OrganizationSignInInput } from '../components/
 import { saveOrganization, clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
 import { isBeta, SHOW_LANGUAGES } from '../appMode';
+import { getBetaDoor } from '../components/onboarding/betaDoor';
 import styles from './LoginPage.module.scss';
 
 const DEFAULT_SERVER_URL = 'https://gdi.gloki.contact';
@@ -52,6 +53,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
   const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
   const [serverUrlError, setServerUrlError] = useState<string | null>(null);
   const [orgOpen, setOrgOpen] = useState(false);
+  // S43 (critique P1) — beta newcomer path. A door recorded on the doors page
+  // means "I have no key yet": the primary action creates one and signs in;
+  // pasting a saved key and choosing a server move behind disclosures.
+  const door = isBeta ? getBetaDoor() : null;
+  const newcomer = door !== null;
+  const [showPaste, setShowPaste] = useState(false);
+  const [showServer, setShowServer] = useState(!isBeta);
 
   // Clear the stored error after its initial value has been loaded into state.
   useEffect(() => {
@@ -82,6 +90,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
 
   const generateRandomKey = () => {
     setPublicKey(generateKeyString());
+    // A key made here is valid by construction; a stale error from an earlier
+    // blur must not sit under it while the CTA turns blue.
+    setPublicKeyError(null);
   };
 
   const handleServerUrlSelect = (url: string) => {
@@ -114,30 +125,48 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
     }
   };
 
-  const handleLogin = async () => {
-    if (isValid) {
-      try {
-        setLoginError(null);
-        // Signing in as a person clears any organization record left behind by
-        // an abandoned org sign-in — otherwise this person would silently be
-        // treated as an organization and find every stage blocked.
-        clearOrganization();
-        notifyOrganizationChanged();
+  const signIn = async (key: string) => {
+    try {
+      setLoginError(null);
+      // Signing in as a person clears any organization record left behind by
+      // an abandoned org sign-in — otherwise this person would silently be
+      // treated as an organization and find every stage blocked.
+      clearOrganization();
+      notifyOrganizationChanged();
 
-        // Save server URL to history
-        const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);
-        setServerUrlHistory(newHistory);
-        localStorage.setItem('serverUrlHistory', JSON.stringify(newHistory));
+      // Save server URL to history
+      const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);
+      setServerUrlHistory(newHistory);
+      localStorage.setItem('serverUrlHistory', JSON.stringify(newHistory));
 
-        await login(publicKey, serverUrl);
-      } catch (error) {
-        setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
-      }
+      await login(key, serverUrl);
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
     }
   };
 
+  const handleLogin = async () => {
+    if (isValid) await signIn(publicKey);
+  };
+
+  /** Beta newcomer: one tap makes the key and signs in; the next step saves it. */
+  const handleCreateKey = async () => {
+    if (serverUrl.length === 0 || validateServerUrl(serverUrl) !== null) return;
+    const key = generateKeyString();
+    setPublicKey(key);
+    setPublicKeyError(null);
+    await signIn(key);
+  };
+
+  const doorLead: Record<string, string> = {
+    person: t('beta.keys.door.person', 'Joining as a person. Gloki has no passwords: create your key to start.'),
+    organisation: t('beta.keys.door.organisation', 'Joining as an organisation. Gloki has no passwords: create your key to start.'),
+    contributor: t('beta.keys.door.contributor', 'Joining as a node contributor. Gloki has no passwords: create your key to start.'),
+  };
+  const showKeyField = !newcomer || showPaste;
+
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isBeta ? styles.containerBeta : ''}`}>
       <div className={styles.card}>
         {/* Pre-auth language switcher (a11y finding #11) — reachable before
             any English copy, so non-English speakers can switch first. */}
@@ -163,9 +192,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
             </InfoDisclosure>
           </div>
           <p>
-            {isBeta
-              ? t('beta.keys.lead', 'Gloki has no passwords. Generate a key to start, or paste one you saved before.')
-              : t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}
+            {newcomer && door
+              ? doorLead[door]
+              : isBeta
+                ? t('beta.keys.lead', 'Gloki has no passwords. Generate a key to start, or paste one you saved before.')
+                : t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}
           </p>
         </div>
 
@@ -176,14 +207,35 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
         {!isBeta && <StageStrip />}
 
         <div className={styles.form}>
-          <div className={styles.inputGroup}>
+          {newcomer && (
+            <Button
+              type="button"
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={() => void handleCreateKey()}
+              loading={isLoading}
+              rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
+              className={styles.loginButton}
+            >
+              {isLoading ? t('login.connecting', 'Connecting…') : t('beta.keys.create', 'Create my key')}
+            </Button>
+          )}
+          {newcomer && !showPaste && (
+            <Button type="button" variant="ghost" fullWidth onClick={() => setShowPaste(true)} disabled={isLoading}>
+              {t('beta.keys.pasteToggle', 'I already have a key')}
+            </Button>
+          )}
+          {showKeyField && <div className={styles.inputGroup}>
             <label htmlFor="publicKey">
               <Key size={20} />
               {t('login.key.label', 'Your Identity Key')}
               <span className={styles.fieldHint}>
-                {isBeta
-                  ? t('beta.keys.hint', "A 64-character code that's yours alone. New here? Tap generate.")
-                  : t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}
+                {newcomer
+                  ? t('beta.keys.pasteHint', 'Paste the 64-character key you saved.')
+                  : isBeta
+                    ? t('beta.keys.hint', "A 64-character code that's yours alone. New here? Tap generate.")
+                    : t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}
               </span>
             </label>
             <div className={styles.inputWithButton}>
@@ -207,9 +259,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
               </button>
             </div>
             {publicKeyError && <div className={styles.fieldError} role="alert">{publicKeyError}</div>}
-          </div>
+          </div>}
 
-          <div className={styles.inputGroup}>
+          {isBeta && !showServer && (
+            <Button type="button" variant="ghost" fullWidth onClick={() => setShowServer(true)} disabled={isLoading}>
+              {t('beta.keys.serverToggle', 'Choose a different server')}
+            </Button>
+          )}
+          {showServer && <div className={styles.inputGroup}>
             <label htmlFor="serverUrl">
               <Server size={20} />
               {t('login.server.label', 'Server URL')}
@@ -256,7 +313,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
               )}
             </div>
             {serverUrlError && <div className={styles.fieldError} role="alert">{serverUrlError}</div>}
-          </div>
+          </div>}
 
           {loginError && (
             <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`} role="alert">
@@ -279,19 +336,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
             </div>
           )}
 
-          <Button
-            type="button"
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={handleLogin}
-            disabled={!isValid}
-            loading={isLoading}
-            rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
-            className={styles.loginButton}
-          >
-            {isLoading ? t('login.connecting', 'Connecting…') : t('login.getStarted', 'Get Started')}
-          </Button>
+          {showKeyField && (
+            <Button
+              type="button"
+              variant={newcomer ? 'secondary' : 'primary'}
+              size="lg"
+              fullWidth
+              onClick={handleLogin}
+              disabled={!isValid}
+              loading={isLoading && !newcomer}
+              rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
+              className={styles.loginButton}
+            >
+              {isLoading && !newcomer ? t('login.connecting', 'Connecting…') : newcomer ? t('beta.keys.signIn', 'Sign in with this key') : t('login.getStarted', 'Get Started')}
+            </Button>
+          )}
 
           {/* S42 — beta: the doors page owns the way back. */}
           {onBack && (

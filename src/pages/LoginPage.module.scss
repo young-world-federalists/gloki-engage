@@ -302,9 +302,10 @@
 
           .inputWithButton {
             .generateButton {
-              background-color: $dark-surface;
-              border-color: $dark-border;
-              color: $dark-text-secondary;
+              // Critique (S43): was $dark-surface on a $dark-surface card, near-invisible.
+              background-color: $dark-bg;
+              border-color: $dark-text-secondary;
+              color: $dark-text;
 
               &:hover {
                 background-color: $dark-border;
@@ -386,4 +387,10 @@
   @include dark {
     color: $dark-text-secondary;
   }
+}
+
+// S43 (critique, detector ai-color-palette): the beta's ground is brand blue only;
+// the blue→violet brand gradient stays on the demo login.
+.containerBeta {
+  background: linear-gradient(135deg, $primary-dark 0%, $primary 100%);
 }

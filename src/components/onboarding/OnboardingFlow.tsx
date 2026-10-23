@@ -74,7 +74,7 @@ const OnboardingFlow: React.FC = () => {
       // link, landmark, and the step hero as the page's h1 (S18 W1, campaign M1).
       <div className={styles.flow}>
         <AppHeader />
-        <main id="main" tabIndex={-1} className={styles.flowMain}>
+        <main id="main" tabIndex={-1} className={`${styles.flowMain} ${isBeta ? styles.flowMainBeta : ''}`}>
           <Card className={styles.doneCard}>
             <h1 className={styles.doneTitle}>{t('onboarding.alreadyDone.title', "You're all set up")}</h1>
             <p className={styles.doneLead}>
@@ -104,7 +104,7 @@ const OnboardingFlow: React.FC = () => {
     rules: t('onboarding.step.rules', 'Rules'),
     ready: t('onboarding.step.ready', 'Ready'),
     backup: t('beta.step.backup', 'Key'),
-    kind: t('beta.step.kind', 'Kind'),
+    kind: t('beta.step.kind', 'Account'),
   };
   const steps = stepIds.map((id) => ({ label: labels[id] }));
   const current = stepIds[step];
@@ -118,7 +118,7 @@ const OnboardingFlow: React.FC = () => {
     // active step's hero heading is the page's h1.
     <div className={styles.flow}>
       <AppHeader />
-      <main id="main" tabIndex={-1} className={styles.flowMain}>
+      <main id="main" tabIndex={-1} className={`${styles.flowMain} ${isBeta ? styles.flowMainBeta : ''}`}>
         <div className={styles.stepperWrap}>
           <Stepper steps={steps} current={step} onStepClick={(i) => go(i)} />
         </div>
@@ -144,6 +144,7 @@ const OnboardingFlow: React.FC = () => {
             <KindStep
               headingRef={headingRef}
               value={agent?.accountKind ?? getBetaDoor()}
+              fromDoor={!agent?.accountKind && getBetaDoor() !== null}
               onBack={back}
               onContinue={(accountKind) => { saveAgent({ accountKind }); next(); }}
             />
