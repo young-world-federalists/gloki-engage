@@ -184,6 +184,9 @@
   // Header vertical rhythm: top air $spacing-lg (16px), bottom $heading-gap (8px)
   // so the title clears the content it introduces (horizontal gutter from the mixin).
   padding-block: $spacing-lg $heading-gap;
+}
+// The band carries the ground full-bleed; the block above caps and centres the text.
+.titleBand {
   background-color: white;
 
   @include dark {

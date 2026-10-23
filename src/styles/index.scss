@@ -116,6 +116,17 @@ button {
     background-color: $dark-surface;
     color: $dark-text;
   }
+  // S43 (critique, detector): browser-default placeholder grey sits at 3.2:1 on dark fields.
+  ::placeholder {
+    color: $dark-text-secondary;
+    opacity: 1;
+  }
+}
+
+// S43 (critique, detector straggler): no one-word last lines in body copy where the
+// engine supports it; older browsers ignore the property.
+p {
+  text-wrap: pretty;
 }
 
 // Reduced motion (WCAG 2.3.3): one app-wide reset so every animation/transition
