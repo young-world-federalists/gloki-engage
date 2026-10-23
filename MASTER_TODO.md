@@ -247,6 +247,26 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
+  flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
+  hides everything but sign-up, keys, vouching and one forum. Signed out, `/` is a doors page
+  (person / organisation / contribute a node) that opens the existing login trimmed to a keys
+  screen; onboarding in beta runs **save your key → account kind → profile → ready**, with honest
+  copy (the key "works like a password", nothing signed or encrypted yet). New optional profile
+  field `accountKind` on the Digital Agent through the seam (`docs/FOR_OURI_seam.md`, S42
+  addendum; wire names unchanged). `/forum` mounts `ThreadedDiscussion` once (new `variant="forum"`:
+  post, reply, like; no cause vote) on one demo discussion contract behind `src/services/forum.ts`.
+  Every pipeline route redirects to `/`; StageFooter and community menu entries are hidden; the
+  verification hub says "people who know you". Demo mode is untouched (HomeView, 4-stage IA, brand
+  blue): nothing deleted. 52 new `beta.*` strings at fr/sw parity (`1507 = 1507`), packet appended.
+  **No `DEMO_VERSION` bump** (no seeded fixture changed; the forum contract self-registers).
+  Evidence: `docs/reviews/2026-10-23-s42-beta-trim/` (360px, light + dark, both builds green).
+  Commits from `d004458` (five code commits plus this docs commit) on `claude/youthful-cerf-ltibol`, **not pushed** — waiting on Eston.
+  ★ Learning: the prompt named a `digitalAgentContract.ts` that does not exist; the agent is a
+  localStorage store with no seam method, so "through the seam" meant the store type + a seam-doc
+  entry, not a new contract call. Also: a fullPage screenshot clips this app because `body` is the
+  scroll container — capture the viewport and scroll the body instead.
+
 - **2026-10-22 — Roadmap clean-up + P12 sovereignty/security track proposed (docs only).** §7 cut
   from ~580 lines to ~115: shipped tiers P0–P11, the handoff tail and the old parked/blocked lists
   moved **verbatim** to `docs/archive/ROADMAP_HISTORY_P0-P11.md`, and open items consolidated under
