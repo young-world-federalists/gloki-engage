@@ -41,7 +41,7 @@ const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef }) =>
     ),
     organisation: t(
       'beta.kind.organisation.note',
-      'In this test an organisation is declared, not checked: you say who you are and others can see it. Verification comes later.',
+      'In this test an organisation is declared, not checked: you say who you are, and nothing verifies it yet.',
     ),
     contributor: t(
       'beta.kind.contributor.note',
@@ -54,7 +54,7 @@ const KindStep: React.FC<Props> = ({ value, onContinue, onBack, headingRef }) =>
       <h1 className={styles.heading} tabIndex={-1} ref={headingRef}>
         {t('beta.kind.title', 'Who is this account for?')}
       </h1>
-      <p className={styles.lead}>{t('beta.kind.lead', 'Pick one. You can change it later from your profile.')}</p>
+      <p className={styles.lead}>{t('beta.kind.lead', 'Pick the one that fits.')}</p>
 
       <div className={styles.kindList} role="radiogroup" aria-label={t('beta.kind.title', 'Who is this account for?')}>
         {ACCOUNT_KINDS.map((k) => {

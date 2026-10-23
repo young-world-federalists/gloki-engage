@@ -1828,3 +1828,77 @@ Please answer these three meaning questions before polishing style:
 | `mechanisms.conviction.how2` | Strength starts at 1 and gains 1 point for every 30 days you keep backing, up to the maximum for your chosen commitment. | La force commence à 1 et gagne 1 point tous les 30 jours pendant lesquels vous maintenez votre soutien, jusqu’au maximum de l’engagement choisi. | Nguvu huanza kwa 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea kuunga mkono, hadi kiwango cha juu cha ahadi uliyochagua. |
 | `mechanisms.conviction.how3` | You can change or withdraw at any time. Committing for longer keeps your original start date; shortening restarts your strength at 1. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir ramène la force à 1. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda hurudisha nguvu hadi 1. |
 | `mechanisms.conviction.legacyHow3` | You can change or withdraw at any time. Committing for longer keeps your original backing date; shortening restarts that date. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir réinitialise cette date. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda huanzisha tarehe hiyo upya. |
+
+## Session 42 (2026-10-23) — the beta trim
+
+**52 new keys, all under `beta.*`.** The repository parity checker reports `fr = sw = 1507` keys with
+identical key sets and matching interpolation tokens (`RESULT: PARITY OK`). English stays the inline
+fallback. These strings only render in the beta build (`npm run build:beta`); the demo build never
+shows them. No existing key changed.
+
+Please answer these meaning questions before polishing style:
+
+1. "Vouch" — French uses *se porter garant·e* and Swahili *kudhamini*, as in earlier sessions. Does
+   "people who know you vouch for you" still read as a personal confirmation rather than a financial
+   guarantee?
+2. "Node" (French *nœud*, Swahili *nodi*) — is there a plainer everyday word for a small server that
+   a volunteer runs? The English sentence explains it; the translation should not need to.
+3. The key copy says it "works like a password" and "whoever types it in is you". Is the warning as
+   blunt in French and Swahili as it is in English? It is meant to be.
+4. "Declared, not checked" for an organisation — does the translation make clear that nothing
+   verifies the claim yet, without sounding like an accusation?
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `beta.doors.title` | Gloki | Gloki | Gloki |
+| `beta.doors.lead1` | Gloki is a network of people who vouch for each other, with a key instead of a password and no company in the middle. | Gloki est un réseau de personnes qui se portent garantes les unes des autres, avec une clé à la place d’un mot de passe et aucune entreprise au milieu. | Gloki ni mtandao wa watu wanaodhaminiana, wenye ufunguo badala ya nenosiri na bila kampuni katikati. |
+| `beta.doors.lead2` | This test version is the network only: get a key, have people who know you vouch for you, and talk in one shared forum. | Cette version de test, c’est le réseau seulement : obtenez une clé, faites-vous recommander par des personnes qui vous connaissent, et discutez dans un forum commun. | Toleo hili la majaribio ni mtandao tu: pata ufunguo, dhaminiwe na watu wanaokujua, na uzungumze katika jukwaa moja la pamoja. |
+| `beta.doors.groupLabel` | How do you want to join? | Comment voulez-vous rejoindre ? | Unataka kujiunga vipi? |
+| `beta.doors.person` | Join as a person | Rejoindre en tant que personne | Jiunge kama mtu binafsi |
+| `beta.doors.person.hint` | One account, vouched for by people who know you. | Un compte, recommandé par des personnes qui vous connaissent. | Akaunti moja, inayodhaminiwa na watu wanaokujua. |
+| `beta.doors.organisation` | Join as an organisation | Rejoindre en tant qu’organisation | Jiunge kama shirika |
+| `beta.doors.organisation.hint` | Speak for a group. Declared, not checked, in this test. | Parler au nom d’un groupe. Déclaré, non vérifié, dans ce test. | Zungumza kwa niaba ya kikundi. Katika jaribio hili ni tamko tu, halithibitishwi. |
+| `beta.doors.contributor` | Contribute a node | Contribuer un nœud | Changia nodi |
+| `beta.doors.contributor.hint` | Host a small server that keeps a copy of the network. | Hébergez un petit serveur qui garde une copie du réseau. | Hudumia seva ndogo inayohifadhi nakala ya mtandao. |
+| `beta.doors.haveKey` | I already have a key | J’ai déjà une clé | Tayari nina ufunguo |
+| `beta.keys.title` | Your key | Votre clé | Ufunguo wako |
+| `beta.keys.lead` | Gloki has no passwords. Generate a key to start, or paste one you saved before. | Gloki n’a pas de mots de passe. Générez une clé pour commencer, ou collez une clé enregistrée auparavant. | Gloki haina manenosiri. Tengeneza ufunguo ili kuanza, au bandika ule uliohifadhi awali. |
+| `beta.step.backup` | Key | Clé | Ufunguo |
+| `beta.step.kind` | Kind | Type | Aina |
+| `beta.backup.title` | Save your key | Enregistrez votre clé | Hifadhi ufunguo wako |
+| `beta.backup.lead` | This key is the only way back into your account. Gloki cannot reset it, and anyone who has it can sign in as you. | Cette clé est le seul moyen de retrouver votre compte. Gloki ne peut pas la réinitialiser, et quiconque la possède peut se connecter à votre place. | Ufunguo huu ndiyo njia pekee ya kurudi kwenye akaunti yako. Gloki haiwezi kuuweka upya, na yeyote aliye nao anaweza kuingia kama wewe. |
+| `beta.backup.keyLabel` | Your key | Votre clé | Ufunguo wako |
+| `beta.backup.copy` | Copy key | Copier la clé | Nakili ufunguo |
+| `beta.backup.download` | Download as text | Télécharger en texte | Pakua kama faili ya maandishi |
+| `beta.backup.fileHeading` | Your Gloki key | Votre clé Gloki | Ufunguo wako wa Gloki |
+| `beta.backup.copied` | Copied to the clipboard. | Copiée dans le presse-papiers. | Imenakiliwa kwenye ubao wa kunakili. |
+| `beta.backup.honest` | Right now the key works like a password: whoever types it in is you. Keep it somewhere private. | Pour l’instant, la clé fonctionne comme un mot de passe : quiconque la saisit, c’est vous. Gardez-la en lieu privé. | Kwa sasa ufunguo hufanya kazi kama nenosiri: yeyote anayeuandika ndiye wewe. Uweke mahali pa faragha. |
+| `beta.backup.confirm` | I have saved my key somewhere safe | J’ai enregistré ma clé en lieu sûr | Nimehifadhi ufunguo wangu mahali salama |
+| `beta.kind.title` | Who is this account for? | Pour qui est ce compte ? | Akaunti hii ni ya nani? |
+| `beta.kind.lead` | Pick the one that fits. | Choisissez ce qui vous correspond. | Chagua kinachokufaa. |
+| `beta.kind.person` | Person | Personne | Mtu binafsi |
+| `beta.kind.person.desc` | One account for one person. | Un compte pour une personne. | Akaunti moja kwa mtu mmoja. |
+| `beta.kind.person.note` | People who know you vouch for you. That, and nothing you pay or upload, is what makes your voice count. | Des personnes qui vous connaissent se portent garantes de vous. C’est cela, et rien que vous payez ou téléversez, qui donne du poids à votre voix. | Watu wanaokujua wanakudhamini. Hilo, na si chochote unacholipa au kupakia, ndilo linalofanya sauti yako ihesabike. |
+| `beta.kind.organisation` | Organisation | Organisation | Shirika |
+| `beta.kind.organisation.desc` | An account that speaks for a group. | Un compte qui parle au nom d’un groupe. | Akaunti inayozungumza kwa niaba ya kikundi. |
+| `beta.kind.organisation.note` | In this test an organisation is declared, not checked: you say who you are, and nothing verifies it yet. | Dans ce test, une organisation est déclarée, non vérifiée : vous dites qui vous êtes, et rien ne le vérifie encore. | Katika jaribio hili shirika hutamkwa tu, halithibitishwi: unasema wewe ni nani, na hakuna kinachokithibitisha bado. |
+| `beta.kind.contributor` | Node contributor | Contributeur·rice de nœud | Mchangiaji wa nodi |
+| `beta.kind.contributor.desc` | Someone who hosts a node for the network. | Une personne qui héberge un nœud pour le réseau. | Mtu anayehudumia nodi kwa ajili ya mtandao. |
+| `beta.kind.contributor.note` | A node is a small server that keeps a copy of the network, so no single company holds it. The node software is not ready yet. Choosing this records your interest, and we will tell you when there is something to run. | Un nœud est un petit serveur qui garde une copie du réseau, pour qu’aucune entreprise ne le détienne seule. Le logiciel du nœud n’est pas encore prêt. Ce choix enregistre votre intérêt, et nous vous dirons quand il y aura quelque chose à faire tourner. | Nodi ni seva ndogo inayohifadhi nakala ya mtandao, ili kampuni moja isiumiliki. Programu ya nodi bado haijawa tayari. Kuchagua hili kunarekodi nia yako, na tutakujulisha kutakapokuwa na kitu cha kuendesha. |
+| `beta.agent.orgName` | Organisation name | Nom de l’organisation | Jina la shirika |
+| `beta.agent.orgNamePlaceholder` | The name people know it by | Le nom sous lequel on la connaît | Jina ambalo watu wanalijua |
+| `beta.ready.verify` | Get verified | Se faire vérifier | Thibitishwa |
+| `beta.alreadyDone.lead` | Your account is ready. Open the forum, or start the welcome guide over. | Votre compte est prêt. Ouvrez le forum, ou recommencez le guide de bienvenue. | Akaunti yako iko tayari. Fungua jukwaa, au anza upya mwongozo wa karibu. |
+| `beta.menu.forum` | Forum | Forum | Jukwaa |
+| `beta.menu.verification` | Get verified | Se faire vérifier | Thibitishwa |
+| `beta.forum.title` | Forum | Forum | Jukwaa |
+| `beta.forum.subtitle` | One conversation, shared by everyone in this test. | Une seule conversation, partagée par tout le monde dans ce test. | Mazungumzo moja, yanayoshirikiwa na kila mtu katika jaribio hili. |
+| `beta.forum.open` | Open the forum | Ouvrir le forum | Fungua jukwaa |
+| `beta.forum.placeholder` | What do you want to say? | Que voulez-vous dire ? | Unataka kusema nini? |
+| `beta.forum.post` | Post | Publier | Chapisha |
+| `beta.forum.disclosure` | Posts are public to everyone on Gloki and kept as part of the forum record. | Les messages sont publics pour tout le monde sur Gloki et conservés dans l’historique du forum. | Machapisho ni ya wazi kwa kila mtu kwenye Gloki na huhifadhiwa kama sehemu ya kumbukumbu ya jukwaa. |
+| `beta.forum.locked` | Sign in to post in the forum. | Connectez-vous pour publier dans le forum. | Ingia ili kuchapisha kwenye jukwaa. |
+| `beta.forum.emptyTitle` | No posts yet | Aucun message pour l’instant | Hakuna machapisho bado |
+| `beta.forum.empty` | Be the first to post. | Soyez la première personne à publier. | Kuwa wa kwanza kuchapisha. |
+| `beta.verification.explain` | Four people who know you vouching that you are a real person makes you Verified everywhere on Gloki — no ID papers, no face scans. | Quatre personnes qui vous connaissent et attestent que vous êtes une vraie personne : voilà ce qui vous rend Vérifié·e partout sur Gloki — sans papiers d’identité, sans scan du visage. | Watu wanne wanaokujua wakidhamini kuwa wewe ni mtu halisi hukufanya uthibitishwe kila mahali kwenye Gloki — bila vitambulisho, bila skani ya uso. |
+| `beta.verification.verifiedBody` | Four people who know you have confirmed you are a real person. That is what your account stands on. | Quatre personnes qui vous connaissent ont confirmé que vous êtes une vraie personne. C’est sur cela que repose votre compte. | Watu wanne wanaokujua wamethibitisha kuwa wewe ni mtu halisi. Hicho ndicho akaunti yako inasimamia. |
