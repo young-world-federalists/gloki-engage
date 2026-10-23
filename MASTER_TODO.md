@@ -266,6 +266,19 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
   both hold, and the shape that lets Ouri reuse his member mapper is `IPartner` (`agent`, not
   `publicKey`). Also: a persona's profile only resolves where its profile contract is registered,
   which in the beta is nowhere until the forum seed does it.
+  **Same day, Eston's follow-ups:** languages dropped for the beta (one flag, `SHOW_LANGUAGES`,
+  hides the switcher; fr/sw stay in the bundle, no parity work for new beta strings). Then the
+  **Impeccable critique** (skill installed globally from the GitHub clone; the engine binary from
+  GitHub releases, since impeccable.style is refused by the proxy) ran dual-agent on the beta
+  surfaces: **25/40, four P1s**, snapshot `.impeccable/critique/2026-10-23T12-40-54Z__src-pages.md`.
+  Eston: fix everything, start with the unaided run, end it on one named ask. Fixed in three
+  commits (unaided run; demo leakage + forum; mechanical): Create-my-key primary on the keys
+  screen, sticky checkbox + Continue on Save your key, one primary pathway on the hub, Ready ends
+  on "Ask someone who knows you", fabricated participation hidden, forum composer labelled with
+  Enter as newline and delete confirm, plus the contrast and target fixes. Evidence
+  `docs/reviews/2026-10-23-s43-critique-fixes/`. Locked calls (brand blue, system sans) reported,
+  not changed. Next: the gloki.app landing page as its own static site (`/home/user/gloki-site`,
+  repo to be created on Eston's go), through `impeccable init` → new-work.
 
 - **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
   flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
