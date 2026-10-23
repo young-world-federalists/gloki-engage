@@ -160,7 +160,7 @@ const Profile: React.FC = () => {
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-language">
-              {t('onboarding.agent.language', 'Your language')}
+              {isBeta ? t('beta.agent.language', 'Language you speak') : t('onboarding.agent.language', 'Your language')}
             </label>
             <SearchableSelect
               options={LANGUAGE_OPTIONS}
@@ -187,7 +187,8 @@ const Profile: React.FC = () => {
               </select>
             </div>
           )}
-          <div className={styles.field}>
+          {/* S43 (critique): the AI key is a demo tool; beta testers never see it. */}
+          {!isBeta && <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-key">
               {t('agent.aiKey', 'AI API key (stored on this device)')}
             </label>
@@ -199,7 +200,7 @@ const Profile: React.FC = () => {
               onChange={(e) => setApiKey(e.target.value)}
               placeholder={t('common.optional', 'Optional')}
             />
-          </div>
+          </div>}
         </div>
       </Modal>
     </div>

@@ -8,6 +8,7 @@ import { useI18n, useT } from '../../../../i18n';
 import { useCommunityTrust } from '../../../../hooks/useCommunityTrust';
 import type { TrustState } from '../../../../services/trust';
 import { EmptyState, SegmentedControl, UserIdentity, SourceLinks, SourcesInput, Banner } from '../../../shared';
+import { useAlert } from '../../../shared/useAlert';
 import { displayNameFor } from '../../../../utils/displayName';
 import { formatDateTime } from '../../../../utils/formatDateTime';
 import type { SourceLink } from '../../../../utils/sources';
@@ -81,7 +82,11 @@ const Composer: React.FC<{
   autoFocus?: boolean;
   /** Overrides the "public to the community" line (S42 forum variant). */
   disclosure?: string;
-}> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus, disclosure }) => {
+  /** S43 — Enter posts (Causes). Off, Enter is a newline and Ctrl/Cmd+Enter posts (forum). */
+  enterPosts?: boolean;
+  /** S43 — show the "+ Add sources" affordance (Causes). Off in the forum. */
+  allowSources?: boolean;
+}> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus, disclosure, enterPosts = true, allowSources = true }) => {
   const t = useT();
   const [text, setText] = useState('');
   const [sources, setSources] = useState<SourceLink[]>([{ url: '' }]);
@@ -100,17 +105,21 @@ const Composer: React.FC<{
         className={styles.composeTextarea}
         rows={3}
         placeholder={placeholder}
+        aria-label={placeholder}
         value={text}
         autoFocus={autoFocus}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
-          // Enter in the comment body posts (shift+Enter = newline). Source rows
-          // are separate inputs; whatever is entered there rides along on submit.
-          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+          // Causes: Enter in the comment body posts (shift+Enter = newline). Forum
+          // (S43 critique): Enter is a newline, as on a phone keyboard; Ctrl/Cmd+Enter
+          // posts. Source rows are separate inputs and ride along on submit.
+          if (e.key === 'Enter') {
+            if (enterPosts ? !e.shiftKey : (e.ctrlKey || e.metaKey)) { e.preventDefault(); submit(); }
+          }
           if (e.key === 'Escape' && onCancel) onCancel();
         }}
       />
-      {showSources
+      {!allowSources ? null : showSources
         ? <SourcesInput value={sources} onChange={setSources} label={t('deliberation.thread.sourcesLabel', 'Sources')} />
         : (
           <button type="button" className={styles.addSourcesBtn} onClick={() => setShowSources(true)}>
@@ -272,6 +281,8 @@ const CommentItem: React.FC<{
             submitLabel={t('deliberation.thread.reply', 'Reply')}
             autoFocus
             disclosure={disclosure}
+            enterPosts={votable}
+            allowSources={votable}
             onCancel={() => setReplying(false)}
             onSubmit={async (text, sources) => { await onReply(node.id, text, sources); setReplying(false); }}
           />
@@ -352,6 +363,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = (useAppSelector((s) => s.communities.profiles) || {}) as ProfileMap;
   const currentUserKey = publicKey || '';
+  const { showConfirm, alertElement } = useAlert();
   const trust = useCommunityTrust(communityId);
 
   const [flat, setFlat] = useState<Comment[]>([]);
@@ -437,9 +449,9 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     // Announce on a separate commit so AT re-fires even on identical repeat
     // posts: the '' reset above and this set must land in distinct DOM commits.
     announceTimer.current = setTimeout(() => {
-      setPostedStatus(t('deliberation.thread.posted', 'Comment posted'));
+      setPostedStatus(votable ? t('deliberation.thread.posted', 'Comment posted') : t('beta.forum.posted', 'Posted'));
     }, 60);
-  }, [serverUrl, publicKey, contractId, refresh, t]);
+  }, [serverUrl, publicKey, contractId, refresh, t, votable]);
 
   const handleReply = useCallback(async (parentId: string, text: string, sources: SourceLink[]) => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -449,9 +461,17 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
   const handleDelete = useCallback(async (id: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
+    // S43 (critique): a post is gone for good; the forum asks first.
+    if (!votable) {
+      const ok = await showConfirm(
+        t('beta.forum.deleteBody', 'Delete this post? It cannot be brought back.'),
+        { title: t('beta.forum.deleteTitle', 'Delete post'), confirmLabel: t('common.delete', 'Delete'), destructive: true },
+      );
+      if (!ok) return;
+    }
     await api.deleteComment(serverUrl, publicKey, contractId, id);
     await refresh();
-  }, [serverUrl, publicKey, contractId, refresh]);
+  }, [serverUrl, publicKey, contractId, refresh, votable, showConfirm, t]);
 
   const handleLike = useCallback(async (id: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -529,6 +549,8 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
           submitLabel={votable ? t('deliberation.thread.comment', 'Comment') : t('beta.forum.post', 'Post')}
           onSubmit={handleTopLevel}
           disclosure={disclosure}
+          enterPosts={votable}
+          allowSources={votable}
         />
       ) : (
         <p id={lockedId} className={styles.lockedNote}>
@@ -540,18 +562,24 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
       <div className={styles.toolbar}>
         <span className={styles.count}>
-          {t(liveCount === 1 ? 'deliberation.thread.count.one' : 'deliberation.thread.count.many',
-            liveCount === 1 ? '1 comment' : '{n} comments', { n: liveCount })}
+          {votable
+            ? t(liveCount === 1 ? 'deliberation.thread.count.one' : 'deliberation.thread.count.many',
+                liveCount === 1 ? '1 comment' : '{n} comments', { n: liveCount })
+            : t(liveCount === 1 ? 'beta.forum.count.one' : 'beta.forum.count.many',
+                liveCount === 1 ? '1 post' : '{n} posts', { n: liveCount })}
         </span>
-        <SegmentedControl<SortMode>
-          options={[
-            { value: 'top', label: t('deliberation.thread.sortTop', 'Top') },
-            { value: 'newest', label: t('deliberation.thread.sortNewest', 'Newest') },
-          ]}
-          value={sort}
-          onChange={setSort}
-          ariaLabel={t('deliberation.thread.sortLabel', 'Sort comments')}
-        />
+        {/* S43 (critique): a sort toggle over one or two posts is noise; the forum shows it from three. */}
+        {(votable || liveCount >= 3) && (
+          <SegmentedControl<SortMode>
+            options={[
+              { value: 'top', label: t('deliberation.thread.sortTop', 'Top') },
+              { value: 'newest', label: t('deliberation.thread.sortNewest', 'Newest') },
+            ]}
+            value={sort}
+            onChange={setSort}
+            ariaLabel={votable ? t('deliberation.thread.sortLabel', 'Sort comments') : t('beta.forum.sortLabel', 'Sort posts')}
+          />
+        )}
       </div>
 
       {focusRootId && (
@@ -609,6 +637,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
           ))}
         </div>
       )}
+      {alertElement}
     </div>
   );
 };

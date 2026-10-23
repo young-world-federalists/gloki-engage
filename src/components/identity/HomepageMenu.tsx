@@ -8,6 +8,7 @@ import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import { isBeta } from '../../appMode';
 import { MenuSettings, SlideOutMenu, type SlideOutMenuItem } from '../shared';
+import { useAlert } from '../shared/useAlert';
 
 const VerificationDemoStateDialog = import.meta.env.DEV
   ? React.lazy(() => import('./verification/VerificationDemoState.demo'))
@@ -40,6 +41,17 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
   const location = useLocation();
   const hiddenCount = useAppSelector((s) => s.preferences.hidden.length);
   const [demoOpen, setDemoOpen] = useState(false);
+  const { showConfirm, alertElement } = useAlert();
+  // S43 (critique): in the beta a key-only account has no "forgot password"; one
+  // mis-tap on Logout must not end it silently. The demo keeps its one-tap logout.
+  const logout = isBeta
+    ? () => {
+        void showConfirm(
+          t('beta.logout.body', 'You will need your saved key to sign in again. Gloki cannot recover it for you.'),
+          { title: t('beta.logout.title', 'Log out?'), confirmLabel: t('menu.logout', 'Logout'), destructive: true },
+        ).then((ok) => { if (ok) onLogout(); });
+      }
+    : onLogout;
 
   // Each entry runs its action then closes the menu.
   const close = (fn: () => void) => () => {
@@ -82,7 +94,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
     ...(isBeta ? betaItems : []),
     { key: 'profile', icon: User, label: t('menu.profile', 'Profile'), onClick: close(() => onNavigate('profile')) },
     ...(isBeta ? [] : communityItems),
-    { key: 'logout', icon: LogOut, label: t('menu.logout', 'Logout'), onClick: close(onLogout), variant: 'danger' },
+    { key: 'logout', icon: LogOut, label: t('menu.logout', 'Logout'), onClick: close(logout), variant: 'danger' },
     ...(isBeta
       ? []
       : [{ key: 'hidden', icon: EyeOff, label: t('menu.hidden', 'Hidden Communities'), onClick: close(() => onNavigate('hidden')), badge: hiddenCount, dividerBefore: true } as SlideOutMenuItem]),
@@ -111,6 +123,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
           <VerificationDemoStateDialog isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
         </React.Suspense>
       )}
+      {alertElement}
     </>
   );
 };
