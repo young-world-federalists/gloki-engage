@@ -14,6 +14,7 @@ import CallFlow from '../components/identity/verification/CallFlow';
 import DailySession from '../components/identity/verification/DailySession';
 import NotificationCenter from '../components/identity/notifications/NotificationCenter';
 import { useT } from '../i18n';
+import { isBeta } from '../appMode';
 import styles from './Container.module.scss';
 
 const IdentityView: React.FC = () => {
@@ -60,10 +61,12 @@ const IdentityView: React.FC = () => {
       <main id="main" tabIndex={-1} className={styles.content}>
         <div className={styles.main}>
           <Routes>
-            <Route index element={<Navigate to="/identity/communities" replace />} />
-            <Route path="communities" element={<Communities />} />
+            {/* S42 — the beta has no communities: those pages go back to `/`
+                and the account's index is the profile. */}
+            <Route index element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
+            <Route path="communities" element={isBeta ? <Navigate to="/" replace /> : <Communities />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="join" element={<JoinCommunity />} />
+            <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <JoinCommunity />} />
             <Route path="about" element={<AboutPage onBack={() => navigate('/stage/problem')} />} />
             <Route path="contact" element={<ContactPage onBack={() => navigate('/stage/problem')} />} />
             <Route path="verification" element={<VerificationHub />} />
@@ -73,8 +76,8 @@ const IdentityView: React.FC = () => {
             <Route path="verification/call" element={<CallFlow />} />
             <Route path="verification/daily" element={<DailySession />} />
             <Route path="notifications" element={<NotificationCenter />} />
-            <Route path="hidden" element={<Communities showHidden />} />
-            <Route path="*" element={<Navigate to="/identity/communities" replace />} />
+            <Route path="hidden" element={isBeta ? <Navigate to="/" replace /> : <Communities showHidden />} />
+            <Route path="*" element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
           </Routes>
         </div>
       </main>

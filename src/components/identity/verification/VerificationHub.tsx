@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarClock, Inbox, ChevronRight } from 'lucide-react';
 import { Card, Button, Badge, TrustBadge, ProgressBar } from '../../shared';
 import { useT } from '../../../i18n';
+import { isBeta } from '../../../appMode';
 import { VERIFIED_THRESHOLD } from '../../../services/trustModel';
 import { useVerification, useVerifiedMembers } from '../../../hooks/useVerification';
 import PathwayCards from './PathwayCards';
@@ -54,13 +55,19 @@ const VerificationHub: React.FC = () => {
           variant={verified ? 'success' : 'primary'}
           label={t('trust.your.barLabel', 'Verification progress')}
         />
+        {/* S42 — beta wording: "people who know you", and no community or
+            vote to point at. Demo wording unchanged. */}
         <p className={styles.statusBody}>
           {verified
-            ? t('verification.hub.verifiedBody', 'Verified members can vote and back mandates in every community they join.')
-            : t(
-                'verification.hub.explain',
-                'Four members vouching that they know you as a real person makes you Verified everywhere on Gloki — no ID papers, no face scans.',
-              )}
+            ? (isBeta
+                ? t('beta.verification.verifiedBody', 'Four people who know you have confirmed you are a real person. That is what your account stands on.')
+                : t('verification.hub.verifiedBody', 'Verified members can vote and back mandates in every community they join.'))
+            : (isBeta
+                ? t('beta.verification.explain', 'Four people who know you vouching that you are a real person makes you Verified everywhere on Gloki — no ID papers, no face scans.')
+                : t(
+                    'verification.hub.explain',
+                    'Four members vouching that they know you as a real person makes you Verified everywhere on Gloki — no ID papers, no face scans.',
+                  ))}
         </p>
         {verified && (
           <Button onClick={() => navigate('/')}>{t('verification.hub.goHome', 'Go to Home')}</Button>

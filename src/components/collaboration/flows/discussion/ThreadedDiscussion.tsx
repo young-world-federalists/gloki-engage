@@ -28,7 +28,7 @@ type SortMode = 'top' | 'newest';
 type CommentNode = Comment & { children: CommentNode[] };
 type ProfileMap = Record<string, { firstName?: string; lastName?: string; country?: string; displayName?: string }>;
 
-function buildTree(flat: Comment[], sort: SortMode, tally: Record<string, VoteTally>): CommentNode[] {
+function buildTree(flat: Comment[], sort: SortMode, tally: Record<string, VoteTally>, votable: boolean): CommentNode[] {
   const map = new Map<string, CommentNode>();
   flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
   const roots: CommentNode[] = [];
@@ -40,17 +40,19 @@ function buildTree(flat: Comment[], sort: SortMode, tally: Record<string, VoteTa
   // ROOT comments are Causes candidates: 'top' ranks by vote score (up − down),
   // ties → older first. Replies aren't votable, so child nodes keep the
   // Heart-count comparator under both sort modes (D4).
-  const rootCmp =
+  const childCmp =
     sort === 'top'
+      ? (a: CommentNode, b: CommentNode) => b.likes.length - a.likes.length || a.timestamp - b.timestamp
+      : (a: CommentNode, b: CommentNode) => b.timestamp - a.timestamp;
+  // S42 forum variant: roots aren't voted on either, so they rank by hearts too.
+  const rootCmp = !votable
+    ? childCmp
+    : sort === 'top'
       ? (a: CommentNode, b: CommentNode) => {
           const scoreA = (tally[a.id]?.up ?? 0) - (tally[a.id]?.down ?? 0);
           const scoreB = (tally[b.id]?.up ?? 0) - (tally[b.id]?.down ?? 0);
           return scoreB - scoreA || a.timestamp - b.timestamp;
         }
-      : (a: CommentNode, b: CommentNode) => b.timestamp - a.timestamp;
-  const childCmp =
-    sort === 'top'
-      ? (a: CommentNode, b: CommentNode) => b.likes.length - a.likes.length || a.timestamp - b.timestamp
       : (a: CommentNode, b: CommentNode) => b.timestamp - a.timestamp;
   const sortChildren = (nodes: CommentNode[]) => {
     nodes.sort(childCmp);
@@ -77,7 +79,9 @@ const Composer: React.FC<{
   onSubmit: (text: string, sources: SourceLink[]) => void;
   onCancel?: () => void;
   autoFocus?: boolean;
-}> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus }) => {
+  /** Overrides the "public to the community" line (S42 forum variant). */
+  disclosure?: string;
+}> = ({ placeholder, submitLabel, onSubmit, onCancel, autoFocus, disclosure }) => {
   const t = useT();
   const [text, setText] = useState('');
   const [sources, setSources] = useState<SourceLink[]>([{ url: '' }]);
@@ -124,7 +128,7 @@ const Composer: React.FC<{
         )}
       </div>
       <span className={styles.count}>
-        {t('deliberation.thread.disclosure', 'Comments are public to the community and kept as part of the discussion record.')}
+        {disclosure ?? t('deliberation.thread.disclosure', 'Comments are public to the community and kept as part of the discussion record.')}
       </span>
     </div>
   );
@@ -151,7 +155,11 @@ const CommentItem: React.FC<{
   /** id of the "voting is locked" explanation (P15); undefined when the
    *  viewer can participate. Only consumed by the root vote buttons. */
   lockedId?: string;
-}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onVote, tally, voteOf, rankOf, onFocus, newCommentId, newCommentRef, onNewCommentBlur, lockedId }) => {
+  /** False in the S42 forum variant: roots get a Like like replies, no cause vote or rank. */
+  votable: boolean;
+  /** The S42 forum variant's reply disclosure line. */
+  disclosure?: string;
+}> = ({ node, depth, currentUserKey, profiles, trustOf, canParticipate, onReply, onDelete, onLike, onVote, tally, voteOf, rankOf, onFocus, newCommentId, newCommentRef, onNewCommentBlur, lockedId, votable, disclosure }) => {
   const { t, locale } = useI18n();
   const [replying, setReplying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -208,7 +216,7 @@ const CommentItem: React.FC<{
 
         {!node.deleted && (
           <div className={styles.commentActions}>
-            {!node.parentId ? (
+            {!node.parentId && votable ? (
               <>
                 <div className={styles.voteGroup} role="group" aria-label={t('causes.vote.group', 'Vote on this cause')}>
                   <button type="button" className={`${styles.voteBtn} ${mine === 'up' ? styles.voteOn : ''}`}
@@ -263,6 +271,7 @@ const CommentItem: React.FC<{
             placeholder={t('deliberation.thread.replyPlaceholder', 'Reply to {name}…', { name })}
             submitLabel={t('deliberation.thread.reply', 'Reply')}
             autoFocus
+            disclosure={disclosure}
             onCancel={() => setReplying(false)}
             onSubmit={async (text, sources) => { await onReply(node.id, text, sources); setReplying(false); }}
           />
@@ -296,6 +305,8 @@ const CommentItem: React.FC<{
                 newCommentId={newCommentId}
                 newCommentRef={newCommentRef}
                 onNewCommentBlur={onNewCommentBlur}
+                votable={votable}
+                disclosure={disclosure}
               />
             ))}
           </div>
@@ -318,6 +329,12 @@ export interface ThreadedDiscussionProps {
    *  so a caller (e.g. the page header subtitle) can mirror it without a
    *  second comments/votes fetch. */
   onStatus?: (status: DiscussionStatus) => void;
+  /**
+   * S42 — `'causes'` (default) is the Causes stage: root comments are voted up
+   * or down and ranked. `'forum'` is the beta's shared forum: plain post →
+   * reply → like, with forum wording and no vote, rank or vote hint.
+   */
+  variant?: 'causes' | 'forum';
 }
 
 /**
@@ -325,8 +342,12 @@ export interface ThreadedDiscussionProps {
  * heart, Top/Newest sort, indent-to-cap then "Continue this thread →". No
  * categories, no participation gate — discussion is conversation, not a threshold.
  */
-const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, communityId, canParticipate, emptyHint, onStatus }) => {
+const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, communityId, canParticipate, emptyHint, onStatus, variant = 'causes' }) => {
   const t = useT();
+  const votable = variant !== 'forum';
+  const disclosure = votable
+    ? undefined
+    : t('beta.forum.disclosure', 'Posts are public to everyone on Gloki and kept as part of the forum record.');
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const profiles = (useAppSelector((s) => s.communities.profiles) || {}) as ProfileMap;
@@ -473,7 +494,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const voteOf = useCallback((id: string) => myVote(votes, currentUserKey, id), [votes, currentUserKey]);
   const rankOf = useCallback((id: string) => rankById[id], [rankById]);
 
-  const tree = useMemo(() => buildTree(flat, sort, tally), [flat, sort, tally]);
+  const tree = useMemo(() => buildTree(flat, sort, tally, votable), [flat, sort, tally, votable]);
   const liveCount = useMemo(() => flat.filter((c) => !c.deleted).length, [flat]);
   const visibleRoots = useMemo(() => {
     if (!focusRootId) return tree;
@@ -502,13 +523,18 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
 
       {canParticipate ? (
         <Composer
-          placeholder={t('causes.composer.placeholder', 'What is causing this problem?')}
-          submitLabel={t('deliberation.thread.comment', 'Comment')}
+          placeholder={votable
+            ? t('causes.composer.placeholder', 'What is causing this problem?')
+            : t('beta.forum.placeholder', 'What do you want to say?')}
+          submitLabel={votable ? t('deliberation.thread.comment', 'Comment') : t('beta.forum.post', 'Post')}
           onSubmit={handleTopLevel}
+          disclosure={disclosure}
         />
       ) : (
         <p id={lockedId} className={styles.lockedNote}>
-          {t('causes.vote.locked', 'Voting on causes is open to verified community members.')}
+          {votable
+            ? t('causes.vote.locked', 'Voting on causes is open to verified community members.')
+            : t('beta.forum.locked', 'Sign in to post in the forum.')}
         </p>
       )}
 
@@ -537,7 +563,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
       {/* F6: the vote hint only makes sense above a list the viewer can
           actually vote on — an empty discussion, or a viewer who can't
           participate, never shows it. */}
-      {showVoteHint && canParticipate && visibleRoots.length > 0 && (
+      {votable && showVoteHint && canParticipate && visibleRoots.length > 0 && (
         <Banner
           tone="info"
           onDismiss={() => { markHintSeen('causesVoteHint'); setShowVoteHint(false); }}
@@ -551,7 +577,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
         <EmptyState
           compact
           icon={<MessageSquare size={28} aria-hidden />}
-          title={t('deliberation.thread.emptyTitle', 'No comments yet')}
+          title={votable ? t('deliberation.thread.emptyTitle', 'No comments yet') : t('beta.forum.emptyTitle', 'No posts yet')}
           message={emptyHint || t('deliberation.thread.empty', 'Start the conversation about this problem.')}
         />
       ) : (
@@ -577,6 +603,8 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
               newCommentRef={newCommentRefCallback}
               onNewCommentBlur={handleNewCommentBlur}
               lockedId={canParticipate ? undefined : lockedId}
+              votable={votable}
+              disclosure={disclosure}
             />
           ))}
         </div>

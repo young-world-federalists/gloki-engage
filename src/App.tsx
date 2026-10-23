@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StageFooter from './components/shared/StageFooter';
@@ -49,6 +49,8 @@ const IdentityView = lazy(() => import('./pages/IdentityView'));
 const CommunityView = lazy(() => import('./pages/CommunityView'));
 const InitiativeView = lazy(() => import('./pages/collaboration/InitiativeView'));
 const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
+// S42 — the beta's one shared forum.
+const ForumPage = lazy(() => import('./pages/ForumPage'));
 // Lane placeholder areas — owning lane replaces the stub component (not this file).
 const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow'));
 const MandatePage = lazy(() => import('./components/mandate/MandatePage'));
@@ -74,10 +76,21 @@ const isFirstRun = (): boolean => {
 // Entry point for `/`: an organization session goes to its own home (it has no
 // member journey to onboard into — S33); first-run people are guided to the
 // /welcome journey; everyone else lands on the cross-community Home overview.
+// S42 beta: signed out, `/` is the doors page (rendered below in place of the
+// login); signed in, first-run goes to /welcome and everyone else to the forum.
+// The organization actor is one of the beta's doors, not a separate session.
 function RootRoute() {
+  if (isBeta) return <Navigate to={isFirstRun() ? '/welcome' : '/forum'} replace />;
   if (isOrganizationSession()) return <Navigate to="/organization" replace />;
   if (isFirstRun()) return <Navigate to="/welcome" replace />;
   return <HomeView />;
+}
+
+// S42 — in the beta every pipeline route (communities, initiatives, stage
+// feeds, mandates, the organization home) sends the visitor back to `/`.
+// The routes and their components stay in the bundle; the flag hides them.
+function BetaGate({ children }: { children: React.ReactElement }) {
+  return isBeta ? <Navigate to="/" replace /> : children;
 }
 
 function AppContent() {
@@ -122,20 +135,22 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<RootRoute />} />
               <Route path="/welcome/*" element={<OnboardingFlow />} />
-              <Route path="/stage/:stageId" element={<StageFeedView />} />
+              <Route path="/stage/:stageId" element={<BetaGate><StageFeedView /></BetaGate>} />
               <Route path="/identity/*" element={<IdentityView />} />
-              <Route path="/create-community" element={<CreateCommunityPage />} />
-              <Route path="/community/:communityId/*" element={<CommunityView />} />
+              <Route path="/create-community" element={<BetaGate><CreateCommunityPage /></BetaGate>} />
+              <Route path="/community/:communityId/*" element={<BetaGate><CommunityView /></BetaGate>} />
               <Route
                 path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
-                element={<InitiativeView />}
+                element={<BetaGate><InitiativeView /></BetaGate>}
               />
-              <Route path="/mandate/:communityId/:mandateId/*" element={<MandatePage />} />
-              <Route path="/organization" element={<OrganizationHome />} />
+              <Route path="/mandate/:communityId/:mandateId/*" element={<BetaGate><MandatePage /></BetaGate>} />
+              <Route path="/organization" element={<BetaGate><OrganizationHome /></BetaGate>} />
+              {isBeta && <Route path="/forum" element={<ForumPage />} />}
               <Route path="/lab/presence" element={<PresenceLabRoute />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <StageFooter />
+            {/* S42 — the beta has no stages to browse. */}
+            {!isBeta && <StageFooter />}
           </Suspense>
         </ToastProvider>
       </Router>
