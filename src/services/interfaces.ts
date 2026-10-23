@@ -20,6 +20,14 @@ export interface IContract {
     parameters?: Record<string, unknown>;
   }
   
+  /**
+   * S42 — what kind of account a Digital Agent is. Declared by the user at
+   * sign-up (the beta's three doors); the organisation kind is declared, not
+   * verified. `contributor` records interest in hosting a node — there is no
+   * node runtime to point at yet.
+   */
+  export type AccountKind = 'person' | 'organisation' | 'contributor';
+
   export interface IProfile {
     firstName: string;
     lastName: string;
@@ -32,6 +40,8 @@ export interface IContract {
     // Optional public display name / pseudonym; when set, bylines show this
     // instead of first+last (see src/utils/displayName.ts).
     displayName?: string;
+    // S42 — see AccountKind above. Absent on profiles created before S42.
+    accountKind?: AccountKind;
   }
 
   export interface IPartner {

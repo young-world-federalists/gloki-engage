@@ -356,6 +356,30 @@ it is not that backend. **Do not invent `create_notification`, `schedule_reminde
 on their documented methods (`vouch`, merge methods, and so on); notifications describe those events
 but do not replace them.
 
+### S42 addendum — Account kind on the Digital Agent profile (`src/components/identity/agent/digitalAgentStore.ts`)
+
+The beta (the network, not the pipeline — 15 Oct thread) asks each newcomer which of three things
+they are. One new optional profile field, no new method, wire names unchanged:
+
+- **`accountKind`** — `'person' | 'organisation' | 'contributor'` (`AccountKind` in
+  `src/services/interfaces.ts`). Written once at sign-up through the existing **`set_values`** items
+  (`{ accountKind }`) and read back from **`get_profile`** alongside `firstName` / `lastName` /
+  `userPhoto` / `userBio` / `country` / `displayName`. Absent on every profile created before S42;
+  the UI treats absent as "not stated", never as `person`.
+- **Meaning.** `person` is the default door. `organisation` is **declared, not verified** in the
+  beta — nothing checks it, and the UI says so. `contributor` records **interest in hosting a
+  node**; there is no node runtime to point at yet, so the contract stores the kind and nothing
+  else (no address, no endpoint). When the runtime exists, that is a new field, not a change to
+  this one.
+- **Today** the field lives on the localStorage Digital Agent record (`gloki.digitalAgent`) like
+  every other profile field on `ui`; your `digitalAgentStore.ts` read path on `server-side` only
+  needs to carry it through the mapper.
+- **Not in scope:** the forum. The beta mounts `ThreadedDiscussion` on one discussion contract
+  found through `src/services/forum.ts` (`getForumContractId()`); today that is a single seeded
+  demo contract (`demo-forum-beta`, `discussion_contract.py`). The real layer returns the id of the
+  one discussion contract the network shares — no new contract methods; `add_comment` /
+  `get_comments` / `like_comment` / `delete_comment` as documented under S2.
+
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 
 The live `gloki_engage_initiative_contract.py` enforces none of the ballot rules the UI enforces

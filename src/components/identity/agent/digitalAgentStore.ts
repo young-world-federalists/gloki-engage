@@ -6,6 +6,7 @@
 // No backend, no contract writes.
 
 import type { VouchMeta } from '../../../services/trustModel';
+import type { AccountKind } from '../../../services/interfaces';
 
 const AGENT_KEY = 'gloki.digitalAgent';
 const ONBOARDING_KEY = 'gloki.onboarding';
@@ -25,6 +26,13 @@ export interface DigitalAgent {
    */
   vouchMeta?: Record<string, VouchMeta>;
   consentedAt?: number; // set when the user accepts the deliberation rules
+  /**
+   * S42 — person | organisation | contributor, chosen at the beta's doors and
+   * confirmed in onboarding. Optional: agents created before S42 have none.
+   * Through the seam as the `accountKind` profile field (docs/FOR_OURI_seam.md,
+   * S42 addendum); the wire names (`get_profile` / `set_values`) are unchanged.
+   */
+  accountKind?: AccountKind;
 }
 
 export interface OnboardingProgress {
