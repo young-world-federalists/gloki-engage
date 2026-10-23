@@ -6,7 +6,7 @@ import { Button, InfoDisclosure, LanguageSwitcher, StageStrip } from '../compone
 import OrganizationSignIn, { type OrganizationSignInInput } from '../components/organization/OrganizationSignIn';
 import { saveOrganization, clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
-import { isBeta } from '../appMode';
+import { isBeta, SHOW_LANGUAGES } from '../appMode';
 import styles from './LoginPage.module.scss';
 
 const DEFAULT_SERVER_URL = 'https://gdi.gloki.contact';
@@ -141,9 +141,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
       <div className={styles.card}>
         {/* Pre-auth language switcher (a11y finding #11) — reachable before
             any English copy, so non-English speakers can switch first. */}
-        <div className={styles.langRow}>
-          <LanguageSwitcher />
-        </div>
+        {SHOW_LANGUAGES && (
+          <div className={styles.langRow}>
+            <LanguageSwitcher />
+          </div>
+        )}
         <div className={styles.header}>
           {/* Task-first: the login action is screen one; the warm-up explainer
               prose lives behind the (i) next to the title. */}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Building2, Server, type LucideIcon } from 'lucide-react';
 import { GlokiMark, LanguageSwitcher } from '../../components/shared';
+import { SHOW_LANGUAGES } from '../../appMode';
 import { useT } from '../../i18n';
 import type { AccountKind } from '../../services/interfaces';
 import { getBetaDoor, setBetaDoor } from '../../components/onboarding/betaDoor';
@@ -54,9 +55,12 @@ const BetaDoorsPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <main id="main" className={styles.card}>
-        <div className={styles.langRow}>
-          <LanguageSwitcher />
-        </div>
+        {/* S43 — English only for now (Eston, 2026-10-23); the switcher stays in the bundle. */}
+        {SHOW_LANGUAGES && (
+          <div className={styles.langRow}>
+            <LanguageSwitcher />
+          </div>
+        )}
         <div className={styles.hero} aria-hidden>
           <GlokiMark size={56} />
         </div>
