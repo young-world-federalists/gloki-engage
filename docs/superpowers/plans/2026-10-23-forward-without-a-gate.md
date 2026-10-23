@@ -51,6 +51,21 @@ whether or not Ouri replies this month, without taking the backend out of his ha
 
 ## 3. Workstream A — Landing page (separate static site)
 
+> **Premise correction, 2026-10-23 (after reading the 15 Oct "Plan for Gloki beta" thread).**
+> Eston proposed to Ouri, and Ouri agreed in principle, that **the beta is the network, not the
+> pipeline**: (1) you get in because people vouch for you, (2) you get your own agent, (3) you can
+> host a node, (4) everyone shares one forum; **no communities in the beta**, the 5-stage pipeline
+> returns later. The landing page is **gloki.app with a waitlist and three doors**: solve global
+> issues (first invitees: academics and world federalists), build digital democracy, contribute to
+> a new internet (people with a server). So A1 below is **superseded**: the page sells how you get
+> in and how you help hold the network up, shows the pipeline as "later", and the three doors
+> replace the three scroll depths. D3 (audience) is answered by the three doors. D4 (claims) still
+> applies, more so: "host a node" can only go on the page once Ouri ships a runnable agent (repo
+> or Docker image), which Eston asked for in that thread. Add that dependency to A2: **the "contribute"
+> door launches dark (waitlist only) until the runtime exists.** The ballot guards stay a
+> pre-requisite for any binding vote but are off the beta's critical path, so the Ouri note (§6) was
+> rewritten as a reply in that thread, not a standalone email.
+
 **Owner:** Eston (copy decisions) + Claude (build). **Depends on:** D1–D4. **Duration:** 4–6 working
 sessions. **Deploys independently** of the app.
 
