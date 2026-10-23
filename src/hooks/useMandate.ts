@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFlowContract } from '../components/collaboration/flows/shared/useFlowContract';
 import * as qvApi from '../components/collaboration/flows/voting/qvApi';
 import * as approvalApi from '../components/collaboration/flows/voting/approvalApi';
+import type { ImpactAssessment } from '../components/collaboration/flows/voting/approvalApi';
+import { resolveInitiativeStageContract } from '../services/contracts/initiative';
+import { getComments, getCommentVotes } from '../components/collaboration/flows/discussion/discussionApi';
+import { rankCauses, type CauseRank } from '../utils/causes';
 import { getRatification } from '../services/mandateRatification';
 import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
@@ -20,6 +24,7 @@ interface ApprovalProposal {
   text: string;
   commitments?: string[];
   expertReviews?: { expert: string; metrics: string[]; note?: string; timestamp: number }[];
+  causeId?: string;
 }
 
 export interface UseMandateResult {
@@ -63,6 +68,14 @@ export function useMandate(
   const [proposals, setProposals] = useState<Record<string, ApprovalProposal> | null>(null);
   const [voters, setVoters] = useState<number | null>(null);
   const [ratification, setRatification] = useState<MandateRatification | null>(null);
+  // Causes ranked in the discussion contract (S35 F2, Task 11) — resolved
+  // read-only alongside the vote/proposals contracts below, so the winning
+  // solution's cause alignment can be shown on the mandate card.
+  const [causes, setCauses] = useState<CauseRank[]>([]);
+  // Task 14 — impact assessments, read back from the same approval contract
+  // the winner's commitments/metrics come from; isolated so a failed read
+  // never blanks the mandate card.
+  const [assessments, setAssessments] = useState<ImpactAssessment[]>([]);
 
   // Clear derived state the instant the initiative changes so the memo falls back
   // to the new id's fixture rather than flashing the previous mandate's spine
@@ -72,6 +85,8 @@ export function useMandate(
     setProposals(null);
     setVoters(null);
     setRatification(null);
+    setCauses([]);
+    setAssessments([]);
   }, [initiativeId]);
 
   // Eligible denominator N — mirror MandateActivityCard: fetch the community's
@@ -92,19 +107,39 @@ export function useMandate(
     if (!voteReady || !voteContractId || !proposalsReady || !proposalsContractId) return;
     (async () => {
       try {
-        const [r, p, allocs, ratif] = await Promise.all([
+        const [r, p, allocs, ratif, ia] = await Promise.all([
           qvApi.getResults(serverUrl, publicKey, voteContractId),
           approvalApi.getProposals(serverUrl, publicKey, proposalsContractId),
           qvApi.getAllocations(serverUrl, publicKey, voteContractId),
           getRatification(serverUrl, publicKey, initiativeId),
+          approvalApi.getImpactAssessments(serverUrl, publicKey, proposalsContractId).catch(() => []),
         ]);
         if (cancelled) return;
         setResults((r as Record<string, number>) || {});
         setProposals((p as Record<string, ApprovalProposal>) || {});
         setVoters(Object.keys((allocs as Record<string, unknown>) || {}).length);
         setRatification(ratif);
+        setAssessments((ia as ImpactAssessment[]) || []);
       } catch {
-        if (!cancelled) { setResults({}); setProposals({}); setVoters(0); setRatification(null); }
+        if (!cancelled) { setResults({}); setProposals({}); setVoters(0); setRatification(null); setAssessments([]); }
+      }
+      // Causes (S35 F2, Task 11) — read-only resolve of the discussion
+      // sub-contract, same pattern as TopCausesPanel/DiscussionPill: never
+      // useFlowContract, which can deploy + register from a display path.
+      try {
+        const discRef = await resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'discussionContractId');
+        if (cancelled) return;
+        if (discRef?.contractId) {
+          const [comments, votes] = await Promise.all([
+            getComments(serverUrl, publicKey, discRef.contractId),
+            getCommentVotes(serverUrl, publicKey, discRef.contractId),
+          ]);
+          if (!cancelled) setCauses(rankCauses(comments, votes));
+        } else if (!cancelled) {
+          setCauses([]);
+        }
+      } catch {
+        if (!cancelled) setCauses([]);
       }
     })();
     return () => { cancelled = true; };
@@ -137,6 +172,12 @@ export function useMandate(
     // the flagship still reads sensibly before member/allocation reads land.
     const liveEligible = eligible > 0 ? eligible : fixture.provenance.eligible;
     const liveVoters = voters ?? fixture.provenance.voters;
+    // Cause alignment (S35 F2, Task 11) — the winning solution's causeId,
+    // resolved to text/rank against the discussion contract's current ranks
+    // (the same "found or unranked" lookup CauseLine's other three callers do).
+    const foundCause = winner?.causeId ? causes.find((c) => c.comment.id === winner.causeId) : undefined;
+    // Task 14 — the winning solution's impact assessments (possibly empty).
+    const winnerAssessments = winnerId ? assessments.filter((a) => a.proposalId === winnerId) : [];
     return {
       ...fixture,
       status: isMandateRatified(indicators) ? 'ratified' : 'published',
@@ -148,8 +189,13 @@ export function useMandate(
         eligible: liveEligible,
         voters: liveVoters,
       },
+      causeId: winner?.causeId,
+      causeText: foundCause?.comment.text,
+      causeRank: foundCause?.rank,
+      causeResolvable: causes.length > 0,
+      assessments: winnerAssessments,
     };
-  }, [results, proposals, ratification, voters, eligible, fixture]);
+  }, [results, proposals, ratification, voters, eligible, fixture, causes, assessments]);
 
   return { mandate };
 }

@@ -234,6 +234,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
                     hostAgent={hostAgent}
                     expanded={expandedIds.has(item.id)}
                     onToggle={() => toggleExpanded(item.id)}
+                    communityName={props.name}
                   />
                 </div>
               );

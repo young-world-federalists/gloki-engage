@@ -1,0 +1,194 @@
+@use '../../../styles/variables' as *;
+
+// F10's bandwidth line links out to the text-vouch pathway (E7 — the second
+// sentence of the F10 line is a react-router <Link>). Styled as an ordinary
+// inline link inside a pages.intro paragraph; also reused for the empty
+// state's "ask a member instead" CTA (S37 Task 5).
+.link {
+  color: $primary;
+  font-weight: $font-medium;
+  text-decoration: underline;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+// "Available now" heading + Refresh button, side by side above the list.
+.pickerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+// Refresh is a bare size="sm" button (32px) — R7: extend its hit area to the
+// 44px touch floor without changing the visual, same ::after technique as
+// MemberCard.module.scss's `.action button::after` / Toast's `.dismiss`.
+.refreshButton {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// R8 — reserves room below the list so the sticky actions bar (below) never
+// visually covers the last row while scrolling; matches the bar's own
+// button height (44px, a sanctioned touch-floor raw value). Shared by
+// VerifierPicker (Task 5), WaitingRoom (S37 Task 6) and InCallView's tile
+// grid (fix round 1) — each puts a scrollable list above a sticky bar.
+.listGuard {
+  padding-bottom: 44px;
+}
+
+// R8 — the primary CTA must clear the fold at 360px instead of sitting
+// behind the whole member list. Sticky within normal flow, parked at
+// $footer-clearance exactly like Toast.module.scss's `.region`;
+// Container.module.scss already reserves that same clearance at the bottom
+// of the scroll region, so this never collides with the global fixed
+// StageFooter. Opaque background matches the page (Container's `.container`)
+// so list rows scrolling underneath don't show through. Shared by
+// VerifierPicker's single Start button, WaitingRoom's stacked Start/Cancel
+// pair (S37 Task 6) and InCallView's mute/camera/leave row (fix round 1 —
+// measured at y=808 in a 780px viewport before this, i.e. "Leave call" below
+// the fold). It only supplies stickiness and an opaque background, so it
+// composes with `pages.actions` (column) or `.controls` (row) alike.
+.stickyActions {
+  position: sticky;
+  bottom: $footer-clearance;
+  background: $gray-50;
+
+  @include dark {
+    background: $dark-surface;
+  }
+}
+
+// Selected-row highlight in the VerifierPicker's MemberList (rowClassName).
+// Background only — MemberCard's own children own their text colour (same
+// shape as SolutionAuthorPanel's .panel: the tint doesn't need its own
+// dark-mode text re-declare because it never sets one in light mode either).
+.selectedRow {
+  background: $info-surface;
+  border-radius: $radius-md;
+
+  @include dark {
+    background: $info-surface-dark;
+  }
+}
+
+// ── InCallView (S37 Task 7, state C) ────────────────────────────────────────
+
+// Verifier tile grid: 2 columns, holding at the 360px floor. `pages.page`
+// carries no horizontal padding of its own — the page column
+// (`page-column` mixin, Container.module.scss) is what applies
+// $content-gutter (16px) each side, so at a 360px viewport the available
+// width here is 360 - 2×16 = 328px. Two columns with one $spacing-sm (8px)
+// gutter between them is (328 - 8) / 2 = 160px per column — comfortably
+// above VideoTile's `sm` minimum (its aspect-ratio + truncating name keep it
+// legible well below that).
+.tileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+}
+
+// The verifier's VerifyButton (InCallVerifyAction) sits directly under the
+// candidate tile. `pages.page`'s flex column defaults to `align-items:
+// stretch`, which would already make it full width, but that's this
+// selector's own decision, not an accident of the parent — same width as the
+// call's primary CTAs everywhere else in this flow (WaitingRoom's
+// Start/Cancel, VerifierPicker's Start-with-N).
+.verifyButton {
+  width: 100%;
+}
+
+// Mute / video / leave row under the tile grid. Composed with
+// `.stickyActions` above so it clears the 360px fold (R8's pairing).
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+}
+
+// Each control is an icon-only size="sm" Button (32px, no visible label) —
+// its accessible name comes from `aria-label` (Step: EVERY tap >= 44px).
+// Same ::after hit-area technique as `.refreshButton` above, but a fixed
+// 44x44 box (not `width: 100%`) since there's no visible label to stretch
+// across — matches Toast.module.scss's `.dismiss::after` for the same
+// icon-only shape.
+.controlButton {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// Completion panel (R9, fix round 1) — INLINE, in the page flow, exactly
+// where the controls bar unmounts. It was a `position: fixed` scrim on
+// Modal's own z-layer, which borrowed Modal's entire visual contract while
+// providing none of its obligations: no focus move, no trap, no Esc, no
+// scroll lock, and the header/nav still tab-reachable behind an opaque
+// scrim. Sighted users got modal behaviour, keyboard and AT users got a page
+// they could tab through blind. The notice is self-resolving (5 s countdown,
+// Dismiss always present) and announces via a permanently-mounted status
+// node in InCallView, not via this box — so there is nothing left for a
+// fixed layer to buy. `.completeOverlay` is deleted with the scrim.
+.completeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  gap: $spacing-md;
+  width: 100%;
+  max-width: 360px;
+  padding: $spacing-2xl $spacing-xl;
+  border-radius: $radius-xl;
+  background: white;
+  box-shadow: $shadow-md;
+  text-align: center;
+
+  @include dark {
+    background: $dark-surface;
+  }
+}
+
+.completeTitle {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.completeBody {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

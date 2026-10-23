@@ -1,22 +1,19 @@
 @use '../../styles/variables' as *;
 
-.wrapper { position: relative; }
-
 .bellBtn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: $spacing-sm;
   background: transparent;
   border: none;
-  // Inherit the header's text colour so the bell is visible on BOTH the dark
-  // homepage header (white) and the light two-row/single-row headers (dark text /
-  // $dark-text in dark mode). Was #e6edf7 (near-white) — invisible on white headers.
+  border-radius: $radius-md;
   color: inherit;
-  cursor: pointer;
-  padding: 6px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 
-  // ≥44px touch target without enlarging the visual icon (project ≥44px bar / WCAG 2.5.5).
+  // Expand the hit area without changing the visual rhythm beside the menu.
   &::after {
     content: '';
     position: absolute;
@@ -30,7 +27,6 @@
   &:focus-visible {
     outline: 2px solid $primary;
     outline-offset: 2px;
-    border-radius: $radius-md;
   }
 }
 
@@ -38,140 +34,16 @@
   position: absolute;
   top: 0;
   right: 0;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background: $error;
-  color: white;
-  font-size: 10px;
-  font-weight: $font-bold;
-  border-radius: $radius-full;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-// Theme-aware popover panel (was a hardcoded dark palette in both themes).
-.dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 280px;
-  max-width: 360px;
-  max-height: 400px;
-  overflow: auto;
-  background: white;
-  border: 1px solid $gray-200;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  z-index: 500;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  border-bottom: 1px solid $gray-100;
-  font-size: 13px;
-  font-weight: $font-semibold;
-  color: $gray-800;
-}
-
-.markAll {
-  background: transparent;
-  border: none;
-  color: $gray-500;
-  font-size: 11px;
-  cursor: pointer;
-
-  &:hover { color: $gray-700; }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-    border-radius: $radius-sm;
-  }
-}
-
-.empty {
-  padding: 20px;
-  color: $gray-500;
-  font-size: 12px;
-  text-align: center;
-}
-
-.item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 14px;
-  background: transparent;
-  color: $gray-600;
-  border: none;
-  border-bottom: 1px solid $gray-100;
-  cursor: pointer;
-
-  &:hover { background: $gray-50; }
-
-  &:focus-visible {
-    outline: 2px solid $primary;
-    outline-offset: -2px;
-  }
-
-  .title {
-    font-size: 12px;
-    font-weight: $font-semibold;
-    color: $gray-800;
-    margin-bottom: 2px;
-  }
-
-  .body {
-    font-size: 12px;
-    line-height: 1.4;
-  }
-}
-
-.unread .title::before {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: $primary;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-@include dark {
-  .dropdown {
-    background: $dark-bg;
-    border-color: $dark-border;
-  }
-
-  .header {
-    border-bottom-color: $dark-border;
-    color: $dark-text;
-  }
-
-  .markAll {
-    color: $dark-text-secondary;
-
-    &:hover { color: $dark-text; }
-  }
-
-  .empty {
-    color: $dark-text-secondary;
-  }
-
-  .item {
-    color: $dark-text-secondary;
-    border-bottom-color: rgba($dark-border, 0.5);
-
-    &:hover { background: rgba($dark-text, 0.04); }
-
-    .title {
-      color: $dark-text;
-    }
-  }
+  min-width: $spacing-lg;
+  height: $spacing-lg;
+  padding: 0 $spacing-xs;
+  background: $error;
+  border-radius: $radius-full;
+  color: white;
+  font-size: $text-xs;
+  font-weight: $font-bold;
+  line-height: 1;
 }

@@ -4,6 +4,8 @@
 // in the real profile contract and are read fresh via Redux's
 // state.user.digitalAgentProfile (see userSlice.ts's fetchContracts).
 
+import type { VouchMeta } from '../../../services/trustModel';
+
 const AGENT_KEY_BASE = 'gloki.digitalAgent';
 
 // Scoped by identity (serverUrl+publicKey), mirroring flowContractsSlice's
@@ -30,6 +32,12 @@ export interface DigitalAgent {
   createdAt: number;
   invitedBy?: string; // voucher publicKey
   vouchedBy: string[]; // publicKeys; length = "vouched by N"
+  /**
+   * S36 — how/when each key in `vouchedBy` vouched. Optional and sparse: agents
+   * created before S36 and the onboarding's two seeded vouchers have no entry —
+   * readers default those to direct/createdAt (invitation for `invitedBy`).
+   */
+  vouchMeta?: Record<string, VouchMeta>;
 }
 
 // In-memory cache so getSnapshot returns a STABLE reference for useSyncExternalStore.
@@ -71,10 +79,15 @@ function baseAgent(): DigitalAgent {
 
 // Only the trust-graph fields are persisted; profile fields stay in-memory
 // only for the current session (they're sourced from the real contract).
-type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy'>;
+type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy' | 'vouchMeta'>;
 
 function toPersisted(agent: DigitalAgent): PersistedAgent {
-  return { createdAt: agent.createdAt, invitedBy: agent.invitedBy, vouchedBy: agent.vouchedBy };
+  return {
+    createdAt: agent.createdAt,
+    invitedBy: agent.invitedBy,
+    vouchedBy: agent.vouchedBy,
+    vouchMeta: agent.vouchMeta,
+  };
 }
 
 export function getAgent(): DigitalAgent | null {

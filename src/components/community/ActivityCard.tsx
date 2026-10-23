@@ -27,11 +27,15 @@ export interface ActivityCardProps {
   hostAgent: string;
   expanded: boolean;
   onToggle: () => void;
+  /** Community display name, when the caller has one in scope (S35 fix-round
+   *  F4) — threaded through to the discussion status pill's scoped Consensus
+   *  sentence on the Problem/Discussion/Solution/Vote cards. */
+  communityName?: string;
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({
   item, communityId, stage, authorName, authorKey, trustState, vouchCount,
-  hostServer, hostAgent, expanded, onToggle,
+  hostServer, hostAgent, expanded, onToggle, communityName,
 }) => {
   const t = useT();
   const navigate = useNavigate();
@@ -53,6 +57,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }
@@ -74,6 +79,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }
@@ -93,6 +99,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }
@@ -113,6 +120,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }
@@ -132,6 +140,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         hostAgent={hostAgent}
         expanded={expanded}
         onToggle={onToggle}
+        communityName={communityName}
       />
     );
   }

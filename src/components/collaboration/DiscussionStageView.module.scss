@@ -17,6 +17,16 @@
   gap: $spacing-md;
 }
 
+.explainer {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: $spacing-xs 0 $spacing-md;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
 .status {
   display: flex;
   flex-direction: column;
@@ -33,4 +43,15 @@
 
 .statusError {
   color: $error;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }

@@ -1,0 +1,92 @@
+{
+  "title": "Proposed production verification negative-case inventory",
+  "recorded": "2026-09-17",
+  "status": "proposed_unexecuted",
+  "scope": "Abstract behavior invariants for B1 discussion. These cases define no endpoints, method signatures, wire error codes, or accepted backend schema.",
+  "cases": [
+    {
+      "id": "unauthenticated-operation",
+      "preconditions": ["Caller has no valid authenticated identity context."],
+      "action": "Attempt a protected verification read and a protected state-changing operation through the eventual authoritative backend boundary.",
+      "expected_invariants": ["Neither operation exposes protected verification data nor changes authoritative state.", "The backend response is handled according to a separately agreed error contract."]
+    },
+    {
+      "id": "identity-context-mismatch",
+      "preconditions": ["Caller is authenticated as identity A."],
+      "action": "Attempt an operation whose claimed actor or target identity is identity B without authority to act for B.",
+      "expected_invariants": ["Actor identity is derived from or cryptographically bound to authenticated authority.", "No state belonging to B is disclosed or changed."]
+    },
+    {
+      "id": "unauthorized-approval-decision",
+      "preconditions": ["A request is pending for recipient A."],
+      "action": "Identity B attempts to decide the request.",
+      "expected_invariants": ["Only the authorized recipient can decide the pending request.", "The request and approval state remain unchanged after the unauthorized attempt."]
+    },
+    {
+      "id": "self-approval",
+      "preconditions": ["An identity is eligible to receive approvals."],
+      "action": "The identity attempts to approve itself through any approval pathway.",
+      "expected_invariants": ["An identity cannot contribute its own approval.", "No approval count or access status changes from the self-approval attempt."]
+    },
+    {
+      "id": "wrong-session-or-actor",
+      "preconditions": ["An active verification session belongs to candidate A and has an authorized participant B."],
+      "action": "A different actor or a participant from another session submits a decision against that session.",
+      "expected_invariants": ["The decision is bound to the authenticated actor and the intended session.", "No unrelated candidate/session state is changed."]
+    },
+    {
+      "id": "expired-session-decision",
+      "preconditions": ["A verification session has expired or reached a terminal state."],
+      "action": "Submit an approval or session mutation using the expired session context.",
+      "expected_invariants": ["Expired or terminal session state cannot accept new approvals.", "No approval or access status changes from the stale action."]
+    },
+    {
+      "id": "altered-invitation-approval-opt-in",
+      "preconditions": ["An invitation draft is created with an explicit approval opt-in value."],
+      "action": "Alter the submitted invitation draft's `vouch` / approval-for-invitee intent after creation or during redemption.",
+      "expected_invariants": ["Invitation alone adds no approval unless the separately authorized and recorded approval intent is valid.", "Client-altered approval intent cannot create an approval without authoritative inviter eligibility and recipient/identity binding."]
+    },
+    {
+      "id": "duplicate-or-replayed-decision",
+      "preconditions": ["A request has already received a terminal decision."],
+      "action": "Replay the same decision or submit a conflicting second decision.",
+      "expected_invariants": ["A terminal request cannot produce duplicate approvals or be silently changed to a conflicting outcome.", "Any idempotency or conflict response follows an agreed contract."]
+    },
+    {
+      "id": "revoked-or-ineligible-approver",
+      "preconditions": ["An approver was eligible when a request or session was created, then loses eligibility before approval is accepted."],
+      "action": "Submit an approval using the stale eligibility state.",
+      "expected_invariants": ["Eligibility is checked at the authoritative acceptance point.", "An ineligible approver does not add an approval."]
+    },
+    {
+      "id": "concurrent-fourth-approval-transition",
+      "preconditions": ["Candidate has exactly three distinct accepted approvals and two distinct eligible approvers can submit concurrently."],
+      "action": "Accept both eligible approvals concurrently as the candidate reaches the four-approval threshold.",
+      "expected_invariants": ["Both distinct valid approvals are retained; concurrent acceptance loses neither approval.", "The transition to verified occurs exactly once.", "Exactly one durable completion event is recorded for that verified transition."]
+    },
+    {
+      "id": "client-storage-tampering",
+      "preconditions": ["Browser-local verification or vouch data can be edited by the caller."],
+      "action": "Alter local approval/status data, then request a protected operation." ,
+      "expected_invariants": ["Browser-local state alone cannot grant authoritative verification status or protected access.", "The authoritative decision uses server-validated state."]
+    },
+    {
+      "id": "cross-identity-data-isolation",
+      "preconditions": ["Two distinct authenticated identities have separate verification state."],
+      "action": "Identity A requests or replays a read for identity B's private request, invitation, session, or history data without authorization.",
+      "expected_invariants": ["Private data is scoped to authorized principals.", "No cross-identity data is disclosed or mutated."]
+    },
+    {
+      "id": "signature-or-key-binding-failure",
+      "preconditions": ["An operation requires a signature under the eventual agreed authority model."],
+      "action": "Submit a missing, invalid, altered, or identity-mismatched signature/proof.",
+      "expected_invariants": ["The operation is rejected by the authoritative boundary.", "No approval, identity binding, or access state is created from invalid proof."]
+    },
+    {
+      "id": "direct-status-overwrite-bypass",
+      "preconditions": ["An identity has an authoritative verification status determined by accepted approvals."],
+      "action": "Attempt to overwrite verification/access status directly, bypassing the authoritative approval transition.",
+      "expected_invariants": ["Status changes only through the authoritative approval transition and its validated prerequisites.", "A direct overwrite or bypass attempt is rejected and leaves the authoritative status unchanged."]
+    }
+  ]
+}

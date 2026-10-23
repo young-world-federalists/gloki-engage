@@ -4,6 +4,8 @@ import { Button, Badge } from '../shared';
 import { useI18n } from '../../i18n';
 import { getCountryName } from '../../utils/countries';
 import type { PublishedMandate } from '../../services/demo/fixtures/mandate';
+import CauseLine from '../initiative/CauseLine';
+import ImpactAssessmentCard from '../initiative/ImpactAssessmentCard';
 import styles from './MandateCard.module.scss';
 
 /** The scroll target id MandatePage puts on the full document. */
@@ -108,6 +110,13 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
           </dt>
           <dd className={styles.rowValue}>
             <span className={styles.solBox}>{provenance.voteWinner}</span>
+            <CauseLine
+              className={styles.causeChip}
+              causeId={mandate.causeId}
+              causeText={mandate.causeText}
+              causeRank={mandate.causeRank}
+              causesLoaded={mandate.causeResolvable}
+            />
           </dd>
         </div>
 
@@ -152,6 +161,17 @@ const MandateCard: React.FC<MandateCardProps> = ({ mandate, communityId, mandate
           </dd>
         </div>
       </dl>
+
+      {mandate.assessments != null && mandate.assessments.length > 0 && (
+        <section className={styles.impactSection} aria-labelledby="mandate-impact-heading">
+          <h2 id="mandate-impact-heading" className={styles.impactHeading}>
+            {t('impact.mandateHeading', 'Why we expected this to work')}
+          </h2>
+          {mandate.assessments.map((a, i) => (
+            <ImpactAssessmentCard key={a.author} assessment={a} index={i + 1} />
+          ))}
+        </section>
+      )}
 
       <div className={styles.actions}>
         <Button variant="primary" size="md" className={styles.supportBtn} leftIcon={<Heart size={16} aria-hidden />} onClick={onShowSupport}>

@@ -1,0 +1,48 @@
+@use '../../../styles/variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  padding-top: $spacing-lg;
+}
+
+.introRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.subtitle {
+  flex: 1 1 28ch;
+  margin: 0;
+  color: $gray-600;
+  font-size: $text-sm;
+  line-height: 1.5;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@include dark {
+  .subtitle {
+    color: $dark-text-secondary;
+  }
+}

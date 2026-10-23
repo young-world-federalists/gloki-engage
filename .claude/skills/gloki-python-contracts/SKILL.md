@@ -32,7 +32,7 @@ Jargon used below, defined once:
 | **stub / demo handler** | A TypeScript emulation of one contract type in `src/services/demo/demoContracts/<type>.ts`, dispatched by `.py` filename. |
 | **FOR_OURI** | `docs/FOR_OURI_seam.md` — the single source of truth for every stub method Ouri must back with a real contract. |
 | **shared mode** | `useFlowContract` with `parentContractId` + `stageKey`: one sub-contract per initiative stage shared by all members, registered on the parent. |
-| **Ouri** | Backend maintainer. Owns real contracts, the runtime, and `ui` → `new-features` → `main`. |
+| **Ouri** | Backend maintainer. Owns real contracts, the runtime, and `ui` → `server-side` (deploys) → `main` (stale). |
 
 ## When NOT to use this skill
 
@@ -63,7 +63,7 @@ The runtime injects exactly these globals (every one verified in
 
 Nothing else. No `datetime`, no `json`, no `uuid`, no `print`. If a stub handler
 emulates behavior a real contract couldn't express with these globals, the stub
-is lying and will break at the `ui` → `new-features` hand-off.
+is lying and will break at the `ui` → `server-side` hand-off.
 
 ## 2. Storage semantics — the `.get()` trap
 
@@ -319,6 +319,8 @@ case labels, `src/services/api.ts`, `src/services/interfaces.ts`,
 ARCHITECTURE.md, CLAUDE.md, MASTER_TODO.md §4, and `git show 963170d`.
 QV-revert details are from that commit body; S11/S13 incident framing is
 recorded in project memory (2026-07) and consistent with ARCHITECTURE.md.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).
 
 Volatile facts — re-verify before relying on them:
 

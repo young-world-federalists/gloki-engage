@@ -1,0 +1,125 @@
+@use '../../styles/variables' as *;
+
+.region {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: $footer-clearance;
+  z-index: 200; // above the sticky header (100), below the modal layer (1000)
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $spacing-sm;
+  pointer-events: none;
+  @include page-column;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  font-size: $text-sm;
+  pointer-events: auto;
+  animation: toastIn $transition-slow ease;
+}
+
+.icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+}
+
+.dismiss {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+
+  // ≥44px hit area without enlarging the icon (WCAG 2.5.5).
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+.info {
+  background: $info-surface;
+  color: $info-on-surface;
+}
+
+.success {
+  background: $success-surface;
+  color: $success-on-surface;
+}
+
+.error {
+  background: $error-surface;
+  color: $error-on-surface;
+}
+
+@include dark {
+  .info {
+    background: $info-surface-dark;
+    color: $dark-text;
+  }
+
+  .success {
+    background: $success-surface-dark;
+    color: $dark-text;
+  }
+
+  .error {
+    background: $error-surface-dark;
+    color: $dark-text;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY($spacing-sm);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

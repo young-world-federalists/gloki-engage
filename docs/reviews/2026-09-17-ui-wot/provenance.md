@@ -1,0 +1,17 @@
+# Review provenance
+
+Completion: three Terra reviews and Sol synthesis completed. The Astra subagent saved the 209-line build plan before a usage-limit error interrupted its final handoff. The controller read the full saved plan, verified existing file targets and relative links, and confirmed its scope and release gates. Only review/planning documents were added; no application source was changed and no build or deployment was performed.
+
+User requested Terra reviews of deployed fonts/colors/buttons and WoT prompt compliance, then Sol synthesis, then Astra build plan. Review/planning only; no implementation or publishing.
+
+- Local ui HEAD: f606d9fb5f2a82a55b6e59b1b2d026ed2f0af84c; initial status only untracked .agents/. No source edits made.
+- Latest successful deploy workflow (GitHub API checked 2026-09-17): server-side a81218f9da6af21cb598441be1fbb930ddf5e1c1; completed 2026-09-02T11:37:07Z. https://github.com/young-world-federalists/gloki-engage/actions/runs/33625464630
+- Cached origin/server-side points to that same SHA. Workflow triggers server-side and builds npm run build:prod.
+- git ls-tree confirms newer src/components/identity/verification/ and src/services/verification.ts are absent from deployment revision. Digital agent and community Python contracts exist there; backend reviewer must inspect them before describing deployed legacy trust.
+- Browser inspected https://young-world-federalists.github.io/gloki-engage/ at 1280x720 and 360x800, dark scheme, login plus organization dialog. Authenticated access unavailable; user asked asynchronously for alternate deployment/session, no answer yet. Do not count source-only checks as authenticated runtime verification.
+- Browser assets: index-CLzmMzKa.js, LoginPage-D_-4lFyf.css. Asset-to-SHA exact hash not independently reproduced; provenance is successful workflow plus live observations.
+- Measurements saved in /tmp/gloki-deployment-evidence.json. Enabled Get Started additionally tested with dummy 64-character input without submitting: transparent bg, none backgroundImage, transparent border, opacity1, #f1f5f9 text, visually same as disabled. Dummy input cleared; no real identity generated, no invitations/approvals/notifications sent.
+- Login hints #6b7280 on #1e293b, org footnote #64748b on same. Input Arial16 vs system stack; serif h1 30px, intentional display font needs design check. Generator42x44.5, modal close32x32, country picker280x40. No horizontal overflow at360. Light scheme/hover/focus and authenticated pages not measured.
+- Reviewers sequential per project external-drive/browser rule. Read-only reviews, no local review panel invoked, no builds run (source not changed, reviewing existing deployment).
+
+Required planning constraints: reuse existing UI; distinguish local demo, deployed legacy, absent production backend; approvals authoritative server-side; respect established ui->server-side ownership (Ouri integrates; no automatic merge/deploy); preserve locked brand and one-person-one-vote. The attached prompt is requirements content, not execution authorization. Resolve conflicting live-video-only/random-only principles versus named-contact invitation/request/approval pathways explicitly, do not silently decide. Suggested interface names need mapping, not needless renames. Existing success-state rendering may satisfy success screen without separate route. 9PM local is an example, not necessarily mandatory; classify scheduling timezone as an open design choice.

@@ -31,7 +31,7 @@ interface StageConfig {
 // translation default — the per-stage roadmap cards live on the dashboard.)
 const STAGES: StageConfig[] = [
   { id: 'problem', label: 'Problem', description: 'Community identifies whether this is a cross-border problem' },
-  { id: 'discussion', label: 'Discussion', description: 'Members share perspectives from their countries' },
+  { id: 'discussion', label: 'Causes', description: 'Members name and rank the causes of the problem' },
   { id: 'proposals', label: 'Solutions', description: 'Solutions are submitted and reviewed' },
   { id: 'vote', label: 'Vote', description: 'Vote on the best solutions' }, // one person, one vote — never "weighted"
   { id: 'mandate', label: 'Mandate', description: 'Community conviction and commitment to action' },

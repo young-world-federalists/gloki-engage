@@ -5,9 +5,11 @@ import { initializeUser, setCurrentUser, clearUser, fetchContracts } from '../st
 import type { AppDispatch, RootState } from '../store';
 import { buildFlowContractsScope, hydrateContracts } from '../components/collaboration/flows/shared/flowContractsSlice';
 import { setDigitalAgentScope } from '../components/identity/agent/digitalAgentStore';
+import { buildNotificationsScope, hydrateNotifications } from '../store/slices/notificationsSlice';
 import { eventStreamService } from '../services/eventStream';
 import { clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
+import { startNotificationRuntime } from '../services/notifications';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -40,14 +42,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!(user.publicKey && user.serverUrl);
 
   useEffect(() => {
-    const scopeKey = user.publicKey && user.serverUrl
+    const flowScopeKey = user.publicKey && user.serverUrl
       ? buildFlowContractsScope(user.serverUrl, user.publicKey)
       : null;
-    dispatch(hydrateContracts({ scopeKey }));
-    // Same scope key for the onboarding Digital Agent store — without this,
-    // one identity's completed onboarding leaks into every other identity
-    // that logs in on the same browser (these keys used to be global).
-    setDigitalAgentScope(scopeKey);
+    const notificationsScopeKey = user.publicKey && user.serverUrl
+      ? buildNotificationsScope(user.serverUrl, user.publicKey)
+      : null;
+    dispatch(hydrateContracts({ scopeKey: flowScopeKey }));
+    // Same scope key for the Digital Agent trust-graph store — without this,
+    // one identity's vouch data leaks into every other identity that logs in
+    // on the same browser (these keys used to be global).
+    setDigitalAgentScope(flowScopeKey);
+    dispatch(hydrateNotifications({ scopeKey: notificationsScopeKey }));
+    if (!user.publicKey || !user.serverUrl) return undefined;
+    return startNotificationRuntime({ serverUrl: user.serverUrl, publicKey: user.publicKey });
   }, [dispatch, user.publicKey, user.serverUrl]);
 
   useEffect(() => {
