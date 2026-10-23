@@ -261,7 +261,7 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
   blue): nothing deleted. 52 new `beta.*` strings at fr/sw parity (`1507 = 1507`), packet appended.
   **No `DEMO_VERSION` bump** (no seeded fixture changed; the forum contract self-registers).
   Evidence: `docs/reviews/2026-10-23-s42-beta-trim/` (360px, light + dark, both builds green).
-  Commits from `d004458` (five code commits plus this docs commit) on `claude/youthful-cerf-ltibol`, **not pushed** — waiting on Eston.
+  Commits from `d004458` (five code commits plus this docs commit) on `claude/youthful-cerf-ltibol`, pushed to `origin/ui` on Eston’s go (2026-10-23).
   ★ Learning: the prompt named a `digitalAgentContract.ts` that does not exist; the agent is a
   localStorage store with no seam method, so "through the seam" meant the store type + a seam-doc
   entry, not a new contract call. Also: a fullPage screenshot clips this app because `body` is the
