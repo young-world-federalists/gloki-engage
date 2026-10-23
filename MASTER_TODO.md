@@ -247,6 +247,26 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-23 — S43 forum bylines: posts carry a name and a flag.** `src/services/forum.ts` grows
+  one read, `getForumParticipants(ctx)`, returning the forum's authors as `get_partners` rows
+  (`IPartner`); `ForumPage` dispatches the existing `fetchMemberProfile` thunk per row, so
+  `ThreadedDiscussion` resolves bylines from `state.communities.profiles` with no community loaded
+  and nothing in it changes. Seam hand-off entry under the S42 addendum (no new contract method, wire
+  names unchanged). Demo stub seeds **one welcome post** from Priya Nair and registers her profile
+  contract (nothing else registers personas in the beta). Account kind is now **editable from the
+  profile page** (select in the edit modal, beta or any account that already has a kind) and shown
+  as a badge on the Digital Agent card, so the Kind step's lead again says it can be changed later.
+  Beta key hint without "across every community"; About/Contact back → `/` in the beta. 3 new + 1
+  changed string at fr/sw parity (`1510 = 1510`), packet appended. **`DEMO_VERSION` → `global-v21`**:
+  the forum seed is a fixture change, and a device that opened the empty S42 forum keeps it until
+  the wipe. Evidence: `docs/reviews/2026-10-23-s43-forum-bylines/` (360px, light + dark, both
+  builds green). Commits `4a46e66..e4646a1` plus this docs commit on `claude/youthful-cerf-ltibol`;
+  **not pushed to `origin/ui`** (waits for Eston's go). ★ Learning: the prompt asked for
+  `{ publicKey, address, profile }` rows "in the exact shape of `get_partners`"; those two cannot
+  both hold, and the shape that lets Ouri reuse his member mapper is `IPartner` (`agent`, not
+  `publicKey`). Also: a persona's profile only resolves where its profile contract is registered,
+  which in the beta is nowhere until the forum seed does it.
+
 - **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
   flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
   hides everything but sign-up, keys, vouching and one forum. Signed out, `/` is a doors page

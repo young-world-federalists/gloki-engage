@@ -1,0 +1,54 @@
+[light] h1 @ forum: OK ["Forum"]
+[light] welcome byline: "🇮🇳Priya NairOct 22, 2026, 10:51 AM"  flag=emoji 🇮🇳
+[light] truncated-key bylines on screen: 0 OK
+[light] shot 01-forum-welcome  url=/forum
+[light] own post byline "You": OK (1)
+[light] shot 02-forum-own-post  url=/forum
+[light] reply nested under welcome post: OK {"nested":true,"inChildrenOfWelcome":true}
+[light] reply byline "You": OK (2 own bylines)
+[light] shot 03-forum-reply (+bottom)  url=/forum
+[light] h1 @ profile: OK ["Profile"]
+[light] kind badge before: OK Person
+[light] shot 04-profile-kind-person  url=/identity/profile
+[light] shot 05-profile-edit-kind  url=/identity/profile
+[light] kind badge after save: OK Organisation
+[light] kind survives reload: OK
+[light] shot 06-profile-kind-organisation  url=/identity/profile
+[light] about back → /forum OK
+[light] contact back → /forum OK
+[light] console errors (signed-in walk): 5 (known SSE tunnel: 5, other: 0)
+[light] console warnings (signed-in walk): 0
+[light] keys hint: "A 64-character code that's yours alone. New here? Tap generate." OK
+[light] h1 @ keys: OK ["Your key"]
+[light] shot 07-keys-hint  url=/
+[light] kind lead mentions the profile: OK
+[light] shot 08-kind-lead  url=/welcome
+[light] console errors (signed-out walk): 1 (known SSE tunnel: 1, other: 0)
+[light] console warnings (signed-out walk): 0
+[dark] h1 @ forum: OK ["Forum"]
+[dark] welcome byline: "🇮🇳Priya NairOct 22, 2026, 10:52 AM"  flag=emoji 🇮🇳
+[dark] truncated-key bylines on screen: 0 OK
+[dark] shot 01-forum-welcome  url=/forum
+[dark] own post byline "You": OK (1)
+[dark] shot 02-forum-own-post  url=/forum
+[dark] reply nested under welcome post: OK {"nested":true,"inChildrenOfWelcome":true}
+[dark] reply byline "You": OK (2 own bylines)
+[dark] shot 03-forum-reply (+bottom)  url=/forum
+[dark] h1 @ profile: OK ["Profile"]
+[dark] kind badge before: OK Person
+[dark] shot 04-profile-kind-person  url=/identity/profile
+[dark] shot 05-profile-edit-kind  url=/identity/profile
+[dark] kind badge after save: OK Organisation
+[dark] kind survives reload: OK
+[dark] shot 06-profile-kind-organisation  url=/identity/profile
+[dark] about back → /forum OK
+[dark] contact back → /forum OK
+[dark] console errors (signed-in walk): 5 (known SSE tunnel: 5, other: 0)
+[dark] console warnings (signed-in walk): 0
+[dark] keys hint: "A 64-character code that's yours alone. New here? Tap generate." OK
+[dark] h1 @ keys: OK ["Your key"]
+[dark] shot 07-keys-hint  url=/
+[dark] kind lead mentions the profile: OK
+[dark] shot 08-kind-lead  url=/welcome
+[dark] console errors (signed-out walk): 1 (known SSE tunnel: 1, other: 0)
+[dark] console warnings (signed-out walk): 0
