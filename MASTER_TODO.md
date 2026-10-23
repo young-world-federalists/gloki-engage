@@ -277,8 +277,15 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
   on "Ask someone who knows you", fabricated participation hidden, forum composer labelled with
   Enter as newline and delete confirm, plus the contrast and target fixes. Evidence
   `docs/reviews/2026-10-23-s43-critique-fixes/`. Locked calls (brand blue, system sans) reported,
-  not changed. Next: the gloki.app landing page as its own static site (`/home/user/gloki-site`,
-  repo to be created on Eston's go), through `impeccable init` → new-work.
+  not changed. **Then the gloki.app landing page** was built as its own static site in
+  `/home/user/gloki-site` (six local commits; repo `young-world-federalists/gloki-site` to be created
+  on Eston's go): Impeccable `init` (PRODUCT.md from the 15 Oct thread), a degraded direction roll
+  (roll service blocked by the proxy), Eston's pick "the line diagram", code-first build, two
+  inspection rounds, finish review (8 fixes, 2 regressions, ship), documenter (DESIGN.md +
+  design.json). One HTML + one CSS file, self-hosted Hammersmith One and Cabin, two real app
+  screenshots, 158 KB, no third-party request, detector clean at 390 and 1440. Open: the
+  Buttondown username (placeholder in the form), DNS for gloki.app, the status wording for "your
+  own agent".
 
 - **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
   flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
