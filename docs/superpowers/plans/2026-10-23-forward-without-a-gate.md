@@ -115,6 +115,14 @@ and the country-flag/presence motif the app already owns (`CountryParticipation`
 
 ## 4. Workstream B — Integration branch `ui → server-side`
 
+> **Status 2026-10-23:** B1–B4 done the same day. Decisions D1–D9 taken as recommended. Branch
+> `integration/ui-2026-10` (merge `de05851`, evidence `7811117`), PR
+> [#24](https://github.com/young-world-federalists/gloki-engage/pull/24) open against
+> `server-side`, reviewer Ouri, merge window to 30 October. Real-node walk recorded as open
+> (node unreachable from the build environment). Findings in
+> `docs/reviews/2026-10-integration/README.md`, including the pre-existing `server-side`
+> behaviour that hides demo communities from Home/Communities (Ouri's call, 2 Sept).
+
 **Owner:** Claude (merge + verification), Eston (go/no-go, sends note). **Depends on:** D5, D9.
 **Duration:** 2–3 sessions. **This is the stream that puts seven weeks of work in front of users.**
 

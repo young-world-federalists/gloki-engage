@@ -229,7 +229,11 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ### Blocked / coordination (not ours to drive on `ui`)
 - **Deploys:** Ouri merges `ui` → `server-side`, which triggers GitHub Pages. A push to `ui` does
-  not deploy. (`main` is Ouri's stale old line.)
+  not deploy. (`main` is Ouri's stale old line.) **2026-10-23:** the merge is prepared as
+  [PR #24](https://github.com/young-world-federalists/gloki-engage/pull/24)
+  (`integration/ui-2026-10` → `server-side`, evidence in `docs/reviews/2026-10-integration/`);
+  Eston merges it on 30 October if Ouri hasn't. Plan:
+  [2026-10-23-forward-without-a-gate.md](docs/superpowers/plans/2026-10-23-forward-without-a-gate.md).
 - **G2–G4** (WoT authority, live-call policy, scheduled matching), decided with Ouri.
 - **Blind-server questions 1–5** in [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md).
 - **fr/sw native review:** the packet is in
