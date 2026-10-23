@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
@@ -10,6 +10,9 @@ import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
 import useCommunityTrust from '../../hooks/useCommunityTrust';
 import ThreadedDiscussion from './flows/discussion/ThreadedDiscussion';
+import { STATUS_META } from '../../utils/discussionStatus';
+import type { DiscussionStatus } from '../../utils/discussionStatus';
+import { statusAccessibleName } from '../initiative/DiscussionStatusPill';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 
@@ -60,6 +63,14 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
   const { canCurrentUserParticipate } = useCommunityTrust(communityId);
   const canParticipate = canCurrentUserParticipate('discussion');
 
+  // Five-band Causes status (S35 D6), mirrored up from ThreadedDiscussion (which
+  // already holds comments+votes) rather than a second fetch. AppHeader's
+  // `subtitle` accepts a ReactNode (F4), so the visible word carries an
+  // sr-only scoped sentence via statusAccessibleName — this is the largest,
+  // most screenshot-prone render of the word, so it must honour F4 too.
+  const [status, setStatus] = useState<DiscussionStatus | null>(null);
+  const statusWord = status ? t(STATUS_META[status.key].labelKey, STATUS_META[status.key].labelDefault) : undefined;
+
   return (
     <div className={cs.container}>
       {/* The discussed item is the headline (S23): h1 = the initiative title,
@@ -67,8 +78,14 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
       <AppHeader
         showBack
         onBack={() => navigate(-1)}
-        eyebrow={`${t('header.section.discussion', 'Discussion')} — ${communityName}`}
+        eyebrow={`${t('header.section.discussion', 'Causes')} — ${communityName}`}
         title={title}
+        subtitle={status ? (
+          <>
+            {statusWord}
+            <span className={styles.srOnly}> — {statusAccessibleName(t, status, communityName)}</span>
+          </>
+        ) : undefined}
       />
       <main id="main" tabIndex={-1} className={cs.content}>
         <div className={styles.main}>
@@ -76,6 +93,12 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
               the h1 already carries the initiative title (S23), so passing the
               title here too would double it. */}
           <ContextCard body={description} ariaLabel={t('context.discussion.aria', 'The problem under discussion')} />
+          <p className={styles.explainer}>
+            {t(
+              'causes.explainer',
+              'Causes are ranked by votes. The top 15 are carried into Solutions; a solution must address one of the top 5.',
+            )}
+          </p>
           <ErrorBoundary fallbackMessage={t('deliberation.error', 'The discussion section encountered an error.')}>
             {hasError ? (
               <div className={`${styles.status} ${styles.statusError}`}>
@@ -95,7 +118,8 @@ const DiscussionStageView: React.FC<DiscussionStageViewProps> = ({ title, descri
                 contractId={contractId!}
                 communityId={communityId}
                 canParticipate={canParticipate}
-                emptyHint={t('deliberation.thread.empty', 'Start the conversation about this problem.')}
+                emptyHint={t('causes.empty', 'Name a cause of this problem to start.')}
+                onStatus={setStatus}
               />
             )}
           </ErrorBoundary>

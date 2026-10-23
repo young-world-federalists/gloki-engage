@@ -9,6 +9,7 @@ import type { PipelineStage } from '../types/initiative';
 import AppHeader from '../components/AppHeader';
 import { UserIdentity, Banner } from '../components/shared';
 import FeedEngagePanel from '../components/initiative/FeedEngagePanel';
+import { DiscussionStatusPill } from '../components/initiative/DiscussionStatusPill';
 import { useCommunityTrust } from '../hooks/useCommunityTrust';
 import { useT } from '../i18n';
 import { getHintSeen, markHintSeen } from '../components/onboarding/welcomeHints';
@@ -23,7 +24,7 @@ import cs from './Container.module.scss';
 // here is the English fallback). Per-stage banner copy lives in the render.
 const STAGE_CONFIG: Record<string, { label: string; icon: React.ComponentType<{ size?: number }> }> = {
   problem: { label: 'Problem', icon: AlertCircle },
-  discussion: { label: 'Discussion', icon: MessageCircle },
+  discussion: { label: 'Causes', icon: MessageCircle },
   proposals: { label: 'Solutions', icon: Lightbulb },
   vote: { label: 'Vote', icon: Vote },
   mandate: { label: 'Mandate', icon: ScrollText },
@@ -80,7 +81,10 @@ const StageFeedCard: React.FC<{
           </button>
           {/* No "In discussion" badge (W3, §5 rule 10): a discussion-stage item in
               this feed is still a problem — the expanded panel's Discussion pill
-              (with its live count) carries the activity signal. */}
+              (with its live count) carries the activity signal. The collapsed
+              summary below carries exactly ONE discussion signal — the five-band
+              Causes status pill (S35 D6) — never a comment count or an
+              "In discussion" label. */}
           {item.authorName && item.author ? (
             <UserIdentity
               name={item.authorName}
@@ -92,6 +96,9 @@ const StageFeedCard: React.FC<{
             <span className={styles.author}>{item.authorName}</span>
           ) : null}
           {item.createdAt && <span className={styles.time}>{formatTimeAgo(t, item.createdAt)}</span>}
+          {/* Five-band Causes status (S35 D6/F3-F5): renders nothing until the
+              initiative's discussion has actually started. */}
+          <DiscussionStatusPill initiativeId={item.id} communityName={item.communityName} />
         </div>
 
         <h3 className={styles.cardTitle}>

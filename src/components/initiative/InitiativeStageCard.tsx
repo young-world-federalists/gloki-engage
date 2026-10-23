@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import { ChevronDown, ChevronUp, ArrowRight, Flag, ExternalLink } from 'lucide-react';
 import { Button, Card, Badge, UserIdentity } from '../shared';
 import type { UserIdentityProps } from '../shared';
@@ -6,8 +6,10 @@ import { STAGE_META } from '../community/stageMeta';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { useT } from '../../i18n';
 import type { PipelineStage } from '../../types/initiative';
+import type { DiscussionStatus } from '../../utils/discussionStatus';
 import InitiativeStageStrip from './InitiativeStageStrip';
 import DiscussionPill from './DiscussionPill';
+import { DiscussionStatusPill, statusAccessibleName } from './DiscussionStatusPill';
 import styles from './InitiativeStageCard.module.scss';
 
 /** The read-zone data for one initiative card, independent of stage. */
@@ -61,6 +63,10 @@ export interface InitiativeStageCardProps {
    *  before the blue open action — e.g. the Problem card's "Suggest" pill + code
    *  chip (S30 A-5, {@link ProblemChinExtras}). */
   chinExtras?: React.ReactNode;
+  /** Community display name, when cheaply in scope at the call site — feeds the
+   *  scoped Consensus sentence on the five-band {@link DiscussionStatusPill}
+   *  (S35 fix-round F4). Omit to fall back to the unscoped sentence. */
+  communityName?: string;
   /** The per-stage Engage UI — rendered only when expanded, in the shaded panel. */
   children?: React.ReactNode;
 }
@@ -85,12 +91,21 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
   stageNav,
   chinExtras,
   children,
+  communityName,
 }) => {
   const t = useT();
   const meta = STAGE_META[post.stage] || STAGE_META.problem;
   const Icon = meta.icon;
   const panelId = useId();
   const showTitle = !!post.title && post.title !== post.headline;
+  const [discussionStatus, setDiscussionStatus] = useState<DiscussionStatus | null>(null);
+  // The toggle button's own accessible name (S35 fix-round F4): the badge
+  // rendered inside it is `decorative`, so the status word is folded in here
+  // instead of being announced a second time.
+  const toggleBaseName = post.title || post.headline;
+  const toggleAriaLabel = discussionStatus
+    ? `${toggleBaseName.replace(/[.!?]+$/, '')}. ${statusAccessibleName(t, discussionStatus, communityName)}`
+    : undefined;
 
   return (
     <Card as="article" className={styles.card}>
@@ -99,6 +114,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
         className={styles.summary}
         aria-expanded={expanded}
         aria-controls={panelId}
+        aria-label={toggleAriaLabel}
         onClick={onToggle}
       >
         <span className={styles.badgeRow}>
@@ -108,6 +124,21 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
               {t(meta.labelKey, meta.labelDefault)}
             </span>
           </Badge>
+          {/* Five-band Causes status (S35 D6/F3-F5): read-only, resolves its own
+              discussion sub-contract — renders nothing until one exists.
+              `communityName` is passed through when the call site has one in
+              scope (S35 fix-round F4); otherwise the off-app scoped Consensus
+              sentence falls back to an unscoped one. Rendered `decorative`
+              because the toggle button's own aria-label (above) already folds
+              the status name in — otherwise it would be announced twice. */}
+          {stageNav && (
+            <DiscussionStatusPill
+              initiativeId={stageNav.initiativeId}
+              communityName={communityName}
+              decorative
+              onStatus={setDiscussionStatus}
+            />
+          )}
           {expanded ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
         </span>
 
@@ -188,6 +219,7 @@ const InitiativeStageCard: React.FC<InitiativeStageCardProps> = ({
                   communityId={stageNav.communityId}
                   hostServer={stageNav.hostServer}
                   hostAgent={stageNav.hostAgent}
+                  communityName={communityName}
                 />
               )}
               {chinExtras}

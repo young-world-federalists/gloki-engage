@@ -1221,8 +1221,610 @@ page.
 
 ---
 
+## Session 35 (2026-09-05) — Causes
+
+**+8 keys** (parity 1190 → 1198 in both fr and sw). The Discussion tab becomes a Causes forum:
+root comments are candidate causes voted up/down (1p1v); replies are unchanged conversation and
+keep the Heart. All eight keys are new under `causes.*`.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.vote.group` | Vote on this cause | Voter sur cette cause | Piga kura kuhusu sababu hii | `role="group"` label wrapping the up/down pair. |
+| `causes.vote.up` | Vote up — a real driver of the problem | Voter pour — un véritable facteur du problème | Piga kura ya ndiyo — sababu halisi ya tatizo | **⚠ confirm** the sw phrasing reads as "vote yes" rather than a literal up/down direction, which may not translate as cleanly. |
+| `causes.vote.down` | Vote down — not a real driver | Voter contre — pas un véritable facteur | Piga kura ya hapana — si sababu halisi | Same up/down-as-yes/no framing as above in sw. |
+| `causes.vote.score` | Net score {n} | Score net {n} | Alama halisi {n} | `{n}` can be negative; accessible label only (visual chip shows the signed number directly). |
+| `causes.rank` | #{n} | #{n} | #{n} | Rank chip text, shown only on root comments with ≥1 vote and rank ≤15 (carried into Solutions). |
+| `causes.hint` | Vote up if this is a real driver of the problem, down if it isn't. | Votez pour si c'est un véritable facteur du problème, contre sinon. | Piga kura ya ndiyo ikiwa hii ni sababu halisi ya tatizo, hapana kama sivyo. | First-use dismissible hint (Banner), shown above the comment list until dismissed. |
+| `causes.composer.placeholder` | What is causing this problem? | Quelle est la cause de ce problème ? | Ni nini kinachosababisha tatizo hili? | Replaces the generic "Add to the discussion…" placeholder on this surface. |
+| `causes.empty` | Name a cause of this problem to start. | Nommez une cause de ce problème pour commencer. | Taja sababu ya tatizo hili ili kuanza. | Empty-state body, replaces `deliberation.thread.empty` at this call site only (that key is kept as the component's own internal fallback and used elsewhere). |
+
+`common.dismiss` (existing key, both languages) is reused for the hint banner's dismiss button
+rather than adding a new `causes.hint.dismiss` key.
+
+### Task 7 — Rename surfaces to "Causes" (labels only, D3)
+
+**+1 key, 5 values changed** (parity 1198 → 1199 in both fr and sw). Ruling D3: the per-problem
+Discussion function reads "Causes" everywhere its display default named it as a noun — key names,
+`stageKey: 'discussion'`, `/discussion` paths, and `discussionContractId` are all unchanged. The five
+existing keys below already had an English/fr/sw entry from an earlier session and are shared across
+several call sites (see the task report for the full call-site list), so their **values** changed in
+place rather than being added as new keys.
+
+| Key | English (new) | fr (new) | sw (new) | Note |
+| --- | --- | --- | --- | --- |
+| `causes.explainer` | Causes are ranked by votes. The top 15 are carried into Solutions; a solution must address one of the top 5. | Les causes sont classées par votes. Les 15 premières sont transmises aux solutions ; une solution doit traiter l'une des 5 premières. | Sababu zinapangwa kwa kura. Sababu 15 za juu huchukuliwa hadi Suluhisho; suluhisho lazima lishughulikie mojawapo ya sababu 5 za juu. | **New key.** Caption under the `ContextCard` on `DiscussionStageView`. |
+| `header.section.discussion` | Causes (was "Discussion") | Causes (was "Discussion") | Sababu (was "Majadiliano") | AppHeader eyebrow on the per-problem Causes page. |
+| `stage.discussion` | Causes (was "Discussion") | Causes (was "Discussion") | Sababu (was "Majadiliano") | Shared "full stage label" family — feeds `StageAdvanceBar`, `InitiativeStagePanel`, and `CreateInitiativePage`'s stepper. |
+| `stage.discussionPill` | Causes (was "Discussion", en had no dict entry — inline default only) | Causes (was "Discussion") | Sababu (was "Majadiliano") | The chin pill on initiative cards. |
+| `stage.discussionPillCount` | {label} — {n} causes (was "… comments", en inline default only) | {label} — {n} causes (was "… commentaires") | {label} — sababu {n} (was "… maoni {n}") | Count aria for the chin pill; `{label}`/`{n}` tokens preserved. |
+| `deliberation.empty.title` | No causes yet (was "No discussion yet", en inline default only) | Pas encore de causes (was "Pas encore de discussion") | Bado hakuna sababu (was "Bado hakuna majadiliano") | `DiscussionEngage` empty-state title (the Causes teaser card on the initiative panel). |
+| `card.teaserDiscussion` | Name a cause (was "Join the discussion") | Nommer une cause (was "Rejoindre la discussion") | Taja sababu (was "Jiunge na majadiliano") | **Fix round (D3 label-sweep leftover).** `DiscussionActivityCard`'s collapsed-card teaser on the community feed — missed by the original D3 sweep since its default text didn't contain the literal word "Discussion". |
+
+**Left unchanged, out of scope for D3** — see task report for full reasoning:
+- `nav.discussion` (en "Discuss") — drives the global StageFooter bottom nav (cross-community
+  "browse by stage"), `HowGlokiWorks` onboarding, and a demo fixture label. The controller's grep for
+  literal `'Discussion'` defaults did not surface this key (its value is "Discuss", not "Discussion"),
+  and renaming it would touch app-wide navigation beyond this task's stated scope. **⚠ flag for a
+  future wave** if the bottom nav should also read "Causes" for consistency with the header/pill.
+- `collab.flow.discussion` (registry.ts label "Discussion") — a *different* feature: the generic
+  "Add Tab" Teamwork flow for collaboration groups, unrelated to the per-problem pipeline stage.
+- `deliberation.discussion.teaser` ("{c} comments · {p} people") and `deliberation.empty.body` ("Be
+  the first to weigh in on this problem.") — generic, don't name the function; left as-is.
+- `context.discussion.aria` ("The problem under discussion") — generic noun use of "discussion",
+  not a display default naming the renamed function.
+- `initiative.stages.discussion.desc` on `CreateInitiativePage` — describes the participation
+  mechanic, not named in the task's file list; left unchanged.
+
+### Task 8 — Discussion status pill (D6, F3–F5)
+
+**+7 keys** (parity 1199 → 1206 in both fr and sw). A five-band read of Causes-discussion
+agreement (New / Contested / Divided / Converging / Consensus), shown as a small dot+word
+Badge on every initiative card and as the discussion page's header subtitle.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.status.open` | New | Nouveau | Mpya | Floor band — fewer than 10 total votes or fewer than 3 voted-on root comments. |
+| `causes.status.contested` | Contested | Contesté | Inapingwa | agreement < 0.25. |
+| `causes.status.divided` | Divided | Divisé | Imegawanyika | 0.25 ≤ agreement < 0.5. |
+| `causes.status.converging` | Converging | Convergent | Inakaribiana | 0.5 ≤ agreement < 0.75. |
+| `causes.status.consensus` | Consensus | Consensus | Makubaliano | agreement ≥ 0.75. |
+| `causes.status.scoped` | Consensus among {n} Gloki participants in {community} | Consensus parmi {n} participants Gloki à {community} | Makubaliano kati ya washiriki {n} wa Gloki katika {community} | Off-app accessible name / tooltip, Consensus band only (F4). `{n}` = distinct voters, `{community}` may be `''` where no name is in scope (e.g. `InitiativeStageCard`'s shared shell). |
+| `causes.status.scopedNoCommunity` | Consensus among {n} Gloki participants | Consensus entre {n} participants Gloki | Makubaliano kati ya washiriki {n} wa Gloki | **New key (fix round, F4 walk finding).** `statusAccessibleName` fallback when `communityName` is empty/undefined — fixes the preview bug where the community-feed card pill announced "…in " with a trailing blank. Used instead of `causes.status.scoped` (never with an empty `{community}` interpolation) whenever no community name is in scope. |
+| `causes.status.aria` | Causes discussion: {word} | Discussion des causes : {word} | Majadiliano ya sababu: {word} | Off-app accessible name / tooltip for the other four bands; `{word}` is the already-translated status word. |
+
+**⚠ width-risk (F5), not a translation defect:** several sw words exceed the 12-character
+en/fr budget the pill's `.word` box is sized to — `Inapingwa` (9), `Imegawanyika` (12, exactly
+at the limit), `Inakaribiana` (12, exactly at the limit) fit; none actually overflow at the
+current 12ch cap, but they were the words used to build and hand-verify the dot-only overflow
+degradation (F5: the word never ellipsizes — on overflow it hides off-screen and the Badge's
+dot + accessible name carry the status instead). Re-check this budget if any of the five words
+change length in native review.
+
+### Task 10 — TopCausesPanel + required cause alignment (D5, F2)
+
+**+10 keys, 1 value changed** (parity 1207 → 1217 in both fr and sw). Adding a solution now
+requires picking which of the top-5 ranked causes it addresses (once any exist); the pre-filled
+`SearchableSelect` shows `#{rank} {text}`. The Solutions board gains a collapsible "Top causes"
+panel above the Add-solution row, and every solution card now carries a one-line cause-alignment
+chip (Addresses cause / Cause no longer ranked / Proposed before any cause was ranked).
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.align.prompt` | Which cause does this address? | Quelle cause cette solution traite-t-elle ? | Suluhisho hili linashughulikia sababu ipi? | Shown above the cause `SearchableSelect` in the add-solution modal, only when ≥1 cause is ranked. |
+| `causes.align.hint` | Your metrics and implementation measures should follow from this cause. | Vos indicateurs et mesures de mise en œuvre devraient découler de cette cause. | Viashiria vyako na hatua za utekelezaji zinapaswa kutokana na sababu hii. | Hint line under the prompt above. |
+| `causes.align.placeholder` | Choose a cause | Choisir une cause | Chagua sababu | `SearchableSelect` placeholder (not shown once pre-selected). |
+| `causes.addresses` | Addresses cause: {text} | Traite la cause : {text} | Inashughulikia sababu: {text} | Per-solution chip first line; `{text}` is the cause comment's own text (already user-authored, not re-translated). |
+| `causes.rankNow` | Cause now ranked #{n} | Cause désormais classée #{n} | Sababu sasa imeorodheshwa #{n} | Badge shown when the addressed cause is still in the carried top 15. |
+| `causes.unranked` | Cause no longer ranked | Cause qui n'est plus classée | Sababu haiorodheshwi tena | Badge shown when the addressed cause fell below the top 15, or (rarely) was deleted — in the deleted case this badge shows alone, with no `causes.addresses` line, since the text isn't recoverable. |
+| `causes.beforeRank` | Proposed before any cause was ranked | Proposée avant qu'aucune cause ne soit classée | Ilipendekezwa kabla ya sababu yoyote kuorodheshwa | Badge shown when the solution has no cause id at all (created before D5 shipped, or the discussion had no ranked causes yet). |
+| `causes.panel.title` | Top causes ({n}) | Causes principales ({n}) | Sababu kuu ({n}) | `TopCausesPanel`'s collapsible header; `{n}` is the number of rows shown (capped at 15, the carried boundary). |
+| `causes.panel.solutions` | {k} solutions | {k} solutions | Suluhisho {k} | Per-row solution count inside the panel; `{k}` = solutions whose `causeId` matches that row's comment id. |
+| `causes.none` | No causes ranked yet — start in the Causes discussion. | Aucune cause classée pour l'instant — commencez dans la discussion Causes. | Hakuna sababu iliyoorodheshwa bado — anza kwenye majadiliano ya Sababu. | `EmptyState` body inside the panel when no root comments exist yet. |
+
+**Value changed in place** — `mechanisms.approval.commitmentsPrompt`: was "Who and what needs to
+change?" / fr "Qui et quoi doivent changer ?" / sw "Nani na nini lazima vibadilike?"; now "Implementation
+measures — who and what needs to change?" / fr "Mesures de mise en œuvre — qui et quoi doivent changer ?"
+/ sw "Hatua za utekelezaji — nani na nini lazima vibadilike?" (disambiguates from the new cause-alignment
+prompt directly above it in the same modal; wire key/value stays `commitments`).
+
+`causes.rank` and `causes.vote.score` (both existing keys from the Task 6 causes-voting batch) are
+reused as-is inside `TopCausesPanel`'s rows and `SolutionEvidence`'s cause chip — no new keys needed
+for those.
+
+### Task 14 — Impact assessment form, card, board CTA, voter surfaces (D7, D12)
+
+**+30 keys, 1 key retired** (parity 1217 → 1246 in both fr and sw). Any of the top-10 writers
+(or a wider rung when too few qualify — D12's eligibility ladder) can submit a structured
+"impact assessment" on a solution they didn't write: what it targets, whether that's the cause
+or a symptom, its mechanism, broader effects, risks, opportunity costs, and time horizon. Up to
+3 per solution. Shown as cards on the Solutions board (folded, after the cause chip), and —
+because they ride the same approval contract as commitments/metrics — also on the QV ballot,
+QV results, the read-only vote preview, and the published Mandate card ("Why we expected this to
+work").
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `impact.field.targetLabel` | Target | Cible | Lengo | Form field label + `ImpactAssessmentCard` row label. |
+| `impact.field.target` | What cause or mechanism does this solution target? | Quelle cause ou quel mécanisme cette solution vise-t-elle ? | Suluhisho hili linalenga sababu au utaratibu gani? | Helper prompt under the target field (brief's verbatim text). |
+| `impact.field.targetsCauseLabel` | Cause or symptom | Cause ou symptôme | Sababu au dalili | SegmentedControl field label + card row label. |
+| `impact.field.targetsCause` | Does it target the cause or a symptom? | Vise-t-elle la cause ou un symptôme ? | Je, linalenga sababu au dalili? | Helper prompt above the Cause/Symptom/Both control. |
+| `impact.field.mechanismLabel` | Mechanism | Mécanisme | Utaratibu | Form field label + card row label. |
+| `impact.field.mechanism` | How is it expected to produce its intended effect? | Comment est-elle censée produire son effet attendu ? | Linatarajiwa kuleta athari yake iliyokusudiwa vipi? | Helper prompt. |
+| `impact.field.broaderEffectsLabel` | Broader effects | Effets plus larges | Athari pana zaidi | Form field label + card row label. |
+| `impact.field.broaderEffects` | Expected broader effects and consequences | Effets et conséquences plus larges attendus | Athari na matokeo pana zaidi yanayotarajiwa | Helper prompt. |
+| `impact.field.risksLabel` | Risks | Risques | Hatari | Form field label + card row label. |
+| `impact.field.risks` | Potential risks and trade-offs | Risques potentiels et compromis | Hatari zinazowezekana na mizani ya kubadilishana | Helper prompt. |
+| `impact.field.opportunityCostsLabel` | Opportunity costs | Coûts d'opportunité | Gharama za fursa | Form field label + card row label. |
+| `impact.field.opportunityCosts` | Opportunity costs — what is given up by choosing this? | Coûts d'opportunité — à quoi renonce-t-on en choisissant cette solution ? | Gharama za fursa — ni nini kinachopotea kwa kuchagua hili? | Helper prompt (brief's verbatim text; repeats the label as a lead-in). |
+| `impact.field.timeHorizonLabel` | Time horizon | Horizon temporel | Muda unaotarajiwa | Form field label + card row label. |
+| `impact.field.timeHorizon` | Time horizon — how quickly it should work, and how long the effect should last | Horizon temporel — à quelle vitesse elle devrait agir, et combien de temps l'effet devrait durer | Muda unaotarajiwa — litafanya kazi haraka kiasi gani, na athari itadumu kwa muda gani | Helper prompt (brief's verbatim text). |
+| `impact.targets.cause` | Cause | Cause | Sababu | SegmentedControl option + the card's rendered word for `targetsCause: 'cause'`. |
+| `impact.targets.symptom` | Symptom | Symptôme | Dalili | SegmentedControl option + rendered word. |
+| `impact.targets.both` | Both | Les deux | Zote mbili | SegmentedControl option + rendered word. |
+| `impact.formTitle` | Assess this solution's impact | Évaluer l'impact de cette solution | Tathmini athari ya suluhisho hili | `ImpactAssessmentForm`'s Modal title. |
+| `impact.intro` | Summarise, in plain words, what this solution is meant to change and what it will cost. | Résumez, en mots simples, ce que cette solution est censée changer et ce qu'elle va coûter. | Fupisha, kwa maneno rahisi, kile suluhisho hili linalokusudiwa kubadilisha na gharama itakayosababisha. | Intro line, brief's verbatim text. |
+| `impact.submit` | Submit assessment | Envoyer l'évaluation | Tuma tathmini | Form submit button. |
+| `impact.nOfMax` | Assessment {i} of {max} | Évaluation {i} sur {max} | Tathmini {i} kati ya {max} | `ImpactAssessmentCard` header; `{max}` is always 3 (`ASSESSORS_PER_SOLUTION`). |
+| `impact.count` | Impact assessments · {n}/3 | Évaluations d'impact · {n}/3 | Tathmini za athari · {n}/3 | Board per-solution chin count. |
+| `impact.cta` | Assess impact | Évaluer l'impact | Tathmini athari | Board chin CTA pill (outlined, `$radius-full`, shown only when `canAssess`). |
+| `impact.rung.noFloor` | Open to the top 10 writers | Ouvert aux 10 premiers rédacteurs | Wazi kwa waandishi 10 bora | Rung copy shown when the eligibility ladder relaxed past `strict` (top 10, no `causeScore>0` floor). |
+| `impact.rung.top25` | Open to the top 25 writers | Ouvert aux 25 premiers rédacteurs | Wazi kwa waandishi 25 bora | Rung copy for the `top-25` step. |
+| `impact.rung.anyVerified` | Open to any verified member | Ouvert à tout membre vérifié | Wazi kwa mwanachama yeyote aliyethibitishwa | Rung copy for the `any-verified` floor. |
+| `impact.foldN` | Impact assessments ({n}) | Évaluations d'impact ({n}) | Tathmini za athari ({n}) | `<details>` fold summary — Solutions board evidence fold, QV ballot + results, VotePreview. |
+| `impact.mandateHeading` | Why we expected this to work | Pourquoi nous pensions que cela fonctionnerait | Kwa nini tulitarajia hili lifanye kazi | MandateCard section heading, shown only when the winning solution has ≥1 assessment. |
+| `mechanisms.qv.measuresN` | Implementation measures ({n}) | Mesures de mise en œuvre ({n}) | Hatua za utekelezaji ({n}) | New fold (was folded into the retired `commitsMetricsN`) — commitments only, QV ballot + results + VotePreview. |
+| `mechanisms.qv.metricsN` | Metrics ({n}) | Indicateurs ({n}) | Vipimo ({n}) | New fold — author-proposed + expert-validated metrics, deduped (`Array.from(new Set([...]))`). |
+
+**Keys retired** — `mechanisms.qv.commitsMetricsN` ("Commitments & metrics ({n})" / fr "Engagements
+et indicateurs ({n})" / sw "Ahadi na vipimo ({n})"): the single flattened commitments+metrics fold
+it labelled was replaced by the two separate `measuresN`/`metricsN` folds above (plus the new
+`impact.foldN` fold) on both the QV ballot and results views — its only two call sites. Confirmed
+unused app-wide (`grep -rn "commitsMetricsN" src`) before removing it from both `fr.ts` and `sw.ts`.
+
+`mechanisms.approval.author.you` (existing key) is reused as-is for the "You" byline on
+`ImpactAssessmentCard` when the viewer is the assessment's own author — no new key needed.
+
+### Task — Final-review fix wave (2026-09-05)
+
+Keys added while applying the whole-branch review findings for the 2026-09-02 Causes/Impact
+prompt (readiness gates, singular/plural counts, strict-rung copy).
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.align.loading` | Loading causes… | Chargement des causes… | Inapakia sababu… | `SolutionsBoard`'s "+ Add a solution" button `title` while `discussionReady` is still false. |
+| `causes.panel.solutions.one` | 1 solution | 1 solution | Suluhisho 1 | `TopCausesPanel`'s per-cause solution-count badge, singular case (F9). |
+| `causes.panel.solutions.many` | {k} solutions | {k} solutions | Suluhisho {k} | Same badge, plural/zero case — replaces the retired `causes.panel.solutions` below. |
+| `impact.rung.strict` | Open to the top 10 writers who have named a cause | Ouvert aux 10 premiers rédacteurs ayant nommé une cause | Wazi kwa waandishi 10 bora waliotaja sababu | `rungCopy`'s `'strict'` case (F10) — previously returned `null` (no rung note shown) even at the strictest, most-common rung. |
+
+**Key retired** — `causes.panel.solutions` ("{k} solutions" / fr "{k} solutions" / sw "Suluhisho
+{k}"): replaced by the singular/plural pair above, following the `deliberation.thread.count.one`/
+`.many` precedent. Confirmed unused app-wide (`grep -rn "causes.panel.solutions'" src`) before
+removing it from both `fr.ts` and `sw.ts`.
+
+### Task — Panel R3 judge MUST fix wave (2026-09-06)
+
+**+2 keys** (parity 1249 → 1251 in both fr and sw at the wave's start; see "How to deliver fixes"
+for the re-measured final count). Both are new accessibility/explanation strings from the
+adversarial-panel judge ruling — no existing key's value changed.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `causes.vote.locked` | Voting on causes is open to verified community members. | Le vote sur les causes est réservé aux membres vérifiés de la communauté. | Kupiga kura kuhusu sababu ni kwa wanachama waliothibitishwa wa jumuiya. | `ThreadedDiscussion`'s locked-vote explanation (P15) — visible line + `aria-describedby` on both disabled vote buttons for a viewer who cannot participate (an organization/ministry account is the reachable case, `useCommunityTrust.ts`). Copy states the rule rather than "get verified" because that account type can never satisfy it. |
+| `impact.allRequired` | All fields are required. | Tous les champs sont obligatoires. | Sehemu zote zinahitajika. | `ImpactAssessmentForm`'s required-fields note (D5a) — the one string that states why the seven-field Submit button is disabled; previously only a stub-only error string that a working `canSubmit` guard made unreachable. |
+
+**Also fixed in this wave (values changed, no new keys):**
+- `causes.status.scoped` (fr) — `'Consensus parmi {n} participants Gloki à {community}'` →
+  `'Consensus parmi {n} participants Gloki dans {community}'` (D8: `à` reads wrong before an
+  organisation name, which is what every seeded community name is).
+- `causes.status.scopedNoCommunity` (fr) — `'Consensus entre {n} participants Gloki'` →
+  `'Consensus parmi {n} participants Gloki'` (D8: the sibling function must not switch
+  `parmi`/`entre` between its two branches).
+- `initiative.stages.discussion.desc` / `initiative.stages.problem.desc` (fr + sw) — rewritten to
+  match the renamed "Causes" stage and to drop threshold numbers ("50%"/"33%") that no code
+  enforces (P11, D3-companion).
+
+**Explicitly not added** — `causes.status.scoped.one`/`.many` singular forms: the judge ruled a
+third status-formula floor (`MIN_PARTICIPANTS = 3`, `src/utils/discussionStatus.ts`) that makes
+`status.participants < 3` structurally unreachable inside `computeDiscussionStatus`, so the
+singular "Consensus among 1 Gloki participant" string this would have served can never render.
+Do not add these keys unless that floor is later lowered.
+
+**Routed to native review, not fixed in this wave** (judge D8/D9/D12, LATER):
+- `sw.ts` `impact.field.risks` — "Hatari zinazowezekana na mizani ya kubadilishana" calques
+  "trade-offs" literally ("scales of exchanging") where the sibling `impact.field.opportunityCosts`
+  glosses the same concept in plain Swahili instead. Proposed native-review alternative: replace
+  "mizani ya kubadilishana" with a plain-language gloss consistent with `opportunityCosts`'s style.
+- `fr.ts` — gender agreement of `Contesté / Divisé / Convergent` inside `'Discussion des causes :
+  {word}'`, and `rédacteurs` → `contributeurs` (the latter blocked on an English "writers" →
+  "contributors" product-vocabulary decision that has not been made).
+- `fr.ts` `causes.panel.solutions.one`/`.many` — French takes the singular for zero, so a discussion
+  with zero solutions renders "0 solution" not "0 solutions"; flag for a native reviewer to confirm
+  whether the singular form should special-case zero.
+
+---
+
+## Session 36 (2026-09-06) — Community verification, Wave 1
+
+**+62 keys, −1 retired, 3 values changed in place** (parity 1251 → 1312 in both fr and sw; the whole-branch review's fix wave added three keys and changed three existing values — tables at the end of this section). Prompt 2 Wave 1 ships the platform-wide
+verification hub and its request / approve / invite pages under `/identity/verification/*`, plus a dev-only
+scenario switcher. All new keys live under `verification.*` and `demo.verification.*`. Spec:
+`docs/superpowers/specs/2026-09-06-s36-verification-w1-design.md`.
+
+**Register questions for both reviewers, up front:**
+- **fr — the inclusive `·e` forms** (`vérifié·e`, `garant·e`, `parrainé·e`, `invité·e`). These follow the
+  overlay's existing habit (`Vérifié·e`) — confirm the house style is to keep the median point everywhere the
+  addressee's gender is unknown, or prefer a neutral rewrite ("vous êtes une personne vérifiée").
+- **fr — "caution" / "se porter garant" for *vouch*.** The overlay already uses "parrainage" for the trust
+  count (`trust.vouched`: "Parrainé·e par {count}"). The new pages mix *garant* (the act) with *parrainé*
+  (the state). Please settle on one family.
+- **sw — "udhamini" / "kudhamini" for *vouch*** (the overlay already uses "Amedhaminiwa na {count}").
+  Confirm this reads as "vouch for a person" rather than "sponsor/guarantee financially" in everyday Swahili.
+- **sw — "Thibitishwa" as the page title** (imperative/passive "Be verified"). An alternative is "Pata
+  uthibitisho".
+- **Both — the "✓" glyph** in `verification.request.sent` / `verification.invite.requested` is part of the
+  string; keep it or drop it consistently across the three locales.
+- **fr — plural agreement in count templates.** `verification.hub.progress` shipped as "{count} approbations sur
+  {threshold} reçues", which renders "1 approbations … reçues" at count = 1 (the hub headline). Rewritten
+  agreement-free in the fix wave ("Approbations reçues : {count} sur {threshold}"). Please scan the other fr
+  `{count}`/`{n}` strings in this section for the same trap.
+- **fr — `verification.request.vouched` = "Garant·e" as a *badge*** on a member row. English "Vouched" means
+  "this person vouched for you"; "Garant·e" reads as the person's role — confirm it is not read as "you are
+  their guarantor".
+- **fr — tense in `verification.approve.asked`** ("vous demande de vous porter garant·e", present) is rendered
+  as "{asked} · il y a 5h"; English is past ("asked you to vouch"). Present + "5h ago" is slightly off.
+- **sw — `verification.request.vouched` = "Amekudhamini"** is a full clause ("s/he has vouched for you") used as
+  a badge — check sense and length in the 360px row's action slot.
+- **sw — `verification.hub.goHome` = "Nenda Mwanzo"** — confirm "Mwanzo" matches the app's existing sw Home label.
+- **sw — person shift:** `verification.hub.verifiedTitle` = "Umethibitishwa" (2nd person) vs
+  `demo.verification.verified` = "Amethibitishwa" (3rd person). Deliberate (scenario labels describe the user
+  from outside) — confirm it does not read as an inconsistency.
+- **Both — the inclusive midpoint at `$text-sm`:** does "·e" render legibly on a cheap Android, and how do
+  fr screen readers pronounce it?
+
+### Task 5 — Hub, pathway cards, approval history (`verification.*`, 25 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.title` | Get verified | Se faire vérifier | Thibitishwa | AppHeader h1 of the hub; reuses the wording of the existing `gate.getVerified`. |
+| `verification.eyebrow` | Verification | Vérification | Uthibitisho | Eyebrow above every verification page title. |
+| `verification.hub.progress` | {count} of {threshold} approvals received | {count} approbations sur {threshold} reçues | Umepokea idhini {count} kati ya {threshold} | `{threshold}` is always 4. Heading of the status card. |
+| `verification.hub.explain` | Four members vouching that they know you as a real person makes you Verified everywhere on Gloki — no ID papers, no face scans. | Quatre membres attestant qu’ils vous connaissent comme une vraie personne vous rendent Vérifié·e partout sur Gloki — sans papiers d’identité ni reconnaissance faciale. | Wanachama wanne wanaothibitisha kuwa wanakujua kama mtu halisi hukufanya Uthibitishwe kila mahali kwenye Gloki — bila vitambulisho wala uchanganuzi wa uso. | Claims-honesty line; must keep "no ID papers, no face scans". |
+| `verification.hub.verifiedTitle` | You’re verified | Vous êtes vérifié·e | Umethibitishwa | |
+| `verification.hub.verifiedBody` | Verified members can vote and back mandates in every community they join. | Les membres vérifiés peuvent voter et soutenir des mandats dans chaque communauté qu’ils rejoignent. | Wanachama waliothibitishwa wanaweza kupiga kura na kuunga mkono maagizo katika kila jumuiya wanayojiunga nayo. | "back mandates" = conviction backing; sw "kuunga mkono maagizo" — confirm "maagizo" is the overlay's word for mandate (it is on `nav.mandate`). |
+| `verification.hub.goHome` | Go to Home | Aller à l’accueil | Nenda Mwanzo | Button. |
+| `verification.hub.pathways` | Ways to get approvals | Comment obtenir des approbations | Njia za kupata idhini | Section h2. |
+| `verification.hub.requestsLink` | Requests to vouch | Demandes de caution | Maombi ya udhamini | Navigation row to the approve page. |
+| `verification.hub.requestsPending` | {n} waiting | {n} en attente | {n} yanasubiri | Badge; `{n}` ≥ 1 only. |
+| `verification.history.title` | Your approvals | Vos approbations | Idhini zako | Section h2. |
+| `verification.history.empty` | No approvals yet. Ask a member to vouch for you. | Aucune approbation pour l’instant. Demandez à un membre de se porter garant. | Bado hakuna idhini. Muombe mwanachama akudhamini. | Empty state. |
+| `verification.method.direct` | Vouched for you | S’est porté·e garant·e de vous | Alikudhamini | Caption under an approver's name. |
+| `verification.method.invitation` | Invited you | Vous a invité·e | Alikualika | Caption for the inviter. |
+| `verification.member.online` | Online | En ligne | Mtandaoni | `aria-label` of the presence dot (never visible text). |
+| `verification.member.offline` | Offline | Hors ligne | Nje ya mtandao | Same. |
+| `verification.pathway.request.title` | Ask a member | Demander à un membre | Muombe mwanachama | Card h3. |
+| `verification.pathway.request.body` | Choose verified members who know you and ask them to vouch. | Choisissez des membres vérifiés qui vous connaissent et demandez-leur de se porter garants. | Chagua wanachama waliothibitishwa wanaokujua na uwaombe wakudhamini. | |
+| `verification.pathway.request.cta` | Ask a member | Demander à un membre | Muombe mwanachama | Button; deliberately identical to the title. |
+| `verification.pathway.invite.title` | Invitations | Invitations | Mialiko | Card h3. |
+| `verification.pathway.invite.body` | Get invited by a verified member — or, once verified, invite people you know. | Faites-vous inviter par un membre vérifié — ou, une fois vérifié·e, invitez des personnes que vous connaissez. | Alikwa na mwanachama aliyethibitishwa — au, ukishathibitishwa, waalike watu unaowajua. | |
+| `verification.pathway.invite.cta` | Invitations | Invitations | Mialiko | Button. |
+| `verification.request.title` | Ask a member to vouch | Demander une caution | Omba udhamini | AppHeader h1 of the request page. |
+| `verification.approve.title` | Requests to vouch | Demandes de caution | Maombi ya udhamini | AppHeader h1 of the approve page. |
+| `verification.invite.title` | Invitations | Invitations | Mialiko | AppHeader h1 of the invite page. |
+
+### Task 6 — Request page (`verification.request.*`, 10 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.request.intro` | Members you know can confirm you’re a real person. Each approval counts toward your four. | Les membres qui vous connaissent peuvent confirmer que vous êtes une vraie personne. Chaque approbation compte parmi vos quatre. | Wanachama wanaokujua wanaweza kuthibitisha kuwa wewe ni mtu halisi. Kila idhini inahesabiwa kati ya nne zako. | |
+| `verification.request.search` | Search by name | Rechercher par nom | Tafuta kwa jina | `<label>` of the search field. |
+| `verification.request.searchPlaceholder` | Name | Nom | Jina | Placeholder. |
+| `verification.request.cta` | Request | Demander | Omba | 32px-tall row button — keep it one short word. |
+| `verification.request.sent` | Requested ✓ | Demandé ✓ | Imeombwa ✓ | Disabled state; see the ✓ question above. |
+| `verification.request.vouched` | Vouched | Garant·e | Amekudhamini | Badge on members who already vouched. |
+| `verification.request.noResponse` | No response | Sans réponse | Hakuna jibu | Disabled state after a decline (E2). |
+| `verification.request.approvedToast` | {name} vouched for you | {name} s’est porté·e garant·e de vous | {name} amekudhamini | Toast; `{name}` is a person. |
+| `verification.request.declinedToast` | {name} didn’t respond this time | {name} n’a pas répondu cette fois | {name} hakujibu wakati huu | Toast. |
+| `verification.request.empty` | No members match. | Aucun membre ne correspond. | Hakuna mwanachama anayelingana. | Empty search; also reused by the invite page's list. |
+
+### Task 7 — Approve page (`verification.approve.*`, 7 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.approve.intro` | Approve only people you know are real. Your vouch counts toward their four. | N’approuvez que des personnes dont vous savez qu’elles sont réelles. Votre caution compte parmi leurs quatre. | Idhinisha tu watu unaojua ni halisi. Udhamini wako unahesabiwa kati ya nne zao. | |
+| `verification.approve.asked` | asked you to vouch | vous demande de vous porter garant·e | anakuomba umdhamini | Lower-case fragment after the requester's name: "Wanjiru Kamau · asked you to vouch · 5h ago". |
+| `verification.approve.approve` | Approve | Approuver | Idhinisha | Primary button; also the check-state label. |
+| `verification.approve.decline` | Decline | Refuser | Kataa | Ghost button. |
+| `verification.approve.emptyVerified` | No requests right now. | Aucune demande pour l’instant. | Hakuna maombi kwa sasa. | |
+| `verification.approve.emptyUnverified` | Members can ask you to vouch once you’re verified. | Les membres pourront vous demander une caution une fois que vous serez vérifié·e. | Wanachama wataweza kukuomba udhamini ukishathibitishwa. | |
+| `verification.approve.approvedToast` | You vouched for {name} | Vous vous êtes porté·e garant·e de {name} | Umemdhamini {name} | Toast. |
+
+### Task 8 — Invite page (`verification.invite.*`, 10 keys)
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.invite.formIntro` | Invite someone you know. Ticking the box counts as your vouch for them. | Invitez quelqu’un que vous connaissez. Cocher la case vaut caution de votre part. | Alika mtu unayemjua. Kutia alama kwenye kisanduku ni udhamini wako kwake. | Verified branch only. |
+| `verification.invite.name` | Their name | Son nom | Jina lake | `<label>`. |
+| `verification.invite.email` | Their email | Son e-mail | Barua pepe yake | `<label>`. |
+| `verification.invite.vouch` | I know this person and vouch for them | Je connais cette personne et je me porte garant·e | Namjua mtu huyu na ninamdhamini | Checkbox label. |
+| `verification.invite.send` | Send invitation | Envoyer l’invitation | Tuma mwaliko | Submit button. |
+| `verification.invite.sentToast` | Invitation recorded for {name} — this demo sends no email. | Invitation enregistrée pour {name} — cette démo n’envoie aucun e-mail. | Mwaliko umerekodiwa kwa {name} — demo hii haitumi barua pepe. | Claims-honesty: the demo sends nothing; keep that clause. |
+| `verification.invite.requestIntro` | Verified members can invite you. Ask someone who knows you. | Les membres vérifiés peuvent vous inviter. Demandez à quelqu’un qui vous connaît. | Wanachama waliothibitishwa wanaweza kukualika. Muombe mtu anayekujua. | Unverified branch. |
+| `verification.invite.requestCta` | Request invitation | Demander une invitation | Omba mwaliko | 32px-tall row button — fr is the longest; it fits at 360px today. |
+| `verification.invite.requested` | Requested ✓ | Demandé ✓ | Imeombwa ✓ | Disabled state. |
+| `verification.invite.requestedToast` | Invitation request sent to {name} | Demande d’invitation envoyée à {name} | Ombi la mwaliko limetumwa kwa {name} | Toast. |
+
+### Task 9 — Dev-only scenario switcher (`demo.verification.*`, 7 keys)
+
+Only reachable in development builds (`import.meta.env.DEV`); low priority for the native pass, listed for parity.
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `demo.verification.menu` | Demo: verification state | Démo : état de vérification | Demo: hali ya uthibitisho | Global-menu item. |
+| `demo.verification.title` | Verification demo state | État de vérification (démo) | Hali ya uthibitisho (demo) | Modal title. |
+| `demo.verification.body` | Applies a scenario and reloads. | Applique un scénario et recharge la page. | Inaweka hali na kupakia upya ukurasa. | |
+| `demo.verification.unverified` | Unverified (0 approvals) | Non vérifié (0 approbation) | Hajathibitishwa (idhini 0) | |
+| `demo.verification.partial` | Partly vouched (2 of 4) | Partiellement cautionné (2 sur 4) | Amedhaminiwa kwa sehemu (2 kati ya 4) | |
+| `demo.verification.verified` | Verified (4 of 4) | Vérifié (4 sur 4) | Amethibitishwa (4 kati ya 4) | |
+| `demo.verification.memberView` | Verified member with requests waiting | Membre vérifié avec des demandes en attente | Mwanachama aliyethibitishwa mwenye maombi yanayosubiri | |
+
+### Fix wave — whole-branch review (2026-09-06)
+
+**+3 keys.**
+
+| Key | English | fr | sw | Note |
+| --- | --- | --- | --- | --- |
+| `verification.demoNote` | Demo: these members reply automatically. No real person is contacted. | Démo : ces membres répondent automatiquement. Aucune personne réelle n’est contactée. | Demo: wanachama hawa hujibu kiotomatiki. Hakuna mtu halisi anayewasiliana naye. | Claims-honesty line under the intro of the request AND approve pages (review I1). |
+| `verification.approve.approved` | Approved | Approuvé·e | Imeidhinishwa | The 300 ms check state after Approve (was reusing the imperative `approve`). |
+| `verification.invite.empty` | No verified members yet. | Aucun membre vérifié pour l’instant. | Bado hakuna mwanachama aliyethibitishwa. | Empty list on the unverified invite page (was reusing the search-empty string). |
+
+**3 values changed in place** (existing keys; English defaults live inline in the components):
+
+| Key | English (new) | fr (new) | sw (new) | Why |
+| --- | --- | --- | --- | --- |
+| `verification.hub.progress` | *(unchanged)* {count} of {threshold} approvals received | Approbations reçues : {count} sur {threshold} | *(unchanged)* | fr plural bug at count = 1. |
+| `trust.your.verified` | You’re verified — this counts in every community. | Vous êtes vérifié·e — cela compte dans chaque communauté. | Umethibitishwa — hii inahesabika katika kila jumuiya. | E1 made the count platform-wide; the old copy said "verified member of this community". |
+| `trust.your.progress` | Vouched by {count} of {threshold} needed to verify. Ask members you know to vouch for you. | Parrainé·e par {count} sur {threshold} nécessaires pour être vérifié·e. Demandez à des membres que vous connaissez de se porter garants. | Umedhaminiwa na {count} kati ya {threshold} wanaohitajika ili kuthibitishwa. Waombe wanachama unaowajua wakudhamini. | Old copy said "Meet more members" — the hub, not this community's member list, is now the path. |
+
+**Keys retired this session:** `trust.meetMember` ("Meet a member (demo)") — **[removed]** from fr and sw; the
+hub's request flow replaced the demo shortcut on the per-community identity page.
+
 ## How to deliver fixes
 
 Edit `src/i18n/fr.ts` and/or `src/i18n/sw.ts` in place. Keep keys and `{var}` tokens identical across the
 two files. Run the parity scanner (`RESULT: PARITY OK`) and a 360px fr/sw layout spot-check on any touched
 screen. Small commits per family are easiest to review.
+
+
+---
+
+## Session 37 (2026-09-07) — Community verification, Wave 2: the simulated call
+
+**+46 keys** (parity 1312 → 1358 in both fr and sw; identical key sets, verified by set-diff, and all
+`{var}` tokens match). Prompt 2 Wave 2 ships the simulated verification call at
+`/identity/verification/call` — verifier picker, waiting room, in-call view (candidate **and** verifier
+roles) and call summary — plus the third pathway card on the hub. All new keys live under
+`verification.call.*` and `verification.pathway.call.*`. Spec:
+`docs/superpowers/specs/2026-09-07-s37-verification-w2-design.md`.
+
+**Register questions for both reviewers, up front:**
+
+- **sw — is `simu` right for a *video* call?** Every call string uses it (`Simu ya uthibitisho`,
+  `Anzisha simu na {count}`, `Kwenye simu`). In everyday Swahili *simu* reads first as *phone*. If a
+  reader would picture a voice phone call rather than a video call, we need `simu ya video` or
+  `mkutano wa video` in the titles at least. This is the single most consequential question in this
+  batch: the whole feature is a **video** call, and ruling F10 warns people about camera and data use
+  precisely because it is video.
+- **fr / sw — OPEN QUESTION: the `{count}` forms read as plural and are wrong at a count of 1.**
+  `'{joined} sur {total} ont rejoint'` and `'{verified} sur {total} ont confirmé'` were written on the
+  belief that they use an invariant verb, citing `mandate.turnoutLine` as precedent. That belief does
+  not hold up: "ont" is the PLURAL form of *avoir*, and at `joined = 1` French wants "a rejoint," not
+  "ont rejoint" — the cited precedent is not actually parallel, since it keeps a plural noun
+  (`membres`) anchoring the phrase, which these strings drop. The sw strings have the same shape
+  (`wamejiunga` / `wamethibitisha` are plural-agreement forms). This matters concretely: a count of 1
+  is exactly the state that enables the Start button, so the incorrect form is not an edge case.
+  **We have not changed the fr/sw strings** — that decision needs the native speaker this packet
+  exists to reach. Please give us a phrasing that is correct at every count. One option already in
+  the house style: a fixed noun-phrase label ahead of the numbers, so no verb needs to agree with the
+  runtime count at all — `hub.progress` does this (`'Approbations reçues : {count} sur {threshold}'`).
+  Whether that pattern, a genuinely invariant construction, or something else reads best here is your
+  call.
+- **fr — `garant` continues to sit next to S36's `parrainé`.** The waiting room says
+  `En attente des garants`; S36's open question about settling on ONE family (*garant* vs *parrainage*)
+  now spans two waves. A decision here would let us normalise both at once.
+- **sw — `kudhamini` / `Amethibitishwa` vs `wamethibitisha`.** The count strings switch noun-class
+  agreement between singular (`Amejiunga`, `Amethibitishwa`) on a row badge and plural
+  (`wamejiunga`, `wamethibitisha`) in the running count. That is believed correct — please confirm.
+- **Both — the honesty lines are load-bearing, not boilerplate.** `verification.call.demoNote` and
+  `verification.call.demoNoteVerifier` are the only text telling a user that no real call happens, the
+  camera and mic stay off, and (for a verifier) that the person they are judging is a sample profile.
+  They must read as plainly, obviously true to a non-technical reader — not as a disclaimer people skim.
+  Two separate strings exist deliberately: the candidate's version would be FALSE for a verifier, who
+  verifies by hand rather than watching members verify automatically.
+- **fr — `Démo :` keeps the French space before the colon.** Intentional; confirm it matches house
+  typography across the overlay.
+
+**Copy that changed meaning during the session** (all from review findings, noted so a reviewer does
+not read them as drafting churn): `demoNote` gained the microphone (it previously disclosed only the
+camera); `verifiedCount` counts *joined* verifiers rather than invited, so a call with a non-joining
+member cannot announce "3 of 4 verified" as complete; and the summary gained
+`summaryVerifiedName` / `summaryLeftEarly` because the shared candidate-framed copy read as
+self-verification in the verifier role.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `verification.call.availableNow` | Available now | Disponibles maintenant | Wanaopatikana sasa |
+| `verification.call.backToHub` | Back to verification | Retour à la vérification | Rudi kwenye uthibitisho |
+| `verification.call.bandwidth` | Uses your camera and mobile data. | Utilise votre caméra et vos données mobiles. | Inatumia kamera yako na data ya simu. |
+| `verification.call.bandwidthLink` | No camera? Ask a member to vouch for you instead. | Pas de caméra ? Demandez plutôt à un membre de se porter garant pour vous. | Huna kamera? Mwombe mwanachama akudhamini badala yake. |
+| `verification.call.camera` | Turn off camera | Désactiver la caméra | Zima kamera |
+| `verification.call.cameraOff` | Turn on camera | Activer la caméra | Washa kamera |
+| `verification.call.completeBody` | This call has finished. Thanks for taking part. | Cet appel est terminé. Merci d’y avoir participé. | Simu hii imekamilika. Asante kwa kushiriki. |
+| `verification.call.completeTitle` | Verification complete | Vérification terminée | Uthibitisho umekamilika |
+| `verification.call.demoNote` | — | Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et ces membres rejoignent et vérifient automatiquement. | Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na wanachama hawa hujiunga na kuthibitisha kiotomatiki. |
+| `verification.call.demoNoteVerifier` | — | Démo : aucun appel réel n’est passé — votre caméra et votre micro restent éteints, et la personne ci-dessus est un profil d’exemple : la vérifier ne change rien en dehors de cette démo. | Demo: hakuna simu halisi inayopigwa — kamera na mikrofoni yako zinabaki zimezimwa, na mtu aliye hapo juu ni wasifu wa mfano, hivyo kumthibitisha hakubadilishi chochote nje ya demo hii. |
+| `verification.call.deselect` | Deselect | Désélectionner | Ondoa uchaguzi |
+| `verification.call.inCallTitle` | On the call | En appel | Kwenye simu |
+| `verification.call.joined` | Joined | A rejoint | Amejiunga |
+| `verification.call.joinedCount` | {joined} of {total} joined | {joined} sur {total} ont rejoint | {joined} kati ya {total} wamejiunga |
+| `verification.call.leave` | Leave call | Quitter l’appel | Ondoka kwenye simu |
+| `verification.call.mute` | Mute | Couper le micro | Zima mikrofoni |
+| `verification.call.pickerEmpty` | No one is available right now. | Personne n’est disponible pour le moment. | Hakuna mtu anayepatikana kwa sasa. |
+| `verification.call.pickerEmptyCta` | Ask a member to vouch instead | Demander à un membre de se porter garant | Mwombe mwanachama akudhamini |
+| `verification.call.refresh` | Refresh | Actualiser | Sasisha |
+| `verification.call.returningIn` | Returning to verification in {n}s | Retour à la vérification dans {n} s | Unarudi kwenye uthibitisho baada ya sekunde {n} |
+| `verification.call.selected` | Select | Sélectionner | Chagua |
+| `verification.call.start` | Start | Démarrer | Anza |
+| `verification.call.startWith` | Start call with {count} | Démarrer l’appel avec {count} | Anzisha simu na {count} |
+| `verification.call.statusCameraOff` | Camera off | Caméra désactivée | Kamera imezimwa |
+| `verification.call.statusMuted` | Muted | Micro coupé | Mikrofoni imezimwa |
+| `verification.call.summaryLeftEarly` | You left before verifying {name}. | Vous avez quitté l’appel avant de vérifier {name}. | Umeondoka kabla ya kumthibitisha {name}. |
+| `verification.call.summaryNext` | Ask a member to vouch | Demander à un membre de se porter garant | Mwombe mwanachama akudhamini |
+| `verification.call.summaryNone` | Nobody confirmed on this call. | Personne n’a confirmé pendant cet appel. | Hakuna aliyethibitisha kwenye simu hii. |
+| `verification.call.summaryTitle` | Call summary | Résumé de l’appel | Muhtasari wa simu |
+| `verification.call.summaryVerifiedName` | You verified {name}. | Vous avez vérifié {name}. | Umemthibitisha {name}. |
+| `verification.call.summaryVerifiers` | Verifiers who confirmed | Garants qui ont confirmé | Waliothibitisha |
+| `verification.call.timeoutBody` | — | Cela fait quelques minutes et personne de nouveau n’a rejoint. Vous pouvez démarrer avec les personnes présentes, ou annuler et réessayer plus tard. | Imepita dakika kadhaa na hakuna mtu mpya aliyejiunga. Unaweza kuanza na waliopo, au ughairi na ujaribu tena baadaye. |
+| `verification.call.timeoutEmpty` | Nobody joined this time. Cancel and ask a member to vouch for you instead. | Personne n’a rejoint cette fois. Annulez et demandez à un membre de se porter garant pour vous à la place. | Hakuna aliyejiunga wakati huu. Ghairi na umwombe mwanachama akudhamini badala yake. |
+| `verification.call.timeoutTitle` | Nobody else is joining | Personne d’autre ne rejoint | Hakuna mwingine anayejiunga |
+| `verification.call.title` | — | Appel de vérification | Simu ya uthibitisho |
+| `verification.call.unmute` | Unmute | Réactiver le micro | Washa mikrofoni |
+| `verification.call.verifiedCount` | {verified} of {total} verified | {verified} sur {total} ont confirmé | {verified} kati ya {total} wamethibitisha |
+| `verification.call.verifyConfirmed` | Verified | Vérifié | Imethibitishwa |
+| `verification.call.verifyFailed` | — | La vérification n’a pas abouti. Réessayez. | Uthibitisho haukufanikiwa. Jaribu tena. |
+| `verification.call.verifyIdle` | Verify | Vérifier | Thibitisha |
+| `verification.call.verifyLoading` | Verifying… | Vérification… | Inathibitisha… |
+| `verification.call.waiting` | Waiting | En attente | Anasubiri |
+| `verification.call.waitingTitle` | Waiting for verifiers | En attente des garants | Inasubiri wanachama |
+| `verification.pathway.call.body` | Get verified live by video with members who join your call. | Faites-vous vérifier en direct par vidéo avec des membres qui rejoignent votre appel. | Thibitishwa moja kwa moja kwa video na wanachama wanaojiunga na simu yako. |
+| `verification.pathway.call.cta` | Start a call | Démarrer un appel | Anzisha simu |
+| `verification.pathway.call.title` | Video call | Appel vidéo | Simu ya video |
+
+## Session 38 — daily verification (machine draft; native review required)
+
+The daily route adds scheduled-session, selection, observer and result copy. The French and Swahili
+entries below preserve interpolation tokens and passed the repository parity checker, but have not
+been approved by native speakers. Please review the volunteer/candidate distinction, the neutral
+observer wording, and whether the count phrases remain natural at 0, 1 and 4. The S38 reminder
+sentence below is retained as a struck historical snapshot; S39 replaced it with a real tab-lifetime
+in-app reminder and the current review target appears in the Session 39 section.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `verification.daily.title` | Daily verification | Vérification quotidienne | Uthibitisho wa kila siku |
+| `verification.daily.schedule` | Every day at 21:00 UTC ({localTime} your time) | Chaque jour à 21 h 00 UTC ({localTime} chez vous) | Kila siku saa 21:00 UTC ({localTime} kwa saa yako) |
+| `verification.daily.startsIn` | Session starts in {time} | La session commence dans {time} | Kikao kinaanza baada ya {time} |
+| `verification.daily.selectingIn` | Selecting verifiers in {time} | Sélection des garants dans {time} | Wathibitishaji watachaguliwa baada ya {time} |
+| `verification.daily.timeHours` | {hours}h {minutes}m {seconds}s | {hours} h {minutes} min {seconds} s | saa {hours}, dk {minutes}, sek {seconds} |
+| `verification.daily.timeMinutes` | {minutes}m {seconds}s | {minutes} min {seconds} s | dk {minutes}, sek {seconds} |
+| `verification.daily.demoNote` | Demo: this session uses sample profiles and simulated selection and calls. | Démo : cette session utilise des profils d’exemple, ainsi qu’une sélection et des appels simulés. | Demo: kikao hiki kinatumia wasifu wa mfano pamoja na uchaguzi na simu zilizoigwa. |
+| `verification.daily.reminder` | Set reminder (demo) | Définir un rappel (démo) | Weka ukumbusho (demo) |
+| ~~`verification.daily.reminderHelp`~~ **[superseded S39]** | ~~This demo saves your choice while this tab stays open; it sends no reminder.~~ | ~~Cette démo mémorise votre choix tant que cet onglet reste ouvert ; elle n’envoie aucun rappel.~~ | ~~Demo hii huhifadhi chaguo lako wakati kichupo hiki kipo wazi; haitumi ukumbusho.~~ |
+| `verification.daily.joinedCount` | People in this session: {count} | Présence dans cette session : {count} | Waliojiunga na kikao hiki: {count} |
+| `verification.daily.candidateTitle` | Your verification group is ready | Votre groupe de vérification est prêt | Kundi lako la uthibitisho liko tayari |
+| `verification.daily.selectedTitle` | You've been selected to help verify {name} | Vous avez été sélectionné·e pour aider à vérifier {name} | Umechaguliwa kusaidia kumthibitisha {name} |
+| `verification.daily.observerTitle` | Other volunteers were selected | D’autres volontaires ont été sélectionnés | Wajitolea wengine wamechaguliwa |
+| `verification.daily.observerBody` | The selected group is verifying the sample member now. You can leave at any time. | Le groupe sélectionné vérifie maintenant le membre d’exemple. Vous pouvez partir à tout moment. | Kundi lililochaguliwa linamthibitisha mwanachama wa mfano sasa. Unaweza kuondoka wakati wowote. |
+| `verification.daily.unavailableTitle` | No verification group is available | Aucun groupe de vérification disponible | Hakuna kundi la uthibitisho linalopatikana |
+| `verification.daily.partialProgress` | The approvals from this session were recorded, but nobody crossed four yet. | Les approbations de cette session ont été enregistrées, mais personne n’a encore atteint quatre. | Idhini za kikao hiki zimerekodiwa, lakini bado hakuna aliyefikisha nne. |
+| `verification.daily.verifiedCount` | New members verified in this demo session: {count} | Nouveaux membres vérifiés dans cette session de démonstration : {count} | Wanachama wapya waliothibitishwa katika kikao hiki cha demo: {count} |
+| `verification.pathway.daily.body` | Join the scheduled daily group and receive approvals from selected verified volunteers. | Rejoignez le groupe quotidien programmé et recevez des approbations de volontaires vérifiés sélectionnés. | Jiunge na kundi la kila siku lililopangwa na upokee idhini kutoka kwa wajitolea waliothibitishwa waliochaguliwa. |
+| `verification.hub.dailyVolunteer` | Join the daily session to help verify a member | Rejoindre la session quotidienne pour aider à vérifier un membre | Jiunge na kikao cha kila siku ili kusaidia kumthibitisha mwanachama |
+| `verification.method.call` | Vouched by video call | Caution reçue par appel vidéo | Alikudhamini kupitia simu ya video |
+| `verification.method.daily` | Vouched in the daily session | Caution reçue pendant la session quotidienne | Alikudhamini katika kikao cha kila siku |
+
+Also review the short action/status family in `src/i18n/fr.ts` and `src/i18n/sw.ts` under the
+`Daily verification (S38 Wave 3)` marker: pre-session, join/back/leave, lobby presence, selected
+roster, call entry, result dismissal/stay, error/retry context, pathway labels, and the eight
+development walkthrough labels. These are conventional UI labels; the table above contains the
+meaning-bearing claims and every new interpolation.
+
+## Session 39 (2026-09-15) — Notification centre and bell
+
+**+36 keys and 1 reframed key** (parity 1413 → 1449 in both fr and sw; identical key sets and
+matching interpolation tokens). The centre presents seven event families and independently
+controlled read state. Existing `notifications.title`, `notifications.empty`,
+`notifications.markAllRead` and `notifications.anotherInitiative` are reused unchanged.
+
+**Register questions for both reviewers:**
+
+- **Bell-count grammar:** `notifications.bellUnread` must work unchanged at 1, 9 and 100; the UI
+  deliberately uses one agreement-free string rather than singular/plural branches.
+- **Read state:** confirm that "read/unread" clearly means message state, especially French feminine
+  agreement with *notification* and Swahili noun-class agreement with *arifa*.
+- **Demo expiry:** `callInvite.bodyEnded` and `verifierSelected.bodyEnded` must clearly say the old
+  demo event ended and is no longer actionable, without implying a real person waited.
+- **Call-invite register:** confirm that the short invitation title/action sounds natural for an
+  in-app video verification call, continuing S37's open `simu` vs `simu ya video` question.
+- **Reminder disclosure:** `verification.daily.reminderHelp` changed meaning. It must say the demo
+  can notify elsewhere inside Gloki only while the current tab remains open; reload or tab closure
+  clears it. It must not imply browser/OS or background delivery.
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `notifications.subtitle` | Updates from your verification activity and communities. | Les mises à jour de vos activités de vérification et de vos communautés. | Taarifa mpya kutoka kwenye shughuli zako za uthibitisho na jumuiya. |
+| `notifications.emptyBody` | Vouch requests, calls and community updates will appear here. | Les demandes de caution, les appels et les mises à jour des communautés apparaîtront ici. | Maombi ya udhamini, simu na taarifa mpya za jumuiya zitaonekana hapa. |
+| `notifications.unread` | Unread | Non lue | Haijasomwa |
+| `notifications.markRead` | Mark as read | Marquer comme lue | Weka imesomwa |
+| `notifications.markUnread` | Mark as unread | Marquer comme non lue | Weka haijasomwa |
+| `notifications.status.read` | Notification marked as read. | Notification marquée comme lue. | Arifa imewekwa kuwa imesomwa. |
+| `notifications.status.unread` | Notification marked as unread. | Notification marquée comme non lue. | Arifa imewekwa kuwa haijasomwa. |
+| `notifications.status.allRead` | All notifications marked as read. | Toutes les notifications ont été marquées comme lues. | Arifa zote zimewekwa kuwa zimesomwa. |
+| `notifications.memberFallback` | a member | un membre | mwanachama |
+| `notifications.mergeAccepted.body` | An initiative you supported merged into {title}. | Une initiative que vous souteniez a fusionné avec {title}. | Mpango uliouunga mkono umeunganishwa na {title}. |
+| `notifications.mergeAccepted.action` | View initiative | Voir l’initiative | Ona mpango |
+| `notifications.verificationRequest.title` | Vouch request | Demande de caution | Ombi la udhamini |
+| `notifications.verificationRequest.body` | A vouch request from {name} is waiting for you. | Demande de caution envoyée par {name}. | Ombi la udhamini kutoka kwa {name} linakusubiri. |
+| `notifications.verificationRequest.bodyEnded` | This vouch request from {name} is no longer pending. | La demande de caution envoyée par {name} n’est plus en attente. | Ombi hili la udhamini kutoka kwa {name} halisubiri tena. |
+| `notifications.verificationRequest.action` | Review request | Examiner la demande | Kagua ombi |
+| `notifications.approvalReceived.title` | Vouch received | Caution reçue | Udhamini umepokelewa |
+| `notifications.approvalReceived.body` | A vouch from {name} was added to your verification. | Caution accordée par {name}. | Udhamini kutoka kwa {name} umeongezwa kwenye uthibitisho wako. |
+| `notifications.approvalReceived.action` | View verification | Voir la vérification | Ona uthibitisho |
+| `notifications.dailyReminder.title` | Daily verification is opening | La vérification quotidienne va commencer | Uthibitisho wa kila siku unakaribia kuanza |
+| `notifications.dailyReminder.body` | Your daily verification session is ready to join. | Votre session de vérification quotidienne est prête. | Kikao chako cha uthibitisho wa kila siku kiko tayari. |
+| `notifications.dailyReminder.action` | Join daily session | Rejoindre la session | Jiunge na kikao |
+| `notifications.callInvite.title` | Verification call invitation | Invitation à un appel de vérification | Mwaliko wa simu ya uthibitisho |
+| `notifications.callInvite.body` | A verification call with {name} is ready to join. | Un appel de vérification avec {name} est prêt à démarrer. | Simu ya uthibitisho na {name} iko tayari kuanza. |
+| `notifications.callInvite.bodyEnded` | This demo call invitation from {name} has ended. | L’invitation de démonstration associée à {name} a expiré. | Mwaliko huu wa simu ya demo kutoka kwa {name} umeisha. |
+| `notifications.callInvite.action` | Join call | Rejoindre l’appel | Jiunge na simu |
+| `notifications.verifierSelected.title` | You were selected | Vous avez été sélectionné·e | Umechaguliwa |
+| `notifications.verifierSelected.body` | {name}'s daily verification session is ready. | La session de vérification quotidienne avec {name} est prête. | Kikao cha uthibitisho wa kila siku na {name} kiko tayari. |
+| `notifications.verifierSelected.bodyEnded` | This demo verifier selection for {name} has ended. | La sélection de garant·e de démonstration avec {name} a expiré. | Uchaguzi huu wa mdhamini wa demo kwa {name} umeisha. |
+| `notifications.verifierSelected.action` | Open daily session | Ouvrir la session quotidienne | Fungua kikao cha kila siku |
+| `notifications.sessionThanks.title` | Thanks for taking part | Merci pour votre participation | Asante kwa kushiriki |
+| `notifications.sessionThanks.body` | Thanks for taking part in today’s daily verification session. | Merci d’avoir participé à la session de vérification quotidienne. | Asante kwa kushiriki katika kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.sessionThanks.bodyCandidate` | Thanks for completing today’s daily verification session. | Merci d’avoir terminé la session de vérification quotidienne. | Asante kwa kukamilisha kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.sessionThanks.bodyCandidateVerified` | Thanks for completing today’s session. You’re now verified. | Merci d’avoir terminé la session. Votre compte est maintenant vérifié. | Asante kwa kukamilisha kikao cha leo. Akaunti yako sasa imethibitishwa. |
+| `notifications.sessionThanks.bodyVerifier` | Thanks for helping verify a candidate in today’s daily session. | Merci d’avoir aidé à vérifier une personne lors de la session quotidienne. | Asante kwa kusaidia kumthibitisha mshiriki katika kikao cha leo. |
+| `notifications.sessionThanks.bodyObserver` | Thanks for staying with today’s daily verification session. | Merci d’être resté·e pendant la session de vérification quotidienne. | Asante kwa kubaki katika kikao cha leo cha uthibitisho wa kila siku. |
+| `notifications.bellUnread` | Notifications, {count} unread | Notifications, non lues : {count} | Arifa, {count} hazijasomwa |
+| `verification.daily.reminderHelp` *(reframed)* | This demo can remind you elsewhere in Gloki while this tab stays open. Reloading or closing the tab clears it. | Cette démo peut vous rappeler ailleurs dans Gloki tant que cet onglet reste ouvert. Le rechargement ou la fermeture de l’onglet efface le rappel. | Demo hii inaweza kukukumbusha mahali pengine ndani ya Gloki wakati kichupo hiki kipo wazi. Kupakia upya au kufunga kichupo huondoa ukumbusho. |
+
+All 37 cited keys were cross-checked against both overlays at S39 HEAD. The 360px browser pass
+covered English, French and Swahili with no horizontal overflow or exposed interpolation tokens;
+native register and idiom remain intentionally open for human review.
+
+## Session 40 (2026-09-16) — conviction strength accrual
+
+**9 changed/new keys.** The repository parity checker reports `fr = sw = 1455` keys, with identical
+key sets and matching interpolation tokens (`RESULT: PARITY OK`). English remains the inline fallback.
+The 360px browser pass covered English, French and Swahili in light and dark modes; the strings below
+wrapped without clipping, and the duration controls retained their 44px minimum height.
+
+Please answer these three meaning questions before polishing style:
+
+1. Do French *force* and Swahili *nguvu* read as civic support strength rather than physical force?
+2. Does “applied immediately” clearly distinguish the immutable legacy model without sounding like
+   an error or warning?
+3. Does the modern shortening sentence unmistakably say that accrued strength returns to `1`?
+
+| Key | English | French | Swahili |
+|---|---|---|---|
+| `mechanisms.conviction.intro` | Every backing starts at 1 strength and gains 1 point for every 30 days it is held, up to the maximum for your commitment. | Chaque soutien commence avec une force de 1 et gagne 1 point tous les 30 jours où il est maintenu, jusqu’au maximum de votre engagement. | Kila uungaji mkono huanza na nguvu 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea, hadi kiwango cha juu cha ahadi yako. |
+| `mechanisms.conviction.maxStrength` | Maximum strength: {strength} | Force maximale : {strength} | Nguvu ya juu zaidi: {strength} |
+| `mechanisms.conviction.currentStrength` | Current strength: {current} of {max} | Force actuelle : {current} sur {max} | Nguvu ya sasa: {current} kati ya {max} |
+| `mechanisms.conviction.legacyIntro` | This community uses the earlier model: the full strength of your chosen commitment applies immediately. | Cette communauté utilise le modèle précédent : la force maximale de l’engagement choisi s’applique immédiatement. | Jumuiya hii inatumia mfumo wa awali: nguvu yote ya ahadi uliyochagua hutumika mara moja. |
+| `mechanisms.conviction.legacyNotice` | This community uses the earlier instant-strength model. | Cette communauté utilise l’ancien modèle de force immédiate. | Jumuiya hii inatumia mfumo wa awali wa nguvu ya papo hapo. |
+| `mechanisms.conviction.legacyStrength` | Current strength: {strength} (applied immediately) | Force actuelle : {strength} (appliquée immédiatement) | Nguvu ya sasa: {strength} (imetumika mara moja) |
+| `mechanisms.conviction.how2` | Strength starts at 1 and gains 1 point for every 30 days you keep backing, up to the maximum for your chosen commitment. | La force commence à 1 et gagne 1 point tous les 30 jours pendant lesquels vous maintenez votre soutien, jusqu’au maximum de l’engagement choisi. | Nguvu huanza kwa 1 na huongezeka kwa pointi 1 kwa kila siku 30 unapoendelea kuunga mkono, hadi kiwango cha juu cha ahadi uliyochagua. |
+| `mechanisms.conviction.how3` | You can change or withdraw at any time. Committing for longer keeps your original start date; shortening restarts your strength at 1. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir ramène la force à 1. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda hurudisha nguvu hadi 1. |
+| `mechanisms.conviction.legacyHow3` | You can change or withdraw at any time. Committing for longer keeps your original backing date; shortening restarts that date. | Vous pouvez modifier ou retirer votre soutien à tout moment. Un engagement plus long conserve la date de départ ; le raccourcir réinitialise cette date. | Unaweza kubadilisha au kuondoa uungaji mkono wakati wowote. Kuongeza muda huhifadhi tarehe ya mwanzo; kupunguza muda huanzisha tarehe hiyo upya. |

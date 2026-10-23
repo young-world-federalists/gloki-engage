@@ -1,0 +1,103 @@
+@use '../../../styles/variables' as *;
+
+.page,
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.page {
+  padding-top: $spacing-lg;
+}
+
+.title {
+  margin: 0;
+  color: $gray-900;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+
+  @include dark { color: $dark-text; }
+}
+
+.copy,
+.hint,
+.demoNote,
+.status,
+.schedule p {
+  margin: 0;
+  color: $gray-600;
+  font-size: $text-sm;
+  line-height: 1.5;
+
+  @include dark { color: $dark-text-secondary; }
+}
+
+.demoNote {
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  background: $gray-50;
+
+  @include dark { background: $dark-surface; }
+}
+
+.schedule {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.schedule svg {
+  flex: 0 0 auto;
+  color: $primary;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 44px;
+  color: $gray-800;
+  font-size: $text-sm;
+  cursor: pointer;
+
+  input { width: 20px; height: 20px; accent-color: $primary; }
+  @include dark { color: $dark-text; }
+}
+
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.textLink {
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  text-decoration: underline;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @include dark { color: $primary-on-dark; }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

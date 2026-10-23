@@ -14,6 +14,19 @@ const ALLOWED_STAGE_KEYS = [
   'mergeContractId',
 ];
 
+interface InitiativeRolesState {
+  coAuthors: string[];
+  experts: string[];
+  endorsements: Record<string, string[]>;
+  endorsementCounts: Record<string, number>;
+  status: 'active' | 'merged_into' | 'archived';
+  mergedInto: string | null;
+}
+
+function defaultRoles(): InitiativeRolesState {
+  return { coAuthors: [], experts: [], endorsements: {}, endorsementCounts: {}, status: 'active', mergedInto: null };
+}
+
 interface InitiativeState {
   details: Record<string, unknown>;
   stage: string;
@@ -25,6 +38,7 @@ interface InitiativeState {
   gaps: unknown[];
   steps: unknown[];
   properties: Record<string, unknown>;
+  roles?: InitiativeRolesState;
 }
 
 function defaultState(): InitiativeState {
@@ -95,6 +109,10 @@ export function initiativeRead(contractId: string, method: IMethod, _caller: str
       };
     case 'get_properties':
       return s.properties;
+    case 'get_roles': {
+      const r = s.roles ?? defaultRoles();
+      return { author: (s.details.author as string | undefined) ?? '', ...r };
+    }
     default:
       return null;
   }
@@ -215,6 +233,38 @@ export function initiativeWrite(contractId: string, method: IMethod, caller: str
         ...s,
         properties: { ...s.properties, [key]: value },
       }));
+      return null;
+    }
+    case 'endorse_expert': {
+      const publicKey = method.values?.public_key as string | undefined;
+      if (!publicKey) return null;
+      updateState<InitiativeState>(contractId, (s) => {
+        const base = { ...defaultState(), ...s };
+        const roles = base.roles ?? defaultRoles();
+        const endorsements = { ...roles.endorsements };
+        const mine = endorsements[caller] ?? [];
+        endorsements[caller] = mine.includes(publicKey) ? mine : [...mine, publicKey];
+        const count = Object.values(endorsements).filter((list) => list.includes(publicKey)).length;
+        const endorsementCounts = { ...roles.endorsementCounts, [publicKey]: count };
+        const experts = roles.experts.includes(publicKey) ? roles.experts : [...roles.experts, publicKey];
+        return { ...base, roles: { ...roles, endorsements, endorsementCounts, experts } };
+      });
+      return null;
+    }
+    case 'unendorse_expert': {
+      const publicKey = method.values?.public_key as string | undefined;
+      if (!publicKey) return null;
+      updateState<InitiativeState>(contractId, (s) => {
+        const base = { ...defaultState(), ...s };
+        const roles = base.roles ?? defaultRoles();
+        const endorsements = { ...roles.endorsements };
+        const mine = endorsements[caller] ?? [];
+        endorsements[caller] = mine.filter((key) => key !== publicKey);
+        const count = Object.values(endorsements).filter((list) => list.includes(publicKey)).length;
+        const endorsementCounts = { ...roles.endorsementCounts, [publicKey]: count };
+        // Python's unendorse_expert does not remove `public_key` from `experts` — mirrored here.
+        return { ...base, roles: { ...roles, endorsements, endorsementCounts } };
+      });
       return null;
     }
     default:

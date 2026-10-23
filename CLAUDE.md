@@ -1,6 +1,6 @@
 # Communities2
 
-**Branch:** `ui` — deployed to GitHub Pages (UI-only mockup; no backend)
+**Branch:** `ui` — the UI branch (built against stubs). **Deploys come from Ouri's `server-side` branch** (since 2026-09-02): Ouri merges `ui` → `server-side`; GitHub Pages builds on every push to `server-side`. A push to `ui` does NOT deploy.
 
 > Architecture, the 8 flows, learnings, and known limitations live in
 > **[ARCHITECTURE.md](./ARCHITECTURE.md)**. UI standards live in
@@ -9,7 +9,7 @@
 
 ## Branch model & data-layer seam
 
-Three-branch flow: **`main`** (live / upstream) → **`new-features`** (Ouri's layer — real server calls) → **`ui`** (this branch — UI built against **stubs**). Develop on `ui`; at a milestone Ouri derives `new-features` from `ui`, wires the real server calls, and pushes to `main`. Ouri does not want step-by-step PR review — keep `ui` runnable.
+Current flow (since 2026-09-02, S34 D11): **`ui`** (this branch — UI built against **stubs**) → **`server-side`** (Ouri's branch — merges `ui` in, wires the real server calls; **this is what deploys**) → **`main`** (Ouri's stale old line, currently at `d28594a`). Develop on `ui`; Ouri merges `ui` → `server-side` at will (PRs #22/#23 precedent) and that push triggers the GitHub Pages deploy. Ouri does not want step-by-step PR review — keep `ui` runnable.
 
 **The seam rule:** every component/page reads & writes through `src/services/api.ts` (`contractRead`/`contractWrite`/`deployContract`/`joinContract`), currently backed by the **`src/services/demo/` mock layer**. Never call a real server from a component. Keep the UI↔service boundary clean so swapping stubs → server calls is a localized change inside `src/services/` that never touches components.
 
@@ -54,7 +54,8 @@ Three-branch flow: **`main`** (live / upstream) → **`new-features`** (Ouri's l
 
 ## Deployment
 
-- GitHub Pages: configured via repo Settings → Pages, source branch `ui`
+- GitHub Pages builds from **`server-side`** (`.github/workflows/deploy.yml`, trigger `push: branches: [server-side]` + `workflow_dispatch`). `ui` → `server-side` is Ouri's merge (PRs #22/#23 precedent).
 - `public/404.html` handles SPA deep-link routing
-- **Production build runs `tsc -b`** — fix all TS errors before pushing
+- **Production build runs `tsc -b`** — fix all TS errors before pushing; Ouri's merge inherits any red build
 - Contracts are immutable after deploy — new methods require new communities
+- The real initiative contract lives on `server-side` at `src/assets/contracts/gloki_engage_initiative_contract.py`; contract additions made on `ui` are delivered as a patch under `docs/contracts/` + `docs/FOR_OURI_seam.md`

@@ -1,0 +1,22 @@
+@use '../../styles/variables' as *;
+
+// Shared cause-alignment line (S35 F2, Task 11) — reused by SolutionsBoard,
+// the QV ballot + results, VotePreview and MandateCard. Mirrors the
+// .causeChip/.causeLine pair SolutionsBoard.module.scss carried before this
+// component existed.
+.causeLine { display: flex; align-items: center; gap: $spacing-sm; flex-wrap: wrap; margin-top: $spacing-xs; }
+.text {
+  margin: 0;
+  font-size: $text-xs;
+  color: $gray-600;
+  // Clamp to two lines — cause text can run to a full sentence; the native
+  // `title` attribute carries the untruncated text as a tooltip.
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@include dark {
+  .text { color: $dark-text-secondary; }
+}

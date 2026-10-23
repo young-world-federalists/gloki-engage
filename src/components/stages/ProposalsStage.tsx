@@ -13,9 +13,12 @@ export interface ProposalsStageProps {
   variant: StageVariant;
   /** Active member count — denominator for the solutions threshold. */
   communityMemberCount?: number;
+  /** Community display name, threaded through to the Top causes panel's
+   *  discussion status badge (S35 fix-round F4 pattern). */
+  communityName?: string;
 }
 
-const ProposalsStage: React.FC<ProposalsStageProps> = ({ initiativeId, communityId, communityMemberCount }) => {
+const ProposalsStage: React.FC<ProposalsStageProps> = ({ initiativeId, communityId, communityMemberCount, communityName }) => {
   const t = useT();
   return (
     <ErrorBoundary fallbackMessage={t('deliberation.proposals.error', 'Solutions encountered an error.')}>
@@ -23,6 +26,7 @@ const ProposalsStage: React.FC<ProposalsStageProps> = ({ initiativeId, community
         initiativeId={initiativeId}
         communityId={communityId}
         communityMemberCount={communityMemberCount}
+        communityName={communityName}
       />
     </ErrorBoundary>
   );

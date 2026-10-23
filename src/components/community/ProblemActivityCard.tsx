@@ -21,6 +21,9 @@ export interface ProblemActivityCardProps {
   hostAgent: string;
   expanded: boolean;
   onToggle: () => void;
+  /** Community display name, threaded through to the discussion status pill's
+   *  scoped Consensus sentence (S35 fix-round F4). */
+  communityName?: string;
 }
 
 /**
@@ -44,6 +47,7 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
   hostAgent,
   expanded,
   onToggle,
+  communityName,
 }) => {
   const t = useT();
   const dispatch = useAppDispatch();
@@ -108,6 +112,7 @@ const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
       expanded={expanded}
       onToggle={onToggle}
       stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
+      communityName={communityName}
       chinExtras={
         <ProblemChinExtras
           initiativeId={item.id}

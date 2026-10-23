@@ -1,0 +1,45 @@
+@use '../../../styles/variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  transition:
+    transform $transition-slow ease,
+    opacity $transition-slow ease;
+}
+
+.leaving {
+  transform: translateX($spacing-2xl);
+  opacity: 0;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.done {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $success-on-surface;
+
+  @include dark {
+    color: $success-on-dark;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .leaving {
+    transform: none;
+  }
+}

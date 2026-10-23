@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: 44px;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $gray-100;
+  list-style: none;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @include dark {
+    border-bottom-color: $dark-border;
+  }
+}
+
+.dot {
+  flex-shrink: 0;
+  width: $spacing-sm;
+  height: $spacing-sm;
+  border-radius: $radius-full;
+}
+
+.online {
+  background: $success;
+}
+
+.offline {
+  background: $gray-300;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.meta {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.action {
+  flex-shrink: 0;
+
+  // The row is 44px tall but a size="sm" Button is 32px — extend its hit area
+  // to the touch floor without changing the visual (DS Mobile Patterns; same
+  // ::after technique as Toast .dismiss).
+  button {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 44px;
+      transform: translate(-50%, -50%);
+    }
+  }
+}

@@ -23,8 +23,8 @@ Status tags used below:
 
 Jargon used throughout, defined once:
 - **The seam**: `src/services/api.ts` — every component reads/writes contracts through it, currently backed by the `src/services/demo/` mock layer (the "stub" layer).
-- **`ui` branch**: the active UI-mockup branch, deployed to GitHub Pages on every push. **A push to `ui` IS a production deploy** — Eston gates every push.
-- **`main`**: Ouri's (backend partner's) real-server line. Never merged or cherry-picked by Claude sessions.
+- **`ui` branch**: the active UI-mockup branch. **A push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which deploys. Never push without Eston's explicit go.**
+- **`main`**: stale — no longer the deploy target (see `server-side` above). Never merged or cherry-picked by Claude sessions.
 - **DEMO_VERSION**: seed-version string at `src/services/demo/mockApi.ts:17` (currently `'global-v16'`); bumped only when seed fixtures change.
 - **Eras**: work happened in named waves — *Lanes A–G* (parallel worktrees, late May 2026), *Batches 5–17* (early-mid June), *Waves 0–5* (hierarchy/a11y, June 20–21), *Sessions S1–S15* (June 26 – July 2). Commit prefixes like `(s7)` and grep-able names like "Lane F" refer to these.
 
@@ -36,7 +36,7 @@ Jargon used throughout, defined once:
 
 - **Era 1 (Jul 2025 – Apr 2026)**: Ouri's original blockchain build — real server, Python contracts, ~40 commits, self-described "unstable commit" era (`2e8a8e5`, `492368c` "currently not working but we cant go back").
 - **Era 2 (2026-04-25 → now)**: commit `1642822` "feat(ui-only): reset to main + apply hardcoded UI snapshot" **birthed the ui stub line** — stripped the real-network api.ts, routed everything through the demo seam. ~400 commits landed in the following five weeks.
-- Consequence: `ui` was reset from a *snapshot*, not branched-and-merged, so **ui and main can never fast-forward into each other**. At last count ui is 393 ahead of main; main's 2 unique commits (`d28594a`, `459e084` — Ouri's real-coin fundraising work) are **Ouri's, never to be cherry-picked into ui**. ui→main landing is Ouri's job via his `new-features` layer.
+- Consequence: `ui` was reset from a *snapshot*, not branched-and-merged, so **ui and main can never fast-forward into each other**. At last count ui is 393 ahead of main; main's 2 unique commits (`d28594a`, `459e084` — Ouri's real-coin fundraising work) are **Ouri's, never to be cherry-picked into ui**. ui→main landing is Ouri's job via his `server-side` layer (which deploys; `main` does not — D11).
 - **Recurring false alarm (hit at least 3 sessions)**: PR #20 (ui→main) shows an orange/red ✗. That is `mergeable: CONFLICTING` — the *expected* permanent divergence — **NOT a build failure**. `gh pr checks 20` shows build+deploy SUCCESS. Reassure, don't re-debug.
 
 ## 2. THE QV carry-over revert — never seed shared contract state from per-browser refs
@@ -155,3 +155,5 @@ Volatile facts and their re-verification one-liners:
 | PR #20 ✗ = conflict not build failure | `gh pr view 20 --json mergeable` ; `gh pr checks 20` |
 
 If a re-verify command disagrees with this file, the repo wins — update the entry and re-date this section.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).

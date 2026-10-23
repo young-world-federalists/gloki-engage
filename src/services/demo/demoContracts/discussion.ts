@@ -46,6 +46,7 @@ interface DiscussionState {
   comments: DiscussionComment[];
   statement: Statement;
   edits: Record<string, StoredEdit>;
+  commentVotes?: Record<string, { voter: string; commentId: string; direction: 'up' | 'down' }>; // key `${voter}:${commentId}` (F1)
 }
 
 function byId<T extends { id: string }>(items: readonly T[]): Record<string, T> {
@@ -75,6 +76,13 @@ function defaultState(): DiscussionState {
  */
 export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
   const now = Date.now();
+  // S35 (F3): seeded 1p1v up/down votes on ROOT comments, keyed `${voter}:${commentId}`
+  // to match the live `vote_comment` write path above — so the causes-status pill
+  // reads a real band on first load. Optional: a seed with no `votes` leaves this empty.
+  const commentVotes: NonNullable<DiscussionState['commentVotes']> = {};
+  for (const v of seed.votes ?? []) {
+    commentVotes[`${v.voter}:${v.commentId}`] = { voter: v.voter, commentId: v.commentId, direction: v.direction };
+  }
   writeState<DiscussionState>(contractId, {
     // Threaded-chat seed (S2): convert relative minutesAgo → absolute timestamps
     // at seed time; likes ride along (1p1v). The co-authoring group below stays
@@ -89,6 +97,7 @@ export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
     })),
     statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
     edits: byId(seed.edits),
+    commentVotes,
   });
 }
 
@@ -127,6 +136,8 @@ export function discussionRead(contractId: string, method: IMethod, _caller: str
       return s.statement;
     case 'get_edits':
       return Object.values(s.edits);
+    case 'get_comment_votes':
+      return s.commentVotes ?? {};
     default:
       return null;
   }
@@ -143,7 +154,8 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
         id: newId(),
         author: caller,
         text,
-        parentId: (method.values?.parentId as string | null | undefined) ?? null,
+        // discussionApi sends `parent_id` (wire name); accept the legacy camelCase too.
+        parentId: ((method.values?.parent_id ?? method.values?.parentId) as string | null | undefined) || null,
         timestamp: Date.now(),
         category: method.values?.category as DiscussionComment['category'],
         likes: [],
@@ -188,6 +200,23 @@ export function discussionWrite(contractId: string, method: IMethod, caller: str
           };
         }),
       }));
+      return null;
+    }
+    // S35 (D4/F1): 1p1v up/down on ROOT comments only — replies return without writing.
+    case 'vote_comment': {
+      const id = method.values?.comment_id as string | undefined;
+      const direction = method.values?.direction as 'up' | 'down' | 'none' | undefined;
+      if (!id || !direction) return null;
+      if (direction !== 'up' && direction !== 'down' && direction !== 'none') return null; // mirrors the Python guard
+      const target = (load(contractId).comments ?? []).find((c) => c.id === id);
+      if (!target || target.deleted || target.parentId) return null;
+      const key = `${caller}:${id}`;
+      updateState<DiscussionState>(contractId, (s) => {
+        const votes = { ...(s.commentVotes ?? {}) };
+        if (direction === 'none') delete votes[key];
+        else votes[key] = { voter: caller, commentId: id, direction };
+        return { ...defaultState(), ...s, commentVotes: votes };
+      });
       return null;
     }
 

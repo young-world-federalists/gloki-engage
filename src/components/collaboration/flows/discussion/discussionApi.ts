@@ -28,27 +28,34 @@ interface RawComment {
   sources?: unknown;
 }
 
-function normalizeTimestamp(raw: number | string | undefined): number {
+export function normalizeTimestamp(raw: number | string | undefined): number {
   if (typeof raw === 'number') return raw;
   if (typeof raw !== 'string' || !raw) return 0;
 
   // Gloki's `timestamp()` returns a packed digit string: YYYYMMDDHHMMSS + fractional digits.
   // Parse to a JS epoch ms if we can, else fall through.
-  if (/^\d{14,}$/.test(raw)) {
-    const year = parseInt(raw.slice(0, 4), 10);
-    const month = parseInt(raw.slice(4, 6), 10) - 1;
-    const day = parseInt(raw.slice(6, 8), 10);
-    const hour = parseInt(raw.slice(8, 10), 10);
-    const minute = parseInt(raw.slice(10, 12), 10);
-    const second = parseInt(raw.slice(12, 14), 10);
-    const fractional = raw.slice(14);
+  if (/^\d{14,}(\.\d+)?$/.test(raw)) {
+    const digits = raw.replace('.', '');
+    const year = parseInt(digits.slice(0, 4), 10);
+    const month = parseInt(digits.slice(4, 6), 10) - 1;
+    const day = parseInt(digits.slice(6, 8), 10);
+    const hour = parseInt(digits.slice(8, 10), 10);
+    const minute = parseInt(digits.slice(10, 12), 10);
+    const second = parseInt(digits.slice(12, 14), 10);
+    const fractional = digits.slice(14);
     const millis = fractional ? Math.floor(parseInt(fractional.padEnd(6, '0').slice(0, 6), 10) / 1000) : 0;
     const ms = Date.UTC(year, month, day, hour, minute, second, millis);
-    if (!Number.isNaN(ms)) return ms;
+    if (!Number.isNaN(ms)) {
+      if (ms > Date.now() + 3_155_760_000_000) return 0;
+      return ms;
+    }
   }
 
   const parsed = Number(raw);
-  if (!Number.isNaN(parsed)) return parsed;
+  if (!Number.isNaN(parsed)) {
+    if (parsed > Date.now() + 3_155_760_000_000) return 0;
+    return parsed;
+  }
   const asDate = Date.parse(raw);
   if (!Number.isNaN(asDate)) return asDate;
   return 0;
@@ -123,6 +130,29 @@ export async function likeComment(
     contractId,
     method: { name: 'like_comment', values: { comment_id: commentId } } as IMethod,
   });
+}
+
+export interface CommentVote { voter: string; commentId: string; direction: 'up' | 'down' }
+
+export async function voteComment(
+  serverUrl: string, publicKey: string, contractId: string,
+  commentId: string, direction: 'up' | 'down' | 'none',
+) {
+  return await contractWrite({
+    serverUrl, publicKey, contractId,
+    method: { name: 'vote_comment', values: { comment_id: commentId, direction } } as IMethod,
+  });
+}
+
+export async function getCommentVotes(serverUrl: string, publicKey: string, contractId: string): Promise<CommentVote[]> {
+  const raw = await contractRead({
+    serverUrl, publicKey, contractId,
+    method: { name: 'get_comment_votes', values: {} } as IMethod,
+  });
+  const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Partial<CommentVote>>;
+  return Object.values(obj)
+    .filter((v) => v && (v.direction === 'up' || v.direction === 'down') && typeof v.voter === 'string' && v.voter !== '' && typeof v.commentId === 'string' && v.commentId !== '')
+    .map((v) => ({ voter: v.voter, commentId: v.commentId, direction: v.direction as 'up' | 'down' }) as CommentVote);
 }
 
 export async function getComments(
