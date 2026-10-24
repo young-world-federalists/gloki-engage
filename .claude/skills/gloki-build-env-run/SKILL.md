@@ -233,10 +233,23 @@ curl -s 'http://localhost:2611/ibc/app/probe?action=is_exist_agent'   # → fals
 
 - If `up` fails with `open Dockerfile: no such file or directory`, the **pull** failed and
   compose fell back to `build: .`. Run `docker compose pull` and read that error.
-- **Cloud sessions:** the 2026-10-24 "IBC Docker setup" cloud session reported running the full
-  loop in its container, but its exact steps aren't in the repo. If `docker` is missing or a
-  pull is refused by the network policy, stop and report the exact error; don't hand-install
-  Mongo/Redis without Eston's go.
+- **Cloud sessions (verified 2026-10-25): the node does not run under the default network
+  policy.** What a cloud container has and needs:
+  - The Docker client, Compose and `dockerd` are installed, but the daemon isn't running
+    (`docker version` fails: no `/var/run/docker.sock`). The session runs as root, so start it
+    with `dockerd > /tmp/dockerd.log 2>&1 &` and wait for `docker info` (about 1 s).
+  - `mongo:7` and `redis:8` pull from Docker Hub. Retries can hit Docker Hub's rate limit
+    (`429 Too Many Requests`); images already pulled in the container stay.
+  - `ghcr.io/ouripoupko/ibc` does **not** pull: ghcr.io answers, but the image layers come from
+    `pkg-containers.githubusercontent.com`, which the proxy refuses (`403 Forbidden`). `up` then
+    shows only the `open Dockerfile` fallback error above.
+  - Fix (Eston's environment setting, not something a session can change): the cloud
+    environment's **Network access** → allow `ghcr.io` and `pkg-containers.githubusercontent.com`
+    (docs: code.claude.com/docs/en/cloud-environments#network-access). Not yet re-tested
+    with that change.
+  - Until then, stop at the refused pull and say so; don't hand-install Mongo/Redis or build
+    the ibc image from source without Eston's go. The 2026-10-24 "IBC Docker setup" session
+    that ran the full loop most likely had broader network access.
 - Don't edit `compose.yml` or the port binding: writes carry the identity key in the URL with
   no signature, so the node must stay on localhost.
 - ~280 MB at idle. `docker compose stop` pauses; `docker compose down -v` **wipes all data**.
