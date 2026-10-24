@@ -232,27 +232,30 @@ curl -s 'http://localhost:2611/ibc/app/probe?action=is_exist_agent'   # → fals
 ```
 
 - If `up` fails with `open Dockerfile: no such file or directory`, the **pull** failed and
-  compose fell back to `build: .`. Run `docker compose pull` and read that error.
-- **Cloud sessions (verified 2026-10-25): the node does not run under the default network
-  policy.** What a cloud container has and needs:
-  - The Docker client, Compose and `dockerd` are installed, but the daemon isn't running
-    (`docker version` fails: no `/var/run/docker.sock`). The session runs as root, so start it
-    with `dockerd > /tmp/dockerd.log 2>&1 &` and wait for `docker info` (about 1 s).
-  - `mongo:7` and `redis:8` pull from Docker Hub. Retries can hit Docker Hub's rate limit
-    (`429 Too Many Requests`); images already pulled in the container stay.
-  - `ghcr.io/ouripoupko/ibc` does **not** pull: ghcr.io answers, but the image layers come from
-    `pkg-containers.githubusercontent.com`, which the proxy refuses (`403 Forbidden`). `up` then
-    shows only the `open Dockerfile` fallback error above.
-  - Fix (Eston's environment setting, not something a session can change): the cloud
-    environment's **Network access** → allow `ghcr.io` and `pkg-containers.githubusercontent.com`
-    (docs: code.claude.com/docs/en/cloud-environments#network-access). Not yet re-tested
-    with that change.
-  - Until then, stop at the refused pull and say so; don't hand-install Mongo/Redis or build
-    the ibc image from source without Eston's go. The 2026-10-24 "IBC Docker setup" session
-    that ran the full loop most likely had broader network access.
+  compose fell back to `build: .`. Compose prints no pull error of its own, so run
+  `docker compose pull` and read that error: it names the real cause.
+- **Cloud sessions: the node works (verified 2026-10-25, smoke test passed)**, with two
+  conditions:
+  1. **Start the daemon first.** The Docker client, Compose and `dockerd` are installed, but the
+     daemon isn't running (`docker version` fails: no `/var/run/docker.sock`). The session runs
+     as root: `dockerd > /tmp/dockerd.log 2>&1 &`, then wait for `docker info` (about 1 s). Putting
+     that line in the cloud environment's setup script would make it automatic.
+  2. **The environment's network access must allow `ghcr.io` and
+     `pkg-containers.githubusercontent.com`** (Eston's setting; docs:
+     code.claude.com/docs/en/cloud-environments#network-access). The image's layers come from the
+     second host. Without it the proxy answers `403 Forbidden`, the ibc pull fails, and `up` shows
+     only the `open Dockerfile` fallback error. If that happens, stop and say so; don't
+     hand-install Mongo/Redis or build the ibc image from source without Eston's go.
+  - `mongo:7` (1.18 GB) and `redis:8` (213 MB) pull from Docker Hub. Retries can hit Docker Hub's
+    rate limit (`429 Too Many Requests`); images already pulled in the container stay.
+  - Run the smoke test from the repo checkout after `git fetch origin server-side`, so the
+    `git show origin/server-side:…` line finds the contract.
+  - Everything lives in the container: the node and its data are gone when the session ends.
 - Don't edit `compose.yml` or the port binding: writes carry the identity key in the URL with
   no signature, so the node must stay on localhost.
-- ~280 MB at idle. `docker compose stop` pauses; `docker compose down -v` **wipes all data**.
+- Memory: ~280 MB at idle on a Mac; ~400 MiB in a cloud container right after the smoke test
+  (ibc 203, mongo 182, redis 14). `docker compose stop` pauses; `docker compose down -v`
+  **wipes all data**.
 
 ### Smoke test (one minute)
 
