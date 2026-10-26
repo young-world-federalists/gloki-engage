@@ -68,11 +68,17 @@ const ReadyStep: React.FC<Props> = ({ agent, consented, onExplore, onViewAgent, 
           {t('onboarding.ready.consentNudge', 'You skipped the community promises — take a quick look when you can.')}
         </Banner>
       )}
+      {/* S43 (critique): the unaided run ends on one named ask, not a wall of pathways. */}
+      {onVerify && (
+        <p className={styles.lead}>
+          {t('beta.ready.next', 'Next: four people who know you vouch for you. Start by asking one.')}
+        </p>
+      )}
       <div className={styles.actions}>
         {onVerify ? (
           <>
             <Button fullWidth size="lg" onClick={onVerify}>
-              {t('beta.ready.verify', 'Get verified')}
+              {t('beta.ready.ask', 'Ask someone who knows you')}
             </Button>
             <Button variant="secondary" fullWidth onClick={onExplore}>
               {t('beta.forum.open', 'Open the forum')}

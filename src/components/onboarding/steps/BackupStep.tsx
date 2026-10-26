@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Download, KeyRound } from 'lucide-react';
-import { Button } from '../../shared';
+import { Banner, Button } from '../../shared';
 import { useT } from '../../../i18n';
 import styles from './steps.module.scss';
 
@@ -68,20 +68,21 @@ const BackupStep: React.FC<Props> = ({ publicKey, onContinue, headingRef }) => {
           {t('beta.backup.download', 'Download as text')}
         </Button>
       </div>
-      <p className={styles.keyStatus} role="status" aria-live="polite">
-        {copied ? t('beta.backup.copied', 'Copied to the clipboard.') : ''}
-      </p>
+      {/* S43 (critique P1): the confirmation is a success banner under the
+          buttons pressed, not 14px green text at 3.7:1. Banner carries role=status. */}
+      {copied && <Banner tone="success">{t('beta.backup.copied', 'Copied to the clipboard.')}</Banner>}
 
       <p className={styles.consentNote}>
         {t('beta.backup.honest', 'Right now the key works like a password: whoever types it in is you. Keep it somewhere private.')}
       </p>
 
-      <label className={styles.checkRow}>
-        <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />
-        <span>{t('beta.backup.confirm', 'I have saved my key somewhere safe')}</span>
-      </label>
-
-      <div className={styles.actions}>
+      {/* S43 (critique P1): the checkbox and Continue stay in view at 360×740 —
+          ticking the box must visibly enable the button it gates. */}
+      <div className={styles.stickyFoot}>
+        <label className={styles.checkRow}>
+          <input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />
+          <span>{t('beta.backup.confirm', 'I have saved my key somewhere safe')}</span>
+        </label>
         <Button fullWidth size="lg" onClick={onContinue} disabled={!saved}>
           {t('common.continue', 'Continue')}
         </Button>

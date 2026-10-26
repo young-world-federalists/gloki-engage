@@ -112,10 +112,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({ showBack = false, onBack, title, 
           by the header's full-width rule, scrolling away with content — only the
           brand bar stays pinned. Still the page's single <h1>. */}
       {title && (
-        <div className={`${styles.titleBlock} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
-          {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
-          <h1 className={styles.title}>{title}</h1>
-          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        // S43 (critique): the white ground spans the full width; only the text column is capped.
+        <div className={`${styles.titleBand} ${titleVisuallyHidden ? styles.titleHidden : ''}`}>
+          <div className={styles.titleBlock}>
+            {eyebrow && <span className={styles.eyebrow}>{eyebrow}</span>}
+            <h1 className={styles.title}>{title}</h1>
+            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+          </div>
         </div>
       )}
 

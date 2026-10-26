@@ -247,6 +247,46 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-23 — S43 forum bylines: posts carry a name and a flag.** `src/services/forum.ts` grows
+  one read, `getForumParticipants(ctx)`, returning the forum's authors as `get_partners` rows
+  (`IPartner`); `ForumPage` dispatches the existing `fetchMemberProfile` thunk per row, so
+  `ThreadedDiscussion` resolves bylines from `state.communities.profiles` with no community loaded
+  and nothing in it changes. Seam hand-off entry under the S42 addendum (no new contract method, wire
+  names unchanged). Demo stub seeds **one welcome post** from Priya Nair and registers her profile
+  contract (nothing else registers personas in the beta). Account kind is now **editable from the
+  profile page** (select in the edit modal, beta or any account that already has a kind) and shown
+  as a badge on the Digital Agent card, so the Kind step's lead again says it can be changed later.
+  Beta key hint without "across every community"; About/Contact back → `/` in the beta. 3 new + 1
+  changed string at fr/sw parity (`1510 = 1510`), packet appended. **`DEMO_VERSION` → `global-v21`**:
+  the forum seed is a fixture change, and a device that opened the empty S42 forum keeps it until
+  the wipe. Evidence: `docs/reviews/2026-10-23-s43-forum-bylines/` (360px, light + dark, both
+  builds green). Commits `4a46e66..e4646a1` plus this docs commit on `claude/youthful-cerf-ltibol`;
+  **not pushed to `origin/ui`** (waits for Eston's go). ★ Learning: the prompt asked for
+  `{ publicKey, address, profile }` rows "in the exact shape of `get_partners`"; those two cannot
+  both hold, and the shape that lets Ouri reuse his member mapper is `IPartner` (`agent`, not
+  `publicKey`). Also: a persona's profile only resolves where its profile contract is registered,
+  which in the beta is nowhere until the forum seed does it.
+  **Same day, Eston's follow-ups:** languages dropped for the beta (one flag, `SHOW_LANGUAGES`,
+  hides the switcher; fr/sw stay in the bundle, no parity work for new beta strings). Then the
+  **Impeccable critique** (skill installed globally from the GitHub clone; the engine binary from
+  GitHub releases, since impeccable.style is refused by the proxy) ran dual-agent on the beta
+  surfaces: **25/40, four P1s**, snapshot `.impeccable/critique/2026-10-23T12-40-54Z__src-pages.md`.
+  Eston: fix everything, start with the unaided run, end it on one named ask. Fixed in three
+  commits (unaided run; demo leakage + forum; mechanical): Create-my-key primary on the keys
+  screen, sticky checkbox + Continue on Save your key, one primary pathway on the hub, Ready ends
+  on "Ask someone who knows you", fabricated participation hidden, forum composer labelled with
+  Enter as newline and delete confirm, plus the contrast and target fixes. Evidence
+  `docs/reviews/2026-10-23-s43-critique-fixes/`. Locked calls (brand blue, system sans) reported,
+  not changed. **Then the gloki.app landing page** was built as its own static site in
+  `/home/user/gloki-site` (six local commits; repo `young-world-federalists/gloki-site` to be created
+  on Eston's go): Impeccable `init` (PRODUCT.md from the 15 Oct thread), a degraded direction roll
+  (roll service blocked by the proxy), Eston's pick "the line diagram", code-first build, two
+  inspection rounds, finish review (8 fixes, 2 regressions, ship), documenter (DESIGN.md +
+  design.json). One HTML + one CSS file, self-hosted Hammersmith One and Cabin, two real app
+  screenshots, 158 KB, no third-party request, detector clean at 390 and 1440. Open: the
+  Buttondown username (placeholder in the form), DNS for gloki.app, the status wording for "your
+  own agent".
+
 - **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
   flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
   hides everything but sign-up, keys, vouching and one forum. Signed out, `/` is a doors page

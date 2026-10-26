@@ -19,7 +19,7 @@
   border-radius: $radius-full;
   background: $gray-100;
   border: 2px solid $gray-200;
-  color: $gray-500;
+  color: $gray-600; // S43: $gray-500 on $gray-100 measured 4.41:1
   font-size: $text-sm;
   font-weight: $font-semibold;
   z-index: 1;

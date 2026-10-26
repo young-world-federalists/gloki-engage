@@ -87,7 +87,7 @@ const VerificationHub: React.FC = () => {
       {!verified && (
         <section aria-labelledby="verification-pathways-title">
           <h2 id="verification-pathways-title" className={pages.sectionTitle}>
-            {t('verification.hub.pathways', 'Ways to get approvals')}
+            {isBeta ? t('beta.verification.pathways', 'Get your first approval') : t('verification.hub.pathways', 'Ways to get approvals')}
           </h2>
           <PathwayCards />
         </section>

@@ -11,3 +11,10 @@ export const APP_MODE: AppMode = import.meta.env.VITE_APP_MODE === 'beta' ? 'bet
 
 /** True in the beta trim. Components read this flag; nothing else reads the env. */
 export const isBeta = APP_MODE === 'beta';
+
+/**
+ * S43 — the language switcher is hidden in the beta (Eston, 2026-10-23: "drop the
+ * languages for now"). English only in the test; fr/sw stay in the bundle and the
+ * demo keeps its switcher. Flip this back to show it in the beta again.
+ */
+export const SHOW_LANGUAGES = !isBeta;

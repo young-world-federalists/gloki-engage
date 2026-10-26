@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, SearchableSelect } from '../../shared';
 import { useI18n } from '../../../i18n';
+import { isBeta } from '../../../appMode';
 import PhotoPicker from '../../identity/PhotoPicker';
 import { type DigitalAgent } from '../../identity/agent/digitalAgentStore';
 import { type Persona } from '../../../services/demo/fixtures/identity';
@@ -44,7 +45,9 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
         {t('onboarding.agent.title', 'Create your profile')}
       </h1>
       <p className={styles.lead}>
-        {t('onboarding.agent.lead', 'Your profile represents you in deliberations. You can change any of this later.')}
+        {isBeta
+          ? t('beta.agent.lead', 'This is how other people on Gloki see you. You can change any of this later.')
+          : t('onboarding.agent.lead', 'Your profile represents you in deliberations. You can change any of this later.')}
       </p>
 
       <div className={styles.photoRow}>
@@ -92,7 +95,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
 
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="agent-language">
-          {t('onboarding.agent.language', 'Your language')}
+          {isBeta ? t('beta.agent.language', 'Language you speak') : t('onboarding.agent.language', 'Your language')}
         </label>
         <SearchableSelect
           options={LANGUAGE_OPTIONS}

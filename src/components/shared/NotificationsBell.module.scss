@@ -6,6 +6,8 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-sm;
+  min-width: $touch-target-min; // S43: the box itself is the target, not only the ::after
+  min-height: $touch-target-min;
   background: transparent;
   border: none;
   border-radius: $radius-md;

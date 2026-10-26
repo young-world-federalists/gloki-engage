@@ -33,7 +33,8 @@ const IdentityView: React.FC = () => {
     join: { title: t('join.title', 'Join a community'), eyebrow: accountEyebrow },
     about: { title: t('about.title', 'About Gloki') },
     contact: { title: t('contact.title', 'Contact Gloki') },
-    verification: { title: t('verification.title', 'Get verified'), eyebrow: verificationEyebrow },
+    // S43 (critique): "Verification" over "Get verified" says it twice; beta drops the eyebrow.
+    verification: { title: t('verification.title', 'Get verified'), eyebrow: isBeta ? undefined : verificationEyebrow },
     notifications: { title: t('notifications.title', 'Notifications'), eyebrow: accountEyebrow },
   };
   // S36 — verification sub-pages (D9: nested here, no new top-level route).
@@ -67,8 +68,8 @@ const IdentityView: React.FC = () => {
             <Route path="communities" element={isBeta ? <Navigate to="/" replace /> : <Communities />} />
             <Route path="profile" element={<Profile />} />
             <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <JoinCommunity />} />
-            <Route path="about" element={<AboutPage onBack={() => navigate('/stage/problem')} />} />
-            <Route path="contact" element={<ContactPage onBack={() => navigate('/stage/problem')} />} />
+            <Route path="about" element={<AboutPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
+            <Route path="contact" element={<ContactPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
             <Route path="verification" element={<VerificationHub />} />
             <Route path="verification/request" element={<RequestPage />} />
             <Route path="verification/approve" element={<ApprovePage />} />

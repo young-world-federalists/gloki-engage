@@ -379,6 +379,20 @@ they are. One new optional profile field, no new method, wire names unchanged:
   demo contract (`demo-forum-beta`, `discussion_contract.py`). The real layer returns the id of the
   one discussion contract the network shares — no new contract methods; `add_comment` /
   `get_comments` / `like_comment` / `delete_comment` as documented under S2.
+- **S43 — forum bylines (`src/services/forum.ts`, `getForumParticipants(ctx)`).** Posts in the
+  forum carry a name and a country flag. `ThreadedDiscussion` reads bylines from
+  `state.communities.profiles`, which only a community's member list fills, and the beta has no
+  communities. So the forum seam grows one read: `getForumParticipants({ serverUrl, publicKey,
+  contractId })` returns the forum's authors as **`get_partners` rows** — `IPartner`,
+  `{ address, agent, profile }` — and `ForumPage` dispatches the existing `fetchMemberProfile`
+  thunk for each row that carries a `profile`, exactly as the community member flow does. Nothing
+  in `ThreadedDiscussion` changes. **Your layer:** read the forum contract's `get_comments`, take
+  the distinct non-deleted `author` keys, and for each return its Digital Agent profile contract
+  (the same `address` / `profile` pair `get_partners` gives for a member). A row with an empty
+  `profile` is skipped by the UI and that author shows as a truncated key. **No new contract
+  method, wire names unchanged.** The demo stub (`src/services/demo/betaForum.ts`) answers with
+  the comment authors and `profile = publicKey`, and seeds one welcome post from a persona so the
+  path has something to show on `ui`; the real forum opens empty — nothing here asks you to seed.
 
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 
