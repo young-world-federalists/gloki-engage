@@ -155,10 +155,15 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 ### Open work (carried from the archived tiers)
 
 **Code health**
-- **Lint debt:** `npx eslint src` reports 48 errors and 8 warnings at `c3e9010` (top rules:
-  `react-hooks/rules-of-hooks`, `react-refresh/only-export-components`, unused vars, exhaustive
-  deps). The build does not lint, so nothing is red; the five `rules-of-hooks` errors are the ones
-  worth reading first, as they can be real bugs.
+- **Lint debt:** `npx eslint src` reports 44 errors and 7 warnings at `67ac268` (S45 cleared the
+  five `rules-of-hooks` errors, all one early return in `CommunityView`). Left: 14
+  `set-state-in-effect`, 9 `only-export-components`, 8 unused vars, 6 `exhaustive-deps` and a
+  tail of singles. The build does not lint, so nothing is red. None of these is a known bug; take
+  them as a style pass, file by file, with a walk per file touched.
+- **Dev-only advisories:** `npm audit` (with dev) still lists vite 8.0–8.1.5, postcss, js-yaml,
+  zod, nanoid and others. None reaches the Pages bundle (`npm audit --omit=dev` is 0 at
+  `67ac268`); bump vite when convenient. `@types/react-router-dom` v5 sits in `dependencies`
+  though React Router 7 ships its own types: remove it.
 
 **Product gaps**
 - **Liquid delegation (D3)**, the one named core mechanism still missing (fixture stub only).
@@ -222,7 +227,10 @@ cryptography**: a signed write to a contract with no rules is still an unguarded
   [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md) (Semaphore → ElectionGuard → QV
   budget proofs). Depends on H1.
 - **H5 Delivery & supply chain** (`ui`; **can start now**): CSP `<meta>`, SRI, dependency
-  automation and audit, reproducible signed builds + SBOM, a second mirror.
+  automation and audit, reproducible signed builds + SBOM, a second mirror. **Dependency audit
+  ✔ (S45, `67ac268`):** prod advisories 6 → 0; none had been reachable from the bundle. Open
+  question before the CSP: the server URL is user-supplied (`state.user.serverUrl`), so
+  `connect-src` cannot be pinned to one host; Eston's call.
 - **H6 Contributor node hardening** (Ouri): rootless minimal image, signed images, scanning,
   `--role` flag from day one, later one-click packaging (YunoHost/Umbrel/Start9/Pi image).
 - **H7 Metadata & connectivity** (research; transport still in §6 Deferred): Tor onion service
@@ -252,6 +260,27 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 ---
 
 ## 8. Changelog
+
+- **2026-10-26 — S45: the hooks fix and the dependency audit land on `ui`.** Two commits, pushed
+  to `ui` on Eston's go (`21d3eda..67ac268`). `d3e6fe8`: `CommunityView` returned early on
+  `!communityId` before five hooks (all five `rules-of-hooks` errors in `src`); the guard now
+  follows the last hook. That let the linter see the rest of the component: `props` was a fresh
+  `{}` each render while properties were missing, so the fetch effect re-ran on every render;
+  memoized (a forced failed read cost 10 `get_properties` calls before, 4 after; bounded either
+  way). `67ac268`: `react-router-dom` 7.18.1 → 7.18.4, DOMPurify 3.4.12 → 3.4.17 (lockfile),
+  `express` and `cors` moved to `devDependencies`; `npm audit --omit=dev` 6 → 0. Evidence: all
+  three builds, grep gates; a 17-step route walk at 360px light + dark identical on the old and
+  new router; the identity-card PDF generates on both. Lint 48/8 → 44/7. **Premises that had
+  gone stale:** "five `rules-of-hooks` errors that can be real bugs" was one early return, latent
+  (the route always supplies the id); the "dependency audit" was already concrete, as none of
+  the six advisories was reachable from the bundle (DOMPurify only via jsPDF's unused `.html()`,
+  the react-router CSRF only in RSC mode, express only in the mock server). PR #24 still open,
+  no word from Ouri; `server-side` has no `build:beta` and no node image. **Learnings:** a
+  forced failure that throws synchronously can hide a re-render loop (React batches the two
+  `setState`s), so add latency before trusting the count; and in this container `pgrep -f`/
+  `pkill -f` with a pattern that appears in your own command kills your shell, and killing the
+  `npx` wrapper leaves Vite orphaned on its port: start `node node_modules/vite/bin/vite.js`
+  and kill its PID. No strings or fixtures changed; no `DEMO_VERSION` bump.
 
 - **2026-10-26 — S44 restart: S43 lands on `ui`, the landing site gets its own repo and a new
   publisher.** S43 (`claude/youthful-cerf-ltibol`, 11 commits) merged into `ui` on Eston's go as
