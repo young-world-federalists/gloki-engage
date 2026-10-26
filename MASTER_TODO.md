@@ -154,6 +154,12 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 
 ### Open work (carried from the archived tiers)
 
+**Code health**
+- **Lint debt:** `npx eslint src` reports 48 errors and 8 warnings at `c3e9010` (top rules:
+  `react-hooks/rules-of-hooks`, `react-refresh/only-export-components`, unused vars, exhaustive
+  deps). The build does not lint, so nothing is red; the five `rules-of-hooks` errors are the ones
+  worth reading first, as they can be real bugs.
+
 **Product gaps**
 - **Liquid delegation (D3)**, the one named core mechanism still missing (fixture stub only).
 - **`/…/collaboration` route unreachable** ✔ (no in-app link found at `195bc6b`). It holds the only
@@ -246,6 +252,27 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 ---
 
 ## 8. Changelog
+
+- **2026-10-26 — S44 restart: S43 lands on `ui`, the landing site gets its own repo and a new
+  publisher.** S43 (`claude/youthful-cerf-ltibol`, 11 commits) merged into `ui` on Eston's go as
+  `c3e9010`, over the three ibc-node skill PRs (#25–#27); `build`, `build:beta` and fr/sw parity
+  (`1510 = 1510`) green after the merge. The landing page left the bundle: it now lives at
+  [young-world-federalists/gloki-site](https://github.com/young-world-federalists/gloki-site)
+  (Eston created the repo; the Claude GitHub App cannot create org repos) with GitHub Pages on
+  `main`, and `docs/site/gloki-site.bundle` is deleted. Eston's calls on the site: Buttondown
+  `YoungWorldFederalists`; YWF named as builder, the agent row Planned, contact by waitlist reply;
+  the site is published by the **Global Democracy Initiative** (a project of Young World
+  Federalists, Inc., its fiscal and legal host) on **globaldemocracyinitiative.org** instead of
+  gloki.app, with an imprint, a privacy page and the GDI network mark from the 2022 logo; waitlist
+  sign-ups must not get the YWF newsletter (needs a separate Buttondown newsletter). Late in the
+  session Eston reframed GDI around the backend (one person one vote, encryption, people holding
+  their own data, Reticulum) with Gloki as the app on top; that rewrite is the next site session,
+  briefed in `gloki-site/docs/brief-gdi-positioning.md`. **Premises that had gone stale:** `ui`
+  had moved past `2946608`; lint is 48 errors and 8 warnings, not one (identical on `ui` before the
+  merge, so not S43's; `npm run build` does not lint); the site history was 5 commits, not 6.
+  **Learning:** a cloud container can't reach github.io, Webflow or buttondown.com, so check a
+  live page from a phone, not from the session. No app code or strings changed in S44; no
+  `DEMO_VERSION` bump.
 
 - **2026-10-23 — S43 forum bylines: posts carry a name and a flag.** `src/services/forum.ts` grows
   one read, `getForumParticipants(ctx)`, returning the forum's authors as `get_partners` rows
