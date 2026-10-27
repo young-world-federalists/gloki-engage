@@ -76,8 +76,8 @@ const OnboardingFlow: React.FC = () => {
   // below fire immediately and yank the user out of the rules/ready steps
   // before they ever see them (they'd never get to click "Agree"). Only a
   // profile that already existed when this page first loaded should skip
-  // the flow.
-  const [alreadyOnboarded] = useState(() => !!digitalAgentProfile);
+  // the flow. "Start over" clears it to walk the steps again.
+  const [alreadyOnboarded, setAlreadyOnboarded] = useState(() => !!digitalAgentProfile);
 
   // Seed the vouch as soon as an invited newcomer arrives, so it survives a later skip.
   // S42: not in the beta — nobody has vouched for a real newcomer yet, and the
@@ -130,7 +130,7 @@ const OnboardingFlow: React.FC = () => {
               <Button fullWidth onClick={() => navigate(exploreTo)}>
                 {isBeta ? t('beta.forum.open', 'Open the forum') : t('onboarding.cta.explore', 'Explore Gloki')}
               </Button>
-              <Button variant="ghost" fullWidth onClick={() => setIndex(0)}>
+              <Button variant="ghost" fullWidth onClick={() => { setAlreadyOnboarded(false); setIndex(0); }}>
                 {t('onboarding.cta.startOver', 'Start over')}
               </Button>
             </div>

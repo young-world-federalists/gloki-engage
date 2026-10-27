@@ -11,7 +11,7 @@ Ouri's server wiring wins in every conflict, and the ui work is re-applied on to
 | File | `server-side` (via #24) | `ui` (S42–S43) | Resolution |
 |---|---|---|---|
 | `src/App.tsx` | `RootRoute` waits for `digitalAgentProfileChecked`, then routes on the real `digitalAgentProfile`; local `isFirstRun()` removed | beta: `isFirstRun() ? /welcome : /forum`, ahead of every other check | Ouri's check for both modes. In the beta an onboarded visitor goes to `/forum`, and the organization redirect is demo-only (as on `ui`). All hooks run before the first return |
-| `src/components/onboarding/OnboardingFlow.tsx` | in-memory step index, invite vs direct step lists, `submitProfile` → `saveDigitalAgentProfile`, mount-time `alreadyOnboarded`, in-memory consent | beta step list (`backup`, `kind`, `agent`, `ready`), `BackupStep` / `KindStep`, `/forum` exits, `onVerify`; built on local `progress` / `consentedAt` | Ouri's state model. The beta list is a third step list beside his two, `STEP_LABELS` gains `backup` / `kind`, and the beta skips the vouch seed. `consented` is `isBeta \|\| <his in-memory flag>`. No `saveProgress` calls remain |
+| `src/components/onboarding/OnboardingFlow.tsx` (+ review fix, finding 4) | in-memory step index, invite vs direct step lists, `submitProfile` → `saveDigitalAgentProfile`, mount-time `alreadyOnboarded`, in-memory consent | beta step list (`backup`, `kind`, `agent`, `ready`), `BackupStep` / `KindStep`, `/forum` exits, `onVerify`; built on local `progress` / `consentedAt` | Ouri's state model. The beta list is a third step list beside his two, `STEP_LABELS` gains `backup` / `kind`, and the beta skips the vouch seed. `consented` is `isBeta \|\| <his in-memory flag>`. No `saveProgress` calls remain |
 | `src/components/identity/Profile.tsx` | edits written through `saveDigitalAgentProfile` | account-kind picker, `saveAgent({... accountKind})` | Ouri's contract write for the profile fields; `accountKind` saved to the local cache beside it |
 | `src/components/identity/agent/digitalAgentStore.ts` | identity-scoped trust-graph cache; `consentedAt` removed | `accountKind` field (and the old `consentedAt`) | Ouri's store plus `accountKind`, persisted with `vouchedBy` / `invitedBy` / `vouchMeta`. `consentedAt` stays removed. `useDigitalAgent.ts` (no conflict) surfaces `accountKind` |
 | `src/components/collaboration/flows/discussion/ThreadedDiscussion.tsx` | demo-only refetch after `deleteComment` | S43 confirm before deleting a forum post | Both: the confirm, then Ouri's `isDemoContract` refetch rule |
@@ -78,7 +78,21 @@ Screenshots: `shots/{light,dark}/*.png` (`beta-*` for the beta). Machine record:
    proxy, as for #24. Sign-up → profile deploy → `set_profile` on the live SSE stream, and the
    forum against a real discussion contract (`getForumContractId` / `getForumParticipants` are
    still the demo stub), need a run from a machine that can reach a node.
-4. Carried from #24, unchanged: the community-list filter (finding 1 there), `isDemoContract`
+4. **Fixed after review: "Start over" on the done card did nothing.** It only reset the step index
+   while the mount-time `alreadyOnboarded` stayed true (as on `server-side`; `ui`'s version
+   worked). It now clears that flag too. Checked in the demo build: an onboarded user at `/welcome`
+   taps Start over and lands on "Create your profile", 0 errors.
+5. **Open, for Eston: Skip on the profile step loops a beta user back into onboarding.** On
+   `server-side` "onboarded" means a profile contract exists, and Skip writes none. A beta user who
+   skips is sent from `/` to `/welcome` (Key step) on every later sign-in. On `ui`, Ready marked
+   onboarding complete. The same holds in the demo, from `server-side`. A failed `set_profile`
+   lands the user in the same loop with only a console error. Options: hide Skip in the beta, or
+   write a profile with empty fields on Skip.
+6. **Plausible, not reproduced (from `server-side`):** `alreadyOnboarded` is captured on mount,
+   before `fetchContracts` answers, so a hard load of `/welcome` by an onboarded user could show
+   the flow instead of the done card. Against the stub it showed the done card; a slow node may
+   not. No duplicate contract either way, since the contract id is loaded by the agent step.
+7. Carried from #24, unchanged: the community-list filter (finding 1 there), `isDemoContract`
    imported into components, and the `docs/contracts/` patches still on Ouri's side.
 
 ## Repro

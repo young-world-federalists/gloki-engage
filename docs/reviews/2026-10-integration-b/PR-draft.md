@@ -38,8 +38,9 @@ Full record with screenshots and the scripts: `docs/reviews/2026-10-integration-
 
 1. **`accountKind` has no slot in `digital_agent_contract.py`.** `set_profile(display_name, photo, country, languages)` can't carry it, so it lives in your scoped local cache for now and is lost on another device. Options are in the S46 note in `docs/FOR_OURI_seam.md`. A separate `set_account_kind(kind)` is safer than a new `set_profile` argument, because existing profile contracts would reject the extra argument.
 2. **The forum seam is still the demo stub.** `getForumContractId()` and `getForumParticipants()` in `src/services/forum.ts` return the seeded `demo-forum-beta`. The S42/S43 seam addenda describe what the real layer returns; no new contract methods.
-3. Pre-existing: the beta's "Your key" screen (LoginPage inside the doors page) has no `<main>` landmark.
-4. Carried from #24: the community-list filter, `isDemoContract` in components, and the `docs/contracts/` patches.
+3. **Skip on the profile step leaves no profile contract**, so that person is sent back to `/welcome` on every sign-in (demo and beta). [Replace with Eston's decision: hide Skip in the beta, or write an empty profile on Skip.] Separately, "Start over" on the done card was dead on `server-side`; this PR fixes it.
+4. Pre-existing: the beta's "Your key" screen (LoginPage inside the doors page) has no `<main>` landmark.
+5. Carried from #24: the community-list filter, `isDemoContract` in components, and the `docs/contracts/` patches.
 
 ## Merge plan
 
