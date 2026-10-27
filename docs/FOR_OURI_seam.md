@@ -393,6 +393,18 @@ they are. One new optional profile field, no new method, wire names unchanged:
   method, wire names unchanged.** The demo stub (`src/services/demo/betaForum.ts`) answers with
   the comment authors and `profile = publicKey`, and seeds one welcome post from a persona so the
   path has something to show on `ui`; the real forum opens empty — nothing here asks you to seed.
+- **S46 note — where `accountKind` lives on `server-side`.** The S42 text above assumed the
+  `set_values` / `get_profile` community-profile shape. On `server-side` the Digital Agent profile is
+  your `digital_agent_contract.py`, whose `set_profile(display_name, photo, country, languages)` has
+  no slot for it, and contracts are yours. So the integration merge keeps `accountKind` in your
+  identity-scoped local cache (`digitalAgentStore.ts`, persisted next to `vouchedBy` / `invitedBy` /
+  `vouchMeta`; `useDigitalAgent` surfaces it). It survives a reload on the same browser and is lost
+  on another device. **Your call, when you want it on the wire:** an optional `account_kind`
+  argument on `set_profile`, or a separate `set_account_kind(kind)` beside it. The separate method
+  is the safer of the two: contracts are immutable once deployed, so profiles that already exist
+  would reject a `set_profile` call carrying a new argument, while a missing method fails only that
+  one write. `get_profile` returning `accountKind` is then the only read change; the UI already
+  treats absent as "not stated".
 
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 
