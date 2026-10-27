@@ -20,13 +20,15 @@ interface Props {
   agent: DigitalAgent | null;
   voucher: Persona;
   onContinue: (fields: AgentFields) => void;
-  onSkip: () => void;
   /** Omitted when this is the flow's first step (direct entry, no invite). */
   onBack?: () => void;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
 }
 
-const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack, headingRef }) => {
+// No "Skip for now" here: "already onboarded" is decided by the real profile
+// contract (userSlice.ts's fetchContracts), and skipping writes none, so a
+// skipper was sent back to /welcome on every later sign-in (S46).
+const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onBack, headingRef }) => {
   const { t, locale } = useI18n();
   const [displayName, setDisplayName] = useState(agent?.displayName ?? '');
   const [photo, setPhoto] = useState(agent?.photo ?? '');
@@ -110,14 +112,13 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
         <Button fullWidth size="lg" onClick={submit} disabled={!country}>
           {t('common.continue', 'Continue')}
         </Button>
-        <div className={styles.secondaryActions}>
-          <Button variant="ghost" onClick={onBack}>
-            {t('common.back', 'Back')}
-          </Button>
-          <Button variant="ghost" onClick={onSkip}>
-            {t('onboarding.skip', 'Skip for now')}
-          </Button>
-        </div>
+        {onBack && (
+          <div className={styles.secondaryActions}>
+            <Button variant="ghost" onClick={onBack}>
+              {t('common.back', 'Back')}
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );

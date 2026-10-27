@@ -82,12 +82,15 @@ Screenshots: `shots/{light,dark}/*.png` (`beta-*` for the beta). Machine record:
    while the mount-time `alreadyOnboarded` stayed true (as on `server-side`; `ui`'s version
    worked). It now clears that flag too. Checked in the demo build: an onboarded user at `/welcome`
    taps Start over and lands on "Create your profile", 0 errors.
-5. **Open, for Eston: Skip on the profile step loops a beta user back into onboarding.** On
-   `server-side` "onboarded" means a profile contract exists, and Skip writes none. A beta user who
-   skips is sent from `/` to `/welcome` (Key step) on every later sign-in. On `ui`, Ready marked
-   onboarding complete. The same holds in the demo, from `server-side`. A failed `set_profile`
-   lands the user in the same loop with only a console error. Options: hide Skip in the beta, or
-   write a profile with empty fields on Skip.
+5. **Fixed after review (Eston, 2026-10-27, "decide"): "Skip for now" removed from the profile
+   step, both builds.** On this branch "onboarded" means a profile contract exists, and Skip was
+   the one path that wrote none, so a skipper was sent from `/` to `/welcome` (the Key step in the
+   beta) on every later sign-in. On `ui`, Ready had marked onboarding complete. The demo had the
+   same loop from `server-side`. The form needs a name and a country, which the forum bylines
+   need anyway. With Skip gone, the lone "Back" on demo direct entry (no handler on the first
+   step) is hidden too. Rerun after the change: beta walk and demo onboarding 0 errors; no Skip on
+   either build's profile step. A failed `set_profile` still reaches the user only as a console
+   error; that one stays open.
 6. **Plausible, not reproduced (from `server-side`):** `alreadyOnboarded` is captured on mount,
    before `fetchContracts` answers, so a hard load of `/welcome` by an onboarded user could show
    the flow instead of the done card. Against the stub it showed the done card; a slow node may

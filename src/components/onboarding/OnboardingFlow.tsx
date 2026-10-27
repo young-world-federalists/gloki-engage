@@ -196,7 +196,6 @@ const OnboardingFlow: React.FC = () => {
                 submitProfile(fields);
                 go(index + 1);
               }}
-              onSkip={() => go(index + 1)}
             />
           )}
           {currentKey === 'rules' && (
