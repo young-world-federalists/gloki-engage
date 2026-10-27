@@ -248,6 +248,16 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
   (`integration/ui-2026-10` → `server-side`, evidence in `docs/reviews/2026-10-integration/`);
   Eston merges it on 30 October if Ouri hasn't. Plan:
   [2026-10-23-forward-without-a-gate.md](docs/superpowers/plans/2026-10-23-forward-without-a-gate.md).
+  **2026-10-27 (S46):** the second merge, S42–S45, is built and verified on
+  `integration/ui-2026-10b` (pushed as `claude/quirky-keller-ionyfw`; evidence in
+  `docs/reviews/2026-10-integration-b/`, PR body in `PR-draft.md` there). It opens as a PR
+  against `server-side` once #24 has merged, on Eston's go. **Any later `ui` → `server-side`
+  merge starts from that branch**, not from `ui`: it carries the onboarding resolution (Ouri's
+  contract-backed profile + the beta steps) and two fixes that only exist there.
+- **`accountKind` on the wire:** `digital_agent_contract.py`'s `set_profile` has no slot for it,
+  so the beta's account kind lives in the browser cache on `server-side`. Ouri's call between a
+  `set_account_kind` method and a new `set_profile` argument (S46 note in
+  [FOR_OURI_seam.md](docs/FOR_OURI_seam.md)).
 - **G2–G4** (WoT authority, live-call policy, scheduled matching), decided with Ouri.
 - **Blind-server questions 1–5** in [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md).
 - **fr/sw native review:** the packet is in
@@ -260,6 +270,32 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 ---
 
 ## 8. Changelog
+
+- **2026-10-27 — S46: S42–S45 merged onto `server-side`'s line, held for PR #24.** Branch
+  `integration/ui-2026-10b` from #24's head `7811117`, merge commit `a4bf7fa` (`ui` at `5469cc4`,
+  35 commits), Ouri's wiring kept in all six conflicts. The one that mattered was onboarding:
+  `server-side` had moved the profile and the "already onboarded" test into the real
+  `digital_agent_contract.py` (`RootRoute` waits for `digitalAgentProfileChecked`), while S42's
+  beta steps leaned on the local progress record Ouri had removed. The beta list (`backup`,
+  `kind`, `agent`, `ready`) now sits beside his invite/direct lists on his state model; the
+  account kind, which `set_profile` cannot carry, persists in his identity-scoped cache.
+  `package.json` merged identical to `ui`'s, so `ui`'s lockfile went in as is (regenerating from
+  the `server-side` lock had silently reverted DOMPurify to 3.4.14). Gates: three builds, lint 52
+  errors with no new (file, rule) pair vs either parent, parity fr = sw = 1511, grep gates, audit
+  0. Walks at 360px light + dark against a stateful stub of Ouri's login/profile wire (saved as
+  `docs/reviews/2026-10-integration-b/scripts/node-stub.cjs`): 17 demo routes, demo onboarding
+  direct + invited, and the beta sign-up through a forum post and a return visit; 0 errors.
+  **Review found two `server-side` bugs, fixed there:** "Start over" on the done card did nothing
+  (mount-time flag never cleared), and "Skip for now" on the profile step wrote no contract, so a
+  skipper was sent back to `/welcome` on every sign-in; Skip removed in both builds (Eston,
+  "decide"). **Premises that had gone stale:** none wrong, two off by one (42 `src` files, not
+  41: `vite-env.d.ts`; the #24 README was on the integration branch, not `ui`). **Learnings:**
+  when `package.json` merges clean and matches one parent, take that parent's lockfile rather
+  than regenerating from the other, or an advisory fix comes undone without a conflict; a stub
+  node that keeps state across runs turns "already onboarded" into a false failure on the second
+  run (fresh keys per run); and an unquoted heredoc executes backticks in Markdown. Not pushed to
+  `ui`: the fixes and the resolution are against `server-side` code that `ui` doesn't have. No
+  strings, fixtures or `DEMO_VERSION` changed on `ui`.
 
 - **2026-10-26 — S45: the hooks fix and the dependency audit land on `ui`.** Two commits, pushed
   to `ui` on Eston's go (`21d3eda..67ac268`). `d3e6fe8`: `CommunityView` returned early on
