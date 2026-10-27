@@ -61,9 +61,21 @@ The runtime injects exactly these globals (every one verified in
 | `elapsed_time(a, b)` | Seconds between two timestamps. | :168 |
 | `parameters(key)` | Runtime-level configured parameter (e.g. `'burn'`, `'mint'`, `'commons_mint'`). | :173, :178, :180 |
 
-Nothing else. No `datetime`, no `json`, no `uuid`, no `print`. If a stub handler
-emulates behavior a real contract couldn't express with these globals, the stub
-is lying and will break at the `ui` → `server-side` hand-off.
+The real node also injects `hashcode(x)` (sha256 hex of `str(x)`), `read(contract_id,
+method, args)` (read another contract) and a fixed set of Python builtins. The complete
+`__builtins__` dict, from `common/state.py` `State.run()` in `ghcr.io/ouripoupko/ibc`
+(image built 2026-10-24) and confirmed with a probe contract on a local node:
+
+- **Allowed:** `str int list range dict len print type set enumerate abs sum min round`.
+- **Not defined:** everything else, e.g. `isinstance`, `bool`, `max`, `sorted`, `float`,
+  `any`, `all`, `zip`, `getattr`. The probe confirmed `isinstance`, `bool` and `max` each
+  raise `name '…' is not defined`; the rest follow from the source. `x ** 0.5` works
+  (operators aren't builtins), as does `type(a) == type(b)`.
+
+No `datetime`, no `json`, no `uuid`, no imports. If a stub handler emulates behavior a
+real contract couldn't express with these globals, the stub is lying and will break at
+the `ui` → `server-side` hand-off. How to run that node: **gloki-build-env-run**,
+"Real backend: a local ibc node".
 
 ## 2. Storage semantics — the `.get()` trap
 
@@ -98,7 +110,18 @@ Two follow-on rules the real contracts model:
   mutating it does nothing until you assign it back:
   `self.accounts[sender] = sender_account` (community_contract.py:204).
 - **Membership tests work directly on Storage**: `if requester in self.members`
-  (:78), `for key in self.issues` (:22). Iteration yields keys.
+  (:78), `for key in self.issues` (:22). Iteration yields keys. **But only for keys you
+  set yourself** (a public key, a composite string). `append()` returns `str(ObjectId)`
+  while the stored `_id` stays an ObjectId, and `Collection.__contains__` looks up the
+  string as-is, so `append_id in self.comments` is **always False**: `like_comment`,
+  `delete_comment`, `request_expert_review`, `add_expert_review`, `suggest_proposal_merge`
+  are silent no-ops on a real node (verified 2026-10-24). `append()` also mints a
+  different ObjectId in each partner's copy, so ids diverge between members. Fix: key the
+  document yourself, `pid = hashcode(master() + timestamp())` then
+  `self.proposals[pid] = {..., 'id': pid}` (verified identical on 3 partners).
+- **`_`-prefixed methods are not private.** The node hides them from the method list but
+  still runs them for any caller. A `_helper` that writes (e.g. `_recount_endorsements`)
+  is a public write.
 - Beware `x or default` with falsy-but-valid values: `0 or 0` is harmless, but
   `stored_flag or True` would clobber a stored `False`. Use `if key in doc`
   checks when `0`/`''`/`False` are meaningful.

@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:beta": "VITE_APP_MODE=beta vite",
     "build": "tsc -b && vite build",
     "build:prod": "tsc -b && vite build --mode production",
+    "build:beta": "tsc -b && VITE_APP_MODE=beta vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:prod": "vite preview --mode production"
@@ -16,8 +18,6 @@
     "@types/react-router-dom": "^5.3.3",
     "@yudiel/react-qr-scanner": "^2.6.0",
     "clsx": "^2.1.1",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.24.0",
     "pako": "^3.0.1",
@@ -30,7 +30,7 @@
     "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^19.2.7",
     "react-redux": "^9.3.0",
-    "react-router-dom": "^7.18.1",
+    "react-router-dom": "^7.18.4",
     "svg2pdf.js": "^2.7.0"
   },
   "devDependencies": {
@@ -40,9 +40,11 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-modal": "^3.16.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "cors": "^2.8.6",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^6.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "express": "^5.3.0",
     "globals": "^17.7.0",
     "sass": "^1.101.0",
     "typescript": "~5.9.3",

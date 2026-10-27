@@ -3,6 +3,7 @@ import { useT } from '../../i18n';
 import { useTheme, type ThemePreference } from '../../hooks/useTheme';
 import SegmentedControl from './SegmentedControl';
 import LanguageSwitcher from './LanguageSwitcher';
+import { SHOW_LANGUAGES } from '../../appMode';
 import styles from './MenuSettings.module.scss';
 
 /**
@@ -35,11 +36,13 @@ const MenuSettings: React.FC = () => {
           fullWidth
         />
       </div>
-      <div className={styles.row}>
-        {/* Visual caption only — the switcher's own (sr-only) label names the select. */}
-        <span className={styles.caption} aria-hidden="true">{t('menu.language', 'Language')}</span>
-        <LanguageSwitcher hideIcon className={styles.language} />
-      </div>
+      {SHOW_LANGUAGES && (
+        <div className={styles.row}>
+          {/* Visual caption only — the switcher's own (sr-only) label names the select. */}
+          <span className={styles.caption} aria-hidden="true">{t('menu.language', 'Language')}</span>
+          <LanguageSwitcher hideIcon className={styles.language} />
+        </div>
+      )}
     </div>
   );
 };

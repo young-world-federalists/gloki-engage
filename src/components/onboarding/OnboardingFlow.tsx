@@ -3,26 +3,33 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Stepper, Button, Card } from '../shared';
 import AppHeader from '../AppHeader';
 import { useT } from '../../i18n';
+import { isBeta } from '../../appMode';
 import { useDigitalAgent } from '../identity/agent/useDigitalAgent';
 import { saveDigitalAgentProfile, type DigitalAgentProfileFields } from '../identity/agent/digitalAgentContract';
 import { setDigitalAgentProfile } from '../../store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getVoucher, defaultVouchers } from '../../services/demo/fixtures/identity';
 import { ONBOARDING_SEED } from '../../services/trustModel';
+import { getBetaDoor } from './betaDoor';
 import InviteStep from './steps/InviteStep';
 import VouchStep from './steps/VouchStep';
 import HowItWorksStep from './steps/HowItWorksStep';
 import AgentStep from './steps/AgentStep';
 import RulesStep from './steps/RulesStep';
 import ReadyStep from './steps/ReadyStep';
+import BackupStep from './steps/BackupStep';
+import KindStep from './steps/KindStep';
 import styles from './OnboardingFlow.module.scss';
 
-// Invitation entry (?invite=CODE) walks all 6 steps; direct entry (no invite
-// param — e.g. the root URL's first-run redirect) skips straight to building
-// the profile, since there's no inviter or vouch relationship to explain.
-type OnboardingStepKey = 'invite' | 'vouch' | 'how' | 'agent' | 'rules' | 'ready';
+// Demo: invitation entry (?invite=CODE) walks all 6 steps; direct entry (no
+// invite param — e.g. the root URL's first-run redirect) skips straight to
+// building the profile, since there's no inviter or vouch relationship to explain.
+// S42 beta: save your key → account kind → profile → ready. Invite, trust and
+// the pipeline explainer are demo framing; hidden, not deleted.
+type OnboardingStepKey = 'invite' | 'vouch' | 'how' | 'agent' | 'rules' | 'ready' | 'backup' | 'kind';
 const INVITATION_STEPS: OnboardingStepKey[] = ['invite', 'vouch', 'how', 'agent', 'rules', 'ready'];
 const DIRECT_STEPS: OnboardingStepKey[] = ['agent', 'rules', 'ready'];
+const BETA_STEPS: OnboardingStepKey[] = ['backup', 'kind', 'agent', 'ready'];
 
 const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
   invite: ['onboarding.step.invite', 'Invite'],
@@ -31,6 +38,8 @@ const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
   agent: ['onboarding.step.agent', 'You'],
   rules: ['onboarding.step.rules', 'Rules'],
   ready: ['onboarding.step.ready', 'Ready'],
+  backup: ['beta.step.backup', 'Key'],
+  kind: ['beta.step.kind', 'Account'],
 };
 
 /**
@@ -38,6 +47,7 @@ const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
  * `?invite=CODE` selects the full invitation sequence; its absence (the
  * common case — a self-serve agent, or the root URL's first-run redirect)
  * selects the shorter direct-entry sequence starting at the profile form.
+ * The beta build (appMode.ts) always walks BETA_STEPS.
  *
  * Nothing about step position or profile fields persists locally — step
  * position is plain in-memory state (lost on refresh, which is fine for a
@@ -54,7 +64,7 @@ const OnboardingFlow: React.FC = () => {
   const { serverUrl, publicKey, digitalAgentProfile, digitalAgentContractId } = useAppSelector((s) => s.user);
 
   const inviteCode = params.get('invite');
-  const stepKeys = inviteCode ? INVITATION_STEPS : DIRECT_STEPS;
+  const stepKeys = isBeta ? BETA_STEPS : inviteCode ? INVITATION_STEPS : DIRECT_STEPS;
   const voucher = getVoucher(inviteCode);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
 
@@ -70,8 +80,10 @@ const OnboardingFlow: React.FC = () => {
   const [alreadyOnboarded] = useState(() => !!digitalAgentProfile);
 
   // Seed the vouch as soon as an invited newcomer arrives, so it survives a later skip.
+  // S42: not in the beta — nobody has vouched for a real newcomer yet, and the
+  // verification hub says so honestly.
   useEffect(() => {
-    if (inviteCode && !agent?.invitedBy) {
+    if (!isBeta && inviteCode && !agent?.invitedBy) {
       saveAgent({ invitedBy: voucher.publicKey, vouchedBy: defaultVouchers(voucher.publicKey) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,6 +106,9 @@ const OnboardingFlow: React.FC = () => {
         console.error('[OnboardingFlow] Failed to save digital agent profile contract:', err);
       });
   };
+  const next = () => go(Math.min(index + 1, stepKeys.length - 1));
+  const back = () => go(Math.max(index - 1, 0));
+  const exploreTo = isBeta ? '/forum' : '/stage/problem';
 
   // Return state: already onboarded when this page loaded (a real profile
   // contract already existed) → compact "all set" with Start over.
@@ -103,15 +118,17 @@ const OnboardingFlow: React.FC = () => {
       // link, landmark, and the step hero as the page's h1 (S18 W1, campaign M1).
       <div className={styles.flow}>
         <AppHeader />
-        <main id="main" tabIndex={-1} className={styles.flowMain}>
+        <main id="main" tabIndex={-1} className={`${styles.flowMain} ${isBeta ? styles.flowMainBeta : ''}`}>
           <Card className={styles.doneCard}>
             <h1 className={styles.doneTitle}>{t('onboarding.alreadyDone.title', "You're all set up")}</h1>
             <p className={styles.doneLead}>
-              {t('onboarding.alreadyDone.lead', 'Your profile is ready. Jump back into the deliberation, or start the welcome guide over.')}
+              {isBeta
+                ? t('beta.alreadyDone.lead', 'Your account is ready. Open the forum, or start the welcome guide over.')
+                : t('onboarding.alreadyDone.lead', 'Your profile is ready. Jump back into the deliberation, or start the welcome guide over.')}
             </p>
             <div className={styles.doneActions}>
-              <Button fullWidth onClick={() => navigate('/stage/problem')}>
-                {t('onboarding.cta.explore', 'Explore Gloki')}
+              <Button fullWidth onClick={() => navigate(exploreTo)}>
+                {isBeta ? t('beta.forum.open', 'Open the forum') : t('onboarding.cta.explore', 'Explore Gloki')}
               </Button>
               <Button variant="ghost" fullWidth onClick={() => setIndex(0)}>
                 {t('onboarding.cta.startOver', 'Start over')}
@@ -129,13 +146,16 @@ const OnboardingFlow: React.FC = () => {
   });
   const vouchCount = agent?.vouchedBy?.length ?? 1;
   const currentKey = stepKeys[index];
+  // The beta never asks for the deliberation consent (no deliberation yet), so
+  // the Ready step must not nudge for it.
+  const readyConsented = isBeta || consented;
 
   return (
     // Same page-model wrapper as the done branch (S18 W1, campaign M1); the
     // active step's hero heading is the page's h1.
     <div className={styles.flow}>
       <AppHeader />
-      <main id="main" tabIndex={-1} className={styles.flowMain}>
+      <main id="main" tabIndex={-1} className={`${styles.flowMain} ${isBeta ? styles.flowMainBeta : ''}`}>
         <div className={styles.stepperWrap}>
           <Stepper steps={steps} current={index} onStepClick={(i) => go(i)} />
         </div>
@@ -154,6 +174,16 @@ const OnboardingFlow: React.FC = () => {
               vouchCount={agent?.vouchedBy?.length ?? ONBOARDING_SEED}
               onBack={() => go(index - 1)}
               onContinue={() => go(index + 1)}
+            />
+          )}
+          {currentKey === 'backup' && <BackupStep headingRef={headingRef} publicKey={publicKey ?? ''} onContinue={next} />}
+          {currentKey === 'kind' && (
+            <KindStep
+              headingRef={headingRef}
+              value={agent?.accountKind ?? getBetaDoor()}
+              fromDoor={!agent?.accountKind && getBetaDoor() !== null}
+              onBack={back}
+              onContinue={(accountKind) => { saveAgent({ accountKind }); next(); }}
             />
           )}
           {currentKey === 'agent' && (
@@ -176,10 +206,11 @@ const OnboardingFlow: React.FC = () => {
             <ReadyStep
               headingRef={headingRef}
               agent={agent}
-              consented={consented}
-              onConsentNudge={() => go(index - 1)}
-              onExplore={() => navigate('/stage/problem')}
+              consented={readyConsented}
+              onConsentNudge={() => go(Math.max(stepKeys.indexOf('rules'), 0))}
+              onExplore={() => navigate(exploreTo)}
               onViewAgent={() => navigate('/identity/profile')}
+              onVerify={isBeta ? () => navigate('/identity/verification') : undefined}
             />
           )}
         </div>

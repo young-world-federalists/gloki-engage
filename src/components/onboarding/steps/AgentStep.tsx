@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, SearchableSelect } from '../../shared';
 import { useI18n } from '../../../i18n';
+import { isBeta } from '../../../appMode';
 import PhotoPicker from '../../identity/PhotoPicker';
 import { type DigitalAgent } from '../../identity/agent/digitalAgentStore';
 import { type Persona } from '../../../services/demo/fixtures/identity';
@@ -33,6 +34,9 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
   // Single primary language (legacy multi-language agents collapse to their first).
   const [language, setLanguage] = useState(agent?.languages?.[0] || voucher.languages?.[0] || '');
 
+  // S42 — an organisation account's name is the organisation's, not a person's.
+  const isOrganisation = agent?.accountKind === 'organisation';
+
   const submit = () =>
     onContinue({ displayName: displayName.trim(), photo, country, languages: language ? [language] : [] });
 
@@ -42,7 +46,9 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
         {t('onboarding.agent.title', 'Create your profile')}
       </h1>
       <p className={styles.lead}>
-        {t('onboarding.agent.lead', 'Your profile represents you in deliberations. You can change any of this later.')}
+        {isBeta
+          ? t('beta.agent.lead', 'This is how other people on Gloki see you. You can change any of this later.')
+          : t('onboarding.agent.lead', 'Your profile represents you in deliberations. You can change any of this later.')}
       </p>
 
       <div className={styles.photoRow}>
@@ -55,7 +61,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
 
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="agent-name">
-          {t('onboarding.agent.name', 'Your name')}
+          {isOrganisation ? t('beta.agent.orgName', 'Organisation name') : t('onboarding.agent.name', 'Your name')}
         </label>
         <input
           id="agent-name"
@@ -63,7 +69,11 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
           type="text"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          placeholder={t('onboarding.agent.namePlaceholder', 'How should we call you?')}
+          placeholder={
+            isOrganisation
+              ? t('beta.agent.orgNamePlaceholder', 'The name people know it by')
+              : t('onboarding.agent.namePlaceholder', 'How should we call you?')
+          }
           autoComplete="name"
         />
       </div>
@@ -86,7 +96,7 @@ const AgentStep: React.FC<Props> = ({ agent, voucher, onContinue, onSkip, onBack
 
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="agent-language">
-          {t('onboarding.agent.language', 'Your language')}
+          {isBeta ? t('beta.agent.language', 'Language you speak') : t('onboarding.agent.language', 'Your language')}
         </label>
         <SearchableSelect
           options={LANGUAGE_OPTIONS}

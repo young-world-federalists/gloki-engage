@@ -32,6 +32,10 @@
 
 .placeholder {
   color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
 }
 
 .dropdown {

@@ -92,7 +92,7 @@
     background: rgba($primary, 0.16);
   }
   .prompt {
-    color: $primary; // brighter blue for AA on the dark tint
+    color: $primary-on-dark; // S43: $primary measured 3.97:1 on the dark tint
   }
   .badge {
     border-color: $dark-bg;
