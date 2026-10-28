@@ -1,8 +1,8 @@
 name: Deploy to GitHub Pages
 
-# One Pages site, two apps (Ouri, 2026-10-28):
-#   server-side -> https://young-world-federalists.github.io/gloki-engage/
-#   ui          -> https://young-world-federalists.github.io/gloki-engage/demo/
+# One Pages site, two apps (Ouri + Eston, 2026-10-28):
+#   server-side, beta trim  -> https://young-world-federalists.github.io/gloki-engage/
+#   ui, full demo (mock data) -> https://young-world-federalists.github.io/gloki-engage/demo/
 # A push to either branch rebuilds both, so neither overwrites the other.
 # GitHub runs the copy of this file in the pushed branch: keep it identical
 # on server-side and ui.
@@ -41,11 +41,11 @@ jobs:
             server-side/package-lock.json
             ui/package-lock.json
 
-      - name: Build server-side (site root)
+      - name: Build server-side beta (site root)
         working-directory: server-side
         run: |
           npm ci
-          npm run build:prod
+          npm run build:beta
 
       - name: Build ui (/demo/)
         working-directory: ui
