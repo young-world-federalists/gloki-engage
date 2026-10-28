@@ -1,8 +1,15 @@
 name: Deploy to GitHub Pages
 
+# One Pages site, two apps (Ouri, 2026-10-28):
+#   server-side -> https://young-world-federalists.github.io/gloki-engage/
+#   ui          -> https://young-world-federalists.github.io/gloki-engage/demo/
+# A push to either branch rebuilds both, so neither overwrites the other.
+# GitHub runs the copy of this file in the pushed branch: keep it identical
+# on server-side and ui.
+
 on:
   push:
-    branches: [server-side]
+    branches: [server-side, ui]
   workflow_dispatch:
 
 permissions:
@@ -19,15 +26,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: server-side
+          path: server-side
+      - uses: actions/checkout@v6
+        with:
+          ref: ui
+          path: ui
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npm run build:prod
+          cache-dependency-path: |
+            server-side/package-lock.json
+            ui/package-lock.json
+
+      - name: Build server-side (site root)
+        working-directory: server-side
+        run: |
+          npm ci
+          npm run build:prod
+
+      - name: Build ui (/demo/)
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build:prod -- --base /gloki-engage/demo/
+
+      - name: Assemble site
+        run: |
+          cp -R server-side/dist site
+          cp -R ui/dist site/demo
+
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build

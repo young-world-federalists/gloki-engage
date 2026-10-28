@@ -7,8 +7,11 @@
       // GitHub Pages SPA redirect
       // Converts the path after /gloki-engage/ into a query parameter
       // so that index.html can restore the correct route on load
-      var pathSegmentsToKeep = 1; // keep '/gloki-engage' (project-pages base segment)
       var l = window.location;
+      // keep '/gloki-engage' (project-pages base segment), or '/gloki-engage/demo'
+      // for the ui build, which deploy.yml puts under /demo/. Pages only serves
+      // this root 404.html, so it routes for both apps.
+      var pathSegmentsToKeep = l.pathname.split('/')[2] === 'demo' ? 2 : 1;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
