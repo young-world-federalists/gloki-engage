@@ -52,8 +52,9 @@ Until each one holds, public copy must not claim it (claims-honesty doctrine, S9
 - **The live initiative contract enforces none of the ballot rules the UI enforces** (audit of
   `server-side` @ `d930a9e`, commit `0e94913`). Any identity key can move the stage, rewrite the
   text, change the budget or allocate unlimited credits. The fix is
-  `docs/contracts/2026-09-25-initiative-ballot-guards.py`, waiting on Ouri. D12 eligibility for
-  impact assessments is in the same position.
+  `docs/contracts/2026-09-25-initiative-ballot-guards.py`. *(Update 2026-10-28: applied by Ouri on
+  `server-side`; initiatives deployed from then on are guarded.)* D12 server-side eligibility for
+  impact assessments is still UI-gated only.
 
 ## 3. Threat model (one page, to be expanded in H0)
 

@@ -1,3 +1,6 @@
+# STATUS: APPLIED by Ouri to src/assets/contracts/gloki_engage_initiative_contract.py
+# on server-side, 2026-10-28 (verbatim). Kept as the record of what changed and why.
+#
 # Ballot guards for server-side/src/assets/contracts/gloki_engage_initiative_contract.py.
 # Re-verified against origin/server-side @ d930a9e on 2026-09-25 (the contract is
 # byte-identical to 3b563fa, where the gap was found).
@@ -26,8 +29,8 @@
 #     set_status, allocate.
 # No imports, no new Storage() entries, no __init__ change, and every public method
 # keeps its name and arguments. The only builtin used is str(), which this contract
-# already relies on (get_proposals). Shares no method with the unapplied S34 and S40
-# patches, so the three apply in any order.
+# already relies on (get_proposals). Shares no method with the S34 and S40 patches,
+# so the three apply in any order.
 #
 # Every refusal returns {'error': ...} and writes nothing (the stake / update_stake
 # convention); success returns None. Only initiatives deployed after this lands are

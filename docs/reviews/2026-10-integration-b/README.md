@@ -67,6 +67,27 @@ shows the name (from `get_profile`) and "Person" (local cache), before and after
 
 Screenshots: `shots/{light,dark}/*.png` (`beta-*` for the beta). Machine record: `walk-summary.json`.
 
+## 28 October — base merge after Ouri's `2996048`
+
+PR #28 opened against `a710cfe` (the #24 merge). Minutes later Ouri pushed `2996048`: every
+dependency bumped (React 19.3.1, Vite 8.3.5, ESLint 10, `react-hooks` 7 with the flat config),
+Node 24 in `deploy.yml` and `.nvmrc`, and the three `docs/contracts/` patches applied verbatim to
+`gloki_engage_initiative_contract.py`. Merged into this branch as a merge commit, his side kept:
+
+| File | Resolution |
+|---|---|
+| `package.json` | Ouri's dependency blocks as they are (`express`/`cors` back in `dependencies`, `@types/react-router-dom` gone), plus our `dev:beta` / `build:beta` scripts |
+| `package-lock.json` | Ouri's, unchanged (`npm ci` leaves no diff) |
+| `MASTER_TODO.md` | both changelog entries, his 28 Oct entry first |
+| `docs/FOR_OURI_seam.md` | merged clean: his "applied" notes and our S46 note |
+
+Rerun on the merged tree (Node 22 here; the workflow runs 24): three builds clean, `npm audit
+--omit=dev` 0, parity OK, grep gates clean. `npx eslint src` under his config: **86 errors, none
+new** (`server-side` itself: 91; every merged (file, rule) pair exists there or on `ui`, no count
+above either). Demo walk 17 steps, beta walk 11 steps, demo onboarding direct + invited: light +
+dark, 0 console errors, 0 page errors, 0 failed requests, one `h1` per page, no overflow. Shots and
+`walk-summary.json` are from this rerun.
+
 ## Findings
 
 1. **`accountKind` isn't on the wire yet** (above). It is lost if the same key signs in on another

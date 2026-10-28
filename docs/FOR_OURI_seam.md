@@ -146,8 +146,9 @@ Client wrappers live in `src/components/collaboration/flows/voting/convictionApi
 
 The server target is `server-side/src/assets/contracts/gloki_engage_initiative_contract.py`.
 Its conviction block was re-verified against the current `origin/server-side` baseline
-`a81218f` on 2026-09-16. Ouri has **not** yet applied S40. The complete replacement block
-is in `docs/contracts/s40-conviction-accrual.py`.
+`a81218f` on 2026-09-16. **Applied by Ouri on `server-side` on 2026-10-28** (the
+replacement block in `docs/contracts/s40-conviction-accrual.py`, verbatim). Only initiatives
+deployed after that report `model: 'time_accrual_v1'`; see "Deployment compatibility" below.
 
 All public method names and argument lists remain exactly as documented in S33; S40 only
 tightens `stake` validation and adds derived fields/semantics to the existing reads.
@@ -215,11 +216,11 @@ two copies — backing on one surface must show on the other.
 
 ### S35 addendum — Causes, discussion status, impact assessment (`docs/contracts/s34-initiative-contract-additions.py`)
 
-Wire truth for these methods is the patch file above (apply to `gloki_engage_initiative_contract.py` on `server-side`). Rulings: `docs/superpowers/specs/2026-09-02-s34-decision-record.md`.
+Wire truth for these methods is the patch file above. **Applied by Ouri to `gloki_engage_initiative_contract.py` on `server-side` on 2026-10-28** (all hunks, verbatim). Only initiatives deployed after that have these methods. Rulings: `docs/superpowers/specs/2026-09-02-s34-decision-record.md`.
 
 - **`__init__` first:** add `self.comment_votes = Storage('comment_votes')` and `self.impact_assessments = Storage('impact_assessments')` to `GlokiEngageInitiative.__init__`. The other four methods raise `AttributeError` on first call without them.
 - **`vote_comment(comment_id, direction)`** — `'up' | 'down' | 'none'`; ROOT comments only (the contract returns without writing when the comment has a `parentId`). Storage: flat `comment_votes` collection keyed `caller + ':' + comment_id` → `{voter, commentId, direction}`. Read: **`get_comment_votes()`**. Ranking (top 15 / top 5) and the five-band discussion status are computed client-side from this read; no status method on chain. Votes on soft-deleted roots are also refused.
-- **`add_proposal(..., cause_id='')`** — trailing optional arg, stored as `causeId`; immutable; `''` means "proposed before any cause was ranked". The UI sends `cause_id` unconditionally from this merge onward — apply the `add_proposal` hunk in the same change as the merge, or solution submission fails on the live site.
+- **`add_proposal(..., cause_id='')`** — trailing optional arg, stored as `causeId`; immutable; `''` means "proposed before any cause was ranked". The UI sends `cause_id` unconditionally from this merge onward. Until the patch was applied (2026-10-28), every solution submission on `server-side` failed (the server rejected the unexpected `cause_id`, and `SolutionsBoard` only logged it to the console). Initiatives deployed before 2026-10-28 keep the old signature, so adding a solution to them still fails.
 - **`add_impact_assessment(proposal_id, target, targets_cause, mechanism, broader_effects, risks, opportunity_costs, time_horizon)`** — flat `impact_assessments` collection keyed `proposal_id + ':' + caller`; contract guards: proposal exists, max 3 per proposal, one per author. Read: **`get_impact_assessments()`**.
 - **D12 (on the record):** assessor eligibility (top-10 writers, `causeScore > 0`, no self-dealing on the same solution or the same cause) and cause alignment are **UI-gated only** in this wave, exactly like the `add_expert_review` expert gate. Server-side eligibility checks belong on the contract roadmap.
 - S13 property bag is documented in the S13 addendum above: `set_property` / `get_properties` on
@@ -408,7 +409,11 @@ they are. One new optional profile field, no new method, wire names unchanged:
 
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 
-The live `gloki_engage_initiative_contract.py` enforces none of the ballot rules the UI enforces
+**Status: applied by Ouri on `server-side` on 2026-10-28** (four helpers + ten replaced methods,
+verbatim). Initiatives deployed before that keep the open methods described below; see "Deployment
+compatibility". The "Please confirm" question and the remaining gaps further down are still open.
+
+Before the patch, the live `gloki_engage_initiative_contract.py` enforced none of the ballot rules the UI enforces
 (re-verified 2026-09-25 on `origin/server-side` @ `d930a9e`, byte-identical to `3b563fa`). Any identity
 key can move the stage, rewrite the text, change the budget, flip the vote's status flag (which nothing
 reads), or `allocate` any number of credits. Because `get_results` sums √credits per voter, one caller
@@ -511,7 +516,7 @@ If the server runs this bridge, every live method that uses this test does nothi
 today. That is the four named in the S35 question (`delete_comment`, `like_comment`,
 `request_expert_review`, `add_expert_review`), plus `suggest_proposal_merge` and
 `decide_merge_suggestion`, which use the same test. S34's `vote_comment` and `add_impact_assessment`
-will behave the same once applied. The `.exists()` fix given there applies to all eight; it is not part
+behave the same now that S34 is applied (2026-10-28). The `.exists()` fix given there applies to all eight; it is not part
 of this patch.
 
 **Deployment compatibility.** Each initiative contract keeps the source it was deployed with. Only
