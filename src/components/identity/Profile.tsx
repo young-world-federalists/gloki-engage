@@ -50,9 +50,16 @@ const Profile: React.FC = () => {
   };
 
   const saveEdit = () => {
-    const fields = { displayName: displayName.trim(), photo, country, languages: language ? [language] : [] };
-    // accountKind has no slot in set_profile yet: it stays in the identity-scoped
-    // local cache until the profile contract carries it (docs/FOR_OURI_seam.md, S46).
+    const fields = {
+      displayName: displayName.trim(),
+      photo,
+      country,
+      languages: language ? [language] : [],
+      ...(kind ? { accountKind: kind } : {}),
+    };
+    // accountKind goes on the contract via set_account_kind and also stays in the
+    // local cache, which is all a profile deployed before that method has
+    // (docs/FOR_OURI_seam.md, S46).
     if (kind) saveAgent({ accountKind: kind });
     if (user.serverUrl && user.publicKey) {
       saveDigitalAgentProfile({

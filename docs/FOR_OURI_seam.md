@@ -406,6 +406,19 @@ they are. One new optional profile field, no new method, wire names unchanged:
   would reject a `set_profile` call carrying a new argument, while a missing method fails only that
   one write. `get_profile` returning `accountKind` is then the only read change; the UI already
   treats absent as "not stated".
+- **2026-10-28 — `set_account_kind(kind)` added (Eston, PR on `server-side`).** The separate method
+  above, in `digital_agent_contract.py`: accepts `'person' | 'organisation' | 'contributor'`, refuses
+  anything else with `{'error': 'unknown account kind'}` and writes nothing, and otherwise merges
+  `accountKind` into the same `profile` document, so `get_profile` returns it with no read change and
+  a later `set_profile` keeps it. The UI calls it right after `set_profile` (sign-up and profile edit)
+  and reads it back through `readDigitalAgentProfile`; the local cache stays as the fallback. Only
+  profiles deployed after this carry the method. Checked on a local node
+  (`ghcr.io/ouripoupko/ibc:latest`): on a new profile, a valid kind is stored and survives a later
+  `set_profile`, an invalid one comes back as the error reply on the `contract_write` event (which
+  also answers the ballot guards' "Please confirm": the SSE `reply` does carry the return value);
+  on an older profile the node acks `set_account_kind` with a `null` reply and stores nothing, so
+  nothing breaks. In the app, a sign-up stored the kind on the contract, it came back after
+  clearing the browser and logging in again, and a profile edit updated it.
 
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 

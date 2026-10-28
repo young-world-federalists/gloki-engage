@@ -262,6 +262,14 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-28 — Account kind on the Digital Agent contract (Eston).** `digital_agent_contract.py`
+  gains `set_account_kind(kind)`; `get_profile` returns `accountKind` with no read change. Sign-up and
+  profile edit write it after `set_profile`, `readDigitalAgentProfile` reads it back, and the local
+  cache stays as the fallback for profiles deployed before the method. Fixes the beta's account kind
+  being lost on a second device. Checked on a local `ibc` node, including a fresh login after clearing
+  the browser; details and the old-profile behaviour in `docs/FOR_OURI_seam.md` (S46 note). The same
+  check answers the ballot guards' "Please confirm": the `contract_write` SSE `reply` carries the
+  method's return value.
 - **2026-10-28 — Contract patches applied on `server-side` (Ouri).** All three hand-off patches in
   `docs/contracts/` were applied verbatim to `src/assets/contracts/gloki_engage_initiative_contract.py`:
   S34 (causes `vote_comment`/`get_comment_votes`, impact assessments, `add_proposal(..., cause_id='')`),

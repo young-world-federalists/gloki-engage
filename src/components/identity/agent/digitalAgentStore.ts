@@ -1,5 +1,6 @@
 // Local trust-graph cache for the Digital Agent identity: only vouchedBy/
-// invitedBy (and, for now, the beta's accountKind) persist here. Profile fields (displayName/photo/country/
+// invitedBy (and the beta's accountKind, as the fallback for profiles deployed
+// before set_account_kind) persist here. Profile fields (displayName/photo/country/
 // languages) and onboarding completion are NOT cached locally — they live
 // in the real profile contract and are read fresh via Redux's
 // state.user.digitalAgentProfile (see userSlice.ts's fetchContracts).
@@ -85,8 +86,8 @@ function baseAgent(): DigitalAgent {
   return { displayName: '', photo: '', country: '', languages: [], createdAt: Date.now(), vouchedBy: [] };
 }
 
-// Only the trust-graph fields (plus accountKind, until the profile contract
-// carries it) are persisted; profile fields stay in-memory only for the
+// Only the trust-graph fields (plus accountKind, which profile contracts
+// deployed before set_account_kind can't carry) are persisted; profile fields stay in-memory only for the
 // current session (they're sourced from the real contract).
 type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy' | 'vouchMeta' | 'accountKind'>;
 
