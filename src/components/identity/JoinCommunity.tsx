@@ -14,11 +14,16 @@ import { useT } from '../../i18n';
 import { useAlert } from '../shared/useAlert';
 import { Banner, Button } from '../shared';
 
+// How long to wait for the community's node to confirm a join.
+const JOIN_TIMEOUT_MS = 30000;
+
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
   const t = useT();
   const { showAlert, alertElement } = useAlert();
-  const { publicKey, serverUrl, profileContractId } = useAppSelector(state => state.user);
+  // The Digital Agent profile — the same id a community's creator registers
+  // (CreateCommunityPage), so get_partners can resolve every member's name.
+  const { publicKey, serverUrl, digitalAgentContractId } = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [scannedData, setScannedData] = useState<string>('');
@@ -30,33 +35,59 @@ const JoinCommunity: React.FC = () => {
   // Store decoded data for display and editing
   const [decodedData, setDecodedData] = useState('');
   const a2aListenerRef = React.useRef<((event: BlockchainEvent) => void) | null>(null);
+  const joinTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Register a2a_connect listener on mount and cleanup on unmount
-  useEffect(() => {
-    const handleA2AConnect = async () => {
-      if (isJoining && parsedInvite) {
-        setIsResetting(true);
-        setIsJoining(false);
-        
-        try {
-          // Refresh contracts list from server and wait for it to complete
-          if (serverUrl && publicKey) {
-            await dispatch(fetchContracts());
-          }
-        } catch (error) {
-          console.error('Failed to refresh contracts:', error);
-          // Continue with the flow even if refresh fails
-        }
-        
-        // Reset all fields
-        setScannedData('');
-        setParsedInvite(null); // This disables the button
-        setDecodedData('');
-        setJoinSuccess(false);
-        setIsResetting(false);
-        // Redirect to communities tab using react-router
-        navigate('/identity/communities', { replace: true });
+  const clearJoinTimeout = () => {
+    if (joinTimeoutRef.current) {
+      clearTimeout(joinTimeoutRef.current);
+      joinTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => clearJoinTimeout, []);
+
+  const failJoin = (message: string) => {
+    clearJoinTimeout();
+    setIsJoining(false);
+    setJoinSuccess(false);
+    showAlert(
+      t('join.failed', "Couldn't join this community: {error}", { error: message }),
+      { title: t('common.errorTitle', 'Something went wrong') },
+    );
+  };
+
+  // Joined (or already a member): refresh the contract list, which now holds
+  // the community, and go to the communities page.
+  const finishJoin = async () => {
+    clearJoinTimeout();
+    setIsResetting(true);
+    setIsJoining(false);
+    try {
+      if (serverUrl && publicKey) {
+        await dispatch(fetchContracts());
       }
+    } catch (error) {
+      console.error('Failed to refresh contracts:', error);
+      // Continue with the flow even if refresh fails
+    }
+    setScannedData('');
+    setParsedInvite(null); // This disables the button
+    setDecodedData('');
+    setJoinSuccess(false);
+    setIsResetting(false);
+    navigate('/identity/communities', { replace: true });
+  };
+
+  // The joiner's node confirms the join with `a2a_connect`; `reply: false`
+  // means the community's node refused it.
+  useEffect(() => {
+    const handleA2AConnect = (event: BlockchainEvent) => {
+      if (!isJoining || !parsedInvite) return;
+      if (event.reply === false) {
+        failJoin(t('join.refused', 'The community refused the request.'));
+        return;
+      }
+      void finishJoin();
     };
     a2aListenerRef.current = handleA2AConnect;
     eventStreamService.addEventListener('a2a_connect', handleA2AConnect);
@@ -65,7 +96,7 @@ const JoinCommunity: React.FC = () => {
         eventStreamService.removeEventListener('a2a_connect', a2aListenerRef.current);
       }
     };
-     
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- finishJoin/failJoin read the latest state through this effect's own deps
   }, [isJoining, parsedInvite, dispatch, navigate, publicKey, serverUrl]);
 
   const handleScanQR = () => {
@@ -101,24 +132,27 @@ const JoinCommunity: React.FC = () => {
     setIsJoining(true);
     setJoinSuccess(false);
     try {
-      await joinContract({
+      const ack = await joinContract({
         serverUrl: serverUrl,
         publicKey: publicKey,
         address: server,
         agent,
         contract,
-        profile: profileContractId || ''
+        profile: digitalAgentContractId || ''
       });
-      // Button remains disabled until a2a_connect is received
+      // Only a real join returns an ack id and confirms later. null means this
+      // agent already holds the contract; a demo join resolves at once.
+      if (typeof ack !== 'string') {
+        await finishJoin();
+        return;
+      }
+      // Otherwise the button stays busy until a2a_connect arrives.
+      clearJoinTimeout();
+      joinTimeoutRef.current = setTimeout(() => {
+        failJoin(t('join.timeout', "The community's server didn't answer. Check the join details and try again."));
+      }, JOIN_TIMEOUT_MS);
     } catch (error) {
-      setIsJoining(false);
-      setJoinSuccess(false);
-      showAlert(
-        t('join.failed', "Couldn't join this community: {error}", {
-          error: error instanceof Error ? error.message : String(error),
-        }),
-        { title: t('common.errorTitle', 'Something went wrong') },
-      );
+      failJoin(error instanceof Error ? error.message : String(error));
     }
   };
 

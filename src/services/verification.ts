@@ -1,20 +1,24 @@
 // Verification seam (S36 — Prompt 2). THE ONLY import components use for
-// verification data. Every function delegates to the demo layer today;
-// FOR OURI swaps these bodies for contractRead/contractWrite against the
-// Digital Agent contract (get_vouches / request_vouch / vouch / decline_vouch —
-// docs/FOR_OURI_seam.md, S36 addendum) without touching a component.
+// verification data. Requests and vouches run on the app-wide verification
+// contract (verificationRegistry.ts); invitations stay on the demo layer.
 //
 // The call functions (S37 — Wave 2) are the one exception: they simulate a
 // call in memory and have no contract counterpart to swap to — see the S37
 // addendum in the same doc.
 import {
   demoGetState,
-  demoListMembers,
-  demoRequestVouch,
-  demoRespondToRequest,
   demoSendInvitation,
   demoRequestInvitation,
 } from './demo/verificationDemo';
+import { store } from '../store';
+import {
+  declineVouch,
+  getRegistryStatus,
+  personSummary,
+  requestVouch as registryRequestVouch,
+  vouch,
+  type RegistryIdentity,
+} from './verificationRegistry';
 import {
   simAvailableNow,
   simInviteToCall,
@@ -71,23 +75,67 @@ export type {
 
 export { DAILY_SESSION_RESET_EVENT };
 
+// Ask a member / Requests to vouch run on the app-wide verification contract
+// (verificationRegistry.ts), the single source of truth for who is verified.
+// Invitations, calls and the daily session below stay simulated: their vouches
+// never reach the contract, so they can't verify anyone yet.
+
+const toMs = (at: string): number => {
+  const ms = Date.parse(at);
+  return Number.isNaN(ms) ? 0 : ms;
+};
+
+const requestId = (requester: string, approver: string): string => `${requester}:${approver}`;
+
+function identityFor(ctx: VerificationCtx): RegistryIdentity {
+  return { publicKey: ctx.publicKey, address: ctx.serverUrl, profile: store.getState().user.digitalAgentContractId ?? '' };
+}
+
 /** Vouches held, requests waiting on the user (verified users only), requests sent. */
-export function getVerificationState(ctx: VerificationCtx): Promise<VerificationState> {
-  return demoGetState(ctx);
+export async function getVerificationState(ctx: VerificationCtx): Promise<VerificationState> {
+  const [status, demo] = await Promise.all([getRegistryStatus(), demoGetState(ctx)]);
+  const me = ctx.publicKey;
+  const isVerified = status.verified.some((v) => v.key === me);
+  const toRequest = (r: (typeof status.requests)[number]): VouchRequest => ({
+    id: requestId(r.requester, r.approver),
+    requester: r.requester,
+    approver: r.approver,
+    at: toMs(r.at),
+    status: r.status,
+  });
+  return {
+    approvals: status.vouches
+      .filter((v) => v.requester === me)
+      .map((v) => ({ id: `ap-${v.voucher}`, approver: v.voucher, method: 'direct', at: toMs(v.at) })),
+    pending: isVerified
+      ? status.requests.filter((r) => r.approver === me && r.status === 'pending').map(toRequest)
+      : [],
+    sent: status.requests.filter((r) => r.requester === me).map(toRequest),
+    invitationRequests: demo.invitationRequests,
+  };
 }
 
-/** The verified members a user can ask; `query` filters by name. */
-export function listVerifiedMembers(_ctx: VerificationCtx, query?: string): Promise<MemberSummary[]> {
-  return demoListMembers(query);
+/** Everyone verified app-wide except the caller, with names from their profiles; `query` filters by name. */
+export async function listVerifiedMembers(ctx: VerificationCtx, query?: string): Promise<MemberSummary[]> {
+  const status = await getRegistryStatus();
+  const people = await Promise.all(
+    status.verified.filter((v) => v.key !== ctx.publicKey).map((v) => personSummary(v)),
+  );
+  const all = people.map((p) => ({ ...p, online: false }));
+  const q = query?.trim().toLowerCase();
+  return q ? all.filter((m) => m.name.toLowerCase().includes(q)) : all;
 }
 
-/** Records a pending request at once; resolves 2–5 s later with the settled request. */
-export function requestVouch(ctx: VerificationCtx, approverKey: string): Promise<VouchRequest> {
-  return demoRequestVouch(ctx, approverKey);
+/** Records the request on the contract; it stays pending until the approver answers. */
+export async function requestVouch(ctx: VerificationCtx, approverKey: string): Promise<VouchRequest> {
+  await registryRequestVouch(identityFor(ctx), approverKey);
+  return { id: requestId(ctx.publicKey, approverKey), requester: ctx.publicKey, approver: approverKey, at: Date.now(), status: 'pending' };
 }
 
-export function respondToRequest(ctx: VerificationCtx, requestId: string, approve: boolean): Promise<void> {
-  return demoRespondToRequest(ctx, requestId, approve);
+export async function respondToRequest(ctx: VerificationCtx, id: string, approve: boolean): Promise<void> {
+  const requester = id.split(':')[0];
+  if (approve) await vouch(ctx.publicKey, requester);
+  else await declineVouch(ctx.publicKey, requester);
 }
 
 /** Off-platform (email) — the demo records it locally and sends nothing. */

@@ -16,6 +16,15 @@ class EventStreamService {
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
   private connectionListeners: Set<(isConnected: boolean) => void> = new Set();
+  /** The signed-in identity's own stream, as passed to connect(). */
+  private ownServer: string | null = null;
+  private ownAgent: string | null = null;
+  /**
+   * Contracts used without joining them (contractHosts.ts): their write
+   * events only appear on the HOST agent's stream, so each host node gets one
+   * extra connection covering every (agent, contract) pair watched there.
+   */
+  private watched: Map<string, { pairs: Set<string>; source: EventSource | null }> = new Map();
 
   private notifyConnectionListeners() {
     this.connectionListeners.forEach(listener => {
@@ -39,6 +48,10 @@ class EventStreamService {
     if (this.eventSource) {
       this.disconnect();
     }
+    // Watched host streams belong to the signed-in identity; drop them when it changes.
+    if (serverUrl !== this.ownServer || agent !== this.ownAgent) this.unwatchAll();
+    this.ownServer = serverUrl;
+    this.ownAgent = agent;
 
     const streamUrl = `${serverUrl}/stream?agent=${agent}&contract=`;
     // console.log('Connecting to SSE stream:', streamUrl);
@@ -62,40 +75,66 @@ class EventStreamService {
       this.notifyConnectionListeners();
     };
 
-    this.eventSource.onmessage = (event) => {
-      if (!event.data || event.data.trim() === "") {
-        // console.warn("Received empty SSE event data, skipping parse.");
-        return;
-      }
-      try {
-        const data = JSON.parse(event.data) as BlockchainEvent;
-        // console.log('SSE Event received:', data);
-        
-        // Notify listeners based on action type
-        if (data.action) {
-          const listeners = this.listeners.get(data.action as EventType);
-          if (listeners) {
-            // console.log(`Notifying ${listeners.size} listeners for action: ${data.action}`);
-            listeners.forEach(listener => {
-              try {
-                listener(data);
-              } catch (error) {
-                // console.error('Error in event listener:', error);
-              }
-            });
-          } else {
-            // console.log(`No listeners registered for action: ${data.action}`);
-          }
-        }
-      } catch (error) {
-        // console.error('Failed to parse SSE event data:', error, 'Raw data:', event.data);
-      }
-    };
+    this.eventSource.onmessage = (event) => this.dispatch(event.data);
 
     this.eventSource.onerror = () => {
       // console.error('SSE connection error');
       this.handleConnectionError();
     };
+  }
+
+  /** Parses one SSE message and notifies the listeners for its action. */
+  private dispatch(raw: string) {
+    if (!raw || raw.trim() === '') return;
+    let data: BlockchainEvent;
+    try {
+      data = JSON.parse(raw) as BlockchainEvent;
+    } catch {
+      return;
+    }
+    if (!data.action) return;
+    const listeners = this.listeners.get(data.action as EventType);
+    listeners?.forEach((listener) => {
+      try {
+        listener(data);
+      } catch {
+        // a failing listener must not stop the others
+      }
+    });
+  }
+
+  /**
+   * Follows a contract's events on its host's stream (a contract read and
+   * written through its host without joining it). Its events then reach the
+   * same listeners as the user's own stream. No-op for the user's own agent.
+   */
+  watchContract(server: string, agent: string, contract: string) {
+    if (server === this.ownServer && agent === this.ownAgent) return;
+    const pair = `${agent}\n${contract}`;
+    const entry = this.watched.get(server) ?? { pairs: new Set<string>(), source: null };
+    if (entry.pairs.has(pair)) return;
+    entry.pairs.add(pair);
+    this.watched.set(server, entry);
+    // One connection per host node; reopen it with the full pair list.
+    entry.source?.close();
+    const query = [...entry.pairs]
+      .map((p) => {
+        const [a, c] = p.split('\n');
+        return `agent=${encodeURIComponent(a)}&contract=${encodeURIComponent(c)}`;
+      })
+      .join('&');
+    try {
+      entry.source = new EventSource(`${server}/stream?${query}`);
+      entry.source.onmessage = (event) => this.dispatch(event.data);
+    } catch {
+      entry.source = null;
+    }
+  }
+
+  /** Closes every host stream opened by watchContract. */
+  unwatchAll() {
+    for (const entry of this.watched.values()) entry.source?.close();
+    this.watched.clear();
   }
 
   private handleConnectionError() {
@@ -125,6 +164,7 @@ class EventStreamService {
       this.eventSource.close();
       this.eventSource = null;
     }
+
     this.isConnected = false;
     this.notifyConnectionListeners();
     this.reconnectAttempts = 0;
@@ -185,6 +225,82 @@ export interface ChainAckWatcher {
  * (e.g. two contract_write calls in a row) — just call waitFor() again with
  * the next ack id, and dispose() once when the whole flow is done.
  */
+/**
+ * A short-lived stream for writes made as ANOTHER identity than the signed-in
+ * user (e.g. the application agent, src/services/verificationRegistry.ts):
+ * their acks arrive on that identity's stream, possibly on another node, so
+ * the shared `eventStreamService` connection never sees them. Resolves once
+ * the stream is open, so a write issued afterwards can't race it; buffers by
+ * request id like `watchForChainAck`. `contract` scopes it ('' = every event
+ * of `agent`, needed for a deploy). Always `dispose()` — it closes the stream.
+ */
+export function openScopedAckStream(
+  serverUrl: string,
+  agent: string,
+  contract = '',
+  openTimeoutMs = 10000,
+): Promise<ChainAckWatcher> {
+  const buffered = new Map<string, unknown>();
+  const pending = new Map<string, { resolve: (reply: unknown) => void; timeoutId: ReturnType<typeof setTimeout> }>();
+  const source = new EventSource(
+    `${serverUrl}/stream?agent=${encodeURIComponent(agent)}&contract=${encodeURIComponent(contract)}`,
+  );
+
+  source.onmessage = (event) => {
+    if (!event.data || event.data.trim() === '') return;
+    let data: BlockchainEvent;
+    try {
+      data = JSON.parse(event.data) as BlockchainEvent;
+    } catch {
+      return;
+    }
+    const requestId = data.request as string | undefined;
+    if (!requestId) return;
+    const waiter = pending.get(requestId);
+    if (waiter) {
+      clearTimeout(waiter.timeoutId);
+      pending.delete(requestId);
+      waiter.resolve(data.reply);
+    } else {
+      buffered.set(requestId, data.reply);
+    }
+  };
+
+  const watcher: ChainAckWatcher = {
+    waitFor(requestId: string, timeoutMs = 20000): Promise<unknown> {
+      if (buffered.has(requestId)) {
+        const reply = buffered.get(requestId);
+        buffered.delete(requestId);
+        return Promise.resolve(reply);
+      }
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          pending.delete(requestId);
+          reject(new Error(`Timed out waiting for the result of request ${requestId}`));
+        }, timeoutMs);
+        pending.set(requestId, { resolve, timeoutId });
+      });
+    },
+    dispose() {
+      source.close();
+      for (const waiter of pending.values()) clearTimeout(waiter.timeoutId);
+      pending.clear();
+      buffered.clear();
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      watcher.dispose();
+      reject(new Error('Could not connect to the application server.'));
+    }, openTimeoutMs);
+    source.onopen = () => {
+      clearTimeout(timeoutId);
+      resolve(watcher);
+    };
+  });
+}
+
 export function watchForChainAck(eventType: 'deploy_contract' | 'contract_write'): ChainAckWatcher {
   const buffered = new Map<string, unknown>();
   const pending = new Map<string, { resolve: (reply: unknown) => void; timeoutId: ReturnType<typeof setTimeout> }>();

@@ -5,7 +5,8 @@ import { Inbox, CheckCircle2 } from 'lucide-react';
 import { Card, Button, EmptyState, MemberCard, useToast } from '../../shared';
 import { useT } from '../../../i18n';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
-import { useVerification, useVerifiedMembers } from '../../../hooks/useVerification';
+import { useVerification } from '../../../hooks/useVerification';
+import { useRequesterSummaries } from '../../../hooks/useVerificationRegistry';
 import { respondToRequest, type VouchRequest } from '../../../services/verification';
 import pages from './VerificationPages.module.scss';
 import styles from './ApprovePage.module.scss';
@@ -14,15 +15,16 @@ const LEAVE_MS = 300; // matches $transition-slow
 
 /**
  * /identity/verification/approve — requests waiting on the user. Approve
- * slides the card out with a check; Decline removes it quietly. Requests only
- * reach verified members, so an unverified user sees the explanatory empty state.
+ * records a vouch on the verification contract and slides the card out with a
+ * check; Decline removes it quietly. Requests only reach verified people, so
+ * an unverified user sees the explanatory empty state.
  */
 const ApprovePage: React.FC = () => {
   const t = useT();
   const navigate = useNavigate();
   const toast = useToast();
   const { ctx, state, refetch, trust } = useVerification();
-  const { byKey } = useVerifiedMembers();
+  const byKey = useRequesterSummaries();
   const [leaving, setLeaving] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const verified = trust === 'verified';
@@ -38,13 +40,15 @@ const ApprovePage: React.FC = () => {
         await new Promise((resolve) => setTimeout(resolve, LEAVE_MS));
       }
       await respondToRequest(ctx, request.id, approve);
-      await refetch();
+      if (approve) {
+        toast.show({ tone: 'success', message: t('verification.approve.approvedToast', 'You vouched for {name}', { name }) });
+      }
+    } catch (err) {
+      toast.show({ tone: 'error', message: err instanceof Error ? err.message : String(err) });
     } finally {
+      await refetch();
       setLeaving(null);
       setBusy(false);
-    }
-    if (approve) {
-      toast.show({ tone: 'success', message: t('verification.approve.approvedToast', 'You vouched for {name}', { name }) });
     }
   };
 
@@ -56,9 +60,6 @@ const ApprovePage: React.FC = () => {
     <div className={pages.page}>
       <p className={pages.intro}>
         {t('verification.approve.intro', 'Approve only people you know are real. Your vouch counts toward their four.')}
-      </p>
-      <p className={pages.intro}>
-        {t('verification.demoNote', 'Demo: these members reply automatically. No real person is contacted.')}
       </p>
       {pending.length === 0 ? (
         <EmptyState
@@ -87,7 +88,7 @@ const ApprovePage: React.FC = () => {
                 <MemberCard
                   name={member?.name ?? request.requester.slice(0, 8)}
                   countryCode={member?.country}
-                  online={member?.online}
+                  showPresence={false}
                   onlineLabel={t('verification.member.online', 'Online')}
                   offlineLabel={t('verification.member.offline', 'Offline')}
                   meta={when ? `${t('verification.approve.asked', 'asked you to vouch')} · ${when}` : t('verification.approve.asked', 'asked you to vouch')}

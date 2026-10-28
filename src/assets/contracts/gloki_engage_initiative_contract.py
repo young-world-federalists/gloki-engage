@@ -1,4 +1,9 @@
 class GlokiEngageInitiative:
+    # Only the creator holds this contract; members don't join it (joining
+    # would put every transaction through consensus). Everyone reads and
+    # writes it on the creator's node through the creator's agent, so
+    # master() is always the creator. Every member-specific method therefore
+    # takes the acting member's key as its `agent` argument instead.
 
     def __init__(self):
         self.details = Storage('initiative')['details']
@@ -46,8 +51,8 @@ class GlokiEngageInitiative:
     def get_details(self):
         return self.details.get_dict()
 
-    def set_details(self, description, explanation, links, countries):
-        caller = master()
+    def set_details(self, agent, description, explanation, links, countries):
+        caller = agent
         if not self.details.exists():
             # Creation, unchanged: the first writer becomes the author.
             # createInitiativeOnChain calls this straight after the deploy, before the
@@ -71,8 +76,8 @@ class GlokiEngageInitiative:
     def get_stage(self):
         return self.stage['value'] or 'problem'
 
-    def set_stage(self, stage):
-        if not self._is_author_or_co_author(master()):
+    def set_stage(self, agent, stage):
+        if not self._is_author_or_co_author(agent):
             return {'error': 'Only the author or a co-author can advance the stage'}
         order = self._stage_order()
         if stage not in order:
@@ -105,8 +110,8 @@ class GlokiEngageInitiative:
         counts[public_key] = count
         self.roles['endorsementCounts'] = counts
 
-    def endorse_expert(self, public_key):
-        caller = master()
+    def endorse_expert(self, agent, public_key):
+        caller = agent
         endorsements = self.roles['endorsements'] or {}
         # endorsements is a plain dict here (read out of Storage), not a
         # Storage document — endorsements[caller] raises KeyError on a
@@ -122,8 +127,8 @@ class GlokiEngageInitiative:
         if public_key not in experts:
             self.roles['experts'] = experts + [public_key]
 
-    def unendorse_expert(self, public_key):
-        caller = master()
+    def unendorse_expert(self, agent, public_key):
+        caller = agent
         endorsements = self.roles['endorsements'] or {}
         mine = endorsements[caller] if caller in endorsements else []
         if public_key in mine:
@@ -132,8 +137,8 @@ class GlokiEngageInitiative:
         self.roles['endorsements'] = endorsements
         self._recount_endorsements(public_key, endorsements)
 
-    def add_co_author(self, public_key):
-        if not self._is_author_or_co_author(master()):
+    def add_co_author(self, agent, public_key):
+        if not self._is_author_or_co_author(agent):
             return {'error': 'Only the author or a co-author can add a co-author'}
         co_authors = self.roles['coAuthors'] or []
         if public_key not in co_authors:
@@ -146,22 +151,22 @@ class GlokiEngageInitiative:
 
     # ─── Problem vote ───────────────────────────────────────────────────────
 
-    def upvote(self):
+    def upvote(self, agent):
         if self.get_stage() != 'problem':
             return {'error': 'Problem voting is closed'}
-        self.votes[master()] = {'vote': 'up'}
+        self.votes[agent] = {'vote': 'up'}
         return None
 
-    def downvote(self):
+    def downvote(self, agent):
         if self.get_stage() != 'problem':
             return {'error': 'Problem voting is closed'}
-        self.votes[master()] = {'vote': 'down'}
+        self.votes[agent] = {'vote': 'down'}
         return None
 
-    def remove_vote(self):
+    def remove_vote(self, agent):
         if self.get_stage() != 'problem':
             return {'error': 'Problem voting is closed'}
-        caller = master()
+        caller = agent
         if caller in self.votes:
             del self.votes[caller]
         return None
@@ -169,8 +174,8 @@ class GlokiEngageInitiative:
     def get_votes(self):
         return {key: self.votes[key]['vote'] for key in self.votes}
 
-    def get_my_vote(self):
-        caller = master()
+    def get_my_vote(self, agent):
+        caller = agent
         if caller in self.votes:
             return self.votes[caller]['vote']
         return None
@@ -188,14 +193,14 @@ class GlokiEngageInitiative:
 
     # ─── Discussion ─────────────────────────────────────────────────────────
 
-    def add_comment(self, text, parent_id, category, sources):
+    def add_comment(self, agent, text, parent_id, category, sources):
         # No 'deleted' field here — every other field type in this contract
         # already confirmed working elsewhere is a string, number, or list of
         # strings; a bare Python bool was the one meaningfully different type
         # in this document. Reading an absent field naturally returns None
         # (falsy), matching what delete_comment below now sets on delete.
         comment_id = self.comments.append({
-            'author': master(),
+            'author': agent,
             'text': text,
             'parentId': parent_id,
             'timestamp': timestamp(),
@@ -206,20 +211,20 @@ class GlokiEngageInitiative:
         self.comments[comment_id]['id'] = comment_id
         return comment_id
 
-    def delete_comment(self, comment_id):
+    def delete_comment(self, agent, comment_id):
         if comment_id in self.comments:
             doc = self.comments[comment_id]
-            if doc['author'] == master():
+            if doc['author'] == agent:
                 # A timestamp string, not a bool — truthy either way, and the
                 # JS side already reads it with `!!raw.deleted`, not `=== true`.
                 doc['deleted'] = timestamp()
                 doc['text'] = ''
 
-    def like_comment(self, comment_id):
+    def like_comment(self, agent, comment_id):
         if comment_id not in self.comments:
             return
         doc = self.comments[comment_id]
-        caller = master()
+        caller = agent
         likes = doc['likes'] or []
         if caller in likes:
             likes = [key for key in likes if key != caller]
@@ -237,9 +242,9 @@ class GlokiEngageInitiative:
 
     # ─── Causes: up/down on ROOT comments only (D4) ─────────────────────────
 
-    def vote_comment(self, comment_id, direction):
+    def vote_comment(self, agent, comment_id, direction):
         # direction: 'up' | 'down' | 'none' ('none' removes the caller's vote). 1p1v.
-        caller = master()
+        caller = agent
         if comment_id not in self.comments:
             return
         if self.comments[comment_id]['parentId']:
@@ -260,10 +265,10 @@ class GlokiEngageInitiative:
 
     # ─── Solutions (proposals / approval) ───────────────────────────────────
 
-    def add_proposal(self, text, co_authors, commitments, sources, metrics, cause_id=''):
+    def add_proposal(self, agent, text, co_authors, commitments, sources, metrics, cause_id=''):
         proposal_id = self.proposals.append({
             'text': text,
-            'author': master(),
+            'author': agent,
             'timestamp': timestamp(),
             'coAuthors': co_authors,
             'commitments': commitments,
@@ -284,13 +289,13 @@ class GlokiEngageInitiative:
     # of fix) reliably came back empty on read even though the write
     # succeeded; every field below is a plain string, matching self.votes's
     # already-proven-working shape exactly.
-    def approve(self, proposal_id):
-        caller = master()
+    def approve(self, agent, proposal_id):
+        caller = agent
         key = caller + ':' + proposal_id
         self.approvals[key] = {'voter': caller, 'proposalId': proposal_id}
 
-    def withdraw_approval(self, proposal_id):
-        caller = master()
+    def withdraw_approval(self, agent, proposal_id):
+        caller = agent
         key = caller + ':' + proposal_id
         if key in self.approvals:
             del self.approvals[key]
@@ -325,8 +330,8 @@ class GlokiEngageInitiative:
             counts[proposal_id] = (counts[proposal_id] + 1) if proposal_id in counts else 1
         return counts
 
-    def get_my_approvals(self):
-        caller = master()
+    def get_my_approvals(self, agent):
+        caller = agent
         result = {}
         for key in self.approvals:
             doc = self.approvals[key]
@@ -334,22 +339,22 @@ class GlokiEngageInitiative:
                 result[doc['proposalId']] = True
         return result
 
-    def request_expert_review(self, proposal_id):
+    def request_expert_review(self, agent, proposal_id):
         if proposal_id not in self.proposals:
             return
         doc = self.proposals[proposal_id]
         requests = doc['expertReviewRequests'] or []
-        caller = master()
+        caller = agent
         if caller not in requests:
             doc['expertReviewRequests'] = requests + [caller]
 
-    def add_expert_review(self, proposal_id, metrics, note='', assessment='', sources=None, credentials=''):
+    def add_expert_review(self, agent, proposal_id, metrics, note='', assessment='', sources=None, credentials=''):
         if proposal_id not in self.proposals:
             return
         doc = self.proposals[proposal_id]
         reviews = doc['expertReviews'] or []
         doc['expertReviews'] = reviews + [{
-            'expert': master(),
+            'expert': agent,
             'metrics': metrics,
             'note': note,
             'assessment': assessment,
@@ -358,14 +363,14 @@ class GlokiEngageInitiative:
             'timestamp': timestamp(),
         }]
 
-    def suggest_proposal_merge(self, source_id, target_id):
+    def suggest_proposal_merge(self, agent, source_id, target_id):
         if source_id not in self.proposals:
             return
         doc = self.proposals[source_id]
         suggestions = doc['mergeSuggestions'] or []
         doc['mergeSuggestions'] = suggestions + [{
             'target': target_id,
-            'suggester': master(),
+            'suggester': agent,
             'timestamp': timestamp(),
         }]
 
@@ -386,9 +391,9 @@ class GlokiEngageInitiative:
     # ─── Impact assessment (W4). Eligibility is UI-gated (D12); the contract
     #     enforces only: proposal exists, max 3 per proposal, one per author. ─
 
-    def add_impact_assessment(self, proposal_id, target, targets_cause, mechanism,
+    def add_impact_assessment(self, agent, proposal_id, target, targets_cause, mechanism,
                               broader_effects, risks, opportunity_costs, time_horizon):
-        caller = master()
+        caller = agent
         if proposal_id not in self.proposals:
             return
         existing = [k for k in self.impact_assessments if self.impact_assessments[k]['proposalId'] == proposal_id]
@@ -429,9 +434,9 @@ class GlokiEngageInitiative:
     def set_status(self, status):
         return {'error': 'Voting opens and closes with the Vote stage'}
 
-    def allocate(self, allocations):
+    def allocate(self, agent, allocations):
         # Messages match the ui demo stub (demoContracts/qv.ts) where the rule is shared.
-        caller = master()
+        caller = agent
         if self.get_stage() != 'vote':
             return {'error': 'Voting is not open'}
         if caller in self.qv_allocations:
@@ -471,8 +476,8 @@ class GlokiEngageInitiative:
     def get_allocations(self):
         return {key: (self.qv_allocations[key]['items'] or {}) for key in self.qv_allocations}
 
-    def get_my_allocation(self):
-        caller = master()
+    def get_my_allocation(self, agent):
+        caller = agent
         if caller in self.qv_allocations:
             return self.qv_allocations[caller]['items'] or {}
         return {}
@@ -512,12 +517,12 @@ class GlokiEngageInitiative:
         strength = 1 + elapsed_seconds / (30 * 24 * 60 * 60)
         return cap if strength > cap else strength
 
-    def stake(self, amount, duration, country):
+    def stake(self, agent, amount, duration, country):
         if amount != 1:
             return {'error': 'Stake amount must be exactly 1'}
         if self._duration_multiplier(duration) is None:
             return {'error': 'Invalid duration'}
-        caller = master()
+        caller = agent
         if caller in self.stakes:
             return {'error': 'Already backing — use update_stake'}
         self.stakes[caller] = {
@@ -529,11 +534,11 @@ class GlokiEngageInitiative:
         }
         return None
 
-    def update_stake(self, duration, country):
+    def update_stake(self, agent, duration, country):
         now_mult = self._duration_multiplier(duration)
         if now_mult is None:
             return {'error': 'Invalid duration'}
-        caller = master()
+        caller = agent
         if caller not in self.stakes:
             return {'error': 'No commitment to change'}
         existing = self.stakes[caller].get_dict()
@@ -545,15 +550,15 @@ class GlokiEngageInitiative:
         })
         return None
 
-    def withdraw_stake(self):
-        caller = master()
+    def withdraw_stake(self, agent):
+        caller = agent
         if caller not in self.stakes:
             return {'error': 'No commitment to withdraw'}
         del self.stakes[caller]
         return None
 
-    def get_my_stake(self):
-        caller = master()
+    def get_my_stake(self, agent):
+        caller = agent
         if caller not in self.stakes:
             return None
         stake = self.stakes[caller].get_dict()

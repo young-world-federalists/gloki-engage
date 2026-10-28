@@ -26,7 +26,23 @@ import {
   mergeDemoContracts,
 } from "./demo/mockApi";
 import { isDemoContract } from "./demo/demoRegistry";
-import { watchForChainAck } from "./eventStream";
+import { openScopedAckStream, watchForChainAck } from "./eventStream";
+import { hostedContract } from "./contractHosts";
+
+/**
+ * A call to a contract used without joining it (contractHosts.ts) goes to its
+ * host's node as its host's agent; member-specific methods get the caller's
+ * key as `agent`. Any other contract is called as the caller, unchanged.
+ */
+function routeCall(serverUrl: string, publicKey: string, contractId: string, method: IMethod) {
+  const hosted = hostedContract(contractId);
+  if (!hosted) return { serverUrl, publicKey, method, viaHost: false };
+  const values = hosted.memberMethods.has(method.name)
+    ? { ...(method.values ?? {}), agent: publicKey }
+    : method.values;
+  const viaHost = hosted.host.server !== serverUrl || hosted.host.agent !== publicKey;
+  return { serverUrl: hosted.host.server, publicKey: hosted.host.agent, method: { ...method, values }, viaHost };
+}
 
 const FAKE_DEPLOY_DELAY = 200;
 
@@ -116,6 +132,22 @@ export async function getContracts({
   // are migrated off the mock layer too — seed once, then merge alongside real data.
   ensureDefaultDemoCommunity(publicKey);
   return mergeDemoContracts(realContracts ?? []);
+}
+
+// GET_CONTRACTS without the demo merge — for looking up another identity's
+// real contracts (e.g. the application agent's, verificationRegistry.ts).
+export async function getContractsOnChain({
+  serverUrl,
+  publicKey,
+}: {
+  serverUrl: string;
+  publicKey: string;
+}): Promise<IContract[]> {
+  const result = (await fetchWithTimeout(
+    `${serverUrl}/ibc/app/${publicKey}?action=get_contracts`,
+    { method: 'GET' }
+  )) as IContract[];
+  return Array.isArray(result) ? result : [];
 }
 
 // REAL deploy/write/read, bypassing the mock layer entirely — currently used
@@ -228,13 +260,21 @@ export async function deployContract({
   return delay(FAKE_DEPLOY_DELAY, result);
 }
 
-// Membership/joining isn't migrated yet — a real gloki-engage community has
-// no membership methods for a successful join to do anything with — so this
-// stays fully mocked, same as before. (When that work happens, note
-// JoinCommunity.tsx already assumes the real confirmation event is
-// 'a2a_connect', not 'contract_write' — worth reusing that signal.)
+// JOIN_CONTRACT. A real contract is joined for real: the joiner's own node
+// connects to the partner named in the invitation (`address` + `agent`).
+// Returns the ack id, or null when this agent has already joined. The join
+// completes asynchronously — the joiner's stream gets `a2a_connect` with
+// `reply: true` (JoinCommunity.tsx waits for it), after which the contract is
+// in the joiner's get_contracts and the joiner is in its get_partners, which
+// is what membership of a gloki-engage community is today. Demo contracts
+// stay on the mock.
 export async function joinContract({
+  serverUrl,
   publicKey,
+  address,
+  agent,
+  contract,
+  profile = '',
 }: {
   serverUrl: string;
   publicKey: string;
@@ -243,8 +283,15 @@ export async function joinContract({
   contract: string;
   profile?: string;
 }): Promise<any> {
-  void publicKey;
-  return mockJoinContract();
+  if (isDemoContract(contract)) return mockJoinContract();
+  return await fetchWithTimeout(
+    `${serverUrl}/ibc/app/${publicKey}?action=join_contract`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contract, address, agent, profile }),
+    }
+  );
 }
 
 export async function contractWrite({
@@ -259,9 +306,13 @@ export async function contractWrite({
   method: IMethod;
 }): Promise<any> {
   if (!isDemoContract(contractId)) {
-    const watcher = watchForChainAck('contract_write');
+    const route = routeCall(serverUrl, publicKey, contractId, method);
+    // A write through another agent is confirmed on THAT agent's stream.
+    const watcher = route.viaHost
+      ? await openScopedAckStream(route.serverUrl, route.publicKey, contractId)
+      : watchForChainAck('contract_write');
     try {
-      const ackId = await contractWriteOnChain({ serverUrl, publicKey, contractId, method });
+      const ackId = await contractWriteOnChain({ serverUrl: route.serverUrl, publicKey: route.publicKey, contractId, method: route.method });
       return await watcher.waitFor(ackId);
     } finally {
       watcher.dispose();
@@ -282,7 +333,8 @@ export async function contractRead({
   method: IMethod;
 }): Promise<any> {
   if (!isDemoContract(contractId)) {
-    return contractReadOnChain({ serverUrl, publicKey, contractId, method });
+    const route = routeCall(serverUrl, publicKey, contractId, method);
+    return contractReadOnChain({ serverUrl: route.serverUrl, publicKey: route.publicKey, contractId, method: route.method });
   }
   return mockContractRead({ serverUrl, publicKey, contractId, method });
 }

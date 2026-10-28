@@ -4,6 +4,7 @@ import { IdCard, QrCode, Share2 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
 import { Card, TrustBadge, Button, ProgressBar } from '../shared';
 import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { useVerificationRegistry } from '../../hooks/useVerificationRegistry';
 import { VERIFIED_THRESHOLD } from '../../services/trust';
 import { useT } from '../../i18n';
 import styles from './IdentityTrust.module.scss';
@@ -22,6 +23,7 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   const t = useT();
   const navigate = useNavigate();
   const trust = useCommunityTrust(communityId);
+  const registry = useVerificationRegistry();
 
   const [showIdentityCard, setShowIdentityCard] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -30,6 +32,14 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
   const allMembers: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const isMember = publicKey && allMembers.includes(publicKey);
   const communityName = communityProperties[communityId]?.name || 'Community';
+
+  // Verification is app-wide; how many vouches count depends on its phase
+  // (useVerificationRegistry): nobody yet, everyone verified (while fewer than
+  // four people are verified), or four.
+  const verified = trust.currentUserTrust === 'verified';
+  const phase = registry.phase;
+  const threshold = phase === 'sequential' ? registry.required : VERIFIED_THRESHOLD;
+  const count = Math.min(trust.currentUserVouchCount, threshold);
 
   // The section title + web-of-trust intro render in the AppHeader title block (S23).
   if (!isMember) {
@@ -47,20 +57,26 @@ const IdentityTrust: React.FC<IdentityTrustProps> = ({ communityId }) => {
           <span className={styles.verifyTitle}>{t('trust.your.title', 'Your verification')}</span>
           <TrustBadge state={trust.currentUserTrust} vouchCount={trust.currentUserVouchCount} size="md" />
         </div>
-        <ProgressBar
-          value={Math.min(trust.currentUserVouchCount, VERIFIED_THRESHOLD)}
-          max={VERIFIED_THRESHOLD}
-          size="md"
-          variant={trust.currentUserTrust === 'verified' ? 'success' : 'primary'}
-          label={t('trust.your.barLabel', 'Verification progress')}
-        />
+        {phase !== 'founder' && (
+          <ProgressBar
+            value={verified ? threshold : count}
+            max={threshold}
+            size="md"
+            variant={verified ? 'success' : 'primary'}
+            label={t('trust.your.barLabel', 'Verification progress')}
+          />
+        )}
         <p className={styles.verifyStatus}>
-          {trust.currentUserTrust === 'verified'
+          {verified
             ? t('trust.your.verified', "You're verified — this counts in every community.")
-            : t('trust.your.progress', 'Vouched by {count} of {threshold} needed to verify. Ask members you know to vouch for you.', {
-                count: trust.currentUserVouchCount,
-                threshold: VERIFIED_THRESHOLD,
-              })}
+            : phase === 'founder'
+              ? t('trust.your.nobodyYet', 'Nobody on Gloki is verified yet.')
+              : phase === 'sequential'
+                ? t('verification.sequential.progress', '{count} of {threshold} verified people have vouched for you', { count, threshold })
+                : t('trust.your.progress', 'Vouched by {count} of {threshold} needed to verify. Ask members you know to vouch for you.', {
+                    count,
+                    threshold,
+                  })}
         </p>
         {trust.currentUserTrust !== 'verified' && (
           <div className={styles.verifyActions}>
