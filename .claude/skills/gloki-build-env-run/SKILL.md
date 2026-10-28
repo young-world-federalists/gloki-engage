@@ -1,6 +1,6 @@
 ---
 name: gloki-build-env-run
-description: Use when setting up the Communities2/Gloki repo from scratch, running or previewing the app, building, typechecking, checking a GitHub Pages deploy, understanding WHY assets 404 on Pages (base-path modes) or why the external USB drive stalls under parallel I/O, wondering about mock-server.cjs or Node versions, or choosing which npm script to run (symptom-first triage of a live failure: gloki-debugging-playbook). Keywords - npm run dev, build:prod, tsc -b, deploy.yml, gloki-engage, base path, 404.html, slow USB drive, launch.json.
+description: Use when setting up the Communities2/Gloki repo from scratch, running or previewing the app, building, typechecking, checking a GitHub Pages deploy, understanding WHY assets 404 on Pages (base-path modes) or why the external USB drive stalls under parallel I/O, wondering about mock-server.cjs or Node versions, or choosing which npm script to run (symptom-first triage of a live failure: gloki-debugging-playbook). Keywords - npm run dev, build:prod, tsc -b, deploy.yml, gloki-engage, base path, 404.html, slow USB drive, launch.json, ibc node, Docker, OrbStack, localhost:2611, real backend, execution.log.
 ---
 
 # Gloki: Build, Environment, Run & Deploy
@@ -205,6 +205,107 @@ real gloki server HTTP API (port 3001, `/ibc/app/...` endpoints, test agent
 bump rules in **gloki-seam-and-demo-data**). Do not start mock-server for normal dev, do
 not "fix" it, and do not remove express/cors without a decision to delete the file too
 (that's a **gloki-refactor-and-dead-code** job, gated by Eston).
+
+## Real backend: a local ibc node (Ouri's Docker image)
+
+Ouri publishes the real node as `ghcr.io/ouripoupko/ibc:latest` (public, amd64 + arm64,
+"Run with Docker" in github.com/ouripoupko/ibc). Compose runs three containers (ibc,
+mongo:7, redis:8) and serves the API at `http://localhost:2611`, bound to 127.0.0.1. This
+is the node the beta's "host a node" door refers to, and the way to test seam calls,
+contracts and PRs against a real backend instead of stubs.
+
+**What actually reaches it.** `ui` (and the S43 beta work) is all stubs: `src/services/api.ts`
+→ `mockApi.ts`, `betaForum.ts`. Only `server-side` (and branches built on it, e.g. PR #24's
+`integration/ui-2026-10`) calls a server: `isExistAgent` / `registerAgent` / `getContracts`
+and the `*OnChain` functions (digital-agent profile, gloki-engage community and initiative).
+`joinContract` is still a mock there. So the node is for (a) the server-side app,
+(b) contracts deployed with curl, (c) checking a seam design before it's wired.
+
+### Start it
+
+```bash
+docker version && docker compose version     # cloud: check first; Mac: OrbStack is the engine
+mkdir -p ~/ibc-node && cd ~/ibc-node          # Mac: NEVER on the USB drive
+curl -O https://raw.githubusercontent.com/ouripoupko/ibc/main/compose.yml
+docker compose up -d && docker compose ps     # expect mongo/redis (healthy), ibc plain "Up" (no healthcheck)
+curl -s 'http://localhost:2611/ibc/app/probe?action=is_exist_agent'   # → false
+```
+
+- If `up` fails with `open Dockerfile: no such file or directory`, the **pull** failed and
+  compose fell back to `build: .`. Compose prints no pull error of its own, so run
+  `docker compose pull` and read that error: it names the real cause.
+- **Cloud sessions: the node works (verified 2026-10-25, smoke test passed)**, with two
+  conditions:
+  1. **Start the daemon first.** The Docker client, Compose and `dockerd` are installed, but the
+     daemon isn't running (`docker version` fails: no `/var/run/docker.sock`). The session runs
+     as root: `dockerd > /tmp/dockerd.log 2>&1 &`, then wait for `docker info` (about 1 s). Putting
+     that line in the cloud environment's setup script would make it automatic.
+  2. **The environment's network access must allow `ghcr.io` and
+     `pkg-containers.githubusercontent.com`** (Eston's setting; docs:
+     code.claude.com/docs/en/cloud-environments#network-access). The image's layers come from the
+     second host. Without it the proxy answers `403 Forbidden`, the ibc pull fails, and `up` shows
+     only the `open Dockerfile` fallback error. If that happens, stop and say so; don't
+     hand-install Mongo/Redis or build the ibc image from source without Eston's go.
+  - `mongo:7` (1.18 GB) and `redis:8` (213 MB) pull from Docker Hub. Retries can hit Docker Hub's
+    rate limit (`429 Too Many Requests`); images already pulled in the container stay.
+  - Run the smoke test from the repo checkout after `git fetch origin server-side`, so the
+    `git show origin/server-side:…` line finds the contract.
+  - Everything lives in the container: the node and its data are gone when the session ends.
+- Don't edit `compose.yml` or the port binding: writes carry the identity key in the URL with
+  no signature, so the node must stay on localhost.
+- Memory: ~280 MB at idle on a Mac; ~400 MiB in a cloud container right after the smoke test
+  (ibc 203, mongo 182, redis 14). `docker compose stop` pauses; `docker compose down -v`
+  **wipes all data**.
+
+### Smoke test (one minute)
+
+```bash
+B=http://localhost:2611; K="smoke-$(date +%s)"; TMP=$(mktemp -d)
+git show origin/server-side:src/assets/contracts/gloki_engage_initiative_contract.py > "$TMP/c.py"
+curl -s -X PUT -H 'Content-Type: application/json' -d "{\"address\":\"$B\"}" "$B/ibc/app/$K?action=register_agent" >/dev/null
+python3 -c 'import json,sys;print(json.dumps({"name":"smoke","contract":"GlokiEngageInitiative","code":open(sys.argv[1]).read(),"constructor":{},"protocol":"BFT","default_app":"","pid":sys.argv[2],"address":sys.argv[3],"profile":""}))' "$TMP/c.py" "$K" "$B" > "$TMP/d.json"
+curl -s -X PUT -H 'Content-Type: application/json' --data @"$TMP/d.json" "$B/ibc/app/$K?action=deploy_contract" >/dev/null; sleep 4
+C=$(curl -s "$B/ibc/app/$K?action=get_contracts" | python3 -c 'import sys,json;print(json.load(sys.stdin)[0]["id"])')
+curl -s -X POST -H 'Content-Type: application/json' -d '{"values":{}}' "$B/ibc/app/$K/$C/upvote?action=contract_write" >/dev/null; sleep 3
+curl -s -X POST -H 'Content-Type: application/json' -d '{"values":{}}' "$B/ibc/app/$K/$C/get_tally?action=contract_read"   # → {"down":0,"total":1,"up":1}
+```
+
+### Point the app at it
+
+- `npm run dev -- --strictPort --host 127.0.0.1`, then open **http://127.0.0.1:7173** (the port is
+  7173, set in `vite.config.ts`). Without `--host`, Vite bound only IPv6 `[::1]` on macOS and the
+  browser got connection-refused.
+- On the login page change **Server URL** from the default `https://gdi.gloki.contact` to
+  `http://localhost:2611`, or the session registers on the live network.
+- Test seeding (`VITE_ENABLE_TEST_SEEDING` or its localStorage flag) auto-deploys initiatives on
+  localhost for communities with "test" in the name. Keep "test" out of names when it's on.
+- The GitHub Pages site can't use it cleanly: Chrome's local-network rules block or prompt a
+  public https page calling `localhost`.
+
+### Reading what happened
+
+- Every request: `docker compose logs -f ibc` (gunicorn access log; the user's key is in every
+  URL: `grep -oE '/ibc/app/[A-Za-z0-9_-]{64}' | sort -u`).
+- **Every write and its real return value:** `docker compose exec ibc tail -f execution.log`.
+  Use this, not HTTP status. Also `dispatcher.log`, `consensus.log`.
+- State: `GET /ibc/app/<key>?action=get_contracts`, and `POST .../<key>/<contract>/<method>?action=contract_read`
+  with `{"values":{}}`. Writes return only an ack id; the method's return value arrives on
+  `GET /stream?agent=<key>&contract=` (SSE). Node docs: `docker compose exec ibc cat docs/blockchain-api.md docs/contract-api.md`.
+- A second identity on the same contract: register it, then
+  `PUT /ibc/app/<key2>?action=join_contract` with `{"contract","address":"http://localhost:2611","agent":<deployer>,"profile":""}`.
+
+### What a real node taught us (verified 2026-10-24, image built 2026-10-24)
+
+| Behaviour | Consequence |
+|---|---|
+| Responses are always HTTP 200; errors are JSON values | Check the body / `execution.log`, never the status code |
+| A method the contract doesn't define returns `null` (read) or a normal ack and logs `<method> ~ None` | Silent. The server-side app calls `record_activity`, `get_vouches`, `get_stage_permissions` (community) and `get_initiative` (initiative), which the contracts don't define |
+| `_`-prefixed methods are hidden from the method list but still callable by anyone | `_recount_endorsements` let an outsider set its own endorsement count. Guard writes inside `_` helpers or don't write in them |
+| `Storage.append()` mints a different ObjectId in each partner's copy | Ids of proposals/comments differ per member; anything keyed by them diverges across copies |
+| `x in collection` / `if x not in self.comments` with an `append()` id (a string) is always False | `like_comment`, `delete_comment`, `request_expert_review`, `add_expert_review`, `suggest_proposal_merge` are silent no-ops today. This is the "in check fix" |
+| String keys set directly (`self.proposals[pid] = {...}` with `pid = hashcode(master() + timestamp())`) | Same id on every copy and `in` works; verified with 3 partners (proposals, approvals, review requests, ballots, results all identical) |
+
+Contract-dialect details (which builtins the sandbox allows) live in **gloki-python-contracts** §1.
 
 ## HARD CONSTRAINT: the slow external USB drive
 

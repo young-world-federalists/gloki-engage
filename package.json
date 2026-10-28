@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:beta": "VITE_APP_MODE=beta vite",
     "build": "tsc -b && vite build",
     "build:prod": "tsc -b && vite build --mode production",
+    "build:beta": "tsc -b && VITE_APP_MODE=beta vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:prod": "vite preview --mode production"

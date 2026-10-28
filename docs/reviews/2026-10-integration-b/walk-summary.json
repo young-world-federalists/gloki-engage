@@ -1,0 +1,571 @@
+{
+ "demo": {
+  "light": {
+   "steps": [
+    {
+     "label": "home",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Across your communities"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "stage/discussion",
+     "path": "/gloki-engage/stage/problem",
+     "h1": [
+      "Problem"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "communities",
+     "path": "/gloki-engage/identity/communities",
+     "h1": [
+      "Your Communities"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "demo community",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/members",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7/members",
+     "h1": [
+      "Members"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/chat",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7/chat",
+     "h1": [
+      "Chat"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/currency",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7/currency",
+     "h1": [
+      "Community Funds"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/collab",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7/collab",
+     "h1": [
+      "Collabs"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "history.back",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7/currency",
+     "h1": [
+      "Community Funds"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community feed",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "Causes (initiative)",
+     "path": "/gloki-engage/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvrzzaby-qxc7k3k7/demo-init-mvrzzac2-o4oys8gd/discussion",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "initiative dash",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "back",
+     "path": "/gloki-engage/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvrzzaby-qxc7k3k7/demo-init-mvrzzac2-o4oys8gd/discussion",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community feed again",
+     "path": "/gloki-engage/community/demo-comm-mvrzzaby-qxc7k3k7",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "published mandate",
+     "path": "/gloki-engage/mandate/demo-comm-mvrzzaby-qxc7k3k7/demo-init-mvrzzac2-o4oys8gd",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "unknown route",
+     "path": "/gloki-engage/no-such-page",
+     "h1": [
+      "Page not found"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "identity/profile",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true
+    }
+   ],
+   "errors": [],
+   "failedHosts": []
+  },
+  "dark": {
+   "steps": [
+    {
+     "label": "home",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Across your communities"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "stage/discussion",
+     "path": "/gloki-engage/stage/problem",
+     "h1": [
+      "Problem"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "communities",
+     "path": "/gloki-engage/identity/communities",
+     "h1": [
+      "Your Communities"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "demo community",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/members",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755/members",
+     "h1": [
+      "Members"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/chat",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755/chat",
+     "h1": [
+      "Chat"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/currency",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755/currency",
+     "h1": [
+      "Community Funds"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community/collab",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755/collab",
+     "h1": [
+      "Collabs"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "history.back",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755/currency",
+     "h1": [
+      "Community Funds"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community feed",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "Causes (initiative)",
+     "path": "/gloki-engage/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvs0010t-ktllm755/demo-init-mvs0010w-0bczx0ld/discussion",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "initiative dash",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "back",
+     "path": "/gloki-engage/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvs0010t-ktllm755/demo-init-mvs0010w-0bczx0ld/discussion",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "community feed again",
+     "path": "/gloki-engage/community/demo-comm-mvs0010t-ktllm755",
+     "h1": [
+      "Climate Resilience Assembly"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "published mandate",
+     "path": "/gloki-engage/mandate/demo-comm-mvs0010t-ktllm755/demo-init-mvs0010w-0bczx0ld",
+     "h1": [
+      "A Universal Climate Adaptation Fund"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "unknown route",
+     "path": "/gloki-engage/no-such-page",
+     "h1": [
+      "Page not found"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "identity/profile",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true
+    }
+   ],
+   "errors": [],
+   "failedHosts": []
+  }
+ },
+ "beta": {
+  "light": {
+   "steps": [
+    {
+     "label": "doors",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Gloki"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "your key",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Your key"
+     ],
+     "overflow": false,
+     "main": false
+    },
+    {
+     "label": "save your key",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Save your key"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "account kind",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Who is this account for?"
+     ],
+     "overflow": false,
+     "main": true,
+     "personPreselected": 1
+    },
+    {
+     "label": "profile",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Create your profile"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "ready",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "You're ready to participate"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "forum",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "forum after post",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true,
+     "postShown": true,
+     "bylineName": false
+    },
+    {
+     "label": "returning root",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "profile page",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true,
+     "kindShown": true,
+     "nameShown": true
+    },
+    {
+     "label": "profile after reload",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true,
+     "kindShown": true
+    }
+   ],
+   "errors": [],
+   "failedHosts": []
+  },
+  "dark": {
+   "steps": [
+    {
+     "label": "doors",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Gloki"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "your key",
+     "path": "/gloki-engage/",
+     "h1": [
+      "Your key"
+     ],
+     "overflow": false,
+     "main": false
+    },
+    {
+     "label": "save your key",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Save your key"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "account kind",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Who is this account for?"
+     ],
+     "overflow": false,
+     "main": true,
+     "personPreselected": 1
+    },
+    {
+     "label": "profile",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "Create your profile"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "ready",
+     "path": "/gloki-engage/welcome",
+     "h1": [
+      "You're ready to participate"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "forum",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "forum after post",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true,
+     "postShown": true,
+     "bylineName": false
+    },
+    {
+     "label": "returning root",
+     "path": "/gloki-engage/forum",
+     "h1": [
+      "Forum"
+     ],
+     "overflow": false,
+     "main": true
+    },
+    {
+     "label": "profile page",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true,
+     "kindShown": true,
+     "nameShown": true
+    },
+    {
+     "label": "profile after reload",
+     "path": "/gloki-engage/identity/profile",
+     "h1": [
+      "Profile"
+     ],
+     "overflow": false,
+     "main": true,
+     "kindShown": true
+    }
+   ],
+   "errors": [],
+   "failedHosts": []
+  }
+ },
+ "demoOnboarding": {
+  "direct": {
+   "seen": [
+    "/gloki-engage/welcome  Create your profile",
+    "/gloki-engage/welcome  How we work together",
+    "/gloki-engage/welcome  You're ready to participate",
+    "/gloki-engage/  Across your communities"
+   ],
+   "errors": [],
+   "consentNudgeShown": false
+  },
+  "invite": {
+   "seen": [
+    "/gloki-engage/welcome?invite=AMARA  You've been invited",
+    "/gloki-engage/welcome?invite=AMARA  A friend vouched for you",
+    "/gloki-engage/welcome?invite=AMARA  How Gloki works",
+    "/gloki-engage/welcome?invite=AMARA  Create your profile",
+    "/gloki-engage/welcome?invite=AMARA  How we work together",
+    "/gloki-engage/welcome?invite=AMARA  You're ready to participate",
+    "/gloki-engage/  Across your communities"
+   ],
+   "errors": [],
+   "consentNudgeShown": false
+  }
+ }
+}

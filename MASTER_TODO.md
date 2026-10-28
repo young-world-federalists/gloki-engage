@@ -154,6 +154,17 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 
 ### Open work (carried from the archived tiers)
 
+**Code health**
+- **Lint debt:** `npx eslint src` reports 44 errors and 7 warnings at `67ac268` (S45 cleared the
+  five `rules-of-hooks` errors, all one early return in `CommunityView`). Left: 14
+  `set-state-in-effect`, 9 `only-export-components`, 8 unused vars, 6 `exhaustive-deps` and a
+  tail of singles. The build does not lint, so nothing is red. None of these is a known bug; take
+  them as a style pass, file by file, with a walk per file touched.
+- **Dev-only advisories:** `npm audit` (with dev) still lists vite 8.0–8.1.5, postcss, js-yaml,
+  zod, nanoid and others. None reaches the Pages bundle (`npm audit --omit=dev` is 0 at
+  `67ac268`); bump vite when convenient. `@types/react-router-dom` v5 sits in `dependencies`
+  though React Router 7 ships its own types: remove it.
+
 **Product gaps**
 - **Liquid delegation (D3)**, the one named core mechanism still missing (fixture stub only).
 - **`/…/collaboration` route unreachable** ✔ (no in-app link found at `195bc6b`). It holds the only
@@ -217,7 +228,10 @@ cryptography**: a signed write to a contract with no rules is still an unguarded
   [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md) (Semaphore → ElectionGuard → QV
   budget proofs). Depends on H1.
 - **H5 Delivery & supply chain** (`ui`; **can start now**): CSP `<meta>`, SRI, dependency
-  automation and audit, reproducible signed builds + SBOM, a second mirror.
+  automation and audit, reproducible signed builds + SBOM, a second mirror. **Dependency audit
+  ✔ (S45, `67ac268`):** prod advisories 6 → 0; none had been reachable from the bundle. Open
+  question before the CSP: the server URL is user-supplied (`state.user.serverUrl`), so
+  `connect-src` cannot be pinned to one host; Eston's call.
 - **H6 Contributor node hardening** (Ouri): rootless minimal image, signed images, scanning,
   `--role` flag from day one, later one-click packaging (YunoHost/Umbrel/Start9/Pi image).
 - **H7 Metadata & connectivity** (research; transport still in §6 Deferred): Tor onion service
@@ -230,7 +244,11 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ### Blocked / coordination (not ours to drive on `ui`)
 - **Deploys:** Ouri merges `ui` → `server-side`, which triggers GitHub Pages. A push to `ui` does
-  not deploy. (`main` is Ouri's stale old line.)
+  not deploy. (`main` is Ouri's stale old line.) **2026-10-23:** the merge is prepared as
+  [PR #24](https://github.com/young-world-federalists/gloki-engage/pull/24)
+  (`integration/ui-2026-10` → `server-side`, evidence in `docs/reviews/2026-10-integration/`);
+  Eston merges it on 30 October if Ouri hasn't. Plan:
+  [2026-10-23-forward-without-a-gate.md](docs/superpowers/plans/2026-10-23-forward-without-a-gate.md).
 - **G2–G4** (WoT authority, live-call policy, scheduled matching), decided with Ouri.
 - **Blind-server questions 1–5** in [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md).
 - **fr/sw native review:** the packet is in
@@ -253,6 +271,108 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
   and guards. Still open: D12 server-side eligibility, the ballot-guards "Please confirm" (does the
   `contract_write` SSE `reply` carry the return value?) and the `Collection.__contains__` question
   (`docs/FOR_OURI_seam.md`). Not yet exercised against a live server.
+
+- **2026-10-26 — S45: the hooks fix and the dependency audit land on `ui`.** Two commits, pushed
+  to `ui` on Eston's go (`21d3eda..67ac268`). `d3e6fe8`: `CommunityView` returned early on
+  `!communityId` before five hooks (all five `rules-of-hooks` errors in `src`); the guard now
+  follows the last hook. That let the linter see the rest of the component: `props` was a fresh
+  `{}` each render while properties were missing, so the fetch effect re-ran on every render;
+  memoized (a forced failed read cost 10 `get_properties` calls before, 4 after; bounded either
+  way). `67ac268`: `react-router-dom` 7.18.1 → 7.18.4, DOMPurify 3.4.12 → 3.4.17 (lockfile),
+  `express` and `cors` moved to `devDependencies`; `npm audit --omit=dev` 6 → 0. Evidence: all
+  three builds, grep gates; a 17-step route walk at 360px light + dark identical on the old and
+  new router; the identity-card PDF generates on both. Lint 48/8 → 44/7. **Premises that had
+  gone stale:** "five `rules-of-hooks` errors that can be real bugs" was one early return, latent
+  (the route always supplies the id); the "dependency audit" was already concrete, as none of
+  the six advisories was reachable from the bundle (DOMPurify only via jsPDF's unused `.html()`,
+  the react-router CSRF only in RSC mode, express only in the mock server). PR #24 still open,
+  no word from Ouri; `server-side` has no `build:beta` and no node image. **Learnings:** a
+  forced failure that throws synchronously can hide a re-render loop (React batches the two
+  `setState`s), so add latency before trusting the count; and in this container `pgrep -f`/
+  `pkill -f` with a pattern that appears in your own command kills your shell, and killing the
+  `npx` wrapper leaves Vite orphaned on its port: start `node node_modules/vite/bin/vite.js`
+  and kill its PID. No strings or fixtures changed; no `DEMO_VERSION` bump.
+
+- **2026-10-26 — S44 restart: S43 lands on `ui`, the landing site gets its own repo and a new
+  publisher.** S43 (`claude/youthful-cerf-ltibol`, 11 commits) merged into `ui` on Eston's go as
+  `c3e9010`, over the three ibc-node skill PRs (#25–#27); `build`, `build:beta` and fr/sw parity
+  (`1510 = 1510`) green after the merge. The landing page left the bundle: it now lives at
+  [young-world-federalists/gloki-site](https://github.com/young-world-federalists/gloki-site)
+  (Eston created the repo; the Claude GitHub App cannot create org repos) with GitHub Pages on
+  `main`, and `docs/site/gloki-site.bundle` is deleted. Eston's calls on the site: Buttondown
+  `YoungWorldFederalists`; YWF named as builder, the agent row Planned, contact by waitlist reply;
+  the site is published by the **Global Democracy Initiative** (a project of Young World
+  Federalists, Inc., its fiscal and legal host) on **globaldemocracyinitiative.org** instead of
+  gloki.app, with an imprint, a privacy page and the GDI network mark from the 2022 logo; waitlist
+  sign-ups must not get the YWF newsletter (needs a separate Buttondown newsletter). Late in the
+  session Eston reframed GDI around the backend (one person one vote, encryption, people holding
+  their own data, Reticulum) with Gloki as the app on top; that rewrite is the next site session,
+  briefed in `gloki-site/docs/brief-gdi-positioning.md`. **Premises that had gone stale:** `ui`
+  had moved past `2946608`; lint is 48 errors and 8 warnings, not one (identical on `ui` before the
+  merge, so not S43's; `npm run build` does not lint); the site history was 5 commits, not 6.
+  **Learning:** a cloud container can't reach github.io, Webflow or buttondown.com, so check a
+  live page from a phone, not from the session. No app code or strings changed in S44; no
+  `DEMO_VERSION` bump.
+
+- **2026-10-23 — S43 forum bylines: posts carry a name and a flag.** `src/services/forum.ts` grows
+  one read, `getForumParticipants(ctx)`, returning the forum's authors as `get_partners` rows
+  (`IPartner`); `ForumPage` dispatches the existing `fetchMemberProfile` thunk per row, so
+  `ThreadedDiscussion` resolves bylines from `state.communities.profiles` with no community loaded
+  and nothing in it changes. Seam hand-off entry under the S42 addendum (no new contract method, wire
+  names unchanged). Demo stub seeds **one welcome post** from Priya Nair and registers her profile
+  contract (nothing else registers personas in the beta). Account kind is now **editable from the
+  profile page** (select in the edit modal, beta or any account that already has a kind) and shown
+  as a badge on the Digital Agent card, so the Kind step's lead again says it can be changed later.
+  Beta key hint without "across every community"; About/Contact back → `/` in the beta. 3 new + 1
+  changed string at fr/sw parity (`1510 = 1510`), packet appended. **`DEMO_VERSION` → `global-v21`**:
+  the forum seed is a fixture change, and a device that opened the empty S42 forum keeps it until
+  the wipe. Evidence: `docs/reviews/2026-10-23-s43-forum-bylines/` (360px, light + dark, both
+  builds green). Commits `4a46e66..e4646a1` plus this docs commit on `claude/youthful-cerf-ltibol`;
+  **not pushed to `origin/ui`** (waits for Eston's go). ★ Learning: the prompt asked for
+  `{ publicKey, address, profile }` rows "in the exact shape of `get_partners`"; those two cannot
+  both hold, and the shape that lets Ouri reuse his member mapper is `IPartner` (`agent`, not
+  `publicKey`). Also: a persona's profile only resolves where its profile contract is registered,
+  which in the beta is nowhere until the forum seed does it.
+  **Same day, Eston's follow-ups:** languages dropped for the beta (one flag, `SHOW_LANGUAGES`,
+  hides the switcher; fr/sw stay in the bundle, no parity work for new beta strings). Then the
+  **Impeccable critique** (skill installed globally from the GitHub clone; the engine binary from
+  GitHub releases, since impeccable.style is refused by the proxy) ran dual-agent on the beta
+  surfaces: **25/40, four P1s**, snapshot `.impeccable/critique/2026-10-23T12-40-54Z__src-pages.md`.
+  Eston: fix everything, start with the unaided run, end it on one named ask. Fixed in three
+  commits (unaided run; demo leakage + forum; mechanical): Create-my-key primary on the keys
+  screen, sticky checkbox + Continue on Save your key, one primary pathway on the hub, Ready ends
+  on "Ask someone who knows you", fabricated participation hidden, forum composer labelled with
+  Enter as newline and delete confirm, plus the contrast and target fixes. Evidence
+  `docs/reviews/2026-10-23-s43-critique-fixes/`. Locked calls (brand blue, system sans) reported,
+  not changed. **Then the gloki.app landing page** was built as its own static site in
+  `/home/user/gloki-site` (six local commits; repo `young-world-federalists/gloki-site` to be created
+  on Eston's go): Impeccable `init` (PRODUCT.md from the 15 Oct thread), a degraded direction roll
+  (roll service blocked by the proxy), Eston's pick "the line diagram", code-first build, two
+  inspection rounds, finish review (8 fixes, 2 regressions, ship), documenter (DESIGN.md +
+  design.json). One HTML + one CSS file, self-hosted Hammersmith One and Cabin, two real app
+  screenshots, 158 KB, no third-party request, detector clean at 390 and 1440. Open: the
+  Buttondown username (placeholder in the form), DNS for gloki.app, the status wording for "your
+  own agent".
+
+- **2026-10-23 — S42 beta trim: the test version is the network, not the pipeline.** One build
+  flag (`VITE_APP_MODE=beta`, read only in `src/appMode.ts`; `npm run build:beta` / `dev:beta`)
+  hides everything but sign-up, keys, vouching and one forum. Signed out, `/` is a doors page
+  (person / organisation / contribute a node) that opens the existing login trimmed to a keys
+  screen; onboarding in beta runs **save your key → account kind → profile → ready**, with honest
+  copy (the key "works like a password", nothing signed or encrypted yet). New optional profile
+  field `accountKind` on the Digital Agent through the seam (`docs/FOR_OURI_seam.md`, S42
+  addendum; wire names unchanged). `/forum` mounts `ThreadedDiscussion` once (new `variant="forum"`:
+  post, reply, like; no cause vote) on one demo discussion contract behind `src/services/forum.ts`.
+  Every pipeline route redirects to `/`; StageFooter and community menu entries are hidden; the
+  verification hub says "people who know you". Demo mode is untouched (HomeView, 4-stage IA, brand
+  blue): nothing deleted. 52 new `beta.*` strings at fr/sw parity (`1507 = 1507`), packet appended.
+  **No `DEMO_VERSION` bump** (no seeded fixture changed; the forum contract self-registers).
+  Evidence: `docs/reviews/2026-10-23-s42-beta-trim/` (360px, light + dark, both builds green).
+  Commits from `d004458` (five code commits plus this docs commit) on `claude/youthful-cerf-ltibol`, pushed to `origin/ui` on Eston’s go (2026-10-23).
+  ★ Learning: the prompt named a `digitalAgentContract.ts` that does not exist; the agent is a
+  localStorage store with no seam method, so "through the seam" meant the store type + a seam-doc
+  entry, not a new contract call. Also: a fullPage screenshot clips this app because `body` is the
+  scroll container — capture the viewport and scroll the body instead.
 
 - **2026-10-22 — Roadmap clean-up + P12 sovereignty/security track proposed (docs only).** §7 cut
   from ~580 lines to ~115: shipped tiers P0–P11, the handoff tail and the old parked/blocked lists

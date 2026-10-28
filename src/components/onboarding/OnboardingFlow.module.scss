@@ -16,6 +16,10 @@
   flex-direction: column;
   gap: $spacing-xl;
 }
+// S43 (critique P1): the beta renders no StageFooter, so no clearance for one.
+.flowMainBeta {
+  padding-bottom: $spacing-xl;
+}
 
 .stepperWrap {
   padding: 0 $spacing-xs;

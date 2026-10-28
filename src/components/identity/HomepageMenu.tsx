@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 import {
   User, QrCode, Plus, LogOut, EyeOff, Info, Mail, LayoutGrid, Sparkles,
-  PlusCircle, PenLine, Users2, MessageSquare, Coins, Users, Shield, Settings, FlaskConical,
+  PlusCircle, PenLine, Users2, MessageSquare, Coins, Users, Shield, Settings, FlaskConical, ShieldCheck,
 } from 'lucide-react';
 import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
+import { isBeta } from '../../appMode';
 import { MenuSettings, SlideOutMenu, type SlideOutMenuItem } from '../shared';
+import { useAlert } from '../shared/useAlert';
 
 const VerificationDemoStateDialog = import.meta.env.DEV
   ? React.lazy(() => import('./verification/VerificationDemoState.demo'))
@@ -39,6 +41,17 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
   const location = useLocation();
   const hiddenCount = useAppSelector((s) => s.preferences.hidden.length);
   const [demoOpen, setDemoOpen] = useState(false);
+  const { showConfirm, alertElement } = useAlert();
+  // S43 (critique): in the beta a key-only account has no "forgot password"; one
+  // mis-tap on Logout must not end it silently. The demo keeps its one-tap logout.
+  const logout = isBeta
+    ? () => {
+        void showConfirm(
+          t('beta.logout.body', 'You will need your saved key to sign in again. Gloki cannot recover it for you.'),
+          { title: t('beta.logout.title', 'Log out?'), confirmLabel: t('menu.logout', 'Logout'), destructive: true },
+        ).then((ok) => { if (ok) onLogout(); });
+      }
+    : onLogout;
 
   // Each entry runs its action then closes the menu.
   const close = (fn: () => void) => () => {
@@ -63,16 +76,29 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
       ]
     : [];
 
-  const globalItems: SlideOutMenuItem[] = [
-    // Divide the community group from the global group (only when both are shown).
-    { key: 'welcome', icon: Sparkles, label: t('onboarding.menuEntry', 'Welcome guide'), onClick: close(() => navigate('/welcome')), dividerBefore: communityNav.length > 0 },
-    { key: 'profile', icon: User, label: t('menu.profile', 'Profile'), onClick: close(() => onNavigate('profile')) },
+  // S42 — the beta menu: forum, verification, profile. Community entries are
+  // hidden by the flag, not removed.
+  const betaItems: SlideOutMenuItem[] = [
+    { key: 'forum', icon: MessageSquare, label: t('beta.menu.forum', 'Forum'), onClick: close(() => navigate('/forum')) },
+    { key: 'verification', icon: ShieldCheck, label: t('beta.menu.verification', 'Get verified'), onClick: close(() => onNavigate('verification')) },
+  ];
+  const communityItems: SlideOutMenuItem[] = [
     { key: 'communities', icon: LayoutGrid, label: t('menu.communities', 'Communities'), onClick: close(() => onNavigate('communities')) },
     { key: 'join', icon: QrCode, label: t('menu.join', 'Join Community'), onClick: close(() => onNavigate('join')) },
     { key: 'create', icon: Plus, label: t('menu.createCommunity', 'Create Community'), onClick: close(() => navigate('/create-community')) },
-    { key: 'logout', icon: LogOut, label: t('menu.logout', 'Logout'), onClick: close(onLogout), variant: 'danger' },
-    { key: 'hidden', icon: EyeOff, label: t('menu.hidden', 'Hidden Communities'), onClick: close(() => onNavigate('hidden')), badge: hiddenCount, dividerBefore: true },
-    { key: 'about', icon: Info, label: t('menu.about', 'About'), onClick: close(() => onNavigate('about')) },
+  ];
+
+  const globalItems: SlideOutMenuItem[] = [
+    // Divide the community group from the global group (only when both are shown).
+    { key: 'welcome', icon: Sparkles, label: t('onboarding.menuEntry', 'Welcome guide'), onClick: close(() => navigate('/welcome')), dividerBefore: communityNav.length > 0 },
+    ...(isBeta ? betaItems : []),
+    { key: 'profile', icon: User, label: t('menu.profile', 'Profile'), onClick: close(() => onNavigate('profile')) },
+    ...(isBeta ? [] : communityItems),
+    { key: 'logout', icon: LogOut, label: t('menu.logout', 'Logout'), onClick: close(logout), variant: 'danger' },
+    ...(isBeta
+      ? []
+      : [{ key: 'hidden', icon: EyeOff, label: t('menu.hidden', 'Hidden Communities'), onClick: close(() => onNavigate('hidden')), badge: hiddenCount, dividerBefore: true } as SlideOutMenuItem]),
+    { key: 'about', icon: Info, label: t('menu.about', 'About'), onClick: close(() => onNavigate('about')), dividerBefore: isBeta },
     { key: 'contact', icon: Mail, label: t('menu.contact', 'Contact'), onClick: close(() => onNavigate('contact')) },
     ...(import.meta.env.DEV
       ? [{ key: 'demo-verification', icon: FlaskConical, label: t('demo.verification.menu', 'Demo: verification state'), onClick: close(() => setDemoOpen(true)), dividerBefore: true } as SlideOutMenuItem]
@@ -97,6 +123,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
           <VerificationDemoStateDialog isOpen={demoOpen} onClose={() => setDemoOpen(false)} />
         </React.Suspense>
       )}
+      {alertElement}
     </>
   );
 };

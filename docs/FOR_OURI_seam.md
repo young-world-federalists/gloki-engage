@@ -357,6 +357,56 @@ it is not that backend. **Do not invent `create_notification`, `schedule_reminde
 on their documented methods (`vouch`, merge methods, and so on); notifications describe those events
 but do not replace them.
 
+### S42 addendum — Account kind on the Digital Agent profile (`src/components/identity/agent/digitalAgentStore.ts`)
+
+The beta (the network, not the pipeline — 15 Oct thread) asks each newcomer which of three things
+they are. One new optional profile field, no new method, wire names unchanged:
+
+- **`accountKind`** — `'person' | 'organisation' | 'contributor'` (`AccountKind` in
+  `src/services/interfaces.ts`). Written once at sign-up through the existing **`set_values`** items
+  (`{ accountKind }`) and read back from **`get_profile`** alongside `firstName` / `lastName` /
+  `userPhoto` / `userBio` / `country` / `displayName`. Absent on every profile created before S42;
+  the UI treats absent as "not stated", never as `person`.
+- **Meaning.** `person` is the default door. `organisation` is **declared, not verified** in the
+  beta — nothing checks it, and the UI says so. `contributor` records **interest in hosting a
+  node**; there is no node runtime to point at yet, so the contract stores the kind and nothing
+  else (no address, no endpoint). When the runtime exists, that is a new field, not a change to
+  this one.
+- **Today** the field lives on the localStorage Digital Agent record (`gloki.digitalAgent`) like
+  every other profile field on `ui`; your `digitalAgentStore.ts` read path on `server-side` only
+  needs to carry it through the mapper.
+- **Not in scope:** the forum. The beta mounts `ThreadedDiscussion` on one discussion contract
+  found through `src/services/forum.ts` (`getForumContractId()`); today that is a single seeded
+  demo contract (`demo-forum-beta`, `discussion_contract.py`). The real layer returns the id of the
+  one discussion contract the network shares — no new contract methods; `add_comment` /
+  `get_comments` / `like_comment` / `delete_comment` as documented under S2.
+- **S43 — forum bylines (`src/services/forum.ts`, `getForumParticipants(ctx)`).** Posts in the
+  forum carry a name and a country flag. `ThreadedDiscussion` reads bylines from
+  `state.communities.profiles`, which only a community's member list fills, and the beta has no
+  communities. So the forum seam grows one read: `getForumParticipants({ serverUrl, publicKey,
+  contractId })` returns the forum's authors as **`get_partners` rows** — `IPartner`,
+  `{ address, agent, profile }` — and `ForumPage` dispatches the existing `fetchMemberProfile`
+  thunk for each row that carries a `profile`, exactly as the community member flow does. Nothing
+  in `ThreadedDiscussion` changes. **Your layer:** read the forum contract's `get_comments`, take
+  the distinct non-deleted `author` keys, and for each return its Digital Agent profile contract
+  (the same `address` / `profile` pair `get_partners` gives for a member). A row with an empty
+  `profile` is skipped by the UI and that author shows as a truncated key. **No new contract
+  method, wire names unchanged.** The demo stub (`src/services/demo/betaForum.ts`) answers with
+  the comment authors and `profile = publicKey`, and seeds one welcome post from a persona so the
+  path has something to show on `ui`; the real forum opens empty — nothing here asks you to seed.
+- **S46 note — where `accountKind` lives on `server-side`.** The S42 text above assumed the
+  `set_values` / `get_profile` community-profile shape. On `server-side` the Digital Agent profile is
+  your `digital_agent_contract.py`, whose `set_profile(display_name, photo, country, languages)` has
+  no slot for it, and contracts are yours. So the integration merge keeps `accountKind` in your
+  identity-scoped local cache (`digitalAgentStore.ts`, persisted next to `vouchedBy` / `invitedBy` /
+  `vouchMeta`; `useDigitalAgent` surfaces it). It survives a reload on the same browser and is lost
+  on another device. **Your call, when you want it on the wire:** an optional `account_kind`
+  argument on `set_profile`, or a separate `set_account_kind(kind)` beside it. The separate method
+  is the safer of the two: contracts are immutable once deployed, so profiles that already exist
+  would reject a `set_profile` call carrying a new argument, while a missing method fails only that
+  one write. `get_profile` returning `accountKind` is then the only read change; the UI already
+  treats absent as "not stated".
+
 ### 2026-09-25 addendum — Initiative ballot guards (`docs/contracts/2026-09-25-initiative-ballot-guards.py`)
 
 **Status: applied by Ouri on `server-side` on 2026-10-28** (four helpers + ten replaced methods,

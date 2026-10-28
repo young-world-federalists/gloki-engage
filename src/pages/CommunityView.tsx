@@ -121,24 +121,18 @@ const CommunityView: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
   const dispatch = useAppDispatch();
 
-  if (!communityId) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.errorState}>
-          <h2>Invalid Community</h2>
-          <p>No community ID provided.</p>
-          <button onClick={() => navigate('/identity/communities')}>Back to Communities</button>
-        </div>
-      </div>
-    );
-  }
-
   const contract = useMemo(() => contracts.find((c) => c.id === communityId), [contracts, communityId]);
-  const props = contract ? communityProperties[contract.id] || {} : null;
+  // Memoized: a bare `|| {}` is a new object each render, so the fetch effect
+  // below re-ran on every render while properties were missing (a failed read
+  // cost ~10 get_properties calls instead of ~4).
+  const props = useMemo(
+    () => (contract ? communityProperties[contract.id] || {} : null),
+    [contract, communityProperties],
+  );
 
   const handleContractWrite = useCallback(
     (event: BlockchainEvent) => {
-      if (event.contract === communityId && publicKey && serverUrl) {
+      if (communityId && event.contract === communityId && publicKey && serverUrl) {
         dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: communityId }));
         dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
       }
@@ -190,6 +184,19 @@ const CommunityView: React.FC = () => {
       seedTestDataIfNeeded(serverUrl, publicKey, communityId, name);
     }
   }, [serverUrl, publicKey, communityId, communityProperties]);
+
+  // After every hook, so hook order never depends on the route param.
+  if (!communityId) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.errorState}>
+          <h2>Invalid Community</h2>
+          <p>No community ID provided.</p>
+          <button onClick={() => navigate('/identity/communities')}>Back to Communities</button>
+        </div>
+      </div>
+    );
+  }
 
   // Loading / not-found stay inside the page model: the AppHeader banner and
   // the `main#main` skip-link target render on EVERY branch (S16 audit: the

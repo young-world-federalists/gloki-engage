@@ -6,6 +6,8 @@ import { type DigitalAgent } from './agent/digitalAgentStore';
 import { initialsOf } from '../../utils/initials';
 import { getPersona, DEMO_PARTICIPATION } from '../../services/demo/fixtures/identity';
 import { getLanguageNative } from '../../utils/languages';
+import { accountKindLabel } from '../onboarding/accountKinds';
+import { isBeta } from '../../appMode';
 import { SmartImage } from '../shared/connectivity';
 import styles from './DigitalAgentCard.module.scss';
 
@@ -34,12 +36,18 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         <div className={styles.identity}>
           <h2 className={styles.name}>{name}</h2>
           {agent.country && <CountryFlag code={agent.country} showName />}
+          {agent.accountKind && (
+            <Badge tone="neutral" size="sm" className={styles.kind}>
+              {accountKindLabel(t, agent.accountKind)}
+            </Badge>
+          )}
           {onEdit && (
             <Button
               className={styles.editBtn}
               variant="ghost"
-              size="sm"
+              size="md"
               leftIcon={<Pencil size={16} />}
+              // S43 (critique): 44px target; the sm button is 32px tall.
               onClick={onEdit}
             >
               {t('agent.editProfile', 'Edit profile')}
@@ -68,7 +76,9 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
         </div>
       )}
 
-      <div className={styles.history}>
+      {/* S43 (critique P1): DEMO_PARTICIPATION is seeded demo history. In the beta a
+          tester's own card must not show activity they never had. */}
+      {!isBeta && <div className={styles.history}>
         <span className={styles.historyTitle}>
           <History size={16} aria-hidden /> {t('agent.activity.title', 'Participation')}
         </span>
@@ -87,7 +97,7 @@ const DigitalAgentCard: React.FC<Props> = ({ agent, onEdit }) => {
             ))}
           </ul>
         )}
-      </div>
+      </div>}
     </Card>
   );
 };

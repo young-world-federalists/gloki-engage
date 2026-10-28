@@ -1,0 +1,62 @@
+[light] keys newcomer: lead="Joining as a person. Gloki has no passwords: create your key…" create-primary=1 keyField=0 server=0
+[light] shot 01-keys-newcomer  url=/
+[light] stale error after Generate: before=1 after=0 OK
+[light] shot 01b-keys-paste-open  url=/
+[light] Create my key → /welcome h1=["Save your key"]
+[light] backup: Continue in viewport=true checkbox in viewport=true
+[light] copied banner role=status
+[light] shot 02-backup  url=/welcome
+[light] Continue enabled after tick: true
+[light] kind lead: "You chose this at the door. Change it if it is not right, or later from your profile."
+[light] shot 03-kind  url=/welcome
+[light] profile lead: "This is how other people on Gloki see you. You can change any of this later." language label: 1
+[light] shot 04-profile  url=/welcome
+[light] ready: next line=1 primary="Ask someone who knows you"
+[light] shot 05-ready  url=/welcome
+[light] hub: eyebrow "Verification"=0 primary cards=1 other-ways toggle=1 camera lines=0
+[light] shot 06-hub  url=/identity/verification
+[light] shot 06b-hub-others  url=/identity/verification
+[light] forum: textarea labelled=1 add-sources=0 sort-toggle=0 count="Posts are public to everyone on Gloki and kept as part of the forum record."
+[light] Enter made a newline: OK
+[light] Ctrl+Enter posted: OK; count now "Posts are public to everyone on Gloki and kept as part of the forum record."
+[light] shot 07-forum  url=/forum
+[light] delete asks first: dialog="Delete post"
+[light] shot 07b-forum-delete-confirm  url=/forum
+[light] profile: participation block=0 edit-btn h=44 bell=[44,44]
+[light] shot 08-profile  url=/identity/profile
+[light] edit modal: AI key field=0 language label=1
+[light] shot 08b-profile-edit  url=/identity/profile
+[light] logout asks first: "Log out?You will need your saved key to sign in again. Gloki cannot recover it f"
+[light] shot 09-logout-confirm  url=/identity/profile
+[light] console errors: 3 (tunnel 3, other 0)
+[dark] keys newcomer: lead="Joining as a person. Gloki has no passwords: create your key…" create-primary=1 keyField=0 server=0
+[dark] shot 01-keys-newcomer  url=/
+[dark] stale error after Generate: before=1 after=0 OK
+[dark] shot 01b-keys-paste-open  url=/
+[dark] Create my key → /welcome h1=["Save your key"]
+[dark] backup: Continue in viewport=true checkbox in viewport=true
+[dark] copied banner role=status
+[dark] shot 02-backup  url=/welcome
+[dark] Continue enabled after tick: true
+[dark] kind lead: "You chose this at the door. Change it if it is not right, or later from your profile."
+[dark] shot 03-kind  url=/welcome
+[dark] profile lead: "This is how other people on Gloki see you. You can change any of this later." language label: 1
+[dark] shot 04-profile  url=/welcome
+[dark] ready: next line=1 primary="Ask someone who knows you"
+[dark] shot 05-ready  url=/welcome
+[dark] hub: eyebrow "Verification"=0 primary cards=1 other-ways toggle=1 camera lines=0
+[dark] shot 06-hub  url=/identity/verification
+[dark] shot 06b-hub-others  url=/identity/verification
+[dark] forum: textarea labelled=1 add-sources=0 sort-toggle=0 count="Posts are public to everyone on Gloki and kept as part of the forum record."
+[dark] Enter made a newline: OK
+[dark] Ctrl+Enter posted: OK; count now "Posts are public to everyone on Gloki and kept as part of the forum record."
+[dark] shot 07-forum  url=/forum
+[dark] delete asks first: dialog="Delete post"
+[dark] shot 07b-forum-delete-confirm  url=/forum
+[dark] profile: participation block=0 edit-btn h=44 bell=[44,44]
+[dark] shot 08-profile  url=/identity/profile
+[dark] edit modal: AI key field=0 language label=1
+[dark] shot 08b-profile-edit  url=/identity/profile
+[dark] logout asks first: "Log out?You will need your saved key to sign in again. Gloki cannot recover it f"
+[dark] shot 09-logout-confirm  url=/identity/profile
+[dark] console errors: 3 (tunnel 3, other 0)

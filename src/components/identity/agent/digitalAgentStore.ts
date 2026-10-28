@@ -1,10 +1,11 @@
 // Local trust-graph cache for the Digital Agent identity: only vouchedBy/
-// invitedBy persist here. Profile fields (displayName/photo/country/
+// invitedBy (and, for now, the beta's accountKind) persist here. Profile fields (displayName/photo/country/
 // languages) and onboarding completion are NOT cached locally — they live
 // in the real profile contract and are read fresh via Redux's
 // state.user.digitalAgentProfile (see userSlice.ts's fetchContracts).
 
 import type { VouchMeta } from '../../../services/trustModel';
+import type { AccountKind } from '../../../services/interfaces';
 
 const AGENT_KEY_BASE = 'gloki.digitalAgent';
 
@@ -38,6 +39,13 @@ export interface DigitalAgent {
    * readers default those to direct/createdAt (invitation for `invitedBy`).
    */
   vouchMeta?: Record<string, VouchMeta>;
+  /**
+   * S42 — person | organisation | contributor, chosen at the beta's doors and
+   * confirmed in onboarding. Optional: agents created before S42 have none.
+   * Persisted in this identity-scoped cache for now: the profile contract's
+   * `set_profile` has no slot for it yet (docs/FOR_OURI_seam.md, S46 note).
+   */
+  accountKind?: AccountKind;
 }
 
 // In-memory cache so getSnapshot returns a STABLE reference for useSyncExternalStore.
@@ -77,9 +85,10 @@ function baseAgent(): DigitalAgent {
   return { displayName: '', photo: '', country: '', languages: [], createdAt: Date.now(), vouchedBy: [] };
 }
 
-// Only the trust-graph fields are persisted; profile fields stay in-memory
-// only for the current session (they're sourced from the real contract).
-type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy' | 'vouchMeta'>;
+// Only the trust-graph fields (plus accountKind, until the profile contract
+// carries it) are persisted; profile fields stay in-memory only for the
+// current session (they're sourced from the real contract).
+type PersistedAgent = Pick<DigitalAgent, 'createdAt' | 'invitedBy' | 'vouchedBy' | 'vouchMeta' | 'accountKind'>;
 
 function toPersisted(agent: DigitalAgent): PersistedAgent {
   return {
@@ -87,6 +96,7 @@ function toPersisted(agent: DigitalAgent): PersistedAgent {
     invitedBy: agent.invitedBy,
     vouchedBy: agent.vouchedBy,
     vouchMeta: agent.vouchMeta,
+    accountKind: agent.accountKind,
   };
 }
 

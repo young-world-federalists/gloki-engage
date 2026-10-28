@@ -51,6 +51,11 @@
   }
 }
 
+// S43: the beta's "Other ways" disclosure sits under the one primary card.
+.othersToggle {
+  margin-top: $spacing-md;
+}
+
 // The call card's F10 line (Task 8) — same link treatment as
 // CallFlow.module.scss's `.link`, kept local so this file doesn't need to
 // import a sibling flow's stylesheet for one class.

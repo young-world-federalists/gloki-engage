@@ -10,6 +10,9 @@ import PhotoPicker from './PhotoPicker';
 import { useDigitalAgent } from './agent/useDigitalAgent';
 import { saveDigitalAgentProfile } from './agent/digitalAgentContract';
 import { setDigitalAgentProfile } from '../../store/slices/userSlice';
+import { ACCOUNT_KINDS, accountKindLabel } from '../onboarding/accountKinds';
+import type { AccountKind } from '../../services/interfaces';
+import { isBeta } from '../../appMode';
 import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../utils/languages';
 import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
@@ -21,7 +24,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const user = useAppSelector((s) => s.user);
   const dispatch = useAppDispatch();
-  const { agent, hasAgent, isOnboarded } = useDigitalAgent();
+  const { agent, hasAgent, isOnboarded, saveAgent } = useDigitalAgent();
 
   const [editing, setEditing] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false);
@@ -32,6 +35,8 @@ const Profile: React.FC = () => {
   const [country, setCountry] = useState('');
   // Single primary language (legacy multi-language agents collapse to their first).
   const [language, setLanguage] = useState('');
+  // S43 — account kind, set once by the beta's Kind step; '' = not stated.
+  const [kind, setKind] = useState<AccountKind | ''>('');
   const [apiKey, setApiKey] = useState('');
 
   const openEdit = () => {
@@ -39,12 +44,16 @@ const Profile: React.FC = () => {
     setPhoto(agent?.photo ?? '');
     setCountry(agent?.country ?? '');
     setLanguage(agent?.languages?.[0] ?? '');
+    setKind(agent?.accountKind ?? '');
     setApiKey(getLocalOpenAIApiKey(user.serverUrl, user.publicKey));
     setEditing(true);
   };
 
   const saveEdit = () => {
     const fields = { displayName: displayName.trim(), photo, country, languages: language ? [language] : [] };
+    // accountKind has no slot in set_profile yet: it stays in the identity-scoped
+    // local cache until the profile contract carries it (docs/FOR_OURI_seam.md, S46).
+    if (kind) saveAgent({ accountKind: kind });
     if (user.serverUrl && user.publicKey) {
       saveDigitalAgentProfile({
         serverUrl: user.serverUrl,
@@ -165,7 +174,7 @@ const Profile: React.FC = () => {
           </div>
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-language">
-              {t('onboarding.agent.language', 'Your language')}
+              {isBeta ? t('beta.agent.language', 'Language you speak') : t('onboarding.agent.language', 'Your language')}
             </label>
             <SearchableSelect
               options={LANGUAGE_OPTIONS}
@@ -174,7 +183,26 @@ const Profile: React.FC = () => {
               placeholder={t('onboarding.agent.languagePlaceholder', 'Select your language')}
             />
           </div>
-          <div className={styles.field}>
+          {(isBeta || !!agent?.accountKind) && (
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="edit-kind">
+                {t('profile.kind.label', 'Account kind')}
+              </label>
+              <select
+                id="edit-kind"
+                className={styles.input}
+                value={kind}
+                onChange={(e) => setKind(e.target.value as AccountKind | '')}
+              >
+                {!kind && <option value="">{t('profile.kind.unset', 'Not stated')}</option>}
+                {ACCOUNT_KINDS.map((k) => (
+                  <option key={k} value={k}>{accountKindLabel(t, k)}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {/* S43 (critique): the AI key is a demo tool; beta testers never see it. */}
+          {!isBeta && <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="edit-key">
               {t('agent.aiKey', 'AI API key (stored on this device)')}
             </label>
@@ -186,7 +214,7 @@ const Profile: React.FC = () => {
               onChange={(e) => setApiKey(e.target.value)}
               placeholder={t('common.optional', 'Optional')}
             />
-          </div>
+          </div>}
         </div>
       </Modal>
     </div>

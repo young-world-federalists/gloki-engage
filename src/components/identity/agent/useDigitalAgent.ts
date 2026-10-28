@@ -37,6 +37,7 @@ export function useDigitalAgent(): UseDigitalAgent {
           createdAt: localAgent?.createdAt ?? Date.now(),
           invitedBy: localAgent?.invitedBy,
           vouchedBy: localAgent?.vouchedBy ?? [],
+          accountKind: localAgent?.accountKind,
           ...(digitalAgentProfile ?? {}),
         }
       : null;
