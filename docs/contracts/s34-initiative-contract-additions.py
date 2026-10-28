@@ -1,3 +1,6 @@
+# STATUS: APPLIED by Ouri to src/assets/contracts/gloki_engage_initiative_contract.py
+# on server-side, 2026-10-28 (verbatim). Kept as the record of what changed and why.
+#
 # Additions to gloki_engage_initiative_contract.py (server-side). Four additive
 # methods (vote_comment, get_comment_votes, add_impact_assessment,
 # get_impact_assessments) PLUS one signature replacement: add_proposal gains a

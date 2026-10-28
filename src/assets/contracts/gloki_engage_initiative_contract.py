@@ -11,6 +11,35 @@ class GlokiEngageInitiative:
         self.qv_config = Storage('qv')['config']
         self.qv_allocations = Storage('qv_allocations')
         self.stakes = Storage('conviction')
+        self.comment_votes = Storage('comment_votes')          # F1: flat, key = caller + ':' + comment_id
+        self.impact_assessments = Storage('impact_assessments') # F1: flat, key = proposal_id + ':' + caller
+
+    # ─── Ballot guards: private helpers ─────────────────────────────────────
+
+    def _stage_order(self):
+        return ['problem', 'discussion', 'proposals', 'vote', 'mandate']
+
+    def _is_author_or_co_author(self, key):
+        # Same rule as the UI's isAuthorOrCoAuthor (src/services/initiativeRoles.ts).
+        if key == self.details['author']:
+            return True
+        return key in (self.roles['coAuthors'] or [])
+
+    def _credits_per_voter(self):
+        return 100  # R3: fixed, and the same for every voter
+
+    def _is_whole_number(self, value):
+        # A JSON integer >= 0 is the only value whose str() is all digits and that is
+        # not itself a str. true ('True'), 2.5, 4.0, -4, null ('None'), lists and
+        # objects all fail. str() only, on purpose: isinstance / int / bool / dict are
+        # unconfirmed in the sandbox, and an unknown name here would stop every ballot.
+        text = str(value)
+        if text == value or text == '':
+            return False
+        for ch in text:
+            if ch not in '0123456789':
+                return False
+        return True
 
     # ─── Details ────────────────────────────────────────────────────────────
 
@@ -18,14 +47,24 @@ class GlokiEngageInitiative:
         return self.details.get_dict()
 
     def set_details(self, description, explanation, links, countries):
+        caller = master()
         if not self.details.exists():
-            self.details.update({'author': master(), 'createdAt': timestamp()})
+            # Creation, unchanged: the first writer becomes the author.
+            # createInitiativeOnChain calls this straight after the deploy, before the
+            # contract id is published to the community.
+            self.details.update({'author': caller, 'createdAt': timestamp()})
+        else:
+            if not self._is_author_or_co_author(caller):
+                return {'error': 'Only the author or a co-author can edit this initiative'}
+            if self.get_stage() != 'problem':
+                return {'error': 'The initiative text is frozen after the Problem stage'}
         self.details.update({
             'description': description,
             'explanation': explanation,
             'links': links,
             'countries': countries,
         })
+        return None
 
     # ─── Stage gate ─────────────────────────────────────────────────────────
 
@@ -33,7 +72,16 @@ class GlokiEngageInitiative:
         return self.stage['value'] or 'problem'
 
     def set_stage(self, stage):
+        if not self._is_author_or_co_author(master()):
+            return {'error': 'Only the author or a co-author can advance the stage'}
+        order = self._stage_order()
+        if stage not in order:
+            return {'error': 'Invalid stage'}
+        current = self.get_stage()
+        if current not in order or order.index(stage) != order.index(current) + 1:
+            return {'error': 'Stages can only advance one step at a time'}
         self.stage['value'] = stage
+        return None
 
     # ─── Roles ──────────────────────────────────────────────────────────────
 
@@ -85,9 +133,12 @@ class GlokiEngageInitiative:
         self._recount_endorsements(public_key, endorsements)
 
     def add_co_author(self, public_key):
+        if not self._is_author_or_co_author(master()):
+            return {'error': 'Only the author or a co-author can add a co-author'}
         co_authors = self.roles['coAuthors'] or []
         if public_key not in co_authors:
             self.roles['coAuthors'] = co_authors + [public_key]
+        return None
 
     def mark_merged_into(self, target_initiative_id):
         self.roles['status'] = 'merged_into'
@@ -96,15 +147,24 @@ class GlokiEngageInitiative:
     # ─── Problem vote ───────────────────────────────────────────────────────
 
     def upvote(self):
+        if self.get_stage() != 'problem':
+            return {'error': 'Problem voting is closed'}
         self.votes[master()] = {'vote': 'up'}
+        return None
 
     def downvote(self):
+        if self.get_stage() != 'problem':
+            return {'error': 'Problem voting is closed'}
         self.votes[master()] = {'vote': 'down'}
+        return None
 
     def remove_vote(self):
+        if self.get_stage() != 'problem':
+            return {'error': 'Problem voting is closed'}
         caller = master()
         if caller in self.votes:
             del self.votes[caller]
+        return None
 
     def get_votes(self):
         return {key: self.votes[key]['vote'] for key in self.votes}
@@ -175,9 +235,32 @@ class GlokiEngageInitiative:
         # serialization ("keys must be str, int, float, bool or None").
         return {str(key): self.comments[key].get_dict() for key in self.comments}
 
+    # ─── Causes: up/down on ROOT comments only (D4) ─────────────────────────
+
+    def vote_comment(self, comment_id, direction):
+        # direction: 'up' | 'down' | 'none' ('none' removes the caller's vote). 1p1v.
+        caller = master()
+        if comment_id not in self.comments:
+            return
+        if self.comments[comment_id]['parentId']:
+            return  # replies are not causes; they keep like_comment
+        if self.comments[comment_id]['deleted']:
+            return  # soft-deleted roots are not causes
+        key = caller + ':' + comment_id
+        if direction == 'none':
+            if key in self.comment_votes:
+                del self.comment_votes[key]
+            return
+        if direction != 'up' and direction != 'down':
+            return
+        self.comment_votes[key] = {'voter': caller, 'commentId': comment_id, 'direction': direction}
+
+    def get_comment_votes(self):
+        return {str(key): self.comment_votes[key].get_dict() for key in self.comment_votes}
+
     # ─── Solutions (proposals / approval) ───────────────────────────────────
 
-    def add_proposal(self, text, co_authors, commitments, sources, metrics):
+    def add_proposal(self, text, co_authors, commitments, sources, metrics, cause_id=''):
         proposal_id = self.proposals.append({
             'text': text,
             'author': master(),
@@ -186,6 +269,7 @@ class GlokiEngageInitiative:
             'commitments': commitments,
             'sources': sources,
             'metrics': metrics,
+            'causeId': cause_id,          # immutable once written (F2); '' = proposed before any cause was ranked
             'expertReviewRequests': [],
             'expertReviews': [],
             'mergeSuggestions': [],
@@ -299,21 +383,90 @@ class GlokiEngageInitiative:
         if decision == 'accepted':
             doc['mergedInto'] = target_id
 
+    # ─── Impact assessment (W4). Eligibility is UI-gated (D12); the contract
+    #     enforces only: proposal exists, max 3 per proposal, one per author. ─
+
+    def add_impact_assessment(self, proposal_id, target, targets_cause, mechanism,
+                              broader_effects, risks, opportunity_costs, time_horizon):
+        caller = master()
+        if proposal_id not in self.proposals:
+            return
+        existing = [k for k in self.impact_assessments if self.impact_assessments[k]['proposalId'] == proposal_id]
+        if len(existing) >= 3:
+            return
+        for k in existing:
+            if self.impact_assessments[k]['author'] == caller:
+                return
+        if targets_cause != 'cause' and targets_cause != 'symptom' and targets_cause != 'both':
+            return
+        for field in [target, mechanism, broader_effects, risks, opportunity_costs, time_horizon]:
+            if not field:
+                return
+        key = proposal_id + ':' + caller
+        self.impact_assessments[key] = {
+            'author': caller, 'proposalId': proposal_id, 'timestamp': timestamp(),
+            'target': target, 'targetsCause': targets_cause, 'mechanism': mechanism,
+            'broaderEffects': broader_effects, 'risks': risks,
+            'opportunityCosts': opportunity_costs, 'timeHorizon': time_horizon,
+        }
+
+    def get_impact_assessments(self):
+        return {str(key): self.impact_assessments[key].get_dict() for key in self.impact_assessments}
+
     # ─── Vote (quadratic) ───────────────────────────────────────────────────
 
     def get_config(self):
-        if not self.qv_config.exists():
-            return {'credits_per_voter': 100, 'status': 'open'}
-        return self.qv_config.get_dict()
+        # Computed, never stored (R3); same shape as before. Writes nothing, so it
+        # stays safe as a read. The UI uses credits_per_voter as the heart pool.
+        return {
+            'credits_per_voter': self._credits_per_voter(),
+            'status': 'open' if self.get_stage() == 'vote' else 'closed',
+        }
 
     def set_credits(self, credits):
-        self.qv_config['credits_per_voter'] = credits
+        return {'error': 'The vote budget is fixed at 100 credits per voter'}
 
     def set_status(self, status):
-        self.qv_config['status'] = status
+        return {'error': 'Voting opens and closes with the Vote stage'}
 
     def allocate(self, allocations):
-        self.qv_allocations[master()] = {'items': allocations}
+        # Messages match the ui demo stub (demoContracts/qv.ts) where the rule is shared.
+        caller = master()
+        if self.get_stage() != 'vote':
+            return {'error': 'Voting is not open'}
+        if caller in self.qv_allocations:
+            return {'error': 'You have already voted'}  # R4: the ballot is final
+        # A JSON object is the only value whose str() starts with '{' and that is not
+        # itself a str (str() only, as in _is_whole_number).
+        shape = str(allocations)
+        if shape == allocations or shape[:1] != '{':
+            return {'error': 'Allocations must be an object'}
+        # Valid ids exactly as get_proposals hands them to the UI: str() of each
+        # append() ObjectId. Deliberately not `proposal_id in self.proposals` —
+        # Collection.__contains__ matches _id without turning a hex string into an
+        # ObjectId, so that test is always False here and would refuse every ballot
+        # (the S35 D1 question in docs/FOR_OURI_seam.md).
+        known = {}
+        for key in self.proposals:
+            known[str(key)] = True
+        cleaned = {}
+        total = 0
+        for proposal_id in allocations:
+            credits = allocations[proposal_id]
+            if proposal_id not in known:
+                return {'error': 'Unknown proposal'}
+            if not self._is_whole_number(credits):
+                return {'error': 'Credits must be whole numbers'}
+            if credits == 0:
+                continue
+            cleaned[proposal_id] = credits
+            total = total + credits
+        if total == 0:
+            return {'error': 'Ballot is empty'}  # keeps "voted" == "has a non-empty ballot", as the UI derives it
+        if total > self._credits_per_voter():
+            return {'error': 'Exceeds credit budget'}
+        self.qv_allocations[caller] = {'items': cleaned}
+        return None
 
     def get_allocations(self):
         return {key: (self.qv_allocations[key]['items'] or {}) for key in self.qv_allocations}
@@ -345,9 +498,23 @@ class GlokiEngageInitiative:
         multipliers = {'1w': 1, '1m': 2, '3m': 4, '6m': 7, '1y': 12}
         return multipliers[duration] if duration in multipliers else None
 
+    def _conviction_strength(self, stake):
+        cap = self._duration_multiplier(stake['duration']) or 1
+        started_at = stake['timestamp']
+        if not started_at:
+            return 1
+        try:
+            elapsed_seconds = elapsed_time(started_at, timestamp())
+        except:
+            return 1
+        if elapsed_seconds <= 0:
+            return 1
+        strength = 1 + elapsed_seconds / (30 * 24 * 60 * 60)
+        return cap if strength > cap else strength
+
     def stake(self, amount, duration, country):
-        if amount <= 0:
-            return {'error': 'Stake amount must be positive'}
+        if amount != 1:
+            return {'error': 'Stake amount must be exactly 1'}
         if self._duration_multiplier(duration) is None:
             return {'error': 'Invalid duration'}
         caller = master()
@@ -387,9 +554,11 @@ class GlokiEngageInitiative:
 
     def get_my_stake(self):
         caller = master()
-        if caller in self.stakes:
-            return self.stakes[caller].get_dict()
-        return None
+        if caller not in self.stakes:
+            return None
+        stake = self.stakes[caller].get_dict()
+        stake['weight'] = self._conviction_strength(stake)
+        return stake
 
     def get_stakes(self):
         return {key: self.stakes[key].get_dict() for key in self.stakes}
@@ -399,20 +568,15 @@ class GlokiEngageInitiative:
         count = 0
         for key in self.stakes:
             stake = self.stakes[key].get_dict()
-            mult = self._duration_multiplier(stake['duration']) or 1
-            total = total + stake['amount'] * mult
+            total = total + self._conviction_strength(stake)
             count = count + 1
-        return {'total': total, 'count': count}
+        return {'total': total, 'count': count, 'model': 'time_accrual_v1'}
 
     def get_conviction_by_country(self):
-        # Same accumulator bug class as get_approval_counts — result is a
-        # plain dict, so result[country] raises KeyError on a first-seen
-        # country.
         result = {}
         for key in self.stakes:
             stake = self.stakes[key].get_dict()
-            mult = self._duration_multiplier(stake['duration']) or 1
             country = stake['country'] if stake['country'] else 'OTHER'
-            contribution = stake['amount'] * mult
+            contribution = self._conviction_strength(stake)
             result[country] = (result[country] + contribution) if country in result else contribution
         return result

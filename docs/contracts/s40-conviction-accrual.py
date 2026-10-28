@@ -1,3 +1,6 @@
+# STATUS: APPLIED by Ouri to src/assets/contracts/gloki_engage_initiative_contract.py
+# on server-side, 2026-10-28 (verbatim). Kept as the record of what changed and why.
+#
 # Replacement for the conviction-staking block in
 # server-side/src/assets/contracts/gloki_engage_initiative_contract.py.
 # Re-verified against origin/server-side @ a81218f on 2026-09-16.

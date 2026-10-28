@@ -197,10 +197,11 @@ Makes "decentralized self-governance" (the `app.title`) a property a member can 
 than a slogan: nobody can act as you, nobody can quietly rewrite the record, nobody can read your
 ballot, you can leave with your identity, and losing your phone doesn't lose your vote.
 **Baseline ✔:** login on `ui` takes a typed public key + server URL; there is no private key or
-client-side signing in this branch, and no CSP/SRI on the Pages bundle. Per the 2026-09-25 audit
-(`0e94913`), the live initiative contract enforces **none** of the ballot rules the UI enforces: any
-identity key can move the stage, rewrite the text or allocate unlimited credits until Ouri applies
-`docs/contracts/2026-09-25-initiative-ballot-guards.py`. **Server-side enforcement comes before any
+client-side signing in this branch, and no CSP/SRI on the Pages bundle. The 2026-09-25 audit
+(`0e94913`) found the live initiative contract enforced **none** of the ballot rules the UI enforces.
+Ouri applied `docs/contracts/2026-09-25-initiative-ballot-guards.py` on `server-side` on
+2026-10-28, so initiatives deployed from then on are guarded; older ones keep the open methods.
+Voter eligibility and impersonation (public keys, no signatures) remain open. **Server-side enforcement comes before any
 cryptography**: a signed write to a contract with no rules is still an unguarded write.
 - **H0 Decide (no code):** threat model (STRIDE + LINDDUN); close **G2** with three answers (signed
   writes verifiable by any reader? community contracts replicated? key never leaves the device?);
@@ -234,14 +235,24 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 - **Blind-server questions 1–5** in [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md).
 - **fr/sw native review:** the packet is in
   [docs/i18n-native-review-candidates.md](docs/i18n-native-review-candidates.md); needs native speakers.
-- **D12 server-side eligibility** for `add_impact_assessment` and `add_proposal.cause_id`; patch in
-  `docs/contracts/s34-initiative-contract-additions.py`. Also the **2026-09-25 initiative ballot guards**
-  (`docs/contracts/2026-09-25-initiative-ballot-guards.py`, highest priority, see P12 baseline) and
-  S40's conviction-accrual hand-off (`docs/contracts/s40-conviction-accrual.py`).
+- **D12 server-side eligibility** for `add_impact_assessment` and `add_proposal.cause_id` (still
+  UI-gated only). The three contract patches (`s34-initiative-contract-additions.py`,
+  `2026-09-25-initiative-ballot-guards.py`, `s40-conviction-accrual.py`) were **applied by Ouri on
+  `server-side` on 2026-10-28**; see §8.
 
 ---
 
 ## 8. Changelog
+
+- **2026-10-28 — Contract patches applied on `server-side` (Ouri).** All three hand-off patches in
+  `docs/contracts/` were applied verbatim to `src/assets/contracts/gloki_engage_initiative_contract.py`:
+  S34 (causes `vote_comment`/`get_comment_votes`, impact assessments, `add_proposal(..., cause_id='')`),
+  the 2026-09-25 ballot guards (R1–R4) and S40 conviction time accrual. **Trigger:** adding a solution
+  silently failed on `server-side` because the UI sends `cause_id` and the old `add_proposal` didn't
+  accept it. Contracts are immutable, so only initiatives deployed after this carry the new methods
+  and guards. Still open: D12 server-side eligibility, the ballot-guards "Please confirm" (does the
+  `contract_write` SSE `reply` carry the return value?) and the `Collection.__contains__` question
+  (`docs/FOR_OURI_seam.md`). Not yet exercised against a live server.
 
 - **2026-10-22 — Roadmap clean-up + P12 sovereignty/security track proposed (docs only).** §7 cut
   from ~580 lines to ~115: shipped tiers P0–P11, the handoff tail and the old parked/blocked lists
