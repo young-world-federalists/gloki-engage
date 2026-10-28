@@ -30,7 +30,7 @@ Key vocabulary (used throughout, defined once):
 | **DEMO_VERSION** | Seed-version string at `src/services/demo/mockApi.ts` (currently `'global-v16'`, line 17); bump ONLY when demo fixtures change |
 | **Opus whole-branch review** | The standing quality gate: one high-capability review of the session's whole diff before the push is proposed |
 | **i18n packet** | `docs/i18n-native-review-candidates.md` — append-only log of new/changed fr/sw strings awaiting a human native-speaker pass |
-| **Push gate** | Eston's explicit green light. A push to `ui` IS a production deploy (GitHub Pages auto-deploys every push) |
+| **Push gate** | Eston's explicit green light. A push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which deploys — Rule 1 still holds because Ouri may merge at any time |
 
 ## When NOT to use this skill
 
@@ -57,7 +57,7 @@ Key vocabulary (used throughout, defined once):
 | 4 | Spec + plan as **docs commits BEFORE feat commits** | `docs/superpowers/specs/` + `plans/` files committed |
 | 5 | Build in small chunks; `ui` stays runnable | Green `npm run build` per chunk |
 | 6 | Review: per-task, then Opus whole-branch | 0 Critical / 0 Important, or fixes applied |
-| 7 | **Push gate: Eston's explicit yes** | Push = production deploy; never push unprompted |
+| 7 | **Push gate: Eston's explicit yes** | Ouri merges `ui` into `server-side`, which deploys; never push unprompted |
 | 8 | Closeout: §7/§8, i18n packet, memory, next prompt | The next session can start cold |
 
 ## Step 1 — Orient
@@ -77,9 +77,10 @@ gloki-build-env-run for the full I/O discipline):
    lock" (Eston's calls) → kickoff instruction.
 3. The prompt's "Read first" list (specs, memory files, CLAUDE.md sections it names).
 
-Items NOT yours to drive, ever (MASTER_TODO "Blocked / coordination"): landing `ui`→`main`
-(Ouri derives `new-features` from `ui`; Eston coordinates) and the fr/sw native review (needs a
-human native speaker). If a prompt seems to ask for these, stop and check with Eston.
+Items NOT yours to drive, ever (MASTER_TODO "Blocked / coordination"): landing `ui`→`server-side`
+(Ouri merges `ui` in himself, PRs #22/#23 precedent; Eston coordinates) and the fr/sw native
+review (needs a human native speaker). If a prompt seems to ask for these, stop and check with
+Eston.
 
 Stale docs to distrust while orienting: `docs/session-prompts/README.md`'s "where the project is"
 table and `next-session.md` describe the retired 2026-05 parallel-lane/worktree model — historical
@@ -199,11 +200,13 @@ Findings are ranked **blocker/major/minor against the two north stars**, not gen
 
 ## Step 7 — Push gate (hard stop)
 
-- **Never push without Eston's explicit green light.** A push to `origin/ui` auto-deploys to the
-  live GitHub Pages site (https://young-world-federalists.github.io/gloki-engage/) — push = deploy
-  to production. Present the review verdict + a one-paragraph summary of what would ship, then
-  wait for a literal "yes/go/push".
-- **Never merge or touch `main`** — `ui`→`main` lands via Ouri's `new-features` derivation.
+- **Never push without Eston's explicit green light.** A push to `ui` no longer deploys; Ouri
+  merges `ui` into `server-side`, which deploys to the live GitHub Pages site
+  (https://young-world-federalists.github.io/gloki-engage/). Rule 1 still holds: never push
+  without Eston's explicit go, because Ouri may merge at any time. Present the review verdict +
+  a one-paragraph summary of what would ship, then wait for a literal "yes/go/push".
+- **Never merge or touch `main`** — `main` is Ouri's stale old line (`d28594a`); the current
+  landing path is `ui`→`server-side` via Ouri's own merge.
 - After pushing: PR #20 (ui→main) showing ✗/CONFLICTING is **expected divergence, not a build
   failure** — this has been mistakenly re-debugged at least 3 times. Check
   `gh pr checks 20` if in doubt (build+deploy show SUCCESS). Reassure, don't debug.
@@ -251,6 +254,8 @@ the next gate — ask if ambiguous).
 Facts verified 2026-07-02 against HEAD `c26cdc4` on branch `ui`. Incident details (S9–S15 stale
 premises, subagent stalls, panel false positives) are embedded from project memory entries dated
 2026-04 → 2026-07; unwritten gate rules confirmed by Eston 2026-07-02.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).
 
 Volatile facts — re-verify before relying on them:
 

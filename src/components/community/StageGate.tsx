@@ -58,7 +58,7 @@ const StageGate: React.FC<Props> = ({ communityId, stage, children }) => {
         tone="warning"
         title={t('gate.verified.title', 'Verified members only')}
         action={
-          <Button size="sm" onClick={() => navigate(`/community/${communityId}/identity`)}>
+          <Button size="sm" onClick={() => navigate('/identity/verification')}>
             {t('gate.getVerified', 'Get verified')}
           </Button>
         }

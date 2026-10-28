@@ -13,8 +13,9 @@ import {
 import { routeRead, routeWrite } from './demoRouter';
 import { initCommunity } from './demoContracts/community';
 import { seedAllDemoCommunities } from './seedDemoCommunity';
+import { clearStageContractCache } from '../contracts/initiative';
 
-const DEMO_VERSION = 'global-v17';
+const DEMO_VERSION = 'global-v20';
 const DEMO_VERSION_KEY = 'gloki_demo_version';
 
 // Remove all demo-owned localStorage (registry, per-contract state, seed flags)
@@ -149,6 +150,10 @@ export function ensureDefaultDemoCommunity(publicKey: string): void {
   const version = localStorage.getItem(DEMO_VERSION_KEY);
   if (version !== DEMO_VERSION) {
     clearAllDemoState();
+    // A version bump reseeds every contract id from scratch — any stage
+    // contract reference memoised from the old demo generation would
+    // otherwise point at ids that no longer exist (S35 fix-round).
+    clearStageContractCache();
     seedAllDemoCommunities(publicKey);
     localStorage.setItem(DEMO_VERSION_KEY, DEMO_VERSION);
     return;

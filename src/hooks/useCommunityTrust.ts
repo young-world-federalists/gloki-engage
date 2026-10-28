@@ -56,10 +56,11 @@ export function useCommunityTrust(communityId: string | undefined): CommunityTru
   }, [serverUrl, publicKey, communityId]);
 
   const memberSet = useMemo(() => new Set(Array.isArray(members) ? members : []), [members]);
-  const currentUserVouchCount = useMemo(
-    () => (agent?.vouchedBy ?? []).filter((v) => memberSet.has(v)).length,
-    [agent, memberSet],
-  );
+  // S36 / D8 (Eston, 2026-09-06): verification is platform-wide on the Digital
+  // Agent, so the current user's count is every vouch the agent holds — from
+  // anyone, not only this community's members. Persona counts stay
+  // per-community (the community contract's `get_vouches`).
+  const currentUserVouchCount = agent?.vouchedBy?.length ?? 0;
 
   const vouchCountOf = useCallback(
     (pk: string) => (pk === publicKey ? currentUserVouchCount : (vouches[pk]?.length ?? 0)),

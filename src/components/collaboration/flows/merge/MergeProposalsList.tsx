@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { useAppSelector } from '../../../../store/hooks';
 import { useFlowContract } from '../shared/useFlowContract';
 const mergeCode = '';import { getMergeProposals, getMyMergeVote, type MergeProposal } from './mergeApi';
 import { markMergedInto, addCoAuthor, getInitiativeRoles } from '../../../../services/initiativeRoles';
-import { addNotification } from '../../../../store/slices/notificationsSlice';
+import { recordMergeAbsorbed } from '../../../../services/notifications';
 import MergeProposalCard from './MergeProposalCard';
 import MergeProposalSubmitModal from './MergeProposalSubmitModal';
 import { useT } from '../../../../i18n';
@@ -22,7 +22,6 @@ const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
   targetInitiativeId, targetTitle, targetCommunityId, canDecide, onCountChange,
 }) => {
   const t = useT();
-  const dispatch = useAppDispatch();
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
 
@@ -75,16 +74,17 @@ const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
       }
     } catch { /* non-fatal */ }
 
-    dispatch(addNotification({
-      type: 'merge_absorbed',
-      payload: {
+    recordMergeAbsorbed(
+      { serverUrl, publicKey },
+      {
+        mergeProposalId: proposal.id,
         sourceInitiativeId: proposal.sourceInitiativeId,
         targetInitiativeId,
         targetTitle,
         communityId: targetCommunityId,
       },
-    }));
-  }, [serverUrl, publicKey, targetInitiativeId, targetCommunityId, targetTitle, dispatch]);
+    );
+  }, [serverUrl, publicKey, targetInitiativeId, targetCommunityId, targetTitle]);
 
   if (hasError) {
     return (

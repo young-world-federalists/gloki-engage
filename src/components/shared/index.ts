@@ -29,6 +29,9 @@ export type { SegmentedControlProps, SegmentOption } from './SegmentedControl';
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
+export { default as NotificationItem } from './NotificationItem';
+export type { NotificationItemProps } from './NotificationItem';
+
 export { default as SlideOutMenu } from './SlideOutMenu';
 export type { SlideOutMenuProps, SlideOutMenuItem } from './SlideOutMenu';
 
@@ -42,6 +45,12 @@ export type { BadgeProps, BadgeTone } from './Badge';
 
 export { default as ProgressBar } from './ProgressBar';
 export type { ProgressBarProps, ProgressBarVariant } from './ProgressBar';
+
+export { default as MemberCard } from './MemberCard';
+export type { MemberCardProps } from './MemberCard';
+
+export { default as ToastProvider, useToast } from './Toast';
+export type { ToastOptions, ToastTone } from './Toast';
 
 export { default as TrustBadge } from './TrustBadge';
 export type { TrustBadgeProps } from './TrustBadge';
@@ -63,6 +72,15 @@ export type { CountryPresenceProps } from './CountryPresence';
 
 export { default as CountryMultiSelect } from './CountryMultiSelect';
 export type { CountryMultiSelectProps } from './CountryMultiSelect';
+
+export { default as VerifyButton } from './VerifyButton';
+export type { VerifyButtonProps, VerifyButtonState } from './VerifyButton';
+
+export { default as VideoTile } from './VideoTile';
+export type { VideoTileProps } from './VideoTile';
+
+export { default as CountdownTimer } from './CountdownTimer';
+export type { CountdownTimerProps } from './CountdownTimer';
 
 // Existing stable primitives (re-exported for discoverability).
 export { default as CountryParticipation } from './CountryParticipation';

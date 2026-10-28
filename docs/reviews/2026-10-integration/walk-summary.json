@@ -1,0 +1,614 @@
+[
+  {
+    "theme": "light",
+    "route": "/",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/",
+    "bodyText": "Skip to content Gloki Across your communities A live look at what people are working on — from problems to decisions. No activity yet Join or create a community",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/stage/problem",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/problem",
+    "bodyText": "Skip to content Gloki Problem Advances when 25% take part and 50% approve. How Gloki works These four steps are how every idea travels — from spotting a Problem",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/stage/proposals",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/proposals",
+    "bodyText": "Skip to content Gloki Solutions Suggest solutions and back the ones you support — the top ones reach the vote. How Gloki works These four steps are how every id",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/stage/vote",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/vote",
+    "bodyText": "Skip to content Gloki Vote Spread your voting credits across the solutions you support. How Gloki works These four steps are how every idea travels — from spott",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/stage/mandate",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/mandate",
+    "bodyText": "Skip to content Gloki Mandate Decisions communities have committed to, across borders. How Gloki works These four steps are how every idea travels — from spotti",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/identity/communities",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/communities",
+    "bodyText": "Skip to content Gloki Account Your Communities Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need rig",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/identity/profile",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/profile",
+    "bodyText": "Skip to content Gloki Account Profile DW Demo Walker 🇰🇪 Kenya Edit profile English Kiswahili Participation Clean drinking water for all Problem 2d ago A globa",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/identity/verification",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/verification",
+    "bodyText": "Skip to content Gloki Verification Get verified 0 of 4 approvals received Unverified Four members vouching that they know you as a real person makes you Verifie",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications",
+      "/gloki-engage/identity/verification/request",
+      "/gloki-engage/identity/verification/request"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/identity/notifications",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/notifications",
+    "bodyText": "Skip to content Gloki Account Notifications Updates from your verification activity and communities. No notifications yet Vouch requests, calls and community up",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/organization",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "",
+    "bodyText": "Skip to content Gloki Across your communities A live look at what people are working on — from problems to decisions. No activity yet Join or create a community",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7",
+    "bodyText": "Skip to content Gloki Global Health Network Community Demo Global Health Network Health decisions made together, wherever you live. 19 members 16 countries Star",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7/members",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7/members",
+    "bodyText": "Skip to content Gloki Global Health Network Members People in this community. Members can propose initiatives, vote on decisions, and participate in governance.",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7/currency",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7/currency",
+    "bodyText": "Skip to content Gloki Global Health Network Community Funds Manage shared funds and signal what matters Your Support Points 1000points Points added across the c",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7/identity",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7/identity",
+    "bodyText": "Skip to content Gloki Global Health Network Identity & Trust Gloki uses a web of trust to keep the community real people, not bots. By scanning each other's QR ",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7/collab",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7/collab",
+    "bodyText": "Skip to content Gloki Global Health Network Collabs Template-based workspaces for teamwork No collabs yet. Start one from a template. Start Collab BROWSE BY STA",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/community/demo-comm-mvkpupl4-qlchn0g7/create-initiative",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7/create-initiative",
+    "bodyText": "Skip to content Gloki Global Health Network Start an initiative Problem Solutions Vote Mandate Your Initiative What's the problem? Be specific and actionable. T",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkpupl4-qlchn0g7/demo-init-mvkpuplb-p0hdz5pm",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkpupl4-qlchn0g7?initiative=demo-init-mvkpuplb-p0hdz5pm&open=demo-init-mvkpuplb-p0hdz5pm",
+    "bodyText": "Skip to content Gloki Global Health Network Community Demo Global Health Network Health decisions made together, wherever you live. 19 members 16 countries Star",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications",
+      "https://www.who.int/health-topics/water-sanitation-and-hygiene-wash"
+    ]
+  },
+  {
+    "theme": "light",
+    "route": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkpupl4-qlchn0g7/demo-init-mvkpuplb-p0hdz5pm/discussion",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkpupl4-qlchn0g7/demo-init-mvkpuplb-p0hdz5pm/discussion",
+    "write": {
+      "attempted": true,
+      "seen": true,
+      "before": 0,
+      "after": 6
+    },
+    "bodyText": "Skip to content Gloki Causes — Global Health Network Universal Access to Clean Drinking Water New — Causes discussion: New Two billion people still lack safely ",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "light",
+    "discovered": {
+      "community": "/community/demo-comm-mvkpupl4-qlchn0g7",
+      "initiative": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkpupl4-qlchn0g7/demo-init-mvkpuplb-p0hdz5pm",
+      "mandate": null,
+      "registrySize": 101
+    }
+  },
+  {
+    "theme": "dark",
+    "route": "/",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/",
+    "bodyText": "Skip to content Gloki Across your communities A live look at what people are working on — from problems to decisions. No activity yet Join or create a community",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/stage/problem",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/problem",
+    "bodyText": "Skip to content Gloki Problem Advances when 25% take part and 50% approve. How Gloki works These four steps are how every idea travels — from spotting a Problem",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/stage/proposals",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/proposals",
+    "bodyText": "Skip to content Gloki Solutions Suggest solutions and back the ones you support — the top ones reach the vote. How Gloki works These four steps are how every id",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/stage/vote",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/vote",
+    "bodyText": "Skip to content Gloki Vote Spread your voting credits across the solutions you support. How Gloki works These four steps are how every idea travels — from spott",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/stage/mandate",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/stage/mandate",
+    "bodyText": "Skip to content Gloki Mandate Decisions communities have committed to, across borders. How Gloki works These four steps are how every idea travels — from spotti",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/identity/communities",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/communities",
+    "bodyText": "Skip to content Gloki Account Your Communities Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need rig",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/identity/profile",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/profile",
+    "bodyText": "Skip to content Gloki Account Profile DW Demo Walker 🇰🇪 Kenya Edit profile English Kiswahili Participation Clean drinking water for all Problem 2d ago A globa",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/identity/verification",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/verification",
+    "bodyText": "Skip to content Gloki Verification Get verified 0 of 4 approvals received Unverified Four members vouching that they know you as a real person makes you Verifie",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications",
+      "/gloki-engage/identity/verification/request",
+      "/gloki-engage/identity/verification/request"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/identity/notifications",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/identity/notifications",
+    "bodyText": "Skip to content Gloki Account Notifications Updates from your verification activity and communities. No notifications yet Vouch requests, calls and community up",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/organization",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "",
+    "bodyText": "Skip to content Gloki Across your communities A live look at what people are working on — from problems to decisions. No activity yet Join or create a community",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh",
+    "bodyText": "Skip to content Gloki Global Health Network Community Demo Global Health Network Health decisions made together, wherever you live. 19 members 16 countries Star",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh/members",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh/members",
+    "bodyText": "Skip to content Gloki Global Health Network Members People in this community. Members can propose initiatives, vote on decisions, and participate in governance.",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh/currency",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh/currency",
+    "bodyText": "Skip to content Gloki Global Health Network Community Funds Manage shared funds and signal what matters Your Support Points 1000points Points added across the c",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh/identity",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh/identity",
+    "bodyText": "Skip to content Gloki Global Health Network Identity & Trust Gloki uses a web of trust to keep the community real people, not bots. By scanning each other's QR ",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh/collab",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh/collab",
+    "bodyText": "Skip to content Gloki Global Health Network Collabs Template-based workspaces for teamwork No collabs yet. Start one from a template. Start Collab BROWSE BY STA",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/community/demo-comm-mvkq00mm-9hml3leh/create-initiative",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh/create-initiative",
+    "bodyText": "Skip to content Gloki Global Health Network Start an initiative Problem Solutions Vote Mandate Your Initiative What's the problem? Be specific and actionable. T",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkq00mm-9hml3leh/demo-init-mvkq00mr-ulrjus2q",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/community/demo-comm-mvkq00mm-9hml3leh?initiative=demo-init-mvkq00mr-ulrjus2q&open=demo-init-mvkq00mr-ulrjus2q",
+    "bodyText": "Skip to content Gloki Global Health Network Community Demo Global Health Network Health decisions made together, wherever you live. 19 members 16 countries Star",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications",
+      "https://www.who.int/health-topics/water-sanitation-and-hygiene-wash"
+    ]
+  },
+  {
+    "theme": "dark",
+    "route": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkq00mm-9hml3leh/demo-init-mvkq00mr-ulrjus2q/discussion",
+    "consoleErrors": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "h1": 1,
+    "overflow": false,
+    "title": "Gloki — Decentralized Self-Governance",
+    "finalUrl": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkq00mm-9hml3leh/demo-init-mvkq00mr-ulrjus2q/discussion",
+    "write": {
+      "attempted": true,
+      "seen": true,
+      "before": 0,
+      "after": 6
+    },
+    "bodyText": "Skip to content Gloki Causes — Global Health Network Universal Access to Clean Drinking Water New — Causes discussion: New Two billion people still lack safely ",
+    "links": [
+      "#main",
+      "/gloki-engage/identity/notifications"
+    ]
+  },
+  {
+    "theme": "dark",
+    "discovered": {
+      "community": "/community/demo-comm-mvkq00mm-9hml3leh",
+      "initiative": "/initiative/http%3A%2F%2Flocalhost%3A3011/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/demo-comm-mvkq00mm-9hml3leh/demo-init-mvkq00mr-ulrjus2q",
+      "mandate": null,
+      "registrySize": 101
+    }
+  }
+]

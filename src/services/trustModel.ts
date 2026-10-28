@@ -10,6 +10,14 @@ export type TrustState = 'verified' | 'vouched' | 'unverified';
 export type StageRule = 'anyone' | 'members' | 'verified';
 export type PipelineStage = 'problem' | 'discussion' | 'proposals' | 'vote' | 'mandate';
 
+/** How a vouch was given (S36 — Prompt 2). `direct` = in person / QR / a text request. */
+export type VouchMethod = 'direct' | 'call' | 'invitation' | 'daily';
+export interface VouchMeta {
+  method: VouchMethod;
+  /** ms epoch */
+  at: number;
+}
+
 export const VERIFIED_THRESHOLD = 4;
 export const ONBOARDING_SEED = 2;
 

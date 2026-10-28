@@ -1,0 +1,27 @@
+@use '../../styles/variables' as *;
+
+// One impact assessment (Task 14) — header row (position badge + author +
+// timestamp) over a labelled dl of the seven fields. Flush, no card-in-a-card
+// (mirrors SolutionsBoard's .review inside .evidencePanel).
+.card { display: flex; flex-direction: column; gap: $spacing-xs; }
+.card + .card { border-top: 1px solid $gray-100; padding-top: $spacing-sm; margin-top: $spacing-xs; }
+
+.header { display: flex; align-items: center; gap: $spacing-sm; flex-wrap: wrap; }
+.badge { font-size: $text-xs; font-weight: $font-semibold; color: $gray-700; }
+.timestamp { font-size: $text-xs; color: $gray-500; margin-left: auto; }
+
+.rows { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.row {
+  display: flex; flex-direction: column; gap: 2px;
+
+  dt { font-size: $text-xs; font-weight: $font-medium; color: $gray-600; }
+  dd { margin: 0; font-size: $text-sm; line-height: 1.45; color: $gray-800; }
+}
+
+@include dark {
+  .card + .card { border-top-color: $dark-border; }
+  .badge { color: $dark-text; }
+  .timestamp { color: $dark-text-secondary; }
+  .row dt { color: $dark-text-secondary; }
+  .row dd { color: $dark-text; }
+}

@@ -4,7 +4,9 @@ import { MessageCircle } from 'lucide-react';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
-import { getComments } from '../collaboration/flows/discussion/discussionApi';
+import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
+import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
+import { DiscussionStatusBadge, statusAccessibleName } from './DiscussionStatusPill';
 import styles from './DiscussionPill.module.scss';
 
 export interface DiscussionPillProps {
@@ -12,6 +14,9 @@ export interface DiscussionPillProps {
   communityId: string;
   hostServer: string;
   hostAgent: string;
+  /** Community display name — feeds the S35 F4 scoped Consensus sentence. Omit
+   *  where a name isn't in scope; the badge's aria then reads without one. */
+  communityName?: string;
   className?: string;
 }
 
@@ -32,6 +37,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   communityId,
   hostServer,
   hostAgent,
+  communityName,
   className,
 }) => {
   const t = useT();
@@ -39,6 +45,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const [count, setCount] = useState<number | null>(null);
+  const [status, setStatus] = useState<DiscussionStatus | null>(null);
 
   useEffect(() => {
     if (!serverUrl || !publicKey || !initiativeId) return;
@@ -46,11 +53,16 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
     resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'discussionContractId')
       .then((stageContract) => {
         if (cancelled || !stageContract) return null;
-        return getComments(serverUrl, publicKey, stageContract.contractId);
+        return Promise.all([
+          getComments(serverUrl, publicKey, stageContract.contractId),
+          getCommentVotes(serverUrl, publicKey, stageContract.contractId).catch(() => []),
+        ]);
       })
-      .then((list) => {
-        if (cancelled || !list) return;
-        setCount(list.filter((c) => !c.deleted).length);
+      .then((result) => {
+        if (cancelled || !result) return;
+        const [list, votes] = result;
+        setCount(list.filter((c) => !c.parentId && !c.deleted).length); // a cause = a root comment (D3/D4)
+        setStatus(computeDiscussionStatus(list, votes));
       })
       .catch(() => {});
     return () => {
@@ -60,11 +72,17 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
 
   // Always the neutral function label (W3, campaign §5 rule 10): the live
   // comment count — not a stage-styled skin — signals activity.
-  const label = t('stage.discussionPill', 'Discussion');
-  const ariaLabel =
+  const label = t('stage.discussionPill', 'Causes');
+  const baseAriaLabel =
     count != null && count > 0
-      ? t('stage.discussionPillCount', '{label} — {n} comments', { label, n: count })
+      ? t('stage.discussionPillCount', '{label} — {n} causes', { label, n: count })
       : label;
+  // The status badge is rendered `decorative` (no aria-label/title of its own)
+  // because the outer button's aria-label already carries its accessible name
+  // here — otherwise the nested badge's label would be unreachable inside the
+  // button's own name computation (S35 fix-round F1).
+  const statusName = status ? statusAccessibleName(t, status, communityName) : null;
+  const ariaLabel = statusName ? `${baseAriaLabel}. ${statusName}` : baseAriaLabel;
 
   return (
     <button
@@ -84,6 +102,7 @@ const DiscussionPill: React.FC<DiscussionPillProps> = ({
           {count}
         </span>
       )}
+      {status && <DiscussionStatusBadge status={status} communityName={communityName} decorative />}
     </button>
   );
 };

@@ -27,7 +27,7 @@ nothing — you build, verify, and recommend.
 | **wire names** | contract method/field names as they cross the seam (`add_proposal`, `proposal_id`) — must byte-match Ouri's real Python contracts |
 | **`DEMO_VERSION`** | seed-version constant at `src/services/demo/mockApi.ts:17` (currently `'global-v16'`); bumping it wipes and re-seeds all users' localStorage demo state |
 | **north stars** | the two ordered principles in MASTER_TODO.md §1 that all scope is judged against (see Scope discipline below) |
-| **`ui` branch** | the active branch. **A push to `ui` IS a production deploy** — a GitHub Actions workflow builds and publishes to GitHub Pages on every push |
+| **`ui` branch** | the active branch (UI built against stubs). **A push to `ui` no longer deploys** (since 2026-09-02, S34 D11) — Ouri merges `ui` into `server-side`, and a push to `server-side` triggers the GitHub Actions deploy to GitHub Pages |
 | **Opus review** | the whole-branch review by an Opus-class model at the end of a session — the project's accepted quality gate |
 
 ---
@@ -54,7 +54,7 @@ This skill answers: *is this change allowed, what kind is it, and which gates do
 
 ## The 4 hard invariants
 
-Violating any of these breaks the `ui` → `new-features` → `main` hand-off or the deploy.
+Violating any of these breaks the `ui` → `server-side` → `main` hand-off or the deploy.
 They are non-negotiable; every reviewer checks them.
 
 ### 1. The seam rule
@@ -66,9 +66,9 @@ They are non-negotiable; every reviewer checks them.
 > `src/services/` that never touches components." — CLAUDE.md, verbatim
 
 Also implied: components never import from `src/services/demo/` directly, never call
-`fetch`/`EventSource` themselves. Rationale: at each milestone Ouri derives `new-features`
-from `ui` and swaps ONLY the internals of `src/services/` for real server calls. One "quick
-fetch" in a component breaks that derivation. The whole branch exists because of this seam
+`fetch`/`EventSource` themselves. Rationale: when Ouri merges `ui` into `server-side`, he
+swaps ONLY the internals of `src/services/` for real server calls. One "quick
+fetch" in a component breaks that merge. The whole branch exists because of this seam
 (commit `1642822`, 2026-04-25, reset the app onto the stub layer).
 
 Corollary (bites every session): the demo layer emits **no `contract_write` events** —
@@ -110,8 +110,9 @@ has a new method. Dialect-level traps (`__init__` re-runs, no writes during read
 
 `npm run build` = `tsc -b && vite build` (package.json). tsconfig is strict with
 `noUnusedLocals`/`noUnusedParameters` — **an unused import fails the GitHub Pages deploy**,
-because the deploy workflow runs `npm run build:prod` on every push to `ui`. There is no
-test framework and no lint step in CI; this typecheck is the entire automated gate.
+because the deploy workflow runs `npm run build:prod` on every push to `server-side`, and
+Ouri's merge from `ui` inherits whatever is red. There is no test framework and no lint
+step in CI; this typecheck is the entire automated gate.
 
 ```bash
 npx tsc -b          # must be clean
@@ -130,16 +131,18 @@ in CLAUDE.md — that is why they are here.
 
 ### Rule 1 — Never push without Eston's explicit green light
 
-A push to `ui` triggers the GitHub Actions deploy to the live GitHub Pages site
-(https://young-world-federalists.github.io/gloki-engage/). **Pushing IS deploying to
-production.** Commit locally in small chunks as much as you like; the push itself waits for
-an explicit "go"/"push it" from Eston in the conversation. Every session S1–S15 followed
-this; there is no exception precedent.
+A push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which deploys to the
+live GitHub Pages site (https://young-world-federalists.github.io/gloki-engage/). Rule 1
+still holds: never push without Eston's explicit go, because Ouri may merge at any time.
+Commit locally in small chunks as much as you like; the push itself waits for an explicit
+"go"/"push it" from Eston in the conversation. Every session S1–S15 followed this; there is
+no exception precedent.
 
 ### Rule 2 — Never merge or touch `main` yourself
 
-`main` is Ouri's real-server layer (last touched 2026-05-05, mid-QA, ~393 commits behind
-`ui`). The landing path is: Ouri derives `new-features` from `ui` and pushes to `main` — it
+`main` is Ouri's stale old line (currently at `d28594a`, last touched 2026-05-05, mid-QA).
+The current landing path is `ui` → `server-side` (Ouri's merge, PRs #22/#23 precedent;
+`server-side` is what deploys) — `main` is not part of that path and touching it directly
 is "not a merge we run" (MASTER_TODO §7 blocked items). Two standing traps:
 
 - **PR #20 (ui→main) shows a red ✗.** That is an *expected merge conflict* with Ouri's
@@ -244,7 +247,7 @@ TODO/FIXME/HACK markers by policy (verified: one grep hit, a pointer comment in 
 Do not add TODOs; add a §7 line instead (see **gloki-docs-and-writing**).
 
 **Ship small.** "Ship in small, self-contained chunks, each leaving `ui` runnable"
-(MASTER_TODO §4) — Ouri may derive `new-features` from any point on `ui`.
+(MASTER_TODO §4) — Ouri may merge `ui` into `server-side` from any point.
 
 ---
 
@@ -288,7 +291,7 @@ Every session's work passes through, in order:
 |---|---|---|
 | 1. Per-task review | A reviewer pass on each task/commit chunk during the build | Standard subagent-driven or self-review |
 | 2. **Opus whole-branch review** | An Opus-class model reviews the entire session diff before push | **THE accepted quality gate** — Eston has repeatedly pre-accepted this as the standing gate. Findings ranked against the north stars |
-| 3. **Eston push gate** | Explicit human "go" for the push (Rule 1) | Push = production deploy |
+| 3. **Eston push gate** | Explicit human "go" for the push (Rule 1) | A push to `ui` doesn't deploy directly, but Ouri may merge it into `server-side` (which deploys) at any time |
 
 The local multi-model panel is NOT on this ladder (Rule 4). Heavier campaign-style reviews
 (persona waves, multi-agent audits) are separate events — see **gloki-ui-review-campaign**
@@ -327,6 +330,8 @@ Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`, clean tree, `ui == origin/u
 Unwritten rules 1–5 confirmed verbally by Eston 2026-07-02. Incident details (funding
 method-name break, PR #20 recurrences, branch-label mishap, S13 precedent, panel
 false-positive record) are from project memory, Apr–Jul 2026.
+
+Deploy-branch model updated 2026-09-05 (S35, D11).
 
 Volatile facts — re-verify before relying on them:
 
