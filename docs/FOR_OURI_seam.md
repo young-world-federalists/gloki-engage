@@ -580,3 +580,92 @@ guards. The demo stubs are unchanged and stay permissive.
   author/co-author guard, or it reopens R1.
 - **Refusal codes.** Refusals are English strings with no stable code. The seam-wide convention is
   item 41 in §B of `docs/superpowers/specs/2026-09-06-s35-panel-verdict.md`.
+
+### 2026-10-28 addendum — App-wide verification contract, three phases (`src/services/verificationRegistry.ts`)
+
+**Built on `server-side` by Ouri.** The verified list in `src/assets/contracts/gloki_verification_contract.py`
+is now the **only** source of truth for "verified", across the whole app and independent of communities.
+The local `vouchedBy` count (Digital Agent store) and the community contract's `get_vouches` no longer
+decide trust: `useVerification`, `useCommunityTrust`, the hub, the community Identity page and the stage
+gates all read it through `src/hooks/useVerificationRegistry.ts`.
+
+**Why three phases.** "Four verified people vouch for you" can't verify the first four people. By V (people
+verified app-wide):
+
+| V | Phase | Unverified person sees | Needed to register |
+|---|---|---|---|
+| no contract | founder | one **Get verified** button ("If you are Eston or Ouri…", a deliberate reminder that this bootstrap is an open issue) | nothing — deploys the contract and becomes its steward |
+| 1–3 | sequential (#2–#4) | every verified person, each with **Ask**; one candidate at a time, everyone else sees "someone else is being verified" | a vouch from **every** verified person |
+| ≥ 4 | open (#5 on) | the existing four-option page | 4 vouches from verified people |
+
+**Where it lives.** One deployment, under the application agent on the application server — `.env`:
+`VITE_APPLICATION_SERVER_URL` (default `https://gdi.gloki.contact`) and `VITE_APPLICATION_AGENT`
+(default `gloki-application`), read only in `src/services/applicationServer.ts`; override in
+`.env.local` or CI. Users **don't join** it: every call goes through the application agent, so
+`master()` is always that agent and each method takes the acting key as an argument (no signatures —
+the same trust model as everything else today). Lookup: `is_exist_agent` + `get_contracts` on the
+application agent, first contract whose `contract` is `gloki_verification_contract.py`; none = founder
+phase. Write acks arrive on the application agent's stream, so writes use `openScopedAckStream`
+(`src/services/eventStream.ts`), not the shared user stream.
+
+**Contract methods** (every refusal returns `{error}` and writes nothing):
+- `initialize(steward, address, profile)` — first call only; the steward is verified (`method: 'founder'`).
+- `get_status()` → `{ steward, verified: [{key, at, method, vouchers, address, profile}], candidate,
+  candidateSince, requests: [{requester, approver, address, profile, at, status}], vouches: [{voucher,
+  requester, at}] }`. `address`/`profile` are the person's node and Digital Agent profile contract, so
+  names resolve without any community (`personSummary`).
+- `request_vouch(requester, approver, address, profile)` — approver verified, requester not; while
+  V ≤ 3 the first request claims the one candidate slot and others are refused.
+- `vouch(voucher, requester)` / `decline_vouch(approver, requester)` — records the answer; a vouch alone
+  verifies no one.
+- `register(newcomer, vouchers, address, profile)` — **the only way onto the list after the founder.**
+  Every voucher verified, listed once and with a recorded vouch; while V ≤ 3 the newcomer must hold the
+  slot and the vouchers must be exactly the verified list; at V ≥ 4, at least 4. The app calls it
+  automatically once the vouches are in (`useVerificationRegistry`), with a **Complete verification**
+  button as a fallback.
+- `reset_candidate(steward)` — steward only; frees the slot and drops that candidate's requests.
+
+**Seam.** `src/services/verification.ts`: `getVerificationState`, `listVerifiedMembers`, `requestVouch`,
+`respondToRequest` now run on this contract. Invitations, the video call and the daily session stay
+simulated and **can't verify anyone** (their vouches never reach the contract). `requestVouch` now
+resolves at once with a `pending` request; there is no simulated reply.
+
+**For the `ui` branch (Eston).** There is no demo support for the founder and sequential phases. A stub of
+`src/services/verificationRegistry.ts` that reports V ≥ 4 with the 30 demo personas as the verified list
+keeps the demo on the familiar four-option page.
+
+**Checked.** An in-memory harness (40 checks) and a walk on a local IBC node (20 checks, throwaway agent)
+covered all three phases and every refusal. The node walk also answers the ballot-guards question
+above: the `contract_write` event's `reply` **does** carry the method's return value (refusals arrived
+through it).
+
+### 2026-10-28 addendum — Initiatives are used without joining them (`src/services/contractHosts.ts`)
+
+**Built on `server-side` by Ouri.** Members never join an initiative contract: joining would put every
+transaction through consensus. Every read and write goes to the creator's node through the creator's
+agent: the `{address, agent}` in the community's initiative reference, or the `:host/:agent` in the
+`/initiative/...` route. Because `master()` is then always the creator, **every member-specific method of
+`gloki_engage_initiative_contract.py` takes the acting member's key as an explicit `agent` argument**
+(27 methods: `set_details`, `set_stage`, the endorsements, the problem vote, comments and cause votes,
+proposals and approvals, expert reviews, merge suggestions, impact assessments, `allocate` /
+`get_my_allocation`, and the conviction methods). The ballot guards above check `agent` where they used
+`master()`.
+
+**Seam.** `contractHosts.ts` keeps `{contractId → host server, host agent, member methods}`;
+`contractRead`/`contractWrite` (`api.ts`) route a registered contract to its host and add
+`agent: <signed-in key>` to exactly the methods in `INITIATIVE_MEMBER_METHODS`
+(`services/contracts/glokiEngageInitiative.ts`). No flow API or component changed. Registration happens
+when a community's initiative list loads (`fetchCollaborations`), on the initiative route
+(`InitiativeView`, from the URL), at creation, and, for `/mandate/:communityId/:mandateId`, through
+`useInitiativeHostReady`, which loads the list first. Writes through the host are confirmed on the host
+agent's stream (`openScopedAckStream`), and `eventStreamService.watchContract` follows each foreign-hosted
+initiative's events on its host node, so `useContractSync` still sees other people's writes.
+
+**For the `ui` branch (Eston).** The demo stubs ignore the extra `agent` value, so no stub change is
+needed; demo initiatives are never registered.
+
+**Compatibility.** Initiatives created before this keep the old contract (no `agent` parameters); member
+actions on them fail. Create new issues.
+
+**Trust model.** Same as everywhere today: anyone can send any key as `agent`. Signatures are the G2 / H1
+work.

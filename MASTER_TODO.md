@@ -262,6 +262,31 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-28 — Initiatives are used without joining them (Ouri).** A second community member saw every
+  issue as a Problem: stage reads went to the member's own node, which doesn't hold the issue contract
+  ("no such contract"). Members now read and write each initiative on its creator's node through the
+  creator's agent, without joining it (joining would put every transaction through consensus). Every
+  member-specific method of the initiative contract takes the acting member's key as `agent`;
+  `contractRead`/`contractWrite` route and add it (`src/services/contractHosts.ts`). Checked on a local
+  IBC node: two members' votes and comments are recorded under their own keys, and the author-only stage
+  rule holds. Also today: **community join is real** (`joinContract` sends `join_contract`; the join page
+  waits for `a2a_connect`, with a timeout) and **Share Community Link copies the join JSON** (`server`,
+  `agent`, `contract`). Issues created before this need to be recreated.
+
+- **2026-10-28 — Three-phase app-wide verification on a new verification contract (Ouri).** "Four
+  verified people vouch for you" could never verify the first four people. New
+  `gloki_verification_contract.py`, deployed once under the application agent (`.env`:
+  `VITE_APPLICATION_SERVER_URL`, `VITE_APPLICATION_AGENT=gloki-application`); its verified list is now the
+  only source of truth for "verified". Founder (nobody verified: one "Get verified" button, "If you are
+  Eston or Ouri…" as a reminder that this is an open issue) → sequential (1–3 verified: one candidate at
+  a time, vouched by everyone verified) → open (4+: the existing four-option page; Ask a member and
+  Requests to vouch are now real, invitations/call/daily stay simulated and can't verify anyone). The app
+  registers a person with their vouches; the contract re-checks each one. No demo support for the first
+  two phases. Checked with an in-memory harness and a local IBC node walk; the node walk also confirmed
+  that a write's SSE `reply` carries the method's return value. Seam: `docs/FOR_OURI_seam.md`,
+  2026-10-28 addendum. **Open:** keys are passed as arguments with no signatures; no steward handover;
+  the founder bootstrap trusts whoever clicks first.
+
 - **2026-10-28 — Contract patches applied on `server-side` (Ouri).** All three hand-off patches in
   `docs/contracts/` were applied verbatim to `src/assets/contracts/gloki_engage_initiative_contract.py`:
   S34 (causes `vote_comment`/`get_comment_votes`, impact assessments, `add_proposal(..., cause_id='')`),

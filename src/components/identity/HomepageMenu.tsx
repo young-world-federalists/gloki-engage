@@ -8,6 +8,7 @@ import { useAppSelector } from '../../store/hooks';
 import { useT } from '../../i18n';
 import { isBeta } from '../../appMode';
 import { MenuSettings, SlideOutMenu, type SlideOutMenuItem } from '../shared';
+import { useVerificationRegistry } from '../../hooks/useVerificationRegistry';
 import { useAlert } from '../shared/useAlert';
 
 const VerificationDemoStateDialog = import.meta.env.DEV
@@ -40,6 +41,13 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
   const navigate = useNavigate();
   const location = useLocation();
   const hiddenCount = useAppSelector((s) => s.preferences.hidden.length);
+  // Requests waiting for the user's vouch, from the shared verification
+  // snapshot (no extra read). Only verified people receive requests.
+  const registry = useVerificationRegistry();
+  const me = registry.me?.publicKey ?? '';
+  const vouchRequests = me && registry.isVerified(me)
+    ? (registry.status?.requests ?? []).filter((r) => r.approver === me && r.status === 'pending').length
+    : 0;
   const [demoOpen, setDemoOpen] = useState(false);
   const { showConfirm, alertElement } = useAlert();
   // S43 (critique): in the beta a key-only account has no "forgot password"; one
@@ -80,7 +88,7 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
   // hidden by the flag, not removed.
   const betaItems: SlideOutMenuItem[] = [
     { key: 'forum', icon: MessageSquare, label: t('beta.menu.forum', 'Forum'), onClick: close(() => navigate('/forum')) },
-    { key: 'verification', icon: ShieldCheck, label: t('beta.menu.verification', 'Get verified'), onClick: close(() => onNavigate('verification')) },
+    { key: 'verification', icon: ShieldCheck, label: t('beta.menu.verification', 'Get verified'), onClick: close(() => onNavigate('verification')), badge: vouchRequests },
   ];
   const communityItems: SlideOutMenuItem[] = [
     { key: 'communities', icon: LayoutGrid, label: t('menu.communities', 'Communities'), onClick: close(() => onNavigate('communities')) },
@@ -93,6 +101,11 @@ const HomepageMenu: React.FC<HomepageMenuProps> = ({ isOpen, onClose, onNavigate
     { key: 'welcome', icon: Sparkles, label: t('onboarding.menuEntry', 'Welcome guide'), onClick: close(() => navigate('/welcome')), dividerBefore: communityNav.length > 0 },
     ...(isBeta ? betaItems : []),
     { key: 'profile', icon: User, label: t('menu.profile', 'Profile'), onClick: close(() => onNavigate('profile')) },
+    // The hub serves everyone: getting verified, and, once verified,
+    // answering requests to vouch (the badge) and the steward's tools.
+    ...(isBeta
+      ? []
+      : [{ key: 'verification', icon: ShieldCheck, label: t('menu.verification', 'Verification'), onClick: close(() => onNavigate('verification')), badge: vouchRequests } as SlideOutMenuItem]),
     ...(isBeta ? [] : communityItems),
     { key: 'logout', icon: LogOut, label: t('menu.logout', 'Logout'), onClick: close(logout), variant: 'danger' },
     ...(isBeta

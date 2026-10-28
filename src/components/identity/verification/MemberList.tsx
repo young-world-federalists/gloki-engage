@@ -22,6 +22,8 @@ export interface MemberListProps {
    */
   onlineLabel?: string;
   offlineLabel?: string;
+  /** false hides the presence dots (the verification contract knows nothing about presence). */
+  showPresence?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ const MemberList: React.FC<MemberListProps> = ({
   rowClassName,
   onlineLabel,
   offlineLabel,
+  showPresence = true,
 }) => {
   const t = useT();
 
@@ -62,6 +65,7 @@ const MemberList: React.FC<MemberListProps> = ({
           online={member.online}
           onlineLabel={onlineLabel ?? t('verification.member.online', 'Online')}
           offlineLabel={offlineLabel ?? t('verification.member.offline', 'Offline')}
+          showPresence={showPresence}
           trustState="verified"
           action={action(member)}
           className={rowClassName?.(member)}

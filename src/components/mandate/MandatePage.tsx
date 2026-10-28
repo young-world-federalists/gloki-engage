@@ -8,6 +8,8 @@ import MandateBacking from './MandateBacking';
 import RatificationPanel from './RatificationPanel';
 import { useMandate } from '../../hooks/useMandate';
 import { useLiveBackers } from '../../hooks/useLiveBackers';
+import { useInitiativeHostReady } from '../../hooks/useInitiativeHostReady';
+import { useT } from '../../i18n';
 import cs from '../../pages/Container.module.scss';
 import styles from './MandatePage.module.scss';
 
@@ -22,7 +24,26 @@ import styles from './MandatePage.module.scss';
  */
 const MandatePage: React.FC = () => {
   const navigate = useNavigate();
+  const t = useT();
   const { communityId, mandateId } = useParams<{ communityId: string; mandateId: string }>();
+  // The mandate is an initiative contract on its creator's node; learn where
+  // before any read (the URL doesn't carry the host).
+  const hostReady = useInitiativeHostReady(communityId, mandateId);
+  if (!hostReady) {
+    return (
+      <div className={cs.container}>
+        <AppHeader showBack onBack={() => navigate(-1)} />
+        <main id="main" tabIndex={-1} className={cs.content}>
+          <p>{t('common.loading', 'Loading…')}</p>
+        </main>
+      </div>
+    );
+  }
+  return <MandatePageContent communityId={communityId} mandateId={mandateId} />;
+};
+
+const MandatePageContent: React.FC<{ communityId?: string; mandateId?: string }> = ({ communityId, mandateId }) => {
+  const navigate = useNavigate();
   const [ratifyToken, setRatifyToken] = React.useState(0);
   const { mandate } = useMandate(mandateId, communityId, ratifyToken);
   const [backingOpen, setBackingOpen] = React.useState(false);

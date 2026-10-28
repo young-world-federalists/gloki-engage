@@ -5,7 +5,15 @@
 // stores a *reference* to it (address/agent/contract), never the data
 // itself; reading an initiative means reaching out to wherever it actually
 // lives.
+//
+// Members never join an initiative contract (that would put every
+// transaction through consensus). Everyone reads and writes it on the
+// creator's node through the creator's agent — contractRead/contractWrite
+// route there once the contract is registered with registerInitiativeHost —
+// and every member-specific method takes the acting member's key as `agent`.
 import { deployContractOnChain, contractWriteOnChain } from '../api';
+import { registerHostedContract } from '../contractHosts';
+import { isDemoContract } from '../demo/demoRegistry';
 import { watchForChainAck } from '../eventStream';
 import glokiEngageInitiativeContractSrc from '../../assets/contracts/gloki_engage_initiative_contract.py?raw';
 
@@ -23,6 +31,28 @@ export interface InitiativeRef {
   address: string; // the deploying member's serverUrl
   agent: string; // the deploying member's publicKey
   contract: string; // the initiative contract's id
+}
+
+/**
+ * The contract's methods that act for, or read for, one member. contractRead/
+ * contractWrite add `agent: <the signed-in key>` to exactly these calls.
+ * Must match the `agent` parameters in gloki_engage_initiative_contract.py.
+ */
+export const INITIATIVE_MEMBER_METHODS: ReadonlySet<string> = new Set([
+  'set_details', 'set_stage',
+  'endorse_expert', 'unendorse_expert', 'add_co_author',
+  'upvote', 'downvote', 'remove_vote', 'get_my_vote',
+  'add_comment', 'delete_comment', 'like_comment', 'vote_comment',
+  'add_proposal', 'approve', 'withdraw_approval', 'get_my_approvals',
+  'request_expert_review', 'add_expert_review', 'suggest_proposal_merge', 'add_impact_assessment',
+  'allocate', 'get_my_allocation',
+  'stake', 'update_stake', 'withdraw_stake', 'get_my_stake',
+]);
+
+/** Records where an initiative lives, so every call to it goes to its creator's node and agent. */
+export function registerInitiativeHost(contractId: string, address: string, agent: string): void {
+  if (isDemoContract(contractId) || !/^https?:\/\//.test(address)) return;
+  registerHostedContract(contractId, { server: address, agent }, INITIATIVE_MEMBER_METHODS);
 }
 
 /**
@@ -67,6 +97,7 @@ export async function createInitiativeOnChain({
       method: {
         name: 'set_details',
         values: {
+          agent: publicKey,
           description: details.description,
           explanation: details.explanation,
           links: details.links,
@@ -75,6 +106,7 @@ export async function createInitiativeOnChain({
       },
     });
     await writeWatcher.waitFor(writeAckId);
+    registerInitiativeHost(contractId, serverUrl, publicKey);
 
     const ref: InitiativeRef = { address: serverUrl, agent: publicKey, contract: contractId };
     const addAckId = await contractWriteOnChain({

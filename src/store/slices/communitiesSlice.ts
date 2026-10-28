@@ -13,7 +13,7 @@ import type { IMethod, IContract } from '../../services/interfaces';
 import type { IProfile, IPartner } from '../../services/interfaces';
 import { getProfile } from '../../services/contracts/gloki';
 import { getCommunityDetails, isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
-import type { InitiativeRef } from '../../services/contracts/glokiEngageInitiative';
+import { registerInitiativeHost, type InitiativeRef } from '../../services/contracts/glokiEngageInitiative';
 import { stripSensitiveProfileFields } from '../../utils/localSecrets';
 import type { RootState } from '../index';
 
@@ -129,6 +129,9 @@ async function fetchGlokiEngageCollaborations(
     method: { name: 'get_initiatives', values: {} } as IMethod,
   });
   const refs: InitiativeRef[] = Array.isArray(refsResult) ? refsResult : [];
+  // Members don't join initiative contracts: every later call to one goes to
+  // its creator's node and agent (contractHosts.ts).
+  refs.forEach((ref) => registerInitiativeHost(ref.contract, ref.address, ref.agent));
 
   const items = await Promise.all(
     refs.map(async (ref): Promise<Collaboration | null> => {

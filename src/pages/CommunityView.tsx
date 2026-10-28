@@ -248,6 +248,27 @@ const CommunityView: React.FC = () => {
     setShowMenu(false);
   };
 
+  // The JSON JoinCommunity accepts: the community contract's node, the sharer's
+  // agent (the joiner connects through it) and the community contract id —
+  // the same credentials the Share panel shows.
+  const handleShareJoinCredentials = async () => {
+    setShowMenu(false);
+    const credentials = {
+      server: contract?.address || serverUrl || '',
+      agent: publicKey || '',
+      contract: communityId,
+    };
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(credentials, null, 2));
+      showAlert(
+        t('community.joinCopiedBody', 'Send it to the person you want to invite. They paste it on the Join Community page.'),
+        { title: t('community.joinCopiedTitle', 'Join details copied') },
+      );
+    } catch (err) {
+      console.error('[CommunityView] Failed to copy join details:', err);
+    }
+  };
+
   const handleResetDemo = async () => {
     if (!publicKey) return;
     // Close the menu BEFORE the confirm opens: both overlays sit on the modal
@@ -283,7 +304,7 @@ const CommunityView: React.FC = () => {
     { key: 'members', icon: Users, label: t('community.menu.members', 'Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
     { key: 'identity', icon: Shield, label: t('community.menu.identity', 'Identity & Trust'), onClick: closeAfter(() => navigate(`/community/${communityId}/identity`)) },
     { key: 'settings', icon: Settings, label: t('community.menu.settings', 'Settings'), onClick: closeAfter(() => navigate(`/community/${communityId}/settings`)) },
-    { key: 'share', icon: Share2, label: t('community.menu.share', 'Share Community Link'), onClick: closeAfter(() => { navigator.clipboard.writeText(window.location.href); }), dividerBefore: true },
+    { key: 'share', icon: Share2, label: t('community.menu.share', 'Share Community Link'), onClick: () => void handleShareJoinCredentials(), dividerBefore: true },
     { key: 'invite', icon: UserPlus, label: t('community.menu.invite', 'Invite Members'), onClick: closeAfter(() => navigate(`/community/${communityId}/members`)) },
     ...(isDemo
       ? [

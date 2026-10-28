@@ -13,6 +13,8 @@ export interface MemberCardProps {
   /** Translated accessible labels for the presence dot — never colour alone. */
   onlineLabel: string;
   offlineLabel: string;
+  /** false hides the presence dot, for lists where presence isn't known. */
+  showPresence?: boolean;
   trustState?: TrustState;
   /** Small caption under the identity (e.g. "asked you to vouch · 2h ago"). */
   meta?: string;
@@ -33,6 +35,7 @@ const MemberCard: React.FC<MemberCardProps> = ({
   online = false,
   onlineLabel,
   offlineLabel,
+  showPresence = true,
   trustState,
   meta,
   action,
@@ -42,11 +45,13 @@ const MemberCard: React.FC<MemberCardProps> = ({
   const Tag = as as React.ElementType;
   return (
     <Tag className={clsx(styles.row, className)}>
-      <span
-        className={clsx(styles.dot, online ? styles.online : styles.offline)}
-        role="img"
-        aria-label={online ? onlineLabel : offlineLabel}
-      />
+      {showPresence && (
+        <span
+          className={clsx(styles.dot, online ? styles.online : styles.offline)}
+          role="img"
+          aria-label={online ? onlineLabel : offlineLabel}
+        />
+      )}
       <div className={styles.body}>
         <UserIdentity name={name} countryCode={countryCode} trustState={trustState} size="md" />
         {meta && <span className={styles.meta}>{meta}</span>}

@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../store/hooks';
-import { useDigitalAgent } from '../components/identity/agent/useDigitalAgent';
 import { useOrganization } from './useOrganization';
+import { useVerificationRegistry } from './useVerificationRegistry';
 import {
-  getCommunityVouches,
   getStagePermissions,
-  resolveTrustState,
   canParticipate,
   DEFAULT_STAGE_PERMISSIONS,
   type PipelineStage,
@@ -27,26 +25,20 @@ export interface CommunityTrust {
 
 /**
  * Resolve trust + per-stage rules for one community, all through the seam.
- * Persona vouches come from the community contract; the current user's own
- * vouches overlay from the Digital Agent store (reactive). Per-community by
- * design; in the demo every persona is a member of every community, so the
- * current user's count reads the same everywhere (documented simplification).
+ * Trust is app-wide and comes from one place: the verification contract's
+ * verified list (useVerificationRegistry). Stage rules stay per community.
  */
 export function useCommunityTrust(communityId: string | undefined): CommunityTrust {
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
   const members = useAppSelector((s) => (communityId ? s.communities.communityMembers[communityId] : undefined));
-  const { agent } = useDigitalAgent();
   const { isOrganization } = useOrganization();
+  const registry = useVerificationRegistry();
 
-  const [vouches, setVouches] = useState<Record<string, string[]>>({});
   const [permissions, setPermissions] = useState<Record<PipelineStage, StageRule> | null>(null);
 
   useEffect(() => {
     if (!serverUrl || !publicKey || !communityId) return;
     let cancelled = false;
-    getCommunityVouches({ serverUrl, publicKey, communityId }).then((v) => {
-      if (!cancelled) setVouches(v);
-    });
     getStagePermissions({ serverUrl, publicKey, communityId }).then((p) => {
       if (!cancelled) setPermissions(p);
     });
@@ -56,17 +48,12 @@ export function useCommunityTrust(communityId: string | undefined): CommunityTru
   }, [serverUrl, publicKey, communityId]);
 
   const memberSet = useMemo(() => new Set(Array.isArray(members) ? members : []), [members]);
-  // S36 / D8 (Eston, 2026-09-06): verification is platform-wide on the Digital
-  // Agent, so the current user's count is every vouch the agent holds — from
-  // anyone, not only this community's members. Persona counts stay
-  // per-community (the community contract's `get_vouches`).
-  const currentUserVouchCount = agent?.vouchedBy?.length ?? 0;
-
-  const vouchCountOf = useCallback(
-    (pk: string) => (pk === publicKey ? currentUserVouchCount : (vouches[pk]?.length ?? 0)),
-    [publicKey, currentUserVouchCount, vouches],
+  const { isVerified, vouchCountOf } = registry;
+  const currentUserVouchCount = publicKey ? vouchCountOf(publicKey) : 0;
+  const trustOf = useCallback(
+    (pk: string): TrustState => (isVerified(pk) ? 'verified' : vouchCountOf(pk) > 0 ? 'vouched' : 'unverified'),
+    [isVerified, vouchCountOf],
   );
-  const trustOf = useCallback((pk: string) => resolveTrustState(vouchCountOf(pk)), [vouchCountOf]);
   const isMember = useCallback((pk: string) => memberSet.has(pk), [memberSet]);
   const ruleFor = useCallback(
     (stage: PipelineStage) => (permissions ?? DEFAULT_STAGE_PERMISSIONS)[stage],
