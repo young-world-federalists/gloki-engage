@@ -37,12 +37,14 @@ Two separate things are mixed together:
 
 - **Feature set is already a build switch:** `VITE_APP_MODE` in `src/appMode.ts` (`beta`, or anything else =
   `demo`, meaning the full page set). Same scripts on both branches.
-- **Data source is not a switch; it is which branch you build.** `ui` calls no real-node functions (0 `*OnChain`
-  references in `src`). `server-side` calls them in 9 files (43 references). The mock functions still exist next to
-  the real ones in `server-side`'s `api.ts`, but callers pick one in code.
+- **Data source is only partly a switch; mostly it is which branch you build.** `ui` calls no real-node functions
+  (0 `*OnChain` references in `src`). `server-side` calls them in 9 files (43 references). There is a start: on
+  `server-side`, a contract whose id starts with `demo-` is routed to mock data (`isDemoContract`,
+  `src/services/demo/demoRegistry.ts:34`, checked in `api.ts` and about ten components). But sign-up, the digital
+  agent, community and initiative creation, and verification call the node directly.
 
 So merging is easy. What takes work is making the data source a switch, so one codebase can still build the
-mock-data demo.
+mock-data demo. The `demo-` routing is the natural thing to build on.
 
 ## Proposed steps
 
