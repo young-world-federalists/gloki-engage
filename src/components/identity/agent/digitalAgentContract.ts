@@ -5,7 +5,8 @@
 // which stay mocked for every other flow in this app for now.
 import { deployContractOnChain, contractWriteOnChain, contractReadOnChain } from '../../../services/api';
 import { watchForChainAck } from '../../../services/eventStream';
-import type { IContract } from '../../../services/interfaces';
+import type { AccountKind, IContract } from '../../../services/interfaces';
+import { ACCOUNT_KINDS } from '../../onboarding/accountKinds';
 import digitalAgentContractSrc from '../../../assets/contracts/digital_agent_contract.py?raw';
 
 // Unique across the whole IBC network, not just this app's other contract
@@ -18,6 +19,10 @@ export interface DigitalAgentProfileFields {
   photo: string;
   country: string;
   languages: string[];
+  // Written by set_account_kind, not set_profile. Omit the key (never set it
+  // to undefined) when unknown, so it can't mask the local cache's value in
+  // useDigitalAgent's merge.
+  accountKind?: AccountKind;
 }
 
 export function findDigitalAgentContract(contracts: IContract[]): IContract | undefined {
@@ -90,6 +95,45 @@ export async function writeDigitalAgentProfile({
   } finally {
     writeWatcher.dispose();
   }
+  if (fields.accountKind) {
+    await writeDigitalAgentAccountKind({ serverUrl, publicKey, contractId, kind: fields.accountKind });
+  }
+}
+
+/**
+ * Profiles deployed before set_account_kind existed don't have the method;
+ * the node acks the call with a null reply and stores nothing, so the kind
+ * then lives only in the local cache (digitalAgentStore.ts). Never throws:
+ * the profile itself is already saved by the time this runs.
+ */
+async function writeDigitalAgentAccountKind({
+  serverUrl,
+  publicKey,
+  contractId,
+  kind,
+}: {
+  serverUrl: string;
+  publicKey: string;
+  contractId: string;
+  kind: AccountKind;
+}): Promise<void> {
+  const writeWatcher = watchForChainAck('contract_write');
+  try {
+    const ackId = await contractWriteOnChain({
+      serverUrl,
+      publicKey,
+      contractId,
+      method: { name: 'set_account_kind', values: { kind } },
+    });
+    const reply = await writeWatcher.waitFor(ackId);
+    if (reply && typeof reply === 'object' && 'error' in reply) {
+      console.error('[digitalAgentContract] set_account_kind refused:', reply);
+    }
+  } catch (err) {
+    console.error('[digitalAgentContract] Failed to write account kind:', err);
+  } finally {
+    writeWatcher.dispose();
+  }
 }
 
 /**
@@ -137,5 +181,7 @@ export async function readDigitalAgentProfile({
     photo: result.photo ?? '',
     country: result.country ?? '',
     languages: result.languages ?? [],
+    // Absent on profiles saved before set_account_kind; absent means "not stated".
+    ...(ACCOUNT_KINDS.includes(result.accountKind) ? { accountKind: result.accountKind as AccountKind } : {}),
   };
 }

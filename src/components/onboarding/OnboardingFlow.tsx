@@ -96,8 +96,10 @@ const OnboardingFlow: React.FC = () => {
 
   const go = (nextIndex: number) => setIndex(nextIndex);
 
-  const submitProfile = (fields: DigitalAgentProfileFields) => {
+  const submitProfile = (stepFields: DigitalAgentProfileFields) => {
     if (!serverUrl || !publicKey) return;
+    // The Kind step comes first and saves to the local cache; carry it onto the contract.
+    const fields = agent?.accountKind ? { ...stepFields, accountKind: agent.accountKind } : stepFields;
     saveDigitalAgentProfile({ serverUrl, publicKey, existingContractId: digitalAgentContractId, fields })
       .then((contractId) => {
         dispatch(setDigitalAgentProfile({ profile: fields, contractId }));
