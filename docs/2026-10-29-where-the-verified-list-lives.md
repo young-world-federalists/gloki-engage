@@ -48,10 +48,11 @@ copy of the list it needs:
 
 ## Limits that still apply
 
-- **No signatures.** The node checks none, so any caller can pass any key. On the signpost, anyone can add
-  themselves as a host for the existing contract id. That is harmless while clients only use the first host, and it
-  becomes a hijack route once they use the others. Ouri doesn't expect signatures soon: he says a secure version needs
-  a funded full-time team.
+- **No signatures.** The node checks none, so any caller can pass any key. In the verification contract, anyone can
+  vouch, register or reset *as* anyone else, because the acting key is a plain argument. On the signpost,
+  `register_verification` overwrites an existing host's entry (`self.hosts[agent] = …`), so one call can repoint the
+  founder's own entry, the one every client uses, to another server. Both were reproduced on a local node on
+  29 Oct. Ouri doesn't expect signatures soon: he says a secure version needs a funded full-time team.
 - **Open deploy.** Anyone can deploy contracts on any agent name, including `gloki-application`. Whichever settings
   contract the account lists first wins.
 - The design reduces central control but does not remove it: someone still has to find the first verified person,
