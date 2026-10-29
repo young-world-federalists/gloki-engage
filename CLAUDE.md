@@ -1,6 +1,8 @@
 # Communities2
 
-**Branch:** `ui` — the UI branch (built against stubs). **Deploys come from Ouri's `server-side` branch** (since 2026-09-02): Ouri merges `ui` → `server-side`; GitHub Pages builds on every push to `server-side`. A push to `ui` does NOT deploy.
+**Branch:** `unified` — the one trunk (to become `main`): one app on the real network, where any
+page can also have a demo variant at `?demo=true`. Read **[docs/DEMO_MODE.md](./docs/DEMO_MODE.md)**
+first. (`server-side` and `ui` are the retiring two-branch model; they still deploy until the switch.)
 
 > Architecture, the 8 flows, learnings, and known limitations live in
 > **[ARCHITECTURE.md](./ARCHITECTURE.md)**. UI standards live in
@@ -9,9 +11,20 @@
 
 ## Branch model & data-layer seam
 
-Current flow (since 2026-09-02, S34 D11): **`ui`** (this branch — UI built against **stubs**) → **`server-side`** (Ouri's branch — merges `ui` in, wires the real server calls; **this is what deploys**) → **`main`** (Ouri's stale old line, currently at `d28594a`). Develop on `ui`; Ouri merges `ui` → `server-side` at will (PRs #22/#23 precedent) and that push triggers the GitHub Pages deploy. Ouri does not want step-by-step PR review — keep `ui` runnable.
-
-**The seam rule:** every component/page reads & writes through `src/services/api.ts` (`contractRead`/`contractWrite`/`deployContract`/`joinContract`), currently backed by the **`src/services/demo/` mock layer**. Never call a real server from a component. Keep the UI↔service boundary clean so swapping stubs → server calls is a localized change inside `src/services/` that never touches components.
+- **One trunk, short feature branches.** Branch off `unified`, merge back continuously. A feature
+  that is only designed so far lives behind its page's `?demo=true` variant, so the trunk stays
+  usable. Both Eston (designs, demo variants) and Ouri (real server side) work this way.
+- **Two states per page** ([docs/DEMO_MODE.md](./docs/DEMO_MODE.md)): `/page` is real,
+  `/page?demo=true` is the page's demo variant (`Page.demo.tsx`, `useDemoMode()`, `<DemoNotice />`).
+  A demo variant never reaches the network; demo data uses `demo-…` ids so the two never collide.
+  Demo variants are removed by hand once the real page replaces them.
+- **The seam rule:** components never call a server directly. Real variants read and write through
+  `src/services/` (`api.ts`, `services/contracts/`, the verification and settings modules); demo
+  variants through `src/services/demo/`. Swapping or adding a backend stays a change inside
+  `src/services/`.
+- **Transition:** pages without a demo variant still mix real and demo data by id
+  (`isDemoContract` in `api.ts`, demo communities merged into `getContracts`). Each page's split
+  removes that; the status of every path is in docs/DEMO_MODE.md.
 
 > Backend contract hand-off (every method/field the UI relies on): **[docs/FOR_OURI_seam.md](./docs/FOR_OURI_seam.md)**.
 
@@ -29,7 +42,8 @@ Current flow (since 2026-09-02, S34 D11): **`ui`** (this branch — UI built aga
 - `FlowProps`: `{ instanceId, collaborationId, collaborationType, parentContractId?, stageKey? }`. Flow registry uses `context: 'collab' | 'initiative'` to separate flows shown in collab menu vs pipeline.
 - `useFlowContract` hook (`flows/shared/useFlowContract.ts`): returns `{ contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry }`. Two modes:
   - **Per-user** (default): deploys a contract per user. Used by Collab flows.
-  - **Shared** (`parentContractId` + `stageKey`): reads parent contract for stored sub-contract; joins if found, deploys and stores if not. All initiative dashboard flows use this so community members share one contract.
+  - **Shared** (`parentContractId` + `stageKey`): reads parent contract for stored sub-contract; joins if found, deploys and stores if not. Used for demo issues, so community members share one sub-contract per stage.
+  - **Single-contract** (shared mode with a real parent, `isSingleContract`): resolves straight to the parent — a real issue contract holds every stage, so stage flows read and write it directly (through its creator's agent, `contractHosts.ts`).
   - **Resilience**: 30s deploy timeout, stale deploying recovery on mount, cancellation-safe. Diagnostic logs prefixed `[FlowContract]`.
 - `flowContractsSlice` (`flows/shared/flowContractsSlice.ts`): localStorage-backed contract ID cache
 - `preferencesSlice` (`store/slices/preferencesSlice.ts`): localStorage-backed starred/hidden community IDs
@@ -45,17 +59,32 @@ Current flow (since 2026-09-02, S34 D11): **`ui`** (this branch — UI built aga
 ```
 / → HomeView (cross-community overview; first-run users redirect to /welcome)
 /stage/:stageId → StageFeedView (per-stage browse, driven by the global StageFooter)
-/identity/* → IdentityView (communities, profile, join, about, contact)
+/identity/* → IdentityView (communities, hidden, profile, join, verification/*, notifications, about, contact)
 /create-community → CreateCommunityPage (full onboarding page)
 /community/:communityId/* → CommunityView (feed, collab, collab/:collabId, chat, chat/:topicId, currency, members, identity, create-initiative)
 /initiative/:host/:agent/:communityId/:initiativeId/* → InitiativeView → InitiativeDashboard
 /initiative/:host/:agent/:communityId/:initiativeId/discussion → DiscussionStageView
+/mandate/:communityId/:mandateId/* → MandatePage
+/welcome/* → OnboardingFlow · /organization → OrganizationHome · /forum → ForumPage (beta build only)
 ```
+
+Any of these accepts `?demo=true`; a page without a demo variant ignores it (status per path:
+docs/DEMO_MODE.md).
 
 ## Deployment
 
-- GitHub Pages builds from **`server-side`** (`.github/workflows/deploy.yml`, trigger `push: branches: [server-side]` + `workflow_dispatch`). `ui` → `server-side` is Ouri's merge (PRs #22/#23 precedent).
-- `public/404.html` handles SPA deep-link routing
-- **Production build runs `tsc -b`** — fix all TS errors before pushing; Ouri's merge inherits any red build
-- Contracts are immutable after deploy — new methods require new communities
-- The real initiative contract lives on `server-side` at `src/assets/contracts/gloki_engage_initiative_contract.py`; contract additions made on `ui` are delivered as a patch under `docs/contracts/` + `docs/FOR_OURI_seam.md`
+- GitHub Pages builds from the **retiring** branches until the trunk switch
+  (`.github/workflows/deploy.yml`, on a push to `server-side` or `ui`): `server-side` with
+  `build:prod` at the site root, `ui` with `build:beta` at `/demo/`. A push to `unified` doesn't deploy.
+- Build settings: `.env` holds the required `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT`
+  (the central application account); `.env.local` and the `github-pages` environment variables override
+  them; `vite.config.ts` refuses to build without them. They are baked in at build time.
+- The beta trim is a build mode (`VITE_APP_MODE=beta`, `npm run dev:beta` / `build:beta`), separate
+  from `?demo=true`.
+- `public/404.html` handles SPA deep-link routing (root and `/demo/`)
+- **Production build runs `tsc -b`** — fix all TS errors before pushing
+- Contracts are immutable after deploy — new methods only reach contracts deployed afterwards
+- The real contracts live in `src/assets/contracts/` (`gloki_engage_*`, `digital_agent_contract.py`,
+  `gloki_verification_contract.py`, `gloki_engage_application_settings.py`). Members don't join issue
+  contracts: calls go through the creator's agent with the member's key as `agent`
+  (`src/services/contractHosts.ts`).

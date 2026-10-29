@@ -1,442 +1,262 @@
 ---
 name: gloki-debugging-playbook
-description: "Use when debugging Communities2/Gloki symptoms: UI frozen after a write, stale demo data, 'click anywhere = error page' after a deploy, PR #20 red X, deploy missing, assets 404 on Pages, contract 500 on first read, 'feature isn't available on this community', contracts deploying from nowhere, users stuck at /welcome, phantom git state or I/O stalls on the USB drive, focus lost after deep-link, aria-live silent, navigator.onLine stuck, rg/grep missing keys, [FlowContract] logs."
+description: "Use when debugging Communities2/Gloki symptoms: UI frozen after a write, a write that never confirms, stale demo data, a second member sees different data ('no such contract'), join spinning forever, a verification list showing keys instead of names, writes failing on older issues, 'click anywhere = error page' after a deploy, deploy missing, assets 404 on Pages, build fails with 'Missing VITE_APPLICATION_…', contract 500 on first read, 'feature isn't available on this community', contracts deploying from nowhere, users stuck at /welcome, ?demo=true showing real data, phantom git state or I/O stalls on the USB drive, focus lost after deep-link, aria-live silent, navigator.onLine stuck, rg/grep missing keys, [FlowContract] logs."
 ---
 
 # Gloki Debugging Playbook
 
 ## Overview
 
-**Core principle: in this repo, most "bugs" are known artifacts of the environment — the
-stub data layer, the GitHub Pages deploy, or the slow USB drive — not defects in the code
-you just wrote. Triage by symptom against this table BEFORE writing a fix.** Every entry
-below cost a real session real time; several were "fixed" wrongly at least once. Only when
-a symptom clears this table should you fall back to first-principles debugging
-(`superpowers:systematic-debugging`).
+**Core principle: most "bugs" here are known artifacts of the environment — the two data layers (real
+network vs demo), immutable contracts, the GitHub Pages deploy, or the slow USB drive on Eston's machine
+— not defects in the code you just wrote. Triage by symptom against this table BEFORE writing a fix.**
+Only when a symptom clears the table, fall back to first-principles debugging.
 
-Jargon used throughout (defined once):
+Vocabulary:
 
-- **The seam** — `src/services/api.ts`, the only data boundary components may call
-  (`contractRead`/`contractWrite`/`deployContract`/`joinContract`). On this branch (`ui`)
-  it is backed entirely by the **demo layer** (`src/services/demo/`), an in-browser mock
-  persisted to localStorage. No real server exists here.
-- **DEMO_VERSION** — a string constant at `src/services/demo/mockApi.ts:17` (currently
-  `'global-v16'`). If a visitor's stored `gloki_demo_version` doesn't match, ALL
-  `gloki_demo*` localStorage is wiped and demo data reseeds.
-- **Shared mode** — `useFlowContract`'s mode when given `parentContractId` + `stageKey`:
-  it reads the parent community/initiative contract for a stored sub-contract, joins it if
-  found, **deploys one if not**. Contracts are immutable after deploy.
-- **Wire names** — contract method/field names (`add_proposal`, `get_proposals`…). They
-  must byte-match Ouri's real Python contracts; UI vocabulary ("Solutions", "Mandate") is
-  presentation-only. Ouri is the backend partner who swaps the stubs for real calls.
-- **PR #20** — the long-lived `ui`→`main` review PR. It never merges; see entry 4.
-- **Eston** — the founder driving your session; he gates every push (a push to `ui` no longer
-  deploys — Ouri merges `ui` into `server-side`, which deploys; never push without Eston's
-  explicit go — see `gloki-change-control`).
+- **Real / demo variant** — every page: `/page` (real network) and `/page?demo=true` (demo layer,
+  `src/services/demo/`, localStorage). Pages not split yet mix both by id (`demo-…` ids go to the demo
+  layer). Spec: `docs/DEMO_MODE.md`.
+- **Hosted contract** — an issue (or the verification/settings contract) is used without joining it:
+  calls go to its creator's node through the creator's agent, with the caller's key as `agent`
+  (`src/services/contractHosts.ts`).
+- **DEMO_VERSION** — constant in `src/services/demo/mockApi.ts`; a mismatch with a visitor's stored
+  `gloki_demo_version` wipes and re-seeds all `gloki_demo*` localStorage.
+- **Wire names** — contract method/field names; they byte-match the real contracts.
 
 ## Quick triage table
 
 | # | Symptom | It is almost certainly… | NOT… |
-|---|---------|--------------------------|------|
-| 1 | UI doesn't update after a write (form submits, nothing changes) | demo seam emits no `contract_write` events — re-fetch after write | a Redux/state bug |
-| 2 | Demo data stale, weird, or missing your new fixture | DEMO_VERSION not bumped, or your own old localStorage | a seeding code bug |
-| 3 | "Everything broken / click anywhere → error page" right after a deploy | stale SPA chunk cache in the browser | a code bug |
-| 4 | PR #20 shows a red ✗ | expected merge conflict vs `main` | a build failure — do NOT "fix" |
-| 5 | Pushed to `ui` but the live site didn't change | a TS error failed the Actions build silently | Pages misconfiguration |
-| 6 | Assets/JS 404 on the live Pages site | bundle built without the `/gloki-engage/` base | a routing bug |
-| 7 | Contract 500s on its very first read | writes in `__init__` (Python dialect trap) | a transient server error |
-| 8 | "This feature isn't available on this community" card | pre-registry community + contract immutability | a bug you can patch |
-| 9 | Contracts appearing from nowhere on page VIEW | a "read-only" component calling `useFlowContract` | a phantom user action |
-| 10 | Returning user bounced to `/welcome` every visit | the `isFirstRun` key regression (fixed at HEAD) | auth failure |
-| 11 | Git output wrong/truncated, I/O frozen for minutes | slow USB drive under parallel I/O | repo corruption |
-| 12 | Keyboard focus lost after following a deep link | card remount when `get_stage` resolves async | a focus-management typo |
-| 13 | `aria-live` region announces once, then never again | React batching coalescing reset+set into one commit | a screen-reader quirk |
-| 14 | `dispatchEvent(new Event('offline'))` doesn't flip the UI | `navigator.onLine` getter unchanged by synthetic events | a broken `useOnline` hook |
-| 15 | `rg a && rg b` says a key doesn't exist (but it does) | shell `&&` short-circuit on the first no-match | a genuinely missing key |
-| 16 | Flow stuck "deploying" / silent contract weirdness | read the `[FlowContract]` console logs first | guesswork |
-
-Detailed entries follow. Each: symptom → first check (one command) → root cause → fix →
-the incident behind it.
+|---|---|---|---|
+| 1 | Demo variant doesn't update after a write | demo writes emit no events — re-fetch after the write | a Redux bug |
+| 2 | Real write spins, then times out | the write's confirmation went to a stream nobody listens to | a server outage |
+| 3 | Demo data stale, weird, or missing your new fixture | DEMO_VERSION not bumped, or your own old localStorage | a seeding bug |
+| 4 | Second member sees an issue differently / "no such contract" | the call went to the member's own node instead of the issue's creator | a permissions bug |
+| 5 | Every member action fails on an issue | the issue's contract is older than the code calling it | a broken UI |
+| 6 | Join Community spins, then errors | the community's node never confirmed (`a2a_connect`) | a join-page bug |
+| 7 | Verification list shows a short key instead of a name | the person's profile contract can't be found where recorded | a display bug |
+| 8 | `?demo=true` still shows real data | the page has no demo variant yet | a broken flag |
+| 9 | "Everything broken / click anywhere → error page" right after a deploy | stale SPA chunk cache | a code bug |
+| 10 | Pushed, but the live site didn't change | the Actions build failed (TS error), or the branch doesn't deploy | Pages misconfiguration |
+| 11 | Assets/JS 404 on the live site | bundle built with the wrong base | a routing bug |
+| 12 | Build/dev fails: "Missing VITE_APPLICATION_…" | `.env` missing or a value blank | a Vite bug |
+| 13 | Contract 500s on its very first read | writes in `__init__` (dialect trap) | a transient error |
+| 14 | "This feature isn't available on this community" | a demo community older than the stage-contract registry | a patchable bug |
+| 15 | Contracts appearing from nowhere on page VIEW | a "read-only" component calling `useFlowContract` | a phantom user action |
+| 16 | Signed-in user sent to `/welcome` | no readable profile contract for this identity on this node | an auth bug |
+| 17 | Git output wrong, I/O frozen for minutes | the slow USB drive (Eston's Mac) | repo corruption |
+| 18 | Keyboard focus lost after a deep link | card remount when `get_stage` resolves async | a focus typo |
+| 19 | `aria-live` announces once, then never again | React batching reset+set into one commit | a screen-reader quirk |
+| 20 | `dispatchEvent(new Event('offline'))` doesn't flip the UI | `navigator.onLine` unchanged by synthetic events | a broken hook |
+| 21 | `rg a && rg b` says a key doesn't exist | `&&` short-circuit | a missing key |
+| 22 | Flow stuck "deploying" / odd provisioning | read the `[FlowContract]` console logs first | guesswork |
 
 ---
 
-## 1. UI not updating after a write
+## 1. Demo variant doesn't update after a write
 
-**Symptom:** you `contractWrite` (contribute, allocate, post, vote…) and the screen stays
-frozen on the old data. Reload shows the write landed.
+**Root cause:** the demo layer never emits `contract_write` events, so anything waiting for one waits
+forever. **Fix:** after every demo write, re-run the read (one memoised fetch, on mount and after each
+write). Transitional components that serve both layers do
+`if (isDemoContract(contractId)) await fetchData();`. Mechanics: **gloki-seam-and-demo-data** §4.
 
-**First check** (proves the mechanism, from repo root):
+## 2. Real write spins, then times out
 
-```bash
-grep -n "eventStream\|EventSource\|emit" src/services/demo/mockApi.ts
-# → zero hits. The demo layer never emits events.
-```
+**First check:** the browser console for `Timed out waiting for …` and the node's
+`docker compose exec ibc tail -f execution.log` — did the write run, and what did it return?
 
-**Root cause:** `src/services/eventStream.ts` is a real SSE client
-(`EventSource` on `${serverUrl}/stream`) that the real backend feeds with
-`contract_write` events. The demo layer never feeds it, so `useEventStream('contract_write')`
-is permanently inert on the `ui` branch. Any UI that waits for an event to refresh waits
-forever.
+**Root cause:** a real write returns only an ack id; the result arrives on the SSE stream of the
+**agent the write went through**. `contractWrite` waits on the user's own stream — or, for a write
+through another agent (a hosted issue, verification, settings), on a scoped stream for that agent
+(`openScopedAckStream`). A write sent through another agent without that scoped stream never sees its
+confirmation. Also: the user's main stream isn't connected (`eventStreamService.connect` runs at sign-in).
 
-**Fix:** after every `contractWrite`, explicitly re-run the read that populates the view
-(the ConcernsFlow pattern — `await contractWrite(...); await refresh();`). Never build a
-demo-branch feature that depends on `useEventStream` for freshness.
+**Fix:** route writes through `contractWrite` (it picks the right stream) or the service module that
+owns the contract; never call `contractWriteOnChain` + `watchForChainAck` for another agent's contract.
+If `execution.log` shows an error string, that's the real cause — the write ran and refused.
 
-**Incident + full mechanics:** the write-then-refetch rule's home is
-**gloki-seam-and-demo-data** §4 (Community Funds incident, 2026-06-25).
+## 3. Stale or weird demo data — clear vs bump
 
-## 2. Stale or weird demo data — clear vs bump (discriminate!)
+**First check** (DevTools): `localStorage.getItem('gloki_demo_version')` vs `DEMO_VERSION` in
+`mockApi.ts`.
 
-**Symptom:** seeded fixture change not visible; personas/initiatives look like an older
-build; or a returning visitor reports wrong/old content.
+**Fix — who needs fresh data?** Only your browser → clear the `gloki_demo*` keys and reload (never bump
+for this). Returning visitors must see a fixture/seed change → bump `DEMO_VERSION`. UI-only change →
+nothing. Table and snippet: **gloki-seam-and-demo-data** §7.
 
-**First check** (browser DevTools console on the affected browser):
+Sub-symptom: a flow renders empty after a demo reset → a **rehydrated orphan** id in
+`flowContracts:<scope>`; `demoRouter.ts` auto-registers unknown ids as no-op stubs. Clear the
+`flowContracts:` key (or all `gloki_demo*`) and reload.
 
-```js
-localStorage.getItem('gloki_demo_version')   // compare vs mockApi.ts:17 ('global-v16')
-```
+## 4. Second member sees an issue differently / "no such contract"
 
-**Root cause:** all demo state is localStorage — registry `gloki_demo_contracts`,
-per-contract blobs `gloki_demo_state_<id>`, seed flags `gloki_demo_seeded_<communityId>`,
-gate `gloki_demo_version`. Seeding only re-runs when the stored version mismatches
-`DEMO_VERSION` (`ensureDefaultDemoCommunity`, `mockApi.ts:144`). So old localStorage
-silently shadows new fixture code.
+**First check:** the read's URL in the Network tab — is it going to the issue creator's node and agent
+(`/ibc/app/<creator>/<issue>/…`) or the viewer's own?
 
-**Fix — the discriminating question is who needs the fresh data:** only your own dev
-browser → clear the `gloki_demo*` localStorage keys and reload (never bump for this);
-fixture/seed content or shape must reach returning visitors → bump `DEMO_VERSION`
-(`mockApi.ts:17`); UI-only change → do nothing. The full clear-vs-bump decision table,
-the clear snippet, and the incidents behind it live in **gloki-seam-and-demo-data** §6.
+**Root cause:** members don't join issue contracts; only the creator holds one. Every call must go
+through the creator's agent, which `contractRead`/`contractWrite` do once the issue is registered in
+`contractHosts.ts`. Registration happens when the community's issue list loads (`fetchCollaborations`),
+on the issue route (from `:initiativeHostServer/:initiativeHostAgent`), at creation, and on the mandate
+route via `useInitiativeHostReady`. A path that reaches an issue before any of these reads the viewer's
+own node and gets `{"message":"no such contract"}` (often rendered as stage "problem" or empty).
 
-Related sub-symptom: a flow that renders but shows null/empty data after a demo reset may
-be a **rehydrated orphan** — `flowContracts:<scope>` in localStorage still holds a contract
-ID from the previous demo generation; `demoRouter.ts` auto-registers unknown IDs as stub
-contracts (reads null, writes no-op) so the UI degrades instead of crashing. Clearing the
-`flowContracts:` key (or all `gloki_demo*` + reload) resolves it.
+**Fix:** make the path register the host first (load the issue list, or pass the host in the route),
+rather than special-casing the read.
 
-## 3. "Everything broken" right after a deploy
+## 5. Every member action fails on an issue
 
-**Symptom:** a visitor (often Eston, minutes after a push) reports the live site errors on
-every click / navigation lands on the error page.
+**Root cause:** contracts are immutable. Issues created before a contract change keep the old code:
+before 2026-10-28 they lack `cause_id` on `add_proposal`; before the `agent` parameters they reject the
+added `agent` argument. The node returns an error (see `execution.log`).
 
-**First check:** in the affected browser's DevTools console, look for a failed dynamic
-import / 404 on a hashed chunk (`assets/XYZ-<hash>.js`). Or just ask: "does a hard refresh
-(Cmd-Shift-R) fix it?"
+**Fix:** none for that issue — create a new one. For new code: optional trailing arguments and
+absence-tolerant readers (**gloki-python-contracts** §5).
 
-**Root cause:** `src/App.tsx` lazy-loads 10 route components. Each deploy renames the
-hashed chunk files; a browser holding the old `index.html` in cache requests chunk hashes
-that no longer exist → every route transition throws into the ErrorBoundary.
+## 6. Join Community spins, then errors
 
-**Fix:** hard refresh. Nothing to change in code. If reports persist across hard
-refreshes, THEN treat it as real and check the Actions build (entry 5).
+**First check:** the joiner's stream for `a2a_connect` (and `a2a_reply_join`); the node logs on both sides.
 
-**Incident:** card redesign, 2026-06-23 — a full "click anywhere → error page" report was
-chased as a code bug before being identified as stale chunk cache. Recorded in project
-memory; recurs with returning visitors after every deploy.
+**Root cause:** `joinContract` sends `join_contract` to the joiner's own node, which connects to the node
+named in the invitation (`server` + `agent`). Success arrives as `a2a_connect` with `reply: true`; the
+join page waits up to 30 s. No event = the invitation's node is unreachable from the joiner's node, or
+the invitation names an agent that doesn't hold the community. `reply: false` = the community refused.
 
-## 4. PR #20 shows a red ✗ — do NOT fix anything
+**Fix:** check the invitation JSON (`{server, agent, contract}`, from "Share Community Link" on a
+member's community page) and that the two nodes can reach each other.
 
-**Symptom:** GitHub shows PR #20 (`ui` → `main`) with a red/orange ✗; it looks like the
-build is broken.
+## 7. Verification list shows a short key instead of a name
 
-**First check:**
+**Root cause:** names come from each person's Digital Agent profile contract on their own node.
+`personSummary` (`verificationRegistry.ts`) looks up the person's current profile by name on their node,
+falling back to the id stored in the verification contract. A short key means neither worked: the node
+is unreachable from this browser (e.g. a `localhost` node seen from elsewhere), or the identity has no
+profile there.
 
-```bash
-gh pr view 20 --json mergeable,state   # → {"mergeable":"CONFLICTING","state":"OPEN"}  (verified 2026-07-02)
-gh pr checks 20                        # build + deploy = SUCCESS
-```
+**Fix:** check that the stored node address is reachable; the lookup retries on the next read.
 
-**Root cause:** the ✗ is the *expected* permanent merge conflict with Ouri's diverged
-real-server `main`, not CI failure (checks are green).
+## 8. `?demo=true` still shows real data
 
-**Fix:** none. Reassure, don't debug; never resolve the conflict or merge yourself
-(**gloki-change-control**). The full two-era divergence story — this confusion recurred
-in at least three sessions — is homed in **gloki-failure-archaeology** entry 1.
+**Root cause:** only pages with a demo variant react to the flag; the rest ignore it. **Fix:** check the
+page's row in `docs/DEMO_MODE.md` / `git ls-files '*.demo.tsx'`. Building the variant:
+**gloki-frontend-architecture** ("Giving a page a demo variant").
 
-## 5. Deploy missing after a push
+## 9. "Everything broken" right after a deploy
 
-**Symptom:** pushed to `ui`, waited, live site unchanged — and no error appeared anywhere
-in your terminal.
+**Root cause:** each deploy renames the hashed chunks; a browser holding the old `index.html` requests
+chunks that no longer exist, and every route throws into the ErrorBoundary. **Fix:** hard refresh. If it
+persists across hard refreshes, check the build (entry 10).
 
-**First check:**
+## 10. Pushed, but the live site didn't change
 
-```bash
-gh run list --workflow=deploy.yml -L 3
-# healthy: "completed  success  <commit subject>  Deploy to GitHub Pages  ui  push ..."
-```
+**First check:** `gh run list --workflow=deploy.yml -L 3`.
 
-**Root cause:** deploy is a GitHub Actions workflow (`.github/workflows/deploy.yml`, fires
-on push to `ui`, Node 22, `npm ci` + `npm run build:prod`). `build:prod` starts with
-`tsc -b` under strict + `noUnusedLocals`/`noUnusedParameters` — **even one unused import
-fails the build and silently blocks the deploy**. Nothing notifies you; the Pages site just
-stays old. (CLAUDE.md's "Pages source branch ui via Settings" phrasing is imprecise — the
-deploy is Actions-artifact based, so the Actions tab, not Pages settings, is where failures
-show.)
-
-**Fix:** open the failed run (`gh run view <id> --log-failed`), fix the TS error, get
-Eston's green light, push again. Prevention: `npx --no-install tsc -b --noEmit` clean
-before every push. Full pipeline detail: **gloki-build-env-run**.
-
-## 6. Assets 404 on the Pages site
-
-**Symptom:** the deployed site loads a blank page; Network tab shows JS/CSS requested at
-`/assets/...` returning 404 (they live at `/gloki-engage/assets/...`).
-
-**First check:**
-
-```bash
-grep -n "base:" vite.config.ts
-# → base: mode === 'production' ? '/gloki-engage/' : '/'
-```
+**Root cause:** until the trunk switch the workflow runs only on pushes to `server-side` or `ui` (a push
+to `unified` doesn't deploy), and each run builds both (`server-side` → root with `build:prod`, `ui` →
+`/demo/` with `build:beta`). Every build starts with `tsc -b`; one unused import fails it silently and
+the site stays old.
 
-**Root cause:** plain `npm run build` produces a base-`/` bundle; the Pages site is served
-under the project path `/gloki-engage/`. Only `npm run build:prod` (`--mode production`)
-sets the right base. Same trap in reverse: `vite preview` of a prod build serves at the
-wrong base — use `npm run preview:prod`.
-
-**Fix:** the CI workflow already uses `build:prod`, so this bites when someone manually
-builds/uploads or previews Pages-parity locally with the wrong script. Use
-`build:prod`/`preview:prod` for anything Pages-shaped. Also never "simplify away"
-`public/404.html` or the inline `?/` decoder script in `index.html` — that pair is the SPA
-deep-link mechanism on Pages. Command card: **gloki-build-env-run**.
-
-## 7. Contract 500s on its very first read
-
-**Symptom:** a freshly deployed contract errors on the first `contractRead` before any
-write ever touched it.
+**Fix:** `gh run view <id> --log-failed`, fix the TS error, push again with an explicit go. Prevention:
+`npx --no-install tsc -b --noEmit` before every push. Pipeline: **gloki-build-env-run**.
 
-**First check:** open the contract's `.py` and look at `__init__` for any conditional
-Storage write, e.g.:
+## 11. Assets 404 on the Pages site
 
-```bash
-sed -n '1,20p' src/assets/contracts/community_contract.py
-# line 14–15: if 'centralAccount' not in self.accounts: self.accounts['centralAccount'] = {...}
-```
+**Root cause:** the root site needs base `/gloki-engage/` (`--mode production`), the demo site
+`/gloki-engage/demo/` (deploy.yml passes `--base`). A plain `npm run build` is base `/`.
 
-**Root cause (dialect trap):** the Gloki blockchain re-runs `__init__` on EVERY
-invocation, and read calls disallow writes (the storage layer raises a write-permission
-error). A counter-initializing or default-seeding write in `__init__` therefore blows up
-the first read. (`community_contract.py:14` does write in `__init__` — a known edge owned
-by Ouri; do not copy the pattern.)
+**Fix:** use `build:prod` / `build:beta` (+ `preview:prod`) for anything Pages-shaped. Never simplify away
+`public/404.html` or the inline `?/` decoder in `index.html`.
 
-**Fix:** never initialize state in `__init__`; use `timestamp()`-keyed IDs instead of
-counters, and the `x or default` idiom on reads (Storage Documents return `None` for
-missing keys — there is no `.get(key, default)`). Full dialect checklist:
-**gloki-python-contracts**.
+## 12. Build/dev fails: "Missing VITE_APPLICATION_…"
 
-**Incident:** recorded as an ARCHITECTURE.md learning from the original discussion/chat
-contract work; the discussion/chat/concerns contracts all use the timestamp-key pattern as
-a result.
+**Root cause:** `vite.config.ts` refuses to run without `VITE_APPLICATION_SERVER_URL` and
+`VITE_APPLICATION_AGENT`. Defaults live only in `.env`; `.env.local` and environment variables override
+them. **Fix:** restore `.env`, or set the values (**gloki-build-env-run**, "Required build settings").
 
-## 8. "This feature isn't available on this community" card
+## 13. Contract 500s on its very first read
 
-**Symptom:** an initiative-stage flow renders an error card with exactly that copy
-(defined at `useFlowContract.ts:161` and `:248`).
+**Root cause (dialect trap):** `__init__` re-runs on every invocation and reads forbid writes, so a write
+in `__init__` blows up the first read. **Fix:** `__init__` only binds `Storage()` handles; initialise in a
+write method that refuses to run twice; no counters. **gloki-python-contracts** §4.
 
-**First check:** the console — you'll see one of:
+## 14. "This feature isn't available on this community"
 
-```
-[FlowContract] Parent <id> does not expose get_stage_contract for <stage> — unsupported: ...
-[FlowContract] Registration missing contractId for <stage> on <id>. Old community?
-```
+**First check** (console): `[FlowContract] Parent <id> does not expose get_stage_contract …` or
+`Registration missing contractId … Old community?`.
 
-**Root cause:** the parent community/initiative contract was deployed before
-`register_stage_contract`/`get_stage_contract` existed. Contracts are immutable after
-deploy, so the method can never be added. The hook deliberately probes the parent FIRST
-and fails fast **without deploying** — earlier code deployed a fresh sub-contract before
-probing, leaving an orphan immutable contract on every visit (the fix is comment-enforced
-in `useFlowContract.ts` shared-mode code; preserve it in any refactor).
+**Root cause:** shared mode (demo parents) needs the parent's `register_stage_contract` /
+`get_stage_contract`; a demo community seeded before those existed can never gain them. The hook probes
+first and fails fast **without deploying** — preserve that order. Real issues don't use sub-contracts
+(single-contract mode) and never show this.
 
-**Fix:** there is no patch. The only remedy is a fresh community. In demo data, reseed
-(entry 2); in the real world this is expected graceful degradation — do not "fix" the
-error card away.
+**Fix:** none — reseed the demo (entry 3).
 
-## 9. Contracts appearing from nowhere (a page VIEW deploys)
+## 15. Contracts appearing from nowhere (a page VIEW deploys)
 
-**Symptom:** merely opening a page/preview creates contracts (registry grows, new
-`gloki_demo_state_*` keys, `register_stage_contract` writes) — including for users the
-trust gate should block.
+**Root cause:** `useFlowContract` provisions on mount — a display-only component calling it deploys.
+**Fix:** read-only components use `resolveInitiativeStageContract` (`src/services/contracts/initiative.ts`).
+Rule of thumb: **useFlowContract = provision + own; resolve\* = read.**
 
-**First check:**
+## 16. Signed-in user sent to `/welcome`
 
-```bash
-grep -rn "useFlowContract(" src/components/<suspect-component>.tsx
-```
+**First check:** `state.user.digitalAgentProfile` / `digitalAgentContractId` in Redux DevTools, and the
+identity's contracts on its node (`GET /ibc/app/<key>?action=get_contracts`).
 
-**Root cause:** `useFlowContract` is provision-on-mount: in shared mode it deploys and
-registers a sub-contract whenever the parent has none. A display-only component calling it
-is therefore NOT read-only — it performs writes past the trust gate. The hook has no
-read-only flag, so the trap remains open for all new code.
+**Root cause:** `RootRoute` (`App.tsx`) waits for `digitalAgentProfileChecked`, then sends anyone without
+a readable Digital Agent profile contract (`unique-gloki-engage-digital-agent-contract`) to `/welcome`.
+Typical cause: the node was reset or the user signed in on a different node, so the profile isn't there.
 
-**Fix:** read-only components use `resolveInitiativeStageContract` —
-`src/services/contracts/initiative.ts:65`, pure `contractRead`, returns
-`InitiativeStageContract | null`, deploys nothing. Find current correct consumers to copy
-with `grep -rln resolveInitiativeStageContract src` (the verified list is maintained in
-**gloki-frontend-architecture**). Rule of thumb: **useFlowContract = provision + own;
-resolve\* = read.**
+**Fix:** that's correct behaviour — onboarding creates a new profile. If the profile exists but isn't
+read, check `fetchContracts` / `readDigitalAgentProfile` in `userSlice.ts`.
 
-**Incident:** S11 (2026-07-01) — `VotePreview`, built as a pre-gate read-only preview,
-silently deployed contracts on view and was rewritten onto
-`resolveInitiativeStageContract`. Architecture detail: **gloki-frontend-architecture**.
+## 17. Phantom git states / I/O stalls (Eston's USB drive)
 
-## 10. Returning user stuck at /welcome
+`git update-index -q --refresh && git status -sb`; trust `git rev-parse HEAD` and `gh` over long local
+output during a stall. Never "repair" the repo for these symptoms. Discipline: **gloki-build-env-run**.
 
-**Symptom:** a user who completed onboarding is redirected to `/welcome` on every visit to
-`/`.
+## 18. Focus lost after a deep link
 
-**First check:**
+**Root cause:** the deep-linked card remounts when its stage resolves asynchronously, destroying the
+focused inner button. **Fix:** focus the stable wrapper (`tabIndex={-1}`, `preventScroll: true` after
+`scrollIntoView`), never an inner control; the focus effect must sit after the `initiatives` `useMemo`.
+Pattern: `grep -n "Focus the stable wrapper" src/components/community/CommunityHome.tsx`.
 
-```bash
-sed -n '55,66p' src/App.tsx
-```
+## 19. aria-live region won't re-announce
 
-**Root cause (historical, FIXED at HEAD):** the old `isFirstRun` checked localStorage key
-`gloki.onboarding.completed` — **which nothing ever wrote** — so every returning user was
-"first-run" forever. The fix (comment-documented at `App.tsx:55-65`) reads the onboarding
-agent store's canonical `gloki.onboarding` key via `getAgent()`/`getProgress().completed`.
+**Root cause:** React batches `setStatus('')` + `setStatus(msg)` into one commit; identical text → no
+change → silence. **Fix:** reset to `''` synchronously, then set the message in a ~60 ms `setTimeout`
+(kept in a ref, cleared on unmount). Pattern:
+`grep -n "separate commit" src/components/collaboration/flows/discussion/ThreadedDiscussion.tsx`.
 
-**Fix if it recurs:** someone reintroduced a read of a key the onboarding flow doesn't
-write. Verify the write side and the read side name the SAME localStorage key
-(`gloki.onboarding`), and keep the private-mode `catch → false` fallback (localStorage
-blocked must NOT strand users at /welcome).
+## 20. Simulated offline doesn't flip the UI
 
-**Incident:** found in Batch 8 (2026-06-09) — a read-of-never-written-key bug invisible to
-tsc, found only by tracing the key's writer.
-
-## 11. Phantom git states / I/O stalls on the USB drive
-
-**Symptom:** `git status`/`git diff` disagree with reality; `git log` output truncated;
-refs look momentarily wrong; all file I/O freezes for minutes.
-
-**First check:**
-
-```bash
-git update-index -q --refresh && git status -sb
-```
-
-**Root cause:** the repo lives on a slow external USB drive that is flaky under parallel
-I/O; git's stat cache goes stale and output can truncate mid-stall. This is the
-environment, not repo corruption — never "repair" the repo for these symptoms.
-
-**Fix:** `git update-index -q --refresh`; trust `git rev-parse HEAD` and `gh` (server-side
-truth) over long local `git log` output during a stall. The full operating discipline
-(sequential I/O batches, no node_modules/dist scans, sequential subagents, `._*` files) and
-the May-2026 incident are homed in **gloki-build-env-run**.
-
-## 12. Focus lost after a deep link
-
-**Symptom:** arriving via a deep link (e.g. `?initiative=` into a community feed), the
-right card scrolls into view but keyboard focus silently drops to `<body>`.
-
-**First check:** the working pattern to compare against:
-
-```bash
-sed -n '80,92p' src/components/community/CommunityHome.tsx
-```
-
-**Root cause:** the deep-linked card REMOUNTS when its stage resolves asynchronously —
-`contractRead get_stage` swaps the default 'problem' card for the real `*ActivityCard` —
-and a remount destroys whatever inner button held focus.
-
-**Fix:** focus the STABLE wrapper element (`tabIndex={-1}` div with `preventScroll: true`
-after `scrollIntoView`), never an inner control; the wrapper survives the swap. Secondary
-trap from the same incident: the focus `useEffect` must sit AFTER the `initiatives`
-`useMemo` in source order or you hit a temporal-dead-zone error.
-
-**Incident:** S10 (2026-06-30), deep-link scroll work; pattern now live (and
-comment-documented) in `CommunityHome.tsx:80-91`.
-
-## 13. aria-live region won't re-announce
-
-**Symptom:** a polite live region announces "Comment posted" once; identical repeat
-actions announce nothing (screen reader stays silent).
-
-**First check:** the reference implementation:
-
-```bash
-sed -n '335,347p' src/components/collaboration/flows/discussion/ThreadedDiscussion.tsx
-```
-
-**Root cause:** React (18+) batches state updates — a same-block `setStatus('')` followed
-by `setStatus(msg)` coalesces into ONE DOM commit, so assistive tech sees no change when
-`msg` equals the previous text and fires nothing.
-
-**Fix:** reset to `''` synchronously (before any `await`), then set the message inside a
-`setTimeout` (~60ms) — a separate macrotask forces a separate DOM commit, so AT re-fires
-even for identical text. Keep the timer in a ref and clear it on unmount.
-
-**Incident:** S9 (2026-06-30) a11y work; the pattern lives at
-`ThreadedDiscussion.tsx:342-346` with the explanatory comment.
-
-## 14. Simulated offline doesn't flip the UI
-
-**Symptom:** in preview/DevTools, `window.dispatchEvent(new Event('offline'))` fires but
-`useOnline` still reports online and `OfflineBanner` never shows.
-
-**First check:** `useOnline` (`src/components/shared/connectivity/useOnline.ts`) reads
-`navigator.onLine` via `useSyncExternalStore` — the event only tells it to re-read; the
-synthetic event does NOT change the getter's value.
-
-**Fix (preview/eval):**
+`useOnline` reads `navigator.onLine`; a synthetic event doesn't change it.
 
 ```js
 Object.defineProperty(navigator, 'onLine', { get: () => false, configurable: true });
 window.dispatchEvent(new Event('offline'));
 ```
 
-The override RESETS on page reload — re-apply after any navigation that reloads. To
-restore: redefine with `get: () => true` and dispatch `'online'`.
+The override resets on reload. Restore with `get: () => true` and an `'online'` event.
 
-**Incident:** S14 (2026-07-01) offline-anchor verification — dispatching the bare event
-looked like a broken hook until the getter override was identified. More preview-eval
-lore: **gloki-verification-and-qa**.
+## 21. `rg a && rg b` masking existing keys
 
-## 15. `rg a && rg b` masking existing keys
+`&&` short-circuits — the second search never runs. Use one multi-file command:
+`grep -n "'key.one'" src/i18n/fr.ts src/i18n/sw.ts`. When Bash output looks impossibly mangled,
+cross-check with the Read tool before concluding anything.
 
-**Symptom:** a chained existence check like
-`rg "'key.one'" src/i18n/fr.ts && rg "'key.one'" src/i18n/sw.ts` reports nothing, so the
-key "doesn't exist" — but it does, in the second file.
+## 22. `[FlowContract]` — the provisioning log
 
-**Root cause:** `&&` short-circuits — if the first `rg` finds no match it exits non-zero
-and the second never runs, and a match found only by the second command is also invisible
-when the first fails. Either way you conclude "missing" from a command that never looked
-everywhere.
-
-**Fix:** one multi-file invocation, or `;` instead of `&&`:
-
-```bash
-grep -n "'key.one'" src/i18n/fr.ts src/i18n/sw.ts   # one command, both files, per-file hits
-```
-
-**Incident:** Batch 12 (2026-06) — chained rg checks masked existing i18n keys during
-parity work. Same session's env quirk, kept for the record: that session's Bash tool
-stdout redacted some identifiers (printed `l`/`n`/`no`); the Read tool and `preview_eval`
-were clean — when Bash output looks impossibly mangled, cross-check with Read before
-concluding anything. i18n parity tooling itself: **gloki-i18n-playbook**.
-
-## 16. `[FlowContract]` — the diagnostic handle for flow provisioning
-
-Every deploy/join/registration step in `useFlowContract`
-(`src/components/collaboration/flows/shared/useFlowContract.ts`) logs with the
-`[FlowContract]` prefix. When any flow is stuck "Setting up…", errored, or behaving oddly,
-**filter the browser console for `FlowContract` first** — the log line usually names the
-failure directly:
+Every deploy/join/registration step in `useFlowContract` logs with the `[FlowContract]` prefix — filter
+the console for it first:
 
 | Log line (abbrev.) | Meaning |
 |---|---|
-| `Clearing stale deploying flag for <id>` | recovery from an interrupted previous mount — benign |
-| `Deploying <name> for <id>...` | per-user mode deploy started |
-| `Setting up shared <name> ... (parent: <id>, stage: <key>)` | shared-mode provisioning started |
-| `TIMEOUT: ... did not complete within 30s` | deploy/setup hit `DEPLOY_TIMEOUT_MS` — retry available via the hook's `retry()` |
-| `Parent <id> does not expose get_stage_contract` | entry 8 — pre-registry community |
-| `Registration rejected` / `Registration missing contractId ... Old community?` | entry 8 |
-| `ERROR deploying ...` / `ERROR setting up shared contract` | real failure — read the attached error object |
-
-Verify the prefix still exists after any refactor:
-
-```bash
-grep -c "\[FlowContract\]" src/components/collaboration/flows/shared/useFlowContract.ts   # 10 at HEAD
-```
+| `Clearing stale deploying flag for <id>` | recovery from an interrupted mount — benign |
+| `Deploying <name> for <id>...` | per-user deploy started |
+| `Setting up shared <name> ... (parent, stage)` | shared-mode provisioning started |
+| `TIMEOUT: ... did not complete within 30s` | hit `DEPLOY_TIMEOUT_MS` — `retry()` available |
+| `Parent <id> does not expose get_stage_contract` / `Registration missing contractId` | entry 14 |
+| `ERROR deploying ...` / `ERROR setting up shared contract` | real failure — read the error object |
 
 ---
 
@@ -444,39 +264,25 @@ grep -c "\[FlowContract\]" src/components/collaboration/flows/shared/useFlowCont
 
 | You actually need to… | Use instead |
 |---|---|
-| Understand seam mechanics, DEMO_VERSION policy, fixtures/seeding in depth | **gloki-seam-and-demo-data** |
-| Run/build/deploy, recreate the environment, base paths, drive discipline detail | **gloki-build-env-run** |
-| Write or modify a Python contract / demo stub handler | **gloki-python-contracts** |
-| Navigate the app structure, flows, Redux, routing | **gloki-frontend-architecture** |
-| Verify a fix (preview automation, evidence standards, review tiers) | **gloki-verification-and-qa** |
-| Read the full history of an incident, revert, or settled battle | **gloki-failure-archaeology** |
-| Fix i18n parity / translation tooling failures | **gloki-i18n-playbook** |
-| Decide whether a change is even allowed (push gates, locked decisions) | **gloki-change-control** |
-| Debug a genuinely novel bug not in the table above | `superpowers:systematic-debugging` |
+| The real/demo split, DEMO_VERSION, fixtures in depth | **gloki-seam-and-demo-data** |
+| Run/build/deploy, the local node, environment | **gloki-build-env-run** |
+| Write or modify a contract / demo handler | **gloki-python-contracts** |
+| App structure, flows, Redux, routing | **gloki-frontend-architecture** |
+| Verify a fix | **gloki-verification-and-qa** |
+| The history of an incident or settled battle | **gloki-failure-archaeology** |
+| i18n parity tooling | **gloki-i18n-playbook** |
+| Whether a change is allowed | **gloki-change-control** |
 
 ## Provenance and maintenance
 
-All file paths, line numbers, log strings, and commands verified 2026-07-02 @ commit
-`c26cdc4` (branch `ui`). Incident narratives are from project memory (sessions/batches
-Apr–Jul 2026) as dated in each entry; they are historical record, not re-runnable.
+Rewritten 2026-10-29 on branch `unified`. Re-verify before relying on these:
 
-Volatile facts — re-verify before relying on them:
-
-| Fact (as of 2026-07-02) | Re-verify with |
+| Fact | Re-verify with |
 |---|---|
-| `DEMO_VERSION = 'global-v16'` @ `mockApi.ts:17` | `grep -n "DEMO_VERSION = " src/services/demo/mockApi.ts` |
-| PR #20 open + CONFLICTING, checks green | `gh pr view 20 --json mergeable,state && gh pr checks 20` |
-| Deploy workflow: push to `ui`, Node 22, `build:prod` | `grep -n "branches\|node-version\|build:prod" .github/workflows/deploy.yml` |
-| Live site responds 200 | `curl -s -o /dev/null -w '%{http_code}' https://young-world-federalists.github.io/gloki-engage/` |
-| `resolveInitiativeStageContract` @ `initiative.ts:65` | `grep -n "export async function resolveInitiativeStageContract" src/services/contracts/initiative.ts` |
-| Error copy + `[FlowContract]` logs in `useFlowContract.ts` | `grep -n "available on this community\|\[FlowContract\]" src/components/collaboration/flows/shared/useFlowContract.ts` |
-| `isFirstRun` fix @ `App.tsx:55` | `grep -n "isFirstRun" src/App.tsx` |
-| aria-live pattern @ `ThreadedDiscussion.tsx:342-346` | `grep -n "separate commit" src/components/collaboration/flows/discussion/ThreadedDiscussion.tsx` |
-| Deep-link focus pattern @ `CommunityHome.tsx:80-91` | `grep -n "Focus the stable wrapper" src/components/community/CommunityHome.tsx` |
-| Demo localStorage keys (`gloki_demo_contracts` / `_state_` / `_seeded_`) | `grep -rn "gloki_demo" src/services/demo/demoRegistry.ts src/services/demo/demoState.ts src/services/demo/seedDemoCommunity.ts` |
-
-Line numbers drift; the grep commands above are the durable pointers. If a table entry's
-premise stops reproducing (e.g. the demo layer starts emitting events, or PR #20 finally
-closes), update the entry rather than deleting it — note the date it stopped being true.
-
-Deploy-branch model updated 2026-09-05 (S35, D11).
+| `DEMO_VERSION` | `grep -n "DEMO_VERSION = " src/services/demo/mockApi.ts` |
+| Deploy branches, Node, builds | `grep -n "branches\|node-version\|build:" .github/workflows/deploy.yml` |
+| Host registration points | `grep -rn "registerInitiativeHost(" src` |
+| Join timeout | `grep -n JOIN_TIMEOUT_MS src/components/identity/JoinCommunity.tsx` |
+| First-run rule | `grep -n "digitalAgentProfile" src/App.tsx` |
+| Required env | `grep -n REQUIRED_ENV vite.config.ts` |
+| Error copy + `[FlowContract]` logs | `grep -n "available on this community\|\[FlowContract\]" src/components/collaboration/flows/shared/useFlowContract.ts` |

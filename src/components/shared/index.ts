@@ -39,6 +39,7 @@ export { default as MenuSettings } from './MenuSettings';
 
 export { default as Banner } from './Banner';
 export type { BannerProps, BannerTone } from './Banner';
+export { default as DemoNotice } from './DemoNotice';
 
 export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeTone } from './Badge';

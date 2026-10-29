@@ -5,6 +5,7 @@ description: Use when scoping ambitious, research-grade, or "what's next" work i
 
 # Gloki Research Frontier
 
+
 ## Overview
 
 This skill maps where this project could genuinely advance the state of the art, and how to
@@ -38,25 +39,24 @@ Items 6–7 are secondary: a candidate mechanism and an existing asset, respecti
 
 Jargon, defined once:
 
-- **The seam** — every component reads/writes only through `src/services/api.ts`
-  (`contractRead`/`contractWrite`/`deployContract`/`joinContract`), currently backed by the
-  **stub layer** `src/services/demo/` (mock contracts + fixtures). No component ever calls a
-  real server.
-- **Wire names** — contract method/field names must byte-match Ouri's real Python contracts
-  (`add_proposal`, `proposal_id`); UI words like "solution"/"mandate" are presentation only.
-- **FOR_OURI entry** — `docs/FOR_OURI_seam.md` is the single source of truth handed to Ouri
-  (the backend partner); any new contract method the UI relies on gets an entry there.
-- **DEMO_VERSION** — seed version string in `src/services/demo/mockApi.ts` (`global-v16` at
-  HEAD); bump only when fixtures/seed change.
+- **Real / demo variant** — every page has two states: `/page` on the real network and
+  `/page?demo=true`, its demo variant on demo data (`docs/DEMO_MODE.md`). Components reach data only
+  through `src/services/` (real) or `src/services/demo/` (demo).
+- **Wire names** — contract method/field names byte-match the real contracts in
+  `src/assets/contracts/` (`add_proposal`, `proposal_id`); "solution"/"mandate" are presentation only.
+- **FOR_OURI entry** — `docs/FOR_OURI_seam.md` records every contract method and field the UI relies
+  on; a new one gets an entry there.
+- **DEMO_VERSION** — seed version string in `src/services/demo/mockApi.ts`; bump only when
+  fixtures/seed change.
 
 | Constraint | Consequence for frontier work |
 |---|---|
-| `ui` branch = stub layer only | Anything backend-adjacent (real translation, real measurements, real attestations, delegation writes) is delivered as **seam design + FOR_OURI entry + demo stub**, never a server |
+| Real and demo per page | A frontier item can start as a page's **demo variant** (design on demo data, FOR_OURI entry for the methods it needs), and gains its real side when Ouri builds the contract methods and services. Both live on the trunk |
 | Contracts immutable after deploy | New contract methods can't reach already-deployed communities — design additively, readers tolerate absent fields |
-| Push to `ui` = production deploy | Never push without Eston's explicit green light; never touch `main` (ui→main lands via Ouri) |
+| Pushes are gated | Never push without an explicit go (`gloki-change-control`) |
 | Product decisions are Eston's | Locked decisions never relitigated; new choices go recommend-then-confirm (batched decision gates in a brainstorm) |
 | No test framework | Milestones below are preview-verifiable claims, not test suites — see `gloki-verification-and-qa` |
-| Slow external USB drive, shared preview | Small sequential I/O; subagents build-verify only, controller drives the one preview browser |
+| Shared preview (and Eston's slow USB drive) | Subagents build-verify only, the controller drives the one preview browser; small sequential I/O on Eston's machine |
 | Demo honesty | Seeded data must never imply real-world data it isn't ("claimed vs verified" pattern); no trust-faking |
 
 ---
@@ -117,7 +117,7 @@ while a never-visited route shows an honest empty state — and `tsc -b` stays c
 
 ### 2. Content-translation strategy for user-generated content — OPEN (decision doc FIRST, needs Ouri)
 
-**Status at HEAD (verified):** UI chrome is fully localized (fr/sw at full 1113-key parity per the checked-in scanner — see gloki-i18n-playbook), but
+**Status at HEAD (verified):** UI chrome is fully localized (fr/sw at full key parity per the checked-in scanner — see gloki-i18n-playbook), but
 **content** — problem titles, comments, solutions, mandate body — is English fixture text in
 every locale. MASTER_TODO.md:244–246 marks this `[MAJOR, coordinate w/ backend]`: "decide
 per-card translation vs a 'traduire' affordance. Backend-adjacent → coordinate with Ouri.
@@ -143,8 +143,8 @@ content string arrives via `contractRead`), and the pilot personas give concrete
    such). Cover provenance labeling ("machine-translated from English"), offline interaction
    (item 1), and which fields. Recommend-then-confirm with Eston; he coordinates with Ouri.
 3. Only if a direction is confirmed: spec the seam shape as a `docs/FOR_OURI_seam.md` entry
-   (method name and fields designed to match what Ouri will really build — wire names are his
-   call), plus a permissive demo stub. No component ever calls a translation API directly.
+   (method name and fields agreed with Ouri), build the demo variant on a demo stub, and the real side
+   in `src/services/`. No component ever calls a translation API directly.
 
 **You have a result when:** a dated spec exists in `docs/superpowers/specs/` with an
 Eston-confirmed option and either a corresponding FOR_OURI_seam.md entry or a recorded
@@ -153,15 +153,14 @@ deferral rationale. Any code before that point is scope creep.
 ### 3. Chichewa `ny.ts` + scaling the locale model — OPEN (P5 tail, MAJOR/large)
 
 **Status at HEAD (verified):** `src/i18n/` contains `en.ts` (partial override), `fr.ts` and
-`sw.ts` (full overlays, **1113 keys each** per the authoritative checked-in scanner
-`.claude/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs`; the naive `grep -c` one-liner
-undercounts to 1112 and MASTER_TODO's "≈1109" is a stale estimate), `types.ts` (the `Locale`
+`sw.ts` (full overlays at key parity per the authoritative checked-in scanner
+`.claude/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs`), `types.ts` (the `Locale`
 union), `index.tsx` (DICTS + LOCALES for the LanguageSwitcher). No `ny.ts` exists.
 MASTER_TODO.md:241–243 keeps it open.
 
 **Why current SOTA fails:** civic platforms rarely ship African languages beyond Swahili;
 Chichewa UI support is effectively nonexistent, yet it is the first language of the Thandiwe
-persona (Malawi). The deeper research question is the **scaling model**: full 1112-key overlays
+persona (Malawi). The deeper research question is the **scaling model**: full overlays (~1,500 keys each)
 per locale, each requiring human native review (a permanently human-gated backlog), does not
 scale to locale #4–#10. Fallback chains / partial overlays / coverage tiers are the open design
 space.
@@ -310,20 +309,21 @@ change control, and wire names get designed with Ouri via FOR_OURI_seam.md befor
 **You have a result when:** a read-only transparency surface renders seeded delegate records
 (who → whom, scope, expiry, cap) at 360px in en/fr/sw. Everything past that is undesigned.
 
-### 7. Trust / web-of-trust + nomination graph — ASSET, not current ambition
+### 7. Trust: verification and membership — ASSET, not current ambition
 
-**Status at HEAD (verified):** the real `src/assets/contracts/community_contract.py` implements
-an edge-rewiring nomination graph (`request_join`:76, `approve`:109, `disapprove`:133): at ≥5
-members, joining requires mutual approval among 4 members drawn from two random disjoint trust
-edges, after which the graph rewires — keeping it ~4-regular so every join costs 4 real
-relationships. Layered above it: the UI vouch web-of-trust (4 QR vouches = verified) and the
-adopter attestation flag. Three unrelated layers share the word "verified" —
-`gloki-governance-domain` owns disambiguating them.
+**Status:** person verification is app-wide on `gloki_verification_contract.py` (a founder, then
+people #2–#4 vouched by everyone verified, then 4 vouches); community membership is joining the
+community contract with an invitation. The older `community_contract.py` (not deployed by the app)
+holds an edge-rewiring nomination graph — at ≥5 members, joining needs mutual approval among 4 members
+drawn from two random disjoint edges, keeping the graph ~4-regular so every join costs 4 real
+relationships. `gloki-governance-domain` §8 disambiguates the layers that share the word "verified".
 
-A biometrics-free, contract-level Sybil defense is research-notable, but Eston's ambition axes
-do not point here and the trust model is a **locked** product decision. Do not propose changes.
-Use it as the foundation the other items cite — e.g., item 5's verification statement and any
-future attestation model inherit their Sybil story from this layer.
+> **REVIEW NEEDED (2026-10-29):** the verification rule and who may join a community both changed in
+> behaviour; see `gloki-governance-domain` §8. Item 5's verification statement and any attestation
+> model inherit their Sybil story from whatever is decided there.
+
+A biometrics-free, contract-level Sybil defense is research-notable, but the ambition axes don't point
+here. Use it as the foundation the other items cite.
 
 ---
 
@@ -343,22 +343,18 @@ future attestation model inherit their Sybil story from this layer.
 
 ## Provenance and maintenance
 
-Verified 2026-07-02 at commit `c26cdc4` (branch `ui`), against MASTER_TODO.md §1/§3/§5/§6/§7
-and targeted greps. Incident detail behind the S11/S13/S14/S15 references is recorded in
-project memory (2026-07); ambition axes and unwritten rules confirmed by Eston 2026-07-02.
-Volatile facts and how to re-check them:
+Updated 2026-10-29 on branch `unified`; ambition axes confirmed by Eston 2026-07-02. Re-check:
 
-| Fact (as of 2026-07-02) | Re-verify with |
+| Fact | Re-verify with |
 |---|---|
-| P5 tail + P6 still open; P0–P5.5 done | Read `MASTER_TODO.md` §7 (lines ~232–272) |
+| Open frontier items | `MASTER_TODO.md` §7 |
 | No last-view cache exists | `grep -rn "lastView" src --include='*.ts*'` (expect 0 hits) |
-| Connectivity kit contents / SyncBadge+ChannelBadge orphaned outside `/lab/presence` | `ls src/components/shared/connectivity`; `grep -rln "SyncBadge\|ChannelBadge" src` |
-| fr/sw = 1113 keys, no `ny.ts` | `ls src/i18n`; `node .claude/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` (the `grep -c` one-liner undercounts by 1 — two entries share a line) |
-| Delegation = one comment, no code | `grep -rni "delegat" src --include='*.ts*'` (expect only `mechanisms.ts:6`) |
-| Mandate substrate fields (target/baseline/cadence, claimed-vs-verified) | `grep -n "isMandateRatified\|verified:" src/services/demo/fixtures/mandate.ts` |
+| Connectivity kit / SyncBadge+ChannelBadge orphaned outside `/lab/presence` | `ls src/components/shared/connectivity`; `grep -rln "SyncBadge\|ChannelBadge" src` |
+| fr/sw key counts, no `ny.ts` | `ls src/i18n`; `node .claude/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
+| Delegation = no code | `grep -rni "delegat" src --include='*.ts*'` |
+| Mandate substrate fields | `grep -n "isMandateRatified\|verified:" src/services/demo/fixtures/mandate.ts` |
 | Mandate share prior art | `grep -n "navigator.share" src/components/mandate/MandateCard.tsx` |
-| Nomination-graph methods | `grep -n "def request_join\|def approve" src/assets/contracts/community_contract.py` |
-| DEMO_VERSION current value | `grep -n "DEMO_VERSION" src/services/demo/mockApi.ts` |
-| No-service-worker decision still standing | MASTER_TODO.md §8 entry dated 2026-07-01 (S14) |
+| Verification phases | `grep -n "phaseOf" src/services/verificationRegistry.ts` |
+| No-service-worker decision | MASTER_TODO.md §8 entry dated 2026-07-01 (S14) |
 
 If any row has drifted, trust HEAD over this page and update this file in the same session.

@@ -32,8 +32,8 @@ the frame.
 
 **Near-term pilot (one concrete example):** Run **"Voices for the Climate"** — a 12-month
 transnational deliberation for 500+ youth across **Kenya, Nigeria, Malawi, DRC**, producing a
-published **"Young Africa Climate Mandate."** The app must support its four phases end-to-end (all
-hardcoded UI for now; backend is Ouri's separate track):
+published **"Young Africa Climate Mandate."** The app must support its four phases end-to-end (each
+page's demo variant first, its real side as Ouri builds it; see [docs/DEMO_MODE.md](docs/DEMO_MODE.md)):
 
 | VftC Phase | What happens | Gloki surface |
 |---|---|---|
@@ -72,17 +72,23 @@ These are guardrails, not features:
 
 ## 4. Working model (current)
 
-We build on **`ui`** against the `src/services/demo/` **stub layer** — see the branch model and the
-seam rule in [CLAUDE.md](CLAUDE.md). The earlier parallel-lane / worktree / "owned-paths" execution
-model (Wave 1) is **retired**; its full record lives in
-[docs/archive/WAVE_1_HISTORY.md](docs/archive/WAVE_1_HISTORY.md).
+We build on the trunk **`unified`** (to become `main`): one app on the real network, where any page
+can also have a demo variant at `?demo=true` — see [docs/DEMO_MODE.md](docs/DEMO_MODE.md) and the
+branch model and seam rule in [CLAUDE.md](CLAUDE.md). Eston designs new pages and features as demo
+variants on top of the working real app; Ouri builds their real side; both compare the two states and
+remove the demo variant by hand when it's no longer needed. Short feature branches, merged back
+continuously. The earlier `ui` (stubs) → `server-side` (real) two-branch model is retiring, and the
+parallel-lane / worktree execution model (Wave 1) is long retired
+([docs/archive/WAVE_1_HISTORY.md](docs/archive/WAVE_1_HISTORY.md)).
 
 Rules that still hold:
-- **Hardcoded UI only.** New data → a `src/services/demo/fixtures/*` file, read through the mock layer. No real backend; no `?raw` Python imports.
+- **Demo variants never reach the network.** New demo data → `src/services/demo/` (fixtures, mock
+  contracts), used only from `*.demo.tsx` variants; real data → `src/services/`. Demo ids (`demo-…`)
+  keep the two from colliding in the store.
 - **Design system is law.** Tokens + shared components from `src/components/shared` — no ad-hoc colours/spacing. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 - **Every user-facing string** goes through `t('ns.key', 'English default')`.
 - **Verify before "done":** `npx tsc -b` clean, `npm run build` clean, walk the routes in the preview (dark mode + 360px mobile + keyboard/screen-reader basics).
-- **Ship in small, self-contained chunks**, each leaving `ui` runnable.
+- **Ship in small, self-contained chunks**, each leaving the trunk runnable.
 
 ---
 
@@ -120,6 +126,9 @@ Kept here so we don't accidentally build them early (progressive-decentralizatio
 - Web5 / censorship-resistant transport, mirror apps (now scoped as **research** in §7 P12 H5/H7; still not built)
 - AI automated debate summaries & public-opinion analysis (keep AI to translate + light co-writing)
 - On-chain anything (Ouri's separate backend track)
+  > **REVIEW NEEDED (2026-10-29):** on-chain work is now part of the app on the trunk (verification,
+  > community join, issues on their creator's node — see §8). Decide what, if anything, this item
+  > still defers.
 
 ---
 
@@ -207,8 +216,8 @@ system sans on 2026-09-23.)
 Makes "decentralized self-governance" (the `app.title`) a property a member can rely on rather
 than a slogan: nobody can act as you, nobody can quietly rewrite the record, nobody can read your
 ballot, you can leave with your identity, and losing your phone doesn't lose your vote.
-**Baseline ✔:** login on `ui` takes a typed public key + server URL; there is no private key or
-client-side signing in this branch, and no CSP/SRI on the Pages bundle. The 2026-09-25 audit
+**Baseline ✔:** login takes a typed public key + server URL; there is no private key or
+client-side signing in the app, and no CSP/SRI on the Pages bundle. The 2026-09-25 audit
 (`0e94913`) found the live initiative contract enforced **none** of the ballot rules the UI enforces.
 Ouri applied `docs/contracts/2026-09-25-initiative-ballot-guards.py` on `server-side` on
 2026-10-28, so initiatives deployed from then on are guarded; older ones keep the open methods.
@@ -218,16 +227,16 @@ cryptography**: a signed write to a contract with no rules is still an unguarded
   writes verifiable by any reader? community contracts replicated? key never leaves the device?);
   **one root key** for agent + Semaphore + transport identities; recovery model; claims audit of
   every "decentralized / secure / private / anonymous" string.
-- **H1 Keys in the user's hands** (`ui` + Ouri; after G2): on-device Ed25519, optional passkey
+- **H1 Keys in the user's hands** (Eston + Ouri; after G2): on-device Ed25519, optional passkey
   unlock (WebAuthn PRF), signing inside `src/services/`, backup and rotation.
-- **H2 Recovery through your vouchers** (`ui` + Ouri): 3-of-4 voucher re-attestation of a new key,
+- **H2 Recovery through your vouchers** (Eston + Ouri): 3-of-4 voucher re-attestation of a new key,
   with a waiting period and notice to the old key. Critical path for everyday users.
 - **H3 Records nobody can quietly rewrite** (Ouri): signed append-only logs copied across
   contributor nodes, client-side verification, export/migration.
-- **H4 Secret ballot** (Ouri + `ui`): the three phases in
+- **H4 Secret ballot** (Ouri + Eston): the three phases in
   [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md) (Semaphore → ElectionGuard → QV
   budget proofs). Depends on H1.
-- **H5 Delivery & supply chain** (`ui`; **can start now**): CSP `<meta>`, SRI, dependency
+- **H5 Delivery & supply chain** (Eston; **can start now**): CSP `<meta>`, SRI, dependency
   automation and audit, reproducible signed builds + SBOM, a second mirror. **Dependency audit
   ✔ (S45, `67ac268`):** prod advisories 6 → 0; none had been reachable from the bundle. Open
   question before the CSP: the server URL is user-supplied (`state.user.serverUrl`), so
@@ -239,16 +248,14 @@ cryptography**: a signed write to a contract with no rules is still an unguarded
   notifications only.
 - **H8 Assurance:** `security.txt`, disclosure policy, independent audit before any binding vote,
   incident and pause runbooks.
-Startable on `ui` without waiting: H5, the H0 claims audit (copy change → confirm with Eston),
+Startable without waiting: H5, the H0 claims audit (copy change → confirm with Eston),
 and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
-### Blocked / coordination (not ours to drive on `ui`)
-- **Deploys:** Ouri merges `ui` → `server-side`, which triggers GitHub Pages. A push to `ui` does
-  not deploy. (`main` is Ouri's stale old line.) **2026-10-23:** the merge is prepared as
-  [PR #24](https://github.com/young-world-federalists/gloki-engage/pull/24)
-  (`integration/ui-2026-10` → `server-side`, evidence in `docs/reviews/2026-10-integration/`);
-  Eston merges it on 30 October if Ouri hasn't. Plan:
-  [2026-10-23-forward-without-a-gate.md](docs/superpowers/plans/2026-10-23-forward-without-a-gate.md).
+### Blocked / coordination
+- **Deploys / the trunk switch:** GitHub Pages still builds from the retiring branches
+  (`deploy.yml`: `server-side` with `build:prod` at the root, `ui` with `build:beta` at `/demo/`).
+  Making `unified` the trunk (`main`) means pointing the workflow at it and retiring `server-side`
+  and `ui`; decided with Eston.
 - **G2–G4** (WoT authority, live-call policy, scheduled matching), decided with Ouri.
 - **Blind-server questions 1–5** in [FOR_OURI_blind_servers.md](docs/FOR_OURI_blind_servers.md).
 - **fr/sw native review:** the packet is in
@@ -261,6 +268,19 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 ---
 
 ## 8. Changelog
+
+- **2026-10-29 — One trunk, two states per page (branch `unified`, Ouri).** New structure: one app on
+  the real network; any URL can also show the page's demo variant with `?demo=true`
+  (`useDemoMode`/`useDemoLink`, `<DemoNotice />`, `Page.demo.tsx`), removed by hand once the real side
+  replaces it. `unified` (from `server-side` @ `0cbbf6e`) is the trunk to become `main`; `server-side`
+  and `ui` retire after the switch. First page converted: **`/identity/communities`** (and
+  `/identity/hidden`): real list vs the seeded demo communities. All other pages keep the id-based
+  mixing until split (status per path in `docs/DEMO_MODE.md`). Docs brought in line: CLAUDE.md,
+  README.md, ARCHITECTURE.md (new "Data layers"), this file §4/§7, FOR_OURI_seam.md, LANES.md, and
+  the whole skill library (rewritten for the real/demo structure; `.agents/skills` regenerated as an
+  exact mirror). User-facing behaviour that changed is marked `REVIEW NEEDED (2026-10-29)` rather than
+  rewritten — `grep -rn "REVIEW NEEDED" .claude/skills MASTER_TODO.md`. Dated records (session prompts, specs, plans, reviews,
+  archive, changelog) left as written.
 
 - **2026-10-29 — Verification contract moves to the founder's own agent; central settings contract
   (Ouri).** The first person to get verified now deploys the verification contract on their own agent

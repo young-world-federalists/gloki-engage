@@ -1,9 +1,13 @@
 # FOR OURI — Contract Seam Hand-off
 
-This is the single source of truth for the backend contract work the `ui` branch
-relies on. The UI is built against the `src/services/demo/` stub layer; every
-method/field below is implemented as a permissive demo stub today and must be
-backed by a real Python contract when `ui` → `new-features` → `main`.
+This is the single source of truth for the contract methods and fields the UI relies
+on: what a page's demo variant does on the demo layer (`src/services/demo/`), and what
+its real variant needs from a real Python contract. Since the trunk `unified`
+(2026-10-29), both live in one app, per page: `/page` is real, `/page?demo=true` is the
+demo variant ([DEMO_MODE.md](DEMO_MODE.md)). The addenda below were written in the
+two-branch era (`ui` = stubs, `server-side` = real); where an addendum says "on `ui`" it
+means the demo variant, and "on `server-side`" the real one. Each addendum marks what has
+been built for real.
 
 ## The one rule that must not break
 

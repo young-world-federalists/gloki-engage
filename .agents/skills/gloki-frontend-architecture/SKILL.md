@@ -1,109 +1,105 @@
 ---
 name: gloki-frontend-architecture
-description: "Use when navigating or changing the Communities2/Gloki React app structure: finding where flows/components/slices/routes live, adding a flow or route, choosing useFlowContract vs resolveInitiativeStageContract, touching Redux state or localStorage persistence, wondering why a display component deployed a contract, why data vanished on reload, why /welcome redirect fires, or where FlowProps/registry/App.tsx route map are defined. Keywords: flow registry, shared mode, stageKey, flowContractsSlice, frozen route map."
+description: "Use when navigating or changing the Communities2/Gloki React app structure: finding where flows/components/slices/routes live, adding a flow, a route or a page's demo variant (Page.demo.tsx, useDemoMode), choosing useFlowContract vs resolveInitiativeStageContract, touching Redux state or localStorage persistence, wondering why a display component deployed a contract, why data vanished on reload, why /welcome redirect fires, or where FlowProps/registry/App.tsx route map are defined. Keywords: flow registry, shared mode, single-contract mode, stageKey, flowContractsSlice, frozen route map, ?demo=true."
 ---
 
 # Gloki Frontend Architecture
 
 ## Overview
 
-Communities2 is a React 19 + TypeScript + Vite + Redux Toolkit + SCSS Modules SPA on
-branch `ui` — a UI-only mockup where every "backend" call is answered locally by a mock
-layer. The **core principle**: the app is organized around one seam and a few
-comment-enforced invariants. Every component reads/writes contracts ONLY through
-`src/services/api.ts` (the **seam** — the boundary Ouri swaps for real server calls),
-the route map in `App.tsx` is frozen, three Redux slices persist themselves to
-localStorage inside their reducers, and the single most expensive trap in the codebase
-is that **`useFlowContract` deploys a contract as a side effect of mounting**. Nothing
-here is enforced by tests (there is no test framework) — the invariants live in
-comments and in this skill. Read the relevant section before touching structure.
+Communities2 is a React 19 + TypeScript + Vite + Redux Toolkit + SCSS Modules SPA: **one app on the real
+network, where any page can also show its demo variant at `?demo=true`** (`docs/DEMO_MODE.md`). It is
+organised around a few comment-enforced invariants:
 
-Definitions used throughout:
+- Components reach data only through **the seam**, `src/services/` — real variants through the real
+  services, demo variants through `src/services/demo/` (**gloki-seam-and-demo-data**).
+- Each page with two states is a switch: `useDemoMode() ? <PageDemo /> : <PageReal />`, with the demo
+  variant in `Page.demo.tsx`.
+- The top-level route map in `App.tsx` is frozen in shape.
+- Three Redux slices persist themselves to localStorage inside their reducers.
+- **`useFlowContract` deploys a contract as a side effect of mounting** — the most expensive trap in the
+  codebase.
 
-- **Seam** — `src/services/api.ts` (`contractRead`/`contractWrite`/`deployContract`/`joinContract`), currently delegating to the `src/services/demo/` mock layer. Details: **gloki-seam-and-demo-data**.
-- **Flow** — a pluggable governance/collaboration widget (voting, discussion, concerns…) rendered from a registry, each backed by its own Python contract.
-- **Shared mode** — `useFlowContract`'s join-or-deploy mode where all community members share one sub-contract registered on a parent contract (vs per-user deploy).
-- **Wire names** — Python contract method/field names (`add_proposal`, `get_results`…) that must match Ouri's real contracts exactly even when UI copy says "solution"/"mandate".
-- **DEMO_VERSION** — version gate (`'global-v16'` at `src/services/demo/mockApi.ts:17`) that wipes and re-seeds all demo localStorage when bumped.
+Nothing is enforced by tests (there is no test framework).
 
 ## When NOT to use this skill
 
 | You are actually trying to… | Use instead |
 |---|---|
-| Understand push gates, locked product decisions, scope rules | **gloki-change-control** |
-| Run a session end-to-end (prompt → spec → build → push) | **gloki-session-lifecycle** |
-| Install deps, run dev server, build, deploy, slow-drive I/O rules | **gloki-build-env-run** |
-| Change the mock layer, fixtures, seeding, DEMO_VERSION, IMethod shapes | **gloki-seam-and-demo-data** |
+| Push gates, locked decisions, change classes | **gloki-change-control** |
+| Run a session end-to-end | **gloki-session-lifecycle** |
+| Install, run, build, deploy, the local node | **gloki-build-env-run** |
+| Real vs demo data, fixtures, seeding, DEMO_VERSION | **gloki-seam-and-demo-data** |
 | Write or modify a Python contract | **gloki-python-contracts** |
-| Understand QV math, mandates, trust, pipeline semantics | **gloki-governance-domain** |
-| Debug a symptom (blank page, stale data, deploy loop) | **gloki-debugging-playbook** |
-| Add/verify translations, fr/sw parity | **gloki-i18n-playbook** |
-| Know which doc is authoritative or update docs | **gloki-docs-and-writing** |
-| Delete code / trace consumers / recompose a component | **gloki-refactor-and-dead-code** |
-| Verify a change is actually working | **gloki-verification-and-qa** |
+| QV math, mandates, trust, pipeline semantics | **gloki-governance-domain** |
+| Debug a symptom | **gloki-debugging-playbook** |
+| Translations, fr/sw parity | **gloki-i18n-playbook** |
+| Which doc is authoritative / update docs | **gloki-docs-and-writing** |
+| Delete code / trace consumers | **gloki-refactor-and-dead-code** |
+| Verify a change works | **gloki-verification-and-qa** |
 
-## Directory map of `src/` (verified by listing, 2026-07-02)
+## Directory map of `src/`
 
 ```
 src/
-├── App.tsx          # FROZEN route map (see Routing) + RootRoute first-run redirect
+├── App.tsx            # FROZEN route map + RootRoute (first-run → /welcome)
+├── appMode.ts         # the beta build flag (VITE_APP_MODE) — the only reader
 ├── main.tsx
-├── assets/          # incl. assets/contracts/ — the only 2 real .py contract sources
+├── assets/contracts/  # the Python contracts (real ones + references) — gloki-python-contracts
 ├── components/
 │   ├── AppHeader.tsx        # single banner landmark, one per page (DESIGN_SYSTEM.md)
-│   ├── collaboration/       # flows/ live HERE (see next section), stage views, panels
-│   ├── community/           # community home, chat, currency/funding
-│   ├── identity/            # profile, digital agent, onboarding agent store
-│   ├── initiative/          # initiative dashboard, stage cards, useMandateJourney
-│   ├── mandate/             # published-mandate page (MandatePage)
+│   ├── collaboration/       # flows/ live HERE, stage views, panels
+│   ├── community/           # community home, chat, currency/funding, identity & trust
+│   ├── identity/            # communities, profile, join, verification/*, notifications, agent/
+│   ├── initiative/          # issue dashboard, stage cards, solutions board
+│   ├── mandate/             # published-mandate page
 │   ├── onboarding/          # /welcome flow
 │   ├── stages/              # stage-feed components
-│   └── shared/              # kit: Card/Button/Modal/EmptyState/Banner/Badge (barrel
-│                            #   index.ts), SearchableSelect, CountryParticipation,
-│                            #   SourceLinks, connectivity kit (SmartImage, OfflineBanner,
-│                            #   useOnline, DataSaverToggle), presence/ (dev-lab only)
-├── contexts/AuthContext.tsx # persists {publicKey, serverUrl} under localStorage 'user';
-│                            #   dispatches hydrateContracts on identity change
-├── hooks/           # useAllInitiatives, useCommunityTrust, useEventStream, useMandate,
-│                    #   useSwipeNavigation (useSwipeRef callback ref), useUrlData
-├── i18n/            # hand-rolled provider: index.tsx + en.ts/fr.ts/sw.ts + types.ts
-├── pages/           # route-level views: HomeView, StageFeedView, CommunityView,
-│                    #   IdentityView, Create*Page, LoginPage, NotFound,
-│                    #   collaboration/InitiativeView
-├── services/        # api.ts (THE SEAM), demo/ (mock layer), contracts/ (typed wrappers:
-│                    #   gloki|community|initiative), eventStream.ts (real SSE client the
-│                    #   demo layer NEVER feeds), interfaces.ts (IMethod), trust.ts,
-│                    #   trustModel.ts, mandateRatification.ts, ai.ts, initiativeRoles.ts
-├── store/           # index.ts + slices/ (see Redux map)
-├── styles/          # variables.scss = the token source of truth, globals, animations
+│   └── shared/              # kit (barrel index.ts): Card, Button, Modal, EmptyState, Banner,
+│                            #   Badge, DemoNotice, SearchableSelect, CountryParticipation, …
+├── contexts/AuthContext.tsx # persists {publicKey, serverUrl} under localStorage 'user'
+├── hooks/             # useDemoMode (+ useDemoLink/withDemo), useVerificationRegistry,
+│                      #   useVerification, useCommunityTrust, useInitiativeHostReady,
+│                      #   useAllInitiatives, useEventStream, useMandate, …
+├── i18n/              # hand-rolled provider: index.tsx + en.ts/fr.ts/sw.ts + types.ts
+├── pages/             # route-level views: HomeView, StageFeedView, CommunityView,
+│                      #   IdentityView, Create*Page, LoginPage, ForumPage, collaboration/InitiativeView
+├── services/          # THE SEAM: api.ts, contractHosts.ts, contracts/, verificationRegistry.ts,
+│                      #   applicationSettings.ts, applicationServer.ts, eventStream.ts,
+│                      #   verification.ts, forum.ts, trust.ts, trustModel.ts, … + demo/ (the demo layer)
+├── store/             # index.ts + slices/
+├── styles/            # variables.scss = token source of truth
 ├── types/initiative.ts
-└── utils/           # countries.ts (197 countries), regions.ts (6 world regions),
-                     #   displayName, formatTimeAgo, localSecrets, sources, urlSafety…
+└── utils/             # countries.ts (197), regions.ts, displayName, formatTimeAgo, …
 ```
+
+## A page with two states
+
+```tsx
+// src/components/identity/Communities.tsx
+const Communities: React.FC<CommunitiesProps> = (props) =>
+  useDemoMode() ? <CommunitiesDemo {...props} /> : <CommunitiesReal {...props} />;
+```
+
+`CommunitiesDemo` lives in `Communities.demo.tsx`, shows `<DemoNotice />` first, reads only through the
+demo layer, and builds links with `useDemoLink()`. The switch picks a whole component — never branch on
+the flag inside one component (hooks can't be conditional). Which pages are split: `docs/DEMO_MODE.md`.
 
 ## Flows: location, registry, props
 
-**Flows live at `src/components/collaboration/flows/` — NOT `src/flows/`.** AGENTS.md
-and other docs write short paths like `flows/shared/useFlowContract.ts`; those are
-relative to `src/components/collaboration/`. A model trusting the short path literally
-wastes time searching or, worse, creates a duplicate directory. Verify anytime:
+**Flows live at `src/components/collaboration/flows/` — not `src/flows/`.** Short paths in docs
+(`flows/shared/useFlowContract.ts`) are relative to `src/components/collaboration/`.
 
-```bash
-find src -maxdepth 3 -type d -name flows   # → ./components/collaboration/flows (only hit)
-```
+Contents: `registry.ts`, `types.ts`, `shared/` (`useFlowContract.ts`, `flowContractsSlice.ts`,
+`useContractSync.ts`, `stageMetrics.ts`, `CountryBadge.tsx`), plus `concerns/ discussion/ funding/ merge/
+modifications/ roles/ voting/`.
 
-Contents: `registry.ts`, `types.ts`, `shared/` (`useFlowContract.ts`,
-`flowContractsSlice.ts`, `stageMetrics.ts`, `CountryBadge.tsx`), plus flow dirs
-`concerns/ discussion/ funding/ merge/ modifications/ roles/ voting/`.
+**Registry** (`registry.ts`): `FLOW_REGISTRY` holds 5 `FlowDefinition`s — `approval`, `quadratic`
+(QVFlow), `concerns` with `context: 'initiative'`; `discussion` and `roles` with `context: 'collab'`.
+`context` separates the community collab "Add Tab" menu (`'collab'`) from the governance pipeline
+(`'initiative'`); omitted = both. `getFlow(id)` looks one up.
 
-**Registry** (`registry.ts`): `FLOW_REGISTRY` holds 5 `FlowDefinition`s —
-`approval`, `quadratic` (QVFlow), `concerns` with `context: 'initiative'` (group
-"Decision Making"); `discussion` and `roles` with `context: 'collab'`. `context`
-separates flows shown in the community collab "Add Tab" menu (`'collab'`) from flows
-used by the governance pipeline (`'initiative'`); omitted = shown in both.
-`getFlow(id)` is the lookup helper; `FLOW_GROUPS` orders menu sections.
-
-**FlowProps** (`flows/types.ts`, verified exact):
+**FlowProps** (`flows/types.ts`):
 
 ```ts
 interface FlowProps {
@@ -111,238 +107,144 @@ interface FlowProps {
   collaborationId: string;
   collaborationType: 'initiative' | 'wish' | 'agreement' | 'collab';
   parentContractId?: string;  // parent contract for shared mode
-  stageKey?: string;          // key under parent's details storing the sub-contract
+  stageKey?: string;          // key under the parent that stores the sub-contract
 }
 ```
 
-`FlowDefinition = { id, label, icon, component, group?, context?: 'collab'|'initiative', isAvailable?(existingFlowIds) }`.
-
-## useFlowContract: two modes, resilience, and THE trap
+## useFlowContract: modes and THE trap
 
 `useFlowContract(instanceId, contractName, contractFileName, contractCode, parentContractId?, stageKey?)`
-(at `flows/shared/useFlowContract.ts`) returns
-`{ contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry }`.
-Mode selection: `isShared = !!parentContractId && !!stageKey` — passing BOTH switches
-to shared mode; otherwise per-user.
+returns `{ contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry }`.
 
-| | Per-user mode | Shared mode |
+| Mode | When | What happens |
 |---|---|---|
-| Who gets a contract | Each user deploys their own | All members share one, registered on the parent |
-| Used by | Collab flows (discussion, roles in collab context) | All initiative dashboard flows (SolutionsBoard, QVFlow, DiscussionEngage…) |
-| Sequence | `deployContract` → `setContract` | Probe parent → join existing OR deploy + register (below) |
+| **Single-contract** | shared mode with a **real** parent (`isSingleContract`) | Resolves straight to the parent: a real issue contract holds every stage, so stage components read and write the issue contract itself. No deploy, no join |
+| **Shared** | `parentContractId` + `stageKey` with a demo parent | Probe `get_stage_contract` on the parent → join the stored sub-contract, or deploy one and `register_stage_contract` it (first write wins; a lost race joins the winner) |
+| **Per-user** | no parent | Each user deploys their own (collab flows) |
 
-**Shared-mode sequence** (verified in source, lines 138–274):
-
-1. `contractRead` `get_stage_contract` on the parent **first**. If the method throws
-   (communities created before the stage-contract registry existed), **fail fast with
-   "This feature isn't available on this community…" WITHOUT deploying**. The comment
-   at line 140 records why: the old code deployed first and discovered the missing
-   registry afterwards, leaving an orphan immutable contract on every visit
-   (contracts can never be deleted — see gloki-python-contracts).
-2. If a stored sub-contract exists → `joinContract` (join failure swallowed = already
-   joined) → `setContract`.
-3. Else `deployContract`, then `contractWrite` `register_stage_contract`
-   `{stage_key, contract_id, address, agent}` on the parent. A registration that
-   returns an `error` or a missing `contractId` ALSO fails fast (old community —
-   don't adopt the orphan). If another client won the registration race
-   (`returned contractId !== newId`), join the winner's contract instead.
-
-**Resilience features** (all verified): `DEPLOY_TIMEOUT_MS = 30_000` force-errors a
-hung deploy; a stale-deploying-flag recovery effect on mount clears a `deploying` flag
-left by a previous session (`[FlowContract] Clearing stale deploying flag`); all
-diagnostics are prefixed `[FlowContract]` (grep the console for that); deploys are
-gated on `scopeReady` (the flowContracts slice must be hydrated for the current
-identity — see Redux map). Return-shape guard: `deployContract` may return `{id}` or a
-plain string; the hook handles both — copy that pattern
-(`(response as { id?: string }).id || (response as string)`).
-
-**These invariants are comment-enforced only.** No test or type stops a future edit
-from re-introducing the deploy-before-probe orphan bug. If you touch shared mode,
-re-read the comments at lines 140–145 and 237–240 and preserve the fail-fast ordering.
+Shared-mode safeguards: if the parent lacks `get_stage_contract` (an older community), **fail fast with
+"This feature isn't available on this community…" without deploying** (contracts can't be deleted);
+`DEPLOY_TIMEOUT_MS = 30_000`; stale `deploying` flags are cleared on mount; deploys wait for the
+flowContracts slice to be hydrated for the current identity (`scopeReady`); logs are prefixed
+`[FlowContract]`. These are comment-enforced — preserve the fail-fast ordering if you touch it.
 
 ### THE trap: useFlowContract deploys on mount
 
-`useFlowContract` = **provision + subscribe**. Its mount effect ALWAYS walks the
-deploy path if no contract is cached. Historical incident (S11, 2026-07-01, recorded
-in project memory): a display-only preview card called `useFlowContract` and silently
-deployed contracts on every render of a "read-only" screen — contracts that are
-immutable and can never be removed.
+A display-only preview card once called `useFlowContract` and silently deployed contracts on every
+render. **Read-only components use `resolveInitiativeStageContract`**
+(`src/services/contracts/initiative.ts`), which only reads (for a real issue it simply returns the issue
+contract). Decision rule: *only displays data?* → `resolveInitiativeStageContract`; *lets the user write
+to a flow it owns?* → `useFlowContract`.
 
-**Rule: read-only components use `resolveInitiativeStageContract`, never
-`useFlowContract`.**
-
-`resolveInitiativeStageContract(serverUrl, publicKey, contractId, stageKey)` at
-`src/services/contracts/initiative.ts:65` (verified) reads `get_stage_contract`,
-falls back to `get_details` for older immutable contracts, returns
-`InitiativeStageContract | null`, and **deploys nothing**. Verified consumers:
-`useInitiativePost`, `useMandateJourney`, `VotePreview`, `InitiativeStagePanel`,
-`stageMetrics`. Interactive flows that legitimately own their contract
-(SolutionsBoard, ApprovalFlow, QVFlow, DiscussionEngage, ChatTopic, ConcernsFlow…)
-are the `useFlowContract` callers. A sibling `resolveAndJoinInitiativeStageContract`
-exists in the same file for read-then-join cases.
-
-Decision rule: *"Does this component only display data?"* → `resolveInitiativeStageContract`.
-*"Does this component let the user write to a flow it owns?"* → `useFlowContract`.
-The hook has no read-only flag, so the trap remains live for all new code.
-
-## Redux slices map (6 slices, verified in `src/store/index.ts`)
+## Redux slices (6, `src/store/index.ts`)
 
 | Slice | File | Owns | Persistence |
 |---|---|---|---|
-| `communities` | `store/slices/communitiesSlice.ts` | currentCommunity, communityProperties/Members/ActiveMembers/Tasks/Nominates/Collaborations (all `Record<contractId,…>`), `initiativeStages` (initiativeContractId → `'problem'\|'discussion'\|'proposals'\|'vote'\|'mandate'\|'_unknown'` — note **wire name `proposals`**, UI says "Solutions"), `profiles: Record<publicKey, IProfile>` (global across communities) | NOT persisted |
-| `user` | `store/slices/userSlice.ts` | publicKey, serverUrl, profile, profileContractId, contracts | NOT persisted (AuthContext persists `'user'` key itself) |
-| `currency` | `store/slices/currencySlice.ts` | funding/currency view state | NOT persisted |
-| `flowContracts` | `components/collaboration/flows/shared/flowContractsSlice.ts` | instanceId → contractId cache, `deploying` flags, `storageScope` | **Self-persists** `contracts` only, key `flowContracts:${encodeURIComponent(serverUrl)}::${publicKey}` (identity-scoped) |
-| `preferences` | `store/slices/preferencesSlice.ts` | starred[] / hidden[] community IDs | **Self-persists**, key `'communityPreferences'` |
-| `notifications` | `store/slices/notificationsSlice.ts` | items[] (only type `'merge_absorbed'`, capped at 100) | **Self-persists**, key `'communityNotifications'` |
+| `communities` | `store/slices/communitiesSlice.ts` | community properties/members/collaborations (`Record<contractId,…>`), `initiativeStages` (wire value `proposals` for Solutions), `profiles: Record<publicKey, IProfile>` | not persisted |
+| `user` | `store/slices/userSlice.ts` | publicKey, serverUrl, contracts, `digitalAgentProfile` / `digitalAgentContractId` / `digitalAgentProfileChecked` (the real profile contract), the older `profile` / `profileContractId` | not persisted (AuthContext stores `'user'`) |
+| `currency` | `store/slices/currencySlice.ts` | funding view state | not persisted |
+| `flowContracts` | `flows/shared/flowContractsSlice.ts` | instanceId → contractId cache, `deploying` flags, `storageScope` | **self-persists**, identity-scoped key `flowContracts:<serverUrl>::<publicKey>` |
+| `preferences` | `store/slices/preferencesSlice.ts` | starred[] / hidden[] community ids | **self-persists**, `'communityPreferences'` |
+| `notifications` | `store/slices/notificationsSlice.ts` | notification items | **self-persists**, identity-scoped (`storageScope`) |
 
-**The persistence rule:** the three self-persisting slices write localStorage INSIDE
-their reducers via a module-local save helper (`saveToStorage(...)` in
-flowContractsSlice; equivalent inline saves in preferences/notifications). **Any new
-reducer that mutates persisted state MUST call the slice's save helper, or the change
-silently vanishes on reload** — nothing fails at build time, the bug only shows as
-"my starred community un-starred itself". In flowContractsSlice, note the RTK idiom:
-call `current(state)` before saving (Immer drafts can't be serialized directly).
+Real and demo variants share this store; disjoint ids (`demo-…` vs hex) keep their entries apart.
 
-**flowContracts is identity-scoped:** `buildFlowContractsScope(serverUrl, publicKey)`
-builds the scope; `hydrateContracts({scopeKey})` reloads the cache on identity change
-(dispatched from `AuthContext.tsx` — verified). `useFlowContract` refuses to deploy
-until `storageScope` matches the current identity (`scopeReady`) — this prevents
-deploying contracts against a stale user's cache. If you add another identity-scoped
-store, copy this scope/hydrate pattern.
+**Persistence rule:** the self-persisting slices write localStorage inside their reducers. A new reducer
+that mutates persisted state MUST call the slice's save helper, or the change vanishes on reload. In
+flowContractsSlice call `current(state)` before saving (Immer drafts can't be serialised). Identity-scoped
+stores follow `buildFlowContractsScope` + `hydrateContracts` (dispatched from `AuthContext.tsx`).
 
-Full localStorage key inventory (frontend side): `'user'`, `flowContracts:<scope>`,
-`'communityPreferences'`, `'communityNotifications'`, `'gloki.locale'`,
-`'gloki.dataSaver'`, `'gloki.onboarding'`, plus the demo layer's `gloki_demo_*` keys
-(owned by **gloki-seam-and-demo-data**).
+Other localStorage keys: `'user'`, `'gloki.locale'`, `'gloki.dataSaver'`, `gloki.digitalAgent:<scope>`
+(trust-graph cache), plus the demo layer's `gloki_demo_*`.
 
 ## Routing: the frozen route map
 
-`src/App.tsx` carries a banner comment (lines 13–31, verified): **"FROZEN ROUTE MAP …
-lanes must NOT edit App.tsx."** Every area is a `/*` wildcard so features add
-sub-routes INSIDE their owned component (e.g. new community tab → sub-route in
-`CommunityView`, not a new top-level route). A genuinely new top-level route is
-recorded in MASTER_TODO §10 for a Foundation pass — recommend-then-confirm with Eston
-(see gloki-change-control), never added ad hoc.
-
-Routes at HEAD (verified, App.tsx lines 113–125):
+`App.tsx` routes:
 
 ```
-/                                                        → RootRoute (first-run → /welcome, else HomeView)
-/welcome/*                                               → OnboardingFlow
-/stage/:stageId                                          → StageFeedView
-/identity/*                                              → IdentityView
-/create-community                                        → CreateCommunityPage
-/community/:communityId/*                                → CommunityView
-/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*  → InitiativeView
-/mandate/:communityId/:mandateId/*                       → MandatePage
-/lab/presence                                            → PresenceLabRoute (dev page — see weak points)
-*                                                        → NotFound
+/                                         → RootRoute (first-run → /welcome; else HomeView, or /forum in the beta)
+/welcome/*                                → OnboardingFlow
+/stage/:stageId                           → StageFeedView
+/identity/*                               → IdentityView (communities, hidden, profile, join, verification/*, notifications, about, contact)
+/create-community                         → CreateCommunityPage
+/community/:communityId/*                 → CommunityView
+/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/* → InitiativeView
+/mandate/:communityId/:mandateId/*        → MandatePage
+/organization                             → OrganizationHome
+/forum                                    → ForumPage (beta build only)
+/lab/presence                             → PresenceLabRoute (dev page)
+*                                         → NotFound
 ```
 
-Notes: `BrowserRouter` basename comes from `import.meta.env.BASE_URL` (GitHub Pages
-subpath — see gloki-build-env-run); all pages lazy-load in `Suspense` inside
-`ErrorBoundary`; the global `<StageFooter/>` renders after `Routes` and
-`<OfflineBanner/>` above; demo URL-hash hydration (`tryHydrateFromHash`) blocks render
-until settled. AGENTS.md's routing block omits `/mandate/...` and `/lab/presence` —
-App.tsx is the ground truth.
+Each area is a `/*` wildcard; new sub-routes go inside the area's component. A new top-level route is a
+product decision (**gloki-change-control**). Demo variants need no routes — same URL plus `?demo=true`.
 
-**The isFirstRun pattern and its bug history** (App.tsx lines 55–65, verified): the
-first-run check reads the digital-agent store's canonical `'gloki.onboarding'`
-localStorage key via `getAgent()` / `getProgress().completed`. The old code checked a
-key `'gloki.onboarding.completed'` **that nothing ever wrote**, so every returning
-user was redirected back to `/welcome` forever. Lesson, generalized: when gating on a
-localStorage key, grep for the WRITER of that key before trusting it —
-`grep -rn "gloki.onboarding" src` should show both reader and writer.
+- The issue route carries the creator's node and agent: `InitiativeView` registers them with
+  `contractHosts` before any child reads. Routes without them (`/mandate/…`) wait for
+  `useInitiativeHostReady`, which loads the community's issue list first.
+- `BrowserRouter` basename comes from the Vite base; pages lazy-load in `Suspense` inside
+  `ErrorBoundary`; `<StageFooter/>` renders after `Routes` (not in the beta).
+- **First run** is decided by the real profile contract: `RootRoute` waits for
+  `digitalAgentProfileChecked`, then sends anyone without a `digitalAgentProfile` to `/welcome`.
 
 ## i18n in one paragraph (details: gloki-i18n-playbook)
 
-Hand-rolled provider at `src/i18n/index.tsx` (no i18next). 3 locales — `en`/`fr`/`sw`;
-flat dot-namespaced keys; lookup falls back active locale → en → inline default → the
-key itself (missing keys are visible, never a crash). **English feature copy lives
-inline in components** as `t('ns.key', 'English default')` — `en.ts` is only 117 lines
-of shared shell strings, while `fr.ts`/`sw.ts` are full 1,113-key overlays kept at
-strict key + `{var}` parity (authoritative count = the gloki-i18n-playbook scanner). Adding
-a key to only one overlay is a silent break (fallback hides it). All parity ritual,
-scanner recipe, and locale-testing steps belong to **gloki-i18n-playbook**.
+Hand-rolled provider at `src/i18n/index.tsx`. Locales `en`/`fr`/`sw`; flat dot-namespaced keys; lookup
+falls back active locale → en → inline default → key. **English copy lives inline** as
+`t('ns.key', 'English default')`; `en.ts` holds only shared shell strings, while `fr.ts`/`sw.ts` are
+full overlays at strict key + `{var}` parity. The beta build hides the language switcher.
 
 ## Styling in one paragraph (law: DESIGN_SYSTEM.md)
 
-SCSS Modules, one `X.module.scss` per component. The single hard rule from
-DESIGN_SYSTEM.md: **no ad-hoc values** — every colour/space/radius/shadow/font-size
-comes from a token in `src/styles/variables.scss`; `rgba($token, 0.1)` is allowed,
-literal `rgba(59,130,246,0.1)` is rejected in review. Stage colours mean only
-stage/status and always pair with icon+label. Prefer the shared kit
-(`components/shared` barrel: Card/Button/Modal/EmptyState/Banner/Badge). Read
-DESIGN_SYSTEM.md before any UI change — it is the authority, not this skill.
+SCSS Modules, one `X.module.scss` per component. **No ad-hoc values** — every colour/space/radius/
+shadow/font-size from a token in `src/styles/variables.scss`; `rgba($token, 0.1)` is fine. Prefer the
+shared kit. DESIGN_SYSTEM.md is the authority.
 
-## Doc authority (details: gloki-docs-and-writing)
+## Known weak points
 
-When docs disagree: **AGENTS.md, DESIGN_SYSTEM.md, FOR_OURI_seam.md, MASTER_TODO.md
-win over ARCHITECTURE.md and docs/LANES.md**, and the code at HEAD beats all of them.
-ARCHITECTURE.md is known-stale in places (still describes a 5-icon StageFooter with
-"Proposals" and a `/stage/problem` landing page — both superseded; `/` lands on
-HomeView, the footer is a 4-stage "Browse by stage"). Re-ground any spec or prompt
-premise against HEAD before building — stale-doc trust is this repo's recurring
-failure mode (recorded across S8–S15 project memory).
+| Weak point | Detail |
+|---|---|
+| **Metric label as join key in useMandate** | `src/hooks/useMandate.ts` merges ratification data onto indicators **by metric label string** (`ratification?.indicators[label]`). Renaming a metric orphans its entered target/baseline/cadence |
+| **Comment-enforced invariants** | Shared-mode fail-fast ordering, the frozen route map and the reducer-must-save rule are enforced only by comments + this skill |
+| **Transitional id-based mixing** | Pages without a demo variant still mix real and demo by `isDemoContract` (`docs/DEMO_MODE.md`, Transition) |
+| **`/lab/presence` ships to production** | A dev page reachable on the deployed site; removing it is a product call |
+| **No read-only flag on useFlowContract** | The deploy-on-mount trap stays live for new code |
+| **Wire-name split** | UI says "Solutions"; stage keys, i18n families and contract methods stay `proposals`/`proposal` |
 
-## Known-weak points (stated plainly — do not "discover" these again)
+## Worked examples
 
-| Weak point | Detail | Status |
-|---|---|---|
-| **Metric-label-as-join-key in useMandate** | `src/hooks/useMandate.ts` (~line 131, verified) merges host/expert ratification data onto derived indicators **by metric label string**: `ratification?.indicators[label]`. Renaming a metric in an expert review orphans any previously entered target/baseline/cadence keyed under the old label — it silently reverts to "pending". Labels are de-duped via `Set` to avoid React-key collisions, but the string join remains. | Open fragility. If you rename a seeded metric, migrate or re-enter the ratification data. |
-| **Comment-enforced invariants** | The orphan-contract prevention in useFlowContract shared mode, the frozen-route-map rule, and the reducer-must-save persistence rule are all enforced only by comments + this skill. No test framework exists to catch regressions. | Standing condition. Preserve the comments when editing; verification is grep + preview (gloki-verification-and-qa). |
-| **ARCHITECTURE.md staleness** | Stale on StageFooter (5 icons vs locked 4-stage IA), "Proposals" naming, and `/` landing route. | Open hygiene debt; trust AGENTS.md + code. |
-| **`/lab/presence` dev route ships to production** | `App.tsx:124` (verified) — `PresenceLabRoute`, a dev verification page for presence primitives, is reachable in the deployed GitHub Pages build. | Known/accepted so far; removing it is a product/scope call for Eston (recommend-then-confirm), not a drive-by cleanup. |
-| **No read-only flag on useFlowContract** | The deploy-on-mount trap (above) remains live for new code. | Standing; use resolveInitiativeStageContract for reads. |
-| **Demo seam emits no write events** | `eventStream.ts` is a real SSE client the mock layer never feeds — after any `contractWrite` on this branch you must explicitly re-fetch; event-driven refresh paths are dead here. | Permanent characteristic of `ui` (details: gloki-seam-and-demo-data). |
-| **Wire-name split is invisible in the UI** | UI says "Solutions"; the stage key in `initiativeStages`, i18n key families, and every contract method stay `proposals`/`proposal`. Renaming for "consistency" breaks Ouri's real-server swap silently. | Locked rule (docs/FOR_OURI_seam.md). |
+**Giving a page a demo variant** (Eston's path):
 
-## Worked example: adding a new initiative-pipeline flow
+1. Copy the page's component into `Page.demo.tsx` as `PageDemo`; make it read only through the demo layer,
+   show `<DemoNotice />` first, build links with `useDemoLink()`.
+2. Make the page's default export the switch (`useDemoMode()`).
+3. New demo data → `src/services/demo/fixtures/*` (+ `DEMO_VERSION` bump) — **gloki-seam-and-demo-data**.
+4. Update the page's row in `docs/DEMO_MODE.md`; strings via `t()` with fr/sw.
 
-1. Create `src/components/collaboration/flows/myflow/MyFlow.tsx` accepting `FlowProps`.
-2. Provision via the hook — shared mode, since all community members must share one
-   contract:
-   ```ts
-   const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } =
-     useFlowContract(instanceId, 'myflow', 'myflow_contract.py', contractCode,
-                     parentContractId, stageKey);
-   ```
-   Render the `hasError` state — old communities will legitimately hit the
-   "feature isn't available" path.
-3. Contract code: on `ui` there is no real `.py` — the mock layer answers. Add a
-   handler in `src/services/demo/demoContracts/` + register it in `demoRouter.ts` +
-   document every method in `docs/FOR_OURI_seam.md` (see **gloki-seam-and-demo-data**;
-   wire names snake_case, matching what Ouri will implement).
-4. Register in `registry.ts` with `context: 'initiative'` and a `group`.
-5. After every `contractWrite`, re-fetch (no SSE events on this branch).
-6. All strings through `t('myflow.key', 'English default')` + fr/sw keys in the same
-   commit (**gloki-i18n-playbook**); styles token-only (`DESIGN_SYSTEM.md`).
-7. Verify: `npx tsc -b` clean, `npm run build` clean, walk the flow in the preview
-   (**gloki-verification-and-qa**). Do not push without Eston's green light
-   (**gloki-change-control**).
+**Adding an issue-pipeline flow**:
+
+1. `src/components/collaboration/flows/myflow/MyFlow.tsx` accepting `FlowProps`; provision with
+   `useFlowContract(instanceId, 'myflow', 'myflow_contract.py', code, parentContractId, stageKey)` and
+   render the `hasError` state.
+2. Real side: the methods go on the real issue contract (single-contract mode), member-specific ones take
+   `agent` and join `INITIATIVE_MEMBER_METHODS` — **gloki-python-contracts**. Demo side: a handler in
+   `src/services/demo/demoContracts/` registered in `demoRouter.ts`. Both in `docs/FOR_OURI_seam.md`.
+3. Register in `registry.ts` with `context: 'initiative'` and a `group`.
+4. Refresh after writes per layer (demo: re-fetch; real: the write's event + `useContractSync`).
+5. Strings through `t()` + fr/sw; styles token-only; `npx tsc -b` and `npm run build` clean; walk it in
+   the app (**gloki-verification-and-qa**).
 
 ## Provenance and maintenance
 
-All facts verified 2026-07-02 against branch `ui` @ commit `c26cdc4` by direct reads
-of the cited files. Incident history (S11 read-only-that-deploys, isFirstRun bug,
-orphan-contract bug) is drawn from code comments at HEAD plus project memory recorded
-2026-06/07. Re-verify volatile facts before relying on them:
+Rewritten 2026-10-29 on branch `unified`. Re-verify before relying on these:
 
 | Claim | Re-verify with |
 |---|---|
-| Flows dir location | `find src -maxdepth 3 -type d -name flows` |
-| Registry contents (5 flows, contexts) | `grep -n "id: '" src/components/collaboration/flows/registry.ts` |
-| FlowProps fields | read `src/components/collaboration/flows/types.ts` |
-| resolveInitiativeStageContract at initiative.ts:65 + consumers | `grep -rn "resolveInitiativeStageContract" src` |
-| useFlowContract consumers (interactive flows only) | `grep -rln "useFlowContract(" src/components` |
-| 30s timeout / fail-fast probe / `[FlowContract]` logs | read `src/components/collaboration/flows/shared/useFlowContract.ts` |
-| Slice list (6) and names | read `src/store/index.ts` |
-| Persistence keys | `grep -rn "STORAGE_KEY" src/store/slices src/components/collaboration/flows/shared` |
-| Route map + `/lab/presence` at App.tsx:124 | `grep -n "path=" src/App.tsx` |
-| DEMO_VERSION value/line | `grep -n "DEMO_VERSION =" src/services/demo/mockApi.ts` (was `'global-v16'` @ line 17) |
-| i18n file sizes (en seed-only vs full overlays) | `wc -l src/i18n/en.ts src/i18n/fr.ts src/i18n/sw.ts` |
+| Flows dir | `find src -maxdepth 3 -type d -name flows` |
+| Registry contents | `grep -n "id: '" src/components/collaboration/flows/registry.ts` |
+| Single-contract mode | `grep -n isSingleContract src/components/collaboration/flows/shared/useFlowContract.ts` |
+| Slice list | `src/store/index.ts` |
+| Route map | `grep -n "path=" src/App.tsx` |
+| First-run rule | `grep -n "digitalAgentProfile" src/App.tsx` |
+| Pages with two states | `git ls-files '*.demo.tsx'` |
 | useMandate label join | `grep -n "indicators\[label\]" src/hooks/useMandate.ts` |
-
-If a re-verification contradicts this skill, the code wins — update this file in the
-same session (see gloki-docs-and-writing for doc-maintenance conventions).

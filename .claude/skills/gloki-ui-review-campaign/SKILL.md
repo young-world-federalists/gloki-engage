@@ -5,6 +5,7 @@ description: "Use when asked to run a full or partial UI review of the Gloki/Com
 
 # Gloki UI Review Campaign
 
+
 An executable, decision-gated campaign for the full UI review Eston asked for (2026-07-02):
 **accessibility, attractiveness, normalisation, standardisation, usability, and beauty** — run
 end-to-end by a session with zero prior context.
@@ -21,9 +22,7 @@ caption token (`$gray-500`), and the correct action was a no-op. (Recorded in pr
 
 **Nothing in this campaign ships by itself.** The campaign session is read-only + report. All fixes
 route through change control: recommend-then-confirm with Eston for anything product-adjacent, a
-normal build session for the fixes, Opus whole-branch review, and Eston's explicit green light
-before any push (a push to `ui` no longer deploys; Ouri merges `ui` into `server-side`, which
-deploys the live demo — never push without Eston's explicit go). See `gloki-change-control`.
+normal build session for the fixes, Opus whole-branch review, and an explicit go before any push. See `gloki-change-control`.
 
 ### Vocabulary (defined once)
 
@@ -32,7 +31,7 @@ deploys the live demo — never push without Eston's explicit go). See `gloki-ch
 | **Token law** | DESIGN_SYSTEM.md's one rule: every colour/space/radius/shadow/font-size/transition comes from `src/styles/variables.scss`. Sass-derived tints (`rgba($primary, 0.1)`) allowed; literal `rgba(59,130,246,.1)` and raw hex are not. |
 | **North stars** | MASTER_TODO.md §1, judged in order: (1) usability first — platform KPI **≥70% of participants complete the journey unaided** on a cheap Android; (2) a felt sense of transnational collaboration. All finding severities rank against these. |
 | **Persona panel** | The 9 test-user personas in MASTER_TODO.md §5 (Amara, Chidi, Thandiwe, Pascal, Dr. Giorgia, Marie, James, Tomás, Viktor). |
-| **Wire names** | Contract/URL identifiers that must match Ouri's real backend: the Solutions stage is `proposals` on the wire and in URLs (`/stage/proposals`) even though the UI label is "Solutions". Never "normalise" a wire name. |
+| **Wire names** | Contract/URL identifiers that must match the real contracts: the Solutions stage is `proposals` on the wire and in URLs (`/stage/proposals`) even though the UI label is "Solutions". Never "normalise" a wire name. |
 | **Kit** | The shared component library at `src/components/shared/` (barrel `index.ts`): Card, Button, Modal, EmptyState, Banner, Badge, SegmentedControl, InfoDisclosure, UserIdentity, etc. — full inventory table in DESIGN_SYSTEM.md § Shared component inventory. |
 | **Co-equal blocks** | Visually equal-weight stacked sections inside one card — the S15 composition metric (see Phase 3). |
 
@@ -84,7 +83,7 @@ it (standing rule; incident + preview lore: **gloki-verification-and-qa**).
 All work happens against a green build at a known commit. From the repo root:
 
 ```bash
-git rev-parse HEAD && git status -sb        # note the SHA; expect a clean tree on ui
+git rev-parse HEAD && git status -sb        # note the SHA; expect a clean tree
 npx tsc -b                                  # expect: silent exit 0
 npm run build                               # expect: tsc + vite build succeed (strict mode incl. noUnusedLocals)
 ```
@@ -93,33 +92,37 @@ npm run build                               # expect: tsc + vite build succeed (
   (and `gloki-debugging-playbook` if the failure is mysterious). Do not review a red build.
 - **If the tree is dirty** → ask the user whether the in-flight work should land or stash first.
 
-Start the preview (config `gloki-dev` in `.claude/launch.json`, port 5173; the file is gitignored —
+Start the preview (config `gloki-dev` in `.claude/launch.json`, dev port 7173; the file is gitignored —
 recreate it per the `preview_start` tool doc if missing), then record the route inventory. The
-route map in `src/App.tsx` is FROZEN (comment block, lines 13–31); the walk list at HEAD c26cdc4:
+route map in `src/App.tsx` is FROZEN. **Every route has two states** — walk `/page` (real) and, for
+pages listed with a demo variant in `docs/DEMO_MODE.md`, `/page?demo=true` too. The walk list:
 
 | Route | Page | Notes |
 |---|---|---|
 | `/` | HomeView (or `/welcome` redirect on first run) | cross-community overview |
 | `/welcome/*` | OnboardingFlow | the unaided-journey entry |
 | `/stage/problem` `/stage/proposals` `/stage/vote` `/stage/mandate` | StageFeedView | wire name `proposals`, label "Solutions" |
-| `/identity/*` | IdentityView | communities/profile/join/about/contact sub-routes |
+| `/identity/*` | IdentityView | communities/hidden/profile/join/verification/notifications/about/contact |
 | `/create-community` | CreateCommunityPage | |
 | `/community/:communityId/*` | CommunityView | feed/collab/chat/currency/members… |
 | `/initiative/:host/:agent/:cid/:iid/*` | InitiativeView | the 5-stage dashboard |
 | `/mandate/:communityId/:mandateId/*` | MandatePage | published mandate |
+| `/organization` | OrganizationHome | the organization actor's home |
+| `/forum` | ForumPage | beta build only (`npm run dev:beta`) |
 | `/lab/presence` | PresenceLabRoute | dev-only; exclude from user-facing findings |
 | anything else | NotFound | check it has the AppHeader too |
 
 Community/initiative IDs for deep routes: navigate from HomeView in the preview and copy the URLs —
-they're seeded demo IDs, not stable literals. For login/demo-state seeding in the preview, use the
-recipe in `gloki-verification-and-qa` (real login cannot complete in the sandbox).
+they're seeded demo ids or real contract ids, not stable literals. Real pages need a real login
+against a node (a local one: `gloki-build-env-run`); without one, seed login per
+`gloki-verification-and-qa` and review the demo variants and demo communities.
 
 **Gate:** build green + preview serving + route list confirmed → Phase 1.
 
 ## Phase 1 — Mechanical standardisation gates (grep-measurable)
 
-These are the token-law and structure checks with exact expected baselines, **verified 2026-07-02 @
-c26cdc4**. "New hits vs baseline" is the defect condition — do not file the baseline itself as new
+These are the token-law and structure checks with expected baselines **as measured 2026-07-02** —
+re-run them at the start of a campaign and record the new baseline. "New hits vs baseline" is the defect condition — do not file the baseline itself as new
 findings.
 
 **1a. Banned caption gray (the documented regression gate, DESIGN_SYSTEM.md § Accessibility):**
@@ -394,8 +397,6 @@ session:
 - **Don't file the trust gate as a usability blocker** without checking the stage-permission model —
   "the gate that makes the demo SAFE makes it EMPTY" was solved deliberately (S9) by opening only
   the `digital` community, not by weakening trust.
-- **Don't review from a red PR #20** signal — its ✗ is an expected merge conflict with Ouri's
-  diverged `main`, not a build failure.
 - **Don't run REVIEW-AND-REFACTOR-WORKFLOW.md verbatim** — it's Wave-1-era (hard-coded lane PR
   numbers A=9…G=18, retired worktree model); mine its 8 audit dimensions for ideas, but this skill
   is the current campaign. `REVIEW-STRUCTURE.md` stays useful as the separate GitHub-hygiene
@@ -403,12 +404,12 @@ session:
 
 ## Provenance and maintenance
 
-Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`, clean tree). Volatile facts and how to
-re-verify each:
+Updated 2026-10-29 on branch `unified`; the Phase 1 baselines below date from 2026-07-02 — re-run
+them. Volatile facts and how to re-verify each:
 
 | Fact | Re-verify with |
 |---|---|
-| Route map (9 top-level routes, frozen) | `sed -n '13,31p' src/App.tsx` |
+| Route map (frozen) | `grep -n "path=" src/App.tsx` |
 | Browseable stage URLs (`problem/proposals/vote/mandate`) | `grep -n "path: '/stage" src/components/shared/StageFooter.tsx` |
 | gray-400 gate baseline = 0 matches | `grep -rn 'color: $gray-400' src --include='*.module.scss'` |
 | Raw-hex baseline = 7 comment-only lines, 0 non-comment | Phase 1b commands |
@@ -420,7 +421,7 @@ re-verify each:
 | North stars + ≥70% KPI | MASTER_TODO.md §1 |
 | Kit inventory | DESIGN_SYSTEM.md § Shared component inventory |
 | S15 composition method, exemplars, block counts | project memory 2026-07-02 + `docs/superpowers/specs/2026-07-01-solutionsboard-recomposition-design.md` |
-| Preview server name `gloki-dev`, port 5173 | `.claude/launch.json` (gitignored — may be absent on a fresh clone) |
+| Preview server name `gloki-dev`, dev port 7173 | `.claude/launch.json` (gitignored — may be absent on a fresh clone) |
 | REVIEW-WAVE "parallel" wording overridden to sequential | standing rule, Eston-confirmed 2026-07-02; re-confirm with Eston if REVIEW-WAVE.md has been rewritten since |
 
 Open/candidate items (not settled, labeled as such): the 2a sweep snippet is verified for math but

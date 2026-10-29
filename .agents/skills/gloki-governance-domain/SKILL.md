@@ -5,11 +5,17 @@ description: "Use when touching any governance mechanic in Communities2/Gloki: t
 
 # Gloki Governance Domain — direct democracy as implemented here
 
+
 ## Overview
 
 This skill is the domain-theory pack for Gloki's governance mechanics **as shipped in this
-repo** — not a civics textbook. Everything below was read out of the code at commit
-`c26cdc4` (2026-07-02); file:line references point at the ground truth.
+repo** — not a civics textbook. Line references point at the ground truth and drift; trust the
+identifier names over the `:NN`.
+
+Every mechanic exists in two layers (`docs/DEMO_MODE.md`): the **real** issue contract
+(`src/assets/contracts/gloki_engage_initiative_contract.py`, one contract per issue holding every
+stage) and the **demo** stubs in `src/services/demo/demoContracts/` (one stub per stage). Where they
+differ, both are stated below.
 
 **Core principle: trust gates WHO may act; it never weights a vote.** One person, one
 vote (1p1v) is a LOCKED product decision (see `gloki-change-control`) written into the
@@ -20,13 +26,12 @@ it, do not relitigate it.
 
 Two vocabulary facts you need before anything else:
 
-- **The seam** = `src/services/api.ts` (`contractRead`/`contractWrite`/`deployContract`/
-  `joinContract`), currently backed by the `src/services/demo/` mock layer. All
-  governance state lives behind it.
+- **The seam** = `src/services/` — real services for real pages, `src/services/demo/` for demo
+  variants. All governance state lives behind it.
 - **Wire names vs UI labels**: the UI says **"Solutions"** but every method/field name on
   the wire stays **`proposal`** (`add_proposal`, `proposal_id`, `get_proposals`) because
-  it must byte-match Ouri's real Python contracts. This is "The one rule that must not
-  break" (`docs/FOR_OURI_seam.md:8`). Never invent a wire name from UI vocabulary.
+  it must byte-match the real contracts. This is "The one rule that must not break"
+  (`docs/FOR_OURI_seam.md`). Never invent a wire name from UI vocabulary.
 
 ## When NOT to use this skill
 
@@ -64,19 +69,20 @@ Defaults from `DEFAULT_STAGE_PERMISSIONS` (`trustModel.ts:19-25`). Rules gate AC
 never viewing — anyone can read every stage.
 
 **Stage advancement**: only the initiative author or a co-author may advance
-(`StageAdvanceBar.tsx:114` gates on `isAuthorOrCoAuthor`), writing `set_stage` through
-the seam. The demo initiative contract enforces exactly one step at a time — `set_stage`
-rejects `idx !== cur + 1` with "Stages can only advance one step at a time"
-(`src/services/demo/demoContracts/initiative.ts:120-136`). There is no "skip to mandate".
+(`StageAdvanceBar.tsx` gates on `isAuthorOrCoAuthor`), writing `set_stage` through
+the seam. Both layers enforce exactly one step at a time ("Stages can only advance one step at a
+time"); the real contract also refuses anyone but the author or a co-author, and closes the problem
+vote (`upvote`/`downvote`/`remove_vote`) once the issue leaves the Problem stage. There is no
+"skip to mandate".
 
 **Solution merging is suggest-only, never automatic**: `suggest_proposal_merge` records a
 suggestion on the source proposal (`approval.ts:195-210`); nothing auto-merges.
 
 ## 2. Quadratic voting as shipped
 
-The whole QV implementation is two files: UI in
-`src/components/collaboration/flows/voting/QVFlow.tsx`, stub contract in
-`src/services/demo/demoContracts/qv.ts` (mock of `qv_contract.py`).
+UI in `src/components/collaboration/flows/voting/QVFlow.tsx`; contract side in the real issue
+contract (`get_config`, `allocate`, `get_results`, …) and, for demo issues, the stub
+`src/services/demo/demoContracts/qv.ts`.
 
 **The h²-credits invariant** (memorize this — it is THE pattern):
 
@@ -109,10 +115,11 @@ const canAddHeart = (id: string): boolean => {
 };
 ```
 
-**Contract-side `allocate` validation** (`qv.ts:113-132`): voting status must be
-`'open'`; every credit value must be an integer ≥ 0; every proposal id must exist;
-total ≤ `credits_per_voter`. Zero-credit entries are dropped. The allocation replaces the
-caller's previous one wholesale.
+**Contract-side `allocate` validation**: voting must be open; every credit value an integer ≥ 0;
+every proposal id must exist; total ≤ `credits_per_voter`; zero-credit entries dropped. The **real**
+contract also fixes the budget at 100 (`set_credits`/`set_status` always refuse), opens voting exactly
+while the stage is `vote`, and makes the first ballot **final** ("You have already voted"). The demo
+stub replaces a previous allocation wholesale, but the UI locks after one ballot either way.
 
 **Vote lock**: "voted" is derived client-side — a non-empty `get_my_allocation` means the
 ballot hard-locks with no un-vote (`QVFlow.tsx:67-69`; documented FOR OURI as "no new
@@ -144,46 +151,39 @@ approval contract id not keyed per initiative. The concept was rebuilt safely as
 "carry spine" (`169a149`). Lesson: **never seed shared contract state from a per-browser
 ref**. Full postmortem: `gloki-failure-archaeology`.
 
-## 3. Two-contract vote architecture — "which contract owns this field?"
+## 3. Which contract owns a field?
 
-The vote stage joins **two** contracts. This is the first question to ask before adding
-any field to the ballot, results, or mandate:
+**Real issues: one contract.** The real issue contract holds every stage — proposals, approvals,
+expert reviews, the ballot, results and conviction — so QVFlow's two reads resolve to the same contract
+(single-contract mode, **gloki-frontend-architecture**).
 
-| Contract (stub → real) | Stage key on the parent initiative | Owns | Who writes it |
+**Demo issues: two stage contracts.** The vote stage joins two stubs, registered on the parent as
+sub-contracts:
+
+| Demo stub | Stage key on the parent | Owns | Who writes it |
 |---|---|---|---|
-| `qv.ts` → `qv_contract.py` | `voteContractId` | Vote MECHANICS: proposals list (id/text/author), config, allocations, results | Voters (`allocate`), via QVFlow |
-| `approval.ts` → `approval_contract.py` (the "approval twin") | `proposalsContractId` | The SPINE: canonical text, `commitments`, author `metrics`, `sources`, `co_authors`, `expertReviews`, merge suggestions | Solutions-stage UI (SolutionsBoard etc.) — **never** the vote or mandate UI |
+| `qv.ts` | `voteContractId` | Vote MECHANICS: proposals list, config, allocations, results | Voters (`allocate`), via QVFlow |
+| `approval.ts` (the "approval twin") | `proposalsContractId` | The SPINE: canonical text, `commitments`, author `metrics`, `sources`, `co_authors`, `expertReviews`, merge suggestions | Solutions-stage UI — **never** the vote or mandate UI |
 
-QVFlow resolves both (`QVFlow.tsx:44-50`) and joins rows **by proposal id**
-(`QVFlow.tsx:111-122`): the qv contract supplies mechanics, the twin supplies
-text/commitments/metrics (`twin?.text ?? q.text` fallback). The ballot filters to
-expert-reviewed solutions (`reviews.length > 0`) with a **graceful fallback to all** when
-nothing is reviewed yet (`QVFlow.tsx:123-124`).
+In both layers QVFlow joins rows **by proposal id**: mechanics from the vote data, text/commitments/
+metrics from the spine (`twin?.text ?? q.text`). The ballot filters to expert-reviewed solutions with a
+**graceful fallback to all** when nothing is reviewed yet.
 
-**Read-only rule**: QVFlow and `useMandate` READ the approval twin and must NEVER write
-it. If your feature needs to persist something at vote/mandate time, it does not belong
-on the approval contract — it belongs on the qv contract (voting mechanics) or as a
-property on the initiative contract (like ratification, §5).
+**Read-only rule**: QVFlow and `useMandate` READ the spine and must NEVER write it. Something to
+persist at vote/mandate time belongs with the voting mechanics or as issue-level data (like
+ratification, §5) — not on the spine.
 
-**Related trap (S11 incident, recorded in project memory 2026-07-01)**: a component that
-merely *displays* stage data must not call `useFlowContract` — in shared mode that hook
-joins-or-DEPLOYS. Pure reads go through `resolveInitiativeStageContract`
-(`src/services/contracts/initiative.ts:65`). Details and the hook decision table:
-`gloki-frontend-architecture`. (Nuance: `useMandate` itself currently uses
-`useFlowContract` shared mode to resolve both contracts — it predates the rule and is on
-pages where the contracts must exist anyway; `useMandateJourney.ts` shows the read-only
-resolver pattern.)
+**Related trap**: a component that merely *displays* stage data must not call `useFlowContract` — in
+shared (demo) mode it joins-or-DEPLOYS. Pure reads go through `resolveInitiativeStageContract`
+(`src/services/contracts/initiative.ts`). `useMandateJourney.ts` shows the read-only pattern.
 
-**Sub-contract registration is first-write-wins**: `register_stage_contract` on the
-initiative contract returns the existing payload if the stage key is already taken
-(`demoContracts/initiative.ts:137-155`) — that is how concurrent deploy races resolve to
-one shared contract per stage. And the demo seam emits **no write events**: after every
-`contractWrite`, re-fetch explicitly (`QVFlow.tsx:148` is the canonical example).
+**Refresh after writes**: demo writes emit no events — re-fetch (`QVFlow.tsx`); real writes confirm
+through their event (**gloki-seam-and-demo-data** §4).
 
 ## 4. The commitments/metrics spine (approval contract methods)
 
-The spine is what threads Solutions → Vote → Mandate. All on the approval twin
-(`src/services/demo/demoContracts/approval.ts`):
+The spine is what threads Solutions → Vote → Mandate — on the real issue contract, or on the demo
+approval twin (`src/services/demo/demoContracts/approval.ts`):
 
 | Method | Semantics | Limits (UI/stub) |
 |---|---|---|
@@ -197,10 +197,17 @@ The spine is what threads Solutions → Vote → Mandate. All on the approval tw
 `useMandate` reads ONLY `expertReviews[].metrics`; author metrics are a proposal, not an
 indicator. Do not "simplify" by merging the two lists.
 
-**The demo expert gate is permissive by design** — the stub lets anyone
-`add_expert_review`; the comment at `approval.ts:170-172` records that Ouri's REAL
-contract must gate it on the expert role. Do not rely on the stub for authorization
-semantics, and do not remove the FOR OURI comments that carry these obligations.
+**The expert gate is permissive in both layers** — anyone may `add_expert_review`; the expert role
+is checked only in the UI. The obligation to gate it on the expert role is recorded in
+`docs/FOR_OURI_seam.md`.
+
+> **REVIEW NEEDED (2026-10-29): expert reviews, review requests and merge suggestions on real
+> issues.** On the real issue contract, `add_expert_review`, `request_expert_review` and
+> `suggest_proposal_merge` (and `like_comment` / `delete_comment`) look the proposal up with
+> `x in self.proposals`, which is always False for `append()` ids (**gloki-python-contracts** §3). They
+> silently save nothing, so on real issues the ballot always falls back to "all solutions", and the
+> mandate gets no expert-validated indicators. The demo stubs work. Decide the fix and what users see
+> until then.
 
 ## 5. The mandate model
 
@@ -216,7 +223,7 @@ semantics, and do not remove the FOR OURI comments that carry these obligations.
   `useMandate.ts:123`)
 - read-only: no new contract methods — `get_results` + `get_proposals` +
   `get_properties` only; derived state is cleared on `initiativeId` change to prevent
-  flashing the previous initiative's mandate (`useMandate.ts:70-75`, a real past bug)
+  flashing the previous initiative's mandate (a real past bug)
 
 **Ratification is a completeness predicate, not a ceremony.** A mandate flips to
 `'ratified'` automatically when EVERY indicator has non-empty target + baseline + cadence
@@ -226,6 +233,11 @@ host / co-author / endorsed expert via `getInitiativeRoles`, and saves the WHOLE
 indicator map as one JSON string property `mandate_ratification` on the **initiative**
 contract via `set_property`/`get_properties` — full replace on save
 (`src/services/mandateRatification.ts`, `RATIFICATION_KEY = 'mandate_ratification'`).
+
+> **REVIEW NEEDED (2026-10-29): ratification on real issues.** `set_property` / `get_properties` exist
+> only on the demo initiative stub, not on the real issue contract. On a real issue the ratification
+> panel's save does nothing, so a real mandate can never become `'ratified'`. Decide where ratification
+> lives on the real side.
 
 **Indicator LABELS are ids.** Stored ratification data is keyed by metric label and
 merged onto derived indicators BY LABEL (`useMandate.ts:130-134`). Renaming a metric —
@@ -247,17 +259,17 @@ without naming N (S13 rule; personas flagged unlabeled percentages):
 
 ## 6. Conviction staking (mandate stage)
 
-Time-weighted backing of a published mandate
-(`src/services/demo/demoContracts/conviction.ts`):
+Time-weighted backing of a published mandate — the same rules on the real issue contract and the demo
+stub (`src/services/demo/demoContracts/conviction.ts`):
 
-- `stake(amount, duration, country)` — amount > 0; duration one of the multiplier keys;
-  country normalized to upper-case or `'OTHER'`
-- `DURATION_MULTIPLIERS` (`conviction.ts:17-19`): `1w`=1×, `1m`=2×, `3m`=4×, `6m`=7×,
-  `1y`=12×
-- conviction = amount × multiplier; `get_total_conviction` returns `{total, count}`;
-  `get_conviction_by_country` aggregates per country
-- re-staking ADDS to the caller's amount but OVERWRITES duration and country
-  (`conviction.ts:80-89`) — one stake row per voter
+- `stake(amount, duration, country)` — **amount must be exactly 1** (support is never
+  wealth-weighted); duration one of `1w`/`1m`/`3m`/`6m`/`1y`; country upper-cased or `'OTHER'`.
+- **One backing per person**: a second `stake` is refused ("Already backing — use update_stake");
+  `update_stake(duration, country)` changes the commitment (shortening restarts the clock, lengthening
+  keeps it); `withdraw_stake()` removes it.
+- **Strength accrues with time**: starts at 1 and grows by one per 30 days held, capped by the duration
+  (1w=1, 1m=2, 3m=4, 6m=7, 1y=12). `get_total_conviction` returns `{total, count, model}`;
+  `get_conviction_by_country` sums strength per country.
 
 This is the time dimension the VoteExplainer describes: *"the longer a solution holds its
 backing, the more settled the community's conviction behind it."*
@@ -273,51 +285,61 @@ machine-readable spec projection counts claimed and verified separately
 (`MandateDocument.tsx` `buildSpec`, adoption block at :58-63). Never flip a viewer action
 to `verified: true` — that is trust-faking (§9).
 
-## 8. The THREE unrelated trust layers sharing the word "verified"
+## 8. The trust layers sharing the word "verified"
 
-When anyone says "verified", first establish WHICH layer. They are three unrelated
-mechanisms:
+When anyone says "verified", first establish WHICH layer:
 
-| Layer | Mechanism | Where | Threshold / rule |
-|---|---|---|---|
-| 1. UI vouch web-of-trust | Members vouch for each other in person by scanning QR codes | `src/services/trustModel.ts` + `src/components/community/IdentityTrust.tsx` | `TrustState`: unverified (0) / vouched (≥1) / **verified (≥ VERIFIED_THRESHOLD = 4)**; onboarding seeds 2 (`ONBOARDING_SEED`), so new users are "pending" |
-| 2. Contract-level nomination graph | Edge-rewiring membership approval — the real Sybil defense | `src/assets/contracts/community_contract.py:76-131` (`request_join`/`approve`) | see below |
-| 3. Mandate adopter flag | Attestation that an ORGANIZATION's adoption claim is confirmed | `fixtures/mandate.ts:73-79` (§7) | seeded/attested only; viewer endorsements always claimed |
+| Layer | Mechanism | Where |
+|---|---|---|
+| 1. Person verification | People vouch that someone is a real person; the verified list is the single source of truth for "verified", app-wide | real: `gloki_verification_contract.py` via `src/services/verificationRegistry.ts` + `src/hooks/useVerificationRegistry.ts`; UI: `src/components/identity/verification/`, `IdentityTrust.tsx` |
+| 2. Community membership | Who belongs to a community | real: the community contract's partners (`get_partners`), joined with an invitation (`join_contract`); the old `community_contract.py` models a nomination graph (below) |
+| 3. Mandate adopter flag | Attestation that an ORGANIZATION's adoption claim is confirmed | `fixtures/mandate.ts` (§7); viewer endorsements always "Claimed" |
 
-`canParticipate(rule, trust, isMember)` (`trustModel.ts:35-39`) is **the single
-eligibility gate** in the UI — layer 1 feeding the per-stage rules of §1. `'verified'`
-rule = member AND trust === 'verified'. Do not write a second gate.
+`canParticipate(rule, trust, isMember)` (`trustModel.ts`) is **the single eligibility gate** in the UI —
+layers 1 and 2 feeding the per-stage rules of §1. `'verified'` rule = member AND verified. Do not write
+a second gate.
 
-**Layer 2, the nomination graph** (worth understanding — it is the platform's actual
-Sybil economics): first member joins free; while members < 5, one nominate at a time is
-approved by all existing members; at ≥ 5 members, `request_join` draws two random
-edge-disjoint edges of the member graph (4 distinct members) as nominators. Membership
-requires full mutual approval among all 4 nominators and the nominate; on success the
-graph REWIRES — each nominator drops the edge to their pair-partner and gains an edge to
-the new member. The graph stays ~4-regular, so every join costs 4 real in-person
-relationships. `disapprove()` tears the nomination down. (Internals of the Python dialect:
-`gloki-python-contracts`.)
+> **REVIEW NEEDED (2026-10-29): the person-verification rule changed.** This skill used to say
+> verified = ≥ 4 vouches (`VERIFIED_THRESHOLD`), per community, with onboarding seeding 2 vouches.
+> Today verification is **app-wide** and in **three phases** on the verification contract: the first
+> person verifies themselves (the founder, who becomes the steward); people #2–#4 need a vouch from
+> *every* verified person, one candidate at a time (the steward can reset a stalled candidate); from
+> then on, 4 vouches from verified people. The app registers a person with their vouches and the
+> contract re-checks each one. Invitations, video calls and the daily session are still simulated and
+> can't verify anyone. Details: `docs/FOR_OURI_seam.md` (2026-10-28 addendum). Confirm the rule and
+> what each phase tells the user.
 
-**Layer-1 lore — "the gate that makes the demo SAFE makes it EMPTY"** (persona-review
-learning, recorded in project memory 2026-06-29): vote/mandate default to the `verified`
-rule, so a fresh demo user (2 seeded vouches) sees them locked. The **"Meet a member
-(demo)"** affordance (`IdentityTrust.tsx:94`, comment at :34-36) exists precisely so a
-pending user can cross 2 → 4 vouches and watch the gated stages unlock live — the QR
-camera isn't exercisable in the preview. Do not delete it as "demo cruft", and keep its
-`(demo)` label (§9).
+> **REVIEW NEEDED (2026-10-29): who can join a community.** The real community contract has no
+> membership rule: anyone holding a member's invitation (`{server, agent, contract}`, from "Share
+> Community Link") joins and becomes a member (a partner). The nomination graph below — the earlier
+> design for Sybil-resistant membership — exists only in the old `community_contract.py`, which the app
+> no longer deploys. Decide whether real communities get membership approval.
+
+**The nomination-graph design** (`community_contract.py`, `request_join`/`approve`): first member joins
+free; while members < 5, one nominate at a time is approved by all existing members; at ≥ 5,
+`request_join` draws two random edge-disjoint edges of the member graph (4 distinct members) as
+nominators; membership needs full mutual approval, and on success the graph rewires so it stays
+~4-regular — every join costs 4 real relationships. The verification contract's sequential phase
+borrows its "one at a time, approved by everyone" idea.
 
 ## 9. Claims-honesty doctrine
 
 Gloki never fakes trust. Concrete rules already shipped:
 
-- **Demo affordances are labeled `(demo)`** in the UI — e.g. "Meet a member (demo)".
-  Anything that simulates what the real platform earns must say so.
+- **Demo is always labelled.** Every demo variant shows `<DemoNotice />` ("Demo: this page shows sample
+  data…"), and simulated verification paths say they're simulated. Anything that simulates what the
+  real platform earns must say so.
 - **The Sybil statement** is a static, honest platform statement embedded in the mandate
   document AND its machine-readable spec (`VERIFICATION_STATEMENT`,
   `MandateDocument.tsx:20`): one person one vote, in-person QR web of trust, *"No ID
   papers, no biometrics, no face scans are collected, and no one can buy extra
   influence."* Keep spec copy in English; on-screen copy is i18n'd
   (`mandate.verification.*` keys — see `gloki-i18n-playbook`).
+
+  > **REVIEW NEEDED (2026-10-29): the Sybil statement's wording.** It promises an "in-person QR web of
+  > trust", but people are now verified by asking verified members through the app (§8, layer 1), and
+  > the first person verifies themselves. Check that the statement still describes what the platform
+  > actually does.
 - **Votes are disclosed as attributable, not secret** (§2).
 - **Claimed ≠ verified adopters** (§7) — never blur the badge.
 - **Turnout always names N** (§5).
@@ -332,8 +354,8 @@ actually does, including its limits. Overselling trust is a product bug.
   `gloki-python-contracts`; the Funds page seam: `gloki-seam-and-demo-data`.
 - **Roles** (`getInitiativeRoles`, `endorse_expert`, `add_co_author`) and the
   get_roles → get_details fallback: `gloki-frontend-architecture`. One governance-relevant
-  fact: the demo initiative contract does not implement `get_roles`, so in the demo the
-  expert list comes back empty and the RatificationPanel gate effectively works via
+  fact: the real issue contract implements `get_roles`; the demo initiative stub doesn't, so in the demo
+  the expert list comes back empty and the RatificationPanel gate effectively works via
   author/co-author.
 - **Measurable democratic outcomes** — the ambition that indicators/ratification exist to
   serve (did the mandate change anything measurable?) is an OPEN research direction, not
@@ -343,45 +365,36 @@ actually does, including its limits. Overselling trust is a product bug.
 
 Task: show each solution's funding estimate on the vote card.
 
-1. **Which contract owns it?** Funding estimate is solution TEXT/spine data → the
-   approval twin, not the qv contract. It must be written at Solutions stage
-   (`add_proposal` gains an optional field), never by the vote UI.
-2. **Wire name**: pick a `snake_case` name that Ouri's real `approval_contract.py` will
-   adopt (e.g. `funding_estimate`), check `docs/FOR_OURI_seam.md` for collisions, and
-   update that doc — the seam contract table is the hand-off of record.
-3. **Backward compatibility**: contracts are immutable after deploy — already-deployed
-   communities will never return the field. Make it optional in the stub
-   (`approval.ts` proposal shape) and make every reader tolerate absence
-   (`twin?.funding_estimate ?? undefined`), exactly like `commitments`/`metrics` do.
+1. **Which data owns it?** Funding estimate is solution spine data. It's written at Solutions stage
+   (`add_proposal` gains an optional trailing argument), never by the vote UI.
+2. **Wire name**: a `snake_case` name (e.g. `funding_estimate`) on the real issue contract's
+   `add_proposal` and the demo approval stub alike; record it in `docs/FOR_OURI_seam.md`.
+3. **Backward compatibility**: contracts are immutable — issues created earlier never return the
+   field, and reject the new argument if the UI sends it to them. Make it optional with a default, and
+   make every reader tolerate absence (`twin?.funding_estimate ?? undefined`), like `commitments`.
 4. **Ballot join**: surface it in QVFlow's `merged` map (`QVFlow.tsx:111-122`) from the
    twin — QVFlow still never writes the approval contract.
-5. **Re-fetch after any write** at Solutions stage (no write events in the demo seam).
+5. **Refresh after writes** per layer (demo: re-fetch; real: the write's event).
 6. **If seed fixtures change**, bump `DEMO_VERSION` (`gloki-seam-and-demo-data`).
 7. New UI copy goes through the i18n ritual (`gloki-i18n-playbook`); pushing waits for
-   Eston's green light (`gloki-change-control`).
+   an explicit go (`gloki-change-control`).
 
 ## Provenance and maintenance
 
-All facts verified 2026-07-02 against branch `ui` @ commit `c26cdc4` by direct file
-reads. Incident details ("S11", persona-review learnings, QV revert) come from in-repo
-docs/commits plus project memory (recorded 2026-06/07). Line numbers WILL drift — trust
-the identifier names over the `:NN`. Re-verify the volatile facts:
+Updated 2026-10-29 on branch `unified`. Line numbers drift — trust identifier names. Re-verify:
 
 | Fact | Re-verify with |
 |---|---|
 | Stage union + UI labels | `head -1 src/types/initiative.ts` and `grep -n "labelDefault" src/components/shared/StageStrip.tsx` |
-| 1p1v header, `VERIFIED_THRESHOLD=4`, stage-rule defaults, `canParticipate` | `cat src/services/trustModel.ts` (39 lines) |
-| `heartCost`/`heartsFromCredits`, `2 * h + 1`, `TURNOUT_TARGET=75` | `grep -n "heartCost\|heartsFromCredits\|2 \* h + 1\|TURNOUT_TARGET" src/components/collaboration/flows/voting/QVFlow.tsx` |
-| `get_results` sqrt + `allocate` validation + default budget 100 | `grep -n "sqrt\|credits_per_voter" src/services/demo/demoContracts/qv.ts` |
-| Two-contract join + stage keys | `grep -n "proposalsContractId\|voteContractId" src/components/collaboration/flows/voting/QVFlow.tsx src/hooks/useMandate.ts` |
-| Spine methods + limits + permissive expert gate | `grep -n "case '" src/services/demo/demoContracts/approval.ts` |
-| `isMandateRatified`, label-keyed ratification, `mandate_ratification` key | `grep -n "isMandateRatified\|RATIFICATION_KEY\|indicators\[label\]" src/services/demo/fixtures/mandate.ts src/services/mandateRatification.ts src/hooks/useMandate.ts` |
-| Conviction multipliers | `grep -n "DURATION_MULTIPLIERS" -A 2 src/services/demo/demoContracts/conviction.ts` |
-| Nomination graph | `sed -n '76,135p' src/assets/contracts/community_contract.py` |
+| 1p1v header, stage-rule defaults, `canParticipate` | `cat src/services/trustModel.ts` |
+| Verification phases | `grep -n "phaseOf\|requiredVouches\|canRegister" src/services/verificationRegistry.ts` |
+| `heartCost`/`heartsFromCredits`, `2 * h + 1`, `TURNOUT_TARGET` | `grep -n "heartCost\|heartsFromCredits\|2 \* h + 1\|TURNOUT_TARGET" src/components/collaboration/flows/voting/QVFlow.tsx` |
+| Real ballot rules | `grep -n "def allocate" -A30 src/assets/contracts/gloki_engage_initiative_contract.py` |
+| Spine methods (real / demo) | `grep -n "    def " src/assets/contracts/gloki_engage_initiative_contract.py`; `grep -n "case '" src/services/demo/demoContracts/approval.ts` |
+| Ratification storage | `grep -n "RATIFICATION_KEY\|set_property" src/services/mandateRatification.ts` |
+| Conviction rules | `grep -n "def stake\|def update_stake\|_conviction_strength" src/assets/contracts/gloki_engage_initiative_contract.py` |
 | Sybil statement + turnout sentence | `grep -n "VERIFICATION_STATEMENT\|turnoutLine" src/components/mandate/MandateDocument.tsx` |
 | Problem threshold 50% | `grep -n "0.5" src/components/initiative/useInitiativePost.ts` |
-| Seam rule of record | `sed -n '1,40p' docs/FOR_OURI_seam.md` |
 
-Open/candidate items (NOT shipped facts): real expert-role gating on
-`add_expert_review`, a real ratification contract, real adopter attestation — all are FOR
-OURI obligations carried in code comments; outcome measurement is `gloki-research-frontier`.
+Open items (not shipped): expert-role gating on `add_expert_review`, real ratification storage, real
+adopter attestation; outcome measurement is `gloki-research-frontier`.

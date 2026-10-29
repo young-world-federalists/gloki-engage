@@ -46,7 +46,7 @@ that import them. You import a flow, you don't edit it (and vice-versa).
 ## Route map (`src/App.tsx`)
 
 ```
-/                                     → redirect to /stage/problem
+/                                     → HomeView (first-run → /welcome; the beta → /forum)
 /welcome/*                            → Lane A   onboarding journey
 /stage/:stageId                       → (shell)  stage feed mini-apps
 /identity/*                           → Lane A   identity / profile / about
@@ -62,10 +62,12 @@ Every area uses a `/*` wildcard — add internal sub-routes inside the area's co
 
 ## Conventions that still apply
 
-- **Hardcoded UI only.** New data → a `src/services/demo/fixtures/*` file, read through the
-  `src/services/demo/` mock layer (the seam rule, [CLAUDE.md](../CLAUDE.md)). Never reintroduce `?raw` Python imports.
+- **Two states per page** ([DEMO_MODE.md](DEMO_MODE.md)). Demo data → a `src/services/demo/fixtures/*`
+  file, read through the `src/services/demo/` mock layer by the page's `*.demo.tsx` variant; real data →
+  `src/services/` (the seam rule, [CLAUDE.md](../CLAUDE.md)). The "Fixture" column above is the demo
+  side of each area.
 - **Every user-facing string** goes through `t()` (English default inline is fine).
 - **Design system is law.** Tokens + shared components; no ad-hoc colours/spacing ([DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md)).
 - **Verify before "done":** `npx tsc -b` clean, `npm run build` clean, walk the routes in the
   preview; confirm dark mode + 360px mobile + keyboard/screen-reader basics.
-- **Ship small, self-contained chunks** that leave `ui` runnable.
+- **Ship small, self-contained chunks** that leave the trunk runnable.

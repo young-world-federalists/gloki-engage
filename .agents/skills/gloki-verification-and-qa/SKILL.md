@@ -5,10 +5,11 @@ description: Use when about to claim a Gloki/Communities2 change is done, verifi
 
 # Gloki Verification & QA
 
+
 ## Overview
 
 **Core principle: render the state, don't just review the code.**
-This repo has **no test framework** (AGENTS.md: "verify via `npm run dev` and browser
+This repo has **no test framework** (CLAUDE.md: "verify via `npm run dev` and browser
 DevTools"). `npx tsc -b` clean + `npm run build` clean is the **floor** — it is what CI
 runs, so it must pass — but it is **never the proof** that a change works. Two incidents
 define the evidence bar (both recorded in project memory, Jun–Jul 2026):
@@ -30,7 +31,7 @@ observed correct — not when the diff looks right and the build is green.
 **Claims honesty (house rule):** report failures plainly. If you could not verify
 something (preview stalled, route unreachable, subagent killed), say exactly that —
 "built, builds clean, NOT preview-verified because X" — never imply a walk happened
-when it didn't. Unverified work is handed to Eston labeled unverified.
+when it didn't. Unverified work is handed back labelled unverified.
 
 ## When NOT to use this skill
 
@@ -43,7 +44,7 @@ when it didn't. Unverified work is handed to Eston labeled unverified.
 | i18n parity checking mechanics, en/fr/sw key-set tooling | **gloki-i18n-playbook** |
 | DEMO_VERSION semantics, demo-seam behavior, fixture seeding | **gloki-seam-and-demo-data** |
 | Running the FULL decision-gated UI review campaign (a11y/usability/beauty) | **gloki-ui-review-campaign** |
-| "Is this already settled history / a known false alarm?" (PR #20 ✗, stale-cache reports) | **gloki-failure-archaeology** |
+| "Is this already settled history / a known false alarm?" (stale-cache reports, deleted features) | **gloki-failure-archaeology** |
 | Tracing consumers before deleting code | **gloki-refactor-and-dead-code** |
 
 ## The verification recipe
@@ -58,7 +59,7 @@ DESIGN_SYSTEM.md.
 | 2 | Build | `npm run build` | completes clean |
 | 3 | Banned patterns | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` | prints `ALL GATES CLEAN`, exit 0 |
 | 4 | i18n parity | see **gloki-i18n-playbook** (position-agnostic set diff of fr.ts/sw.ts; never `sed \s` on macOS) | fr = sw key sets, `{var}` tokens intact |
-| 5 | Preview walk | every touched route at **360px width**, **light AND dark**, in **en, fr, sw** | layout holds, strings translated, state renders correctly |
+| 5 | Preview walk | every touched route at **360px width**, **light AND dark**, in **en, fr, sw** — and **both states** of a page you touched: `/page` and `/page?demo=true` | layout holds, strings translated, state renders correctly; the demo variant shows `<DemoNotice />` and its links keep `?demo=true` |
 | 6 | Keyboard | Tab through touched interactive elements | reachable, visible focus, Escape closes modals, no focus lost to remounts |
 | 7 | Screen-reader basics | inspect the DOM (a11y snapshot) | sensible labels/roles; dynamic status changes announced (aria-live) |
 | 8 | Single h1 | per touched route | exactly one `<h1>` (normally the `AppHeader` `title`; DESIGN_SYSTEM.md "one-header / one-`<h1>`" rule) |
@@ -71,9 +72,10 @@ Notes on the walk (step 5):
 - Dark mode: emulate `prefers-color-scheme: dark` via the preview resize tool's
   `colorScheme` option.
 - After any **write** action in the flow (vote, post, contribute), confirm the UI
-  updates. The demo seam emits **no `contract_write` events**, so a component that
-  doesn't re-fetch after its own write looks frozen — that is a real bug, not a quirk
-  (see gloki-seam-and-demo-data).
+  updates — in each layer. Demo writes emit **no `contract_write` events**, so a demo variant
+  that doesn't re-fetch after its own write looks frozen; real writes confirm through their event,
+  and a real page should also pick up another person's write (open a second identity in another
+  browser). See gloki-seam-and-demo-data §4.
 
 ## Measure, don't eyeball
 
@@ -103,8 +105,8 @@ Accessibility Notes; product decisions live in gloki-change-control):
 
 ### scripts/grep-gates.sh — the banned-pattern gate
 
-`scripts/grep-gates.sh` in this skill runs three read-only greps, calibrated so the
-baseline at HEAD `c26cdc4` is clean (any hit after your change was introduced by it):
+`scripts/grep-gates.sh` in this skill runs three read-only greps; the trunk is clean, so any hit
+after your change was introduced by it:
 
 1. **`$gray-400` as text colour** — implements DESIGN_SYSTEM.md's documented gate
    (`grep -rn 'color: $gray-400' src --include='*.module.scss'` must match only
@@ -114,15 +116,12 @@ baseline at HEAD `c26cdc4` is clean (any hit after your change was introduced by
    comes from a token in `src/styles/variables.scss`. Hexes in `//` comments are
    ignored. (Literal `rgba(0,0,0,0.5)`-style values are pre-existing debt on 10 lines
    — overlays/shadows — so they are NOT a failing gate; just don't add new ones.)
-3. **Network calls outside `src/services`** — the seam rule (AGENTS.md: components
-   read/write only through `src/services/api.ts`). Flags `fetch(`/`axios`/
-   `new EventSource`/`XMLHttpRequest` anywhere else in `src/`; the only legitimate
-   hits live in `src/services/ai.ts` and `src/services/eventStream.ts`.
-   (Note: components DO legitimately import fixtures/personas from `src/services/demo/`
-   — that is the sanctioned hardcoded-UI pattern, so imports are not gated; network
-   primitives are.)
+3. **Network calls outside `src/services`** — the seam rule: components reach data only through
+   `src/services/`. Flags `fetch(`/`axios`/`new EventSource`/`XMLHttpRequest` anywhere else in
+   `src/`. Imports of `src/services/demo/` are not gated — demo variants (`*.demo.tsx`) use it
+   legitimately, and older components still do for the transitional id-based routing.
 
-Actual output at c26cdc4 (2026-07-02):
+Output on the trunk (2026-10-29):
 
 ```
 $ sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh
@@ -139,33 +138,28 @@ $gray-400`, comment hexes, and `refetch()`.
 
 ### Deploy check one-liners
 
-Push to `ui` **is** a production deploy (Actions workflow "Deploy to GitHub Pages",
-Node 22, `build:prod`). After Eston green-lights a push:
+Until the trunk switch, a push to `server-side` or `ui` deploys both sites (root = `server-side`
+full app, `/demo/` = `ui` beta; **gloki-build-env-run**). After a push you were given a go for:
 
 ```bash
-gh run list --limit 3        # expect: completed  success  <commit msg>  Deploy to GitHub Pages  ui
-curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/   # expect: 200
+gh run list --limit 3        # expect: completed  success  <commit msg>  Deploy to GitHub Pages
+curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/        # expect: 200
+curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/demo/   # expect: 200
 ```
 
-Both verified working 2026-07-02. Two non-alarms (full stories in
-gloki-failure-archaeology): PR #20's red ✗ is an expected merge conflict with Ouri's
-diverged `main`, NOT a build failure; and a post-deploy "click anywhere → error page"
-report is a stale SPA chunk cache — hard refresh, not code.
+A post-deploy "click anywhere → error page" report is a stale SPA chunk cache — hard refresh, not code.
 
 ## Preview-automation lore
 
 Hard-won toolkit for driving the dev server from an AI session with the
-`mcp__Claude_Preview__*` tools. Accumulated across S9–S15; recorded in project memory;
-the mechanics below marked "verified" were re-checked against HEAD c26cdc4.
+`mcp__Claude_Preview__*` tools.
 
 **Start:** `preview_start` with server name `gloki-dev` (defined in the gitignored
-`.claude/launch.json`: `npm run dev`, port 5173, autoPort). See gloki-build-env-run
-for launch details.
+`.claude/launch.json`: `npm run dev`; the dev port is 7173). See gloki-build-env-run.
 
-**1. Seed auth via localStorage BEFORE navigating.** Real login cannot complete in the
-sandbox (`AuthContext.login` awaits a real-server SSE stream). Instead seed the exact
-shape AuthContext reads (verified at HEAD: key `user`, fields `publicKey`+`serverUrl`,
-key must be exactly 64 alphanumerics per `LoginPage.validatePublicKey`):
+**1. Seed auth via localStorage BEFORE navigating** when no node is reachable (real login awaits a
+real-server SSE stream). Seed the exact shape AuthContext reads (key `user`, fields
+`publicKey`+`serverUrl`; the key must be 64 alphanumerics per `LoginPage.validatePublicKey`):
 
 ```js
 localStorage.setItem('user', JSON.stringify({
@@ -174,9 +168,13 @@ localStorage.setItem('user', JSON.stringify({
 })); location.href = '/';
 ```
 
-Corollary: the demo user (`'a' × 64`) **authors nothing** in the seed — author-only UI
-branches (edit/withdraw/accept-modification) are unreachable without injecting a
-self-authored item first.
+Two consequences:
+
+- A seeded identity has **no profile contract** on the server, so `/` redirects it to `/welcome`
+  (the first-run check reads the real profile). Demo variants (`?demo=true`) and demo communities
+  still render; for real pages, log in for real against a local node (**gloki-build-env-run**).
+- The demo user **authors nothing** in the seed — author-only UI branches are unreachable without
+  creating or injecting a self-authored item first.
 
 **2. React controlled inputs need the native-setter trick.** Setting `.value` directly
 does nothing (React overrides the property). Use the prototype setter + a bubbling
@@ -297,24 +295,13 @@ panel (S6–S9), and even session prompts (S10–S15). A finding is a hypothesis
 
 ## Provenance and maintenance
 
-Verified 2026-07-02 @ commit `c26cdc4` (branch `ui`) unless noted. Incidents marked
-"recorded in project memory" carry their session/date inline.
+Updated 2026-10-29 on branch `unified`. Re-verify before relying on these:
 
 | Fact | Re-verify with |
 |---|---|
-| Verify-before-done line (tsc, build, 360px, dark, keyboard/SR) | `grep -n 'Verify before' MASTER_TODO.md` (line 84) |
-| Two north stars wording | `sed -n '9,22p' MASTER_TODO.md` |
-| `$gray-400` gate + `$primary` 3.68:1 accepted deviation | `grep -n 'gray-400\|3.68' DESIGN_SYSTEM.md` (lines 115, 408–409) |
-| 44px targets, 360px flagship, one-h1 rule | `grep -n '44\|360px\|one per page' DESIGN_SYSTEM.md` |
-| grep-gates baseline clean | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` |
-| Auth localStorage shape (`user`, publicKey 64 alnum, serverUrl) | `grep -n localStorage src/contexts/AuthContext.tsx; sed -n '59,64p' src/pages/LoginPage.tsx` |
-| Review-tier docs exist | `ls docs/session-prompts/REVIEW-*.md` |
-| Deploy green + live site 200 | `gh run list --limit 3` and the curl one-liner above |
-| DEMO_VERSION currently `global-v16` | `grep -n DEMO_VERSION src/services/demo/mockApi.ts` (line 17) |
-
-Volatile/labeled items: the preview-lore points 3, 5, 6, 7, 8 are **recorded practice
-from project memory (S9–S15)**, not re-executed at c26cdc4 — trust them as strong
-priors and re-observe if behavior differs. The local panel's availability (RAM, API
-keys) drifts; its false-positive record is historical (S6–S9) — recalibrate only if
-Eston asks to run it. Literal-`rgba` debt count in module.scss may drift:
-`grep -rnE 'rgba\( *[0-9]' src --include='*.module.scss' | wc -l` (10 at c26cdc4).
+| Gates clean on the trunk | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` |
+| Auth seed shape | `grep -n "localStorage.setItem('user'" src/contexts/AuthContext.tsx` |
+| First-run check | `grep -n digitalAgentProfile src/App.tsx` |
+| Dev port | `grep -n port vite.config.ts` |
+| Pages with two states | `git ls-files '*.demo.tsx'` |
+| Contrast helper | `ls .agents/skills/gloki-verification-and-qa/scripts/contrast-eval.js` |

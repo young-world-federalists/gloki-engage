@@ -2,7 +2,27 @@
 
 Companion to [CLAUDE.md](./CLAUDE.md) — the app's structure, flows, learnings, and known
 limitations. (CLAUDE.md holds the stack, branch model, key patterns, routing, and deployment;
-the design system is [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).)
+[docs/DEMO_MODE.md](docs/DEMO_MODE.md) the real/demo page structure; the design system is
+[DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).)
+
+## Data layers
+
+The app runs on two data layers, chosen **per page** by the URL ([docs/DEMO_MODE.md](docs/DEMO_MODE.md)):
+
+- **Real** (the default): IBC nodes, through `src/services/` — `api.ts` (`*OnChain`, and
+  `contractRead`/`contractWrite` routed by `contractHosts.ts`), `services/contracts/`,
+  `verificationRegistry.ts`, `applicationSettings.ts`. Real contracts: `gloki_engage_community_contract.py`
+  (details + initiative references; membership = the contract's partners),
+  `gloki_engage_initiative_contract.py` (every stage on one contract; members don't join it, calls go
+  through the creator's agent with the member's key as `agent`), `digital_agent_contract.py` (profile),
+  `gloki_verification_contract.py` (app-wide verified list, on the founder's agent) and
+  `gloki_engage_application_settings.py` (on the central application account; says where the
+  verification contract lives).
+- **Demo** (`?demo=true`, and pages not split yet): `src/services/demo/` — mock contracts in browser
+  storage, fixtures, personas. The `community_contract.py`, `chat_contract.py`, `discussion_contract.py`,
+  `concerns_contract.py` flows and the per-stage sub-contract registry described below run here. Where
+  a section below says "on-chain", it means the demo layer's mock chain unless it names a real contract
+  above.
 
 ## App Structure
 
@@ -21,7 +41,7 @@ the design system is [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).)
 - All stage flows use shared contracts via `parentContractId={collaborationId}`
 - `ConvictionStaking` flow for mandate stage: time-weighted staking with duration multipliers (1w=1x to 1y=12x), country breakdown
 
-**Identity** (`IdentityView.tsx`): At `/identity/*`, default `/identity/communities`. Communities list with "Your Communities" title/description, single-column cards with description, member count (Users icon), mandate count (ScrollText icon), star/hide controls (high-contrast buttons), and "Create a community" dashed card linking to `/create-community`. Profile page with identity info hints. Join page with tutorial text. About, Contact pages.
+**Identity** (`IdentityView.tsx`): At `/identity/*`, default `/identity/communities`. Communities list (two states: the real list, `Communities.tsx`; the seeded demo communities at `?demo=true`, `Communities.demo.tsx`) with "Your Communities" title/description, single-column cards with description, member count (Users icon), mandate count (ScrollText icon), star/hide controls (high-contrast buttons), and "Create a community" dashed card linking to `/create-community`. Profile page with identity info hints. Join page with tutorial text. About, Contact pages.
 
 **Create Initiative** (`CreateInitiativePage.tsx`): Full onboarding page at `/community/:communityId/create-initiative`. Educates users with "What is an Initiative?", 5-stage stepper, tips, then form (title, description, evidence URLs, countries). Replaces the old `CreateInitiativeDialog` modal.
 

@@ -5,6 +5,7 @@ description: Use when reading or updating any Gloki/Communities2 doc of record �
 
 # Gloki docs & writing — the docs of record and house style
 
+
 ## Overview
 
 **Core principle: doc drift is this project's recurring, documented failure mode.
@@ -27,14 +28,12 @@ sessions with zero other context.
 
 Two vocabulary notes used throughout (defined once here):
 
-- **Seam** — the rule that all UI data access goes through `src/services/api.ts`,
-  currently backed by the `src/services/demo/` stub layer. The backend hand-off
-  doc for that boundary is `docs/FOR_OURI_seam.md` (Ouri = the backend partner
-  who wires real server calls on his own branch).
-- **Wire names** — contract method/field names (`add_proposal`, `proposal_id`…)
-  that must byte-match Ouri's real Python contracts even where the UI vocabulary
-  differs ("Solutions" in the UI, `proposal` on the wire). Docs must never
-  "correct" wire names to match UI vocabulary.
+- **Real / demo variant** — every page has two states: `/page` on the real network and
+  `/page?demo=true` on demo data (`docs/DEMO_MODE.md`). Data access goes only through
+  `src/services/` (real) or `src/services/demo/` (demo).
+- **Wire names** — contract method/field names, which byte-match the real contracts even where the UI
+  vocabulary differs ("Solutions" in the UI, `proposal` on the wire). `docs/FOR_OURI_seam.md` records
+  them. Docs must never "correct" wire names to match UI vocabulary.
 
 ## When NOT to use this skill
 
@@ -55,54 +54,47 @@ Precedence, highest first. **When a lower doc disagrees with a higher one, the
 higher doc wins. And "re-ground vs HEAD" beats all docs** — if the code at HEAD
 disagrees with even CLAUDE.md, the code is the current truth and the doc has
 drifted (fix the doc, don't "fix" the code to match it, unless the doc records a
-deliberate decision — then ask Eston).
+deliberate decision — then ask).
 
-| Rank | Doc | Role | Trust level at 2026-07-02 |
-|---|---|---|---|
-| 1 | `CLAUDE.md` | Agent instructions: stack, branch model, seam rule, key patterns, routing, deployment | Current. One known gap: its routing block omits the live `/mandate/:communityId/:mandateId/*` route (verified in `src/App.tsx:123`) |
-| 2 | `DESIGN_SYSTEM.md` | UI law — tokens, primitives, a11y gates, accepted deviations. Reviewers reject diffs that violate it | Current. One dated note: its "country proper nouns render canonical-English" line predates S14's locale-aware `getCountryName(code, locale)` |
-| 3 | `docs/FOR_OURI_seam.md` | Backend seam truth — every demo-stubbed contract method/field the UI relies on, for Ouri to implement for real | Authoritative in intent, **stale in fact** — see §2 |
-| 4 | `MASTER_TODO.md` | Living strategy doc: north stars (§1), mission (§2), working model (§4), persona panel (§5), deferred list (§6), roadmap (§7), changelog (§8) | Current — it is updated at every session close |
-| 5 | `ARCHITECTURE.md` | App structure, the 8 blockchain-backed flows, contract learnings, known limitations | Useful but **demonstrably stale in places** — see §2. Its "Architecture Learnings" and "Known Limitations" sections remain the best single source for contract quirks |
-| 6 | `docs/LANES.md` | Retired parallel-lane model, kept **only** as a feature→files map + surviving conventions (says so itself, lines 3–6) | Map only. Never take process or routing claims from it |
-| — | `AGENTS.md` | Explicitly defers wholly to CLAUDE.md ("Don't duplicate project guidance here") | Never edit it with guidance; edit CLAUDE.md |
-| — | `README.md` | Entry point: run commands + pointers | Current |
+| Rank | Doc | Role |
+|---|---|---|
+| 1 | `CLAUDE.md` | Agent instructions: stack, branch model, seam rule, key patterns, routing, deployment |
+| 1 | `docs/DEMO_MODE.md` | The structure: one app on the real network, two states per page (`?demo=true`), the rules, and every page's current state |
+| 2 | `DESIGN_SYSTEM.md` | UI law — tokens, primitives, a11y gates, accepted deviations. Reviewers reject diffs that violate it |
+| 3 | `docs/FOR_OURI_seam.md` | Contract methods and fields the UI relies on — demo behaviour and what the real contract provides, by stage, plus dated addenda for what has been built |
+| 4 | `MASTER_TODO.md` | Living strategy doc: north stars (§1), mission (§2), working model (§4), persona panel (§5), deferred list (§6), roadmap (§7), changelog (§8) |
+| 5 | `ARCHITECTURE.md` | App structure, the data layers, flows, contract learnings, known limitations. Its flow sections describe the demo layer's contracts unless they name a real one |
+| 6 | `docs/LANES.md` | Feature→files map + surviving conventions (its parallel-lane process is retired) |
+| — | `AGENTS.md` | Defers wholly to CLAUDE.md — never put guidance there |
+| — | `README.md` | Entry point: run commands + pointers |
 
 Other doc locations (not in the precedence chain, each with one job):
 
 | Location | Job |
 |---|---|
-| `docs/superpowers/specs/` | **The current spec library** — 24 dated design specs `YYYY-MM-DD-<slug>-design.md` (latest: `2026-07-02-p55-generalize-gloki-design.md`). New specs go HERE |
-| `docs/superpowers/plans/` | Dated implementation plans (21 files), paired with specs |
+| `docs/superpowers/specs/` | **The current spec library** — dated design specs `YYYY-MM-DD-<slug>-design.md`. New specs go HERE |
+| `docs/superpowers/plans/` | Dated implementation plans, paired with specs |
 | `docs/specs/` | Legacy — only 2 files from 2026-06-18. Do NOT add new specs here |
-| `docs/session-prompts/` | One prompt per session (`session-N-<slug>.md`) + review-workflow docs (`REVIEW-WAVE.md`, `REVIEW-AND-REFACTOR-WORKFLOW.md`, `REVIEW-STRUCTURE.md`). Also full of retired batch/lane/wave prompts — historical |
-| `docs/i18n-native-review-candidates.md` | The human-gated fr/sw native-review packet (append-only per session, ~795 lines) |
-| `docs/archive/` | Retired backend-era docs (PRD/SDD/SSE = Ouri's track; `SDD.md` has the authoritative contract-API description) + `WAVE_1_HISTORY.md` |
-| Project auto-memory (`MEMORY.md` index + `project_*.md` files, surfaced in each session's context) | Cross-session institutional memory — one file per session/arc, indexed |
+| `docs/session-prompts/` | One prompt per session (`session-N-<slug>.md`) + review-workflow docs (`REVIEW-WAVE.md`, `REVIEW-AND-REFACTOR-WORKFLOW.md`, `REVIEW-STRUCTURE.md`). Prompts written before 2026-10-29 assume the two-branch model; batch/lane/wave prompts are historical |
+| `docs/contracts/` | Contract patch files from the two-branch era — applied; kept as the record of what changed |
+| `docs/i18n-native-review-candidates.md` | The human-gated fr/sw native-review packet (append-only per session) |
+| `docs/archive/` | Retired docs (PRD/SDD/SSE; `SDD.md` describes the original contract API) + `WAVE_1_HISTORY.md` |
+| Per-developer auto-memory (each person's `MEMORY.md` index + memory files, outside the repo) | Cross-session memory for that developer's sessions |
 
-## 2. Known staleness at HEAD (verified 2026-07-02 @ `c26cdc4`)
+## 2. Known staleness (verified 2026-10-29)
 
 Do not "learn" these stale claims, and do not re-report them as new discoveries.
-Fixing them is real work — recommend it to Eston, don't silently rewrite mission
-or decision text (see gloki-change-control).
 
 | Doc & place | Stale claim | Current truth |
 |---|---|---|
-| `ARCHITECTURE.md` (Navigation, line ~9) | StageFooter = "5 stage icons (Problem, Discussion, Proposals, Vote, Mandate)" | Superseded by the S10 locked IA: StageFooter is a demoted **"Browse by stage"** nav with **4** browseable stages (Problem/Solutions/Vote/Mandate); Discussion is per-post, no `/stage/discussion` feed. See `DESIGN_SYSTEM.md` line ~344 |
-| `ARCHITECTURE.md` (line ~11) + `docs/LANES.md` route map | "Default landing page at `/stage/problem`" | `/` → HomeView (first-run users → `/welcome`). CLAUDE.md routing is correct |
-| `ARCHITECTURE.md`, stage vocabulary | "Proposals" as a stage/UI name | UI vocabulary is "Solutions" app-wide; **wire names stay `proposal`** (FOR_OURI_seam.md's "one rule") |
-| `docs/FOR_OURI_seam.md` | Claims to list *every* seam method, but was last touched at S7 (`27f24b3`, 2026-06-29) | **Missing the S13 additions**: `set_property`/`get_properties` on the **initiative** contract + the `mandate_ratification` JSON property written by `src/services/mandateRatification.ts` (verified: that file calls both at lines 18/36; zero hits for either in FOR_OURI_seam.md). First candidate fix whenever you touch that doc |
-| `docs/session-prompts/README.md` (status table, line ~77) | "Foundation batch-2 ⏳ Next" + the whole parallel-lane/worktree model | That model is retired (LANES.md:3–6). Sessions are single, sequential, on `ui` |
-| `docs/session-prompts/next-session.md` | "Wave 1 is ready to build — that's your job" | Stale 2026-06-20 artifact from the hierarchy/a11y arc. The real next-session prompt is always the highest-numbered `session-N-*.md` |
-| `CLAUDE.md` routing block | (omission) no `/mandate/...` route listed | Route exists at `src/App.tsx:123` |
+| Session prompts dated before 2026-10-29 | `ui` = stubs, `server-side` = real, "push to `ui`", Eston's push gate | One trunk, two states per page (`docs/DEMO_MODE.md`); pushes need an explicit go from whoever you work for |
+| `docs/session-prompts/README.md` (status table) | "Foundation batch-2 ⏳ Next" + the parallel-lane/worktree model | Retired. The real next-session prompt is the highest-numbered `session-N-*.md` |
+| `docs/session-prompts/next-session.md` | "Wave 1 is ready to build" | A 2026-06-20 artifact |
+| `ARCHITECTURE.md` flow sections | Flows "on-chain" via `chat_contract.py`, `concerns_contract.py`, stage sub-contracts | Those run on the demo layer; see its "Data layers" section |
+| `docs/FOR_OURI_seam.md` addenda | Written per session in the two-branch era ("on `ui`", "FOR OURI") | Read "on `ui`" as the demo variant and "on `server-side`" as the real one; each addendum marks what was built for real |
 
-Quick re-verification one-liners for the two biggest:
-
-```bash
-grep -n "5 stage icons\|/stage/problem" ARCHITECTURE.md          # stale nav claims still present?
-git log -1 --oneline -- docs/FOR_OURI_seam.md                    # still 27f24b3 ⇒ S13 seam gap still open
-grep -c "set_property" docs/FOR_OURI_seam.md                     # 0 ⇒ gap still open
-```
+Fixing structural/factual drift in living docs is routine. Mission, KPI or decision text: recommend,
+don't rewrite (**gloki-change-control**).
 
 ## 3. What must be updated when (the update-trigger table)
 
@@ -117,8 +109,8 @@ commit as the code change, so the doc can never silently lag.
 | Prepare the next session | New `docs/session-prompts/session-N-<slug>.md` **with the mandatory "Re-verify these premises vs HEAD" section** | Anatomy in §5.2. A prompt without that section is malformed — premises go stale between sessions, guaranteed |
 | Lock a design during brainstorm | New spec in `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` (+ plan in `docs/superpowers/plans/`) | NOT `docs/specs/` (legacy). Specs are historical records — never edit an old spec to match new reality; write a new one or a dated addendum commit (S15 precedent: `f4c65f5 docs(s15): spec note — …`) |
 | Change fixtures/seed data | `DEMO_VERSION` decision + note it in the §8 changelog entry ("no DEMO_VERSION bump" is also stated explicitly) | Bump rules live in **gloki-seam-and-demo-data** |
-| Notice a doc contradicting HEAD | Fix the doc if it's a factual/structural claim; **ask Eston** if it's mission, KPI, or decision text | S15 precedent: MASTER_TODO §1–2 mission reframe was an Eston-directed workstream (P5.5), not a hygiene edit |
-| During a long multi-task session | Compact and save implementation status to project `CLAUDE.md` | Eston's standing preference (recorded Apr 2026) so interrupted sessions resume cleanly |
+| Notice a doc contradicting HEAD | Fix the doc if it's a factual/structural claim; **ask** if it's mission, KPI, or decision text; if it's user-facing behaviour that changed, mark it `REVIEW NEEDED (date)` and leave it visible | S15 precedent: MASTER_TODO §1–2 mission reframe was an Eston-directed workstream (P5.5), not a hygiene edit |
+| During a long multi-task session | Save implementation status to the plan doc before compaction | So interrupted sessions resume cleanly |
 
 **Open work lives in MASTER_TODO.md §7, never in code comments.** The src tree
 has zero real TODO/FIXME/HACK markers (verified: the only grep hit is a comment
@@ -144,9 +136,8 @@ Format (verified against the last 25 commits at HEAD):
 | `docs:` (no scope) | Session prompts (written before the session number's work starts) | `docs: Session 15 prompt — card-cohesion audit + P5.5 generalize Gloki` |
 
 `sNN` = the session number. Ship in small, self-contained commits, each leaving
-`ui` runnable (MASTER_TODO §4). Committing locally is routine; **pushing is not**
-— push to `ui` is a production deploy of the live demo and requires Eston's
-explicit green light every time (see **gloki-change-control**).
+the trunk runnable (MASTER_TODO §4). Committing locally is routine; **pushing is not**
+— it needs an explicit go every time (see **gloki-change-control**).
 
 ### 4.2 Claims-honesty doctrine (applies to ALL user-facing and doc copy)
 
@@ -156,9 +147,9 @@ Established in S9 (P0 "claims honesty" blocker, recorded in project memory
 - **Under-claim, never over-claim.** Disclosure copy states only what is true of
   the *current* implementation — e.g. the ballot/composer "what's public" lines
   deliberately make no secrecy or permanence promises the demo can't keep.
-- **Demo affordances are labeled `(demo)`** where the mechanism isn't real yet.
-  Live example: `src/components/community/IdentityTrust.tsx:94` —
-  `t('trust.meetMember', 'Meet a member (demo)')`.
+- **Demo is always labelled.** Every demo variant opens with `<DemoNotice />` ("Demo: this page shows
+  sample data…"), and simulated paths say they're simulated (e.g. the verification call and daily
+  session).
 - **No trust-faking.** When the demo needs to open a gated path, do it honestly
   through the real mechanism (S9 seeded `set_stage_permissions: 'anyone'` on one
   community) — never by faking the user's verification/trust level.
@@ -203,7 +194,7 @@ the real S13–S15 entries:
   stale, say exactly how — S14/S15 both did>. Shipped: <the concrete artifacts — components,
   hooks, seam methods — with backtick names>. <DEMO_VERSION note: "`vN→vN+1`" or explicitly
   "**no `DEMO_VERSION` bump** (no fixtures touched)">. <i18n note: "+K keys at fr/sw parity,
-  appended to the native-review packet">. Built <directly | subagent-driven> on `ui`
+  appended to the native-review packet">. Built <directly | subagent-driven> on <branch>
   (<M> commits `<first>..<last>`); <review gate result, e.g. "Opus whole-branch review:
   0 Crit / 0 Imp">; preview-verified 360px light+dark. **Deferred:** <tail items, filed
   in §7>. ★ Learning: <the one thing the next session must know>.
@@ -218,7 +209,7 @@ gold standard — read it before writing a new one):
 ```markdown
 # Session <N> — <Title>
 
-Paste into a fresh Claude Code session in the Communities2 repo (branch `ui`). <One-paragraph
+Paste into a fresh Claude Code session in the Communities2 repo (the trunk, or the named branch). <One-paragraph
 framing: what this session is and is NOT; current HEAD sha and what's deployed.>
 
 ## <Phase / task sections>
@@ -234,11 +225,11 @@ S15's "Do not 'restore' anything by reverting shipped feature work".>
 - <Specs, DESIGN_SYSTEM sections, live source files (marked "source of truth"), memory files.>
 
 ## Workflow + constraints (same discipline as S1–S<N-1>)
-- <brainstorm → spec → plan → build → review-gate chain; slow-drive I/O note; seam rule;
-  tokens-only; i18n parity commands; DEMO_VERSION rule; "Confirm any push to `origin/ui`
-  with Eston first"; "PR #20's ✗ vs main is expected Ouri divergence".>
+- <brainstorm → spec → plan → build → review-gate chain; seam rule and which pages get a demo
+  variant or a real side; tokens-only; i18n parity commands; DEMO_VERSION rule; "confirm any push
+  first".>
 
-## Open decisions to lock (<who decides: these are Eston's calls>)
+## Open decisions to lock (<who decides: product calls are Eston's, real-network design is Ouri's>)
 1. <Each open decision, with the recommended option marked "(recommended)".>
 
 When ready: <the first concrete action>.
@@ -285,7 +276,7 @@ metadata:
   type: project
 ---
 
-Session <N> (date), branch `ui`. <Outcome summary with commit range and review result.>
+Session <N> (date), branch <branch>. <Outcome summary with commit range and review result.>
 Continues [[project_session<N-1>_…]].
 
 <Per-workstream paragraphs, bold key facts.>
@@ -298,7 +289,7 @@ Plus one line in `MEMORY.md`'s index:
 ## 6. Stale-doc hygiene — the pre-hand-off checklist
 
 Run this before acting on any doc ≥1 session old, and before giving any doc to
-Eston, Ouri, or a human reviewer:
+Eston, Ouri, or another human reviewer:
 
 - [ ] **Re-ground vs HEAD first**: for each factual premise, grep the actual
       file it describes. The doc is a map, not proof.
@@ -306,43 +297,34 @@ Eston, Ouri, or a human reviewer:
 - [ ] Cited file paths still exist (`ls` them — components get recomposed;
       S7 deleted ~1712 lines of a dormant subsystem).
 - [ ] Cited routes match `src/App.tsx`.
-- [ ] Cited contract methods match `src/services/demo/demoContracts/*` (and
-      remember wire names never follow UI renames).
+- [ ] Cited contract methods match the real contracts (`src/assets/contracts/*.py`) and the demo
+      handlers (`src/services/demo/demoContracts/*`); wire names never follow UI renames.
 - [ ] Status claims ("next", "pending", "greenfield") checked against
       MASTER_TODO §7 and `git log` — these rot fastest.
 - [ ] If you found drift: fix factual drift in place (strike-through + label in
-      hand-off docs; edit in living docs); escalate decision/mission drift to
-      Eston (recommend-then-confirm, never a unilateral rewrite).
+      hand-off docs; edit in living docs); escalate decision/mission drift
+      (recommend-then-confirm, never a unilateral rewrite).
 
 And the standing warnings that save future sessions from re-debugging:
 
-- PR #20 (`ui`→`main`) showing ✗ is **expected** merge-conflict divergence with
-  Ouri's real-server layer, NOT a build failure — reassure, don't debug (this
-  confusion recurred ≥3 times).
-- `ui`→`main` landing belongs to Ouri; never write docs that instruct merging it.
 - Retired docs (LANES.md process text, session-prompts/README.md wave tables,
   next-session.md) are historical; quoting them as current process is the exact
   drift this skill exists to stop.
 
 ## Provenance and maintenance
 
-All facts verified 2026-07-02 against branch `ui` @ commit `c26cdc4` unless
-labeled otherwise. Incident details (S8 stale refs, S9 claims-honesty, S10–S15
-stale premises) are from project memory, recorded Jun–Jul 2026. Volatile facts
-and their one-line re-verification commands:
+Updated 2026-10-29 on branch `unified`. Re-verify volatile facts:
 
 | Fact | Re-verify with |
 |---|---|
-| Commit-prefix house style (`feat(sNN):` etc.) | `git log --oneline -15` |
+| Commit-prefix house style | `git log --oneline -15` |
 | §7/§8 structure and changelog format | `grep -n "^##" MASTER_TODO.md` then read §8's top entry |
-| Latest session prompt = current template | `ls docs/session-prompts/` — take the highest `session-N-*.md` |
-| Current spec library is `docs/superpowers/specs/` | `ls docs/superpowers/specs \| tail -3` (dated ≥ 2026-07) |
-| FOR_OURI_seam.md still missing S13 `set_property` seam | `grep -c "set_property" docs/FOR_OURI_seam.md` (0 = still open) and `git log -1 --oneline -- docs/FOR_OURI_seam.md` (still `27f24b3` = untouched since S7) |
-| ARCHITECTURE.md nav staleness still uncorrected | `grep -n "5 stage icons" ARCHITECTURE.md; grep -n "/stage/problem" ARCHITECTURE.md` |
-| i18n packet last-verified marker & tail format | `head -5 docs/i18n-native-review-candidates.md` and `tail -40` of it |
-| "(demo)" label example still live | `grep -rn "(demo)" src/components/community/IdentityTrust.tsx` |
-| Zero code TODOs rule still holds | `grep -rn -e TODO -e FIXME -e HACK src --include="*.ts" --include="*.tsx"` — only expected hit: the `src/App.tsx:19` comment pointing at MASTER_TODO §10 |
+| Latest session prompt | `ls docs/session-prompts/ \| sort -V \| tail` |
+| Current spec library | `ls docs/superpowers/specs \| tail -3` |
+| Page states documented | the table in `docs/DEMO_MODE.md` vs `git ls-files '*.demo.tsx'` |
+| Open review markers | `grep -rn "REVIEW NEEDED" .claude/skills docs *.md` |
+| i18n packet format | `head -5 docs/i18n-native-review-candidates.md` and its tail |
+| Zero code TODOs | `grep -rn -e TODO -e FIXME -e HACK src --include="*.ts" --include="*.tsx"` |
 
-If a re-verify command shows drift, update THIS skill's §2 table in the same
-change — a stale-docs skill that is itself stale is the failure mode it warns
-about.
+If a re-verify command shows drift, update THIS skill's §2 table in the same change — a stale-docs skill
+that is itself stale is the failure mode it warns about.

@@ -7,7 +7,9 @@ import { fetchGlokiEngageCommunityDetails } from '../../store/slices/communities
 import { isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
 import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
+import { useDemoMode } from '../../hooks/useDemoMode';
 import { useI18n } from '../../i18n';
+import CommunitiesDemo from './Communities.demo';
 import styles from './Communities.module.scss';
 
 interface CommunitiesProps {
@@ -21,7 +23,8 @@ const formatCreatedDate = (value: unknown, locale: string): string | null => {
   return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
-const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
+/** The real page: the gloki-engage communities this identity holds, read from the network. */
+const CommunitiesReal: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
   const { locale, t } = useI18n();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -241,5 +244,12 @@ const Communities: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
     </div>
   );
 };
+
+/**
+ * /identity/communities and /identity/hidden. Two states per URL
+ * (docs/DEMO_MODE.md): the real page, or with ?demo=true the demo variant.
+ */
+const Communities: React.FC<CommunitiesProps> = (props) =>
+  useDemoMode() ? <CommunitiesDemo {...props} /> : <CommunitiesReal {...props} />;
 
 export default Communities;

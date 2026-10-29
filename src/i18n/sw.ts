@@ -16,6 +16,8 @@ const sw: Dictionary = {
   'common.continue': 'Endelea',
   'common.back': 'Rudi',
   'common.retry': 'Jaribu tena',
+  'demoMode.notice': 'Demo: ukurasa huu unaonyesha data ya mfano. Hakuna unachofanya hapa kinachofika kwenye mtandao.',
+  'demoMode.showReal': 'Onyesha data halisi',
   'common.submit': 'Wasilisha',
   'common.submitting': 'Inawasilisha…',
   'common.loading': 'Inapakia…',

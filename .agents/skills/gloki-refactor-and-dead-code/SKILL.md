@@ -5,15 +5,16 @@ description: Use when deleting, refactoring, or "cleaning up" anything in the Co
 
 # Gloki Refactor & Dead-Code Playbook
 
+
 ## Overview
 
 **Core principle: in this repo, `tsc` proves nothing about deletion safety — grep of the consumer graph is the real gate.**
 
-Why: there is **no test framework** (per AGENTS.md), and the TypeScript config (`noUnusedLocals: true`) only flags unused *locals inside a file* — an entire exported hook with zero importers compiles green forever. Meanwhile every feature here is a **vertical chain**: component → hook → flow-api wrapper → the seam (`src/services/api.ts`, the single data boundary every component reads/writes through) → demo contract handler (`src/services/demo/demoContracts/*.ts`) → fixture (`src/services/demo/fixtures/*.ts`) → seeder (`seedDemoCommunity.ts`). Deleting one link orphans the rest of the chain *silently*, and conversely a link that "looks dead" may be held live by a consumer three layers away.
+Why: there is **no test framework** (per CLAUDE.md), and the TypeScript config (`noUnusedLocals: true`) only flags unused *locals inside a file* — an entire exported hook with zero importers compiles green forever. Meanwhile every feature here is a **vertical chain**: component → hook → flow-api wrapper → the seam (`src/services/api.ts`, the single data boundary every component reads/writes through) → demo contract handler (`src/services/demo/demoContracts/*.ts`) → fixture (`src/services/demo/fixtures/*.ts`) → seeder (`seedDemoCommunity.ts`). Deleting one link orphans the rest of the chain *silently*, and conversely a link that "looks dead" may be held live by a consumer three layers away.
 
 Historical proof (S7 sweep, 2026-06-29): the initial audit said "4 components + 3 fixtures + 4 methods." Consumer-graph tracing showed the true dead set was **~3× bigger (~2,200 deleted lines)** — and also that several "obviously dead" exports were live. Both errors in one audit.
 
-Environment constraint that shapes every recipe below: the repo sits on a **slow external USB drive, flaky under parallel I/O**. Greps must be targeted (`src` only, specific `--include` globs), sequential, and must **never** scan `node_modules/` or `dist/`. macOS AppleDouble files (`._Foo.tsx` metadata twins created by the exFAT drive) pollute `find` output — always exclude `! -name '._*'` (a verified sweep run on 2026-07-02 returned 110 false "orphans", every one a `._*` file).
+Environment constraint that shapes every recipe below: on Eston's Mac the repo sits on a **slow external USB drive, flaky under parallel I/O**. Greps must be targeted (`src` only, specific `--include` globs), sequential, and must **never** scan `node_modules/` or `dist/`. macOS AppleDouble files (`._Foo.tsx` metadata twins created by the exFAT drive) pollute `find` output — always exclude `! -name '._*'` (a verified sweep run on 2026-07-02 returned 110 false "orphans", every one a `._*` file).
 
 ## When NOT to use this skill
 
@@ -39,8 +40,6 @@ Never delete based on an audit list, a reviewer note, or a name that "sounds dor
 For each symbol/file X you plan to delete:
 
 ```bash
-cd "/Volumes/2TB Drive/💪Work & Volunteer/🔵 gloki/Gloki Build/Communities2"
-
 # 1. Who references X by name (imports, JSX usage, re-exports — all of it)
 grep -rln "SymbolName" src --include="*.ts" --include="*.tsx"
 ```
@@ -49,7 +48,7 @@ Name-based grep, not import-path grep — it catches barrel re-exports, aliased 
 
 ```bash
 # 2. Chase the chain down through the seam. If X called a contract method,
-#    grep the wire method name (snake_case, matches Ouri's real contract):
+#    grep the wire method name (snake_case, matches the real contract):
 grep -rln "get_positions" src --include="*.ts" --include="*.tsx"
 ```
 
@@ -65,8 +64,8 @@ Step 3 is what saves you from over-deletion. In S7, `deliberationParticipant` lo
 
 ```bash
 # 4. If fixtures/seed lines die, check whether the seeded data SHAPE changes.
-#    If yes → DEMO_VERSION bump (src/services/demo/mockApi.ts:17, 'global-v16'
-#    at time of writing) so returning visitors reseed. Details: gloki-seam-and-demo-data.
+#    If yes → DEMO_VERSION bump (src/services/demo/mockApi.ts) so returning
+#    visitors reseed. Details: gloki-seam-and-demo-data.
 grep -n "DEMO_VERSION" src/services/demo/mockApi.ts
 ```
 
@@ -168,11 +167,11 @@ done
 ```bash
 # 1. Search commit history for the feature vocabulary (lane/batch/wave/session
 #    era names are in commit subjects):
-git log --oneline -i --grep='offline' ui | head -20
-git log --oneline -i --grep='Lane ' ui | head -20
+git log --oneline -i --grep='offline' | head -20
+git log --oneline -i --grep='Lane ' | head -20
 
 # 2. Check the surviving dev-lab route and its showcase components:
-grep -n "lab/presence" src/App.tsx        # → /lab/presence at src/App.tsx:124
+grep -n "lab/presence" src/App.tsx
 ls src/components/shared/presence/ src/components/shared/connectivity/
 
 # 3. Check the lane inventory doc:
@@ -196,9 +195,9 @@ When Eston (or you) feels a design "has been diluted as stuff was added," the in
 Discipline points:
 
 - **Audit before sweeping.** Assume concentration, not app-wide decay, until the audit says otherwise.
-- **The repo has ZERO revert commits across all 443 `ui` commits.** The only true revert in the whole repo lives on `archive/blockchain-main` (`963170d`, the QV carry-over data-integrity revert — postmortem in **gloki-failure-archaeology**), and even that concept was later *rebuilt correctly* rather than restored. Reverting is not how this codebase corrects course.
+- **Reverting is not how this codebase corrects course.** The only true revert in the repo's history lives on `archive/blockchain-main` (`963170d`, the QV carry-over data-integrity revert — postmortem in **gloki-failure-archaeology**), and even that concept was later *rebuilt correctly* rather than restored.
 - **Pattern-fit the fold, don't grab the nearest kit part:** `InfoDisclosure` is a *Modal* for rules/explainer prose, NOT an accordion — per-item content folds use an inline expand (button + `aria-expanded` + chevron), the `InitiativeStageCard` dive-on-tap pattern (S15 learning).
-- Recomposition that changes copy still needs fr/sw key parity (S15 added 4 keys, then removed 3 orphaned ones in its own chore commit `c26cdc4`).
+- Recomposition that changes copy still needs fr/sw key parity, and orphaned keys get their own chore commit.
 
 ---
 
@@ -207,7 +206,7 @@ Discipline points:
 Deletions land as a **chain of small, layer-scoped `chore(sN)` commits** (sN = the session number), one commit per layer, ordered top-of-chain → bottom. This keeps each commit independently revertable and reviewable, and makes `git log` a readable record of what died and why. Verify the house pattern yourself:
 
 ```bash
-git log --oneline --grep='chore(s7)' ui
+git log --oneline --grep='chore(s7)'
 # 0afcd8b chore(s7): drop unused loading/derived from useMandate return
 # 2c1dcbf chore(s7): prune 14 dead CSS classes from DiscussionFlow.module.scss
 # 3efeb58 chore(s7): drop positions/anchored seed + PRESENCE_* fixtures; bump DEMO_VERSION global-v12
@@ -219,11 +218,11 @@ git log --oneline --grep='chore(s7)' ui
 
 Checklist per deletion campaign:
 
-- [ ] One commit per layer: components(+scss) / hook / flow-api / demo handler / CSS prune / fixtures+seed. i18n-key removal gets its own chore commit too (`c26cdc4`, `ea2814b`).
+- [ ] One commit per layer: components(+scss) / hook / flow-api / demo handler / CSS prune / fixtures+seed. i18n-key removal gets its own chore commit too.
 - [ ] The fixtures/seed commit carries the **DEMO_VERSION bump** when seeded data shape changes (S7: `3efeb58` bumped v11→v12 in the same commit as the seed deletion). No fixture change → no bump (S14/S15 shipped without one).
 - [ ] Commit subjects state the *reason* ("no live consumers", "superseded by the community feed") — future archaeology depends on it.
 - [ ] After each commit: `npx tsc -b` clean; after the chain: `npm run build` (build runs `tsc -b`) + a preview walk of the *neighboring* surfaces that shared code with the deleted set (**gloki-verification-and-qa**).
-- [ ] Commits stay local until Eston's explicit green light — **push to `ui` is a production deploy** (see **gloki-change-control**).
+- [ ] Commits stay local until an explicit go to push (see **gloki-change-control**).
 
 ---
 
@@ -233,7 +232,7 @@ Not every piece of dead code should be deleted on sight. Two sanctioned patterns
 
 **1. Park-then-sweep (the preferred one).** The dormant deliberation subsystem was *knowingly* left in place by an explicit S3 decision ("decision ⑤", recorded in project memory 2026-06) so that its removal could be a planned, dedicated sweep (S7) rather than a side quest inside a feature session. Likewise Eston has explicitly deferred individual Minors (S7 deferred a useMandate stale-flash fix and two a11y nits by name). **If Eston says leave it, leave it** — record the parked item in MASTER_TODO (see **gloki-docs-and-writing**) so it has a status and an owner, then stop touching it. Do not "helpfully" delete parked code inside an unrelated session.
 
-**2. `src/obsolete/` — the typecheck-blind spot.** `tsconfig.app.json` contains `"exclude": ["src/obsolete"]` (live at HEAD; the convention predates the ui reset — the directory has never had committed contents on any branch). Anything moved there that isn't imported by live code gets **zero `tsc` coverage and rots silently**: it will drift out of sync with every type/API change and give a false sense of "we kept it, we can restore it." Prefer real deletion — **git history IS the archive** (the S7 postmortem components are one `git show e2fce82` away). If you must park files there, treat them as snapshots, not restorable code, and log them in MASTER_TODO.
+**2. `src/obsolete/` — the typecheck-blind spot.** `tsconfig.app.json` contains `"exclude": ["src/obsolete"]` (the directory has never had committed contents). Anything moved there that isn't imported by live code gets **zero `tsc` coverage and rots silently**: it will drift out of sync with every type/API change and give a false sense of "we kept it, we can restore it." Prefer real deletion — **git history IS the archive** (the S7 postmortem components are one `git show e2fce82` away). If you must park files there, treat them as snapshots, not restorable code, and log them in MASTER_TODO.
 
 Decision table:
 
@@ -247,22 +246,42 @@ Decision table:
 
 ---
 
+## Recipe 7 — Removing a page's demo variant
+
+Every page can have a demo variant (`Page.demo.tsx`, `docs/DEMO_MODE.md`). Once the real page replaces
+it and Eston is happy, removing it is a **manual cleanup** — nothing deletes it automatically:
+
+```bash
+git ls-files '*.demo.tsx'                     # the demo variants that exist
+grep -rln "PageDemo\|Page.demo" src           # the switch that renders it
+```
+
+1. Delete `Page.demo.tsx` and make the page's default export the real component (drop the
+   `useDemoMode()` switch).
+2. Run Recipe 1 on whatever only the demo variant used — demo handler `case`s, fixtures, seed lines,
+   i18n keys. Demo data shared with other demo variants or demo communities stays.
+3. If seed fixtures change shape, bump `DEMO_VERSION` in the same commit.
+4. Update the page's row in `docs/DEMO_MODE.md`.
+5. Walk the page without the flag, and with `?demo=true` (it should now simply ignore the flag).
+
+When the last page needing the id-based mixing is split, the transitional routing in `api.ts`
+(`isDemoContract` dispatch, demo communities merged into `getContracts`) becomes dead code — remove it
+with this recipe.
+
+---
+
 ## Provenance and maintenance
 
-All facts verified 2026-07-02 against the repo at branch `ui`, HEAD `c26cdc4`, unless marked otherwise. Incident narratives (S3 decision ⑤, S7 audit under-report, S15 recomposition rationale, Lane F adoption arc) are from project memory, 2026-06/07; the supporting commits were re-verified in git as cited. Every grep/find template above was executed once against HEAD with the shown results.
+Updated 2026-10-29 on branch `unified`. Re-check volatile facts:
 
-Volatile facts and their one-line re-checks:
-
-| Fact (as of 2026-07-02 @ c26cdc4) | Re-verify with |
+| Fact | Re-verify with |
 |---|---|
-| `DEMO_VERSION = 'global-v16'` at mockApi.ts:17 | `grep -n "DEMO_VERSION" src/services/demo/mockApi.ts` |
-| `"exclude": ["src/obsolete"]` in tsconfig.app.json; no such dir exists | `grep -n obsolete tsconfig.app.json; ls src/obsolete` |
-| `/lab/presence` routed at src/App.tsx:124 | `grep -n "lab/presence" src/App.tsx` |
-| ConcernsFlow grouped-selector dead cluster still unresolved | `grep -n "card_rejected\|voteBtn_resolved" src/components/collaboration/flows/concerns/ConcernsFlow.module.scss` |
-| 110 live `.module.scss` files, zero orphans | rerun the Recipe 2 sweep loop (slow) |
-| Zero revert commits on `ui` (443 commits) | `git log --oneline -i --grep=revert ui` (2 hits are false positives — bodies say "no reverts") |
-| `resolveInitiativeStageContract` consumers = 6 files | `grep -rln "resolveInitiativeStageContract" src --include="*.ts" --include="*.tsx"` |
-| 8 files import Container.module.scss as `cs` | `grep -rln "Container.module.scss" src --include="*.tsx"` |
-| Connectivity kit lives at src/components/shared/connectivity/ (11 files) | `ls src/components/shared/connectivity/` |
+| `DEMO_VERSION` value | `grep -n "DEMO_VERSION" src/services/demo/mockApi.ts` |
+| `"exclude": ["src/obsolete"]`; no such dir | `grep -n obsolete tsconfig.app.json; ls src/obsolete` |
+| `/lab/presence` routed | `grep -n "lab/presence" src/App.tsx` |
+| ConcernsFlow grouped-selector dead cluster | `grep -n "card_rejected\|voteBtn_resolved" src/components/collaboration/flows/concerns/ConcernsFlow.module.scss` |
+| Demo variants in the repo | `git ls-files '*.demo.tsx'` |
+| `resolveInitiativeStageContract` consumers | `grep -rln "resolveInitiativeStageContract" src --include="*.ts" --include="*.tsx"` |
+| Connectivity kit | `ls src/components/shared/connectivity/` |
 
 If any re-check disagrees with this skill, trust the repo and update this file.

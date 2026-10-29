@@ -5,6 +5,7 @@ description: Use when adding, changing, or removing any user-facing string in Co
 
 # Gloki i18n Playbook
 
+
 ## Overview
 
 **Core principle: nothing in this i18n system ever fails loudly.** The lookup chain
@@ -23,7 +24,7 @@ Definitions used throughout:
 | **inline default** | The second argument to `t('key', 'English default')` — where English feature copy actually lives |
 | **parity** | `fr.ts` and `sw.ts` hold *identical key sets* and matching `{var}` token sets per key |
 | **the packet** | `docs/i18n-native-review-candidates.md` — the human-gated worklist for native fr/sw reviewers |
-| **wire names** | Contract/stage key vocabulary that must match Ouri's real backend (e.g. `proposals`), regardless of UI copy |
+| **wire names** | Contract/stage key vocabulary that must match the real contracts (e.g. `proposals`), regardless of UI copy |
 
 ## When NOT to use this skill
 
@@ -36,24 +37,24 @@ Definitions used throughout:
 | Updating MASTER_TODO/changelog/session docs after i18n work | **gloki-docs-and-writing** |
 | Removing orphaned i18n keys as part of a dead-code sweep | **gloki-refactor-and-dead-code** (consumer-graph tracing) |
 
-## Architecture (verified in src at c26cdc4)
+## Architecture
 
 Hand-rolled provider — **no i18next, no JSON catalogs, no typed key union.** All in
 `src/i18n/`:
 
-| File | Role | Size at c26cdc4 |
+| File | Role | Size (2026-10-29) |
 |---|---|---|
 | `src/i18n/index.tsx` | Provider, `useT()`, `useI18n()`, framework-agnostic `translate()`, `getStoredLocale()` | 103 lines |
 | `src/i18n/types.ts` | `Locale = 'en' \| 'fr' \| 'sw'`; `Dictionary = Record<string,string>` (flat dotted keys); `Vars` | 7 lines |
-| `src/i18n/en.ts` | **Partial seed only** — shell/kit strings (common.\*, app.\*, nav). 117 lines, 77 keys | intentionally small |
-| `src/i18n/fr.ts` | **Full overlay** — 1113 keys | 1248 lines |
-| `src/i18n/sw.ts` | **Full overlay** — 1113 keys | 1247 lines |
+| `src/i18n/en.ts` | **Partial seed only** — shell/kit strings (common.\*, app.\*, nav). ~116 lines, 76 keys | intentionally small |
+| `src/i18n/fr.ts` | **Full overlay** — ~1,530 keys | ~1,690 lines |
+| `src/i18n/sw.ts` | **Full overlay** — ~1,530 keys | ~1,690 lines |
 
 Facts you will otherwise guess wrong:
 
 - **English feature copy lives INLINE in components**, as
   `t('flat.dotted.key', 'English default')`. `en.ts` is deliberately missing
-  ~1036 of the 1113 keys. Do NOT "fix" this by backfilling en.ts — only promote a
+  most of the overlay keys. Do NOT "fix" this by backfilling en.ts — only promote a
   string into en.ts if it is genuinely shared shell/kit copy.
 - **Lookup order** (`translate()` in `index.tsx`):
   `DICTS[locale]?.[key] ?? DICTS.en[key] ?? defaultValue ?? key`. A missing key is
@@ -105,19 +106,27 @@ commit** as step 1 — split commits are how parity breaks.
 adding a key to only one overlay. English users see nothing wrong, fr or sw users
 silently get English. Only the scanner catches it.
 
+### Builds and page states
+
+- **The beta build hides the language switcher** (`SHOW_LANGUAGES` in `src/appMode.ts`) — beta screens
+  are English-only for now; `beta.*` keys may exist without overlays. The full build shows all three
+  locales.
+- **Demo variants are pages like any other**: their strings go through `t()` with fr/sw overlays at
+  parity (e.g. `demoMode.notice` / `demoMode.showReal` for `<DemoNotice />`). Seeded demo *data*
+  (fixtures) stays English — that's data, not i18n.
+
 ## Parity tooling
 
 ### Primary: the checked-in scanner (ships with this skill)
 
 ```bash
-node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs "/Volumes/2TB Drive/💪Work & Volunteer/🔵 gloki/Gloki Build/Communities2"
+node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs [repo-root]
 ```
 
-(Arg optional when cwd is the repo root.) Actual output at HEAD c26cdc4,
-2026-07-02:
+(Arg optional when cwd is the repo root.) Output on the trunk, 2026-10-29:
 
 ```
-Parsed keys: en=77 fr=1113 sw=1113
+Parsed keys: en=76 fr=1533 sw=1533
 Token check: all shared keys have matching {var} sets.
 RESULT: PARITY OK
 ```
@@ -141,12 +150,9 @@ comm -3 <(grep -oE "^ *'[^']+':" src/i18n/fr.ts | sed 's/^ *//' | sort -u) \
         <(grep -oE "^ *'[^']+':" src/i18n/sw.ts | sed 's/^ *//' | sort -u)
 ```
 
-Empty output = key sets match. **Known blind spots of the one-liner** (verified
-2026-07-02): (a) it checks keys only, not `{var}` tokens; (b) the line-anchored
-pattern misses a second entry sharing a line — fr.ts:959/sw.ts:958 each carry TWO
-entries (`mechanisms.approval.reviewSourcesHeading` + `reviewPending`), so it
-counts 1112 where the script correctly parses 1113. Today the miss is symmetric so
-`comm` passes, but don't trust the one-liner for a final gate — use the script.
+Empty output = key sets match. **Known blind spots of the one-liner**: (a) it checks keys only, not
+`{var}` tokens; (b) the line-anchored pattern misses a second entry sharing a line (one line in each
+overlay carries two entries). Don't trust the one-liner for a final gate — use the script.
 
 ### Hard-won trap rules (each cost a real session)
 
@@ -201,7 +207,7 @@ grep -rn "getCountryName(" src        # locale-aware sites (should pass locale)
 grep -rn "getCountryByCode" src        # raw .name access hides here
 ```
 
-Known benign exception at c26cdc4: `src/components/shared/presence/WorldMapLite.tsx`
+Known benign exception: `src/components/shared/presence/WorldMapLite.tsx`
 calls `getCountryName(code)` without locale — but its only consumer is
 `PresenceShowcase.tsx`, which has no consumers outside `presence/` (orphaned
 showcase). If it ever gets wired in, thread the locale first.
@@ -211,7 +217,7 @@ showcase). If it ever gets wired in, thread the locale first.
 - **Key families keep wire vocabulary.** The UI says "Solutions" but keys stay in
   the `*.proposals.*` families (`nav.proposals`, `stage.proposals`,
   `initiative.stages.proposals.desc`, …) because the contract stage key is
-  `proposals` — contract/wire names must match Ouri's real backend exactly.
+  `proposals` — contract/wire names must match the real contracts exactly.
   Renaming a key family to match UI copy is a change-control violation, not a
   cleanup (see gloki-python-contracts).
 - The discussion-board category "Ideas" lives at `deliberation.category.solutions`
@@ -222,8 +228,8 @@ showcase). If it ever gets wired in, thread the locale first.
 
 ## Adding a whole new locale (open item: Chichewa `ny.ts`)
 
-Still open at c26cdc4 (MASTER_TODO.md §7, P5 tail — deferred from S14). Scope if
-picked up: new `src/i18n/ny.ts` at full parity (~1113 keys), plus edits to
+Still open (MASTER_TODO.md §7, P5 tail). Scope if picked up: new `src/i18n/ny.ts` at full parity
+(~1,530 keys), plus edits to
 `src/i18n/types.ts` (`Locale` union), `index.tsx` (`DICTS`, `LOCALES`, the
 `isLocale()` guard — all three hardcode the locale list), an endonym `lang.ny`
 key, and the scanner's `FILES` list + packet scope. It **widens the human-gated
@@ -236,26 +242,12 @@ backend-adjacent, needs Ouri coordination (MASTER_TODO.md P5 tail).
 
 ## Provenance and maintenance
 
-Verified 2026-07-02 against branch `ui` @ commit `c26cdc4` by direct reads of
-`src/i18n/*`, `src/utils/countries.ts`, `docs/i18n-native-review-candidates.md`,
-`DESIGN_SYSTEM.md`, `MASTER_TODO.md`, and a live run of the scanner (output
-recorded above). Incident dates (S8 stale packet, S13 BSD-sed, S14 country-name
-sweep) are from project memory, 2026-06/07.
-
-Volatile facts and how to re-verify:
+Updated 2026-10-29 on branch `unified`. Re-verify before relying on these:
 
 | Fact | Re-verify with |
 |---|---|
-| Key counts (en=77, fr=sw=1113) and parity status | `node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
-| Lookup order / storage key `gloki.locale` | `sed -n '40,60p' src/i18n/index.tsx` |
-| en.ts still partial-seed-only | `wc -l src/i18n/en.ts` (~117) vs fr/sw (~1250) |
-| Packet still cites the /tmp scanner (Ground rule 4) | `grep -n "i18ncheck_b12" docs/i18n-native-review-candidates.md` |
-| DESIGN_SYSTEM CountryMultiSelect note still stale re: S14 | `grep -n "canonical-English" DESIGN_SYSTEM.md` |
-| Chichewa/content-translation still open | `grep -n "Chichewa\|Content-translation" MASTER_TODO.md` |
-| WorldMapLite still orphaned (no-locale calls benign) | `grep -rn "PresenceShowcase" src \| grep -v presence/` (empty = still orphaned) |
-| Two-entries-on-one-line quirk still present | `grep -n "reviewSourcesHeading" src/i18n/fr.ts src/i18n/sw.ts` |
-
-If the scanner ever FAILs on lines it can't parse (WARN block), the dictionary
-entry format drifted (multi-line values, template literals) — fix the script's
-`ENTRY_RE`, don't ignore the warning: unparsed entries silently shrink the
-compared key set.
+| Key counts and parity status | `node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
+| Locales registered | `grep -n "LOCALES\|DICTS" src/i18n/index.tsx` |
+| Beta hides the switcher | `grep -n SHOW_LANGUAGES src/appMode.ts` |
+| Country-name localisation | `grep -n "export function getCountryName" src/utils/countries.ts` |
+| Packet format | `tail -40 docs/i18n-native-review-candidates.md` |

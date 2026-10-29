@@ -17,6 +17,8 @@ const fr: Dictionary = {
   'common.continue': 'Continuer',
   'common.back': 'Retour',
   'common.retry': 'Réessayer',
+  'demoMode.notice': 'Démo : cette page affiche des données d’exemple. Rien de ce que vous faites ici n’atteint le réseau.',
+  'demoMode.showReal': 'Voir les vraies données',
   'common.submit': 'Envoyer',
   'common.submitting': 'Envoi…',
   'common.loading': 'Chargement…',

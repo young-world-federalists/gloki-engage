@@ -1,29 +1,34 @@
 # Gloki Skill Library
 
 Fifteen skills that let a zero-context session (human or AI) debug, extend, validate, and
-advance Communities2/Gloki at the standard the project holds. Authored 2026-07-02 against
-branch `ui` @ commit `c26cdc4`; each skill ends with its own **Provenance and maintenance**
-section containing one-line re-verification commands for anything that may drift — if a
-re-verify command disagrees with a skill, the repo wins: update the skill.
+advance Communities2/Gloki at the standard the project holds. Written for the trunk (`unified`,
+becoming `main`): **one app on the real network, where any page can also show a demo variant at
+`?demo=true`** — the structure is specified in [docs/DEMO_MODE.md](../../docs/DEMO_MODE.md). Each skill
+ends with a **Provenance and maintenance** section of one-line re-verification commands — if one
+disagrees with a skill, the repo wins: update the skill.
+
+**`REVIEW NEEDED (date)`** marks user-facing behaviour that changed and still needs a decision (for
+example the verification rule, or who may join a community). Those passages are left visible on
+purpose; find them all with `grep -rn "REVIEW NEEDED" .claude/skills`.
 
 ## Read these two first (every session)
 
 | Skill | One line |
 |---|---|
-| **gloki-change-control** | The gates and non-negotiables: 4 hard invariants, 5 unwritten rules (push = Eston's green light), locked product decisions, change classification, scope discipline. |
+| **gloki-change-control** | The gates and non-negotiables: 4 hard invariants, the working rules (explicit go before any push), locked product decisions, change classification (UI / demo variant / real side / contract / product), scope discipline. |
 | **gloki-session-lifecycle** | The unit of work: session prompt → re-ground premises vs HEAD (the #1 lesson) → recommend-then-confirm → spec → build → review → push gate → close-out. |
 
 ## Reach for by situation
 
 | Skill | Reach for it when… |
 |---|---|
-| **gloki-build-env-run** | Setting up, running, building, deploying; base paths, Node/CI, the slow-USB-drive discipline. |
-| **gloki-seam-and-demo-data** | Any data read/write: the api.ts seam, wire names, localStorage demo model, DEMO_VERSION, fixtures/personas. |
-| **gloki-python-contracts** | Reading/writing `.py` contracts: the sandboxed dialect, `__init__` re-run semantics, immutability patterns, stub↔doc coupling. |
+| **gloki-build-env-run** | Setting up, running, building, deploying; required `.env` settings, base paths, the beta build, the local ibc node, Node/CI, the slow-USB-drive discipline. |
+| **gloki-seam-and-demo-data** | Any data read/write: the real/demo split per page, the real seam and the demo layer, wire names, DEMO_VERSION, fixtures/personas. |
+| **gloki-python-contracts** | Reading/writing `.py` contracts: the sandboxed dialect, the `agent` argument for contracts used without joining, `__init__` re-run semantics, immutability, keeping real contract ↔ service ↔ demo stub ↔ seam doc in step. |
 | **gloki-frontend-architecture** | Navigating src/: flows, useFlowContract vs resolveInitiativeStageContract, slices/persistence, frozen route map, known-weak points. |
 | **gloki-governance-domain** | QV hearts/credits math, trust layers, mandate/ratification model, turnout denominators, stage semantics. |
 | **gloki-i18n-playbook** | Any user-facing string: the t() ritual, fr/sw parity (scripts/check-i18n-parity.mjs), native-review packet. |
-| **gloki-debugging-playbook** | A live symptom: 16-entry symptom→triage table with first-check commands. |
+| **gloki-debugging-playbook** | A live symptom: the symptom→triage table with first-check commands. |
 | **gloki-failure-archaeology** | Tempted to rebuild/revert/"fix" something that may be settled history — the chronicle of every dead end and deliberate deletion. |
 | **gloki-verification-and-qa** | Claiming "done": the evidence bar, preview-automation lore, scripts/ (grep-gates.sh, contrast-eval.js), review tiers. |
 | **gloki-refactor-and-dead-code** | Deleting or cleaning up: consumer-graph tracing, SCSS-aware checks, recomposition-not-revert, orphaned-prior-art check. |
