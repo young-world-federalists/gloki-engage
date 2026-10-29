@@ -611,15 +611,28 @@ verified app-wide):
 | 1–3 | sequential (#2–#4) | every verified person, each with **Ask**; one candidate at a time, everyone else sees "someone else is being verified" | a vouch from **every** verified person |
 | ≥ 4 | open (#5 on) | the existing four-option page | 4 vouches from verified people |
 
-**Where it lives.** One deployment, under the application agent on the application server — `.env`:
-`VITE_APPLICATION_SERVER_URL` (default `https://gdi.gloki.contact`) and `VITE_APPLICATION_AGENT`
-(default `gloki-application`), read only in `src/services/applicationServer.ts`; override in
-`.env.local` or CI. Users **don't join** it: every call goes through the application agent, so
-`master()` is always that agent and each method takes the acting key as an argument (no signatures —
-the same trust model as everything else today). Lookup: `is_exist_agent` + `get_contracts` on the
-application agent, first contract whose `contract` is `gloki_verification_contract.py`; none = founder
-phase. Write acks arrive on the application agent's stream, so writes use `openScopedAckStream`
-(`src/services/eventStream.ts`), not the shared user stream.
+**Where it lives (revised 2026-10-29).** The founder deploys the verification contract on **their own
+agent and node**. Where it lives is published on the central application account (`.env`:
+`VITE_APPLICATION_SERVER_URL`, default `https://gdi.gloki.contact`; `VITE_APPLICATION_AGENT`, default
+`gloki-application`; read only in `src/services/applicationServer.ts`; overridden by `.env.local` or the
+`github-pages` environment variables in `deploy.yml`) in a second contract,
+**`gloki_engage_application_settings.py`** ("gloki engage application settings",
+`src/services/applicationSettings.ts`):
+- `get_verification()` → `{contract, hosts: [{server, agent}]}`; `contract: ''` means verification
+  hasn't started (the founder phase).
+- `register_verification(server, agent, contract)`: the first call fixes the contract id; a different id
+  later is refused (`'Verification has already started'`, which settles two founders racing); the same id
+  adds another host. That is the slot for future stewards who join the verification contract, so no
+  single account is the only way in.
+
+Every client reads the settings first, then calls the verification contract on a listed host (today the
+first). Users **don't join** it: every call goes through the host agent, so `master()` is always the
+host and each method takes the acting key as an argument (no signatures — the same trust model as
+everything else today). Write acks arrive on the host agent's stream, so writes use
+`openScopedAckStream` (`src/services/eventStream.ts`). Founder sequence (`becomeFounder`): deploy on own
+agent → `initialize` → deploy the settings contract on the central account if it doesn't exist yet
+(registering the account on first use) → `register_verification`. Verification contracts deployed under
+`gloki-application` by the first version of this code are ignored.
 
 **Contract methods** (every refusal returns `{error}` and writes nothing):
 - `initialize(steward, address, profile)` — first call only; the steward is verified (`method: 'founder'`).

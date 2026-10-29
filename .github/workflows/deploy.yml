@@ -24,6 +24,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Gives the build the github-pages environment's variables (Settings ->
+    # Environments -> github-pages), which override .env below.
+    environment: github-pages
     steps:
       - uses: actions/checkout@v6
         with:
@@ -43,7 +46,15 @@ jobs:
 
       - name: Build server-side beta (site root)
         working-directory: server-side
+        # Environment variables override the repo's .env at build time (Vite
+        # bakes them into the bundle). Exported only when set, so an unset
+        # variable leaves the .env value in place instead of blanking it.
+        env:
+          APPLICATION_SERVER_URL: ${{ vars.VITE_APPLICATION_SERVER_URL }}
+          APPLICATION_AGENT: ${{ vars.VITE_APPLICATION_AGENT }}
         run: |
+          if [ -n "$APPLICATION_SERVER_URL" ]; then export VITE_APPLICATION_SERVER_URL="$APPLICATION_SERVER_URL"; fi
+          if [ -n "$APPLICATION_AGENT" ]; then export VITE_APPLICATION_AGENT="$APPLICATION_AGENT"; fi
           npm ci
           npm run build:beta
 

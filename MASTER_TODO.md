@@ -262,6 +262,15 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-29 — Verification contract moves to the founder's own agent; central settings contract
+  (Ouri).** The first person to get verified now deploys the verification contract on their own agent
+  and node. The central application account (`gloki-application`) holds a new
+  `gloki_engage_application_settings.py` ("gloki engage application settings") that records the
+  verification contract's id and its hosts; every client reads it first, then calls the contract on a
+  host. The first registration fixes the contract id (two racing founders: the second is refused);
+  later stewards hosting the same contract can be added as more hosts. Settings contract: 8 in-memory
+  checks pass; the end-to-end walk on a local node is pending (the node was down).
+
 - **2026-10-28 — Account kind on the Digital Agent contract (Eston).** `digital_agent_contract.py`
   gains `set_account_kind(kind)`; `get_profile` returns `accountKind` with no read change. Sign-up and
   profile edit write it after `set_profile`, `readDigitalAgentProfile` reads it back, and the local
