@@ -1,7 +1,6 @@
 // Currency.module.scss
 // Hierarchical SCSS structure for Currency component
 @use '../../styles/variables' as *;
-@use 'sass:color';
 
 // Shared card surface used by both the balance card and action cards —
 // keep visual weight identical so the page reads as one stack.

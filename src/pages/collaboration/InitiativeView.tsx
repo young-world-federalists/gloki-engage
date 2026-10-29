@@ -24,6 +24,7 @@ const InitiativeView: React.FC = () => {
   const { communityId, initiativeId, initiativeHostServer, initiativeHostAgent } = useParams<{
     initiativeHostServer: string;
     initiativeHostAgent: string;
+    communityId: string;
     initiativeId: string;
   }>();
   // Before any child reads the initiative: route every call to it through its

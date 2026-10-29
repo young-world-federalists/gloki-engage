@@ -212,63 +212,6 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     }
   };
 
-  // Collective percentages across all members
-  const collectivePercentages = useMemo(() => {
-    const totals: Record<string, number> = {};
-    let grandTotal = 0;
-    for (const memberAlloc of Object.values(allAllocations)) {
-      for (const [account, points] of Object.entries(memberAlloc)) {
-        totals[account] = (totals[account] ?? 0) + points;
-        grandTotal += points;
-      }
-    }
-    if (grandTotal === 0) return {} as Record<string, number>;
-    return Object.fromEntries(
-      Object.entries(totals).map(([acc, pts]) => [acc, (pts / grandTotal) * 100])
-    );
-  }, [allAllocations]);
-
-  const totalAllocated = useMemo(
-    () => Object.values(myAllocation).reduce((s, v) => s + v, 0),
-    [myAllocation]
-  );
-
-  const fundAccounts = useMemo(
-    () => Object.entries(accountDetails)
-      .filter(([, info]) => info.type === 'fund')
-      .map(([name, info]) => ({ name, ...info })),
-    [accountDetails]
-  );
-
-  const handleSetAccountPoints = (account: string, raw: string) => {
-    const points = Math.max(0, Math.round(Number(raw) || 0));
-    setMyAllocation(prev => ({ ...prev, [account]: points }));
-  };
-
-  const handleSaveAllocation = useCallback(async () => {
-    if (!publicKey || !serverUrl || !communityId) return;
-    setAllocationSaving(true);
-    try {
-      await setAllocation(serverUrl, publicKey, communityId, myAllocationRef.current);
-    } catch (e) {
-      console.error('Failed to save allocation:', e);
-    } finally {
-      setAllocationSaving(false);
-    }
-  }, [publicKey, serverUrl, communityId]);
-
-  const handleDistribute = async () => {
-    if (!publicKey || !serverUrl || !communityId) return;
-    setDistributing(true);
-    try {
-      await distributeCommons(serverUrl, publicKey, communityId);
-    } catch (e) {
-      console.error('Failed to distribute:', e);
-    } finally {
-      setDistributing(false);
-    }
-  };
-
   const handleRevertPreferences = () => {
     setMintPreference('');
     setBurnPreference('');

@@ -96,34 +96,6 @@ export interface Collaboration {
 }
 
 /**
- * Read the parent community credentials stored in a collaboration contract
- * (initiative, wish, or agreement).
- */
-export async function getCommunity(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<{ server: string; agent: string; id: string } | null> {
-  try {
-    const result = await contractRead({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: { name: 'get_community', values: {} } as IMethod,
-    });
-    if (!result || typeof result !== 'object') return null;
-    const r = result as Record<string, unknown>;
-    return {
-      server: String(r.server ?? ''),
-      agent:  String(r.agent  ?? ''),
-      id:     String(r.id     ?? ''),
-    };
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Create an initiative (deploy contract + add to community)
  */
 export async function createInitiative(
@@ -138,7 +110,6 @@ export async function createInitiative(
     name: initiative.title,
     contract: 'initiative_contract.py',
     code: initiativeContractCode,
-    constructorArgs: { community_server: serverUrl, community_agent: publicKey, community_id: communityId },
   });
   const initiativeId = (response as { id?: string }).id || (response as string);
 
@@ -177,75 +148,6 @@ export async function createInitiative(
   };
   await addCollaboration(serverUrl, publicKey, communityId, collaboration);
   return initiativeId;
-}
-
-/**
- * Create a wish (deploy contract + add to community)
- */
-export async function createWish(
-  serverUrl: string,
-  publicKey: string,
-  communityId: string,
-  wish: { title: string; dreamNeed?: string },
-): Promise<string> {
-  const response = await deployContract({
-    serverUrl,
-    publicKey,
-    name: wish.title,
-    contract: 'wish_contract.py',
-    code: wishContractCode,
-    constructorArgs: { community_server: serverUrl, community_agent: publicKey, community_id: communityId },
-  });
-  const wishId = (response as { id?: string }).id || (response as string);
-
-  const collaboration: Collaboration = {
-    id: wishId,
-    type: 'wish',
-    title: wish.title,
-    dreamNeed: wish.dreamNeed,
-    author: publicKey,
-    createdAt: Date.now(),
-    activityCount: 0,
-    hostServer: serverUrl,
-    hostAgent: publicKey,
-  };
-  await addCollaboration(serverUrl, publicKey, communityId, collaboration);
-  return wishId;
-}
-
-/**
- * Create an agreement (deploy contract + add to community)
- */
-export async function createAgreement(
-  serverUrl: string,
-  publicKey: string,
-  communityId: string,
-  agreement: { title: string; rule?: string; protection?: string },
-): Promise<string> {
-  const response = await deployContract({
-    serverUrl,
-    publicKey,
-    name: agreement.rule || agreement.title,
-    contract: 'agreement_contract.py',
-    code: agreementContractCode,
-    constructorArgs: { community_server: serverUrl, community_agent: publicKey, community_id: communityId },
-  });
-  const agreementId = (response as { id?: string }).id || (response as string);
-
-  const collaboration: Collaboration = {
-    id: agreementId,
-    type: 'agreement',
-    title: agreement.rule || agreement.title,
-    rule: agreement.rule,
-    protection: agreement.protection,
-    consensusStatus: 'Pending',
-    createdAt: Date.now(),
-    activityCount: 0,
-    hostServer: serverUrl,
-    hostAgent: publicKey,
-  };
-  await addCollaboration(serverUrl, publicKey, communityId, collaboration);
-  return agreementId;
 }
 
 /**
@@ -429,88 +331,6 @@ export async function setParameters(
       values: { to: publicKey, value: 0 },
       parameters: { mint, burn, commons_mint: commonsMint },
     } as IMethod,
-  });
-}
-
-export interface IAccountDetails {
-  [account: string]: {
-    type: string;
-    balance: number;
-  };
-}
-
-export interface IDistributionStatus {
-  payment_count: number;
-  days_since_creation: number;
-  can_distribute: boolean;
-}
-
-export async function getAccountDetails(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<IAccountDetails> {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_account_details', values: {} } as IMethod,
-  });
-  return (result as IAccountDetails) ?? {};
-}
-
-export async function getAllAllocations(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<Record<string, Record<string, number>>> {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_allocations', values: {} } as IMethod,
-  });
-  return (result as Record<string, Record<string, number>>) ?? {};
-}
-
-export async function setAllocation(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  allocation: Record<string, number>,
-): Promise<void> {
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'set_allocation', values: { allocation } } as IMethod,
-  });
-}
-
-export async function getDistributionStatus(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<IDistributionStatus> {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_distribution_status', values: {} } as IMethod,
-  });
-  return (result as IDistributionStatus) ?? { payment_count: 0, days_since_creation: 0, can_distribute: false };
-}
-
-export async function distributeCommons(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<void> {
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'distribute', values: {} } as IMethod,
   });
 }
 

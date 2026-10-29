@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Award, Plus, Trash2, UserPlus, UserMinus } from 'lucide-react';
 
 import type { FlowProps } from '../types';
-import { useEventStream } from '../../../../hooks/useEventStream';
 import * as api from './rolesApi';
 import type { Role } from './rolesApi';
 import { useT } from '../../../../i18n';

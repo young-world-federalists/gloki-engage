@@ -5,17 +5,10 @@
       "Write",
       "Bash(npm run:*)",
       "Read(//c/Users/**)",
-      "Edit(//c/Users/**)",
-      "Write(//c/Users/**)",
       "Bash(npx tsc:*)",
       "Bash(ls -1 src/pages/*.tsx)",
       "Bash(grep -v \"^import\\\\|^//\\\\|^\\\\s*//\")",
-      "Bash(grep -l \"MessageDialog\\\\|CreateIssueDialog\" \"c:\\\\Users\\\\Ouri Poupko\\\\Projects\\\\Communities2\\\\src\\\\pages\\\\community\"/*.tsx)",
-      "Skill(update-config)",
-      "Skill(update-config:*)"
-    ],
-    "additionalDirectories": [
-      "c:\\Users\\Ouri Poupko\\.claude\\projects\\c--Users-Ouri-Poupko-Projects-Communities2\\memory"
+      "Bash(grep -l \"MessageDialog\\\\|CreateIssueDialog\" \"c:\\\\Users\\\\Ouri Poupko\\\\Projects\\\\Communities2\\\\src\\\\pages\\\\community\"/*.tsx)"
     ]
   }
 }
