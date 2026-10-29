@@ -3,10 +3,10 @@ import clsx from 'clsx';
 import { Loader2 } from 'lucide-react';
 import styles from './Button.module.scss';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
+type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   /** Stretch to the full width of the container (use for bottom-anchored mobile actions). */

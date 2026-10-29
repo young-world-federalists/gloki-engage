@@ -2,17 +2,6 @@ import { contractRead } from '../../../../services/api';
 import { resolveInitiativeStageContract } from '../../../../services/contracts/initiative';
 import { getProposalsAndCounts } from '../voting/approvalApi';
 import type { IMethod } from '../../../../services/interfaces';
-
-// Per-stage compact summaries fetched from the initiative's sub-contracts.
-// Each function returns `null` when the sub-contract can't be resolved or
-// the read fails (old initiatives, missing registrations, network hiccups).
-// Callers render a single summary line or hide it silently.
-//
-// Fresh communities expose a compact `get_summary` method on each sub-contract
-// that pre-aggregates the line we want. Old communities don't have it — we
-// detect missing/invalid responses and fall back to the full-scan path.
-
-export interface ProblemSummary { up: number; down: number; total: number; }
 export interface DiscussionSummary { participants: number; comments: number; }
 export interface ProposalsSummary { proposals: number; topApprovedText: string | null; topApprovedCount: number; }
 export interface VoteSummary { winnerText: string | null; winnerCredits: number; voters: number; }
@@ -34,27 +23,6 @@ async function readMethod(
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-export async function fetchProblemSummary(
-  serverUrl: string,
-  publicKey: string,
-  initiativeId: string,
-): Promise<ProblemSummary | null> {
-  try {
-    const stage = await resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'problemVoteContractId');
-    if (!stage?.contractId) return null;
-    const raw = await readMethod(serverUrl, publicKey, stage.contractId, 'get_tally');
-    if (!isPlainObject(raw)) return null;
-    const t = raw as { up?: number; down?: number; total?: number };
-    return {
-      up: Number(t.up ?? 0),
-      down: Number(t.down ?? 0),
-      total: Number(t.total ?? 0),
-    };
-  } catch {
-    return null;
-  }
 }
 
 export async function fetchDiscussionSummary(

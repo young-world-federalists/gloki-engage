@@ -17,8 +17,8 @@ import { openScopedAckStream } from './eventStream';
 import { APPLICATION_AGENT, APPLICATION_SERVER_URL } from './applicationServer';
 import settingsContractSrc from '../assets/contracts/gloki_engage_application_settings.py?raw';
 
-export const SETTINGS_CONTRACT = 'gloki_engage_application_settings.py';
-export const SETTINGS_CONTRACT_NAME = 'gloki engage application settings';
+const SETTINGS_CONTRACT = 'gloki_engage_application_settings.py';
+const SETTINGS_CONTRACT_NAME = 'gloki engage application settings';
 
 export interface ContractHostAddress {
   server: string;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useEffectEvent, useRef } from 'react';
 import { QrCode, Camera, CheckCircle } from 'lucide-react';
 import styles from './JoinCommunity.module.scss';
 import { Scanner } from '@yudiel/react-qr-scanner';
@@ -34,8 +34,7 @@ const JoinCommunity: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   // Store decoded data for display and editing
   const [decodedData, setDecodedData] = useState('');
-  const a2aListenerRef = React.useRef<((event: BlockchainEvent) => void) | null>(null);
-  const joinTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const joinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearJoinTimeout = () => {
     if (joinTimeoutRef.current) {
@@ -80,24 +79,19 @@ const JoinCommunity: React.FC = () => {
 
   // The joiner's node confirms the join with `a2a_connect`; `reply: false`
   // means the community's node refused it.
+  const onA2AConnect = useEffectEvent((event: BlockchainEvent) => {
+    if (!isJoining || !parsedInvite) return;
+    if (event.reply === false) {
+      failJoin(t('join.refused', 'The community refused the request.'));
+      return;
+    }
+    void finishJoin();
+  });
   useEffect(() => {
-    const handleA2AConnect = (event: BlockchainEvent) => {
-      if (!isJoining || !parsedInvite) return;
-      if (event.reply === false) {
-        failJoin(t('join.refused', 'The community refused the request.'));
-        return;
-      }
-      void finishJoin();
-    };
-    a2aListenerRef.current = handleA2AConnect;
-    eventStreamService.addEventListener('a2a_connect', handleA2AConnect);
-    return () => {
-      if (a2aListenerRef.current) {
-        eventStreamService.removeEventListener('a2a_connect', a2aListenerRef.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- finishJoin/failJoin read the latest state through this effect's own deps
-  }, [isJoining, parsedInvite, dispatch, navigate, publicKey, serverUrl]);
+    const handler = (event: BlockchainEvent) => onA2AConnect(event);
+    eventStreamService.addEventListener('a2a_connect', handler);
+    return () => eventStreamService.removeEventListener('a2a_connect', handler);
+  }, []);
 
   const handleScanQR = () => {
     setShowScanner(true);
@@ -167,7 +161,7 @@ const JoinCommunity: React.FC = () => {
       } else {
         setParsedInvite(null);
       }
-    } catch (error) {
+    } catch {
       setParsedInvite(null);
     }
   };

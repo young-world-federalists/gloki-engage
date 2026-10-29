@@ -1,15 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 export interface UseCountdown {
   /** Whole seconds left, counting down to 0. */
   remaining: number;
   /** True once `remaining` has reached 0. */
   done: boolean;
-}
-
-export interface UseCountdownOptions {
-  /** Fixed wall-clock deadline. When omitted, one is derived at mount. */
-  deadlineMs: number;
 }
 
 const remainingAt = (deadline: number, now: number) =>
@@ -35,56 +30,41 @@ const remainingAt = (deadline: number, now: number) =>
  * single source of truth instead of trying to reconcile a live prop against
  * an in-flight interval.
  */
-export function useCountdown(
-  seconds: number,
-  onDone?: () => void,
-  options?: UseCountdownOptions,
-): UseCountdown {
-  const deadlineRef = useRef<number | null>(null);
-  if (deadlineRef.current === null) {
-    deadlineRef.current = options?.deadlineMs ?? Date.now() + Math.max(0, Math.floor(seconds)) * 1000;
-  }
-
-  const [remaining, setRemaining] = useState(() => remainingAt(deadlineRef.current!, Date.now()));
-  const onDoneRef = useRef(onDone);
+export function useCountdown(seconds: number, onDone?: () => void): UseCountdown {
+  // Fixed at mount: see the "restart needs a key change" note above.
+  const [deadline] = useState(() => Date.now() + Math.max(0, seconds) * 1000);
+  const [remaining, setRemaining] = useState(() => remainingAt(deadline, Date.now()));
   const firedRef = useRef(false);
 
-  // Always call the latest `onDone` without making it an effect dependency —
-  // an inline arrow from the caller must not restart the interval below.
-  onDoneRef.current = onDone;
+  // Always calls the latest `onDone` without making it an effect dependency —
+  // an inline arrow from the caller must not re-fire it.
+  const fireDone = useEffectEvent(() => onDone?.());
 
   useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | undefined;
-
-    const stop = () => {
-      if (intervalId !== undefined) clearInterval(intervalId);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
     const sample = () => {
-      const next = remainingAt(deadlineRef.current!, Date.now());
+      const next = remainingAt(deadline, Date.now());
       setRemaining(next);
       if (next === 0) stop();
     };
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') sample();
     };
+    const intervalId = setInterval(sample, 1000);
+    const stop = () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    intervalId = setInterval(sample, 1000);
     sample();
-
     return stop;
-    // Mount-only: see the "restart needs a key change" note above.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [deadline]);
 
   useEffect(() => {
     if (remaining > 0 || firedRef.current) return;
     firedRef.current = true;
-    onDoneRef.current?.();
+    fireDone();
   }, [remaining]);
 
   return { remaining, done: remaining <= 0 };
 }
-
-export default useCountdown;

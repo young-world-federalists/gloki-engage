@@ -5,11 +5,11 @@ import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
 import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
-import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
-import { DiscussionStatusBadge, statusAccessibleName } from './DiscussionStatusPill';
+import { computeDiscussionStatus, statusAccessibleName, type DiscussionStatus } from '../../utils/discussionStatus';
+import { DiscussionStatusBadge } from './DiscussionStatusPill';
 import styles from './DiscussionPill.module.scss';
 
-export interface DiscussionPillProps {
+interface DiscussionPillProps {
   initiativeId: string;
   communityId: string;
   hostServer: string;

@@ -5,7 +5,7 @@ import { initialsOf } from '../../utils/initials';
 import CountryFlag from './CountryFlag';
 import styles from './VideoTile.module.scss';
 
-export interface VideoTileProps {
+interface VideoTileProps {
   name: string;
   countryCode?: string;
   size?: 'lg' | 'sm';

@@ -2,7 +2,7 @@ import React from 'react';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import QVFlow from '../collaboration/flows/voting/QVFlow';
 
-export interface VoteStageProps {
+interface VoteStageProps {
   /** The initiative contract id — used as the shared parent contract. */
   initiativeId: string;
   /** Active community member count — denominator for the turnout footer. */

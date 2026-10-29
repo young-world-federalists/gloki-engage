@@ -138,13 +138,13 @@ $gray-400`, comment hexes, and `refetch()`.
 
 ### Deploy check one-liners
 
-Until the trunk switch, a push to `server-side` or `ui` deploys both sites (root = `server-side`
-full app, `/demo/` = `ui` beta; **gloki-build-env-run**). After a push you were given a go for:
+Deploying is a manual run of the workflow (`gh workflow run deploy.yml --ref <branch>`): one app, the beta
+build at the site root (the full app is the same deploy with localStorage `gloki.fullApp` = `'true'`;
+**gloki-build-env-run**). After a run you were given a go for:
 
 ```bash
 gh run list --limit 3        # expect: completed  success  <commit msg>  Deploy to GitHub Pages
 curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/        # expect: 200
-curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.io/gloki-engage/demo/   # expect: 200
 ```
 
 A post-deploy "click anywhere → error page" report is a stale SPA chunk cache — hard refresh, not code.

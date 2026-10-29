@@ -4,7 +4,7 @@ import type { MemberSummary } from '../../../services/verification';
 import { useT } from '../../../i18n';
 import pages from './VerificationPages.module.scss';
 
-export interface MemberListProps {
+interface MemberListProps {
   members: MemberSummary[];
   /** Trailing slot per row — a <Button size="sm">, a <Badge>, or a checkbox control. */
   action: (member: MemberSummary) => React.ReactNode;

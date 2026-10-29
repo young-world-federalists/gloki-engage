@@ -37,7 +37,9 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
   const [rationale, setRationale] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>('');
-  const [eligibleSources, setEligibleSources] = useState<EligibleCollab[] | null>(null);
+  const [loadedSources, setLoadedSources] = useState<EligibleCollab[] | null>(null);
+  // Signed out there is nothing to read: no sources rather than "loading".
+  const eligibleSources = serverUrl && publicKey ? loadedSources : [];
 
   const ownAuthored = useMemo(() => {
     if (!Array.isArray(collaborations) || !publicKey) return [];
@@ -45,7 +47,7 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
   }, [collaborations, publicKey, targetInitiativeId]);
 
   useEffect(() => {
-    if (!serverUrl || !publicKey) { setEligibleSources([]); return; }
+    if (!serverUrl || !publicKey) return;
     let cancelled = false;
     (async () => {
       const results: EligibleCollab[] = [];
@@ -62,7 +64,7 @@ const MergeProposalSubmitModal: React.FC<MergeProposalSubmitModalProps> = ({
           // non-fatal per candidate
         }
       }));
-      if (!cancelled) setEligibleSources(results);
+      if (!cancelled) setLoadedSources(results);
     })();
     return () => { cancelled = true; };
   }, [serverUrl, publicKey, ownAuthored]);

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import GlokiMark from './shared/GlokiMark';
 import NotificationsBell from './shared/NotificationsBell';
 import HomepageMenu from './identity/HomepageMenu';
 import { useT } from '../i18n';
 import styles from './AppHeader.module.scss';
 
-export interface AppHeaderProps {
+interface AppHeaderProps {
   /** Show an icon-only back button at the start of the bar. */
   showBack?: boolean;
   /** Back handler. Defaults to `navigate(-1)`. */

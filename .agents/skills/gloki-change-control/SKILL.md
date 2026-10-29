@@ -24,7 +24,7 @@ Every rule below carries its reason — none of them is optional style.
 
 | Term | Meaning |
 |---|---|
-| **trunk** | `unified`, becoming `main`. Short feature branches off it, merged back continuously. `server-side` and `ui` are retiring and still deploy until the switch (**gloki-build-env-run**) |
+| **trunk** | `unified`, becoming `main`. Short feature branches off it, merged back continuously. `server-side` and `ui` are retired; Pages is deployed by hand (**gloki-build-env-run**) |
 | **real / demo variant** | Every URL has two states: `/page` (real, network data) and `/page?demo=true` (the page's demo variant, `Page.demo.tsx`, demo data). Spec: `docs/DEMO_MODE.md` |
 | **the seam** | `src/services/` — the only data access components may use: real services for real variants, `src/services/demo/` for demo variants |
 | **wire names** | contract method/field names as they cross the seam (`add_proposal`, `proposal_id`) — must byte-match the real contracts in `src/assets/contracts/` |
@@ -106,9 +106,9 @@ Then verify in the running app — recipe in **gloki-verification-and-qa**.
 ### Rule 1 — Never push without an explicit go
 
 Commit locally in small chunks as much as you like; `git push` waits for an explicit "go"/"push it"
-from the person you work for, in the conversation. Until the trunk switch, a push to `server-side` or
-`ui` **deploys** (both rebuild the live Pages site); don't push to them, or merge into them, unless
-asked to.
+from the person you work for, in the conversation. Deploying is a separate, manual workflow run. The
+retired `server-side` and `ui` still carry the old workflow, so a push to either **deploys** the old
+site; don't push to them, or merge into them, unless asked to.
 
 ### Rule 2 — One trunk, short branches
 

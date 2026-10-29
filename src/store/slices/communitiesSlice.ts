@@ -8,13 +8,12 @@ import {
   getActiveMembers,
   type Collaboration,
 } from '../../services/contracts/community';
-import { contractRead } from '../../services/api';
+import { contractRead, type ContractResult } from '../../services/api';
 import type { IMethod, IContract } from '../../services/interfaces';
 import type { IProfile, IPartner } from '../../services/interfaces';
 import { getProfile } from '../../services/contracts/gloki';
 import { getCommunityDetails, isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
 import { registerInitiativeHost, type InitiativeRef } from '../../services/contracts/glokiEngageInitiative';
-import { stripSensitiveProfileFields } from '../../utils/localSecrets';
 import type { RootState } from '../index';
 
 // Gloki's `timestamp()` returns a packed digit string: YYYYMMDDHHMMSS +
@@ -27,19 +26,10 @@ function parseGlokiTimestamp(raw: unknown): number {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-// Define Community interface
-interface Community {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-}
-
 // Communities state
 interface CommunitiesState {
-  currentCommunity: Community | null;
   error: string | null;
-  communityProperties: Record<string, any>;
+  communityProperties: Record<string, ContractResult>;
   communityMembers: Record<string, string[]>; // contractId -> array of member public keys
   communityActiveMembers: Record<string, number>; // contractId -> active member count (last N days)
   initiativeStages: Record<string, string>; // initiativeContractId -> stage ('problem' | 'discussion' | 'proposals' | 'vote' | 'mandate' | '_unknown')
@@ -54,7 +44,6 @@ interface CommunitiesState {
 }
 
 const initialState: CommunitiesState = {
-  currentCommunity: null,
   error: null,
   communityProperties: {},
   communityMembers: {},
@@ -96,6 +85,8 @@ export const fetchGlokiEngageCommunityDetails = createAsyncThunk(
   }
 );
 
+const NO_PROFILE: IProfile = { firstName: '', lastName: '', userPhoto: '', userBio: '', country: '' };
+
 export const fetchMemberProfile = createAsyncThunk(
   'communities/fetchMemberProfile',
   async (args: { memberServerUrl: string; memberPublicKey: string; memberContractId: string; memberAgent: string }) => {
@@ -107,7 +98,7 @@ export const fetchMemberProfile = createAsyncThunk(
       memberContractId,
     );
     
-    return { memberAgent, profile: stripSensitiveProfileFields(profile as IProfile) };
+    return { memberAgent, profile: (profile ?? NO_PROFILE) as IProfile };
   }
 );
 
@@ -285,62 +276,58 @@ export const fetchCommunityMembers = createAsyncThunk(
       return { contractId, members, tasks, nominates, newProfiles: {} };
     }
 
-    try {
-      // Step 1 & 2: Call get_partners and get_all_people in parallel
-      const [partnersResult, allPeopleResult] = await Promise.all([
-        getPartners(serverUrl, publicKey, contractId ),
-        getAllPeople(serverUrl, publicKey, contractId )
-      ]);
+    // Step 1 & 2: Call get_partners and get_all_people in parallel
+    const [partnersResult, allPeopleResult] = await Promise.all([
+      getPartners(serverUrl, publicKey, contractId ),
+      getAllPeople(serverUrl, publicKey, contractId )
+    ]);
 
-      const partners = partnersResult as IPartner[];
-      const allPeople = allPeopleResult as { tasks: Record<string, boolean>; members: Record<string, unknown>; nominates: string[] };
-      const members = Object.keys(allPeople.members) as string[];
-      const taskAgents = Object.keys(allPeople.tasks) as string[];
-      const nominates = Array.isArray(allPeople.nominates) ? allPeople.nominates : [];
-      
-      // Step 3: For each member and task agent, fetch their profile in parallel
-      // Create a map of agent to partner info for quick lookup
-      const partnerMap = new Map<string, IPartner>();
-      partners.forEach(partner => {
-        partnerMap.set(partner.agent, partner);
-      });
+    const partners = partnersResult as IPartner[];
+    const allPeople = allPeopleResult as { tasks: Record<string, boolean>; members: Record<string, unknown>; nominates: string[] };
+    const members = Object.keys(allPeople.members) as string[];
+    const taskAgents = Object.keys(allPeople.tasks) as string[];
+    const nominates = Array.isArray(allPeople.nominates) ? allPeople.nominates : [];
+    
+    // Step 3: For each member and task agent, fetch their profile in parallel
+    // Create a map of agent to partner info for quick lookup
+    const partnerMap = new Map<string, IPartner>();
+    partners.forEach(partner => {
+      partnerMap.set(partner.agent, partner);
+    });
 
-      // Combine members and task agents for profile fetching (nominates don't need profiles - they're just used to check if user has requested to join)
-      const allAgents = [...members, ...taskAgents];
+    // Combine members and task agents for profile fetching (nominates don't need profiles - they're just used to check if user has requested to join)
+    const allAgents = [...members, ...taskAgents];
 
-      // Return members data immediately, don't wait for profiles
-      const result = { 
-        contractId, 
-        members: members, // Just the array of member public keys
-        tasks: allPeople.tasks, // Tasks dictionary
-        nominates: nominates, // Array of candidate public keys
-        newProfiles: {} // No profiles yet, they'll be loaded individually
-      };
+    // Return members data immediately, don't wait for profiles
+    const result = { 
+      contractId, 
+      members: members, // Just the array of member public keys
+      tasks: allPeople.tasks, // Tasks dictionary
+      nominates: nominates, // Array of candidate public keys
+      newProfiles: {} // No profiles yet, they'll be loaded individually
+    };
 
-      // Fetch all profiles in parallel (fire-and-forget)
-      for (const memberAgent of allAgents) {
-        if (existingProfiles[memberAgent]) continue;
+    // Fetch all profiles in parallel (fire-and-forget)
+    for (const memberAgent of allAgents) {
+      if (existingProfiles[memberAgent]) continue;
 
-        const partner = partnerMap.get(memberAgent);
-        if (!partner) {
-          console.warn(`No partner found for member ${memberAgent}`);
-          continue;
-        }
-
-        if (partner.address && partner.agent && partner.profile) {
-          dispatch(fetchMemberProfile({
-            memberServerUrl: partner.address,
-            memberPublicKey: partner.agent,
-            memberContractId: partner.profile,
-            memberAgent: memberAgent,
-          }));
-        }
+      const partner = partnerMap.get(memberAgent);
+      if (!partner) {
+        console.warn(`No partner found for member ${memberAgent}`);
+        continue;
       }
 
-      return result;
-    } catch (error) {
-      throw error;
+      if (partner.address && partner.agent && partner.profile) {
+        dispatch(fetchMemberProfile({
+          memberServerUrl: partner.address,
+          memberPublicKey: partner.agent,
+          memberContractId: partner.profile,
+          memberAgent: memberAgent,
+        }));
+      }
     }
+
+    return result;
   }
 );
 
@@ -348,28 +335,6 @@ const communitiesSlice = createSlice({
   name: 'communities',
   initialState,
   reducers: {
-    setCurrentCommunity: (state, action: PayloadAction<Community | null>) => {
-      state.currentCommunity = action.payload;
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
-    clearCommunityData: (state, action: PayloadAction<string>) => {
-      const contractId = action.payload;
-      delete state.communityProperties[contractId];
-      delete state.communityMembers[contractId];
-      delete state.communityActiveMembers[contractId];
-      delete state.communityTasks[contractId];
-      delete state.communityNominates[contractId];
-      delete state.communityCollaborations[contractId];
-      delete state.membersLoading[contractId];
-      delete state.collaborationsLoading[contractId];
-      // Note: We don't delete from profiles as they might be used by other communities
-    },
-    updateMemberProfile: (state, action: PayloadAction<{ memberAgent: string; profile: IProfile }>) => {
-      const { memberAgent, profile } = action.payload;
-      state.profiles[memberAgent] = profile;
-    },
     // Local-only stage update — call after a successful `set_stage` write so
     // Communities mandate counts refresh without a round-trip. Does not fix
     // cross-tab staleness (other tabs still see cached data until their next
@@ -480,5 +445,5 @@ const communitiesSlice = createSlice({
   },
 });
 
-export const { setCurrentCommunity, clearError, clearCommunityData, updateMemberProfile, setInitiativeStage, setInitiativeTally } = communitiesSlice.actions;
+export const { setInitiativeStage, setInitiativeTally } = communitiesSlice.actions;
 export default communitiesSlice.reducer;

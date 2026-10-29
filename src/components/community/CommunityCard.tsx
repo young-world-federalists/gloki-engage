@@ -4,7 +4,7 @@ import { Button } from '../shared';
 import { useT } from '../../i18n';
 import styles from './CommunityCard.module.scss';
 
-export interface CommunityCardProps {
+interface CommunityCardProps {
   name: string;
   description?: string;
   mission?: string;

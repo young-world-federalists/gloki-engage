@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './EmptyState.module.scss';
 
-export interface EmptyStateProps {
+interface EmptyStateProps {
   /** A lucide icon node, e.g. <Inbox size={48} />. Rendered muted and centered. */
   icon?: React.ReactNode;
   title: string;

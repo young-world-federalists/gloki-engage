@@ -9,7 +9,7 @@ import InitiativeStageCard, { type StagePost } from '../initiative/InitiativeSta
 import { useInitiativePost } from '../initiative/useInitiativePost';
 import MandateEngage from '../initiative/stages/MandateEngage';
 
-export interface MandateActivityCardProps {
+interface MandateActivityCardProps {
   item: Collaboration;
   communityId: string;
   authorName: string;

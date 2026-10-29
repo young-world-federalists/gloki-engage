@@ -21,7 +21,7 @@ export function writeState<T>(contractId: string, state: T): void {
   }
 }
 
-export function readStateAny(contractId: string): unknown {
+function readStateAny(contractId: string): unknown {
   try {
     const raw = localStorage.getItem(STATE_PREFIX + contractId);
     return raw ? JSON.parse(raw) : null;
@@ -40,15 +40,7 @@ export function updateState<T>(
   return next;
 }
 
-export function deleteState(contractId: string): void {
-  try {
-    localStorage.removeItem(STATE_PREFIX + contractId);
-  } catch (err) {
-    console.error(`[DemoState] Failed to delete ${contractId}:`, err);
-  }
-}
-
-export function listStateKeys(): string[] {
+function listStateKeys(): string[] {
   const keys: string[] = [];
   for (let i = 0; i < localStorage.length; i += 1) {
     const k = localStorage.key(i);

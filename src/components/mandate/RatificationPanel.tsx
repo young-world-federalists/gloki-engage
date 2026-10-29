@@ -49,15 +49,17 @@ const RatificationPanel: React.FC<RatificationPanelProps> = ({ initiativeId, man
   }, [serverUrl, publicKey, initiativeId]);
 
   // Seed editable rows from the mandate's indicators (already merged with any
-  // stored ratification data by useMandate).
-  useEffect(() => {
+  // stored ratification data by useMandate), again whenever they change.
+  const [rowsFor, setRowsFor] = useState<typeof mandate.indicators | null>(null);
+  if (mandate.indicators !== rowsFor) {
+    setRowsFor(mandate.indicators);
     setRows(mandate.indicators.map((i) => ({
       label: i.label,
       target: i.target ?? '',
       baseline: i.baseline ?? '',
       cadence: i.cadence ?? '',
     })));
-  }, [mandate.indicators]);
+  }
 
   const allComplete = useMemo(
     () => isMandateRatified(rows.map((r) => ({ label: r.label, target: r.target, baseline: r.baseline, cadence: r.cadence }))),

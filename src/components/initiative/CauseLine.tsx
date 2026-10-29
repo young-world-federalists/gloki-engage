@@ -5,7 +5,7 @@ import { TOP_CAUSES_CARRIED } from '../../utils/causes';
 import { Badge } from '../shared';
 import styles from './CauseLine.module.scss';
 
-export interface CauseLineProps {
+interface CauseLineProps {
   /** '' or undefined = proposed before any cause was ranked. */
   causeId?: string;
   /** The cause comment's text, when it's still resolvable (found in the

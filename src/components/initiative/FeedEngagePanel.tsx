@@ -14,7 +14,7 @@ import VoteEngage from './stages/VoteEngage';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 import styles from './FeedEngagePanel.module.scss';
 
-export interface FeedEngagePanelProps {
+interface FeedEngagePanelProps {
   initiativeId: string;
   /** Initiative title — the headline fallback for {@link useInitiativePost}. */
   title: string;

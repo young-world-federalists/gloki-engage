@@ -17,7 +17,7 @@ export interface SlideOutMenuItem {
   dividerBefore?: boolean;
 }
 
-export interface SlideOutMenuProps {
+interface SlideOutMenuProps {
   isOpen: boolean;
   onClose: () => void;
   /** Panel title (e.g. "Menu" or the community name). */

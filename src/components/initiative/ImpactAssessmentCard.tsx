@@ -9,7 +9,7 @@ import type { TrustState } from '../../services/trustModel';
 import { ASSESSORS_PER_SOLUTION } from '../../utils/writerRank';
 import styles from './ImpactAssessmentCard.module.scss';
 
-export interface ImpactAssessmentCardProps {
+interface ImpactAssessmentCardProps {
   assessment: ImpactAssessment;
   /** 1-based position among this solution's assessments (header reads "Assessment {i} of {max}"). */
   index: number;

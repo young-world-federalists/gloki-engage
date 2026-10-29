@@ -2,7 +2,7 @@
 
 **Branch:** `unified` — the one trunk (to become `main`): one app on the real network, where any
 page can also have a demo variant at `?demo=true`. Read **[docs/DEMO_MODE.md](./docs/DEMO_MODE.md)**
-first. (`server-side` and `ui` are the retiring two-branch model; they still deploy until the switch.)
+first. (`server-side` and `ui` are the retired two-branch model; GitHub Pages is deployed by hand.)
 
 > Architecture, the 8 flows, learnings, and known limitations live in
 > **[ARCHITECTURE.md](./ARCHITECTURE.md)**. UI standards live in
@@ -46,11 +46,9 @@ first. (`server-side` and `ui` are the retiring two-branch model; they still dep
   - **Resilience**: 30s deploy timeout, stale deploying recovery on mount, cancellation-safe. Diagnostic logs prefixed `[FlowContract]`.
 - `flowContractsSlice` (`flows/shared/flowContractsSlice.ts`): localStorage-backed contract ID cache
 - `preferencesSlice` (`store/slices/preferencesSlice.ts`): localStorage-backed starred/hidden community IDs
-- `useSwipeRef` (`hooks/useSwipeNavigation.ts`): callback ref for horizontal swipe
 - Profiles at `state.communities.profiles[publicKey]`; fields: `firstName`, `lastName`, `userPhoto`, `userBio`, `country?`
 - Auth at `state.user.serverUrl`/`publicKey`
 - Country utilities: `src/utils/countries.ts` — 197 countries (ISO 3166-1), `getCountryByCode()`, `getCountryColor()`, `getCountryName()`, `getCountryFlag()`
-- `CountryParticipation` (`components/shared/CountryParticipation.tsx`): shows top country flags with participation counts
 - `SearchableSelect` (`components/shared/SearchableSelect.tsx`): reusable searchable dropdown
 
 ## Routing
@@ -72,15 +70,16 @@ docs/DEMO_MODE.md).
 
 ## Deployment
 
-- GitHub Pages builds from the **retiring** branches until the trunk switch
-  (`.github/workflows/deploy.yml`, on a push to `server-side` or `ui`): `server-side` with
-  `build:prod` at the site root, `ui` with `build:beta` at `/demo/`. A push to `unified` doesn't deploy.
+- GitHub Pages is deployed by hand (`.github/workflows/deploy.yml`, Actions → Run workflow, choosing the
+  branch): one app, `build:beta` at the site root. A push never deploys.
 - Build settings: `.env` holds the required `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT`
   (the central application account); `.env.local` and the `github-pages` environment variables override
   them; `vite.config.ts` refuses to build without them. They are baked in at build time.
 - The beta trim is a build mode (`VITE_APP_MODE=beta`, `npm run dev:beta` / `build:beta`), separate
-  from `?demo=true`.
-- `public/404.html` handles SPA deep-link routing (root and `/demo/`)
+  from `?demo=true`. On a beta build, localStorage `gloki.fullApp` = `'true'` turns the whole app into the
+  full app in that browser (the beta writes the key as `'false'` on first load; reload after changing
+  it). A private switch, not access control (`src/appMode.ts`).
+- `public/404.html` handles SPA deep-link routing
 - **Production build runs `tsc -b`** — fix all TS errors before pushing
 - Contracts are immutable after deploy — new methods only reach contracts deployed afterwards
 - The real contracts live in `src/assets/contracts/` (`gloki_engage_*`, `digital_agent_contract.py`,

@@ -6,10 +6,10 @@ import { STAGE_META } from '../community/stageMeta';
 import { formatTimeAgo } from '../../utils/formatTimeAgo';
 import { useT } from '../../i18n';
 import type { PipelineStage } from '../../types/initiative';
-import type { DiscussionStatus } from '../../utils/discussionStatus';
+import { statusAccessibleName, type DiscussionStatus } from '../../utils/discussionStatus';
 import InitiativeStageStrip from './InitiativeStageStrip';
 import DiscussionPill from './DiscussionPill';
-import { DiscussionStatusPill, statusAccessibleName } from './DiscussionStatusPill';
+import { DiscussionStatusPill } from './DiscussionStatusPill';
 import styles from './InitiativeStageCard.module.scss';
 
 /** The read-zone data for one initiative card, independent of stage. */
@@ -35,7 +35,7 @@ export type StagePost = {
   source?: { label: string; url: string };
 };
 
-export interface InitiativeStageCardProps {
+interface InitiativeStageCardProps {
   post: StagePost;
   trustState?: UserIdentityProps['trustState'];
   vouchCount?: number;

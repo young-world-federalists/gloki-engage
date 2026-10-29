@@ -178,7 +178,7 @@ falls back locale → English → inline default → key.
    with a visible per-locale coverage figure). The scaling decision is the frontier; the file
    is mechanical.
 3. If confirmed: generate `ny.ts` from the `sw.ts` key set, extend the `Locale` union in
-   `src/i18n/types.ts`, register in `DICTS` + `LOCALES` in `src/i18n/index.tsx`, and mark the
+   `src/i18n/types.ts`, register in `DICTS` + `LOCALES` in `src/i18n/index.ts`, and mark the
    entire overlay in the native-review packet as machine-draft pending human review.
 
 **You have a result when:** the parity check shows identical key sets for fr/sw/ny, the

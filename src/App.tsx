@@ -1,13 +1,12 @@
 
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/useAuth';
 import ErrorBoundary from './components/shared/ErrorBoundary';
-import StageFooter from './components/shared/StageFooter';
 import { OfflineBanner } from './components/shared/connectivity';
-import { ToastProvider } from './components/shared/Toast';
 import NotFound from './pages/NotFound';
-import { TwoStatePage, RealOnlyPage, DemoOnlyPage } from './components/shared';
+import { TwoStatePage, RealOnlyPage, DemoOnlyPage, StageFooter, ToastProvider } from './components/shared';
 import { setDemoDataMode } from './services/dataMode';
 import { DemoFlagUrlSync } from './hooks/useDemoMode';
 import { useI18n } from './i18n';

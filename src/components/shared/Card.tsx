@@ -2,9 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './Card.module.scss';
 
-export type CardVariant = 'raised' | 'flat' | 'inset';
+type CardVariant = 'raised' | 'flat' | 'inset';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Hover lift + pointer affordance. Pair with role/tabIndex/onClick for clickable cards. */
   interactive?: boolean;
   /** Internal padding ($spacing-lg). Default true; set false for media/edge-to-edge content. */

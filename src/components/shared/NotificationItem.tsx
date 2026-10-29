@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './NotificationItem.module.scss';
 
-export interface NotificationItemProps {
+interface NotificationItemProps {
   icon: React.ReactNode;
   title: string;
   body: React.ReactNode;

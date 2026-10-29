@@ -11,6 +11,7 @@ import { Button, EmptyState } from '../../shared';
 import { displayNameFor } from '../../../utils/displayName';
 import { formatDateTime } from '../../../utils/formatDateTime';
 import styles from './ChatTopic.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
 
 const POLL_INTERVAL_MS = 5_000;
 
@@ -42,7 +43,6 @@ const ChatTopic: React.FC = () => {
   const [topic, setTopic] = useState<ChatTopicType | null>(null);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
-  const cancelledRef = useRef(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +50,7 @@ const ChatTopic: React.FC = () => {
     if (!serverUrl || !publicKey || !contractId || !topicId) return;
     try {
       const list = await getMessages(serverUrl, publicKey, contractId, topicId);
-      if (!cancelledRef.current) setMessages(list);
+      setMessages(list);
     } catch (err) {
       console.error('[ChatTopic] Failed to fetch messages:', err);
     }
@@ -61,23 +61,14 @@ const ChatTopic: React.FC = () => {
     try {
       const topics = await getTopics(serverUrl, publicKey, contractId);
       const found = topics.find(t => t.id === topicId) ?? null;
-      if (!cancelledRef.current) setTopic(found);
+      setTopic(found);
     } catch (err) {
       console.error('[ChatTopic] Failed to fetch topic:', err);
     }
   }, [serverUrl, publicKey, contractId, topicId]);
 
-  useEffect(() => {
-    cancelledRef.current = false;
-    if (!isReady) return;
-    refreshTopic();
-    refreshMessages();
-    const interval = setInterval(refreshMessages, POLL_INTERVAL_MS);
-    return () => {
-      cancelledRef.current = true;
-      clearInterval(interval);
-    };
-  }, [isReady, refreshTopic, refreshMessages]);
+  useLoadWhenReady(refreshTopic, isReady);
+  useLoadWhenReady(refreshMessages, isReady, POLL_INTERVAL_MS);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -151,7 +142,7 @@ const ChatTopic: React.FC = () => {
     } catch (err) {
       console.error('[ChatTopic] Failed to send message:', err);
       // Rollback
-      if (!cancelledRef.current) setMessages(snapshot);
+      setMessages(snapshot);
     } finally {
       setSending(false);
     }

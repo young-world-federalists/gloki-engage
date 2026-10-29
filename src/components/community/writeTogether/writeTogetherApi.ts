@@ -42,7 +42,7 @@ export async function getDrafts(serverUrl: string, publicKey: string, communityI
   return out.sort((a, b) => b.createdAt - a.createdAt);
 }
 
-export async function saveDraft(serverUrl: string, publicKey: string, communityId: string, entry: DraftEntry): Promise<void> {
+async function saveDraft(serverUrl: string, publicKey: string, communityId: string, entry: DraftEntry): Promise<void> {
   await contractWrite({
     serverUrl, publicKey, contractId: communityId,
     method: { name: 'set_property', values: { key: PREFIX + entry.id, value: JSON.stringify(entry) } } as IMethod,

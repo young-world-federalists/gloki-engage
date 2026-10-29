@@ -18,16 +18,6 @@ interface Ctx {
   communityId: string;
 }
 
-export async function getCommunityVouches({ serverUrl, publicKey, communityId }: Ctx): Promise<Record<string, string[]>> {
-  const res = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId: communityId,
-    method: { name: 'get_vouches', values: {} } as IMethod,
-  });
-  return res && typeof res === 'object' ? (res as Record<string, string[]>) : {};
-}
-
 export async function getStagePermissions({ serverUrl, publicKey, communityId }: Ctx): Promise<Record<PipelineStage, StageRule>> {
   const res = await contractRead({
     serverUrl,

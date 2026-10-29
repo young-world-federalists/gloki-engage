@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { HeartHandshake, Globe, Plus, ShieldCheck, ChevronDown } from 'lucide-react';
 import { Badge, Banner, Button, CountryFlag, Modal, ProgressBar } from '../shared';
 import { useI18n } from '../../i18n';
@@ -55,9 +55,11 @@ const AdoptionFramework: React.FC<AdoptionFrameworkProps> = ({ mandateId }) => {
   const [showAdopters, setShowAdopters] = useState(false);
 
   // Re-sync if the mandate changes (e.g. navigating between mandates).
-  useEffect(() => {
+  const [adoptersFor, setAdoptersFor] = useState(mandateId);
+  if (mandateId !== adoptersFor) {
+    setAdoptersFor(mandateId);
     setAdopters(getAdopters(mandateId));
-  }, [mandateId]);
+  }
 
   const summary = useMemo(() => {
     const endorsed = adopters.filter((a) => a.level === 'endorsed').length;
@@ -280,10 +282,12 @@ const EndorseModal: React.FC<EndorseModalProps> = ({
   const [note, setNote] = useState('');
 
   // Re-sync when the signed-in organization resolves after first render.
-  useEffect(() => {
+  const [presetsFor, setPresetsFor] = useState({ presetName, presetType });
+  if (presetName !== presetsFor.presetName || presetType !== presetsFor.presetType) {
+    setPresetsFor({ presetName, presetType });
     if (presetName) setName(presetName);
     if (presetType) setType(presetType);
-  }, [presetName, presetType]);
+  }
 
   const reset = () => {
     setName(presetName ?? '');

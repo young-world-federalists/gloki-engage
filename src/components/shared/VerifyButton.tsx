@@ -5,7 +5,7 @@ import styles from './VerifyButton.module.scss';
 
 export type VerifyButtonState = 'idle' | 'loading' | 'confirmed';
 
-export interface VerifyButtonProps {
+interface VerifyButtonProps {
   state: VerifyButtonState;
   onVerify: () => void;
   /** Translated labels, one per state — the accessible name IS the announcement. */

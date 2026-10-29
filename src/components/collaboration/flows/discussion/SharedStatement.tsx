@@ -186,7 +186,7 @@ const EditCard: React.FC<{
   );
 };
 
-export interface SharedStatementProps {
+interface SharedStatementProps {
   contractId: string | null;
   statement: Statement;
   edits: EditSuggestion[];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { resolveInitiativeStageContract } from '../../../services/contracts/initiative';
 import { getProposals, getResults } from '../../collaboration/flows/voting/qvApi';
@@ -12,6 +12,7 @@ import { displayNameFor } from '../../../utils/displayName';
 import CauseLine from '../CauseLine';
 import ImpactAssessmentCard from '../ImpactAssessmentCard';
 import styles from './VotePreview.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
 
 interface QvProposal { id: string; text: string; author: string; timestamp: string | number }
 interface ApprovalProposal {
@@ -19,7 +20,7 @@ interface ApprovalProposal {
   commitments?: string[]; metrics?: string[]; expertReviews?: { metrics: string[] }[]; causeId?: string;
 }
 
-export interface VotePreviewProps { initiativeId: string; communityMemberCount?: number }
+interface VotePreviewProps { initiativeId: string; communityMemberCount?: number }
 
 /**
  * S11 P2 — read-only ballot preview shown OUTSIDE the StageGate, only when the
@@ -81,7 +82,7 @@ const VotePreview: React.FC<VotePreviewProps> = ({ initiativeId }) => {
     } catch (err) { console.error('VotePreview fetch failed:', err); }
   }, [serverUrl, publicKey, initiativeId]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useLoadWhenReady(fetchData);
 
   const list = Object.values(qv).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   const merged = list.map((q) => {

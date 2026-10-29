@@ -2,7 +2,7 @@
 // layer, its fixtures and the seam can all import them without a cycle.
 import type { VouchMethod, VouchMeta } from './trustModel';
 
-export type { VouchMethod, VouchMeta };
+export type { VouchMeta };
 
 /** Verification is platform-wide on the Digital Agent (D8): no communityId. */
 export interface VerificationCtx {
@@ -18,7 +18,7 @@ export interface Approval {
   at: number;
 }
 
-export type VouchRequestStatus = 'pending' | 'approved' | 'declined';
+type VouchRequestStatus = 'pending' | 'approved' | 'declined';
 
 export interface VouchRequest {
   id: string;
@@ -56,7 +56,7 @@ export interface InvitationDraft {
 // Still pure: no new imports needed. `verificationSim.ts` and the seam both
 // import these; nothing here depends on the sim, so there is no cycle.
 
-export type CallState = 'waiting' | 'active' | 'complete';
+type CallState = 'waiting' | 'active' | 'complete';
 
 /** One person in a call — the candidate being verified, or an invited verifier. */
 export interface CallParticipant {
@@ -91,7 +91,7 @@ export interface CallInviteOffer {
 }
 
 export type DailyRole = 'candidate' | 'verifier';
-export type DailyPhase = 'preSession' | 'lobby' | 'selection' | 'inCall' | 'finished';
+type DailyPhase = 'preSession' | 'lobby' | 'selection' | 'inCall' | 'finished';
 export type DailyAssignment = 'candidate' | 'selectedVerifier' | 'observer' | 'unavailable';
 
 export interface DailyParticipant extends MemberSummary {

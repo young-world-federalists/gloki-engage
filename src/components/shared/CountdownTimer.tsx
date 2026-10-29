@@ -3,11 +3,10 @@ import clsx from 'clsx';
 import { useCountdown } from '../../hooks/useCountdown';
 import styles from './CountdownTimer.module.scss';
 
-export interface CountdownTimerProps {
+interface CountdownTimerProps {
+  /** From mount; may be fractional. */
   seconds: number;
   onDone?: () => void;
-  /** Fixed wall-clock deadline used instead of deriving one from `seconds`. */
-  deadlineMs?: number;
   /** Formats the prominent value while `label` continues to receive seconds. */
   formatValue?: (remaining: number) => React.ReactNode;
   /**
@@ -43,12 +42,11 @@ export interface CountdownTimerProps {
 const CountdownTimer: React.FC<CountdownTimerProps> = ({
   seconds,
   onDone,
-  deadlineMs,
   formatValue,
   label,
   className,
 }) => {
-  const { remaining } = useCountdown(seconds, onDone, deadlineMs === undefined ? undefined : { deadlineMs });
+  const { remaining } = useCountdown(seconds, onDone);
 
   return (
     <div className={clsx(styles.timer, className)} role="timer" aria-live="off">

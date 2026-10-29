@@ -22,6 +22,7 @@ import type { Comment, CommentVote } from './discussionApi';
 import { useContractSync } from '../shared/useContractSync';
 import { isDemoDataMode } from '../../../../services/dataMode';
 import styles from './ThreadedDiscussion.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 // Indent levels 0..DEPTH_CAP render inline; at the cap a node with children
 // collapses behind "Continue this thread →" (re-roots locally — no route).
@@ -347,7 +348,7 @@ const CommentItem: React.FC<{
   );
 };
 
-export interface ThreadedDiscussionProps {
+interface ThreadedDiscussionProps {
   /** The resolved discussion sub-contract id (caller owns useFlowContract). */
   contractId: string;
   /** When known, drives the verified-shield via per-author trust; omit on the collab surface. */
@@ -424,7 +425,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     }
   }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useLoadWhenReady(refresh);
   // Real contracts: no refetch after any write below — this SSE listener is
   // the only thing that refreshes afterward (for this contract's own write
   // confirmation event same as anyone else's). Demo contracts emit no

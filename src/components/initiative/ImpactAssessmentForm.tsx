@@ -1,10 +1,10 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Modal, Button, SegmentedControl } from '../shared';
 import { useT } from '../../i18n';
 import type { ImpactAssessment, TargetsCause } from '../collaboration/flows/voting/approvalApi';
 import styles from './ImpactAssessmentForm.module.scss';
 
-export interface ImpactAssessmentFormProps {
+interface ImpactAssessmentFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (values: Omit<ImpactAssessment, 'author' | 'timestamp' | 'proposalId'>) => void;
@@ -26,10 +26,13 @@ const FIELD_MAX = 700;
  * targets, whether that's the cause or a symptom (SegmentedControl), the
  * mechanism, broader effects, risks, opportunity costs, and time horizon.
  * Submit stays disabled until every text field is non-empty after trim.
- * Fields reset whenever the modal closes, so a later re-open (a different
- * solution, or the same one again) never leaks a stale draft.
+ * The fields mount only while the modal is open, so a later re-open (a
+ * different solution, or the same one again) never leaks a stale draft.
  */
-const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onClose, onSubmit, solutionText, submitting, error }) => {
+const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = (props) =>
+  props.isOpen ? <ImpactAssessmentFields {...props} /> : null;
+
+const ImpactAssessmentFields: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onClose, onSubmit, solutionText, submitting, error }) => {
   const t = useT();
   // Task 14 fix-round 1 (Minor 6) — prefix every element id from useId() so
   // the form stays safe to mount twice (e.g. two SolutionsBoard instances,
@@ -42,17 +45,6 @@ const ImpactAssessmentForm: React.FC<ImpactAssessmentFormProps> = ({ isOpen, onC
   const [risks, setRisks] = useState('');
   const [opportunityCosts, setOpportunityCosts] = useState('');
   const [timeHorizon, setTimeHorizon] = useState('');
-
-  useEffect(() => {
-    if (isOpen) return;
-    setTarget('');
-    setTargetsCause('cause');
-    setMechanism('');
-    setBroaderEffects('');
-    setRisks('');
-    setOpportunityCosts('');
-    setTimeHorizon('');
-  }, [isOpen]);
 
   const canSubmit = [target, mechanism, broaderEffects, risks, opportunityCosts, timeHorizon]
     .every((v) => v.trim().length > 0);

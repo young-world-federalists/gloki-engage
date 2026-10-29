@@ -163,7 +163,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
     nominates.includes(publicKey)
   );
 
-  const joinRequestResponseRef = useRef<any>(null);
+  const joinRequestResponseRef = useRef<unknown>(null);
   const contractWriteListenerRef = useRef<((event: BlockchainEvent) => void) | null>(null);
 
   const cleanupJoinListener = useCallback(() => {
@@ -173,7 +173,7 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
     }
     joinRequestResponseRef.current = null;
     setIsJoining(false);
-  }, []);
+  }, [setIsJoining]);
 
   useEffect(() => {
     return () => {

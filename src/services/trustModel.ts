@@ -22,7 +22,6 @@ export const VERIFIED_THRESHOLD = 4;
 export const ONBOARDING_SEED = 2;
 
 export const PIPELINE_STAGES: PipelineStage[] = ['problem', 'discussion', 'proposals', 'vote', 'mandate'];
-export const STAGE_RULES: StageRule[] = ['anyone', 'members', 'verified'];
 
 export const DEFAULT_STAGE_PERMISSIONS: Record<PipelineStage, StageRule> = {
   problem: 'members',

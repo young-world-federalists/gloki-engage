@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, AlertTriangle } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
@@ -11,6 +11,7 @@ import { Button, EmptyState } from '../../shared';
 import { formatTimeAgo } from '../../../utils/formatTimeAgo';
 import { displayNameFor } from '../../../utils/displayName';
 import styles from './ChatTopicList.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
 
 interface ChatTopicListProps {
   communityId: string;
@@ -43,28 +44,18 @@ const ChatTopicList: React.FC<ChatTopicListProps> = ({ communityId }) => {
   const [topics, setTopics] = useState<ChatTopic[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
-  const cancelledRef = useRef(false);
 
   const refresh = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
     try {
       const list = await getTopics(serverUrl, publicKey, contractId);
-      if (!cancelledRef.current) setTopics(list);
+      setTopics(list);
     } catch (err) {
       console.error('[ChatTopicList] Failed to fetch topics:', err);
     }
   }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => {
-    cancelledRef.current = false;
-    if (!isReady) return;
-    refresh();
-    const interval = setInterval(refresh, POLL_INTERVAL_MS);
-    return () => {
-      cancelledRef.current = true;
-      clearInterval(interval);
-    };
-  }, [isReady, refresh]);
+  useLoadWhenReady(refresh, isReady, POLL_INTERVAL_MS);
 
   const handleCreate = async () => {
     const trimmed = newTitle.trim();

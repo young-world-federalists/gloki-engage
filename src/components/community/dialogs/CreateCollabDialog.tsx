@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './CreateCollabDialog.module.scss';
 import { COLLAB_TEMPLATES, type CollabTemplate } from '../../collaboration/collabTemplates';
 import { useT } from '../../../i18n';
@@ -10,7 +10,11 @@ interface CreateCollabDialogProps {
   onSubmit: (name: string, template: CollabTemplate) => void | Promise<void>;
 }
 
-const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
+/** Mounted only while open, so every opening starts from an empty form. */
+const CreateCollabDialog: React.FC<CreateCollabDialogProps> = (props) =>
+  props.isVisible ? <CreateCollabForm {...props} /> : null;
+
+const CreateCollabForm: React.FC<CreateCollabDialogProps> = ({
   isVisible,
   onClose,
   onSubmit,
@@ -21,20 +25,7 @@ const CreateCollabDialog: React.FC<CreateCollabDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isVisible) {
-      setName('');
-      setSelectedTemplateId(COLLAB_TEMPLATES[0].id);
-      setError(null);
-    }
-  }, [isVisible]);
-
-  const handleClose = () => {
-    setName('');
-    setSelectedTemplateId(COLLAB_TEMPLATES[0].id);
-    setError(null);
-    onClose();
-  };
+  const handleClose = onClose;
 
   const handleSubmit = async () => {
     setError(null);

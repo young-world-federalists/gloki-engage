@@ -14,7 +14,7 @@
  * keys to fr/sw) and localize the dialog's "Unknown Member"/"Unknown" fallbacks too
  * (kept English here so they stay coherent with this English card).
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { createRoot } from 'react-dom/client';
 
@@ -28,6 +28,51 @@ interface IdentityCardSVGProps {
   width?: number;
   height?: number;
   onRenderComplete?: () => void;
+}
+
+interface TextImage { imageData: string; width: number; height: number; offsetX: number; offsetY: number }
+
+const EMPTY_IMAGE: TextImage = { imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0 };
+
+// Renders text as PNG with precise positioning
+function renderTextAsPNG(
+  text: string, 
+  fontSize: number, 
+  fontFamily: string, 
+  fontWeight: string, 
+  color: string,
+): TextImage {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return EMPTY_IMAGE;
+
+  // Set font first to measure text
+  ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
+  
+  // Measure the text to get accurate dimensions
+  const textMetrics = ctx.measureText(text);
+  const textWidth = textMetrics.width;
+  const textHeight = fontSize * 3; // Approximate height
+  
+  // Create a larger canvas to render the text
+  const padding = fontSize; // Add some padding - fontsize/3*3
+  canvas.width = textWidth + padding * 2;
+  canvas.height = textHeight + padding * 2;
+
+  // Set font and render text at known coordinates (with padding offset)
+  ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic'; // Use 'top' for more predictable positioning
+  ctx.fillText(text, padding, canvas.height - padding);
+
+  return {
+    imageData: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+    offsetX: - padding, // Adjust for the clipping offset
+    offsetY: - canvas.height + padding,
+  };
 }
 
 const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
@@ -51,52 +96,15 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
   // State for QR code paths
   const [qrPaths, setQrPaths] = useState<Array<{key: number, d: string, fill: string}>>([]);
   
-  // State for text images with positioning data
-  const [memberNameImage, setMemberNameImage] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [memberNameImageSmall, setMemberNameImageSmall] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [communityNameImageWhite, setCommunityNameImageWhite] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [communityNameImageBlack, setCommunityNameImageBlack] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  
-  // Function to render text as PNG with precise positioning
-  const renderTextAsPNG = (
-    text: string, 
-    fontSize: number, 
-    fontFamily: string, 
-    fontWeight: string, 
-    color: string,
-  ): {imageData: string, width: number, height: number, offsetX: number, offsetY: number} => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return {imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0};
-
-    // Set font first to measure text
-    ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
-    
-    // Measure the text to get accurate dimensions
-    const textMetrics = ctx.measureText(text);
-    const textWidth = textMetrics.width;
-    const textHeight = fontSize * 3; // Approximate height
-    
-    // Create a larger canvas to render the text
-    const padding = fontSize; // Add some padding - fontsize/3*3
-    canvas.width = textWidth + padding * 2;
-    canvas.height = textHeight + padding * 2;
-
-    // Set font and render text at known coordinates (with padding offset)
-    ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
-    ctx.fillStyle = color;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic'; // Use 'top' for more predictable positioning
-    ctx.fillText(text, padding, canvas.height - padding);
-
-    return {
-      imageData: canvas.toDataURL('image/png'),
-      width: canvas.width,
-      height: canvas.height,
-      offsetX: - padding, // Adjust for the clipping offset
-      offsetY: - canvas.height + padding,
-    };
-  };
+  // Text images with positioning data
+  // Member name positioned at (115, headerHeight + 5) in SVG coordinates
+  const memberNameImage = useMemo(() => renderTextAsPNG(memberName, 20, 'Arial, sans-serif', 'bold', '#1f2937'), [memberName]);
+  // Member name small positioned at (115, headerHeight + 105) in SVG coordinates
+  const memberNameImageSmall = useMemo(() => renderTextAsPNG(memberName, 12, 'Arial, sans-serif', 'bold', '#6b7280'), [memberName]);
+  // Community name white positioned at (76, 24) in SVG coordinates
+  const communityNameImageWhite = useMemo(() => renderTextAsPNG(communityName, 16, 'Arial, sans-serif', 'normal', '#ffffff'), [communityName]);
+  // Community name black positioned at (20, headerHeight + 140) in SVG coordinates
+  const communityNameImageBlack = useMemo(() => renderTextAsPNG(communityName + '.', 12, 'Arial, sans-serif', 'normal', '#6b7280'), [communityName]);
   
   // Function to generate QR code as SVG paths
   const generateQRCodePaths = async (value: string): Promise<Array<{key: number, d: string, fill: string}>> => {
@@ -157,28 +165,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
     }
   };
 
-  // Generate QR code paths and text images on component mount
+  // Generate QR code paths on component mount
   useEffect(() => {
     generateQRCodePaths(qrData).then(setQrPaths);
-    
-    // Generate text images with precise positioning
-    // Member name positioned at (115, headerHeight + 5) in SVG coordinates
-    const memberImg = renderTextAsPNG(memberName, 20, 'Arial, sans-serif', 'bold', '#1f2937');
-
-    // Member name small positioned at (115, headerHeight + 105) in SVG coordinates
-    const memberImgSmall = renderTextAsPNG(memberName, 12, 'Arial, sans-serif', 'bold', '#6b7280');
-    
-    // Community name white positioned at (76, 24) in SVG coordinates  
-    const communityImgWhite = renderTextAsPNG(communityName, 16, 'Arial, sans-serif', 'normal', '#ffffff');
-
-    // Community name black positioned at (20, headerHeight + 140) in SVG coordinates
-    const communityImgBlack = renderTextAsPNG(communityName + '.', 12, 'Arial, sans-serif', 'normal', '#6b7280');
-    
-    setMemberNameImage(memberImg);
-    setMemberNameImageSmall(memberImgSmall);
-    setCommunityNameImageWhite(communityImgWhite);
-    setCommunityNameImageBlack(communityImgBlack);
-  }, [qrData, memberName, communityName, headerHeight]);
+  }, [qrData]);
 
   // Call onRenderComplete when qrPaths and text images are set
   useEffect(() => {

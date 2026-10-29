@@ -10,7 +10,7 @@ import InCallVerifyAction from './InCallVerifyAction';
 import pages from './VerificationPages.module.scss';
 import styles from './CallFlow.module.scss';
 
-export interface InCallViewProps {
+interface InCallViewProps {
   /** The session CallFlow holds; this component never creates or destroys it (mirrors WaitingRoom). */
   session: CallSession;
   /** Frozen once in CallFlow from trust at first render (E6); the whole layout branches on this. */

@@ -11,24 +11,11 @@
 // except the dev-only scenario dialog and the authenticated notification runtime.
 import { getAgent, saveAgent } from '../../components/identity/agent/digitalAgentStore';
 import { store } from '../../store';
-import { addUserVouch } from '../trust';
 import { VERIFIED_THRESHOLD } from '../trustModel';
-import { publishNotification, updateNotificationEvent, type NotificationOwner } from '../notificationEvents';
+import { publishNotification, type NotificationOwner } from '../notificationEvents';
 import { PERSONAS } from './fixtures/identity';
-import {
-  allVerificationMembers,
-  memberDeclines,
-  SEEDED_INCOMING_REQUESTERS,
-} from './fixtures/verification';
-import type {
-  Approval,
-  InvitationDraft,
-  MemberSummary,
-  VerificationState,
-  VouchMeta,
-  VouchRequest,
-  VouchRequestStatus,
-} from '../verificationModel';
+import { allVerificationMembers, SEEDED_INCOMING_REQUESTERS } from './fixtures/verification';
+import type { Approval, InvitationDraft, VerificationState, VouchMeta, VouchRequest } from '../verificationModel';
 
 const LEGACY_KEY = 'gloki_demo_verification';
 const HOUR = 3_600_000;
@@ -73,11 +60,7 @@ function write(owner: NotificationOwner, state: DemoState): void {
     console.error('[VerificationDemo] Failed to persist state:', err);
   }
 }
-
-const newId = (): string => `vr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-/** The spec's simulated response window: 2–5 s. Random delay, deterministic outcome (E2). */
-const responseDelay = (): number => 2000 + Math.floor(Math.random() * 3000);
 
 function seededIncoming(approver: string, now: number): VouchRequest[] {
   return SEEDED_INCOMING_REQUESTERS.map((requester, i) => ({
@@ -147,62 +130,6 @@ export async function demoGetState(owner: NotificationOwner): Promise<Verificati
     sent: state.sent,
     invitationRequests: state.invitationRequests,
   };
-}
-
-export async function demoListMembers(query?: string): Promise<MemberSummary[]> {
-  await wait(50);
-  const all = allVerificationMembers();
-  const q = query?.trim().toLowerCase();
-  return q ? all.filter((m) => m.name.toLowerCase().includes(q)) : all;
-}
-
-/**
- * Writes the pending request synchronously (before the first await) so a
- * re-fetch right after the call shows "Requested", then settles after 2–5 s.
- */
-export async function demoRequestVouch(owner: NotificationOwner, approverKey: string): Promise<VouchRequest> {
-  const state = ensureSeeded(owner);
-  const request: VouchRequest = { id: newId(), requester: owner.publicKey, approver: approverKey, at: Date.now(), status: 'pending' };
-  write(owner, { ...state, sent: [...state.sent.filter((r) => r.approver !== approverKey), request] });
-  await wait(responseDelay());
-  if (!ownerIsCurrent(owner)) return request;
-  const status: VouchRequestStatus = memberDeclines(approverKey) ? 'declined' : 'approved';
-  const settled: VouchRequest = { ...request, status, at: Date.now() };
-  const current = read(owner);
-  write(owner, { ...current, sent: current.sent.map((r) => (r.id === request.id ? settled : r)) });
-  if (status === 'approved') {
-    addUserVouch(approverKey, { method: 'direct', at: settled.at });
-    publishNotification(owner, {
-      id: `approval-received:${request.id}`,
-      type: 'approval_received',
-      createdAt: settled.at,
-      payload: {
-        requestId: request.id,
-        approverKey,
-        approverName: memberName(approverKey),
-      },
-    });
-  }
-  return settled;
-}
-
-export async function demoRespondToRequest(
-  owner: NotificationOwner,
-  requestId: string,
-  approve: boolean,
-): Promise<void> {
-  await wait(300);
-  if (!ownerIsCurrent(owner)) return;
-  const state = read(owner);
-  const target = state.incoming.find((r) => r.id === requestId);
-  if (!target || target.approver !== owner.publicKey || target.status !== 'pending') return;
-  const status: VouchRequestStatus = approve ? 'approved' : 'declined';
-  write(owner, {
-    ...state,
-    incoming: state.incoming.map((r) => (r.id === requestId ? { ...r, status } : r)),
-    given: approve ? { ...state.given, [target.requester]: { method: 'direct', at: Date.now() } } : state.given,
-  });
-  updateNotificationEvent(owner, `verification-request:${requestId}`, 'consumed');
 }
 
 export async function demoSendInvitation(owner: NotificationOwner, draft: InvitationDraft): Promise<void> {

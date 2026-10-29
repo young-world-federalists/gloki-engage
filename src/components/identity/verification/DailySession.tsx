@@ -130,7 +130,7 @@ const DailySession: React.FC = () => {
 
   const beforeStart = snapshot.now < snapshot.startsAt;
   const target = beforeStart ? snapshot.startsAt : snapshot.selectionAt;
-  const deadlineMs = Date.now() + Math.max(0, target - snapshot.now);
+  const secondsLeft = Math.max(0, target - snapshot.now) / 1000;
   const localTime = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(snapshot.startsAt);
 
   return (
@@ -149,8 +149,7 @@ const DailySession: React.FC = () => {
         </div>
         <CountdownTimer
           key={`${snapshot.id}:${target}:${snapshot.clockGeneration}`}
-          seconds={0}
-          deadlineMs={deadlineMs}
+          seconds={secondsLeft}
           formatValue={formatRemaining}
           label={(value) =>
             beforeStart

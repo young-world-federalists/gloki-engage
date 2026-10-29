@@ -19,6 +19,7 @@ import {
   type ConvictionTotal,
 } from '../../../../services/convictionModel';
 import styles from './ConvictionStaking.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 const convictionCode = '';
 
@@ -56,8 +57,11 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
   const [duration, setDuration] = useState<ConvictionDuration>('1m');
   const [submitting, setSubmitting] = useState(false);
   const [loadedContractId, setLoadedContractId] = useState<string | null>(null);
+  // The contract on screen, so a read that lands after a switch is dropped.
   const currentContractId = useRef(contractId);
-  currentContractId.current = contractId;
+  useEffect(() => {
+    currentContractId.current = contractId;
+  }, [contractId]);
   const hasLoadedData = Boolean(contractId) && loadedContractId === contractId;
   // S33: a commitment is changeable, not frozen. `editing` swaps the summary
   // back to the picker, pre-set to what you already chose.
@@ -85,9 +89,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
     }
   }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => {
-    if (isReady) fetchData();
-  }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
   // Real contracts: no refetch after either write below — this SSE listener
   // is the only thing that refreshes afterward. Demo contracts emit no
   // events at all, so handleStake/handleWithdraw fall back to a direct

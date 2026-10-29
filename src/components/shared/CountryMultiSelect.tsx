@@ -10,7 +10,7 @@ import {
 import SearchableSelect from './SearchableSelect';
 import styles from './CountryMultiSelect.module.scss';
 
-export interface CountryMultiSelectProps {
+interface CountryMultiSelectProps {
   /** Selected ISO 3166-1 alpha-2 codes (may include the 'OTHER' catch-all). */
   value: string[];
   onChange: (codes: string[]) => void;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlarmClock,
@@ -200,8 +200,13 @@ const NotificationCenter: React.FC = () => {
     const activeScope = buildNotificationsScope(serverUrl, publicKey);
     return state.notifications.storageScope === activeScope ? state.notifications.items : [];
   });
+  // Cleared when the language changes: the message was in the old one.
   const [liveStatus, setLiveStatus] = useState('');
-  useEffect(() => setLiveStatus(''), [t]);
+  const [liveStatusT, setLiveStatusT] = useState(() => t);
+  if (t !== liveStatusT) {
+    setLiveStatusT(() => t);
+    setLiveStatus('');
+  }
   const unreadCount = items.filter((notification) => !notification.read).length;
   const presented = items.flatMap((notification) => {
     const presentation = presentNotification(notification, t);

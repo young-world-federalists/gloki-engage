@@ -8,13 +8,93 @@ export type EventListener = (event: BlockchainEvent) => void;
 
 export type EventType = 'contract_write' | 'deploy_contract' | 'a2a_connect';
 
+const RECONNECT_BASE_MS = 1000;
+const RECONNECT_MAX_MS = 30_000;
+/** 1 + 2 + 4 + 8 + 16 + 30 + 30 + 30 s: about two minutes of trying. */
+const MAX_RECONNECT_ATTEMPTS = 8;
+/** A connection that lasted this long counts as healthy: the next drop starts a fresh round. */
+const HEALTHY_CONNECTION_MS = 60_000;
+
+/**
+ * One SSE connection that reopens itself after a failure, with exponential
+ * backoff and a cap. The browser's own EventSource retry is not used: it
+ * retries every few seconds forever, even with no network. Offline, no
+ * attempts are spent; `resume()` (called when the browser comes back online
+ * or the tab is shown again) starts a fresh round after the cap was reached.
+ */
+class ReconnectingStream {
+  private source: EventSource | null = null;
+  private retryTimer: ReturnType<typeof setTimeout> | null = null;
+  private attempts = 0;
+  private openedAt: number | null = null;
+  private closed = false;
+  private readonly url: string;
+  private readonly onMessage: (data: string) => void;
+  private readonly onStatus?: (open: boolean) => void;
+
+  constructor(url: string, onMessage: (data: string) => void, onStatus?: (open: boolean) => void) {
+    this.url = url;
+    this.onMessage = onMessage;
+    this.onStatus = onStatus;
+    this.open();
+  }
+
+  private open() {
+    try {
+      const source = new EventSource(this.url);
+      this.source = source;
+      source.onopen = () => {
+        this.openedAt = Date.now();
+        this.onStatus?.(true);
+      };
+      source.onmessage = (event) => this.onMessage(event.data);
+      source.onerror = () => {
+        // Not on open: a server that accepts and drops at once must still hit the cap.
+        if (this.openedAt !== null && Date.now() - this.openedAt >= HEALTHY_CONNECTION_MS) this.attempts = 0;
+        this.openedAt = null;
+        source.close();
+        this.source = null;
+        this.onStatus?.(false);
+        this.scheduleRetry();
+      };
+    } catch {
+      this.source = null;
+      this.scheduleRetry();
+    }
+  }
+
+  private scheduleRetry() {
+    if (this.closed || this.retryTimer) return;
+    if (!navigator.onLine) return; // resume() reopens once the browser is back online
+    if (this.attempts >= MAX_RECONNECT_ATTEMPTS) return; // until resume()
+    const delay = Math.min(RECONNECT_BASE_MS * 2 ** this.attempts, RECONNECT_MAX_MS);
+    this.attempts++;
+    this.retryTimer = setTimeout(() => {
+      this.retryTimer = null;
+      this.open();
+    }, delay);
+  }
+
+  /** Reopens a stream that is down and not already waiting to retry. */
+  resume() {
+    if (this.closed || this.source || this.retryTimer) return;
+    this.attempts = 0;
+    this.open();
+  }
+
+  close() {
+    this.closed = true;
+    if (this.retryTimer) clearTimeout(this.retryTimer);
+    this.retryTimer = null;
+    this.source?.close();
+    this.source = null;
+  }
+}
+
 class EventStreamService {
-  private eventSource: EventSource | null = null;
+  private stream: ReconnectingStream | null = null;
   private listeners: Map<EventType, Set<EventListener>> = new Map();
   private isConnected = false;
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
   private connectionListeners: Set<(isConnected: boolean) => void> = new Set();
   /** The signed-in identity's own stream, as passed to connect(). */
   private ownServer: string | null = null;
@@ -24,14 +104,28 @@ class EventStreamService {
    * events only appear on the HOST agent's stream, so each host node gets one
    * extra connection covering every (agent, contract) pair watched there.
    */
-  private watched: Map<string, { pairs: Set<string>; source: EventSource | null }> = new Map();
+  private watched: Map<string, { pairs: Set<string>; stream: ReconnectingStream | null }> = new Map();
 
-  private notifyConnectionListeners() {
+  constructor() {
+    if (typeof window === 'undefined') return;
+    const resumeAll = () => {
+      this.stream?.resume();
+      for (const entry of this.watched.values()) entry.stream?.resume();
+    };
+    window.addEventListener('online', resumeAll);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') resumeAll();
+    });
+  }
+
+  private setConnected(connected: boolean) {
+    if (connected === this.isConnected) return;
+    this.isConnected = connected;
     this.connectionListeners.forEach(listener => {
       try {
         listener(this.isConnected);
-      } catch (e) {
-        // console.error('Error in connection status listener:', e);
+      } catch {
+        // a failing listener must not stop the others
       }
     });
   }
@@ -45,42 +139,16 @@ class EventStreamService {
   }
 
   connect(serverUrl: string, agent: string) {
-    if (this.eventSource) {
-      this.disconnect();
-    }
+    this.disconnect();
     // Watched host streams belong to the signed-in identity; drop them when it changes.
     if (serverUrl !== this.ownServer || agent !== this.ownAgent) this.unwatchAll();
     this.ownServer = serverUrl;
     this.ownAgent = agent;
-
-    const streamUrl = `${serverUrl}/stream?agent=${agent}&contract=`;
-    // console.log('Connecting to SSE stream:', streamUrl);
-
-    try {
-      this.eventSource = new EventSource(streamUrl);
-      this.setupEventHandlers();
-    } catch (error) {
-      // console.error('Failed to create EventSource:', error);
-      this.handleConnectionError();
-    }
-  }
-
-  private setupEventHandlers() {
-    if (!this.eventSource) return;
-
-    this.eventSource.onopen = () => {
-      // console.log('SSE connection established');
-      this.isConnected = true;
-      this.reconnectAttempts = 0;
-      this.notifyConnectionListeners();
-    };
-
-    this.eventSource.onmessage = (event) => this.dispatch(event.data);
-
-    this.eventSource.onerror = () => {
-      // console.error('SSE connection error');
-      this.handleConnectionError();
-    };
+    this.stream = new ReconnectingStream(
+      `${serverUrl}/stream?agent=${agent}&contract=`,
+      (data) => this.dispatch(data),
+      (open) => this.setConnected(open),
+    );
   }
 
   /** Parses one SSE message and notifies the listeners for its action. */
@@ -111,63 +179,31 @@ class EventStreamService {
   watchContract(server: string, agent: string, contract: string) {
     if (server === this.ownServer && agent === this.ownAgent) return;
     const pair = `${agent}\n${contract}`;
-    const entry = this.watched.get(server) ?? { pairs: new Set<string>(), source: null };
+    const entry = this.watched.get(server) ?? { pairs: new Set<string>(), stream: null };
     if (entry.pairs.has(pair)) return;
     entry.pairs.add(pair);
     this.watched.set(server, entry);
     // One connection per host node; reopen it with the full pair list.
-    entry.source?.close();
+    entry.stream?.close();
     const query = [...entry.pairs]
       .map((p) => {
         const [a, c] = p.split('\n');
         return `agent=${encodeURIComponent(a)}&contract=${encodeURIComponent(c)}`;
       })
       .join('&');
-    try {
-      entry.source = new EventSource(`${server}/stream?${query}`);
-      entry.source.onmessage = (event) => this.dispatch(event.data);
-    } catch {
-      entry.source = null;
-    }
+    entry.stream = new ReconnectingStream(`${server}/stream?${query}`, (data) => this.dispatch(data));
   }
 
   /** Closes every host stream opened by watchContract. */
   unwatchAll() {
-    for (const entry of this.watched.values()) entry.source?.close();
+    for (const entry of this.watched.values()) entry.stream?.close();
     this.watched.clear();
   }
 
-  private handleConnectionError() {
-    this.isConnected = false;
-    this.notifyConnectionListeners();
-    
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      // console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-      
-      setTimeout(() => {
-        if (this.eventSource) {
-          this.eventSource.close();
-          this.eventSource = null;
-        }
-        // Note: Reconnection logic would need to be implemented here
-        // For now, we'll just log the error
-      }, this.reconnectDelay * this.reconnectAttempts);
-    } else {
-      // console.error('Max reconnection attempts reached');
-    }
-  }
-
   disconnect() {
-    if (this.eventSource) {
-      // console.log('Disconnecting from SSE stream');
-      this.eventSource.close();
-      this.eventSource = null;
-    }
-
-    this.isConnected = false;
-    this.notifyConnectionListeners();
-    this.reconnectAttempts = 0;
+    this.stream?.close();
+    this.stream = null;
+    this.setConnected(false);
   }
 
   addEventListener(eventType: EventType, listener: EventListener) {
@@ -181,10 +217,8 @@ class EventStreamService {
     const listeners = this.listeners.get(eventType);
     if (listeners) {
       listeners.delete(listener);
-      // console.log(`Event listener removed for: ${eventType}. Remaining listeners: ${listeners.size}`);
       if (listeners.size === 0) {
         this.listeners.delete(eventType);
-        // console.log(`No more listeners for: ${eventType}, removed from registry`);
       }
     }
   }

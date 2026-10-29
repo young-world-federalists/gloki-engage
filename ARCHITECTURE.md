@@ -69,7 +69,7 @@ The app runs on two data layers, chosen **per page** by the URL ([docs/DEMO_MODE
 
 **Local (in-memory)**: Document, Q&A, Roles, Scheduling, Taskboard — keyed by `instanceId` (next targets for on-chain migration)
 
-**AI Tools** (`components/shared/AITools.tsx`): `TranslateButton` (12 languages via OpenAI API), `SummaryButton` (discussion summarizer), `AIToolbar` (combined). Requires OpenAI API key in user profile. Shows key hint icon if no key set. Service layer in `services/ai.ts`.
+**AI Tools** (`components/shared/AITools.tsx`): `ShowInMyLanguage`, the demo's "show in my language" toggle over seeded translations (no AI call).
 
 **Shared UI**: `EarthFlag` (`components/shared/EarthFlag.tsx`) — International Flag of Planet Earth SVG (flower of life pattern), used in `PageHeader` as logo.
 

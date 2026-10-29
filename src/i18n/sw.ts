@@ -29,7 +29,6 @@ const sw: Dictionary = {
   'common.dismiss': 'Ondoa',
   'common.share': 'Shiriki',
   'common.notLoggedIn': 'Hujaingia',
-  'common.optional': 'Si lazima',
 
   // App shell — loader, error boundary, 404
   'app.title': 'Gloki — Utawala wa Kujitegemea Uliogatuliwa',
@@ -199,7 +198,6 @@ const sw: Dictionary = {
   'agent.networkIdentity': 'Utambulisho wa mtandao',
   'agent.publicKey': 'Ufunguo wa umma',
   'agent.serverUrl': 'Seva',
-  'agent.aiKey': 'Ufunguo wa API ya AI (umehifadhiwa kwenye kifaa hiki)',
   'agent.vouchedBy': 'Amedhaminiwa na {count}',
   'agent.activity.title': 'Ushiriki',
   'agent.activity.none': 'Bado hakuna shughuli',

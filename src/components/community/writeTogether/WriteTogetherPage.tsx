@@ -41,6 +41,8 @@ const WriteTogetherPage: React.FC<{ communityId: string }> = ({ communityId }) =
   // Re-read on entry AND whenever the sub-view changes: returning from the
   // editor via history back must show fresh statuses (the demo seam emits no
   // write events), and a deep-linked editor needs the list for its lookup.
+  // `refresh` sets state only after its await; the rule can't see that.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void refresh(); }, [refresh, draftParam]);
 
   const current = useMemo(

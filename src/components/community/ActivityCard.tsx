@@ -15,7 +15,7 @@ import VoteActivityCard from './VoteActivityCard';
 import MandateActivityCard from './MandateActivityCard';
 import styles from './ActivityCard.module.scss';
 
-export interface ActivityCardProps {
+interface ActivityCardProps {
   item: Collaboration;
   communityId: string;
   stage: string;

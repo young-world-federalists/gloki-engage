@@ -4,7 +4,7 @@ import UserIdentity from './UserIdentity';
 import type { TrustState } from '../../services/trustModel';
 import styles from './MemberCard.module.scss';
 
-export interface MemberCardProps {
+interface MemberCardProps {
   /** Display name, already composed. */
   name: string;
   /** ISO 3166-1 alpha-2. */

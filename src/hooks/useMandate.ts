@@ -80,14 +80,16 @@ export function useMandate(
   // Clear derived state the instant the initiative changes so the memo falls back
   // to the new id's fixture rather than flashing the previous mandate's spine
   // until the fresh read-back lands.
-  useEffect(() => {
+  const [stateFor, setStateFor] = useState(initiativeId);
+  if (initiativeId !== stateFor) {
+    setStateFor(initiativeId);
     setResults(null);
     setProposals(null);
     setVoters(null);
     setRatification(null);
     setCauses([]);
     setAssessments([]);
-  }, [initiativeId]);
+  }
 
   // Eligible denominator N — mirror MandateActivityCard: fetch the community's
   // member + active-member counts so turnout reads "X of N".

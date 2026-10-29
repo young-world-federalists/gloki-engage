@@ -22,7 +22,7 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
   mandate: 'Mandate',
 };
 
-export interface StageAdvanceBarProps {
+interface StageAdvanceBarProps {
   initiativeId: string;
   communityId: string;
   stage: PipelineStage;

@@ -65,15 +65,14 @@ export function useInitiativePost(
 
   const [details, setDetails] = useState<InitiativeDetails | null>(null);
   const [tally, setTally] = useState<Tally | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Loading until the read for the current initiative (and identity) lands.
+  const request = serverUrl && publicKey && initiativeId ? `${serverUrl}|${publicKey}|${initiativeId}` : null;
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const loading = request !== null && loadedFor !== request;
 
   useEffect(() => {
-    if (!serverUrl || !publicKey || !initiativeId) {
-      setLoading(false);
-      return;
-    }
+    if (!serverUrl || !publicKey || !initiativeId) return;
     let cancelled = false;
-    setLoading(true);
     (async () => {
       try {
         const det = await getInitiative(serverUrl, publicKey, initiativeId);
@@ -95,12 +94,12 @@ export function useInitiativePost(
       } catch {
         /* tally is optional — ignore */
       }
-      if (!cancelled) setLoading(false);
+      if (!cancelled) setLoadedFor(request);
     })();
     return () => {
       cancelled = true;
     };
-  }, [serverUrl, publicKey, initiativeId]);
+  }, [serverUrl, publicKey, initiativeId, request]);
 
   const framing = useMemo(
     () => getProblemFraming(initiativeId, details?.title ?? fallbackTitle),

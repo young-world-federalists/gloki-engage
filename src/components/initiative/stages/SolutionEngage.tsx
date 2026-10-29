@@ -3,7 +3,7 @@ import StageGate from '../../community/StageGate';
 import ProposalsStage from '../../stages/ProposalsStage';
 import styles from './SolutionEngage.module.scss';
 
-export interface SolutionEngageProps {
+interface SolutionEngageProps {
   /** The initiative contract id — the shared parent contract. */
   initiativeId: string;
   /** Hosting community — gates the proposals participation via {@link StageGate}. */

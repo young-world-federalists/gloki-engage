@@ -17,6 +17,7 @@ import {
   INITIATIVES,
   toProblemFraming,
   type ProblemFraming,
+  type ProblemScope,
   type SdgTag,
 } from '../../services/demo/fixtures/problems';
 
@@ -57,7 +58,7 @@ export interface ProposeIssueInput {
   /** Optional light SDG tag. */
   sdg?: SdgTag;
   /** Global-reach vs single-community framing. */
-  scope?: import('../../services/demo/fixtures/problems').ProblemScope;
+  scope?: ProblemScope;
   /** Optional credited co-authors carried from a co-owned draft (Write Together, S3). */
   coAuthors?: string[];
 }

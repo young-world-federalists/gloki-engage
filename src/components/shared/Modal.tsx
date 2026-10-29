@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { X } from 'lucide-react';
 import styles from './Modal.module.scss';
 
-export interface ModalProps {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   /** Heading text/node. Optional, but provide one for accessibility where possible. */

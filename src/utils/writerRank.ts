@@ -31,8 +31,8 @@ export interface WriterScore {
 
 export type EligibilityRung = 'strict' | 'no-floor' | 'top-25' | 'any-verified';
 
-export const TOP_WRITERS = 10;
-export const WIDE_WRITERS = 25;
+const TOP_WRITERS = 10;
+const WIDE_WRITERS = 25;
 export const ASSESSORS_PER_SOLUTION = 3;
 
 interface WriterAccumulator {
@@ -159,8 +159,4 @@ export function eligibleAssessors(args: {
   }
   const last = rungs[rungs.length - 1];
   return { keys: orderByRank(last.keys, writers), rung: last.rung };
-}
-
-export function canAssess(publicKey: string, args: Parameters<typeof eligibleAssessors>[0]): boolean {
-  return eligibleAssessors(args).keys.includes(publicKey);
 }

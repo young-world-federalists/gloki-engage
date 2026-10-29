@@ -11,7 +11,7 @@ import MemberList from './MemberList';
 import pages from './VerificationPages.module.scss';
 import styles from './CallFlow.module.scss';
 
-export interface CallSummaryProps {
+interface CallSummaryProps {
   /** The session CallFlow held for the call that just ended. Never null when
    *  this renders — see the guard in CallFlow.tsx's `summary` branch. */
   session: CallSession;

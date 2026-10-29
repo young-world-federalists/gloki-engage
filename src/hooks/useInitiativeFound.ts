@@ -40,5 +40,3 @@ export function useInitiativeFound(initiativeId: string | undefined): FoundState
 
   return state.id === initiativeId ? state.found : 'loading';
 }
-
-export default useInitiativeFound;

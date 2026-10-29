@@ -13,6 +13,7 @@ import { getMessages, addMessage } from '../community/chat/chatApi';
 import type { ChatMessage } from '../community/chat/chatApi';
 import cs from '../../pages/Container.module.scss';
 import styles from './SuggestionDmView.module.scss';
+import { useLoadWhenReady } from '../../hooks/useLoadWhenReady';
 
 // One implicit thread per DM contract — the flat chat mechanic only needs a topic
 // id string (no topic record). The DM contract itself is keyed per requester via
@@ -47,7 +48,6 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
   const [sending, setSending] = useState(false);
   const [problem, setProblem] = useState<{ title?: string; description?: string }>({});
   const bottomRef = useRef<HTMLDivElement>(null);
-  const cancelled = useRef(false);
 
   // The problem being acted on stays visible (§5 rule 11). The header h1 is the
   // author's name, so the ContextCard carries the problem's title + summary.
@@ -75,17 +75,13 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
     if (!serverUrl || !publicKey || !contractId) return;
     try {
       const list = await getMessages(serverUrl, publicKey, contractId, DM_TOPIC);
-      if (!cancelled.current) setMessages(list);
+      setMessages(list);
     } catch (err) {
       console.error('[SuggestionDmView] Failed to fetch messages:', err);
     }
   }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => {
-    cancelled.current = false;
-    if (isReady) refresh();
-    return () => { cancelled.current = true; };
-  }, [isReady, refresh]);
+  useLoadWhenReady(refresh, isReady);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -110,7 +106,7 @@ const SuggestionDmView: React.FC<SuggestionDmViewProps> = ({ initiativeId }) => 
       await refresh();
     } catch (err) {
       console.error('[SuggestionDmView] Failed to send:', err);
-      if (!cancelled.current) setMessages(snapshot);
+      setMessages(snapshot);
     } finally {
       setSending(false);
     }

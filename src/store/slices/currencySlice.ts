@@ -33,9 +33,6 @@ export const fetchUserBalance = createAsyncThunk(
       args.contractId,
     );
 
-    console.log('Contract balance:', balance);
-    console.log('Contract parameters:', parameters);
-    
     return { balance, parameters };
   }
 );
@@ -43,11 +40,7 @@ export const fetchUserBalance = createAsyncThunk(
 const currencySlice = createSlice({
   name: 'currency',
   initialState,
-  reducers: {
-    clearError: (state) => {
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserBalance.pending, (state) => {
@@ -66,5 +59,4 @@ const currencySlice = createSlice({
   },
 });
 
-export const { clearError } = currencySlice.actions;
 export default currencySlice.reducer;

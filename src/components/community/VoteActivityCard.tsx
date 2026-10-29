@@ -9,7 +9,7 @@ import { useInitiativePost } from '../initiative/useInitiativePost';
 import VoteEngage from '../initiative/stages/VoteEngage';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 
-export interface VoteActivityCardProps {
+interface VoteActivityCardProps {
   item: Collaboration;
   communityId: string;
   authorName: string;

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import type { RootState } from '../../../store';
 import { fetchCollaborations } from '../../../store/slices/communitiesSlice';
 import { useT } from '../../../i18n';
 import { SearchableSelect } from '../../shared';
@@ -9,7 +10,16 @@ import styles from './ProblemTagPicker.module.scss';
 
 interface ProblemRow { id: string; title: string; community: string; }
 
-export interface ProblemTagPickerProps {
+type Collaborations = RootState['communities']['communityCollaborations'];
+
+// A community's problems: only its 'initiative' items
+// (Collaboration.type is 'initiative' | 'wish' | 'agreement' | 'collab').
+const toRows = (collabs: Collaborations, id: string): ProblemRow[] =>
+  (collabs[id] ?? [])
+    .filter((c) => c.type === 'initiative')
+    .map((c) => ({ id: c.id, title: c.title, community: id }));
+
+interface ProblemTagPickerProps {
   targetCommunity: string;
   value?: DraftTag;
   onChange: (tag: DraftTag | undefined) => void;
@@ -42,20 +52,13 @@ const ProblemTagPicker: React.FC<ProblemTagPickerProps> = ({ targetCommunity, va
     });
   }, [serverUrl, publicKey, targetCommunity, myCommunityIds, collabs, dispatch]);
 
-  // Build ProblemRow[] for a given community id — only 'initiative' type items
-  // (Collaboration.type is 'initiative' | 'wish' | 'agreement' | 'collab').
-  const toRows = (id: string): ProblemRow[] =>
-    (collabs[id] ?? [])
-      .filter((c) => c.type === 'initiative')
-      .map((c) => ({ id: c.id, title: c.title, community: id }));
-
   // Dropdown options: only the target community's initiatives
-  const targetProblems = useMemo(() => toRows(targetCommunity), [collabs, targetCommunity]); // eslint-disable-line react-hooks/exhaustive-deps
+  const targetProblems = useMemo(() => toRows(collabs, targetCommunity), [collabs, targetCommunity]);
 
   // Resolver pool: all communities (for cross-community code paste)
   const allProblems = useMemo(
-    () => Array.from(new Set([targetCommunity, ...myCommunityIds])).flatMap(toRows),
-    [collabs, targetCommunity, myCommunityIds], // eslint-disable-line react-hooks/exhaustive-deps
+    () => Array.from(new Set([targetCommunity, ...myCommunityIds])).flatMap((id) => toRows(collabs, id)),
+    [collabs, targetCommunity, myCommunityIds],
   );
 
   const options = targetProblems.map((p) => ({

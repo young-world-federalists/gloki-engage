@@ -5,7 +5,7 @@ import type { BadgeTone } from '../Badge';
 import { useT } from '../../../i18n';
 import type { SyncStatus } from '../../../services/demo/fixtures/presence';
 
-export interface SyncBadgeProps {
+interface SyncBadgeProps {
   status: SyncStatus;
   className?: string;
 }

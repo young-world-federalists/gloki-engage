@@ -14,7 +14,6 @@ import { useAppSelector, useAppDispatch } from '../store/hooks';
 import ErrorBoundary from '../components/shared/ErrorBoundary';
 import { fetchCommunityProperties, fetchGlokiEngageCommunityDetails, fetchCommunityMembers, fetchCollaborations, fetchCommunityActiveMembers } from '../store/slices/communitiesSlice';
 import { recordActivity } from '../services/contracts/community';
-import { seedTestDataIfNeeded } from '../utils/seedTestData';
 import { eventStreamService } from '../services/eventStream';
 import type { BlockchainEvent } from '../services/eventStream';
 import styles from './CommunityView.module.scss';
@@ -122,7 +121,6 @@ const CommunityView: React.FC = () => {
   const location = useLocation();
   const { contracts, publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityProperties = {}, communityMembers = {}, communityCollaborations = {} } = useAppSelector((state) => state.communities);
-  const [fetching, setFetching] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -145,6 +143,11 @@ const CommunityView: React.FC = () => {
     () => (contract ? communityProperties[contract.id] || {} : null),
     [contract, communityProperties],
   );
+  // Missing properties are read once per community; until that read settles
+  // the page shows "Loading", after it (still missing) "not found".
+  const needsProps = !!communityId && (!props || Object.keys(props).length === 0) && !!publicKey && !!serverUrl;
+  const [propsReadFor, setPropsReadFor] = useState<string | null>(null);
+  const fetching = needsProps && propsReadFor !== communityId;
 
   const handleContractWrite = useCallback(
     (event: BlockchainEvent) => {
@@ -167,12 +170,11 @@ const CommunityView: React.FC = () => {
     // them correctly) — calling the demo-era fetchCommunityProperties on one
     // fails silently and leaves this page stuck on "Community not found"
     // forever, even though the community and its contract are both real.
-    if ((!props || Object.keys(props).length === 0) && publicKey && serverUrl) {
-      setFetching(true);
+    if (fetching && publicKey && serverUrl) {
       const fetchProperties = contract && isGlokiEngageCommunityContract(contract)
         ? dispatch(fetchGlokiEngageCommunityDetails({ contractId: communityId, serverUrl, publicKey }))
         : dispatch(fetchCommunityProperties({ contractId: communityId, serverUrl, publicKey }));
-      fetchProperties.finally(() => setFetching(false));
+      fetchProperties.finally(() => setPropsReadFor(communityId));
     }
 
     if (publicKey && serverUrl && communityId && !communityMembers[communityId]) {
@@ -183,7 +185,7 @@ const CommunityView: React.FC = () => {
     return () => {
       eventStreamService.removeEventListener('contract_write', handleContractWrite);
     };
-  }, [communityId, props, contract, dispatch, publicKey, serverUrl, communityMembers, handleContractWrite]);
+  }, [communityId, fetching, contract, dispatch, publicKey, serverUrl, communityMembers, handleContractWrite]);
 
   // Record user activity + fetch active-member count on community entry.
   // Old communities lack `record_activity` / `get_active_members`; both fall back silently.
@@ -192,14 +194,6 @@ const CommunityView: React.FC = () => {
     recordActivity(serverUrl, publicKey, communityId).catch(() => { /* old community — silent */ });
     dispatch(fetchCommunityActiveMembers({ serverUrl, publicKey, contractId: communityId }));
   }, [serverUrl, publicKey, communityId, dispatch]);
-
-  useEffect(() => {
-    if (!serverUrl || !publicKey || !communityId) return;
-    const name = communityProperties[communityId]?.name || '';
-    if (name) {
-      seedTestDataIfNeeded(serverUrl, publicKey, communityId, name);
-    }
-  }, [serverUrl, publicKey, communityId, communityProperties]);
 
   // After every hook, so hook order never depends on the route param.
   if (!communityId) {

@@ -1,6 +1,7 @@
 import { contractRead, contractWrite, deployContract } from '../api';
 import type { IMethod } from '../interfaces';
-const issueContractCode = '';const initiativeContractCode = '';
+
+const initiativeContractCode = '';
 /**
  * Community contract interface
  * Handles all community-specific contract calls
@@ -71,81 +72,6 @@ export async function getProperties(
     contractId,
     method: {
       name: 'get_properties',
-      values: {},
-    } as IMethod,
-  });
-}
-
-export async function createIssue(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  issue: { title: string; description: string },
-) {
-  // 1. Deploy the issue contract with the issue title as the name
-  const fileName = 'issue_contract.py';
-  const response = await deployContract({
-    serverUrl,
-    publicKey,
-    name: issue.title,
-    contract: fileName,
-    code: issueContractCode,
-  });
-  const issueId = response.id || response;
-  
-  // 2. Set the issue properties (name and description)
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId: issueId,
-    method: {
-      name: 'set_name',
-      values: { name: issue.title },
-    } as IMethod,
-  });
-  
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId: issueId,
-    method: {
-      name: 'set_description',
-      values: { text: issue.description },
-    } as IMethod,
-  });
-  
-  // 3. Add the issue to the community contract
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_issue',
-      values: {
-        issue: {
-          server: serverUrl,
-          agent: publicKey,
-          contract: issueId,
-        },
-      },
-    } as IMethod,
-  });
-}
-
-/**
- * Get community issues
- */
-export async function getIssues(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-) {
-  return await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'get_issues',
       values: {},
     } as IMethod,
   });
@@ -424,7 +350,6 @@ export async function getParameters(
   });
 
   if (!parameters.parameters || Object.keys(parameters.parameters).length === 0) {
-    console.log('No parameters found, setting default values');
     setParameters(serverUrl, publicKey, contractId, 100, 0.0003, 0);
   }
 

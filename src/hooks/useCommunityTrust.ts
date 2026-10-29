@@ -83,5 +83,3 @@ export function useCommunityTrust(communityId: string | undefined): CommunityTru
     isReady: permissions !== null,
   };
 }
-
-export default useCommunityTrust;

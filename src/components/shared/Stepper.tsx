@@ -3,12 +3,12 @@ import clsx from 'clsx';
 import { Check } from 'lucide-react';
 import styles from './Stepper.module.scss';
 
-export interface StepperStep {
+interface StepperStep {
   label: string;
   description?: string;
 }
 
-export interface StepperProps {
+interface StepperProps {
   steps: StepperStep[];
   /** 0-based index of the active step. Steps before it render as complete. */
   current: number;

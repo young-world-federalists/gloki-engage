@@ -218,12 +218,6 @@ const slice = createSlice({
       const nextState = current(state);
       saveToStorage(nextState.storageScope, nextState.items);
     },
-    clear(state) {
-      if (!state.storageScope || state.items.length === 0) return;
-      state.items = [];
-      const nextState = current(state);
-      saveToStorage(nextState.storageScope, nextState.items);
-    },
   },
 });
 
@@ -234,7 +228,6 @@ export const {
   markRead,
   markUnread,
   markAllRead,
-  clear,
 } = slice.actions;
 
 export default slice.reducer;

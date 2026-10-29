@@ -147,22 +147,22 @@ a bug. And an id from the other layer (a demo id without the flag, a real id wit
 chunks that no longer exist, and every route throws into the ErrorBoundary. **Fix:** hard refresh. If it
 persists across hard refreshes, check the build (entry 10).
 
-## 10. Pushed, but the live site didn't change
+## 10. The live site didn't change
 
 **First check:** `gh run list --workflow=deploy.yml -L 3`.
 
-**Root cause:** until the trunk switch the workflow runs only on pushes to `server-side` or `ui` (a push
-to `unified` doesn't deploy), and each run builds both (`server-side` → root with `build:prod`, `ui` →
-`/demo/` with `build:beta`). Every build starts with `tsc -b`; one unused import fails it silently and
-the site stays old.
+**Root cause:** a push never deploys; the workflow runs only by hand (Actions → Run workflow) and builds
+one app (`build:beta` at the root). A push to the retired `server-side` or `ui` runs their old workflow
+and redeploys the old site. Every build starts with `tsc -b`; one unused import fails it and the site
+stays old.
 
-**Fix:** `gh run view <id> --log-failed`, fix the TS error, push again with an explicit go. Prevention:
+**Fix:** `gh run view <id> --log-failed`, fix the TS error, run the workflow again with an explicit go. Prevention:
 `npx --no-install tsc -b --noEmit` before every push. Pipeline: **gloki-build-env-run**.
 
 ## 11. Assets 404 on the Pages site
 
-**Root cause:** the root site needs base `/gloki-engage/` (`--mode production`), the demo site
-`/gloki-engage/demo/` (deploy.yml passes `--base`). A plain `npm run build` is base `/`.
+**Root cause:** the site needs base `/gloki-engage/` (`--mode production`). A plain `npm run build` is
+base `/`.
 
 **Fix:** use `build:prod` / `build:beta` (+ `preview:prod`) for anything Pages-shaped. Never simplify away
 `public/404.html` or the inline `?/` decoder in `index.html`.

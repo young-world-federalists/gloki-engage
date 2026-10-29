@@ -10,7 +10,7 @@ import ProblemEngage from '../initiative/stages/ProblemEngage';
 import ProblemChinExtras from '../initiative/ProblemChinExtras';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 
-export interface ProblemActivityCardProps {
+interface ProblemActivityCardProps {
   item: Collaboration;
   communityId: string;
   authorName: string;

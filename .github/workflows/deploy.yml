@@ -1,15 +1,12 @@
 name: Deploy to GitHub Pages
 
-# One Pages site, two apps (Ouri + Eston, 2026-10-28; swapped 2026-10-29):
-#   server-side, full app (real servers) -> https://young-world-federalists.github.io/gloki-engage/
-#   ui, beta trim (mock data)            -> https://young-world-federalists.github.io/gloki-engage/demo/
-# A push to either branch rebuilds both, so neither overwrites the other.
-# GitHub runs the copy of this file in the pushed branch: keep it identical
-# on server-side and ui.
+# One Pages site, one app (Ouri, 2026-10-29), deployed by hand: Actions -> Deploy
+# to GitHub Pages -> Run workflow, choosing the branch. Built as the beta trim, at
+# https://young-world-federalists.github.io/gloki-engage/
+# The full app is the same build: set localStorage 'gloki.fullApp' to 'true'
+# in a browser (src/appMode.ts). Any page also has ?demo=true (docs/DEMO_MODE.md).
 
 on:
-  push:
-    branches: [server-side, ui]
   workflow_dispatch:
 
 permissions:
@@ -29,23 +26,12 @@ jobs:
     environment: github-pages
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: server-side
-          path: server-side
-      - uses: actions/checkout@v6
-        with:
-          ref: ui
-          path: ui
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: |
-            server-side/package-lock.json
-            ui/package-lock.json
 
-      - name: Build server-side (site root)
-        working-directory: server-side
+      - name: Build beta (site root)
         # Environment variables override the repo's .env at build time (Vite
         # bakes them into the bundle). Exported only when set, so an unset
         # variable leaves the .env value in place instead of blanking it.
@@ -56,22 +42,11 @@ jobs:
           if [ -n "$APPLICATION_SERVER_URL" ]; then export VITE_APPLICATION_SERVER_URL="$APPLICATION_SERVER_URL"; fi
           if [ -n "$APPLICATION_AGENT" ]; then export VITE_APPLICATION_AGENT="$APPLICATION_AGENT"; fi
           npm ci
-          npm run build:prod
-
-      - name: Build ui beta (/demo/)
-        working-directory: ui
-        run: |
-          npm ci
-          npm run build:beta -- --base /gloki-engage/demo/
-
-      - name: Assemble site
-        run: |
-          cp -R server-side/dist site
-          cp -R ui/dist site/demo
+          npm run build:beta
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: dist
 
   deploy:
     needs: build

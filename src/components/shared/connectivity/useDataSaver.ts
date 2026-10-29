@@ -39,7 +39,7 @@ function subscribe(cb: () => void) {
 }
 
 /** Set data-saver on/off. Exported so non-component code can flip it too. */
-export function setDataSaver(next: boolean) {
+function setDataSaver(next: boolean) {
   if (value === next) return;
   value = next;
   try {

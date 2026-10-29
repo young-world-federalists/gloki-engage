@@ -5,7 +5,7 @@ import Modal from './Modal';
 import { useT } from '../../i18n';
 import styles from './InfoDisclosure.module.scss';
 
-export interface InfoDisclosureProps {
+interface InfoDisclosureProps {
   /** Accessible label for the (i) trigger, translated (e.g. "How this stage works"). */
   label: string;
   /** Modal heading, translated. Defaults to `label`. */

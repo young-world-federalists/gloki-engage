@@ -7,7 +7,7 @@ import { useFlowContract } from '../../collaboration/flows/shared/useFlowContrac
 import { getComments } from '../../collaboration/flows/discussion/discussionApi';
 import styles from './DiscussionEngage.module.scss';
 
-export interface DiscussionEngageProps {
+interface DiscussionEngageProps {
   /** The initiative contract id — the shared parent contract. */
   initiativeId: string;
 }

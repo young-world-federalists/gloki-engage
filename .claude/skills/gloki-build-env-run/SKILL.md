@@ -1,6 +1,6 @@
 ---
 name: gloki-build-env-run
-description: Use when setting up the Communities2/Gloki repo from scratch, running or previewing the app, building, typechecking, checking a GitHub Pages deploy, understanding WHY assets 404 on Pages (base-path modes), the required .env build settings, the beta build, or why the external USB drive stalls under parallel I/O, wondering about mock-server.cjs or Node versions, or choosing which npm script to run (symptom-first triage of a live failure: gloki-debugging-playbook). Keywords - npm run dev, dev:beta, build:prod, build:beta, tsc -b, deploy.yml, .env, .env.local, VITE_APPLICATION_SERVER_URL, gloki-engage, base path, /demo/, 404.html, slow USB drive, launch.json, ibc node, Docker, OrbStack, localhost:2611, real backend, execution.log.
+description: Use when setting up the Communities2/Gloki repo from scratch, running or previewing the app, building, typechecking, checking a GitHub Pages deploy, understanding WHY assets 404 on Pages (base-path modes), the required .env build settings, the beta build, or why the external USB drive stalls under parallel I/O, wondering about Node versions, or choosing which npm script to run (symptom-first triage of a live failure: gloki-debugging-playbook). Keywords - npm run dev, dev:beta, build:prod, build:beta, tsc -b, deploy.yml, .env, .env.local, VITE_APPLICATION_SERVER_URL, gloki-engage, base path, 404.html, slow USB drive, launch.json, ibc node, Docker, OrbStack, localhost:2611, real backend, execution.log.
 ---
 
 # Gloki: Build, Environment, Run & Deploy
@@ -73,7 +73,9 @@ Without it, local testing writes verification and settings data to the shared ap
 | `npx --no-install tsc -b --noEmit` | — | Fast typecheck before declaring a change done |
 
 The beta trim (`VITE_APP_MODE`, read only in `src/appMode.ts`) is a build setting that hides parts of
-the app. It's independent of `?demo=true`, which works in both builds.
+the app. It's independent of `?demo=true`, which works in both builds. On a beta build, localStorage
+`gloki.fullApp` = `'true'` runs the full app in that browser (the beta writes the key as `'false'` on first
+load; reload after changing it).
 
 ### Dev server for AI sessions: the preview tool
 
@@ -90,32 +92,24 @@ preview (**gloki-verification-and-qa**).
 |---|---|---|
 | dev / plain `build` | `/` | Works locally; 404s every asset if deployed to Pages |
 | `--mode production` | `/gloki-engage/` | The site root on Pages |
-| `--mode production --base /gloki-engage/demo/` | `/gloki-engage/demo/` | The `/demo/` site on Pages (deploy.yml passes it) |
 
 Reproduce a "works locally, broken on Pages" report with `npm run build:prod && npm run preview:prod`.
 Never hardcode absolute asset URLs or root-anchored router assumptions. The `@` alias maps to `src/`.
 
 ## Deploy pipeline
 
-**Until the trunk switch** (`unified` → `main`), `.github/workflows/deploy.yml` runs on a push to
-`server-side` **or** `ui`, and every run rebuilds both:
-
-| Branch checked out | Build | Served at |
-|---|---|---|
-| `server-side` | `build:prod` (+ the `github-pages` environment's `VITE_APPLICATION_*` variables) | https://young-world-federalists.github.io/gloki-engage/ |
-| `ui` | `build:beta -- --base /gloki-engage/demo/` | https://young-world-federalists.github.io/gloki-engage/demo/ |
-
-Node 24, `npm ci` per checkout, then the two `dist/` folders are assembled into one Pages artifact and
-deployed (`actions/deploy-pages`, environment `github-pages`). GitHub runs the workflow file **from the
-pushed branch**, so the file must be identical on both branches. A push to `unified` doesn't deploy;
-pointing the workflow at the trunk is part of the switch.
+`.github/workflows/deploy.yml` runs only by hand (Actions → Run workflow, or
+`gh workflow run deploy.yml --ref <branch>`) and deploys one app: `build:beta` (+ the
+`github-pages` environment's `VITE_APPLICATION_*` variables) at
+https://young-world-federalists.github.io/gloki-engage/ (Node 24, `npm ci`, `actions/deploy-pages`,
+environment `github-pages`). The full app is the same deploy with `gloki.fullApp` set. GitHub runs the
+workflow file **from the pushed branch**: the retired `server-side` and `ui` still carry the old
+two-app workflow, so a push to either redeploys the old site.
 
 - **A failed deploy** shows in the Actions tab (`gh run list`), not in Pages settings; the site keeps
   serving the previous build.
 - **"Everything broken right after a deploy"** for a returning visitor = stale SPA chunk cache; a hard
   refresh fixes it.
-- Both sites share one origin, so they share localStorage (`user`, `gloki.*`). Signing in or out in one
-  can affect the other in the same browser.
 
 ```bash
 gh run list --limit 3
@@ -127,8 +121,8 @@ curl -s -o /dev/null -w '%{http_code}\n' https://young-world-federalists.github.
 GitHub Pages has no rewrites; deep links work through two files that must never be deleted or
 "simplified":
 
-1. **`public/404.html`** — served for any unknown path. Keeps the base segment (`/gloki-engage`, or two
-   segments `/gloki-engage/demo` under `/demo/`) and moves the rest into a query
+1. **`public/404.html`** — served for any unknown path. Keeps the base segment (`/gloki-engage`) and
+   moves the rest into a query
    (`/gloki-engage/?/community/x/feed`, `&` encoded as `~and~`).
 2. **`index.html` inline decoder** — detects `?/`, decodes `~and~`, and `history.replaceState`s the real
    route before React loads.
@@ -144,12 +138,6 @@ GitHub Pages has no rewrites; deep links work through two files that must never 
   `npx --no-install tsc -b --noEmit` before declaring any change done.
 - `verbatimModuleSyntax`: type-only imports use `import type`.
 - `src/obsolete` is excluded from typechecking — a green build says nothing about code there.
-
-## mock-server.cjs is dead — never start it
-
-`mock-server.cjs` at the repo root is an old standalone Express mock of the node API (port 3001). Nothing
-in `src/` uses it; `express` and `cors` in `dependencies` exist only for it. Removing them is a
-**gloki-refactor-and-dead-code** job.
 
 ## Real backend: a local ibc node
 
@@ -183,8 +171,6 @@ curl -s 'http://localhost:2611/ibc/app/probe?action=is_exist_agent'   # → fals
   Vite may bind only IPv6 on macOS).
 - On the login page change **Server URL** to `http://localhost:2611`, or the session registers on the
   live network.
-- Test seeding (`VITE_ENABLE_TEST_SEEDING` or its localStorage flag) auto-deploys initiatives for
-  communities with "test" in the name on localhost.
 - The Pages site can't use a local node cleanly: browsers block or prompt a public https page calling
   `localhost`.
 
@@ -263,5 +249,4 @@ Rewritten 2026-10-29 on branch `unified`. Volatile facts:
 | Deploy branches and builds | `cat .github/workflows/deploy.yml` |
 | 404.html segment rule | `grep -n pathSegmentsToKeep public/404.html` |
 | tsconfig flags | `cat tsconfig.app.json` |
-| mock-server.cjs unreferenced | `grep -rn "mock-server\|localhost:3001" src/` (expect none) |
 | Live site | `curl -s -o /dev/null -w '%{http_code}' https://young-world-federalists.github.io/gloki-engage/` |

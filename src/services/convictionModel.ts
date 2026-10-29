@@ -1,5 +1,5 @@
 export const CONVICTION_MODEL = 'time_accrual_v1' as const;
-export const ACCRUAL_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
+const ACCRUAL_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const CONVICTION_CAPS = {
   '1w': 1,

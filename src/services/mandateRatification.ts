@@ -6,7 +6,7 @@ import { contractRead, contractWrite } from './api';
 import type { IMethod } from './interfaces';
 import type { MandateRatification } from './demo/fixtures/mandate';
 
-export const RATIFICATION_KEY = 'mandate_ratification';
+const RATIFICATION_KEY = 'mandate_ratification';
 
 /** Read the stored ratification data for an initiative, or null if none. */
 export async function getRatification(

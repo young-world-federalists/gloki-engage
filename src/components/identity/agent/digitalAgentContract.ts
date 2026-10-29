@@ -12,7 +12,7 @@ import digitalAgentContractSrc from '../../../assets/contracts/digital_agent_con
 // Unique across the whole IBC network, not just this app's other contract
 // kinds — this is how "does this agent already have a gloki-engage profile"
 // is distinguished from any other app's contracts the agent might hold.
-export const DIGITAL_AGENT_CONTRACT_NAME = 'unique-gloki-engage-digital-agent-contract';
+const DIGITAL_AGENT_CONTRACT_NAME = 'unique-gloki-engage-digital-agent-contract';
 
 export interface DigitalAgentProfileFields {
   displayName: string;
@@ -30,7 +30,7 @@ export function findDigitalAgentContract(contracts: IContract[]): IContract | un
 }
 
 /** Deploys a fresh profile contract and writes the given fields to it. */
-export async function deployDigitalAgentProfile({
+async function deployDigitalAgentProfile({
   serverUrl,
   publicKey,
   fields,
@@ -64,7 +64,7 @@ export async function deployDigitalAgentProfile({
   }
 }
 
-export async function writeDigitalAgentProfile({
+async function writeDigitalAgentProfile({
   serverUrl,
   publicKey,
   contractId,

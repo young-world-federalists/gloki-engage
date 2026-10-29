@@ -38,7 +38,7 @@ const hexToDecimalLookupTable: { [key: number | string]: number } = {
   F: 15,
 };
 
-export function concatUint8Arrays(arrays: Uint8Array[]) {
+function concatUint8Arrays(arrays: Uint8Array[]) {
   if (arrays.length === 0) {
     return new Uint8Array(0);
   }
@@ -59,7 +59,7 @@ export function concatUint8Arrays(arrays: Uint8Array[]) {
   return returnValue;
 }
 
-export function uint8ArrayToString(
+function uint8ArrayToString(
   array: Uint8Array,
   encoding = "utf8"
 ): string {
@@ -70,18 +70,18 @@ export function uint8ArrayToString(
   return cachedDecoders[encoding].decode(array);
 }
 
-export function stringToUint8Array(value: string, encoding = ""): Uint8Array {
+function stringToUint8Array(value: string, encoding = ""): Uint8Array {
   if (encoding === "latin1") {
     return new Uint8Array([...value].map((char) => char.charCodeAt(0)));
   }
   return new Uint8Array(cachedEncoder.encode(value));
 }
 
-export function uint8ArrayToHex(array: Uint8Array): string {
+function uint8ArrayToHex(array: Uint8Array): string {
   return Array.from(array, byte => byteToHexLookupTable[byte]).join('');
 }
 
-export function hexToUint8Array(hexString: string): Uint8Array {
+function hexToUint8Array(hexString: string): Uint8Array {
   const resultLength = hexString.length / 2;
   const bytes = new Uint8Array(resultLength);
 

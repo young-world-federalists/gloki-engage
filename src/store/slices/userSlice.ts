@@ -1,15 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { isExistAgent, registerAgent, getContracts, deployContract } from '../../services/api';
-import type { IContract, IProfile } from '../../services/interfaces';
+import { isExistAgent, registerAgent, getContracts } from '../../services/api';
+import type { IContract } from '../../services/interfaces';
 import type { RootState } from '../index';
-const profileContractCode = '';
-import { clearRemoteOpenAIApiKey, getProfile } from '../../services/contracts/gloki';
-import {
-  mergeLocalOpenAIApiKey,
-  setLocalOpenAIApiKey,
-  stripSensitiveProfileFields,
-} from '../../utils/localSecrets';
 import {
   findDigitalAgentContract,
   readDigitalAgentProfile,
@@ -18,12 +11,6 @@ import {
 
 // Interfaces from contractsSlice
 
-// Profile contract unique name
-export const PROFILE_CONTRACT_NAME = "unique-gloki-communities-profile-contract";
-
-// Community contract unique name
-export const COMMUNITY_CONTRACT_NAME = "unique-gloki-communities-community-contract";
-
 // Complete user state
 interface UserState {
   // Authentication
@@ -31,9 +18,6 @@ interface UserState {
   serverUrl: string | null;
   
   // User data
-  profile: IProfile | null;
-  profileContractId: string | null;
-
   // The gloki-engage Digital Agent's own profile — read fresh from its real
   // contract on every login (see fetchContracts). null contract id or
   // profile means the agent hasn't onboarded (deployed one) yet; nothing
@@ -60,8 +44,6 @@ const initialState: UserState = {
   serverUrl: null,
 
   // User data
-  profile: null,
-  profileContractId: null,
   digitalAgentProfile: null,
   digitalAgentContractId: null,
   digitalAgentProfileChecked: false,
@@ -119,7 +101,7 @@ export const fetchContracts = createAsyncThunk(
         const contracts = await getContracts({serverUrl, publicKey });
 
         // Store contracts in Redux state first
-        await dispatch(setContracts(contracts || []));
+        await dispatch(userSlice.actions.setContracts(contracts || []));
 
         // Check the real server, every login, for this agent's own
         // gloki-engage Digital Agent profile contract — no local cache or
@@ -146,9 +128,6 @@ export const fetchContracts = createAsyncThunk(
           dispatch(setDigitalAgentProfile({ profile: null, contractId: null }));
         }
 
-        // Then call readProfile which can access contracts from state
-        dispatch(readProfile());
-
         return contracts || [];
     } catch (error) {
       // Even on failure (e.g. getContracts itself couldn't reach the
@@ -156,81 +135,6 @@ export const fetchContracts = createAsyncThunk(
       // than leaving digitalAgentProfileChecked false forever — otherwise
       // RootRoute would spin indefinitely instead of falling back to onboarding.
       dispatch(setDigitalAgentProfile({ profile: null, contractId: null }));
-      return rejectWithValue(String(error));
-    }
-  }
-);
-
-// Fetch contracts (for refreshing)
-export const readProfile = createAsyncThunk(
-  'user/readProfile',
-  async (_, { rejectWithValue, getState }) => {
-    const { publicKey, serverUrl, contracts } = (getState() as RootState).user;
-
-    if (!publicKey || !serverUrl) {
-      return rejectWithValue('Missing publicKey or serverUrl');
-    }
-    
-    try {
-      // 3. Handle profile contract
-      const profileContract = contracts?.find((c: IContract) => {
-        return c.name === PROFILE_CONTRACT_NAME;
-      });
-      let profileData = null;
-      
-      let profileContractId = null;
-      
-      if (profileContract) {
-        // Read profile data from existing contract
-        const profileResult = await getProfile(
-          serverUrl,
-          publicKey,
-          profileContract.id,
-        );
-        const remoteProfile = (profileResult || {}) as IProfile;
-        const remoteApiKey = typeof remoteProfile.openaiApiKey === 'string'
-          ? remoteProfile.openaiApiKey.trim()
-          : '';
-
-        if (remoteApiKey) {
-          setLocalOpenAIApiKey(serverUrl, publicKey, remoteApiKey);
-          try {
-            await clearRemoteOpenAIApiKey(serverUrl, publicKey, profileContract.id);
-          } catch (error) {
-            console.warn('Failed to clear remote AI API key from profile contract:', error);
-          }
-        }
-
-        profileData = mergeLocalOpenAIApiKey(
-          stripSensitiveProfileFields(remoteProfile),
-          serverUrl,
-          publicKey,
-        );
-        profileContractId = profileContract.id;
-      } else {
-        // Deploy profile contract - SSE listener will handle updating contracts list
-        await deployContract({
-          serverUrl,
-          publicKey,
-          name: PROFILE_CONTRACT_NAME,
-          contract: 'gloki_contract.py',
-          code: profileContractCode
-        });
-        
-        // Set default profile data
-        profileData = {
-          firstName: '',
-          lastName: '',
-          userPhoto: '',
-          userBio: '',
-          country: '',
-        };
-        profileData = mergeLocalOpenAIApiKey(profileData, serverUrl, publicKey);
-        // Note: profileContractId will be null here, but will be updated when contracts are refreshed
-      }
-      
-      return { profile: profileData, profileContractId };
-    } catch (error) {
       return rejectWithValue(String(error));
     }
   }
@@ -255,9 +159,6 @@ const userSlice = createSlice({
       state.digitalAgentContractId = null;
       state.digitalAgentProfileChecked = false;
     },
-    clearError: (state) => {
-      state.error = null;
-    },
     setContracts: (state, action: PayloadAction<IContract[]>) => {
       state.contracts = action.payload;
     },
@@ -272,8 +173,6 @@ const userSlice = createSlice({
     clearUser: (state) => {
       state.publicKey = null;
       state.serverUrl = null;
-      state.profile = null;
-      state.profileContractId = null;
       state.digitalAgentProfile = null;
       state.digitalAgentContractId = null;
       state.digitalAgentProfileChecked = false;
@@ -310,23 +209,8 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      
-      // Read profile
-      .addCase(readProfile.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(readProfile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.profile = action.payload.profile;
-        state.profileContractId = action.payload.profileContractId;
-      })
-      .addCase(readProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
   },
 });
 
-export const { setCurrentUser, clearError, setContracts, setDigitalAgentProfile, clearUser } = userSlice.actions;
+export const { setCurrentUser, setDigitalAgentProfile, clearUser } = userSlice.actions;
 export default userSlice.reducer;

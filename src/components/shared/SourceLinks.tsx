@@ -3,7 +3,7 @@ import { ExternalLink } from 'lucide-react';
 import { normalizeSources, type SourceLink } from '../../utils/sources';
 import styles from './SourceLinks.module.scss';
 
-export interface SourceLinksProps {
+interface SourceLinksProps {
   /** Accepts the new `{url,label}` shape and the legacy bare-URL `string[]`. */
   sources: Array<string | SourceLink>;
   /** Optional heading rendered above the list (already translated). */

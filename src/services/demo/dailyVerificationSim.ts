@@ -385,14 +385,6 @@ export function simJoinDaily(owner: NotificationOwner, id: string): DailySnapsho
   return clone(run.snapshot);
 }
 
-export function simSelectVerifiers(owner: NotificationOwner, id: string): DailySnapshot {
-  const run = ownedRun(owner, id);
-  if (!run.snapshot.joined) throw new Error('[dailyVerificationSim] join before selection');
-  if (serviceNow(owner) < run.snapshot.selectionAt) throw new Error('[dailyVerificationSim] selection is not ready');
-  selectRun(run);
-  return clone(run.snapshot);
-}
-
 export function simEnterDailyCall(owner: NotificationOwner, id: string): DailySnapshot {
   const run = ownedRun(owner, id);
   if (run.snapshot.assignment !== 'candidate' && run.snapshot.assignment !== 'selectedVerifier') {

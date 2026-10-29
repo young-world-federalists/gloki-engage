@@ -1,9 +1,8 @@
 # One app, two states per page
 
 **Status: introduced on branch `unified` (2026-10-29), applied to every page.** This replaces the old
-split, where the `ui` branch was the app on stubs and `server-side` was the app on real servers. Until
-`unified` becomes the trunk (`main`), `server-side` and `ui` keep deploying as before; see
-[Branches and deployment](#branches-and-deployment).
+split, where the `ui` branch was the app on stubs and `server-side` was the app on real servers. GitHub
+Pages is deployed by hand; see [Branches and deployment](#branches-and-deployment).
 
 ## The idea
 
@@ -127,14 +126,20 @@ The beta (sign-up, keys, verification, one forum) is a **build** setting, `VITE_
 doesn't change where data comes from. Demo mode works the same in both builds. (The beta's forum is
 demo-only, so without the flag the beta lands on "not yet implemented".)
 
+Unlike the demo flag, the beta has one whole-app override and no URL form: on a beta build,
+localStorage `gloki.fullApp` = `'true'` runs the full app in that browser. The beta writes the key as
+`'false'` on first load, so it's there to toggle in DevTools (Application → Local Storage); reload after
+changing it. It's read once at startup and only hides or shows parts of the app, so it's not access
+control.
+
 ## Branches and deployment
 
 - **Trunk:** `unified`, to become `main`. Work happens on short feature branches off it, merged back
   continuously; demo-mode pages keep the trunk usable while a feature is half done.
-- **Retiring:** `server-side` and `ui`. Until the switch, GitHub Pages still builds from them
-  (`.github/workflows/deploy.yml`: `server-side` with `build:prod` at the site root, `ui` with
-  `build:beta` at `/demo/`). A push to `unified` doesn't deploy. Pointing the workflow at the trunk is
-  part of the switch.
+- **Deployment:** by hand (Actions → Run workflow, choosing the branch): one app, `build:beta` at the
+  site root (`.github/workflows/deploy.yml`). The full app is the same deploy with `gloki.fullApp` set (above).
+- **Retired:** `server-side` and `ui`. Their own copies of the workflow still deploy the old two-app
+  site if pushed, so don't push them (or update their workflow) while they exist.
 - **Settings:** `.env` holds the required `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT`
   (the central application account); `.env.local` and the `github-pages` environment variables override
   them; `vite.config.ts` refuses to build without them.

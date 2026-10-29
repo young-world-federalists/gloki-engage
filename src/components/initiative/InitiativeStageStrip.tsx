@@ -18,7 +18,7 @@ const STAGES = [
 
 const ORDER: PipelineStage[] = ['problem', 'proposals', 'vote', 'mandate'];
 
-export interface InitiativeStageStripProps {
+interface InitiativeStageStripProps {
   /** The stage the user is currently viewing — highlighted, marked aria-current. */
   current: PipelineStage;
   className?: string;

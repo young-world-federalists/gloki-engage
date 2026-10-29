@@ -81,7 +81,7 @@ export interface MandateAdopter {
 }
 
 /** Where the mandate's legitimacy comes from — shown as a provenance strip. */
-export interface MandateProvenance {
+interface MandateProvenance {
   participants: number;
   countries: number;
   deliberationMonths: number;

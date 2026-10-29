@@ -1,9 +1,5 @@
 import { contractRead, contractWrite } from '../../../../services/api';
-import type {
-  ConvictionStakeRead,
-  ConvictionTotal,
-  StoredConvictionStake,
-} from '../../../../services/convictionModel';
+import type { ConvictionStakeRead, ConvictionTotal } from '../../../../services/convictionModel';
 import type { IMethod } from '../../../../services/interfaces';
 
 function throwIfContractError(response: unknown) {
@@ -58,17 +54,6 @@ export async function getMyStake(
   return await contractRead({
     serverUrl, publicKey, contractId,
     method: { name: 'get_my_stake', values: {} } as IMethod,
-  });
-}
-
-export async function getStakes(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<Record<string, StoredConvictionStake>> {
-  return await contractRead({
-    serverUrl, publicKey, contractId,
-    method: { name: 'get_stakes', values: {} } as IMethod,
   });
 }
 

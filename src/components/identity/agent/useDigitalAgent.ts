@@ -34,7 +34,7 @@ export function useDigitalAgent(): UseDigitalAgent {
           photo: '',
           country: '',
           languages: [],
-          createdAt: localAgent?.createdAt ?? Date.now(),
+          createdAt: localAgent?.createdAt ?? 0,
           invitedBy: localAgent?.invitedBy,
           vouchedBy: localAgent?.vouchedBy ?? [],
           accountKind: localAgent?.accountKind,

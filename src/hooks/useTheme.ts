@@ -35,7 +35,7 @@ function subscribe(listener: () => void): () => void {
 }
 
 /** Persist + apply a preference. 'auto' removes both the key and the attribute. */
-export function setTheme(pref: ThemePreference): void {
+function setTheme(pref: ThemePreference): void {
   try {
     if (pref === 'auto') localStorage.removeItem(STORAGE_KEY);
     else localStorage.setItem(STORAGE_KEY, pref);

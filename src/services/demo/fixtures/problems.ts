@@ -22,7 +22,7 @@ export interface SdgTag {
 }
 
 /** A short illustrative "why this matters to us" voice on a candidate issue. */
-export interface SeedVoice {
+interface SeedVoice {
   country: string; // ISO 3166-1 alpha-2
   name: string;
   text: string;
@@ -60,22 +60,6 @@ export interface ProblemFraming {
   sdg?: SdgTag;
   voices: SeedVoice[];
 }
-
-/**
- * A curated short list of SDGs offered when proposing an issue. Kept light and
- * broadly relevant rather than the full set of 17.
- */
-export const SDG_OPTIONS: SdgTag[] = [
-  { id: 1, label: 'No Poverty' },
-  { id: 3, label: 'Good Health & Well-being' },
-  { id: 4, label: 'Quality Education' },
-  { id: 6, label: 'Clean Water & Sanitation' },
-  { id: 8, label: 'Decent Work & Economic Growth' },
-  { id: 11, label: 'Sustainable Cities & Communities' },
-  { id: 13, label: 'Climate Action' },
-  { id: 14, label: 'Life Below Water' },
-  { id: 16, label: 'Peace, Justice & Strong Institutions' },
-];
 
 export const INITIATIVES: SeedInitiative[] = [
   // ── Global Health Network ────────────────────────────────────────────────

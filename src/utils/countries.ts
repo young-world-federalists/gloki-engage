@@ -206,7 +206,6 @@ export const COUNTRIES: CountryInfo[] = [
 ];
 
 export const OTHER_COUNTRY: CountryInfo = { code: 'OTHER', name: 'Other', flag: '🌐' };
-export const PILOT_COUNTRIES = COUNTRIES;
 
 const COUNTRY_MAP = new Map<string, CountryInfo>(
   [...COUNTRIES, OTHER_COUNTRY].map((c) => [c.code, c]),
@@ -258,8 +257,3 @@ export function getCountryColor(code: string): string {
   if (code === 'OTHER') return '#6b7280';
   return hashColor(code);
 }
-
-export const COUNTRY_COLORS: Record<string, string> & { OTHER: string } = new Proxy(
-  { OTHER: '#6b7280' } as Record<string, string> & { OTHER: string },
-  { get: (_target, prop: string) => getCountryColor(prop) },
-);

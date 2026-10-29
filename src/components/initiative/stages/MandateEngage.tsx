@@ -8,7 +8,7 @@ import { useMandateJourney } from '../useMandateJourney';
 import { useT } from '../../../i18n';
 import styles from './MandateEngage.module.scss';
 
-export interface MandateEngageProps {
+interface MandateEngageProps {
   /** The initiative contract id — the shared parent contract. */
   initiativeId: string;
   /** Hosting community — gates the conviction staking via {@link StageGate}. */

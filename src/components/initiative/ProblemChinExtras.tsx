@@ -5,7 +5,7 @@ import { useT } from '../../i18n';
 import { codeForId } from '../../utils/problemCode';
 import styles from './ProblemChinExtras.module.scss';
 
-export interface ProblemChinExtrasProps {
+interface ProblemChinExtrasProps {
   /** The initiative contract id — drives the suggest deep link + the problem code. */
   initiativeId: string;
   /** Hosting community — part of the suggest route. */

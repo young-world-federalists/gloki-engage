@@ -3,7 +3,7 @@ import { Camera } from 'lucide-react';
 import { useT } from '../../i18n';
 import styles from './PhotoPicker.module.scss';
 
-export interface PhotoPickerProps {
+interface PhotoPickerProps {
   /** Current photo data URL, or '' for none. */
   value: string;
   onChange: (dataUrl: string) => void;

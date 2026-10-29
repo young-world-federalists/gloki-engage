@@ -625,12 +625,11 @@ scratch** — they already encode the tokens above.
 | `StageFooter` | Global fixed **"Browse by stage"** bottom nav — cross-community discovery (4 browseable stages: Problem/Solutions/Vote/Mandate; Discussion is per-post). Visually demoted (caption eyebrow + light weight) so it never reads as next-step nav for the open initiative — that's `InitiativeStageStrip`. |
 | `LanguageSwitcher` | i18n language picker. |
 | `NotificationsBell` | Notifications indicator. |
-| `CountryFlag` / `CountryParticipation` / `CountryPresence` | Country flag glyph / top-countries-with-counts / presence display. |
+| `CountryFlag` / `CountryPresence` | Country flag glyph / presence display. |
 | `GlokiMark` | The Gloki logo mark. Rendered in the `AppHeader` wordmark (once per page) and the onboarding invite step. |
 | `RoleChip` / `RoleDisplay` | Role label chip / role display. |
 | `ExpertEndorseButton` | Expert endorsement action. |
-| `AITools` | `TranslateButton`, `SummaryButton`, `AIToolbar` (need OpenAI key). |
-| `LanePlaceholder` | Dev placeholder for unbuilt areas. |
+| `AITools` | `ShowInMyLanguage` (seeded translations, demo). |
 
 Subfolders: `connectivity/`, `presence/`.
 

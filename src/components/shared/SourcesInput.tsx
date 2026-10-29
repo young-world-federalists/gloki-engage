@@ -4,7 +4,7 @@ import type { SourceLink } from '../../utils/sources';
 import { useT } from '../../i18n';
 import styles from './SourcesInput.module.scss';
 
-export interface SourcesInputProps {
+interface SourcesInputProps {
   /** Current rows. Empty rows are allowed while editing; caller filters on submit. */
   value: SourceLink[];
   onChange: (next: SourceLink[]) => void;

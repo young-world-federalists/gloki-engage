@@ -11,7 +11,7 @@ import { useT } from '../../i18n';
 import cs from '../Container.module.scss';
 import styles from './CollaborationPage.module.scss';
 
-export type CollaborationType = 'initiative' | 'wish' | 'agreement' | 'collab';
+type CollaborationType = 'initiative' | 'wish' | 'agreement' | 'collab';
 
 interface CollaborationTab {
   instanceId: string;

@@ -4,7 +4,7 @@ import { getCountryFlag, getCountryName } from '../../utils/countries';
 import { useI18n } from '../../i18n';
 import styles from './CountryPresence.module.scss';
 
-export interface CountryPresenceProps {
+interface CountryPresenceProps {
   /** Country codes — pass one per participant (duplicates allowed) or unique codes. */
   countries: string[];
   /** Max flags to show before a "+N" chip. */

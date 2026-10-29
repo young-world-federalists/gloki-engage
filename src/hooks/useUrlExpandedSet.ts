@@ -37,7 +37,7 @@ export function useUrlExpandedSet(param = 'open') {
   );
 
   const toggleExpanded = useCallback(
-    (id: string) => write((next) => { next.has(id) ? next.delete(id) : next.add(id); }),
+    (id: string) => write((next) => { if (!next.delete(id)) next.add(id); }),
     [write],
   );
 

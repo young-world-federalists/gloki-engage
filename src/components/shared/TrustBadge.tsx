@@ -10,7 +10,7 @@ const CONFIG: Record<TrustState, { tone: BadgeTone; Icon: typeof Shield }> = {
   unverified: { tone: 'neutral', Icon: ShieldOff },
 };
 
-export interface TrustBadgeProps {
+interface TrustBadgeProps {
   state: TrustState;
   /** Used to render "Vouched by N" for the pending state. */
   vouchCount?: number;

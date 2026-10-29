@@ -4,14 +4,14 @@ import { UserIdentity } from '../../shared';
 import type { TFunction } from '../../../i18n';
 import styles from './SolutionAuthorPanel.module.scss';
 
-export interface AuthorMergeSuggestion {
+interface AuthorMergeSuggestion {
   target: string;
   suggester: string;
   timestamp: number;
   decision?: 'accepted' | 'declined';
 }
 
-export interface SolutionAuthorPanelProps {
+interface SolutionAuthorPanelProps {
   /** Public keys of members who asked for an expert review on this solution. */
   reviewRequests: string[];
   /** Whether an expert has actually reviewed it yet. */

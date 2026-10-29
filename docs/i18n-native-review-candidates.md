@@ -68,7 +68,7 @@ labelled **[removed]** / **[relocated]** inline so you don't hunt for them.
    `{error}` etc., and every token present in a string must remain present.
 3. **Don't worry about English.** `en.ts` intentionally does **not** contain most feature keys — English is
    the inline default in each component, resolved via the `active → en → inline default → key` fallback in
-   `src/i18n/index.tsx`. So you are editing **only** `fr.ts` and `sw.ts`. The "Intended meaning" column
+   `src/i18n/index.ts`. So you are editing **only** `fr.ts` and `sw.ts`. The "Intended meaning" column
    below is the English gloss to translate against.
 4. **After editing, re-run the parity scanner** and confirm `RESULT: PARITY OK`:
    ```

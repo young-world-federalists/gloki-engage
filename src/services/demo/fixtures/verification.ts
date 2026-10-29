@@ -12,7 +12,7 @@
 import { PERSONAS } from './identity';
 import type { MemberSummary } from '../../verificationModel';
 
-export interface VerificationMember {
+interface VerificationMember {
   publicKey: string;
   firstName: string;
   lastName: string;
@@ -21,7 +21,7 @@ export interface VerificationMember {
   declines?: boolean;
 }
 
-export const VERIFICATION_MEMBERS: VerificationMember[] = [
+const VERIFICATION_MEMBERS: VerificationMember[] = [
   { publicKey: 'demo-verif-ke-wanjiru', firstName: 'Wanjiru', lastName: 'Kamau', country: 'KE', online: true },
   { publicKey: 'demo-verif-mw-chikondi', firstName: 'Chikondi', lastName: 'Banda', country: 'MW', online: false },
   { publicKey: 'demo-verif-sn-aminata', firstName: 'Aminata', lastName: 'Diop', country: 'SN', online: true },

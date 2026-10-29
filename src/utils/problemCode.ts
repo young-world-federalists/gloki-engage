@@ -41,7 +41,7 @@ export function codeForId(id: string): string {
 }
 
 /** Normalise a pasted code to the canonical "word-word-word" form, or null. */
-export function parseCode(raw: string): string | null {
+function parseCode(raw: string): string | null {
   const norm = raw.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/-+/g, '-');
   return /^[a-z]+-[a-z]+-[a-z]+$/.test(norm) ? norm : null;
 }

@@ -3,7 +3,7 @@ import { Globe } from 'lucide-react';
 import { useI18n, LOCALES, type Locale } from '../../i18n';
 import styles from './LanguageSwitcher.module.scss';
 
-export interface LanguageSwitcherProps {
+interface LanguageSwitcherProps {
   /** Hide the globe icon (e.g. when used inline in a dense menu). */
   hideIcon?: boolean;
   className?: string;

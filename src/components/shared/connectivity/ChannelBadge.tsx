@@ -5,7 +5,7 @@ import { useT } from '../../../i18n';
 import type { ChannelKind } from '../../../services/demo/fixtures/presence';
 import styles from './ChannelBadge.module.scss';
 
-export interface ChannelBadgeProps {
+interface ChannelBadgeProps {
   channel: ChannelKind;
   className?: string;
 }

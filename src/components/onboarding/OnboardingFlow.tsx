@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Stepper, Button, Card } from '../shared';
 import AppHeader from '../AppHeader';
@@ -82,12 +82,12 @@ const OnboardingFlow: React.FC = () => {
   // Seed the vouch as soon as an invited newcomer arrives, so it survives a later skip.
   // S42: not in the beta — nobody has vouched for a real newcomer yet, and the
   // verification hub says so honestly.
-  useEffect(() => {
+  const seedInvitedVouch = useEffectEvent(() => {
     if (!isBeta && inviteCode && !agent?.invitedBy) {
       saveAgent({ invitedBy: voucher.publicKey, vouchedBy: defaultVouchers(voucher.publicKey) });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
+  useEffect(() => seedInvitedVouch(), []);
 
   // Move focus to the step heading on each step change (announced via the live region).
   useEffect(() => {

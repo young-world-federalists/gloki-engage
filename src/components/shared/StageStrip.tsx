@@ -18,7 +18,7 @@ const STAGES = [
   { id: 'mandate', icon: ScrollText, labelKey: 'stage.mandate', labelDefault: 'Mandate' },
 ] as const;
 
-export interface StageStripProps {
+interface StageStripProps {
   /** Accessible label for the list. Defaults to "The governance stages" —
    *  deliberately distinct from the StageFooter nav's "Pipeline stages" so the
    *  two landmarks don't share an accessible name (Wave 5b). */

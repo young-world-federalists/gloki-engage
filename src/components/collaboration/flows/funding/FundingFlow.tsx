@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Heart, Target, Users, List, PieChart, Plus, ArrowLeft, AlertCircle } from 'lucide-react';
 
 import { useEventStream } from '../../../../hooks/useEventStream';
@@ -6,11 +6,12 @@ import { useT } from '../../../../i18n';
 import { Button, Modal } from '../../../shared';
 import * as api from './fundingApi';
 import styles from './FundingFlow.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 // This component is rendered by the Community Funds page (Currency.tsx), not by
 // the flow registry — so its props are what the page can supply, and every
 // fundingApi call is (serverUrl, currentUser, fundContractId, …).
-export interface FundingFlowProps {
+interface FundingFlowProps {
   fundContractId: string;
   communityId: string;
   currentUser: string;
@@ -27,27 +28,23 @@ export interface FundingSetupConfig {
 // ---------------------------------------------------------------------------
 // Setup dialog (exported; owns its shared Modal so the page only toggles isOpen)
 // ---------------------------------------------------------------------------
-export const FundingSetupDialog: React.FC<{
+interface FundingSetupDialogProps {
   isOpen: boolean;
   onDone: (config: FundingSetupConfig) => void;
   onCancel: () => void;
-}> = ({ isOpen, onDone, onCancel }) => {
+}
+
+/** Mounted only while open, so every opening starts from an empty form. */
+export const FundingSetupDialog: React.FC<FundingSetupDialogProps> = (props) =>
+  props.isOpen ? <FundingSetupForm {...props} /> : null;
+
+const FundingSetupForm: React.FC<FundingSetupDialogProps> = ({ isOpen, onDone, onCancel }) => {
   const t = useT();
   const symbol = t('currency.symbol', 'points');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [goalInput, setGoalInput] = useState('');
   const [error, setError] = useState('');
-
-  // Reset the form each time the dialog is reopened.
-  useEffect(() => {
-    if (isOpen) {
-      setName('');
-      setDescription('');
-      setGoalInput('');
-      setError('');
-    }
-  }, [isOpen]);
 
   const handleSubmit = () => {
     if (!name.trim()) {
@@ -485,21 +482,15 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
   const [fund, setFund] = useState<api.FundState | null>(null);
   const [communityInfo, setCommunityInfo] = useState<api.CommunityInfo | null>(null);
   const [budgetState, setBudgetState] = useState<api.BudgetState | null>(null);
-  const [myAllocation, setMyAllocation] = useState<Record<string, number>>({});
   const [budgetTab, setBudgetTab] = useState<'allocation' | 'results'>('allocation');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Tracks whether we've seeded myAllocation from the server for this fund.
-  // SSE reloads must NOT overwrite in-progress local edits.
-  const myAllocationInitialized = useRef(false);
-  useEffect(() => {
-    myAllocationInitialized.current = false;
-  }, [fundContractId]);
-
-  // Always-current ref so handleSaveAllocation never needs myAllocation as a dep.
-  const myAllocationRef = useRef(myAllocation);
-  myAllocationRef.current = myAllocation;
+  // My allocation as edited, kept with the fund it belongs to. Seeded from the
+  // server once per fund: SSE reloads must NOT overwrite in-progress local edits.
+  const [draft, setDraft] = useState<{ fundId: string; values: Record<string, number> } | null>(null);
+  const myAllocation = draft?.fundId === fundContractId ? draft.values : {};
+  const setMyAllocation = (values: Record<string, number>) => setDraft({ fundId: fundContractId, values });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -513,11 +504,8 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
       setFund(fundState);
       setCommunityInfo(info);
       setBudgetState(budget);
-      if (!myAllocationInitialized.current) {
-        const mine = budget.allocations.find((a) => a.participantId === currentUser)?.allocation ?? {};
-        setMyAllocation(mine);
-        myAllocationInitialized.current = true;
-      }
+      const mine = budget.allocations.find((a) => a.participantId === currentUser)?.allocation ?? {};
+      setDraft((prev) => (prev?.fundId === fundContractId ? prev : { fundId: fundContractId, values: mine }));
     } catch (e) {
       setError(e instanceof Error ? e.message : t('funds.loadFailed', 'Failed to load funding data.'));
     } finally {
@@ -525,9 +513,7 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
     }
   }, [serverUrl, currentUser, fundContractId, t]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useLoadWhenReady(load);
 
   useEventStream(
     'contract_write',
@@ -539,10 +525,10 @@ const FundingFlow: React.FC<FundingFlowProps> = ({ fundContractId, communityId, 
     ),
   );
 
-  const handleSaveAllocation = useCallback(async () => {
-    await api.saveMyAllocation(serverUrl, currentUser, fundContractId, myAllocationRef.current);
+  const handleSaveAllocation = async () => {
+    await api.saveMyAllocation(serverUrl, currentUser, fundContractId, myAllocation);
     await load();
-  }, [serverUrl, currentUser, fundContractId, load]);
+  };
 
   const backButton = (
     <div className={styles.backRow}>

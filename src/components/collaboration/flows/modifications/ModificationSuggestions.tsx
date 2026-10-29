@@ -6,6 +6,7 @@ import { useAppSelector } from '../../../../store/hooks';
 const modificationCode = '';import styles from './ModificationSuggestions.module.scss';
 import { addCoAuthor } from '../../../../services/initiativeRoles';
 import { displayNameFor } from '../../../../utils/displayName';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 interface Suggestion {
   id: string;
@@ -55,13 +56,12 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [votingId, setVotingId] = useState<string | null>(null);
   const [decidingId, setDecidingId] = useState<string | null>(null);
-  const [authorSet, setAuthorSet] = useState(false);
+  // The contract + author pair whose author was written, so a new pair writes again.
+  const authorKey = `${contractId}:${originalAuthor}`;
+  const [authorSetFor, setAuthorSetFor] = useState<string | null>(null);
+  const authorSet = authorSetFor === authorKey;
 
   const canDecide = Boolean(publicKey && (publicKey === originalAuthor || coAuthors.includes(publicKey)));
-
-  useEffect(() => {
-    setAuthorSet(false);
-  }, [contractId, originalAuthor]);
 
   const fetchData = useCallback(async () => {
     if (!serverUrl || !publicKey || !contractId) return;
@@ -83,13 +83,11 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
   useEffect(() => {
     if (!isReady || !serverUrl || !publicKey || !contractId || authorSet || !originalAuthor) return;
     api.setAuthor(serverUrl, publicKey, contractId, originalAuthor)
-      .then(() => setAuthorSet(true))
+      .then(() => setAuthorSetFor(authorKey))
       .catch(() => {});
-  }, [isReady, serverUrl, publicKey, contractId, originalAuthor, authorSet]);
+  }, [isReady, serverUrl, publicKey, contractId, originalAuthor, authorSet, authorKey]);
 
-  useEffect(() => {
-    if (isReady) fetchData();
-  }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
 
   const handleSubmit = async () => {
     if (!serverUrl || !publicKey || !contractId || !text.trim()) return;
@@ -119,7 +117,7 @@ const ModificationSuggestions: React.FC<ModificationSuggestionsProps> = ({
     try {
       if (originalAuthor && !authorSet) {
         await api.setAuthor(serverUrl, publicKey, contractId, originalAuthor);
-        setAuthorSet(true);
+        setAuthorSetFor(authorKey);
       }
       await api.authorDecide(serverUrl, publicKey, contractId, suggestionId, decision);
       if (decision === 'accept') {

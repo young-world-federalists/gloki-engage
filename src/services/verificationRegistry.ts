@@ -28,10 +28,10 @@ import {
 import { findDigitalAgentContract, readDigitalAgentProfile } from '../components/identity/agent/digitalAgentContract';
 import verificationContractSrc from '../assets/contracts/gloki_verification_contract.py?raw';
 
-export const VERIFICATION_CONTRACT = 'gloki_verification_contract.py';
-export const VERIFICATION_CONTRACT_NAME = 'gloki-verification';
+const VERIFICATION_CONTRACT = 'gloki_verification_contract.py';
+const VERIFICATION_CONTRACT_NAME = 'gloki-verification';
 /** V at which the open phase starts (and the vouches it needs). Mirrors the contract. */
-export const OPEN_THRESHOLD = 4;
+const OPEN_THRESHOLD = 4;
 
 export type VerificationPhase = 'founder' | 'sequential' | 'open';
 
@@ -42,7 +42,7 @@ export interface RegistryIdentity {
   profile: string;
 }
 
-export interface VerifiedRecord {
+interface VerifiedRecord {
   key: string;
   at: string;
   method: 'founder' | 'sequential' | 'vouches';
@@ -51,7 +51,7 @@ export interface VerifiedRecord {
   profile: string;
 }
 
-export interface RegistryRequest {
+interface RegistryRequest {
   requester: string;
   approver: string;
   address: string;
@@ -60,7 +60,7 @@ export interface RegistryRequest {
   status: 'pending' | 'approved' | 'declined';
 }
 
-export interface RegistryVouch {
+interface RegistryVouch {
   voucher: string;
   requester: string;
   at: string;

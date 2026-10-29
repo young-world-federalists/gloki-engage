@@ -101,5 +101,3 @@ export function useAlert() {
 
   return { showAlert, showConfirm, alertElement };
 }
-
-export default useAlert;

@@ -482,7 +482,7 @@ export function simLeaveCall(sessionId: string): void {
 }
 
 /** The fixture member a verified user (E6) sees waiting for a verifier — deterministic, excluding anyone already in the user's vouchers. */
-export function simPendingCandidate(): CallParticipant | null {
+function simPendingCandidate(): CallParticipant | null {
   const vouchedBy = new Set(getAgent()?.vouchedBy ?? []);
   const pool = allVerificationMembers().filter((m) => !vouchedBy.has(m.publicKey));
   if (pool.length === 0) return null;

@@ -2,14 +2,7 @@
 // All return the same shape as the real backend so the rest of the app works
 // without edits.
 import type { IMethod, IContract } from '../interfaces';
-import {
-  isDemoContract,
-  registerDemoContract,
-  getDemoContract,
-  listDemoContracts,
-  listDemoContractsByType,
-  newDemoId,
-} from './demoRegistry';
+import { registerDemoContract, listDemoContracts, listDemoContractsByType, newDemoId } from './demoRegistry';
 import { routeRead, routeWrite } from './demoRouter';
 import { initCommunity } from './demoContracts/community';
 import { seedAllDemoCommunities } from './seedDemoCommunity';
@@ -114,7 +107,7 @@ export async function mockJoinContract(): Promise<unknown> {
   return { ok: true };
 }
 
-export { isDemoContract, getDemoContract };
+;
 
 // Merge demo communities into the real list — shared demo content, visible
 // to everyone regardless of identity. (The gloki-engage Digital Agent

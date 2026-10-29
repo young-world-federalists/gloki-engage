@@ -7,7 +7,7 @@ import { useT } from '../../i18n';
 import { useOrganization } from '../../hooks/useOrganization';
 import styles from './MandateBacking.module.scss';
 
-export interface MandateBackingProps {
+interface MandateBackingProps {
   /** The initiative contract id — the mandate route's `:mandateId` (same value). */
   mandateId: string;
   /** Owning community — needed to apply the same stage permissions the community page applies. */

@@ -64,7 +64,7 @@ async function registerIfEligible(status: RegistryStatus): Promise<boolean> {
   }
 }
 
-export function refreshVerificationRegistry(): Promise<void> {
+function refreshVerificationRegistry(): Promise<void> {
   if (inFlight) return inFlight;
   inFlight = (async () => {
     try {
@@ -164,5 +164,3 @@ export function useRequesterSummaries(): Map<string, PersonSummary> {
 
   return byKey;
 }
-
-export default useVerificationRegistry;

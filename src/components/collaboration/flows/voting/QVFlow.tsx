@@ -19,6 +19,7 @@ import type { ImpactAssessment } from './approvalApi';
 import CauseLine from '../../../initiative/CauseLine';
 import ImpactAssessmentCard from '../../../initiative/ImpactAssessmentCard';
 import styles from './QVFlow.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 interface QvProposal { id: string; text: string; author: string; timestamp: string | number }
 interface ExpertReview { expert: string; metrics: string[]; note?: string; timestamp: number }
@@ -38,7 +39,7 @@ interface BallotSolution {
   assessments: ImpactAssessment[];
 }
 
-export interface QVFlowProps extends FlowProps {
+interface QVFlowProps extends FlowProps {
   /** Active community member count — denominator for the 75% turnout footer. */
   communityMemberCount?: number;
 }
@@ -154,7 +155,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
     finally { setLoading(false); }
   }, [serverUrl, publicKey, contractId, proposalsContractId, proposalsReady, parentContractId]);
 
-  useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
   // Real contracts: no refetch after the write below — this SSE listener is
   // the only thing that refreshes afterward. Demo contracts emit no events
   // at all, so handleSubmitAllocation below falls back to a direct refetch.
@@ -198,7 +199,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
   const addHeart = (id: string) => { if (canAddHeart(id)) setDraft((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 })); };
   const removeHeart = (id: string) => setDraft((prev) => {
     const h = prev[id] || 0;
-    if (h <= 1) { const { [id]: _omit, ...rest } = prev; return rest; }
+    if (h <= 1) { const rest = { ...prev }; delete rest[id]; return rest; }
     return { ...prev, [id]: h - 1 };
   });
 

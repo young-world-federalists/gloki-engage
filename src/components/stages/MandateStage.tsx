@@ -5,7 +5,7 @@ import { useT } from '../../i18n';
 import type { StageVariant } from '../../types/initiative';
 import styles from './MandateStage.module.scss';
 
-export interface MandateStageProps {
+interface MandateStageProps {
   /** The initiative contract id — used as the shared parent contract. */
   initiativeId: string;
   /** Feed renders the compact staking control; dashboard renders the full one. */

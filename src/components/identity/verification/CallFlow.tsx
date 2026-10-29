@@ -88,13 +88,13 @@ const CallFlow: React.FC = () => {
   // call leaveCall on unmount. Nothing else cancels a session's timers, and
   // the simulation's auto-verify timers keep writing vouches to the user's
   // agent if a session is abandoned without this. Keyed on the session id.
+  const sessionId = session?.id;
   useEffect(() => {
-    if (!session) return undefined;
-    const sessionId = session.id;
+    if (!sessionId) return undefined;
     return () => {
       if (ctx) void leaveCall(ctx, sessionId);
     };
-  }, [session?.id, ctx]);
+  }, [sessionId, ctx]);
 
   // The verifier entry (C1 amendment). `inviteToCall` assumes the caller is
   // the candidate, so a verified user reaching this route goes through

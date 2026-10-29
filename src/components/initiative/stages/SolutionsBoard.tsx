@@ -25,7 +25,7 @@ import ImpactAssessmentCard from '../ImpactAssessmentCard';
 import type { TrustState } from '../../../services/trustModel';
 import styles from './SolutionsBoard.module.scss';
 
-export interface SolutionsBoardProps {
+interface SolutionsBoardProps {
   initiativeId: string;
   communityId: string;
   /** Active community member count — denominator for the 50%-upvote threshold. */
@@ -296,10 +296,10 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     () => (Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : []),
     [communityMembers, communityId],
   );
-  const trust = useCommunityTrust(communityId);
+  const { trustOf } = useCommunityTrust(communityId);
   const verifiedKeys = useMemo(
-    () => members.filter((pk) => trust.trustOf(pk) === 'verified'),
-    [members, trust.trustOf],
+    () => members.filter((pk) => trustOf(pk) === 'verified'),
+    [members, trustOf],
   );
   // Task 14 fix-round 1 (F1) — `members` above always resolves to an array
   // (it falls back to `[]` before the slice has loaded), so it can't signal
@@ -832,7 +832,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
                   profiles={profiles}
                   t={t}
                   assessments={solutionAssessments}
-                  trustOf={trust.trustOf}
+                  trustOf={trustOf}
                 />
                 {!mergeSource && (
                   <div className={styles.impactChin}>

@@ -4,7 +4,7 @@ import SolutionsBoard from '../initiative/stages/SolutionsBoard';
 import { useT } from '../../i18n';
 import type { StageVariant } from '../../types/initiative';
 
-export interface ProposalsStageProps {
+interface ProposalsStageProps {
   initiativeId: string;
   communityId: string;
   title: string;

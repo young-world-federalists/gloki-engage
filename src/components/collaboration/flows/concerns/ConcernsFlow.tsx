@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AlertTriangle, ChevronDown, ChevronRight, Plus, Check } from 'lucide-react';
 
 import type { FlowProps } from '../types';
@@ -8,6 +8,7 @@ import * as api from './concernsApi';
 import type { Concern, Resolution } from './concernsApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { useT } from '../../../../i18n';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 const concernsContractCode = '';import styles from './ConcernsFlow.module.scss';
 
 // Severity → semantic surface classes (badge fill + readable text) and card
@@ -259,7 +260,7 @@ const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stage
     }
   }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => { if (isReady) fetchData(); }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
 
   const handleAddConcern = async (text: string, severity: string) => {
     if (!serverUrl || !publicKey || !contractId) return;

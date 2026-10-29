@@ -38,6 +38,13 @@ function routeCall(serverUrl: string, publicKey: string, contractId: string, met
   return { serverUrl: hosted.host.server, publicKey: hosted.host.agent, method: { ...method, values }, viaHost };
 }
 
+/**
+ * What a contract call returns: the method's untyped JSON. Callers know the
+ * shape of the method they called and narrow it there.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ContractResult = any;
+
 const FAKE_DEPLOY_DELAY = 200;
 
 function delay<T>(ms: number, value: T): Promise<T> {
@@ -55,9 +62,9 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeout: numb
     // — neither has an HTTP status, so give it wording LoginPage recognizes
     // as a connection error rather than letting it fall through as generic.
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('The server took too long to respond and may be unreachable.');
+      throw new Error('The server took too long to respond and may be unreachable.', { cause: error });
     }
-    throw new Error('Could not connect to the server — it may be unreachable.');
+    throw new Error('Could not connect to the server — it may be unreachable.', { cause: error });
   } finally {
     clearTimeout(timeoutId);
   }
@@ -227,7 +234,7 @@ export async function contractReadOnChain({
   publicKey: string;
   contractId: string;
   method: IMethod;
-}): Promise<any> {
+}): Promise<ContractResult> {
   return await fetchWithTimeout(
     `${serverUrl}/ibc/app/${publicKey}/${contractId}/${method.name}?action=contract_read`,
     {
@@ -249,7 +256,7 @@ export async function deployContract({
   contract: string;
   code: string;
   profile?: string;
-}): Promise<any> {
+}): Promise<ContractResult> {
   const result = mockDeployAny({ publicKey, name, contract });
   return delay(FAKE_DEPLOY_DELAY, result);
 }
@@ -276,7 +283,7 @@ export async function joinContract({
   agent: string;
   contract: string;
   profile?: string;
-}): Promise<any> {
+}): Promise<ContractResult> {
   if (isDemoDataMode()) return mockJoinContract();
   return await fetchWithTimeout(
     `${serverUrl}/ibc/app/${publicKey}?action=join_contract`,
@@ -298,7 +305,7 @@ export async function contractWrite({
   publicKey: string;
   contractId: string;
   method: IMethod;
-}): Promise<any> {
+}): Promise<ContractResult> {
   if (!isDemoDataMode()) {
     const route = routeCall(serverUrl, publicKey, contractId, method);
     // A write through another agent is confirmed on THAT agent's stream.
@@ -325,7 +332,7 @@ export async function contractRead({
   publicKey: string;
   contractId: string;
   method: IMethod;
-}): Promise<any> {
+}): Promise<ContractResult> {
   if (!isDemoDataMode()) {
     const route = routeCall(serverUrl, publicKey, contractId, method);
     return contractReadOnChain({ serverUrl: route.serverUrl, publicKey: route.publicKey, contractId, method: route.method });

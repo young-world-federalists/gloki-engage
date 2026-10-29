@@ -1,6 +1,7 @@
 import type { BadgeTone } from '../components/shared/Badge';
 import type { Comment, CommentVote } from '../components/collaboration/flows/discussion/discussionApi';
 import { tallyVotes } from './causes';
+import type { TFunction } from '../i18n';
 
 /**
  * Five-band discussion status (S35, rulings D6/F3). Computed over ROOT comments only —
@@ -10,11 +11,11 @@ import { tallyVotes } from './causes';
  */
 export type DiscussionStatusKey = 'open' | 'contested' | 'divided' | 'converging' | 'consensus';
 export interface DiscussionStatus { key: DiscussionStatusKey; agreement: number; votes: number; votedComments: number; participants: number }
-export const STATUS_VOTE_FLOOR = 10;
-export const MIN_VOTED_COMMENTS = 3;
-export const MIN_PARTICIPANTS = 3;   // beside STATUS_VOTE_FLOOR / MIN_VOTED_COMMENTS
-export const STATUS_SAMPLE = 10;
-export const STATUS_THRESHOLDS = { contested: 0.25, divided: 0.5, converging: 0.75 } as const;
+const STATUS_VOTE_FLOOR = 10;
+const MIN_VOTED_COMMENTS = 3;
+const MIN_PARTICIPANTS = 3;   // beside STATUS_VOTE_FLOOR / MIN_VOTED_COMMENTS
+const STATUS_SAMPLE = 10;
+const STATUS_THRESHOLDS = { contested: 0.25, divided: 0.5, converging: 0.75 } as const;
 export const STATUS_META: Record<DiscussionStatusKey, { labelKey: string; labelDefault: string; tone: BadgeTone }> = {
   open:       { labelKey: 'causes.status.open',       labelDefault: 'New',        tone: 'neutral' },
   contested:  { labelKey: 'causes.status.contested',  labelDefault: 'Contested',  tone: 'warning' },
@@ -58,4 +59,33 @@ export function computeDiscussionStatus(comments: Comment[], votes: CommentVote[
   const key: DiscussionStatusKey =
     net > 0 || (band !== 'converging' && band !== 'consensus') ? band : 'divided';
   return { key, agreement, ...base };
+}
+
+/**
+ * The five-band status's accessible name (S35 F1/F4): the scoped "Consensus
+ * among {n} Gloki participants in {community}" sentence for `consensus`,
+ * otherwise the plain "Causes discussion: {word}" sentence. Used so
+ * surfaces that fold the status into a larger control's own `aria-label`
+ * (e.g. `DiscussionPill`, S35 fix-round F1) can compute it without rendering
+ * a second accessible name for the same information.
+ */
+export function statusAccessibleName(
+  t: TFunction,
+  status: DiscussionStatus,
+  communityName?: string,
+): string {
+  const meta = STATUS_META[status.key];
+  const word = t(meta.labelKey, meta.labelDefault);
+  if (status.key !== 'consensus') {
+    return t('causes.status.aria', 'Causes discussion: {word}', { word });
+  }
+  if (!communityName) {
+    return t('causes.status.scopedNoCommunity', 'Consensus among {n} Gloki participants', {
+      n: status.participants,
+    });
+  }
+  return t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
+    n: status.participants,
+    community: communityName,
+  });
 }

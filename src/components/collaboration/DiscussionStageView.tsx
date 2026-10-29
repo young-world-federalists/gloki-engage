@@ -8,11 +8,10 @@ import { Button, ContextCard } from '../shared';
 import AppHeader from '../AppHeader';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import { useFlowContract } from './flows/shared/useFlowContract';
-import useCommunityTrust from '../../hooks/useCommunityTrust';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
 import ThreadedDiscussion from './flows/discussion/ThreadedDiscussion';
-import { STATUS_META } from '../../utils/discussionStatus';
+import { STATUS_META, statusAccessibleName } from '../../utils/discussionStatus';
 import type { DiscussionStatus } from '../../utils/discussionStatus';
-import { statusAccessibleName } from '../initiative/DiscussionStatusPill';
 import cs from '../../pages/Container.module.scss';
 import styles from './DiscussionStageView.module.scss';
 

@@ -68,7 +68,7 @@ function deployStageContract(
   return id;
 }
 
-export function seedDemoCommunity(
+function seedDemoCommunity(
   communityId: string,
   publicKey: string,
   initiatives: SeedInitiative[] = INITIATIVES,

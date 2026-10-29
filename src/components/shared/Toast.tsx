@@ -1,17 +1,9 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { CheckCircle2, Info, AlertCircle, X } from 'lucide-react';
 import { useT } from '../../i18n';
+import { ToastContext, type ToastOptions, type ToastTone } from './useToast';
 import styles from './Toast.module.scss';
-
-export type ToastTone = 'info' | 'success' | 'error';
-
-export interface ToastOptions {
-  message: string;
-  tone?: ToastTone;
-  /** Auto-dismiss after this many ms. Default 4000. */
-  durationMs?: number;
-}
 
 interface ToastItem {
   id: number;
@@ -19,14 +11,8 @@ interface ToastItem {
   tone: ToastTone;
 }
 
-interface ToastApi {
-  show: (options: ToastOptions) => void;
-}
-
 const MAX_STACK = 3;
 const DEFAULT_DURATION = 4000;
-
-const ToastContext = createContext<ToastApi | null>(null);
 
 const TONE_ICON: Record<ToastTone, React.ReactNode> = {
   info: <Info size={18} aria-hidden />,
@@ -112,12 +98,3 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     </ToastContext.Provider>
   );
 };
-
-const NOOP_API: ToastApi = { show: () => {} };
-
-/** Show a transient message. Safe to call without a provider (no-op). */
-export function useToast(): ToastApi {
-  return useContext(ToastContext) ?? NOOP_API;
-}
-
-export default ToastProvider;

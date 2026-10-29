@@ -16,7 +16,7 @@ export interface Contribution {
   timestamp: number;
 }
 
-export interface FundConfig {
+interface FundConfig {
   name: string;
   description: string;
   goal: number | null;
@@ -26,8 +26,6 @@ export interface FundState {
   config: FundConfig | null;
   contributions: Contribution[];
 }
-
-export const CURRENCY_SYMBOL = 'points';
 
 // ---------------------------------------------------------------------------
 // Budget allocation types
@@ -118,22 +116,6 @@ export async function loadFund(server: string, agent: string, contractId: string
   const contributions = contributionsArray.map(c => normalizeContribution(c as Record<string, unknown>));
 
   return { config, contributions };
-}
-
-export async function configureFund(
-  server: string,
-  agent: string,
-  contractId: string,
-  name: string,
-  description: string,
-  goal: number | null,
-): Promise<void> {
-  await contractWrite({
-    serverUrl: server,
-    publicKey: agent,
-    contractId,
-    method: { name: 'set_config', values: { config: { name: name.trim(), description: description.trim(), goal } } } as IMethod,
-  });
 }
 
 export async function loadCommunityInfo(

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Coins, Send, TrendingUp, TrendingDown, Star, Plus } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchUserBalance } from '../../store/slices/currencySlice';
@@ -23,6 +23,7 @@ import FundingFlow, {
   FundingSetupDialog,
   type FundingSetupConfig,
 } from '../collaboration/flows/funding/FundingFlow';
+import { useLoadWhenReady } from '../../hooks/useLoadWhenReady';
 
 interface CurrencyProps {
   communityId: string;
@@ -73,8 +74,12 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   const [accountDetails, setAccountDetails] = useState<Record<string, { type: string; balance: number }>>({});
   const [allAllocations, setAllAllocations] = useState<Record<string, Record<string, number>>>({});
   const [distributionStatus, setDistributionStatus] = useState<IDistributionStatus | null>(null);
-  const [myAllocation, setMyAllocation] = useState<Record<string, number>>({});
-  const [allocationLoading, setAllocationLoading] = useState(true);
+  // My allocation as edited, kept with its community. Seeded from the server
+  // once per community: SSE reloads must NOT overwrite in-progress local edits.
+  const [draft, setDraft] = useState<{ communityId: string; values: Record<string, number> } | null>(null);
+  const myAllocation = draft?.communityId === communityId ? draft.values : {};
+  const [allocationLoadedFor, setAllocationLoadedFor] = useState<string | null>(null);
+  const allocationLoading = allocationLoadedFor !== communityId;
   const [allocationSaving, setAllocationSaving] = useState(false);
   const [distributing, setDistributing] = useState(false);
   // A row click opens the per-fund detail (FundingFlow); back clears it.
@@ -83,18 +88,17 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   // as `fund_<name>` properties when a fund is created).
   const [fundContractMap, setFundContractMap] = useState<Record<string, string>>({});
   const [setupOpen, setSetupOpen] = useState(false);
-  const myAllocationInitialized = useRef(false);
-  const myAllocationRef = useRef(myAllocation);
-  myAllocationRef.current = myAllocation;
 
   // Clear the preference inputs whenever fresh parameters arrive (placeholder shows stored value).
-  useEffect(() => {
+  const [preferencesFor, setPreferencesFor] = useState(parameters);
+  if (parameters !== preferencesFor) {
+    setPreferencesFor(parameters);
     if (parameters) {
       setMintPreference('');
       setBurnPreference('');
       setCommonsMintPreference('');
     }
-  }, [parameters]);
+  }
 
   // True once any preference input differs from the stored value.
   const hasPreferenceChanges =
@@ -107,12 +111,6 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
       dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
     }
   }, [communityId, publicKey, serverUrl, dispatch]);
-
-  // Re-initialise the allocation editor when switching communities.
-  useEffect(() => {
-    myAllocationInitialized.current = false;
-    setAllocationLoading(true);
-  }, [communityId]);
 
   const loadAllocationData = useCallback(async () => {
     if (!publicKey || !serverUrl || !communityId) return;
@@ -140,20 +138,15 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
         }
       }
       setFundContractMap(map);
-      if (!myAllocationInitialized.current) {
-        setMyAllocation(allAllocs[publicKey] ?? {});
-        myAllocationInitialized.current = true;
-      }
+      setDraft((prev) => (prev?.communityId === communityId ? prev : { communityId, values: allAllocs[publicKey] ?? {} }));
     } catch (e) {
       console.error('Failed to load allocation data:', e);
     } finally {
-      setAllocationLoading(false);
+      setAllocationLoadedFor(communityId);
     }
   }, [publicKey, serverUrl, communityId]);
 
-  useEffect(() => {
-    void loadAllocationData();
-  }, [loadAllocationData]);
+  useLoadWhenReady(loadAllocationData);
 
   useEventStream(
     'contract_write',
@@ -242,10 +235,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     return Object.fromEntries(Object.entries(totals).map(([acc, pts]) => [acc, (pts / grandTotal) * 100]));
   }, [allAllocations]);
 
-  const totalAllocated = useMemo(
-    () => Object.values(myAllocation).reduce((s, v) => s + v, 0),
-    [myAllocation],
-  );
+  const totalAllocated = Object.values(myAllocation).reduce((s, v) => s + v, 0);
 
   const fundAccounts = useMemo(
     () =>
@@ -261,14 +251,14 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
   const handleSetAccountPoints = (account: string, raw: string) => {
     const points = Math.max(0, Math.round(Number(raw) || 0));
-    setMyAllocation((prev) => ({ ...prev, [account]: points }));
+    if (communityId) setDraft({ communityId, values: { ...myAllocation, [account]: points } });
   };
 
-  const handleSaveAllocation = useCallback(async () => {
+  const handleSaveAllocation = async () => {
     if (!publicKey || !serverUrl || !communityId) return;
     setAllocationSaving(true);
     try {
-      await setAllocation(serverUrl, publicKey, communityId, myAllocationRef.current);
+      await setAllocation(serverUrl, publicKey, communityId, myAllocation);
       await loadAllocationData();
     } catch (e) {
       console.error('Failed to save allocation:', e);
@@ -279,7 +269,7 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     } finally {
       setAllocationSaving(false);
     }
-  }, [publicKey, serverUrl, communityId, showAlert, t, loadAllocationData]);
+  };
 
   const handleDistribute = async () => {
     if (!publicKey || !serverUrl || !communityId) return;

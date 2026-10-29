@@ -11,9 +11,7 @@
 // "Algorithmic Misinformation & Election Integrity" hero (discussion stage) and
 // the "Youth Employment & the Skills Gap" initiative (proposals stage).
 
-import { PERSONAS, type Persona } from './identity';
-import { displayNameFor } from '../../../utils/displayName';
-import { initialsOf } from '../../../utils/initials';
+import { PERSONAS } from './identity';
 import type { SourceLink } from '../../../utils/sources';
 
 // ---------------------------------------------------------------------------
@@ -71,24 +69,8 @@ export const PROPOSALS_BY_KEY: Record<string, string[]> = {
   ],
 };
 
-// ---------------------------------------------------------------------------
-// Shared types
-// ---------------------------------------------------------------------------
-export type DeliberationCategory = 'evidence' | 'impact' | 'solutions' | 'concerns';
-
-/** A single threaded comment in the deliberation (C1). */
-export interface DeliberationComment {
-  id: string;
-  author: string; // persona publicKey
-  category: DeliberationCategory;
-  text: string;
-  hearts: number;
-  parentId: string | null;
-  minutesAgo: number;
-}
-
 /** A track-changes edit suggestion on the problem statement (C2). */
-export interface EditSuggestion {
+interface EditSuggestion {
   id: string;
   field: 'title' | 'description';
   author: string; // persona publicKey
@@ -102,20 +84,6 @@ export interface EditSuggestion {
   minutesAgo: number;
 }
 
-/** One proposal that can be merged with similar others (C3). */
-export interface MergeableProposal {
-  id: string;
-  text: string;
-  author: string; // persona publicKey
-}
-
-/** A suggested merge of one proposal into a more-supported sibling (C3). */
-export interface MergeSuggestion {
-  sourceId: string;
-  targetId: string;
-  similarity: number; // 0..1, surfaced as a "looks similar" hint
-}
-
 /** A domain expert who can review proposals (C3). */
 export interface ExpertProfile {
   key: string;
@@ -124,70 +92,16 @@ export interface ExpertProfile {
   country: string; // ISO 3166-1 alpha-2
 }
 
-/** An expert review attached to a proposal (C3). */
-export interface ExpertReview {
-  proposalId: string;
-  expertKey: string;
-  note: string;
-}
-
-// ---------------------------------------------------------------------------
-// C1 — Threaded discussion + live co-presence
-// (themed to the "Algorithmic Misinformation & Election Integrity" hero)
-// ---------------------------------------------------------------------------
-export const DISCUSSION_COMMENTS: DeliberationComment[] = [
-  {
-    id: 'c1', author: 'demo-user-br-lucas', category: 'impact', parentId: null, hearts: 14, minutesAgo: 320,
-    text: 'In São Paulo a deepfake of a candidate reached millions before anyone could debunk it. By the time the correction came, the vote was days away.',
-  },
-  {
-    id: 'c1a', author: 'demo-user-kr-jiwoo', category: 'solutions', parentId: 'c1', hearts: 6, minutesAgo: 295,
-    text: 'Speed is everything. Even a neutral "being checked" tag within minutes slows the spread far more than a takedown days later.',
-  },
-  {
-    id: 'c1b', author: 'demo-user-it-sofia', category: 'concerns', parentId: 'c1a', hearts: 9, minutesAgo: 240,
-    text: 'Careful who holds that power, though. A state-run "disputed" flag is a censorship tool waiting to happen — we need independent oversight.',
-  },
-  {
-    id: 'c2', author: 'demo-user-pl-marta', category: 'evidence', parentId: null, hearts: 11, minutesAgo: 280,
-    text: 'Our newsroom data is stark: a false post gets roughly six times the shares of its correction. The asymmetry is the whole problem.',
-  },
-  {
-    id: 'c3', author: 'demo-user-de-anika', category: 'solutions', parentId: null, hearts: 12, minutesAgo: 210,
-    text: 'Make platforms show *why* you were shown a post. Transparency on the recommendation does more than any single takedown.',
-  },
-  {
-    id: 'c3a', author: 'demo-user-cn-mei', category: 'solutions', parentId: 'c3', hearts: 7, minutesAgo: 180,
-    text: 'And let people see a post’s origin and edit history with one tap before they share it.',
-  },
-  {
-    id: 'c4', author: 'demo-user-ph-maria', category: 'impact', parentId: null, hearts: 10, minutesAgo: 160,
-    text: 'During typhoon season here, false "safe zone" maps circulated. Misinformation is not abstract — it puts people directly in harm’s way.',
-  },
-  {
-    id: 'c5', author: 'demo-user-ng-amina', category: 'concerns', parentId: null, hearts: 12, minutesAgo: 120,
-    text: 'Whatever we build has to work on a basic phone over WhatsApp. That is where most of this actually spreads in my community.',
-  },
-  {
-    id: 'c5a', author: 'demo-user-br-lucas', category: 'solutions', parentId: 'c5', hearts: 5, minutesAgo: 95,
-    text: 'Agreed — a forward-this-to-check number that replies with context, no app required.',
-  },
-  {
-    id: 'c6', author: 'demo-user-kr-jiwoo', category: 'evidence', parentId: null, hearts: 9, minutesAgo: 40,
-    text: 'Pre-bunking works: short clips that teach the manipulation tactic beat after-the-fact fact-checks in every trial we ran.',
-  },
-];
-
 // ---------------------------------------------------------------------------
 // C2 — Track-changes co-authoring of the problem statement
 // ---------------------------------------------------------------------------
-export const PROBLEM_STATEMENT: { title: string; description: string } = {
+const PROBLEM_STATEMENT: { title: string; description: string } = {
   title: 'Algorithmic Misinformation & Election Integrity',
   description:
     'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts. How should communities and platforms respond?',
 };
 
-export const EDIT_SUGGESTIONS: EditSuggestion[] = [
+const EDIT_SUGGESTIONS: EditSuggestion[] = [
   {
     id: 's1',
     field: 'description',
@@ -226,7 +140,7 @@ export const EDIT_SUGGESTIONS: EditSuggestion[] = [
 ];
 
 /** Co-authors already credited on the statement (a prior accepted edit). */
-export const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
+const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
 
 // ---------------------------------------------------------------------------
 // Co-authoring seed (Redesign A — Batch 5)
@@ -242,12 +156,12 @@ export const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
 // — a single live "Support" click folds it into the statement. See the Batch 5
 // plan (docs/superpowers/plans/2026-06-04-batch5-stage-ux-redesigns.md).
 
-export interface SeedStatement {
+interface SeedStatement {
   title: string;
   body: string;
   coAuthors: string[]; // persona publicKeys
 }
-export interface SeedEdit {
+interface SeedEdit {
   id: string;
   field: 'title' | 'body';
   author: string;
@@ -258,7 +172,7 @@ export interface SeedEdit {
   status: 'open' | 'accepted' | 'stale';
   createdAgo: number; // minutes (feeds utils/formatTimeAgo relativeTimeKey); 0 = just now
 }
-export interface SeedComment {
+interface SeedComment {
   id: string;
   author: string;
   text: string;
@@ -339,7 +253,7 @@ function buildDiscussionSeed(): DiscussionSeed {
 }
 
 /** The co-authoring seed — consumed by `demoContracts/discussion.ts`. */
-export const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
+const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
 
 /**
  * Discussion seeds keyed by initiative `key`. The seeder pre-seeds a discussion
@@ -458,34 +372,9 @@ export const DISCUSSION_VOTES_BY_KEY: Record<string, SeedVote[]> = {
   ], VOTER_POOL),
 };
 
-// ---------------------------------------------------------------------------
-// C3 — Merge similar proposals + expert review
-// (themed to the "Youth Employment & the Skills Gap" proposals stage)
-// ---------------------------------------------------------------------------
-export const MERGEABLE_PROPOSALS: MergeableProposal[] = [
-  { id: 'm1', author: 'demo-user-eg-fatima', text: 'Fund paid apprenticeships that place young people directly with local employers, with a stipend so the poorest can take part.' },
-  { id: 'm2', author: 'demo-user-za-thabo', text: 'Subsidise on-the-job apprenticeships at small businesses, paid so that low-income youth are not priced out of taking them.' },
-  { id: 'm3', author: 'demo-user-pk-aisha', text: 'Rebuild vocational training around the skills employers in each region actually list as missing.' },
-  { id: 'm4', author: 'demo-user-in-priya', text: 'A public, real-time skills dashboard matching training to the jobs actually being posted locally.' },
-  { id: 'm5', author: 'demo-user-mx-diego', text: 'Align technical courses to the gaps employers report each quarter, region by region.' },
-];
-
-export const MERGE_SUGGESTIONS: MergeSuggestion[] = [
-  { sourceId: 'm2', targetId: 'm1', similarity: 0.86 },
-  { sourceId: 'm5', targetId: 'm3', similarity: 0.78 },
-];
-
 export const EXPERTS: ExpertProfile[] = [
   { key: 'demo-expert-renata', name: 'Renata Costa', field: 'Labour economics · ILO', country: 'BR' },
   { key: 'demo-expert-lena', name: 'Dr. Lena Fischer', field: 'Vocational education & skills', country: 'DE' },
-];
-
-export const EXPERT_REVIEWS: ExpertReview[] = [
-  {
-    proposalId: 'm3',
-    expertKey: 'demo-expert-lena',
-    note: 'Demand-led training works, but the skills lists go stale fast — pair this with the live dashboard idea so curricula update quarterly, not once a decade.',
-  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -669,48 +558,9 @@ export const PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY: Record<string, Array<{
     },
   ],
 };
-
-// ---------------------------------------------------------------------------
-// Pure helpers (no React / no i18n)
-// ---------------------------------------------------------------------------
-const PERSONA_BY_KEY: Record<string, Persona> = Object.fromEntries(
-  PERSONAS.map((p) => [p.publicKey, p]),
-);
 const EXPERT_BY_KEY: Record<string, ExpertProfile> = Object.fromEntries(
   EXPERTS.map((e) => [e.key, e]),
 );
-
-export interface ParticipantInfo {
-  name: string;
-  country: string; // '' when unknown
-  initials: string;
-  isExpert: boolean;
-}
-
-/** Resolve a publicKey to display info, across personas and experts. */
-export function deliberationParticipant(key: string): ParticipantInfo {
-  const persona = PERSONA_BY_KEY[key];
-  if (persona) {
-    const name = displayNameFor(persona, key);
-    return {
-      name,
-      country: persona.country,
-      initials: initialsOf(`${persona.firstName} ${persona.lastName}`),
-      isExpert: false,
-    };
-  }
-  const expert = EXPERT_BY_KEY[key];
-  if (expert) {
-    const [first, ...rest] = expert.name.split(' ');
-    return {
-      name: expert.name,
-      country: expert.country,
-      initials: initialsOf(`${first} ${rest[rest.length - 1] ?? ''}`),
-      isExpert: true,
-    };
-  }
-  return { name: key.slice(0, 8), country: '', initials: (key[0] ?? '?').toUpperCase(), isExpert: false };
-}
 
 export function expertProfile(key: string): ExpertProfile | undefined {
   return EXPERT_BY_KEY[key];

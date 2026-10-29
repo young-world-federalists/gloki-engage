@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './ContextCard.module.scss';
 
-export interface ContextCardProps {
+interface ContextCardProps {
   /** Item heading. Omit on pages whose header (h1) already carries the title. */
   title?: string;
   /** The item's summary/description. Line-clamped — the full text lives on the item's own page. */

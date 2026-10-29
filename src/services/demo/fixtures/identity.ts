@@ -63,14 +63,14 @@ export function getPersona(publicKey: string): Persona | undefined {
 }
 
 /** Invite code → voucher publicKey. Unknown/missing codes fall back to the default. */
-export const INVITE_CODES: Record<string, string> = {
+const INVITE_CODES: Record<string, string> = {
   GLOKI: 'demo-user-in-priya',
   WELCOME: 'demo-user-br-lucas',
   JOIN: 'demo-user-de-anika',
   FRIEND: 'demo-user-ph-maria',
 };
 
-export const DEFAULT_INVITE_VOUCHER = 'demo-user-in-priya';
+const DEFAULT_INVITE_VOUCHER = 'demo-user-in-priya';
 
 /** Resolve an invite code to the voucher persona (defaults to a friendly persona). */
 export function getVoucher(code?: string | null): Persona {

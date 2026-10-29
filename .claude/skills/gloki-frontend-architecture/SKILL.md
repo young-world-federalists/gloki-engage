@@ -56,7 +56,7 @@ src/
 │   ├── onboarding/          # /welcome flow
 │   ├── stages/              # stage-feed components
 │   └── shared/              # kit (barrel index.ts): Card, Button, Modal, EmptyState, Banner,
-│                            #   Badge, DemoNotice, SearchableSelect, CountryParticipation, …
+│                            #   Badge, SearchableSelect, StageFooter, …
 ├── contexts/AuthContext.tsx # persists {publicKey, serverUrl} under localStorage 'user'
 ├── hooks/             # useDemoMode (+ DemoFlagUrlSync, withDemo), useInitiativeFound, useVerificationRegistry,
 │                      #   useVerification, useCommunityTrust, useInitiativeHostReady,
@@ -197,7 +197,7 @@ product decision (**gloki-change-control**). Demo variants need no routes — sa
 
 ## i18n in one paragraph (details: gloki-i18n-playbook)
 
-Hand-rolled provider at `src/i18n/index.tsx`. Locales `en`/`fr`/`sw`; flat dot-namespaced keys; lookup
+Hand-rolled i18n: `src/i18n/index.ts` (hooks, `translate`), provider in `src/i18n/I18nProvider.tsx`. Locales `en`/`fr`/`sw`; flat dot-namespaced keys; lookup
 falls back active locale → en → inline default → key. **English copy lives inline** as
 `t('ns.key', 'English default')`; `en.ts` holds only shared shell strings, while `fr.ts`/`sw.ts` are
 full overlays at strict key + `{var}` parity. The beta build hides the language switcher.

@@ -30,8 +30,8 @@ that import them. You import a flow, you don't edit it (and vice-versa).
   components). See `DESIGN_SYSTEM.md` for the full token reference, dark-mode palette, and semantic
   surfaces.
 - **Shared component kit** — `src/components/shared/` exports `Button`, `Card`, `Modal`, `Stepper`,
-  `EmptyState`, `Banner`, `Badge`, `CountryFlag`, `CountryPresence`, `LanguageSwitcher`,
-  `LanePlaceholder` (+ existing `PageHeader`, `StageFooter`, `CountryParticipation`, `EarthFlag`,
+  `EmptyState`, `Banner`, `Badge`, `CountryFlag`, `CountryPresence`, `LanguageSwitcher`
+  (+ existing `PageHeader`, `StageFooter`, `EarthFlag`,
   `SearchableSelect`). Import from the barrel: `import { Card, Button } from '../shared'`. Prefer these
   over hand-rolled markup. They are dark-mode-aware and take **translated strings via props**.
 - **i18n** — `import { useT } from '../../i18n'`, then `t('namespace.key', 'English default')`. Pass

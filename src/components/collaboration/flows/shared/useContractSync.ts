@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { eventStreamService } from '../../../../services/eventStream';
 import type { BlockchainEvent } from '../../../../services/eventStream';
 
@@ -23,13 +23,12 @@ import type { BlockchainEvent } from '../../../../services/eventStream';
  * `isDemoDataMode()` at the call site instead of here.
  */
 export function useContractSync(contractId: string | null | undefined, onChange: () => void): void {
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const onWrite = useEffectEvent(onChange);
 
   useEffect(() => {
     if (!contractId) return;
     const handler = (event: BlockchainEvent) => {
-      if (event.contract === contractId) onChangeRef.current();
+      if (event.contract === contractId) onWrite();
     };
     eventStreamService.addEventListener('contract_write', handler);
     return () => eventStreamService.removeEventListener('contract_write', handler);
@@ -39,23 +38,22 @@ export function useContractSync(contractId: string | null | undefined, onChange:
 /**
  * Same idea as {@link useContractSync}, for a list-level view watching many
  * contracts at once (e.g. every initiative currently shown in a feed) rather
- * than one flow's own single contract. Registers exactly one listener; look-up
- * is by ref so passing a new array each render doesn't churn the
- * subscription. `onChange` receives the specific contract id that changed —
+ * than one flow's own single contract. Registers exactly one listener, which
+ * always sees the latest ids, so passing a new array each render doesn't churn
+ * the subscription. `onChange` receives the specific contract id that changed —
  * callers dispatch a per-id refetch (e.g. fetchInitiativeStage) with it.
  */
 export function useContractSyncMany(
   contractIds: readonly string[],
   onChange: (contractId: string) => void,
 ): void {
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
-  const idsRef = useRef<ReadonlySet<string>>(new Set());
-  idsRef.current = new Set(contractIds);
+  const onWrite = useEffectEvent((contractId: string) => {
+    if (contractIds.includes(contractId)) onChange(contractId);
+  });
 
   useEffect(() => {
     const handler = (event: BlockchainEvent) => {
-      if (event.contract && idsRef.current.has(event.contract)) onChangeRef.current(event.contract);
+      if (event.contract) onWrite(event.contract);
     };
     eventStreamService.addEventListener('contract_write', handler);
     return () => eventStreamService.removeEventListener('contract_write', handler);

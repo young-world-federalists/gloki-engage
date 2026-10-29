@@ -11,7 +11,7 @@ import {
 } from '../../services/trustModel';
 import styles from './HowGlokiWorks.module.scss';
 
-export interface HowGlokiWorksProps {
+interface HowGlokiWorksProps {
   variant: 'compact' | 'full';
   /** compact only — the user's live vouch count for the "you're vouched by N" line. */
   vouchCount?: number;

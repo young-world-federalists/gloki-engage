@@ -30,7 +30,7 @@ export function relativeTimeKey(minutesAgo: number): TimeAgoDescriptor {
  * timestamp, or — when `maxDays` is set — for anything at least that old
  * (the caller decides what to render instead, e.g. an absolute date).
  */
-export function formatTimeAgoKey(
+function formatTimeAgoKey(
   timestamp: number,
   opts?: { maxDays?: number },
 ): TimeAgoDescriptor | null {
@@ -52,5 +52,3 @@ export function formatTimeAgo(
   const k = formatTimeAgoKey(timestamp, opts);
   return k ? t(k.key, k.def, k.vars) : '';
 }
-
-export default formatTimeAgo;

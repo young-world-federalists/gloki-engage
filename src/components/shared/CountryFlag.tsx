@@ -4,7 +4,7 @@ import { getCountryFlag, getCountryName } from '../../utils/countries';
 import { useI18n } from '../../i18n';
 import styles from './CountryFlag.module.scss';
 
-export interface CountryFlagProps {
+interface CountryFlagProps {
   code: string;
   /** Render the country name next to the flag. */
   showName?: boolean;

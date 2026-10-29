@@ -5,7 +5,7 @@ import { useDataSaver } from './useDataSaver';
 import { initialsOf } from '../../../utils/initials';
 import styles from './SmartImage.module.scss';
 
-export interface SmartImageProps {
+interface SmartImageProps {
   src: string;
   /** Required — used as the accessible label and to derive placeholder initials. */
   alt: string;

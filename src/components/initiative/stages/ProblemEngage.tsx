@@ -5,7 +5,7 @@ import StageGate from '../../community/StageGate';
 import { useT } from '../../../i18n';
 import styles from './ProblemEngage.module.scss';
 
-export interface ProblemEngageProps {
+interface ProblemEngageProps {
   /** The initiative contract id — the shared parent contract. */
   initiativeId: string;
   /** Hosting community — gates participation. */

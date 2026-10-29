@@ -17,7 +17,7 @@ import MemberList from './MemberList';
 import pages from './VerificationPages.module.scss';
 import styles from './CallFlow.module.scss';
 
-export interface WaitingRoomProps {
+interface WaitingRoomProps {
   /** The session CallFlow holds; this component never creates or destroys it. */
   session: CallSession;
   /** Every `joinCallStream` push lands here — CallFlow banks it as the new session. */

@@ -5,7 +5,7 @@ import { useT } from '../../../i18n';
 import { useDataSaver } from './useDataSaver';
 import styles from './DataSaverToggle.module.scss';
 
-export interface DataSaverToggleProps {
+interface DataSaverToggleProps {
   className?: string;
 }
 

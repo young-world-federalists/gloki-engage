@@ -15,7 +15,6 @@ import type { AccountKind } from '../../services/interfaces';
 import { isBeta } from '../../appMode';
 import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../utils/countries';
 import { LANGUAGE_OPTIONS } from '../../utils/languages';
-import { getLocalOpenAIApiKey, setLocalOpenAIApiKey } from '../../utils/localSecrets';
 import styles from './Profile.module.scss';
 
 const Profile: React.FC = () => {
@@ -37,7 +36,6 @@ const Profile: React.FC = () => {
   const [language, setLanguage] = useState('');
   // S43 — account kind, set once by the beta's Kind step; '' = not stated.
   const [kind, setKind] = useState<AccountKind | ''>('');
-  const [apiKey, setApiKey] = useState('');
 
   const openEdit = () => {
     setDisplayName(agent?.displayName ?? '');
@@ -45,7 +43,6 @@ const Profile: React.FC = () => {
     setCountry(agent?.country ?? '');
     setLanguage(agent?.languages?.[0] ?? '');
     setKind(agent?.accountKind ?? '');
-    setApiKey(getLocalOpenAIApiKey(user.serverUrl, user.publicKey));
     setEditing(true);
   };
 
@@ -74,7 +71,6 @@ const Profile: React.FC = () => {
         .catch((err) => {
           console.error('[Profile] Failed to save digital agent profile contract:', err);
         });
-      setLocalOpenAIApiKey(user.serverUrl, user.publicKey, apiKey);
     }
     setEditing(false);
   };
@@ -208,20 +204,6 @@ const Profile: React.FC = () => {
               </select>
             </div>
           )}
-          {/* S43 (critique): the AI key is a demo tool; beta testers never see it. */}
-          {!isBeta && <div className={styles.field}>
-            <label className={styles.fieldLabel} htmlFor="edit-key">
-              {t('agent.aiKey', 'AI API key (stored on this device)')}
-            </label>
-            <input
-              id="edit-key"
-              className={styles.input}
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder={t('common.optional', 'Optional')}
-            />
-          </div>}
         </div>
       </Modal>
     </div>

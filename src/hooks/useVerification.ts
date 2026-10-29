@@ -103,5 +103,3 @@ export function useVerifiedMembers(): UseVerifiedMembers {
 
   return { members, byKey, query, setQuery, loading };
 }
-
-export default useVerification;

@@ -9,7 +9,7 @@ import { COUNTRIES, OTHER_COUNTRY, getCountryName } from '../../../utils/countri
 import { LANGUAGE_OPTIONS } from '../../../utils/languages';
 import styles from './steps.module.scss';
 
-export interface AgentFields {
+interface AgentFields {
   displayName: string;
   photo: string;
   country: string;

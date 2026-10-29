@@ -1,4 +1,4 @@
-import { contractRead, joinContract } from '../api';
+import { contractRead } from '../api';
 import { isDemoDataMode } from '../dataMode';
 import type { IMethod } from '../interfaces';
 
@@ -134,36 +134,4 @@ export async function resolveInitiativeStageContract(
   } catch {
     return null;
   }
-}
-
-export async function resolveAndJoinInitiativeStageContract(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  stageKey: string,
-): Promise<InitiativeStageContract | null> {
-  const stageContract = await resolveInitiativeStageContract(
-    serverUrl,
-    publicKey,
-    contractId,
-    stageKey,
-  );
-
-  if (!stageContract) return null;
-
-  if (stageContract.address && stageContract.agent) {
-    try {
-      await joinContract({
-        serverUrl,
-        publicKey,
-        address: stageContract.address,
-        agent: stageContract.agent,
-        contract: stageContract.contractId,
-      });
-    } catch {
-      // Joining may fail if the user already has the contract locally.
-    }
-  }
-
-  return stageContract;
 }

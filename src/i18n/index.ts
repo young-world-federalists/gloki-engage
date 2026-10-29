@@ -1,10 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext } from 'react';
 import type { Dictionary, Locale, Vars } from './types';
 import en from './en';
 import fr from './fr';
 import sw from './sw';
 
-export type { Locale, Vars, Dictionary } from './types';
+export type { Locale, Vars } from './types';
 
 /** Available locales, in switcher order. Labels resolve through `t(labelKey)`. */
 export const LOCALES: { code: Locale; labelKey: string }[] = [
@@ -15,7 +15,7 @@ export const LOCALES: { code: Locale; labelKey: string }[] = [
 
 const DICTS: Record<Locale, Dictionary> = { en, fr, sw };
 
-const STORAGE_KEY = 'gloki.locale';
+export const STORAGE_KEY = 'gloki.locale';
 const DEFAULT_LOCALE: Locale = 'en';
 
 function isLocale(v: string | null): v is Locale {
@@ -56,39 +56,14 @@ export function translate(locale: Locale, key: string, defaultValue?: string, va
 /** `t('namespace.key', 'English default', { vars })`. */
 export type TFunction = (key: string, defaultValue?: string, vars?: Vars) => string;
 
-interface I18nContextValue {
+export interface I18nContextValue {
   locale: Locale;
   setLocale: (l: Locale) => void;
   t: TFunction;
 }
 
-const I18nContext = createContext<I18nContextValue | null>(null);
-
-export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [locale, setLocaleState] = useState<Locale>(getStoredLocale);
-
-  const setLocale = useCallback((l: Locale) => {
-    setLocaleState(l);
-    try {
-      localStorage.setItem(STORAGE_KEY, l);
-    } catch {
-      /* ignore persistence failure */
-    }
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-
-  const t = useCallback<TFunction>(
-    (key, defaultValue, vars) => translate(locale, key, defaultValue, vars),
-    [locale],
-  );
-
-  const value = useMemo<I18nContextValue>(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
-
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
-};
+export const I18nContext = createContext<I18nContextValue | null>(null);
+// The provider is in I18nProvider.tsx.
 
 export function useI18n(): I18nContextValue {
   const ctx = useContext(I18nContext);

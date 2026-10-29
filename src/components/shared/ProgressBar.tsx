@@ -2,9 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './ProgressBar.module.scss';
 
-export type ProgressBarVariant = 'primary' | 'success' | 'neutral';
+type ProgressBarVariant = 'primary' | 'success' | 'neutral';
 
-export interface ProgressBarProps {
+interface ProgressBarProps {
   /** Announced value (aria-valuenow), in [0, max]. */
   value: number;
   /** Denominator for aria-valuemax. Defaults to 100 (percent semantics). */

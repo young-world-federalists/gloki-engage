@@ -8,7 +8,7 @@ import ProblemTagPicker from './ProblemTagPicker';
 import { startDraft, type DraftEntry, type DraftMode, type DraftTag } from './writeTogetherApi';
 import styles from './StartDraftForm.module.scss';
 
-export interface StartDraftFormProps {
+interface StartDraftFormProps {
   communityId: string;
   onStarted: (draft: DraftEntry) => void;
   onCancel: () => void;

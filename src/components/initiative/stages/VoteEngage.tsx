@@ -6,7 +6,7 @@ import VotePreview from './VotePreview';
 import { useCommunityTrust } from '../../../hooks/useCommunityTrust';
 import styles from './VoteEngage.module.scss';
 
-export interface VoteEngageProps {
+interface VoteEngageProps {
   /** The initiative contract id — the shared parent contract. */
   initiativeId: string;
   /** Hosting community — gates the ballot via {@link StageGate}. */

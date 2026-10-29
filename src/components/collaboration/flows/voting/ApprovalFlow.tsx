@@ -11,6 +11,7 @@ import { getInitiativeRoles, type InitiativeRoles } from '../../../../services/i
 import ExpertEndorseButton from '../../../shared/ExpertEndorseButton';
 import { SegmentedControl, Button, InfoDisclosure } from '../../../shared';
 import { useI18n } from '../../../../i18n';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 const approvalContractCode = '';import styles from './ApprovalFlow.module.scss';
 
 interface Proposal {
@@ -124,9 +125,7 @@ const ApprovalFlow: React.FC<FlowProps> = ({ instanceId, collaborationId, parent
     }
   }, [activeTab, contractId, countApprovals, publicKey, sanitizeApprovalCounts, serverUrl]);
 
-  useEffect(() => {
-    if (isReady) fetchData();
-  }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
 
   const handleAdd = async () => {
     const trimmed = newText.trim();

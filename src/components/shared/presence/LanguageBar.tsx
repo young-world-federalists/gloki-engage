@@ -5,7 +5,7 @@ import { useT } from '../../../i18n';
 import { LANGUAGES, type LangCode } from '../../../services/demo/fixtures/presence';
 import styles from './LanguageBar.module.scss';
 
-export interface LanguageBarProps {
+interface LanguageBarProps {
   /** Languages spoken in this space (native names shown). EN/FR/SW are switchable. */
   languages: LangCode[];
   className?: string;

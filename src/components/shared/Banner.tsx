@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import { Info, CheckCircle2, AlertTriangle, AlertCircle, X } from 'lucide-react';
 import styles from './Banner.module.scss';
 
-export type BannerTone = 'info' | 'success' | 'warning' | 'error';
+type BannerTone = 'info' | 'success' | 'warning' | 'error';
 
-export interface BannerProps {
+interface BannerProps {
   tone?: BannerTone;
   title?: React.ReactNode;
   children?: React.ReactNode;

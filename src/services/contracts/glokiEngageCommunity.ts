@@ -13,7 +13,7 @@ import glokiEngageCommunityContractSrc from '../../assets/contracts/gloki_engage
 // this is what distinguishes "a gloki-engage app community" from any other
 // app's contracts on the same IBC network, and from the demo-only
 // `community_contract.py`.
-export const GLOKI_ENGAGE_COMMUNITY_CONTRACT = 'gloki_engage_community_contract.py';
+const GLOKI_ENGAGE_COMMUNITY_CONTRACT = 'gloki_engage_community_contract.py';
 
 export interface CommunityDetails {
   name: string;

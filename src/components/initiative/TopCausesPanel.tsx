@@ -4,14 +4,14 @@ import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
 import { getComments, getCommentVotes, type Comment, type CommentVote } from '../collaboration/flows/discussion/discussionApi';
-import { computeDiscussionStatus, type DiscussionStatus } from '../../utils/discussionStatus';
+import { computeDiscussionStatus, statusAccessibleName, type DiscussionStatus } from '../../utils/discussionStatus';
 import { rankCauses, TOP_CAUSES_CARRIED, type CauseRank } from '../../utils/causes';
 import { displayNameFor } from '../../utils/displayName';
 import { Card, Badge, EmptyState, UserIdentity } from '../shared';
-import { DiscussionStatusBadge, statusAccessibleName } from './DiscussionStatusPill';
+import { DiscussionStatusBadge } from './DiscussionStatusPill';
 import styles from './TopCausesPanel.module.scss';
 
-export interface TopCausesPanelProps {
+interface TopCausesPanelProps {
   initiativeId: string;
   /** Community display name — feeds the scoped Consensus sentence on the
    *  header's DiscussionStatusBadge (S35 F4). Omit to fall back to the

@@ -84,7 +84,6 @@ export function useFlowContract(
 
     attempted.current = true;
     dispatch(setDeploying({ instanceId }));
-    setStatusMessage('Deploying contract to the network...');
     console.log(`[FlowContract] Deploying ${contractName} for ${instanceId}...`);
 
     // Deploy timeout — force error if promise doesn't settle
@@ -136,7 +135,6 @@ export function useFlowContract(
 
     attempted.current = true;
     dispatch(setDeploying({ instanceId }));
-    setStatusMessage('Looking up existing contract...');
     console.log(`[FlowContract] Setting up shared ${contractName} for ${instanceId} (parent: ${parentContractId}, stage: ${stageKey})...`);
 
     // Deploy timeout
@@ -310,7 +308,9 @@ export function useFlowContract(
     isDeploying,
     hasError,
     errorMessage,
-    statusMessage,
+    // A deploy starts with its mode's first step; later steps set their own message.
+    statusMessage: statusMessage
+      || (isDeploying ? (isShared ? 'Looking up existing contract...' : 'Deploying contract to the network...') : ''),
     retry,
   };
 }

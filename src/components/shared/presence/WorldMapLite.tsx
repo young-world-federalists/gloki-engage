@@ -4,7 +4,7 @@ import { getCountryFlag, getCountryName } from '../../../utils/countries';
 import { useT } from '../../../i18n';
 import styles from './WorldMapLite.module.scss';
 
-export interface WorldMapLiteProps {
+interface WorldMapLiteProps {
   /** Per-country participant counts. */
   participation: { code: string; participants: number }[];
   /** Override the default heading. */

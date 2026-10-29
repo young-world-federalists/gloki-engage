@@ -13,7 +13,7 @@ export interface OrganizationSignInInput {
   country?: string;
 }
 
-export interface OrganizationSignInProps {
+interface OrganizationSignInProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (input: OrganizationSignInInput) => void;

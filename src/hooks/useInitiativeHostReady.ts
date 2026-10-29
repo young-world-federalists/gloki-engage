@@ -30,5 +30,3 @@ export function useInitiativeHostReady(communityId: string | undefined, initiati
 
   return known || settled;
 }
-
-export default useInitiativeHostReady;

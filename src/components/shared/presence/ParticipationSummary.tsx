@@ -2,7 +2,7 @@ import React from 'react';
 import CountryPresence from '../CountryPresence';
 import { useT } from '../../../i18n';
 
-export interface ParticipationSummaryProps {
+interface ParticipationSummaryProps {
   /** Per-country participant counts. */
   participation: { code: string; participants: number }[];
   /** Max flags before a "+N" chip. */

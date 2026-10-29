@@ -9,7 +9,7 @@ import { useInitiativePost } from '../initiative/useInitiativePost';
 import DiscussionEngage from '../initiative/stages/DiscussionEngage';
 import StageAdvanceBar from '../collaboration/StageAdvanceBar';
 
-export interface DiscussionActivityCardProps {
+interface DiscussionActivityCardProps {
   item: Collaboration;
   communityId: string;
   authorName: string;

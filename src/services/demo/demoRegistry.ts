@@ -54,16 +54,6 @@ export function listDemoContractsByType(contractFile: string): DemoContractMeta[
   return listDemoContracts().filter((m) => m.contract === contractFile);
 }
 
-export function listDemoChildren(parentId: string): DemoContractMeta[] {
-  return listDemoContracts().filter((m) => m.parentId === parentId);
-}
-
-export function removeDemoContract(id: string): void {
-  const reg = loadRegistry();
-  delete reg[id];
-  saveRegistry(reg);
-}
-
 export function removeDemoSubtree(rootId: string): string[] {
   const removed: string[] = [];
   const reg = loadRegistry();

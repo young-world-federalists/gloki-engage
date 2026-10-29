@@ -4,7 +4,7 @@ import styles from './Badge.module.scss';
 
 export type BadgeTone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info';
 
-export interface BadgeProps {
+interface BadgeProps {
   tone?: BadgeTone;
   size?: 'sm' | 'md';
   /** Show a leading status dot. */

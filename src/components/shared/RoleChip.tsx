@@ -3,7 +3,7 @@ import { Pen, Users, Award } from 'lucide-react';
 import { useT } from '../../i18n';
 import styles from './RoleChip.module.scss';
 
-export type Role = 'author' | 'co-author' | 'expert';
+type Role = 'author' | 'co-author' | 'expert';
 
 interface RoleChipProps {
   role: Role;

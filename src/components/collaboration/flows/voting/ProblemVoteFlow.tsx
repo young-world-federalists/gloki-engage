@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
 import { useContractSync } from '../shared/useContractSync';
@@ -11,6 +11,7 @@ import { getCountryByCode, getCountryName } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
 import { ProgressBar } from '../../../shared';
 import styles from './ProblemVoteFlow.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 interface ProblemVoteFlowProps {
   instanceId: string;
@@ -74,9 +75,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
     }
   }, [serverUrl, publicKey, contractId, parentContractId, dispatch]);
 
-  useEffect(() => {
-    if (isReady) fetchData();
-  }, [isReady, fetchData]);
+  useLoadWhenReady(fetchData, isReady);
 
   // Real contracts: no refetch after the write below — this SSE listener is
   // the only thing that refreshes afterward, for the write's own confirmation

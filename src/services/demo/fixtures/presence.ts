@@ -1,12 +1,4 @@
-// Lane F — transnational presence & multilingual fixtures.
-//
-// Plain reference data (no mock-API round-trip — consumed like the country
-// list). The flagship spans four countries on mixed connectivity; these drive
-// the flag clusters, the "participants from N countries" motif, the live
-// "show in my language" toggle, and the WhatsApp/SMS-bridge + offline motifs.
 
-/** Countries taking part in the flagship deliberation (ISO 3166-1 alpha-2). */
-export const VFTC_COUNTRIES = ['KE', 'NG', 'MW', 'CD'];
 
 /** Languages present across the flagship (ISO 639-1 + local codes). */
 export const VFTC_LANGUAGES: LangCode[] = ['en', 'fr', 'sw', 'ny', 'ln'];
@@ -39,15 +31,6 @@ export interface TranslatedText {
 
 /** Languages a translated body can be authored in (the keys of TranslatedText). */
 export type PostLang = 'en' | 'fr' | 'sw';
-
-export interface PresenceParticipant {
-  id: string;
-  name: string;
-  /** ISO 3166-1 alpha-2. */
-  country: string;
-  language: LangCode;
-  channel: ChannelKind;
-}
 
 export interface PresencePost {
   id: string;

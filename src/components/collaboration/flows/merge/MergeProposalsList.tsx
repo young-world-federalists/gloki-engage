@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { useAppSelector } from '../../../../store/hooks';
 import { useFlowContract } from '../shared/useFlowContract';
@@ -9,6 +9,7 @@ import MergeProposalCard from './MergeProposalCard';
 import MergeProposalSubmitModal from './MergeProposalSubmitModal';
 import { useT } from '../../../../i18n';
 import styles from './MergeProposalsList.module.scss';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
 
 interface MergeProposalsListProps {
   targetInitiativeId: string;
@@ -52,9 +53,7 @@ const MergeProposalsList: React.FC<MergeProposalsListProps> = ({
     setMyVotes(votes);
   }, [serverUrl, publicKey, contractId, onCountChange]);
 
-  useEffect(() => {
-    if (isReady) refresh();
-  }, [isReady, refresh]);
+  useLoadWhenReady(refresh, isReady);
 
   const handleAcceptCrossContract = useCallback(async (proposal: MergeProposal) => {
     if (!serverUrl || !publicKey) return;

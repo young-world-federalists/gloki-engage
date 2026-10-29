@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { RefreshCw, VideoOff } from 'lucide-react';
@@ -15,8 +15,9 @@ import {
 import MemberList from './MemberList';
 import pages from './VerificationPages.module.scss';
 import styles from './CallFlow.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
 
-export interface VerifierPickerProps {
+interface VerifierPickerProps {
   /** Approver keys already in state.approvals — never re-offered (E5: a repeat vouch is a silent no-op). */
   excludeKeys: string[];
   /** Lifted to CallFlow (it "holds ... the selected keys", per the task brief) so a later step can see who was invited. */
@@ -70,9 +71,7 @@ const VerifierPicker: React.FC<VerifierPickerProps> = ({ excludeKeys, selectedKe
     }
   }, [ctx, excludeKeys, onAvailable]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useLoadWhenReady(load);
 
   const handleStart = async () => {
     if (!ctx || busy || selectedKeys.length === 0) return;

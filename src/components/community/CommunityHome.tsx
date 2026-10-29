@@ -25,6 +25,8 @@ interface SampleItem {
   createdAt: number;
 }
 
+const NO_MEMBERS: string[] = [];
+
 const SAMPLE_FEED: SampleItem[] = [
   { id: 's1', title: 'Access to Clean Drinking Water', description: 'Over 2 billion people lack safe drinking water globally.', stage: 'problem', authorName: 'Maria S.', createdAt: Date.now() - 3600000 },
   { id: 's2', title: 'Ocean Plastic Pollution', description: '8 million tons of plastic enter our oceans annually.', stage: 'problem', authorName: 'Lin W.', createdAt: Date.now() - 7200000 },
@@ -134,7 +136,7 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ communityId, onOpenMenu, 
 
   const props = communityProperties[communityId] || {};
   const fixture = DEMO_COMMUNITIES.find((c) => c.name === props.name);
-  const members: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
+  const members = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : NO_MEMBERS;
   const memberCount = members.length;
 
   // Presence: tally member countries from profiles; fall back to fixture

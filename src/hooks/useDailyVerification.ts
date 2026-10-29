@@ -28,8 +28,8 @@ export interface UseDailyVerification {
 export function useDailyVerification(): UseDailyVerification {
   const { ctx } = useVerification();
   const [snapshot, setSnapshot] = useState<DailySnapshot | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!!ctx);
+  const [error, setError] = useState<string | null>(ctx ? null : 'signIn');
   const [busy, setBusy] = useState(false);
   const [generation, setGeneration] = useState(0);
   const snapshotRef = useRef<DailySnapshot | null>(null);
@@ -41,13 +41,24 @@ export function useDailyVerification(): UseDailyVerification {
     snapshotRef.current = snapshot;
   }, [snapshot]);
 
+  // A new identity (or signing out) starts over; the effect below loads for it.
+  const [stateFor, setStateFor] = useState(ctx);
+  if (ctx !== stateFor) {
+    setStateFor(ctx);
+    if (!ctx) setSnapshot(null);
+    setLoading(!!ctx);
+    setError(ctx ? null : 'signIn');
+  }
+
+  // A reload (retry, or a reset of the session) starts over too.
+  const reload = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    setGeneration((value) => value + 1);
+  }, []);
+
   useEffect(() => {
-    if (!ctx) {
-      setSnapshot(null);
-      setLoading(false);
-      setError('signIn');
-      return undefined;
-    }
+    if (!ctx) return undefined;
 
     const capturedCtx = ctx;
     const capturedOwner = `${encodeURIComponent(capturedCtx.serverUrl)}::${capturedCtx.publicKey}`;
@@ -57,8 +68,6 @@ export function useDailyVerification(): UseDailyVerification {
     let disposed = false;
     let activeId: string | null = null;
     let unsubscribe: (() => void) | undefined;
-    setLoading(true);
-    setError(null);
 
     void dailySessionState(capturedCtx)
       .then((next) => {
@@ -94,10 +103,9 @@ export function useDailyVerification(): UseDailyVerification {
   }, [ctx, generation]);
 
   useEffect(() => {
-    const reset = () => setGeneration((value) => value + 1);
-    window.addEventListener(DAILY_SESSION_RESET_EVENT, reset);
-    return () => window.removeEventListener(DAILY_SESSION_RESET_EVENT, reset);
-  }, []);
+    window.addEventListener(DAILY_SESSION_RESET_EVENT, reload);
+    return () => window.removeEventListener(DAILY_SESSION_RESET_EVENT, reload);
+  }, [reload]);
 
   const run = useCallback(
     async (action: (activeCtx: VerificationCtx, id: string) => Promise<DailySnapshot>) => {
@@ -124,9 +132,5 @@ export function useDailyVerification(): UseDailyVerification {
   const enterCall = useCallback(() => run(enterDailyCall), [run]);
   const finishCall = useCallback(() => run(finishDailyCall), [run]);
   const setReminder = useCallback((enabled: boolean) => run((activeCtx, id) => setDailyReminder(activeCtx, id, enabled)), [run]);
-  const retry = useCallback(() => setGeneration((value) => value + 1), []);
-
-  return { snapshot, loading, error, busy, join, enterCall, finishCall, setReminder, retry };
+  return { snapshot, loading, error, busy, join, enterCall, finishCall, setReminder, retry: reload };
 }
-
-export default useDailyVerification;

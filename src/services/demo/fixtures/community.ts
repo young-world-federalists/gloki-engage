@@ -4,9 +4,9 @@
 // "town square" rather than a single region or issue. Each community's
 // initiatives live in problems.ts, tagged by `community` key.
 
-export type JourneyStatus = 'done' | 'active' | 'upcoming';
+type JourneyStatus = 'done' | 'active' | 'upcoming';
 
-export interface JourneyPhase {
+interface JourneyPhase {
   key: string;
   /** i18n key for the phase label. */
   labelKey: string;

@@ -4,7 +4,7 @@ import { useT } from '../../../i18n';
 import { verifyInCall, type CallSession, type VerificationCtx } from '../../../services/verification';
 import styles from './CallFlow.module.scss';
 
-export interface InCallVerifyActionProps {
+interface InCallVerifyActionProps {
   ctx: VerificationCtx;
   sessionId: string;
   /** The local user's own public key — this is who `verifyInCall` marks verified. */

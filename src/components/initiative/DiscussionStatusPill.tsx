@@ -1,40 +1,11 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n';
 import { useAppSelector } from '../../store/hooks';
 import { resolveInitiativeStageContract } from '../../services/contracts/initiative';
 import { getComments, getCommentVotes } from '../collaboration/flows/discussion/discussionApi';
-import { computeDiscussionStatus, STATUS_META, type DiscussionStatus } from '../../utils/discussionStatus';
+import { computeDiscussionStatus, statusAccessibleName, STATUS_META, type DiscussionStatus } from '../../utils/discussionStatus';
 import Badge from '../shared/Badge';
 import styles from './DiscussionStatusPill.module.scss';
-
-/**
- * The five-band status's accessible name (S35 F1/F4): the scoped "Consensus
- * among {n} Gloki participants in {community}" sentence for `consensus`,
- * otherwise the plain "Causes discussion: {word}" sentence. Exported so
- * surfaces that fold the status into a larger control's own `aria-label`
- * (e.g. `DiscussionPill`, S35 fix-round F1) can compute it without rendering
- * a second accessible name for the same information.
- */
-export function statusAccessibleName(
-  t: ReturnType<typeof useT>,
-  status: DiscussionStatus,
-  communityName?: string,
-): string {
-  const meta = STATUS_META[status.key];
-  const word = t(meta.labelKey, meta.labelDefault);
-  if (status.key !== 'consensus') {
-    return t('causes.status.aria', 'Causes discussion: {word}', { word });
-  }
-  if (!communityName) {
-    return t('causes.status.scopedNoCommunity', 'Consensus among {n} Gloki participants', {
-      n: status.participants,
-    });
-  }
-  return t('causes.status.scoped', 'Consensus among {n} Gloki participants in {community}', {
-    n: status.participants,
-    community: communityName,
-  });
-}
 
 export interface DiscussionStatusBadgeProps {
   status: DiscussionStatus;
@@ -150,12 +121,12 @@ export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({
 }) => {
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
-  const [status, setStatus] = useState<DiscussionStatus | null>(null);
-  const onStatusRef = useRef(onStatus);
-  onStatusRef.current = onStatus;
+  // Kept with the initiative it was read for, so a new id shows nothing until its own read lands.
+  const [loaded, setLoaded] = useState<{ initiativeId: string; status: DiscussionStatus } | null>(null);
+  const status = loaded?.initiativeId === initiativeId ? loaded.status : null;
+  const reportStatus = useEffectEvent((next: DiscussionStatus) => onStatus?.(next));
 
   useEffect(() => {
-    setStatus(null);
     if (!serverUrl || !publicKey || !initiativeId) return;
     let cancelled = false;
     resolveInitiativeStageContract(serverUrl, publicKey, initiativeId, 'discussionContractId')
@@ -170,8 +141,8 @@ export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({
         if (cancelled || !result) return;
         const [comments, votes] = result;
         const next = computeDiscussionStatus(comments, votes);
-        setStatus(next);
-        onStatusRef.current?.(next);
+        setLoaded({ initiativeId, status: next });
+        reportStatus(next);
       })
       .catch(() => {});
     return () => {
@@ -182,5 +153,3 @@ export const DiscussionStatusPill: React.FC<DiscussionStatusPillProps> = ({
   if (!status) return null;
   return <DiscussionStatusBadge status={status} communityName={communityName} className={className} decorative={decorative} />;
 };
-
-export default DiscussionStatusPill;

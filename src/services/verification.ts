@@ -19,27 +19,8 @@ import {
   vouch,
   type RegistryIdentity,
 } from './verificationRegistry';
-import {
-  simAvailableNow,
-  simInviteToCall,
-  simJoinAsVerifier,
-  simJoinStream,
-  simLeaveCall,
-  simPendingCandidate,
-  simStartCall,
-  simVerifyInCall,
-} from './demo/verificationSim';
-import {
-  DAILY_SESSION_RESET_EVENT,
-  simDailySessionState,
-  simEnterDailyCall,
-  simFinishDailyCall,
-  simJoinDaily,
-  simJoinDailyStream,
-  simLeaveDaily,
-  simSelectVerifiers,
-  simSetDailyReminder,
-} from './demo/dailyVerificationSim';
+import { simAvailableNow, simInviteToCall, simJoinAsVerifier, simJoinStream, simLeaveCall, simStartCall, simVerifyInCall } from './demo/verificationSim';
+import { DAILY_SESSION_RESET_EVENT, simDailySessionState, simEnterDailyCall, simFinishDailyCall, simJoinDaily, simJoinDailyStream, simLeaveDaily, simSetDailyReminder } from './demo/dailyVerificationSim';
 import type {
   CallParticipant,
   CallSession,
@@ -53,24 +34,24 @@ import type {
 
 export type {
   Approval,
-  CallInviteOffer,
+  
   CallParticipant,
   CallSession,
-  CallState,
-  DailyAssignment,
-  DailyDemoScenario,
-  DailyParticipant,
-  DailyPhase,
-  DailyRole,
+  
+  
+  
+  
+  
+  
   DailySnapshot,
   InvitationDraft,
   MemberSummary,
   VerificationCtx,
   VerificationState,
-  VouchMeta,
-  VouchMethod,
+  
+  
   VouchRequest,
-  VouchRequestStatus,
+  
 } from './verificationModel';
 
 export { DAILY_SESSION_RESET_EVENT };
@@ -199,12 +180,6 @@ export function leaveCall(_ctx: VerificationCtx, sessionId: string): Promise<voi
   return Promise.resolve(simLeaveCall(sessionId));
 }
 
-/** The fixture member a verified user sees waiting to be verified (E6); deterministic, never one the caller already vouched for. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- ctx kept for signature parity with the rest of the seam (spec §4); nothing here needs it yet.
-export function pendingCandidate(_ctx: VerificationCtx): Promise<CallParticipant | null> {
-  return Promise.resolve(simPendingCandidate());
-}
-
 /**
  * The E6 verifier role (C1 amendment — `inviteToCall` assumes the caller is
  * the candidate, and this role inverts that). Joins an already-active session
@@ -232,10 +207,6 @@ export function joinDailyStream(id: string, onUpdate: (snapshot: DailySnapshot) 
 
 export async function joinDaily(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
   return simJoinDaily(ctx, id);
-}
-
-export async function selectVerifiers(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {
-  return simSelectVerifiers(ctx, id);
 }
 
 export async function enterDailyCall(ctx: VerificationCtx, id: string): Promise<DailySnapshot> {

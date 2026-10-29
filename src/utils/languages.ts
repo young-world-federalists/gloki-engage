@@ -4,13 +4,13 @@
 // native endonym) for the single-select language picker. Search matches either
 // the English name or the endonym; the picker shows "Endonym (English)".
 
-export interface LanguageInfo {
+interface LanguageInfo {
   code: string; // ISO 639-1
   name: string; // English name
   native: string; // endonym
 }
 
-export const LANGUAGES: LanguageInfo[] = [
+const LANGUAGES: LanguageInfo[] = [
   { code: 'af', name: 'Afrikaans', native: 'Afrikaans' },
   { code: 'sq', name: 'Albanian', native: 'Shqip' },
   { code: 'am', name: 'Amharic', native: 'አማርኛ' },
@@ -109,15 +109,6 @@ export const LANGUAGES: LanguageInfo[] = [
 ];
 
 const LANGUAGE_MAP = new Map<string, LanguageInfo>(LANGUAGES.map((l) => [l.code, l]));
-
-export function getLanguageByCode(code: string): LanguageInfo | undefined {
-  return LANGUAGE_MAP.get(code);
-}
-
-/** English name, falling back to the raw code for unknown languages. */
-export function getLanguageName(code: string): string {
-  return LANGUAGE_MAP.get(code)?.name ?? code;
-}
 
 /** Native endonym, falling back to the raw code for unknown languages. */
 export function getLanguageNative(code: string): string {

@@ -23,7 +23,7 @@ function flagOf(code: string): string {
 
 const COUNTRY_PREVIEW = 4;
 
-export interface MandateCardProps {
+interface MandateCardProps {
   mandate: PublishedMandate;
   /** Route ids — used to build a clean, pubkey-free share link (S11 P2). */
   communityId: string;

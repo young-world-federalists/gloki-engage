@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { MessageCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useAppSelector } from '../../../store/hooks';
 import { useT } from '../../../i18n';
@@ -15,8 +15,9 @@ import {
 } from '../../collaboration/flows/discussion/discussionApi';
 import { submitDraft, type DraftEntry } from './writeTogetherApi';
 import styles from './DraftEditor.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
 
-export interface DraftEditorProps {
+interface DraftEditorProps {
   communityId: string;
   draft: DraftEntry;
   canParticipate: boolean;
@@ -62,9 +63,7 @@ const DraftEditor: React.FC<DraftEditorProps> = ({
     setParticipants(Math.max(1, ppl.size));
   }, [serverUrl, publicKey, draft.contractId]);
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  useLoadWhenReady(refresh);
 
   const submitted = draft.status === 'submitted';
 

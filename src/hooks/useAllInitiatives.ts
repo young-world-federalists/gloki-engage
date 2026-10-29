@@ -146,5 +146,3 @@ export function useAllInitiatives(): UseAllInitiativesResult {
 
   return { initiatives, isLoading };
 }
-
-export default useAllInitiatives;

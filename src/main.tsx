@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import './styles/index.scss'
 import App from './App.tsx'
 import { store } from './store'
-import { I18nProvider } from './i18n'
+import { I18nProvider } from './i18n/I18nProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

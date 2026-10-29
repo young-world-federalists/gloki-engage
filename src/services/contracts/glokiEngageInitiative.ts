@@ -17,7 +17,7 @@ import { isDemoContract } from '../demo/demoRegistry';
 import { watchForChainAck } from '../eventStream';
 import glokiEngageInitiativeContractSrc from '../../assets/contracts/gloki_engage_initiative_contract.py?raw';
 
-export const GLOKI_ENGAGE_INITIATIVE_CONTRACT = 'gloki_engage_initiative_contract.py';
+const GLOKI_ENGAGE_INITIATIVE_CONTRACT = 'gloki_engage_initiative_contract.py';
 
 export interface InitiativeDetails {
   description: string;
@@ -38,7 +38,7 @@ export interface InitiativeRef {
  * contractWrite add `agent: <the signed-in key>` to exactly these calls.
  * Must match the `agent` parameters in gloki_engage_initiative_contract.py.
  */
-export const INITIATIVE_MEMBER_METHODS: ReadonlySet<string> = new Set([
+const INITIATIVE_MEMBER_METHODS: ReadonlySet<string> = new Set([
   'set_details', 'set_stage',
   'endorse_expert', 'unendorse_expert', 'add_co_author',
   'upvote', 'downvote', 'remove_vote', 'get_my_vote',

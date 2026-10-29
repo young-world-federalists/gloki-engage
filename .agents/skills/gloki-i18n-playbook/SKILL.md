@@ -44,7 +44,7 @@ Hand-rolled provider — **no i18next, no JSON catalogs, no typed key union.** A
 
 | File | Role | Size (2026-10-29) |
 |---|---|---|
-| `src/i18n/index.tsx` | Provider, `useT()`, `useI18n()`, framework-agnostic `translate()`, `getStoredLocale()` | 103 lines |
+| `src/i18n/index.ts` + `I18nProvider.tsx` | `useT()`, `useI18n()`, framework-agnostic `translate()`, `getStoredLocale()`; the provider | ~100 lines |
 | `src/i18n/types.ts` | `Locale = 'en' \| 'fr' \| 'sw'`; `Dictionary = Record<string,string>` (flat dotted keys); `Vars` | 7 lines |
 | `src/i18n/en.ts` | **Partial seed only** — shell/kit strings (common.\*, app.\*, nav). ~116 lines, 76 keys | intentionally small |
 | `src/i18n/fr.ts` | **Full overlay** — ~1,530 keys | ~1,690 lines |
@@ -247,7 +247,7 @@ Updated 2026-10-29 on branch `unified`. Re-verify before relying on these:
 | Fact | Re-verify with |
 |---|---|
 | Key counts and parity status | `node .agents/skills/gloki-i18n-playbook/scripts/check-i18n-parity.mjs` |
-| Locales registered | `grep -n "LOCALES\|DICTS" src/i18n/index.tsx` |
+| Locales registered | `grep -n "LOCALES\|DICTS" src/i18n/index.ts` |
 | Beta hides the switcher | `grep -n SHOW_LANGUAGES src/appMode.ts` |
 | Country-name localisation | `grep -n "export function getCountryName" src/utils/countries.ts` |
 | Packet format | `tail -40 docs/i18n-native-review-candidates.md` |

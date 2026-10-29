@@ -30,7 +30,6 @@ const fr: Dictionary = {
   'common.dismiss': 'Ignorer',
   'common.share': 'Partager',
   'common.notLoggedIn': 'Non connecté',
-  'common.optional': 'Facultatif',
 
   // ── App shell — loader, error boundary, 404 ────────────────────────────
   'app.title': 'Gloki — Autogouvernance décentralisée',
@@ -200,7 +199,6 @@ const fr: Dictionary = {
   'agent.networkIdentity': 'Identité réseau',
   'agent.publicKey': 'Clé publique',
   'agent.serverUrl': 'Serveur',
-  'agent.aiKey': 'Clé API d’IA (stockée sur cet appareil)',
   'agent.vouchedBy': 'Parrainé·e par {count}',
   'agent.activity.title': 'Participation',
   'agent.activity.none': 'Aucune activité pour l’instant',
