@@ -3,7 +3,7 @@ import { Heart, Plus, Minus, ChevronDown } from 'lucide-react';
 import type { FlowProps } from '../types';
 import { useFlowContract } from '../shared/useFlowContract';
 import { useContractSync } from '../shared/useContractSync';
-import { isDemoContract } from '../../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../../services/dataMode';
 import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './qvApi';
 import * as approvalApi from './approvalApi';
@@ -211,7 +211,7 @@ const QVFlow: React.FC<QVFlowProps> = ({ instanceId, parentContractId, stageKey,
       await api.allocate(serverUrl, publicKey, contractId, credits);
       // Demo seam emits no write events → refetch directly (flips to locked).
       // Real contracts rely on useContractSync above instead.
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) { console.error('Failed to submit allocation:', err); }
     finally { setSubmitting(false); }
   };

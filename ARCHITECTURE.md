@@ -18,7 +18,7 @@ The app runs on two data layers, chosen **per page** by the URL ([docs/DEMO_MODE
   `gloki_verification_contract.py` (app-wide verified list, on the founder's agent) and
   `gloki_engage_application_settings.py` (on the central application account; says where the
   verification contract lives).
-- **Demo** (`?demo=true`, and pages not split yet): `src/services/demo/` — mock contracts in browser
+- **Demo** (`?demo=true` — the flag decides, for every call): `src/services/demo/` — mock contracts in browser
   storage, fixtures, personas. The `community_contract.py`, `chat_contract.py`, `discussion_contract.py`,
   `concerns_contract.py` flows and the per-stage sub-contract registry described below run here. Where
   a section below says "on-chain", it means the demo layer's mock chain unless it names a real contract

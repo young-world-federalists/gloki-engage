@@ -269,6 +269,17 @@ and the H0 threat-model spec. H1–H4 wait for G2 so key UX isn't built twice.
 
 ## 8. Changelog
 
+- **2026-10-29 — Every page gets its two states; the flag decides the data layer (branch `unified`,
+  Ouri).** Every route is now wrapped as `TwoStatePage`, `RealOnlyPage` (ignores `?demo=true` and says
+  so) or `DemoOnlyPage` ("not yet implemented" without the flag) — `src/components/shared/PageModes.tsx`.
+  **The flag decides the layer for every contract call, never the id** (`src/services/dataMode.ts`;
+  `contractRead`/`contractWrite`/`joinContract` follow it): an id from the other layer shows the page's
+  usual "not found" (new for issue and mandate pages, `useInitiativeFound`). The id-based mixing is
+  gone. The flag sticks to in-app navigation until "Show real data" (`DemoFlagUrlSync` writes it into the
+  URL). Lists use `communitiesForMode`. Page kinds: `docs/DEMO_MODE.md`. Note: the beta's `/forum` is
+  demo-only, so without the flag the beta lands on "not yet implemented". New strings en/fr/sw. Not yet
+  walked in a browser.
+
 - **2026-10-29 — One trunk, two states per page (branch `unified`, Ouri).** New structure: one app on
   the real network; any URL can also show the page's demo variant with `?demo=true`
   (`useDemoMode`/`useDemoLink`, `<DemoNotice />`, `Page.demo.tsx`), removed by hand once the real side

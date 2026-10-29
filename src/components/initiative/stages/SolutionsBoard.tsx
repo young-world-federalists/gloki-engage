@@ -3,7 +3,7 @@ import { ThumbsUp, Microscope, GitMerge, ChevronDown, ChevronUp } from 'lucide-r
 
 import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
 import { useContractSync } from '../../collaboration/flows/shared/useContractSync';
-import { isDemoContract } from '../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../services/dataMode';
 import * as api from '../../collaboration/flows/voting/approvalApi';
 import type { ImpactAssessment } from '../../collaboration/flows/voting/approvalApi';
 import type { Comment, CommentVote } from '../../collaboration/flows/discussion/discussionApi';
@@ -356,7 +356,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     setDecidingMerge(targetId);
     try {
       await api.decideMergeSuggestion(serverUrl, publicKey, contractId, sourceId, targetId, decision);
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       console.error('Failed to decide merge suggestion:', err);
     } finally {
@@ -382,7 +382,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
         reviewCredentials.trim() || undefined,
       );
       resetReview();
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       console.error('Failed to add expert review:', err);
     } finally {
@@ -443,7 +443,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       const causeId = alignable.length > 0 ? newCauseId : '';
       await api.addProposal(serverUrl, publicKey, contractId, newText.trim(), [], commitments, newSources, metrics, causeId);
       resetAdd();
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       console.error('Failed to add solution:', err);
     } finally {
@@ -498,7 +498,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
       }
       // Reconcile to server truth after the write lands (demo only — real
       // contracts rely on useContractSync above instead).
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       // Revert the optimistic change on error.
       setMyApprovals((prev) => ({ ...prev, [proposalId]: wasApproved }));
@@ -514,7 +514,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     setRequestingId(proposalId);
     try {
       await api.requestExpertReview(serverUrl, publicKey, contractId, proposalId);
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       console.error('Failed to request expert review:', err);
     } finally {
@@ -527,7 +527,7 @@ const SolutionsBoard: React.FC<SolutionsBoardProps> = ({ initiativeId, community
     try {
       await api.suggestProposalMerge(serverUrl, publicKey, contractId, mergeSource, targetId);
       setMergeSource(null);
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       console.error('Failed to suggest merge:', err);
       setMergeSource(null);

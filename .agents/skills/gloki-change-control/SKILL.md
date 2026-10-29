@@ -62,8 +62,8 @@ Components never call a server, `fetch`, or open an `EventSource` themselves.
   the real service modules), `services/contracts/`, `verificationRegistry.ts`, `applicationSettings.ts`.
 - A **demo variant** (`*.demo.tsx`) reads and writes only through `src/services/demo/`, and never
   reaches the network.
-- New code imports `services/demo` only from `*.demo.tsx` files. Older code still does it for the
-  transitional id-based routing (`isDemoContract`); that disappears as pages get their two states.
+- The flag decides the layer for every call (`src/services/dataMode.ts`) — never pick a layer by
+  `isDemoContract(id)`. New code imports `services/demo` only from `*.demo.tsx` files.
 
 Reason: swapping or adding a backend must stay a change inside `src/services/`, and the two states of
 a page must never leak into each other. Mechanics: **gloki-seam-and-demo-data**.
@@ -144,7 +144,7 @@ Classify every change before building; a feature often spans several classes —
 | Class | Test | Extra obligations |
 |---|---|---|
 | **UI-only** | No data-layer file changes | Invariants 1 + 4 |
-| **Demo variant** | A `*.demo.tsx` variant, demo stub or fixture changes | Follow `docs/DEMO_MODE.md` (switch, `<DemoNotice />`, demo ids, `useDemoLink`). If fixtures or seeding change, bump `DEMO_VERSION` (**gloki-seam-and-demo-data**) |
+| **Demo variant** | A page's demo state, a `*.demo.tsx` variant, demo stub or fixture changes | Follow `docs/DEMO_MODE.md` (route wrapper, demo ids, page table). If fixtures or seeding change, bump `DEMO_VERSION` (**gloki-seam-and-demo-data**) |
 | **Real side** | `src/services/` real modules or a page's real variant change | Real reads and writes only through the services; writes confirmed through their event (no demo-style re-fetch hacks) |
 | **Contract change** | A real `.py` contract changes | Invariant 3: only new deployments get it — design for older contracts. Update `docs/FOR_OURI_seam.md` for the methods and fields involved, in the same change |
 | **Product-behaviour change** | A user would notice different behaviour, copy framing or flow | Recommend-then-confirm (Rule 3) before building. Check it isn't locked or deferred |
@@ -254,7 +254,7 @@ every claim before building on it.
 - [ ] Not contradicting a locked decision?
 - [ ] Product-behaviour parts confirmed (recommend-then-confirm)?
 - [ ] Real data only through `src/services/`; demo data only from `*.demo.tsx` through `src/services/demo/`?
-- [ ] Demo variant follows `docs/DEMO_MODE.md` (switch, `<DemoNotice />`, demo ids, `useDemoLink`)?
+- [ ] Route wrapped as the right kind (`TwoStatePage` / `RealOnlyPage` / `DemoOnlyPage`); page table in `docs/DEMO_MODE.md` updated?
 - [ ] Wire names byte-match the real contract in `src/assets/contracts/`?
 - [ ] Contract changes mirrored into `docs/FOR_OURI_seam.md`; older deployed contracts considered?
 - [ ] `DEMO_VERSION` bumped iff fixtures/seed changed?

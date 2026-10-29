@@ -5,7 +5,7 @@ import { useContractSync } from '../shared/useContractSync';
 import * as api from './problemVoteApi';
 import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
 import { setInitiativeTally } from '../../../../store/slices/communitiesSlice';
-import { isDemoContract } from '../../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../../services/dataMode';
 const problemVoteCode = '';import { sanitizeExternalUrl } from '../../../../utils/urlSafety';
 import { getCountryByCode, getCountryName } from '../../../../utils/countries';
 import { useI18n } from '../../../../i18n';
@@ -121,7 +121,7 @@ const ProblemVoteFlow: React.FC<ProblemVoteFlowProps> = ({
       // demo write ever reconciles. Real contracts rely solely on
       // useContractSync above, which fires for this same write's own
       // confirmation event (and for any other client's writes too).
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
     } catch (err) {
       // Rollback on failure
       setTally(prevTally);

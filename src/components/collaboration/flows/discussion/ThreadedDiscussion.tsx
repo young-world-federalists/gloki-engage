@@ -20,7 +20,7 @@ import { getHintSeen, markHintSeen } from '../../../onboarding/welcomeHints';
 import * as api from './discussionApi';
 import type { Comment, CommentVote } from './discussionApi';
 import { useContractSync } from '../shared/useContractSync';
-import { isDemoContract } from '../../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../../services/dataMode';
 import styles from './ThreadedDiscussion.module.scss';
 
 // Indent levels 0..DEPTH_CAP render inline; at the cap a node with children
@@ -459,7 +459,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     // Demo contracts emit no SSE events — refetch directly, the only way a
     // demo write ever reconciles. Real contracts rely on useContractSync
     // above (fires from this same write's own confirmation event).
-    if (isDemoContract(contractId)) await refresh();
+    if (isDemoDataMode()) await refresh();
     // Identify the new comment: the contract returns its new id directly as
     // part of the write's own result (not a second read), so this resolves
     // immediately regardless of whether the SSE-driven refresh above has
@@ -489,7 +489,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
   const handleReply = useCallback(async (parentId: string, text: string, sources: SourceLink[]) => {
     if (!serverUrl || !publicKey || !contractId) return;
     await api.addComment(serverUrl, publicKey, contractId, text, parentId, undefined, sources);
-    if (isDemoContract(contractId)) await refresh();
+    if (isDemoDataMode()) await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
   const handleDelete = useCallback(async (id: string) => {
@@ -503,13 +503,13 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
       if (!ok) return;
     }
     await api.deleteComment(serverUrl, publicKey, contractId, id);
-    if (isDemoContract(contractId)) await refresh();
+    if (isDemoDataMode()) await refresh();
   }, [serverUrl, publicKey, contractId, refresh, votable, showConfirm, t]);
 
   const handleLike = useCallback(async (id: string) => {
     if (!serverUrl || !publicKey || !contractId) return;
     await api.likeComment(serverUrl, publicKey, contractId, id);
-    if (isDemoContract(contractId)) await refresh();
+    if (isDemoDataMode()) await refresh();
   }, [serverUrl, publicKey, contractId, refresh]);
 
   const handleVote = useCallback(async (id: string, direction: 'up' | 'down') => {
@@ -517,7 +517,7 @@ const ThreadedDiscussion: React.FC<ThreadedDiscussionProps> = ({ contractId, com
     const current = myVote(votes, publicKey, id);
     const next = current === direction ? 'none' : direction; // tap again to clear
     await api.voteComment(serverUrl, publicKey, contractId, id, next);
-    if (isDemoContract(contractId)) await refresh();
+    if (isDemoDataMode()) await refresh();
   }, [serverUrl, publicKey, contractId, votes, refresh]);
 
   const tally = useMemo(() => tallyVotes(votes), [votes]);

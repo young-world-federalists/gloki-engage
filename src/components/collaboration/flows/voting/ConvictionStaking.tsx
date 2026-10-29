@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Clock, TrendingUp, Check, Pencil } from 'lucide-react';
 import { useFlowContract } from '../shared/useFlowContract';
 import { useContractSync } from '../shared/useContractSync';
-import { isDemoContract } from '../../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../../services/dataMode';
 import * as api from './convictionApi';
 import { useAppSelector } from '../../../../store/hooks';
 import { getCountryColor } from '../../../../utils/countries';
@@ -130,7 +130,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
       } else {
         await api.stake(serverUrl, publicKey, contractId, 1, duration, myCountry);
       }
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
       setEditing(false);
     } catch (err) {
       console.error('Failed to back this:', err);
@@ -144,7 +144,7 @@ const ConvictionStaking: React.FC<ConvictionStakingProps> = ({
     setSubmitting(true);
     try {
       await api.withdrawStake(serverUrl, publicKey, contractId);
-      if (isDemoContract(contractId)) await fetchData();
+      if (isDemoDataMode()) await fetchData();
       setEditing(false);
     } catch (err) {
       console.error('Failed to withdraw backing:', err);

@@ -58,7 +58,7 @@ src/
 │   └── shared/              # kit (barrel index.ts): Card, Button, Modal, EmptyState, Banner,
 │                            #   Badge, DemoNotice, SearchableSelect, CountryParticipation, …
 ├── contexts/AuthContext.tsx # persists {publicKey, serverUrl} under localStorage 'user'
-├── hooks/             # useDemoMode (+ useDemoLink/withDemo), useVerificationRegistry,
+├── hooks/             # useDemoMode (+ DemoFlagUrlSync, withDemo), useInitiativeFound, useVerificationRegistry,
 │                      #   useVerification, useCommunityTrust, useInitiativeHostReady,
 │                      #   useAllInitiatives, useEventStream, useMandate, …
 ├── i18n/              # hand-rolled provider: index.tsx + en.ts/fr.ts/sw.ts + types.ts
@@ -75,15 +75,23 @@ src/
 
 ## A page with two states
 
+Every route element is wrapped as `TwoStatePage`, `RealOnlyPage` or `DemoOnlyPage`
+(`src/components/shared/PageModes.tsx`); the wrapper sets the page's data layer while it renders and
+shows the right notice. Most two-state pages render the same component in both states — the data layer
+is what changes. A page with a separate demo variant passes both:
+
 ```tsx
 // src/components/identity/Communities.tsx
-const Communities: React.FC<CommunitiesProps> = (props) =>
-  useDemoMode() ? <CommunitiesDemo {...props} /> : <CommunitiesReal {...props} />;
+const Communities: React.FC<CommunitiesProps> = (props) => (
+  <TwoStatePage real={<CommunitiesReal {...props} />} demo={<CommunitiesDemo {...props} />} />
+);
 ```
 
-`CommunitiesDemo` lives in `Communities.demo.tsx`, shows `<DemoNotice />` first, reads only through the
-demo layer, and builds links with `useDemoLink()`. The switch picks a whole component — never branch on
-the flag inside one component (hooks can't be conditional). Which pages are split: `docs/DEMO_MODE.md`.
+`CommunitiesDemo` lives in `Communities.demo.tsx`. Pick a whole component per state — never branch on
+the flag inside one (hooks can't be conditional). Pages that decide per sub-path do it themselves:
+`CommunityView` (real-only Identity & Trust / Start an initiative, the flag elsewhere, and the community
+looked up with `communitiesForMode`) and `InitiativeView` (two-state discussion with "not found",
+demo-only suggest/collaboration). Each page's kind: `docs/DEMO_MODE.md`.
 
 ## Flows: location, registry, props
 
@@ -206,7 +214,7 @@ shared kit. DESIGN_SYSTEM.md is the authority.
 |---|---|
 | **Metric label as join key in useMandate** | `src/hooks/useMandate.ts` merges ratification data onto indicators **by metric label string** (`ratification?.indicators[label]`). Renaming a metric orphans its entered target/baseline/cadence |
 | **Comment-enforced invariants** | Shared-mode fail-fast ordering, the frozen route map and the reducer-must-save rule are enforced only by comments + this skill |
-| **Transitional id-based mixing** | Pages without a demo variant still mix real and demo by `isDemoContract` (`docs/DEMO_MODE.md`, Transition) |
+| **One data layer at a time** | The page's layer is one module setting; an async call from the previous page finishing after a navigation can land in the new page's layer |
 | **`/lab/presence` ships to production** | A dev page reachable on the deployed site; removing it is a product call |
 | **No read-only flag on useFlowContract** | The deploy-on-mount trap stays live for new code |
 | **Wire-name split** | UI says "Solutions"; stage keys, i18n families and contract methods stay `proposals`/`proposal` |
@@ -215,9 +223,10 @@ shared kit. DESIGN_SYSTEM.md is the authority.
 
 **Giving a page a demo variant** (Eston's path):
 
-1. Copy the page's component into `Page.demo.tsx` as `PageDemo`; make it read only through the demo layer,
-   show `<DemoNotice />` first, build links with `useDemoLink()`.
-2. Make the page's default export the switch (`useDemoMode()`).
+1. If the existing component can show demo data as is, wrap its route with `TwoStatePage` (or
+   `DemoOnlyPage` while it has no real side) and add the demo stubs/fixtures it needs.
+2. For a different design, put it in `Page.demo.tsx` as `PageDemo` and pass both:
+   `<TwoStatePage real={<PageReal />} demo={<PageDemo />} />`.
 3. New demo data → `src/services/demo/fixtures/*` (+ `DEMO_VERSION` bump) — **gloki-seam-and-demo-data**.
 4. Update the page's row in `docs/DEMO_MODE.md`; strings via `t()` with fr/sw.
 

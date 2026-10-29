@@ -59,7 +59,7 @@ DESIGN_SYSTEM.md.
 | 2 | Build | `npm run build` | completes clean |
 | 3 | Banned patterns | `sh .agents/skills/gloki-verification-and-qa/scripts/grep-gates.sh` | prints `ALL GATES CLEAN`, exit 0 |
 | 4 | i18n parity | see **gloki-i18n-playbook** (position-agnostic set diff of fr.ts/sw.ts; never `sed \s` on macOS) | fr = sw key sets, `{var}` tokens intact |
-| 5 | Preview walk | every touched route at **360px width**, **light AND dark**, in **en, fr, sw** — and **both states** of a page you touched: `/page` and `/page?demo=true` | layout holds, strings translated, state renders correctly; the demo variant shows `<DemoNotice />` and its links keep `?demo=true` |
+| 5 | Preview walk | every touched route at **360px width**, **light AND dark**, in **en, fr, sw** — and **both states** of a page you touched: `/page` and `/page?demo=true` | layout holds, strings translated, state renders correctly; demo mode shows `<DemoNotice />` and stays on when you click on; a real-only page shows the "flag ignored" notice, a demo-only page "not yet implemented" without the flag |
 | 6 | Keyboard | Tab through touched interactive elements | reachable, visible focus, Escape closes modals, no focus lost to remounts |
 | 7 | Screen-reader basics | inspect the DOM (a11y snapshot) | sensible labels/roles; dynamic status changes announced (aria-live) |
 | 8 | Single h1 | per touched route | exactly one `<h1>` (normally the `AppHeader` `title`; DESIGN_SYSTEM.md "one-header / one-`<h1>`" rule) |
@@ -118,8 +118,8 @@ after your change was introduced by it:
    — overlays/shadows — so they are NOT a failing gate; just don't add new ones.)
 3. **Network calls outside `src/services`** — the seam rule: components reach data only through
    `src/services/`. Flags `fetch(`/`axios`/`new EventSource`/`XMLHttpRequest` anywhere else in
-   `src/`. Imports of `src/services/demo/` are not gated — demo variants (`*.demo.tsx`) use it
-   legitimately, and older components still do for the transitional id-based routing.
+   `src/`. Imports of `src/services/demo/` are not gated — demo variants (`*.demo.tsx`) and a few
+   demo-only helpers use it legitimately.
 
 Output on the trunk (2026-10-29):
 

@@ -8,6 +8,17 @@ import { contractRead } from '../../services/api';
 import { registerInitiativeHost } from '../../services/contracts/glokiEngageInitiative';
 import type { IMethod } from '../../services/interfaces';
 import type { InitiativeData } from '../../types/initiative';
+import { TwoStatePage, DemoOnlyPage } from '../../components/shared';
+import { useInitiativeFound } from '../../hooks/useInitiativeFound';
+import NotFound from '../NotFound';
+
+/** Renders the page only once the initiative is found in the page's data layer. */
+const IfInitiativeFound: React.FC<{ initiativeId: string; children: React.ReactNode }> = ({ initiativeId, children }) => {
+  const found = useInitiativeFound(initiativeId);
+  if (found === 'missing') return <NotFound />;
+  if (found === 'loading') return null;
+  return <>{children}</>;
+};
 
 const InitiativeView: React.FC = () => {
   const { communityId, initiativeId, initiativeHostServer, initiativeHostAgent } = useParams<{
@@ -47,28 +58,40 @@ const InitiativeView: React.FC = () => {
   const isSuggest = location.pathname.endsWith('/suggest');
   const isCollaboration = location.pathname.endsWith('/collaboration');
 
+  // Two states per URL (docs/DEMO_MODE.md): the discussion has both; suggest
+  // and collaboration exist only as demos so far.
   if (isSuggest) {
-    return <SuggestionDmView communityId={communityId!} initiativeId={initiativeId!} />;
+    return (
+      <DemoOnlyPage>
+        <SuggestionDmView communityId={communityId!} initiativeId={initiativeId!} />
+      </DemoOnlyPage>
+    );
   }
 
   if (isDiscussion) {
     return (
-      <DiscussionStageView
-        title={title}
-        description={description}
-        communityId={communityId!}
-        initiativeId={initiativeId!}
-      />
+      <TwoStatePage>
+        <IfInitiativeFound initiativeId={initiativeId!}>
+          <DiscussionStageView
+            title={title}
+            description={description}
+            communityId={communityId!}
+            initiativeId={initiativeId!}
+          />
+        </IfInitiativeFound>
+      </TwoStatePage>
     );
   }
 
   if (isCollaboration) {
     return (
-      <CollaborationFullView
-        title={title}
-        collaborationId={initiativeId!}
-        communityId={communityId!}
-      />
+      <DemoOnlyPage>
+        <CollaborationFullView
+          title={title}
+          collaborationId={initiativeId!}
+          communityId={communityId!}
+        />
+      </DemoOnlyPage>
     );
   }
 

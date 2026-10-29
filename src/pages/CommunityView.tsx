@@ -4,7 +4,9 @@ import { Home, Users2, MessageSquare, Users, Coins, Share2, UserPlus, LogOut, Pl
 import { SlideOutMenu, type SlideOutMenuItem } from '../components/shared';
 import AppHeader from '../components/AppHeader';
 import { useT } from '../i18n';
-import { isDemoContract } from '../services/demo/demoRegistry';
+import { communitiesForMode, setDemoDataMode } from '../services/dataMode';
+import { useDemoMode } from '../hooks/useDemoMode';
+import { TwoStatePage, RealOnlyPage, DemoOnlyPage } from '../components/shared';
 import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
 import { resetDemoCommunity } from '../services/demo/seedDemoCommunity';
 import { buildDemoShareLink } from '../services/demo/demoUrlShare';
@@ -108,6 +110,9 @@ const SECTION_HEADS: Record<string, { title: [string, string]; subtitle?: [strin
   },
 };
 
+// Community sub-pages that exist only on the real network (RealOnlyPage).
+const REAL_ONLY_SUB_PAGES = new Set(['identity', 'create-initiative']);
+
 // ─── Main community view ─────────────────────
 const CommunityView: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
@@ -121,7 +126,18 @@ const CommunityView: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
   const dispatch = useAppDispatch();
 
-  const contract = useMemo(() => contracts.find((c) => c.id === communityId), [contracts, communityId]);
+  // The page's data layer (docs/DEMO_MODE.md): the flag decides, except on the
+  // sub-pages that exist only for real, which ignore it. Set while rendering,
+  // before any effect below reads a contract. The community is looked up in
+  // that layer only — an id from the other one is "not found".
+  const subPage = location.pathname.split('/')[3] ?? '';
+  const flag = useDemoMode();
+  const isDemo = flag && !REAL_ONLY_SUB_PAGES.has(subPage);
+  setDemoDataMode(isDemo);
+  const contract = useMemo(
+    () => communitiesForMode(contracts, isDemo).find((c) => c.id === communityId),
+    [contracts, communityId, isDemo],
+  );
   // Memoized: a bare `|| {}` is a new object each render, so the fetch effect
   // below re-ran on every render while properties were missing (a failed read
   // cost ~10 get_properties calls instead of ~4).
@@ -231,8 +247,6 @@ const CommunityView: React.FC = () => {
       </div>
     );
   }
-
-  const isDemo = isDemoContract(communityId);
 
   const handleShareDemoLink = async () => {
     try {
@@ -377,38 +391,44 @@ const CommunityView: React.FC = () => {
               <Route path="issues" element={<Navigate to={`/community/${communityId}`} replace />} />
               <Route path="collaborations" element={<Navigate to={`/community/${communityId}`} replace />} />
               <Route path="share" element={<Navigate to={`/community/${communityId}/members`} replace />} />
-              <Route path="collab" element={<CollabList communityId={communityId!} />} />
+              <Route path="collab" element={<DemoOnlyPage><CollabList communityId={communityId!} /></DemoOnlyPage>} />
               <Route
                 path="collab/:collabId"
                 element={
-                  <ErrorBoundary fallbackMessage="Couldn't load this collab workspace. Try again or pick a different template.">
-                    <CollabPage communityId={communityId!} />
-                  </ErrorBoundary>
+                  <DemoOnlyPage>
+                    <ErrorBoundary fallbackMessage="Couldn't load this collab workspace. Try again or pick a different template.">
+                      <CollabPage communityId={communityId!} />
+                    </ErrorBoundary>
+                  </DemoOnlyPage>
                 }
               />
               <Route
                 path="chat"
                 element={
-                  <ErrorBoundary fallbackMessage="Chat ran into an error. Try again in a moment.">
-                    <ChatTopicList communityId={communityId!} />
-                  </ErrorBoundary>
+                  <DemoOnlyPage>
+                    <ErrorBoundary fallbackMessage="Chat ran into an error. Try again in a moment.">
+                      <ChatTopicList communityId={communityId!} />
+                    </ErrorBoundary>
+                  </DemoOnlyPage>
                 }
               />
               <Route
                 path="chat/:topicId"
                 element={
-                  <ErrorBoundary fallbackMessage="Chat ran into an error. Try again in a moment.">
-                    <ChatTopic />
-                  </ErrorBoundary>
+                  <DemoOnlyPage>
+                    <ErrorBoundary fallbackMessage="Chat ran into an error. Try again in a moment.">
+                      <ChatTopic />
+                    </ErrorBoundary>
+                  </DemoOnlyPage>
                 }
               />
-              <Route path="members" element={<Members communityId={communityId!} />} />
-              <Route path="currency" element={<Currency communityId={communityId!} />} />
-              <Route path="identity" element={<IdentityTrust communityId={communityId!} />} />
-              <Route path="settings" element={<CommunitySettings communityId={communityId!} />} />
-              <Route path="create-initiative" element={<CreateInitiativePage />} />
-              <Route path="write-together" element={<WriteTogetherPage communityId={communityId!} />} />
-              <Route path="*" element={<CommunityHome communityId={communityId!} onOpenMenu={() => setShowMenu(true)} isDemo={isDemo} />} />
+              <Route path="members" element={<TwoStatePage><Members communityId={communityId!} /></TwoStatePage>} />
+              <Route path="currency" element={<DemoOnlyPage><Currency communityId={communityId!} /></DemoOnlyPage>} />
+              <Route path="identity" element={<RealOnlyPage><IdentityTrust communityId={communityId!} /></RealOnlyPage>} />
+              <Route path="settings" element={<DemoOnlyPage><CommunitySettings communityId={communityId!} /></DemoOnlyPage>} />
+              <Route path="create-initiative" element={<RealOnlyPage><CreateInitiativePage /></RealOnlyPage>} />
+              <Route path="write-together" element={<DemoOnlyPage><WriteTogetherPage communityId={communityId!} /></DemoOnlyPage>} />
+              <Route path="*" element={<TwoStatePage><CommunityHome communityId={communityId!} onOpenMenu={() => setShowMenu(true)} isDemo={isDemo} /></TwoStatePage>} />
             </Routes>
           </ErrorBoundary>
         </Suspense>

@@ -1,5 +1,5 @@
 import { contractRead, joinContract } from '../api';
-import { isDemoContract } from '../demo/demoRegistry';
+import { isDemoDataMode } from '../dataMode';
 import type { IMethod } from '../interfaces';
 
 /**
@@ -95,7 +95,7 @@ export async function resolveInitiativeStageContract(
   // trying get_stage_contract (nonexistent on the real contract) and the
   // get_details[stageKey] fallback (also nonexistent), always resolving to
   // null and silently freezing their readiness/summary data at empty.
-  if (!isDemoContract(contractId)) {
+  if (!isDemoDataMode()) {
     return { contractId };
   }
 

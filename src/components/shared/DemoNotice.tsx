@@ -3,10 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { FlaskConical } from 'lucide-react';
 import Banner from './Banner';
 import { useT } from '../../i18n';
+import { LEAVE_DEMO_STATE } from '../../hooks/useDemoMode';
 
 /**
  * Shown at the top of every demo variant (docs/DEMO_MODE.md), so sample data
- * is never mistaken for real. Links to the same page without `?demo=true`.
+ * is never mistaken for real. Links to the same page without `?demo=true`,
+ * leaving demo mode (the flag otherwise sticks to in-app navigation).
  */
 const DemoNotice: React.FC = () => {
   const t = useT();
@@ -20,7 +22,7 @@ const DemoNotice: React.FC = () => {
     <Banner
       tone="info"
       icon={<FlaskConical size={18} aria-hidden />}
-      action={<Link to={realPath}>{t('demoMode.showReal', 'Show real data')}</Link>}
+      action={<Link to={realPath} state={LEAVE_DEMO_STATE}>{t('demoMode.showReal', 'Show real data')}</Link>}
     >
       {t('demoMode.notice', 'Demo: this page shows sample data. Nothing you do here reaches the network.')}
     </Banner>

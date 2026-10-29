@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
 import { setContract, setDeploying, clearDeploying, buildFlowContractsScope } from './flowContractsSlice';
 import { deployContract, joinContract, contractWrite, contractRead } from '../../../../services/api';
 import { normalizeStageContract } from '../../../../services/contracts/initiative';
-import { isDemoContract } from '../../../../services/demo/demoRegistry';
+import { isDemoDataMode } from '../../../../services/dataMode';
 import type { IMethod } from '../../../../services/interfaces';
 
 interface UseFlowContractResult {
@@ -41,12 +41,12 @@ export function useFlowContract(
   const [statusMessage, setStatusMessage] = useState('');
 
   const isShared = !!parentContractId && !!stageKey;
-  // A real (non-demo) parent contract implements every stage's methods on
+  // On a real page the parent contract implements every stage's methods on
   // itself — there is no separate sub-contract to look up or deploy, unlike
   // demo parents which always split concerns across per-stage sub-contracts.
   // Resolving straight to the parent id here is what lets every stage
   // component work unchanged against a single consolidated real contract.
-  const isSingleContract = isShared && !!parentContractId && !isDemoContract(parentContractId);
+  const isSingleContract = isShared && !!parentContractId && !isDemoDataMode();
 
   const retry = useCallback(() => {
     failed.current = false;

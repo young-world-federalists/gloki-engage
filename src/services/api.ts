@@ -1,20 +1,14 @@
-// Seam boundary between the UI and the Gloki backend, migrating one method at
-// a time from the UI-only mock to real IBC calls. isExistAgent/registerAgent/
-// getContracts always call the real server. contractRead/contractWrite are
-// dispatch-aware: a demo contract id (always prefixed `demo-`) routes to the
-// mock layer exactly as before; any other id routes to the real IBC server.
-// deployContract/joinContract stay fully mocked — nothing that reaches a
-// real, non-demo contract via the shared-mode path in useFlowContract.ts
-// ever needs deployContract to deploy anything (see
-// components/collaboration/flows/shared/useFlowContract.ts's single-contract
-// mode), and membership/joining isn't migrated yet (a real community has no
-// membership methods for a successful join to do anything with).
+// Seam boundary between the UI and the Gloki backend. isExistAgent /
+// registerAgent / getContracts always call the real server (the signed-in
+// identity is real on every page). contractRead / contractWrite / joinContract
+// follow the page's data mode (dataMode.ts, set from the URL's `?demo=true`):
+// a demo page goes to the demo layer, a real page to the IBC network — for any
+// id, so an id from the other layer is simply not found. deployContract stays
+// mocked: only demo flows use it; real contracts deploy through the *OnChain
+// functions in the service modules.
 //
-// getContracts merges real results with the seeded demo communities so the
-// mockup content keeps showing for flows not yet migrated off the mock layer.
-//
-// All public function signatures are unchanged so callers (slices, flow APIs,
-// contract wrappers) keep working without edits.
+// getContracts merges the seeded demo communities into the real list; each
+// page lists only its own layer (communitiesForMode in dataMode.ts).
 
 import type { IMethod, IContract } from "./interfaces";
 import {
@@ -25,7 +19,7 @@ import {
   mockJoinContract,
   mergeDemoContracts,
 } from "./demo/mockApi";
-import { isDemoContract } from "./demo/demoRegistry";
+import { isDemoDataMode } from "./dataMode";
 import { openScopedAckStream, watchForChainAck } from "./eventStream";
 import { hostedContract } from "./contractHosts";
 
@@ -266,7 +260,7 @@ export async function deployContract({
 // completes asynchronously — the joiner's stream gets `a2a_connect` with
 // `reply: true` (JoinCommunity.tsx waits for it), after which the contract is
 // in the joiner's get_contracts and the joiner is in its get_partners, which
-// is what membership of a gloki-engage community is today. Demo contracts
+// is what membership of a gloki-engage community is today. Demo pages
 // stay on the mock.
 export async function joinContract({
   serverUrl,
@@ -283,7 +277,7 @@ export async function joinContract({
   contract: string;
   profile?: string;
 }): Promise<any> {
-  if (isDemoContract(contract)) return mockJoinContract();
+  if (isDemoDataMode()) return mockJoinContract();
   return await fetchWithTimeout(
     `${serverUrl}/ibc/app/${publicKey}?action=join_contract`,
     {
@@ -305,7 +299,7 @@ export async function contractWrite({
   contractId: string;
   method: IMethod;
 }): Promise<any> {
-  if (!isDemoContract(contractId)) {
+  if (!isDemoDataMode()) {
     const route = routeCall(serverUrl, publicKey, contractId, method);
     // A write through another agent is confirmed on THAT agent's stream.
     const watcher = route.viaHost
@@ -332,7 +326,7 @@ export async function contractRead({
   contractId: string;
   method: IMethod;
 }): Promise<any> {
-  if (!isDemoContract(contractId)) {
+  if (!isDemoDataMode()) {
     const route = routeCall(serverUrl, publicKey, contractId, method);
     return contractReadOnChain({ serverUrl: route.serverUrl, publicKey: route.publicKey, contractId, method: route.method });
   }

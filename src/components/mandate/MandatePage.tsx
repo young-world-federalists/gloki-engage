@@ -9,6 +9,8 @@ import RatificationPanel from './RatificationPanel';
 import { useMandate } from '../../hooks/useMandate';
 import { useLiveBackers } from '../../hooks/useLiveBackers';
 import { useInitiativeHostReady } from '../../hooks/useInitiativeHostReady';
+import { useInitiativeFound } from '../../hooks/useInitiativeFound';
+import NotFound from '../../pages/NotFound';
 import { useT } from '../../i18n';
 import cs from '../../pages/Container.module.scss';
 import styles from './MandatePage.module.scss';
@@ -39,6 +41,15 @@ const MandatePage: React.FC = () => {
       </div>
     );
   }
+  return <MandateIfFound communityId={communityId} mandateId={mandateId} />;
+};
+
+// Only a mandate found in the page's data layer renders (docs/DEMO_MODE.md):
+// otherwise useMandate would fall back to the sample mandate for any id.
+const MandateIfFound: React.FC<{ communityId?: string; mandateId?: string }> = ({ communityId, mandateId }) => {
+  const found = useInitiativeFound(mandateId);
+  if (found === 'missing') return <NotFound />;
+  if (found === 'loading') return null;
   return <MandatePageContent communityId={communityId} mandateId={mandateId} />;
 };
 

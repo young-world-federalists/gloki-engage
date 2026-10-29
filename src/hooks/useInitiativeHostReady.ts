@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCollaborations } from '../store/slices/communitiesSlice';
 import { hostedContract } from '../services/contractHosts';
-import { isDemoContract } from '../services/demo/demoRegistry';
+import { isDemoDataMode } from '../services/dataMode';
 
 /**
  * For routes that reach an initiative without its host in the URL (e.g.
@@ -14,7 +14,7 @@ import { isDemoContract } from '../services/demo/demoRegistry';
 export function useInitiativeHostReady(communityId: string | undefined, initiativeId: string | undefined): boolean {
   const dispatch = useAppDispatch();
   const { serverUrl, publicKey } = useAppSelector((s) => s.user);
-  const known = !initiativeId || isDemoContract(initiativeId) || !!hostedContract(initiativeId);
+  const known = !initiativeId || isDemoDataMode() || !!hostedContract(initiativeId);
   const [settled, setSettled] = useState(false);
 
   useEffect(() => {

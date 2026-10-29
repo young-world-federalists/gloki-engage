@@ -15,16 +15,15 @@ first. (`server-side` and `ui` are the retiring two-branch model; they still dep
   that is only designed so far lives behind its page's `?demo=true` variant, so the trunk stays
   usable. Both Eston (designs, demo variants) and Ouri (real server side) work this way.
 - **Two states per page** ([docs/DEMO_MODE.md](./docs/DEMO_MODE.md)): `/page` is real,
-  `/page?demo=true` is the page's demo variant (`Page.demo.tsx`, `useDemoMode()`, `<DemoNotice />`).
-  A demo variant never reaches the network; demo data uses `demo-…` ids so the two never collide.
-  Demo variants are removed by hand once the real page replaces them.
-- **The seam rule:** components never call a server directly. Real variants read and write through
-  `src/services/` (`api.ts`, `services/contracts/`, the verification and settings modules); demo
-  variants through `src/services/demo/`. Swapping or adding a backend stays a change inside
-  `src/services/`.
-- **Transition:** pages without a demo variant still mix real and demo data by id
-  (`isDemoContract` in `api.ts`, demo communities merged into `getContracts`). Each page's split
-  removes that; the status of every path is in docs/DEMO_MODE.md.
+  `/page?demo=true` is demo mode. **The flag decides the data layer, never the id**: in demo mode every
+  contract call goes to the demo layer, otherwise to the network; an id from the other layer is just
+  "not found". Every route is wrapped as `TwoStatePage`, `RealOnlyPage` (ignores the flag and says so)
+  or `DemoOnlyPage` ("not yet implemented" without the flag). The flag sticks to in-app navigation
+  until "Show real data". Demo versions are removed by hand once the real page replaces them.
+- **The seam rule:** components never call a server directly. Pages read and write through
+  `src/services/` (`api.ts`, `services/contracts/`, the verification and settings modules), which
+  follow the page's data layer (`services/dataMode.ts`); separate demo variants (`*.demo.tsx`) use
+  `src/services/demo/`. Swapping or adding a backend stays a change inside `src/services/`.
 
 > Backend contract hand-off (every method/field the UI relies on): **[docs/FOR_OURI_seam.md](./docs/FOR_OURI_seam.md)**.
 

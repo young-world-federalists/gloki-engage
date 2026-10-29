@@ -117,7 +117,7 @@ Session prompts are written from earlier state and go stale silently. Session af
 
 - The dead-but-interwoven CSS cluster sharing grouped selectors with live classes, deliberately parked during the hierarchy-review close-out for a later surgical audit (build can't catch a wrong CSS removal). **OPEN** — coordinate with gloki-refactor-and-dead-code.
 - `/lab/presence` still routed (`src/App.tsx`) — a surviving lab artifact, kept intentionally as a dev verification page. Removing it is a product decision, not a cleanup to do in passing.
-- The transitional id-based mixing of real and demo data on pages that don't have a demo variant yet (`docs/DEMO_MODE.md`, Transition). **OPEN** — removed page by page.
+- Demo-only pages (`docs/DEMO_MODE.md` page table) still need their real side. **OPEN** — Ouri's track, page by page.
 
 ---
 

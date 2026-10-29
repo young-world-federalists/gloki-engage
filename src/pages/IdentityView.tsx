@@ -6,6 +6,7 @@ import Profile from '../components/identity/Profile';
 import JoinCommunity from '../components/identity/JoinCommunity';
 import AboutPage from '../components/identity/AboutPage';
 import ContactPage from '../components/identity/ContactPage';
+import { RealOnlyPage, DemoOnlyPage } from '../components/shared';
 import VerificationHub from '../components/identity/verification/VerificationHub';
 import RequestPage from '../components/identity/verification/RequestPage';
 import ApprovePage from '../components/identity/verification/ApprovePage';
@@ -66,17 +67,17 @@ const IdentityView: React.FC = () => {
                 and the account's index is the profile. */}
             <Route index element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
             <Route path="communities" element={isBeta ? <Navigate to="/" replace /> : <Communities />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <JoinCommunity />} />
+            <Route path="profile" element={<RealOnlyPage><Profile /></RealOnlyPage>} />
+            <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <RealOnlyPage><JoinCommunity /></RealOnlyPage>} />
             <Route path="about" element={<AboutPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
             <Route path="contact" element={<ContactPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
-            <Route path="verification" element={<VerificationHub />} />
-            <Route path="verification/request" element={<RequestPage />} />
-            <Route path="verification/approve" element={<ApprovePage />} />
-            <Route path="verification/invite" element={<InvitePage />} />
-            <Route path="verification/call" element={<CallFlow />} />
-            <Route path="verification/daily" element={<DailySession />} />
-            <Route path="notifications" element={<NotificationCenter />} />
+            <Route path="verification" element={<RealOnlyPage><VerificationHub /></RealOnlyPage>} />
+            <Route path="verification/request" element={<RealOnlyPage><RequestPage /></RealOnlyPage>} />
+            <Route path="verification/approve" element={<RealOnlyPage><ApprovePage /></RealOnlyPage>} />
+            <Route path="verification/invite" element={<DemoOnlyPage><InvitePage /></DemoOnlyPage>} />
+            <Route path="verification/call" element={<DemoOnlyPage><CallFlow /></DemoOnlyPage>} />
+            <Route path="verification/daily" element={<DemoOnlyPage><DailySession /></DemoOnlyPage>} />
+            <Route path="notifications" element={<DemoOnlyPage><NotificationCenter /></DemoOnlyPage>} />
             <Route path="hidden" element={isBeta ? <Navigate to="/" replace /> : <Communities showHidden />} />
             <Route path="*" element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
           </Routes>

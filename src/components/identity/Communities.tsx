@@ -4,10 +4,10 @@ import { Star, EyeOff, Eye, ArrowLeft, Users, ScrollText, PlusCircle, Calendar }
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchContracts } from '../../store/slices/userSlice';
 import { fetchGlokiEngageCommunityDetails } from '../../store/slices/communitiesSlice';
-import { isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
+import { communitiesForMode } from '../../services/dataMode';
+import { TwoStatePage } from '../shared';
 import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
-import { useDemoMode } from '../../hooks/useDemoMode';
 import { useI18n } from '../../i18n';
 import CommunitiesDemo from './Communities.demo';
 import styles from './Communities.module.scss';
@@ -36,7 +36,7 @@ const CommunitiesReal: React.FC<CommunitiesProps> = ({ showHidden = false }) => 
   );
 
   const communityContracts = useMemo(
-    () => contracts.filter(isGlokiEngageCommunityContract),
+    () => communitiesForMode(contracts, false),
     [contracts],
   );
 
@@ -249,7 +249,8 @@ const CommunitiesReal: React.FC<CommunitiesProps> = ({ showHidden = false }) => 
  * /identity/communities and /identity/hidden. Two states per URL
  * (docs/DEMO_MODE.md): the real page, or with ?demo=true the demo variant.
  */
-const Communities: React.FC<CommunitiesProps> = (props) =>
-  useDemoMode() ? <CommunitiesDemo {...props} /> : <CommunitiesReal {...props} />;
+const Communities: React.FC<CommunitiesProps> = (props) => (
+  <TwoStatePage real={<CommunitiesReal {...props} />} demo={<CommunitiesDemo {...props} />} />
+);
 
 export default Communities;

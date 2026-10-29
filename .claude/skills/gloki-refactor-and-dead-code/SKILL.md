@@ -248,25 +248,24 @@ Decision table:
 
 ## Recipe 7 — Removing a page's demo variant
 
-Every page can have a demo variant (`Page.demo.tsx`, `docs/DEMO_MODE.md`). Once the real page replaces
-it and Eston is happy, removing it is a **manual cleanup** — nothing deletes it automatically:
+Every route is wrapped as `TwoStatePage`, `RealOnlyPage` or `DemoOnlyPage` (`docs/DEMO_MODE.md`). Once
+the real page replaces the demo and Eston is happy, removing the demo is a **manual cleanup** — nothing
+deletes it automatically:
 
 ```bash
-git ls-files '*.demo.tsx'                     # the demo variants that exist
-grep -rln "PageDemo\|Page.demo" src           # the switch that renders it
+git ls-files '*.demo.tsx'                                        # separate demo variants
+grep -rn "TwoStatePage\|DemoOnlyPage" src/App.tsx src/pages      # the wrappers
 ```
 
-1. Delete `Page.demo.tsx` and make the page's default export the real component (drop the
-   `useDemoMode()` switch).
+1. Delete the page's `Page.demo.tsx` (if it has one) and change its wrapper to `RealOnlyPage`.
 2. Run Recipe 1 on whatever only the demo variant used — demo handler `case`s, fixtures, seed lines,
    i18n keys. Demo data shared with other demo variants or demo communities stays.
 3. If seed fixtures change shape, bump `DEMO_VERSION` in the same commit.
 4. Update the page's row in `docs/DEMO_MODE.md`.
-5. Walk the page without the flag, and with `?demo=true` (it should now simply ignore the flag).
+5. Walk the page without the flag, and with `?demo=true` (it should now show the "flag ignored" notice).
 
-When the last page needing the id-based mixing is split, the transitional routing in `api.ts`
-(`isDemoContract` dispatch, demo communities merged into `getContracts`) becomes dead code — remove it
-with this recipe.
+When no page uses the demo layer any more, `src/services/demo/`, the demo-community merge in
+`getContracts` and the data-mode switch become dead code — remove them with this recipe.
 
 ---
 

@@ -8,7 +8,7 @@ import {
   fetchInitiativeStage,
 } from '../store/slices/communitiesSlice';
 import { useContractSyncMany } from '../components/collaboration/flows/shared/useContractSync';
-import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
+import { communitiesForMode, isDemoDataMode } from '../services/dataMode';
 import { displayNameFor } from '../utils/displayName';
 import type { Collaboration } from '../services/contracts/community';
 
@@ -28,12 +28,11 @@ export interface UseAllInitiativesResult {
 }
 
 /**
- * Aggregates initiatives across all of the user's (non-hidden) REAL
- * gloki-engage communities and resolves each one's pipeline stage. Shared by
- * the cross-community Home (`HomeView`) and the per-stage feed
- * (`StageFeedView`) so this collection logic lives in exactly one place.
- * Demo/seeded communities are deliberately excluded — see
- * `isGlokiEngageCommunityContract` below.
+ * Aggregates initiatives across all of the user's (non-hidden) communities of
+ * the page's data layer — real gloki-engage communities on a real page, the
+ * seeded demo communities on a `?demo=true` page — and resolves each one's
+ * pipeline stage. Shared by the cross-community Home (`HomeView`), the
+ * per-stage feed (`StageFeedView`) and the organization home.
  *
  * All reads go through the community thunks (the service seam) — never a
  * direct server call from a component.
@@ -46,14 +45,12 @@ export function useAllInitiatives(): UseAllInitiativesResult {
   const profiles = useAppSelector((s) => s.communities.profiles);
   const { hidden } = useAppSelector((s) => s.preferences);
 
-  // Real gloki-engage communities only — deliberately excludes the old
-  // demo/mock community type (Ouri's call). Demo communities still work
-  // fully on their own pages; they're just not aggregated into this
-  // cross-community view, so seeded example content doesn't crowd out a
-  // user's real activity on Home/StageFeedView.
+  // Only the page's own layer (docs/DEMO_MODE.md): read while rendering, after
+  // the page wrapper has set it.
+  const demo = isDemoDataMode();
   const communityContracts = useMemo(
-    () => contracts.filter((c) => isGlokiEngageCommunityContract(c) && !hidden.includes(c.id)),
-    [contracts, hidden],
+    () => communitiesForMode(contracts, demo).filter((c) => !hidden.includes(c.id)),
+    [contracts, hidden, demo],
   );
 
   // Fetch collaborations, properties, and members for all visible communities.

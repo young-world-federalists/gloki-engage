@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/shared/ErrorBoundary';
@@ -7,6 +7,9 @@ import StageFooter from './components/shared/StageFooter';
 import { OfflineBanner } from './components/shared/connectivity';
 import { ToastProvider } from './components/shared/Toast';
 import NotFound from './pages/NotFound';
+import { TwoStatePage, RealOnlyPage, DemoOnlyPage } from './components/shared';
+import { setDemoDataMode } from './services/dataMode';
+import { DemoFlagUrlSync } from './hooks/useDemoMode';
 import { useI18n } from './i18n';
 import { tryHydrateFromHash } from './services/demo/demoUrlShare';
 import { useAppSelector } from './store/hooks';
@@ -86,7 +89,16 @@ function RootRoute() {
   }
   if (!digitalAgentProfile) return <Navigate to="/welcome" replace />;
   if (isBeta) return <Navigate to="/forum" replace />;
-  return <HomeView />;
+  return <TwoStatePage><HomeView /></TwoStatePage>;
+}
+
+// Every navigation starts on the real data layer; the page's wrapper
+// (TwoStatePage / RealOnlyPage / DemoOnlyPage) then sets it for that page.
+// Rendered before <Routes>, so it runs before the page's own render.
+function DataModeReset() {
+  useLocation();
+  setDemoDataMode(false);
+  return null;
 }
 
 // S42 — in the beta every pipeline route (communities, initiatives, stage
@@ -135,20 +147,22 @@ function AppContent() {
         <ToastProvider>
           <OfflineBanner />
           <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
+            <DataModeReset />
+            <DemoFlagUrlSync />
             <Routes>
               <Route path="/" element={<RootRoute />} />
-              <Route path="/welcome/*" element={<OnboardingFlow />} />
-              <Route path="/stage/:stageId" element={<BetaGate><StageFeedView /></BetaGate>} />
+              <Route path="/welcome/*" element={<RealOnlyPage><OnboardingFlow /></RealOnlyPage>} />
+              <Route path="/stage/:stageId" element={<BetaGate><TwoStatePage><StageFeedView /></TwoStatePage></BetaGate>} />
               <Route path="/identity/*" element={<IdentityView />} />
-              <Route path="/create-community" element={<BetaGate><CreateCommunityPage /></BetaGate>} />
+              <Route path="/create-community" element={<BetaGate><RealOnlyPage><CreateCommunityPage /></RealOnlyPage></BetaGate>} />
               <Route path="/community/:communityId/*" element={<BetaGate><CommunityView /></BetaGate>} />
               <Route
                 path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
                 element={<BetaGate><InitiativeView /></BetaGate>}
               />
-              <Route path="/mandate/:communityId/:mandateId/*" element={<BetaGate><MandatePage /></BetaGate>} />
-              <Route path="/organization" element={<BetaGate><OrganizationHome /></BetaGate>} />
-              {isBeta && <Route path="/forum" element={<ForumPage />} />}
+              <Route path="/mandate/:communityId/:mandateId/*" element={<BetaGate><TwoStatePage><MandatePage /></TwoStatePage></BetaGate>} />
+              <Route path="/organization" element={<BetaGate><TwoStatePage><OrganizationHome /></TwoStatePage></BetaGate>} />
+              {isBeta && <Route path="/forum" element={<DemoOnlyPage><ForumPage /></DemoOnlyPage>} />}
               <Route path="/lab/presence" element={<PresenceLabRoute />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -7,11 +7,11 @@ description: Use when touching any data read/write in Communities2/Gloki — the
 
 ## Overview
 
-**Core principle: one app, two data layers, chosen per page by the URL.** `/page` is the real page on
-the real network; `/page?demo=true` is the page's demo variant on demo data (`docs/DEMO_MODE.md` is
-the spec). Components never touch a server: real variants go through the real services in
-`src/services/`, demo variants through the demo layer in `src/services/demo/`. Wire names — contract
-method and field names — byte-match the real contracts in `src/assets/contracts/`, in both layers.
+**Core principle: one app, two data layers, chosen by the URL flag — never by the id.** `/page` uses
+the real network; `/page?demo=true` uses the demo layer (`docs/DEMO_MODE.md` is the spec). Every
+contract call follows the page's layer, so an id from the other layer is simply "not found".
+Components never touch a server: they go through `src/services/`. Wire names — contract method and
+field names — byte-match the real contracts in `src/assets/contracts/`, in both layers.
 
 Eston designs new pages and features as demo variants on top of the working real app; Ouri builds
 their real side; both compare `/page` and `/page?demo=true`; the demo variant is deleted by hand when
@@ -31,35 +31,36 @@ it's no longer needed.
 
 ## 1. Two states per page
 
-```tsx
-// Page.tsx — the default export is the switch
-const Page: React.FC<Props> = (props) =>
-  useDemoMode() ? <PageDemo {...props} /> : <PageReal {...props} />;
-```
+Every route is wrapped as one of three kinds (`src/components/shared/PageModes.tsx`):
+
+| Wrapper | Without the flag | With `?demo=true` |
+|---|---|---|
+| `TwoStatePage` (same component, or `real` + `demo` variants) | real page | demo version + `<DemoNotice />` |
+| `RealOnlyPage` | real page | real page + "the demo flag is ignored" notice |
+| `DemoOnlyPage` | "not yet implemented" + link to the demo | demo page + `<DemoNotice />` |
 
 | Piece | Where | Does |
 |---|---|---|
-| `useDemoMode()` | `src/hooks/useDemoMode.ts` | `true` when the URL has `?demo=true` |
-| `useDemoLink()` / `withDemo(path)` | same file | keeps `?demo=true` on a demo variant's links |
-| `<DemoNotice />` | `src/components/shared/DemoNotice.tsx` | the banner every demo variant shows first, with "Show real data" |
-| `PageDemo` | `Page.demo.tsx`, next to the page | the demo variant; deleted by hand when done |
+| `useDemoMode()` | `src/hooks/useDemoMode.ts` | demo mode: `?demo=true`, or carried over from the previous page |
+| `DemoFlagUrlSync` | same file (mounted in `App.tsx`) | writes `?demo=true` into the URL of a page reached in demo mode |
+| `setDemoDataMode` / `isDemoDataMode` | `src/services/dataMode.ts` | the page's data layer — set by the wrappers while the page renders, reset to real by `App` on navigation |
+| `communitiesForMode(contracts)` | same file | the communities a page lists (demo communities in demo mode, real ones otherwise) |
+| `<DemoNotice />` | `src/components/shared/DemoNotice.tsx` | the demo banner, with "Show real data" |
+| `useInitiativeFound(id)` | `src/hooks/useInitiativeFound.ts` | "not found" for issue/mandate pages in the page's layer |
 
 Rules (full text in `docs/DEMO_MODE.md`):
 
-1. **A demo variant never reaches the network**; a real variant never uses the demo layer. New code
-   imports `services/demo` only from `*.demo.tsx` files.
-2. **Demo data uses demo ids** (`demo-…`). Both states share the Redux store and some browser storage
-   (starred/hidden, the flow-contract cache), all keyed by id, so disjoint ids keep them apart — even in
-   two tabs. A reload doesn't clean mixed browser storage; don't rely on it.
-3. **Links inside a demo variant keep the flag** (`useDemoLink()`); shared chrome (menu, header,
-   footer) uses plain paths, so there's always a way back to real.
-4. **The flag covers page content, not the frame** — header, menu, footer and the signed-in identity
-   are real in both states.
-5. **Every demo variant shows `<DemoNotice />` first** and lives in `*.demo.tsx`, so it is never mistaken
-   for real and a cleanup is one search: `git ls-files '*.demo.tsx'`.
+1. **The flag decides the layer for every call**; never branch on `isDemoContract(id)` to pick one.
+2. **Demo data uses demo ids** (`demo-…`), so both states can share the Redux store and browser storage
+   (keyed by id) without colliding — even in two tabs. A reload doesn't clean mixed browser storage.
+3. **The flag sticks to in-app navigation** until "Show real data" / "Leave demo mode" (a navigation with
+   `LEAVE_DEMO_STATE`) or `?demo=false`; no link needs to carry it by hand.
+4. **The flag covers page content, not the frame** — header, menu, footer, identity are real.
+5. A separate demo variant lives in `*.demo.tsx` next to its page; a cleanup is one search:
+   `git ls-files '*.demo.tsx'`.
 
-A page without a demo variant ignores the flag. Which pages have two states, which are still mixed,
-real-only or demo-only: the table in `docs/DEMO_MODE.md`.
+Known limit: the layer is one setting for the page being shown; an async call from the previous page
+that finishes after a navigation can land in the new page's layer.
 
 ## 2. The real seam
 
@@ -101,10 +102,8 @@ call the seam internally.
 - **localStorage keys**: `gloki_demo_contracts` (registry), `gloki_demo_state_<contractId>` (per-contract
   state), `gloki_demo_seeded_<communityId>` (seed flag), `gloki_demo_version`.
 
-**Transition.** Pages without a demo variant still mix the layers by id: `contractRead` /
-`contractWrite` send any `demo-…` id to the demo layer, and `getContracts` merges the seeded demo
-communities into the real list. Some components branch on `isDemoContract(id)` for that reason. Each
-page's two-state split removes its share of this; don't add new id-based branching.
+`getContracts` merges the seeded demo communities into the signed-in user's contract list; pages list
+only their own layer through `communitiesForMode`.
 
 ## 4. The refresh rule — it differs per layer
 
@@ -113,8 +112,8 @@ page's two-state split removes its share of this; don't add new id-based branchi
 - **Real writes are confirmed by their event**, and other people's writes arrive as events. A real
   variant awaits the write, then relies on `useContractSync` — no polling hacks.
 
-Transitional components that serve both layers show the pattern
-`if (isDemoContract(contractId)) await fetchData();` after a write.
+Components that serve both layers (most stage flows) do
+`if (isDemoDataMode()) await fetchData();` after a write.
 
 ## 5. IMethod and wire-name discipline
 
@@ -215,4 +214,5 @@ Rewritten 2026-10-29 on branch `unified`. Re-verify volatile facts before relyin
 | 13 demo handlers | `ls src/services/demo/demoContracts/` |
 | Real contract methods | `grep -n "    def " src/assets/contracts/<file>.py` |
 | Member-specific issue methods | `grep -n -A10 "INITIATIVE_MEMBER_METHODS" src/services/contracts/glokiEngageInitiative.ts` |
-| Transitional id branching left | `grep -rln "isDemoContract(" src/components src/pages` |
+| No id-based layer choice left | `grep -rn "isDemoContract(" src --include=*.tsx --include=*.ts \| grep -v services/demo` |
+| Route kinds | `grep -rn "TwoStatePage\|RealOnlyPage\|DemoOnlyPage" src/App.tsx src/pages` |

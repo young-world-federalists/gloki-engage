@@ -7,14 +7,13 @@ import { fetchCommunityProperties, fetchCommunityMembers, fetchCollaborations, f
 import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
 import { useDemoLink } from '../../hooks/useDemoMode';
-import { isDemoContract } from '../../services/demo/demoRegistry';
-import { DemoNotice } from '../shared';
+import { communitiesForMode } from '../../services/dataMode';
 import { useI18n } from '../../i18n';
 import styles from './Communities.module.scss';
 
 // DEMO VARIANT of /identity/communities (docs/DEMO_MODE.md): rendered by
-// Communities.tsx when the URL has ?demo=true. The seeded demo communities,
-// through the demo layer only — never the real server. Its store entries are
+// Communities.tsx (TwoStatePage) when the URL has ?demo=true; the wrapper shows
+// the demo notice. The seeded demo communities, through the demo layer only. Its store entries are
 // keyed by demo ids (`demo-…`), so they never collide with the real page's.
 // Links keep ?demo=true. Delete this file once the real page replaces it.
 
@@ -42,7 +41,7 @@ const CommunitiesDemo: React.FC<CommunitiesProps> = ({ showHidden = false }) => 
   );
 
   const communityContracts = useMemo(
-    () => contracts.filter((contract) => isDemoContract(contract.id) && contract.contract === 'community_contract.py'),
+    () => communitiesForMode(contracts, true),
     [contracts],
   );
 
@@ -145,7 +144,6 @@ const CommunitiesDemo: React.FC<CommunitiesProps> = ({ showHidden = false }) => 
   if (showHidden) {
     return (
       <div className={styles.container}>
-        <DemoNotice />
         {/* The title renders in the AppHeader block (D3) — only the back affordance lives here. */}
         <div className={styles.hiddenHeader}>
           <button
@@ -181,7 +179,6 @@ const CommunitiesDemo: React.FC<CommunitiesProps> = ({ showHidden = false }) => 
 
   return (
     <div className={styles.container}>
-      <DemoNotice />
       {/* The title renders in the AppHeader block (D3); the description leads the content. */}
       <div className={styles.pageHeader}>
         <p className={styles.pageDescription}>

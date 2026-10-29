@@ -20,7 +20,7 @@ import type { BlockchainEvent } from '../../../../services/eventStream';
  * Real contracts only — the demo/mock layer has no server and emits no
  * events at all, so demo flows must keep refetching directly after their
  * own writes (their only reconciliation mechanism); gate that on
- * `isDemoContract(contractId)` at the call site instead of here.
+ * `isDemoDataMode()` at the call site instead of here.
  */
 export function useContractSync(contractId: string | null | undefined, onChange: () => void): void {
   const onChangeRef = useRef(onChange);

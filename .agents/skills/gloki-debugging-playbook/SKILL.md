@@ -15,8 +15,8 @@ Only when a symptom clears the table, fall back to first-principles debugging.
 Vocabulary:
 
 - **Real / demo variant** — every page: `/page` (real network) and `/page?demo=true` (demo layer,
-  `src/services/demo/`, localStorage). Pages not split yet mix both by id (`demo-…` ids go to the demo
-  layer). Spec: `docs/DEMO_MODE.md`.
+  `src/services/demo/`, localStorage). **The flag decides the layer for every call, never the id** — an
+  id from the other layer is "not found". Spec: `docs/DEMO_MODE.md`.
 - **Hosted contract** — an issue (or the verification/settings contract) is used without joining it:
   calls go to its creator's node through the creator's agent, with the caller's key as `agent`
   (`src/services/contractHosts.ts`).
@@ -35,7 +35,7 @@ Vocabulary:
 | 5 | Every member action fails on an issue | the issue's contract is older than the code calling it | a broken UI |
 | 6 | Join Community spins, then errors | the community's node never confirmed (`a2a_connect`) | a join-page bug |
 | 7 | Verification list shows a short key instead of a name | the person's profile contract can't be found where recorded | a display bug |
-| 8 | `?demo=true` still shows real data | the page has no demo variant yet | a broken flag |
+| 8 | `?demo=true` shows real data, "not yet implemented" without it, or "not found" | the page is real-only or demo-only, or the id belongs to the other layer | a broken flag |
 | 9 | "Everything broken / click anywhere → error page" right after a deploy | stale SPA chunk cache | a code bug |
 | 10 | Pushed, but the live site didn't change | the Actions build failed (TS error), or the branch doesn't deploy | Pages misconfiguration |
 | 11 | Assets/JS 404 on the live site | bundle built with the wrong base | a routing bug |
@@ -57,8 +57,8 @@ Vocabulary:
 
 **Root cause:** the demo layer never emits `contract_write` events, so anything waiting for one waits
 forever. **Fix:** after every demo write, re-run the read (one memoised fetch, on mount and after each
-write). Transitional components that serve both layers do
-`if (isDemoContract(contractId)) await fetchData();`. Mechanics: **gloki-seam-and-demo-data** §4.
+write). Components that serve both layers do `if (isDemoDataMode()) await fetchData();`. Mechanics:
+**gloki-seam-and-demo-data** §4.
 
 ## 2. Real write spins, then times out
 
@@ -134,11 +134,12 @@ profile there.
 
 **Fix:** check that the stored node address is reachable; the lookup retries on the next read.
 
-## 8. `?demo=true` still shows real data
+## 8. `?demo=true` shows real data, or "not yet implemented" without it
 
-**Root cause:** only pages with a demo variant react to the flag; the rest ignore it. **Fix:** check the
-page's row in `docs/DEMO_MODE.md` / `git ls-files '*.demo.tsx'`. Building the variant:
-**gloki-frontend-architecture** ("Giving a page a demo variant").
+**Root cause:** every route is one of three kinds (`docs/DEMO_MODE.md`). A **real-only** page ignores the
+flag and says so at the top; a **demo-only** page shows "not yet implemented" without the flag. Neither is
+a bug. And an id from the other layer (a demo id without the flag, a real id with it) shows the page's
+"not found" — the flag, not the id, picks the layer. Check the page's row in `docs/DEMO_MODE.md`.
 
 ## 9. "Everything broken" right after a deploy
 
