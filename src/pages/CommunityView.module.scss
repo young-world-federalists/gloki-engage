@@ -1,0 +1,150 @@
+// CommunityView.module.scss — Community page with dark header, feed, and footer
+@use '../styles/variables' as *;
+
+// ─── Page layout ─────────────────────────────
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $gray-50;
+}
+
+// ─── Body ────────────────────────────────────
+.body {
+  @include page-column;
+  flex: 1;
+  // Clear the fixed 64px StageFooter so the bottom of every sub-route stays visible.
+  padding-block: $content-gutter $footer-clearance;
+}
+
+// ─── Options popup ───────────────────────────
+.optionsOverlay {
+  position: fixed;
+  inset: 0;
+  background: $scrim-light;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.optionsPanel {
+  background: white;
+  border-radius: $radius-lg $radius-lg 0 0;
+  padding: $spacing-lg;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding-bottom: max($spacing-xl, env(safe-area-inset-bottom));
+
+  button {
+    width: 100%;
+    padding: $spacing-md $spacing-lg;
+    background: none;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+    color: $gray-700;
+    text-align: left;
+    cursor: pointer;
+    transition: background $transition-base;
+
+    &:hover {
+      background: $gray-50;
+    }
+  }
+}
+
+// ─── Loading / error states ──────────────────
+.loadingState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: $spacing-3xl;
+  text-align: center;
+
+  h1,
+  h2 {
+    margin-bottom: $spacing-sm;
+    color: $gray-800;
+    font-size: $page-title-size;
+    font-weight: $page-title-weight;
+  }
+
+  p {
+    color: $gray-600;
+    margin-bottom: $spacing-xl;
+  }
+
+  button {
+    padding: $spacing-sm $spacing-xl;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $text-sm;
+    cursor: pointer;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+.errorState h1 {
+  color: $error;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $gray-200;
+  border-top: 3px solid $primary;
+  border-radius: $radius-full;
+  animation: spin 1s linear infinite;
+  margin-bottom: $spacing-lg;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// ─── Dark mode ───────────────────────────────
+@include dark {
+  .page {
+    background: $dark-surface;
+  }
+
+  .optionsPanel {
+    background: $dark-bg;
+
+    button {
+      color: $dark-text;
+
+      &:hover {
+        background: $dark-surface;
+      }
+    }
+  }
+
+  .loadingState,
+  .errorState {
+    h1 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+  }
+}
+
+// ─── Responsive ──────────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .body {
+    padding-top: $spacing-md; // tighten vertical only; horizontal gutter stays $content-gutter (law)
+    padding-bottom: calc(#{$footer-height} + #{$spacing-md}); // keep StageFooter clearance at mobile widths
+  }
+}

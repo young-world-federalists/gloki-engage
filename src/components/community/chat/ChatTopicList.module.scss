@@ -1,0 +1,165 @@
+@use '../../../styles/variables' as *;
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
+.container {
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+}
+
+// ─── Input bar ────────────────────────────────────────────────────────────────
+.inputBar {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xl;
+}
+
+.titleInput {
+  flex: 1;
+  min-height: 44px; // touch-target floor (W5)
+  box-sizing: border-box;
+  padding: $spacing-md $spacing-lg;
+  border: 1.5px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-family: inherit;
+  color: $gray-800;
+  outline: none;
+  transition: border-color $transition-base;
+  background: white;
+
+  &:focus {
+    border-color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &::placeholder {
+    color: $gray-500;
+  }
+}
+
+// New-topic create button → shared <Button primary md> (W5 T4); retry actions →
+// <Button> inside <EmptyState>. Bespoke .newTopicBtn + .caveat deleted.
+
+// ─── Loading state (bespoke) ──────────────────────────────────────────────────
+// Error / no-topics states now render through the shared <EmptyState>; only the
+// transient loading state stays bespoke.
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-3xl 0;
+  color: $gray-500;
+
+  p {
+    margin: 0;
+    font-size: $text-sm;
+  }
+}
+
+// ─── Topic list ───────────────────────────────────────────────────────────────
+.topicList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.topicCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  cursor: pointer;
+  transition: box-shadow $transition-base, border-color $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $primary;
+  }
+}
+
+.topicTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  line-height: 1.4;
+}
+
+.topicMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+  flex-wrap: wrap;
+}
+
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.metaDivider {
+  color: $gray-300;
+}
+
+.msgCount {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs; // tokenized off raw 3px; kept compact for this dense meta chip
+}
+
+.timeAgo {
+  color: $gray-500;
+}
+
+// ─── Dark mode ────────────────────────────────────────────────────────────────
+@include dark {
+  .titleInput {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+
+    &:focus {
+      border-color: $primary;
+    }
+  }
+
+  .topicCard {
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    &:hover {
+      border-color: $primary;
+    }
+  }
+
+  .topicTitle {
+    color: $dark-text;
+  }
+
+  .topicMeta {
+    color: $dark-text-secondary;
+  }
+
+  .metaDivider {
+    color: $dark-border;
+  }
+
+  .timeAgo {
+    color: $dark-text-secondary;
+  }
+}

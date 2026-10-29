@@ -1,0 +1,46 @@
+@use '../../styles/variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-lg;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.3;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.body {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.45;
+  color: $gray-600;
+  // Keep the context compact — a reminder, not the full read (full text lives
+  // on the item's own page).
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

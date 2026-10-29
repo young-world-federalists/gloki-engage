@@ -1,0 +1,70 @@
+@use '../../styles/variables' as *;
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 12px;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $gray-200;
+  color: $gray-700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: $font-semibold;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.expertAvatar {
+  position: relative;
+}
+
+.endorseBadge {
+  position: absolute;
+  bottom: -3px;
+  right: -6px;
+  background: $warning;
+  color: $gray-900;
+  font-size: 9px;
+  font-weight: $font-bold;
+  border-radius: $radius-full;
+  padding: 1px 5px;
+  line-height: 1;
+}
+
+.more {
+  font-size: 10px;
+  color: $gray-500;
+  font-weight: $font-semibold;
+}
+
+@include dark {
+  .avatar {
+    background: $dark-border;
+    color: $dark-text;
+  }
+
+  .more {
+    color: $dark-text-secondary;
+  }
+}

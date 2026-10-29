@@ -1,0 +1,62 @@
+@use '../../styles/variables' as *;
+
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: $gray-600;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 44px; // ≥44px touch target (DESIGN_SYSTEM → Mobile Patterns)
+  padding: 0 $spacing-2xl 0 $spacing-md; // right padding clears the chevron
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  // appearance:none strips the native arrow — restore a picker affordance
+  // (chevron-down, $gray-500) or the closed control reads as a static box.
+  background: white
+    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right $spacing-md center / 16px;
+  color: $gray-800;
+  font-family: inherit;
+  font-size: $text-base; // ≥16px: sub-16px form controls trigger iOS focus-zoom
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@include dark {
+  .switcher {
+    color: $dark-text-secondary;
+  }
+
+  .select {
+    // background-color (not the shorthand) so the chevron image survives;
+    // re-tint the chevron to $dark-text-secondary for the dark surface.
+    background-color: $dark-bg;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    color: $dark-text;
+    border-color: $dark-border;
+  }
+}

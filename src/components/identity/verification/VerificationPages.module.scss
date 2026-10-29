@@ -1,0 +1,118 @@
+@use '../../../styles/variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  padding-top: $spacing-lg;
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 $spacing-sm;
+  font-size: $text-lg;
+  font-weight: $font-medium;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.fieldLabel {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.input {
+  height: 44px;
+  width: 100%;
+  padding: 0 $spacing-md;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  color: $gray-900;
+  font-size: $text-base;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 44px;
+  font-size: $text-sm;
+  color: $gray-700;
+
+  input {
+    width: 20px;
+    height: 20px;
+    accent-color: $primary;
+  }
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+// Visually hidden, still announced — same clip-rect pattern as
+// VideoTile.module.scss's `.srOnly`. Used for the S37 call's completion
+// status node, which must be in the DOM from mount (empty) and only then be
+// populated: a live region that arrives already populated generally is not
+// announced at all (the reason Toast.tsx keeps its polite region mounted for
+// the life of the app).
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

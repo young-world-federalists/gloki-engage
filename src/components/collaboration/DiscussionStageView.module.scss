@@ -1,0 +1,57 @@
+@use '../../styles/variables' as *;
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+  width: 100%;
+  // The parent .content is now the canonical page column (width + gutter +
+  // $footer-clearance bottom); this inner wrapper adds top air only.
+  padding-top: $spacing-lg;
+  box-sizing: border-box;
+}
+
+.copresence {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.explainer {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: $spacing-xs 0 $spacing-md;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-2xl $spacing-lg;
+  text-align: center;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.statusError {
+  color: $error;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

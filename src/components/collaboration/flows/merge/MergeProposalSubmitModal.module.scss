@@ -1,0 +1,60 @@
+@use '../../../../styles/variables' as *;
+
+// Dialog chrome (backdrop, panel, header, actions) comes from the shared
+// <Modal> + <Button> kit and errors from <Banner> (S22 dialog convergence);
+// only the merge form lives here.
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: $font-semibold;
+  margin-bottom: 14px;
+}
+
+.select, .textarea {
+  background: white;
+  color: $gray-800;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: $font-normal;
+  font-family: inherit;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.charCount {
+  font-size: 11px;
+  font-weight: $font-normal;
+  color: $gray-500;
+  text-align: right;
+}
+
+.emptyState {
+  padding: 20px 4px;
+  font-size: 13px;
+  color: $gray-600;
+}
+
+.hint {
+  color: $gray-500;
+  font-size: 11px;
+}
+
+@include dark {
+  .select, .textarea {
+    background: $dark-surface;
+    color: $dark-text;
+    border-color: $dark-border;
+  }
+
+  .charCount, .hint { color: $dark-text-secondary; }
+
+  .emptyState { color: $dark-text-secondary; }
+}

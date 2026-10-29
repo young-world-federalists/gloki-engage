@@ -1,0 +1,43 @@
+@use '../../styles/variables' as *;
+
+// View toggle (Edit Suggestions / Merge Proposals) is the shared
+// SegmentedControl — it carries its own light/dark/focus treatment. This just
+// spaces it from the content below.
+.viewToggle {
+  margin-bottom: $spacing-md;
+}
+
+// Shown when this initiative has merged into another — a cautionary,
+// action-oriented notice on the warning semantic surface (tokens only).
+.mergedBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  background: $warning-surface;
+  border: 1px solid $warning-on-surface;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  color: $warning-on-surface;
+  text-align: center;
+
+  @include dark {
+    background: $warning-surface-dark;
+    border-color: $warning;
+    color: $dark-text;
+  }
+}
+
+.mergedTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+}
+
+.mergedBody {
+  margin: 0 0 $spacing-xs;
+  font-size: $text-sm;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

@@ -1,0 +1,220 @@
+@use '../../../../styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+// ─── Add proposal ──────────────────────────────────────────────────────
+.addForm {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.addInput {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  color: $gray-800;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus { border-color: $primary; }
+  &::placeholder { color: $gray-500; }
+}
+
+// ─── Proposal list ─────────────────────────────────────────────────────
+.proposalList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.proposalCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: white;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.proposalBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.proposalText {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-800;
+  word-break: break-word;
+}
+
+.proposalMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+  margin-top: 2px;
+}
+
+.approveBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: none;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-full;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-500;
+  cursor: pointer;
+  transition: all $transition-base;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    border-color: $primary;
+    color: $primary;
+    background: rgba($primary, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.approveBtnActive {
+  background: rgba($primary, 0.1);
+  border-color: $primary;
+  color: $primary;
+}
+
+.approvalCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 $spacing-xs;
+  background: $gray-100;
+  border-radius: $radius-full;
+  font-size: $text-xs;
+  font-weight: $font-bold;
+
+  .approveBtnActive & {
+    background: rgba($primary, 0.15);
+  }
+}
+
+// ─── Results ───────────────────────────────────────────────────────────
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.resultRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.resultLabel {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-800;
+}
+
+.resultBar {
+  height: 24px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  display: flex;
+  background: $gray-100;
+}
+
+.resultSegment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.resultCount {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin-top: 2px;
+}
+
+// ─── States ────────────────────────────────────────────────────────────
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  color: $gray-500;
+  font-size: $text-sm;
+}
+
+.noData {
+  font-size: $text-sm;
+  color: $gray-500;
+  font-style: italic;
+  padding: $spacing-lg 0;
+}
+
+.error {
+  font-size: $text-sm;
+  color: $error;
+  padding: $spacing-md;
+}
+
+// ─── Help section ──────────────────────────────────────────────────────
+.helpSection {
+  margin-bottom: $spacing-lg;
+}
+
+// ─── Dark mode ─────────────────────────────────────────────────────────
+@include dark {
+  .addInput {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+
+  .proposalCard {
+    background: $dark-bg;
+    border-color: $dark-border;
+    box-shadow: none;
+  }
+  .proposalText { color: $dark-text; }
+  .proposalMeta { color: $dark-text-secondary; }
+
+  .approveBtn {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+  .approvalCount { background: $dark-surface; }
+
+  .resultLabel { color: $dark-text; }
+  .resultCount { color: $dark-text-secondary; }
+  .resultBar { background: $dark-border; }
+
+  .loading,
+  .noData { color: $dark-text-secondary; }
+}

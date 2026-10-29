@@ -1,0 +1,228 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GitBranch, Coins, Users2, Shield, Globe, AlertCircle } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { createCommunityOnChain } from '../services/contracts/glokiEngageCommunity';
+import { fetchContracts } from '../store/slices/userSlice';
+import { useT } from '../i18n';
+import { Button, InfoDisclosure, StageStrip } from '../components/shared';
+import AppHeader from '../components/AppHeader';
+import styles from './CreateCommunityPage.module.scss';
+
+// English here is the source copy; the render wires each field through t()
+// (createCommunity.feature.{id}.*).
+const FEATURES = [
+  {
+    id: 'governance',
+    name: 'Governance Pipeline',
+    icon: GitBranch,
+    description: 'Staged democratic process from problem recognition to mandated action',
+  },
+  {
+    id: 'currency',
+    name: 'Community Currency',
+    icon: Coins,
+    description: 'Mint, send, and manage a currency owned by your community',
+  },
+  {
+    id: 'collab',
+    name: 'Collaboration Tools',
+    icon: Users2,
+    description: 'Shared workspaces for documents, tasks, scheduling, and roles',
+  },
+  {
+    id: 'trust',
+    name: 'Identity & Trust',
+    icon: Shield,
+    description: 'Verify members through a web of trust, QR-based identity cards',
+  },
+  {
+    id: 'translation',
+    name: 'AI Translation',
+    icon: Globe,
+    description: 'Automatic translation across 12 languages so everyone can participate',
+  },
+];
+
+const CreateCommunityPage: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const t = useT();
+  const { publicKey, serverUrl, digitalAgentContractId } = useAppSelector((s) => s.user);
+
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setError(null);
+
+    if (!name.trim()) {
+      setError(t('createCommunity.error.nameRequired', 'Please enter a community name'));
+      return;
+    }
+    if (!serverUrl || !publicKey) {
+      setError(t('common.notLoggedIn', 'Not logged in'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createCommunityOnChain({
+        serverUrl,
+        publicKey,
+        name: name.trim(),
+        description: description.trim(),
+        profile: digitalAgentContractId ?? undefined,
+      });
+
+      // Refresh the contracts list so the new community shows up.
+      await dispatch(fetchContracts());
+
+      navigate('/identity/communities');
+    } catch (err) {
+      console.error('[CreateCommunity] Deploy failed:', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      setError(t('createCommunity.error.failed', 'Failed to create community: {detail}', { detail }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      {/* The page's one banner landmark + skip link; the title renders in the
+          AppHeader block (D3) and back lives in the bar. */}
+      <AppHeader showBack onBack={() => navigate('/identity/communities')} title={t('createCommunity.title', 'Create a Community')} />
+      <main id="main" tabIndex={-1} className={styles.page}>
+      <div className={styles.header}>
+        {/* Task-first: the "what is a community / why / features" explainer
+            prose lives behind the (i); the form below is the primary content. */}
+        <span className={styles.infoLabel}>{t('createCommunity.howItWorks', 'How communities work')}</span>
+        <InfoDisclosure
+          className={styles.infoTrigger}
+          size="md"
+          label={t('createCommunity.howItWorks', 'How communities work')}
+        >
+          <div className={styles.explainer}>
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.whatTitle', 'What is a Community on Gloki?')}</h3>
+              <p>
+                {t(
+                  'createCommunity.whatBody',
+                  'A community is a group of people united by a shared interest, location, cause, or goal. On Gloki, communities are spaces for collective decision-making — where members can identify problems, propose solutions, and vote on actions together.',
+                )}
+              </p>
+              <p>
+                {t(
+                  'createCommunity.whatBody2',
+                  'Every community on Gloki has access to the same democratic tools: a staged governance pipeline, community currency, collaboration workspaces, and identity verification.',
+                )}
+              </p>
+            </section>
+
+            {/* Why Create? — bold lead + body split around <strong> (no <Trans>). */}
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.whyTitle', 'Why Create a Community?')}</h3>
+              <p>
+                <strong>{t('createCommunity.why.democracy.lead', 'Bring direct democracy to your group.')}</strong>{' '}
+                {t('createCommunity.why.democracy.body', "Whether you're a neighbourhood association, a student union, a workplace team, or an activist collective — Gloki gives your group the tools to make decisions transparently and fairly.")}
+              </p>
+              <p>
+                <strong>{t('createCommunity.why.voice.lead', 'Every voice counts.')}</strong>{' '}
+                {t('createCommunity.why.voice.body', 'Quadratic voting ensures no single person dominates the outcome. Thresholds ensure decisions have genuine community support before moving forward.')}
+              </p>
+              <p>
+                <strong>{t('createCommunity.why.mandates.lead', 'From problems to mandates.')}</strong>{' '}
+                {t('createCommunity.why.mandates.body', "Don't just talk about issues — turn them into commitments. Gloki's pipeline moves problems through discussion, solutions, and voting into mandates your community can act on.")}
+              </p>
+            </section>
+
+            <section className={styles.explainerSection}>
+              <h3>{t('createCommunity.featuresTitle', 'What Gloki Provides Your Community')}</h3>
+              <div className={styles.featureList}>
+                {FEATURES.map((feature) => {
+                  const FeatureIcon = feature.icon;
+                  return (
+                    <div key={feature.id} className={styles.featureItem}>
+                      <div className={styles.featureIcon}>
+                        <FeatureIcon size={16} />
+                      </div>
+                      <div className={styles.featureContent}>
+                        <h4>{t(`createCommunity.feature.${feature.id}.name`, feature.name)}</h4>
+                        <p>{t(`createCommunity.feature.${feature.id}.desc`, feature.description)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        </InfoDisclosure>
+      </div>
+
+      {/* Compact, read-only pipeline strip — the governance context stays
+          visible even though the explainer prose is now behind the (i). */}
+      <StageStrip />
+
+      {/* Form */}
+      <div className={styles.card}>
+        <h2>{t('createCommunity.formTitle', 'What We Need From You')}</h2>
+        <p>{t('createCommunity.formIntro', 'To create a community, we just need two things:')}</p>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="communityName" className={styles.label}>{t('createCommunity.form.nameLabel', 'Community name')}</label>
+          <input
+            id="communityName"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t('createCommunity.form.namePlaceholder', 'e.g. Berlin Climate Action Network')}
+            className={styles.inputField}
+            disabled={isSubmitting}
+          />
+          <p className={styles.hint}>{t('createCommunity.form.nameHint', 'This is how your community appears to other Gloki users.')}</p>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="communityDesc" className={styles.label}>{t('createCommunity.form.descLabel', 'Description')}</label>
+          <textarea
+            id="communityDesc"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('createCommunity.form.descPlaceholder', 'What is this community about? What are you trying to achieve?')}
+            className={`${styles.inputField} ${styles.textarea}`}
+            rows={4}
+            disabled={isSubmitting}
+          />
+          <p className={styles.hint}>{t('createCommunity.form.descHint', 'A good description helps attract the right members.')}</p>
+        </div>
+
+        {error && (
+          <div className={styles.errorMessage} role="alert">
+            <AlertCircle size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <Button
+          size="lg"
+          fullWidth
+          className={styles.submit}
+          loading={isSubmitting}
+          disabled={!name.trim()}
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? t('createCommunity.submitting', 'Creating...') : t('createCommunity.submit', 'Create Community')}
+        </Button>
+        {!isSubmitting && !name.trim() && (
+          <p className={styles.submitHint}>{t('createCommunity.submitHint', 'Enter a community name to continue.')}</p>
+        )}
+      </div>
+      </main>
+    </>
+  );
+};
+
+export default CreateCommunityPage;

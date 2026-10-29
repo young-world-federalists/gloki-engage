@@ -41,7 +41,7 @@
   &:hover {
     border-color: $warning;
     color: $warning;
-    background: rgba(245, 158, 11, 0.04);
+    background: rgba($warning, 0.04);
   }
 }
 
@@ -70,7 +70,7 @@
   transition: border-color $transition-base;
 
   &:focus { border-color: $warning; }
-  &::placeholder { color: $gray-400; }
+  &::placeholder { color: $gray-500; }
 }
 
 .descInput {
@@ -99,7 +99,7 @@
   font-weight: $font-medium;
   cursor: pointer;
   transition: background $transition-base;
-  &:hover { background: color.adjust(#f59e0b, $lightness: -8%); }
+  &:hover { background: color.adjust($warning, $lightness: -8%); }
 }
 
 .btnCancel {
@@ -123,7 +123,7 @@
 
 .noData {
   font-size: $text-sm;
-  color: $gray-400;
+  color: $gray-500;
   font-style: italic;
   margin: 0;
   padding: $spacing-lg 0;
@@ -145,8 +145,8 @@
 }
 
 .cardAssigned {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: rgba(245, 158, 11, 0.02);
+  border-color: rgba($warning, 0.4);
+  background: rgba($warning, 0.02);
 }
 
 // ─── Card header ──────────────────────────────────────────────────────────────
@@ -154,20 +154,6 @@
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-}
-
-.expandBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-  background: none;
-  border: none;
-  color: $gray-400;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: color $transition-base;
-  &:hover { color: $gray-700; }
 }
 
 .roleName {
@@ -200,11 +186,11 @@
 
 .assignBtnJoin {
   color: $warning;
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.06);
+  border-color: rgba($warning, 0.35);
+  background: rgba($warning, 0.06);
 
   &:hover {
-    background: rgba(245, 158, 11, 0.14);
+    background: rgba($warning, 0.14);
     border-color: $warning;
   }
 }
@@ -214,7 +200,7 @@
   border-color: $gray-200;
   background: none;
 
-  &:hover { color: $error; border-color: rgba(220, 38, 38, 0.4); }
+  &:hover { color: $error; border-color: rgba($error, 0.4); }
 }
 
 .deleteBtn {
@@ -228,7 +214,7 @@
   color: $gray-300;
   cursor: pointer;
   transition: all $transition-base;
-  &:hover { color: $error; border-color: rgba(220, 38, 38, 0.4); }
+  &:hover { color: $error; border-color: rgba($error, 0.4); }
 }
 
 // ─── Description ──────────────────────────────────────────────────────────────
@@ -254,12 +240,6 @@
   font-style: italic;
 }
 
-.holderEntry {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -272,275 +252,6 @@
 }
 
 .chipMe {
-  background: rgba(245, 158, 11, 0.15);
-  color: color.adjust(#f59e0b, $lightness: -20%);
-}
-
-// ─── Expanded body ────────────────────────────────────────────────────────────
-.cardBody {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  padding-top: $spacing-sm;
-  border-top: 1px solid $gray-100;
-  margin-top: $spacing-xs;
-}
-
-// ─── Section ──────────────────────────────────────────────────────────────────
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.sectionTitle {
-  flex: 1;
-  font-size: $text-sm;
-  font-weight: $font-semibold;
-  color: $gray-700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 10px;
-}
-
-// ─── Icon buttons ─────────────────────────────────────────────────────────────
-.iconBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-  background: none;
-  border: 1px solid $gray-200;
-  border-radius: $radius-sm;
-  color: $gray-400;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { color: $gray-700; border-color: $gray-400; }
-}
-
-.iconBtnDelete {
-  &:hover { color: $error; border-color: rgba(220, 38, 38, 0.4); }
-}
-
-.iconBtnConfirm {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px 6px;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: $radius-sm;
-  color: #16a34a;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { background: rgba(34, 197, 94, 0.2); }
-}
-
-.iconBtnCancel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px 6px;
-  background: none;
-  border: 1px solid $gray-200;
-  border-radius: $radius-sm;
-  color: $gray-400;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { color: $gray-600; border-color: $gray-400; }
-}
-
-// ─── Purpose section ──────────────────────────────────────────────────────────
-.purposeRow {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-sm;
-}
-
-.purposeText {
-  flex: 1;
-  font-size: $text-sm;
-  color: $gray-700;
-  margin: 0;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.emptyField {
-  color: $gray-300;
-  font-style: italic;
-}
-
-.editBlock {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.purposeInput {
-  width: 100%;
-  padding: $spacing-xs $spacing-sm;
-  border: 1px solid $warning;
-  border-radius: $radius-sm;
-  font-size: $text-sm;
-  color: $gray-800;
-  outline: none;
-  resize: vertical;
-  box-sizing: border-box;
-  font-family: inherit;
-  line-height: 1.5;
-  &::placeholder { color: $gray-400; }
-}
-
-.editActions {
-  display: flex;
-  gap: $spacing-xs;
-}
-
-.btnSave {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: $spacing-xs $spacing-md;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: $radius-sm;
-  font-size: $text-xs;
-  font-weight: $font-medium;
-  color: #16a34a;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { background: rgba(34, 197, 94, 0.2); }
-}
-
-.btnCancelEdit {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: $spacing-xs $spacing-md;
-  background: none;
-  border: 1px solid $gray-200;
-  border-radius: $radius-sm;
-  font-size: $text-xs;
-  color: $gray-500;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { border-color: $gray-400; color: $gray-700; }
-}
-
-// ─── List section ─────────────────────────────────────────────────────────────
-.addItemRow {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.itemInput {
-  flex: 1;
-  padding: $spacing-xs $spacing-sm;
-  border: 1px solid $warning;
-  border-radius: $radius-sm;
-  font-size: $text-sm;
-  color: $gray-800;
-  outline: none;
-  transition: border-color $transition-base;
-  &::placeholder { color: $gray-400; }
-}
-
-.itemList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-xs $spacing-sm;
-  background: $gray-100;
-  border-radius: $radius-sm;
-  min-height: 30px;
-
-  &:hover .itemActions { opacity: 1; }
-}
-
-.itemText {
-  flex: 1;
-  font-size: $text-sm;
-  color: $gray-700;
-  line-height: 1.4;
-}
-
-.itemActions {
-  display: flex;
-  gap: 3px;
-  opacity: 0;
-  transition: opacity $transition-base;
-}
-
-// ─── Vote buttons ─────────────────────────────────────────────────────────────
-.voteButtons {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
-}
-
-.voteBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 6px;
-  border-radius: $radius-full;
-  font-size: 10px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all $transition-base;
-  line-height: 1;
-}
-
-.voteBtnApprove {
-  color: #16a34a;
-  border-color: rgba(34, 197, 94, 0.25);
-  background: rgba(34, 197, 94, 0.06);
-
-  &:hover {
-    background: rgba(34, 197, 94, 0.14);
-    border-color: rgba(34, 197, 94, 0.5);
-  }
-
-  &.voteBtnActive {
-    background: rgba(34, 197, 94, 0.18);
-    border-color: #16a34a;
-  }
-}
-
-.voteBtnDisapprove {
-  color: $error;
-  border-color: rgba(220, 38, 38, 0.25);
-  background: rgba(220, 38, 38, 0.06);
-
-  &:hover {
-    background: rgba(220, 38, 38, 0.12);
-    border-color: rgba(220, 38, 38, 0.5);
-  }
-
-  &.voteBtnActive {
-    background: rgba(220, 38, 38, 0.16);
-    border-color: $error;
-  }
-}
-
-.voteCount {
-  font-weight: $font-semibold;
+  background: rgba($warning, 0.15);
+  color: color.adjust($warning, $lightness: -20%);
 }

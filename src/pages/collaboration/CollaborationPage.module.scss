@@ -1,19 +1,32 @@
 @use '../../styles/variables' as *;
 
-// Tab item: wraps navItem to position the remove button
+// This sub-route renders nested inside CommunityView's .body, which already owns the
+// canonical page column. Container .content (reused here for its nav/main structure)
+// now @includes page-column too, so neutralize the column here — otherwise the collab
+// workspace double-gutters (32px) + double-clears the footer vs its stripped peers.
+// Double-class for specificity over the single-class .content page-column. (W1b)
+.embedded.embedded {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+  padding-bottom: 0;
+}
+
+// Tab item: wraps the shared navItem to position the remove (×) button.
+// (The collab title + back button render in CommunityView's AppHeader — S23.)
 .tabItem {
   padding-right: $spacing-lg !important; // make room for × button
 
   .removeBtn {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 16px;
-    height: 16px;
+    top: $spacing-xs;
+    right: $spacing-xs;
+    width: $spacing-lg;
+    height: $spacing-lg;
     border-radius: $radius-full;
-    background: rgba(0, 0, 0, 0.18);
+    background: rgba($gray-900, 0.2);
     color: white;
-    font-size: 11px;
+    font-size: $text-xs;
     line-height: 1;
     display: flex;
     align-items: center;
@@ -22,21 +35,26 @@
     transition: background $transition-base;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba($gray-900, 0.45);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
     }
   }
 }
 
-// Container for the + button and its dropdown menu
+// Container for the + button and its dropdown menu.
 .addTabWrapper {
   position: relative;
   display: flex;
   align-items: stretch;
 }
 
-// The + Add button — styled like a navItem but dashed/muted
+// The + Add button — styled like a navItem but dashed/muted.
 .addTabBtn {
-  color: $gray-400 !important;
+  color: $gray-500 !important;
   border: 2px dashed $gray-300 !important;
   background: transparent !important;
 
@@ -46,13 +64,23 @@
     background: transparent !important;
     transform: none !important;
   }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    color: $dark-text-secondary !important;
+    border-color: $dark-border !important;
+  }
 }
 
-// Dropdown menu for picking a flow
+// Dropdown menu for picking a flow.
 .addTabMenu {
   position: absolute;
   top: calc(100% + $spacing-xs);
-  right: 0;
+  left: 0;
   min-width: 180px;
   background: white;
   border: 1px solid $gray-200;
@@ -60,6 +88,11 @@
   box-shadow: $shadow-md;
   z-index: 100;
   overflow: hidden;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
 }
 
 .addTabMenuItem {
@@ -80,18 +113,37 @@
     background: $gray-50;
     color: $primary;
   }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+
+  @include dark {
+    color: $dark-text;
+
+    &:hover {
+      background: $dark-border;
+      color: $primary;
+    }
+  }
 }
 
 .addTabMenuGroupHeader {
   padding: $spacing-sm $spacing-lg $spacing-xs;
   font-size: $text-xs;
   font-weight: $font-semibold;
-  color: $gray-400;
+  color: $gray-500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-top: 1px solid $gray-100;
   pointer-events: none;
   user-select: none;
+
+  @include dark {
+    color: $dark-text-secondary;
+    border-top-color: $dark-border;
+  }
 }
 
 .addTabMenuGroupHeaderFirst {
@@ -106,38 +158,67 @@
     background: none;
     color: $gray-700;
   }
+
+  @include dark {
+    &:hover {
+      color: $dark-text;
+    }
+  }
 }
 
-// Spinner animation
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.spinner {
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-
-// Add button while a tab is being deployed
-.addTabBtnLoading {
-  opacity: 0.7;
-  cursor: not-allowed !important;
-}
-
-// Empty state shown when no tabs have been added
-.emptyState {
+// Empty state shown when no tabs have been added.
+.emptyState,
+.unknownFlowCard {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 300px;
   gap: $spacing-md;
+  padding: $spacing-xl;
   color: $gray-500;
   text-align: center;
 
   p {
-    font-size: $text-base;
+    font-size: $text-sm;
     margin: 0;
+    max-width: 380px;
+    line-height: 1.5;
+  }
+
+  code {
+    font-family: inherit;
+    color: $gray-700;
+    background: $gray-100;
+    padding: 0 $spacing-xs;
+    border-radius: $radius-sm;
+  }
+
+  @include dark {
+    color: $dark-text-secondary;
+
+    code {
+      color: $dark-text;
+      background: $dark-border;
+    }
+  }
+}
+
+.emptyStateIcon {
+  color: $gray-300;
+}
+
+.unknownFlowIcon {
+  color: $warning;
+}
+
+.emptyStateTitle {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
   }
 }

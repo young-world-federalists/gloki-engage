@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { QrCode, Camera, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useEffectEvent, useRef } from 'react';
+import { QrCode, Camera, CheckCircle } from 'lucide-react';
 import styles from './JoinCommunity.module.scss';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { decodeCommunityInvitation } from '../../services/encodeDecode';
@@ -10,10 +10,20 @@ import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
 import { useNavigate } from 'react-router-dom';
 import { joinContract } from '../../services/api';
+import { useT } from '../../i18n';
+import { useAlert } from '../shared/useAlert';
+import { Banner, Button } from '../shared';
+
+// How long to wait for the community's node to confirm a join.
+const JOIN_TIMEOUT_MS = 30000;
 
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
-  const { publicKey, serverUrl, profileContractId } = useAppSelector(state => state.user);
+  const t = useT();
+  const { showAlert, alertElement } = useAlert();
+  // The Digital Agent profile — the same id a community's creator registers
+  // (CreateCommunityPage), so get_partners can resolve every member's name.
+  const { publicKey, serverUrl, digitalAgentContractId } = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [scannedData, setScannedData] = useState<string>('');
@@ -24,44 +34,64 @@ const JoinCommunity: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   // Store decoded data for display and editing
   const [decodedData, setDecodedData] = useState('');
-  const a2aListenerRef = React.useRef<((event: BlockchainEvent) => void) | null>(null);
+  const joinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Register a2a_connect listener on mount and cleanup on unmount
+  const clearJoinTimeout = () => {
+    if (joinTimeoutRef.current) {
+      clearTimeout(joinTimeoutRef.current);
+      joinTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => clearJoinTimeout, []);
+
+  const failJoin = (message: string) => {
+    clearJoinTimeout();
+    setIsJoining(false);
+    setJoinSuccess(false);
+    showAlert(
+      t('join.failed', "Couldn't join this community: {error}", { error: message }),
+      { title: t('common.errorTitle', 'Something went wrong') },
+    );
+  };
+
+  // Joined (or already a member): refresh the contract list, which now holds
+  // the community, and go to the communities page.
+  const finishJoin = async () => {
+    clearJoinTimeout();
+    setIsResetting(true);
+    setIsJoining(false);
+    try {
+      if (serverUrl && publicKey) {
+        await dispatch(fetchContracts());
+      }
+    } catch (error) {
+      console.error('Failed to refresh contracts:', error);
+      // Continue with the flow even if refresh fails
+    }
+    setScannedData('');
+    setParsedInvite(null); // This disables the button
+    setDecodedData('');
+    setJoinSuccess(false);
+    setIsResetting(false);
+    navigate('/identity/communities', { replace: true });
+  };
+
+  // The joiner's node confirms the join with `a2a_connect`; `reply: false`
+  // means the community's node refused it.
+  const onA2AConnect = useEffectEvent((event: BlockchainEvent) => {
+    if (!isJoining || !parsedInvite) return;
+    if (event.reply === false) {
+      failJoin(t('join.refused', 'The community refused the request.'));
+      return;
+    }
+    void finishJoin();
+  });
   useEffect(() => {
-    const handleA2AConnect = async () => {
-      if (isJoining && parsedInvite) {
-        setIsResetting(true);
-        setIsJoining(false);
-        
-        try {
-          // Refresh contracts list from server and wait for it to complete
-          if (serverUrl && publicKey) {
-            await dispatch(fetchContracts());
-          }
-        } catch (error) {
-          console.error('Failed to refresh contracts:', error);
-          // Continue with the flow even if refresh fails
-        }
-        
-        // Reset all fields
-        setScannedData('');
-        setParsedInvite(null); // This disables the button
-        setDecodedData('');
-        setJoinSuccess(false);
-        setIsResetting(false);
-        // Redirect to communities tab using react-router
-        navigate('/identity/communities', { replace: true });
-      }
-    };
-    a2aListenerRef.current = handleA2AConnect;
-    eventStreamService.addEventListener('a2a_connect', handleA2AConnect);
-    return () => {
-      if (a2aListenerRef.current) {
-        eventStreamService.removeEventListener('a2a_connect', a2aListenerRef.current);
-      }
-    };
-     
-  }, [isJoining, parsedInvite, dispatch, navigate, publicKey, serverUrl]);
+    const handler = (event: BlockchainEvent) => onA2AConnect(event);
+    eventStreamService.addEventListener('a2a_connect', handler);
+    return () => eventStreamService.removeEventListener('a2a_connect', handler);
+  }, []);
 
   const handleScanQR = () => {
     setShowScanner(true);
@@ -96,19 +126,27 @@ const JoinCommunity: React.FC = () => {
     setIsJoining(true);
     setJoinSuccess(false);
     try {
-      await joinContract({
+      const ack = await joinContract({
         serverUrl: serverUrl,
         publicKey: publicKey,
         address: server,
         agent,
         contract,
-        profile: profileContractId || ''
+        profile: digitalAgentContractId || ''
       });
-      // Button remains disabled until a2a_connect is received
+      // Only a real join returns an ack id and confirms later. null means this
+      // agent already holds the contract; a demo join resolves at once.
+      if (typeof ack !== 'string') {
+        await finishJoin();
+        return;
+      }
+      // Otherwise the button stays busy until a2a_connect arrives.
+      clearJoinTimeout();
+      joinTimeoutRef.current = setTimeout(() => {
+        failJoin(t('join.timeout', "The community's server didn't answer. Check the join details and try again."));
+      }, JOIN_TIMEOUT_MS);
     } catch (error) {
-      setIsJoining(false);
-      setJoinSuccess(false);
-      alert('Failed to join community: ' + (error instanceof Error ? error.message : error));
+      failJoin(error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -123,7 +161,7 @@ const JoinCommunity: React.FC = () => {
       } else {
         setParsedInvite(null);
       }
-    } catch (error) {
+    } catch {
       setParsedInvite(null);
     }
   };
@@ -131,7 +169,8 @@ const JoinCommunity: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <p className={styles.introLine}>Scan a QR code or manually enter community credentials.</p>
+        {/* The title renders in the AppHeader block (D3); the intro leads the content. */}
+        <p className={styles.introLine}>{t('join.intro', 'To join a community, ask a member to share their invite QR code or credential JSON with you. You can scan the code or paste the JSON below.')}</p>
         <div className={styles.scanSection}>
           <div className={styles.scanArea}>
             {showScanner ? (
@@ -141,67 +180,56 @@ const JoinCommunity: React.FC = () => {
                   onError={() => {}}
                   styles={{ container: { width: '100%', height: 320, background: '#000' } }}
                 />
-                <button onClick={handleScannerClose} className="cancel-button" style={{ marginTop: 16 }}>
-                  Cancel
-                </button>
+                <Button variant="secondary" onClick={handleScannerClose} style={{ marginTop: 16 }}>
+                  {t('common.cancel', 'Cancel')}
+                </Button>
               </div>
             ) : (
               <div className={styles.qrPlaceholder}>
                 <QrCode size={64} />
-                <p>QR code scanner placeholder</p>
-                <button
-                  onClick={handleScanQR}
-                  className={styles.scanButton}
-                >
-                  <Camera size={20} />
-                  Scan QR Code
-                </button>
+                <p>{t('join.scannerPlaceholder', 'QR code scanner placeholder')}</p>
+                <Button variant="primary" leftIcon={<Camera size={20} />} onClick={handleScanQR}>
+                  {t('join.scanQr', 'Scan QR Code')}
+                </Button>
               </div>
             )}
           </div>
         </div>
 
         <div className={styles.joinActions}>
-          <button
-            onClick={handleJoinCommunity}
+          <Button
+            variant="primary"
+            leftIcon={<CheckCircle size={16} />}
+            loading={isJoining || isResetting}
             disabled={
-              isJoining ||
-              isResetting ||
               !parsedInvite ||
               !parsedInvite?.server ||
               !parsedInvite?.agent ||
               !parsedInvite?.contract
             }
-            className={styles.joinButton}
+            onClick={handleJoinCommunity}
           >
-            {isJoining ? (
-              <>
-                <div className={styles.loadingSpinnerSmall}></div>
-                Joining... Waiting for confirmation
-              </>
-            ) : isResetting ? (
-              <>
-                <div className={styles.loadingSpinnerSmall}></div>
-                Resetting...
-              </>
-            ) : (
-              <>
-                <CheckCircle size={16} />
-                Join Community
-              </>
-            )}
-          </button>
+            {isJoining
+              ? t('join.joining', 'Joining… Waiting for confirmation')
+              : isResetting
+                ? t('join.resetting', 'Resetting…')
+                : t('join.cta', 'Join Community')}
+          </Button>
         </div>
 
         <div className={styles.manualInputSection}>
-          <h3>Manual Input</h3>
+          <h3>{t('join.manualTitle', 'Manual Input')}</h3>
+          <p className={styles.tutorialText}>
+            {t('join.manualHelp', 'Paste the community credential JSON that was shared with you. It should contain three fields:')}{' '}
+            <code>server</code>, <code>agent</code>, <code>contract</code>.
+          </p>
           <div className="form-group">
-            <label htmlFor="qrData">Community Credentials (JSON)</label>
+            <label htmlFor="qrData">{t('join.credentialsLabel', 'Community Credentials (JSON)')}</label>
             <textarea
               id="qrData"
               value={decodedData}
               onChange={handleManualInput}
-              placeholder="Paste community credentials here as JSON..."
+              placeholder={'{\n  "server": "https://...",\n  "agent": "abc123...",\n  "contract": "def456..."\n}'}
               className={`input-field ${styles.scrollXNoWrap}`}
               rows={6}
             />
@@ -209,21 +237,18 @@ const JoinCommunity: React.FC = () => {
         </div>
 
         {joinSuccess && (
-          <div className={styles.successMessage}>
-            <CheckCircle size={24} />
-            <h4>Successfully joined community!</h4>
-            <p>You can now access the community from your Communities page.</p>
-          </div>
+          <Banner tone="success" title={t('join.successTitle', 'Successfully joined community!')}>
+            {t('join.successBody', 'You can now access the community from your Communities page.')}
+          </Banner>
         )}
 
         {scannedData && !parsedInvite && (
-          <div className={styles.errorMessage}>
-            <AlertCircle size={24} />
-            <h4>Invalid QR Code Data</h4>
-            <p>The scanned data doesn't contain valid community credentials.</p>
-          </div>
+          <Banner tone="error" title={t('join.invalidTitle', 'Invalid QR Code Data')}>
+            {t('join.invalidBody', "The scanned data doesn't contain valid community credentials.")}
+          </Banner>
         )}
       </div>
+      {alertElement}
     </div>
   );
 };

@@ -1,0 +1,372 @@
+@use 'sass:color';
+@use '../../../../styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  margin: 0;
+}
+
+.addBtn {
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $primary;
+  background: rgba($primary, 0.1);
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  min-height: 32px;
+  transition: background $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.2);
+  }
+}
+
+// ─── Form ─────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
+  border: 1px solid $gray-100;
+}
+
+.fieldSelect {
+  display: flex;
+  gap: $spacing-lg;
+  font-size: $text-sm;
+  color: $gray-600;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    cursor: pointer;
+  }
+
+  input[type="radio"] {
+    accent-color: $primary;
+  }
+}
+
+.textarea {
+  width: 100%;
+  padding: $spacing-sm;
+  font-size: $text-sm;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  resize: vertical;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 2px rgba($primary, 0.15);
+  }
+}
+
+.submitBtn {
+  align-self: flex-end;
+  padding: $spacing-sm $spacing-lg;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: white;
+  background: $primary;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  min-height: 36px;
+  transition: background $transition-base;
+
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Suggestion cards ─────────────────────────
+.suggestion {
+  padding: $spacing-md;
+  background: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.closed {
+  opacity: 0.7;
+}
+
+.suggestionMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.fieldBadge {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+  background: $gray-100;
+  padding: 1px $spacing-sm;
+  border-radius: $radius-full;
+  text-transform: capitalize;
+}
+
+.statusBadge {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  padding: 1px $spacing-sm;
+  border-radius: $radius-full;
+}
+
+.acceptedBadge {
+  color: $success;
+  background: rgba($success, 0.1);
+}
+
+.rejectedBadge {
+  color: $error;
+  background: rgba($error, 0.1);
+}
+
+.authorName {
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.suggestionText {
+  font-size: $text-sm;
+  color: $gray-700;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ─── Actions ──────────────────────────────────
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.voteButtons {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.voteBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  cursor: pointer;
+  min-height: 32px;
+  transition: all $transition-base;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.approveBtn {
+  color: $success;
+
+  &:hover:not(:disabled) {
+    background: rgba($success, 0.1);
+    border-color: rgba($success, 0.3);
+  }
+
+  &.voted {
+    background: rgba($success, 0.15);
+    border-color: $success;
+  }
+}
+
+.rejectBtn {
+  color: $error;
+
+  &:hover:not(:disabled) {
+    background: rgba($error, 0.1);
+    border-color: rgba($error, 0.3);
+  }
+
+  &.voted {
+    background: rgba($error, 0.15);
+    border-color: $error;
+  }
+}
+
+.authorActions {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.acceptBtn,
+.rejectDecideBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  border-radius: $radius-md;
+  border: none;
+  cursor: pointer;
+  min-height: 32px;
+  transition: all $transition-base;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.acceptBtn {
+  color: white;
+  background: $success;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($success, $lightness: -8%);
+  }
+}
+
+.rejectDecideBtn {
+  color: white;
+  background: $error;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($error, $lightness: -8%);
+  }
+}
+
+// ─── Closed section ───────────────────────────
+.closedSection {
+  margin-top: $spacing-sm;
+}
+
+.closedTitle {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 $spacing-sm;
+}
+
+.voteTotals {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+// ─── States ───────────────────────────────────
+.emptyText {
+  font-size: $text-sm;
+  color: $gray-500;
+  text-align: center;
+  padding: $spacing-lg;
+  margin: 0;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: $spacing-lg;
+  font-size: $text-sm;
+  color: $gray-500;
+}
+
+.retryBtn {
+  margin-top: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  color: $primary;
+  background: transparent;
+  border: 1px solid $primary;
+  border-radius: $radius-md;
+  cursor: pointer;
+}
+
+// ─── Dark mode ────────────────────────────────
+@include dark {
+  .title {
+    color: $dark-text;
+  }
+
+  .form {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+
+  .fieldSelect {
+    color: $dark-text-secondary;
+  }
+
+  .textarea {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+
+  .suggestion {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .suggestionText {
+    color: $dark-text;
+  }
+
+  .fieldBadge {
+    background: $dark-border;
+    color: $dark-text-secondary;
+  }
+
+  .voteBtn {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .emptyText,
+  .authorName {
+    color: $dark-text-secondary;
+  }
+}

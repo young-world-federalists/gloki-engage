@@ -1,0 +1,355 @@
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AlertTriangle, MessageSquare, FileText, Vote, ScrollText, Plus, X } from 'lucide-react';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { fetchCollaborations } from '../store/slices/communitiesSlice';
+import { createInitiative } from '../services/contracts/community';
+import { isGlokiEngageCommunityContract } from '../services/contracts/glokiEngageCommunity';
+import { createInitiativeOnChain } from '../services/contracts/glokiEngageInitiative';
+import { sanitizeExternalUrl } from '../utils/urlSafety';
+import { useT } from '../i18n';
+import { Banner, Button, CountryMultiSelect, InfoDisclosure, StageStrip } from '../components/shared';
+import { useOrganization } from '../hooks/useOrganization';
+import styles from './CreateInitiativePage.module.scss';
+
+// ─── Vocabulary decision (Gloki product voice, confirmed with Eston, Batch 3 C7)
+// An *initiative* is the whole effort that travels the 5-stage pipeline
+// (Problem → Discussion → Proposals → Vote → Mandate). A *problem* is its
+// starting point: the founding statement you name at Stage 1, which the
+// community validates. So the object is ALWAYS an "initiative"; "problem" is
+// reserved for Stage 1 and the founding statement. The single create verb is
+// "Start" ("Start an initiative"), never "Create". Keep copy consistent with
+// this across Home, the stage feed, the menus, and this page.
+
+// English here is the source copy; the render wires each field through t().
+// Stage labels use the canonical `stage.{id}` family (shared with the dashboard
+// badges and the footer). Per-stage step-circle colors live in the SCSS module
+// (.stepCircle_{id}) rather than as inline hex here.
+const STAGES = [
+  {
+    id: 'problem',
+    name: 'Problem',
+    icon: AlertTriangle,
+    description: 'Your community votes on whether this is a real problem worth addressing before it moves forward.',
+  },
+  {
+    id: 'discussion',
+    name: 'Causes',
+    icon: MessageSquare,
+    description: 'Community members name the causes of the problem and vote them up or down. The most-supported causes are carried into Solutions.',
+  },
+  {
+    id: 'proposals',
+    name: 'Solutions',
+    icon: FileText,
+    description: 'Members submit concrete solutions for how to solve the problem. The community reviews and approves solutions. Modifications can still be suggested at this stage.',
+  },
+  {
+    id: 'vote',
+    name: 'Vote',
+    icon: Vote,
+    description: 'The community votes on approved solutions using quadratic voting \u2014 a system where you spread credits across solutions you care about. This prevents any single voter from dominating the outcome.',
+  },
+  {
+    id: 'mandate',
+    name: 'Mandate',
+    icon: ScrollText,
+    description: 'The winning solution becomes a mandate. Community members can pledge to support its implementation. This is the community\'s commitment to action.',
+  },
+];
+
+const CreateInitiativePage: React.FC = () => {
+  const { communityId } = useParams<{ communityId: string }>();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const t = useT();
+  const { isOrganization } = useOrganization();
+  const { publicKey, serverUrl, contracts } = useAppSelector((s) => s.user);
+  const community = contracts.find((c) => c.id === communityId);
+  const isGlokiEngageCommunity = !!community && isGlokiEngageCommunityContract(community);
+
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [evidence, setEvidence] = useState<string[]>(['']);
+  const [countries, setCountries] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleEvidenceChange = (index: number, value: string) => {
+    setEvidence((prev) => prev.map((item, i) => (i === index ? value : item)));
+  };
+
+  const handleAddEvidence = () => {
+    setEvidence((prev) => [...prev, '']);
+  };
+
+  const handleRemoveEvidence = (index: number) => {
+    setEvidence((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    setError(null);
+
+    if (!title.trim()) {
+      setError(t('initiative.error.titleRequired', 'Please describe the problem'));
+      return;
+    }
+    if (!description.trim()) {
+      setError(t('initiative.error.descRequired', 'Please explain why this matters'));
+      return;
+    }
+    if (!serverUrl || !publicKey || !communityId) {
+      setError(t('common.notLoggedIn', 'Not logged in'));
+      return;
+    }
+
+    const normalizedEvidence: string[] = [];
+    for (const candidate of evidence) {
+      const trimmed = candidate.trim();
+      if (!trimmed) continue;
+
+      const safeUrl = sanitizeExternalUrl(trimmed);
+      if (!safeUrl) {
+        setError(t('initiative.error.badEvidenceUrl', 'Evidence links must use a valid http or https URL'));
+        return;
+      }
+
+      normalizedEvidence.push(safeUrl);
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (isGlokiEngageCommunity) {
+        // Real path: the "title" field is short and descriptive, so it maps
+        // to the contract's `description`; the longer "why does this
+        // matter" field maps to `explanation`.
+        await createInitiativeOnChain({
+          serverUrl,
+          publicKey,
+          communityId,
+          details: {
+            description: title.trim(),
+            explanation: description.trim(),
+            links: normalizedEvidence,
+            countries,
+          },
+        });
+      } else {
+        await createInitiative(serverUrl, publicKey, communityId, {
+          title: title.trim(),
+          description: description.trim(),
+          evidence: normalizedEvidence,
+          countries,
+        });
+      }
+      // Demo communities emit no SSE events, so this is the only way a demo
+      // creation ever shows up — dispatched directly here. Real gloki-engage
+      // communities DON'T need this: CommunityView's own contract_write
+      // listener (active the whole time we're on this child route) already
+      // reacts to add_initiative's write and refetches collaborations itself.
+      if (!isGlokiEngageCommunity) {
+        dispatch(fetchCollaborations({ serverUrl, publicKey, contractId: communityId }));
+      }
+      // The feed shows a one-shot confirmation — the new card appears only after
+      // the contract deploy resolves, which reads as silence otherwise (S18 W1, m3).
+      navigate(`/community/${communityId}`, { state: { initiativeCreated: true } });
+    } catch (err) {
+      console.error('[CreateInitiative] Submit failed:', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      setError(t('initiative.error.submitFailed', 'Something went wrong: {detail}', { detail }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // S33 — starting an initiative is the most consequential act in the product,
+  // and it consults no permission predicate, so the organization block has to be
+  // explicit here. An institution opening a governance initiative would directly
+  // contradict what the organization sign-in promises.
+  if (isOrganization) {
+    return (
+      <div className={styles.page}>
+        <Banner
+          tone="info"
+          title={t('gate.org.title', 'Organizations don’t take part here')}
+          action={
+            <Button size="sm" onClick={() => navigate('/organization')}>
+              {t('gate.org.action', 'See mandates to endorse')}
+            </Button>
+          }
+        >
+          {t(
+            'gate.org.body',
+            'Deliberation and voting stay one person, one vote. You can read everything here — organizations act on finished mandates by endorsing or subscribing to them.',
+          )}
+        </Banner>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.page}>
+      {/* The page title + back button render in the AppHeader title block (S23). */}
+
+      {/* Compact, read-only pipeline strip — keeps the 5-stage context visible
+          even though the explainer prose is behind the (i). */}
+      <StageStrip />
+
+      {/* Form */}
+      <div className={styles.card}>
+        <div className={styles.formTitleRow}>
+          <h2>{t('initiative.formTitle', 'Your Initiative')}</h2>
+          {/* Task-first: the "what is an initiative / 5 stages / tips" explainer
+              prose lives behind the (i), next to the form it explains. */}
+          <InfoDisclosure
+            className={styles.infoTrigger}
+            size="md"
+            label={t('initiative.howItWorks', 'How initiatives work')}
+          >
+            <div className={styles.explainer}>
+              <section className={styles.explainerSection}>
+                <h3>{t('initiative.whatTitle', 'What is an initiative?')}</h3>
+                <p>
+                  {t(
+                    'initiative.whatBody',
+                    "An initiative is how your community turns a problem into action. You start one by naming a problem worth solving — then your community recognises it, discusses solutions, proposes actions, and votes on how to move forward.",
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'initiative.whatBody2',
+                    'Think of it as a formal request for collective action — backed by a transparent, democratic process.',
+                  )}
+                </p>
+              </section>
+
+              <section className={styles.explainerSection}>
+                <h3>{t('initiative.stagesTitle', 'The 5 Stages')}</h3>
+                <div className={styles.stepper}>
+                  {STAGES.map((stage, index) => {
+                    const StageIcon = stage.icon;
+                    return (
+                      <div key={stage.id} className={styles.step}>
+                        <div className={styles.stepIndicator}>
+                          <div className={`${styles.stepCircle} ${styles[`stepCircle_${stage.id}`]}`}>
+                            <StageIcon size={16} />
+                          </div>
+                          {index < STAGES.length - 1 && <div className={styles.stepLine} />}
+                        </div>
+                        <div className={styles.stepContent}>
+                          <h4>{t(`stage.${stage.id}`, stage.name)}</h4>
+                          <p>{t(`initiative.stages.${stage.id}.desc`, stage.description)}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Tips — each tip is a bold lead + body sentence. No <Trans>
+                  mechanism exists, so lead/body are split into sibling keys. */}
+              <section className={`${styles.explainerSection} ${styles.tips}`}>
+                <h3>{t('initiative.tipsTitle', 'What Makes a Good Initiative?')}</h3>
+                <p><strong>{t('initiative.tips.specific.lead', 'Be specific.')}</strong> {t('initiative.tips.specific.body', '"Climate change is bad" won\'t get traction. "Our neighbourhood lacks recycling infrastructure" will.')}</p>
+                <p><strong>{t('initiative.tips.why.lead', 'Explain why it matters.')}</strong> {t('initiative.tips.why.body', 'Help your community understand the impact. Who is affected? What happens if nothing changes?')}</p>
+                <p><strong>{t('initiative.tips.evidence.lead', 'Provide evidence.')}</strong> {t('initiative.tips.evidence.body', 'Link to articles, reports, data, or personal accounts that support your case. Evidence builds trust and accelerates consensus.')}</p>
+                <p><strong>{t('initiative.tips.local.lead', 'Think locally.')}</strong> {t('initiative.tips.local.body', 'The best initiatives are ones your community can actually act on.')}</p>
+              </section>
+            </div>
+          </InfoDisclosure>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="initiativeTitle" className={styles.label}>{t('initiative.form.titleLabel', "What's the problem?")}</label>
+          <input
+            id="initiativeTitle"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('initiative.form.titlePlaceholder', 'Describe the problem in one clear sentence')}
+            className={styles.inputField}
+            disabled={isSubmitting}
+          />
+          <p className={styles.hint}>{t('initiative.form.titleHint', "Be specific and actionable. This becomes the initiative's title.")}</p>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="initiativeDesc" className={styles.label}>{t('initiative.form.descLabel', 'Why does this matter?')}</label>
+          <textarea
+            id="initiativeDesc"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('initiative.form.descPlaceholder', 'Explain the impact and why your community should care')}
+            className={`${styles.inputField} ${styles.textarea}`}
+            rows={6}
+            disabled={isSubmitting}
+          />
+          <p className={styles.hint}>{t('initiative.form.descHint', 'This is your case for action. Be persuasive but honest.')}</p>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>{t('initiative.form.evidenceLabel', 'Supporting evidence')}</label>
+          <p className={styles.hint}>{t('initiative.form.evidenceHint', 'Links to articles, reports, or data that back up your case.')}</p>
+          {evidence.map((url, index) => (
+            <div key={index} className={styles.evidenceRow}>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => handleEvidenceChange(index, e.target.value)}
+                placeholder="https://..."
+                className={styles.inputField}
+                disabled={isSubmitting}
+              />
+              {evidence.length > 1 && (
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() => handleRemoveEvidence(index)}
+                  disabled={isSubmitting}
+                  aria-label={t('initiative.form.removeLink', 'Remove link')}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            className={styles.addEvidenceButton}
+            onClick={handleAddEvidence}
+            disabled={isSubmitting}
+          >
+            <Plus size={16} />
+            {t('initiative.form.addLink', 'Add link')}
+          </button>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>{t('initiative.form.countriesLabel', 'Countries affected')}</label>
+          <p className={styles.hint}>{t('initiative.form.countriesHint', 'Select which countries are most affected by this problem.')}</p>
+          <CountryMultiSelect
+            value={countries}
+            onChange={setCountries}
+            ariaLabel={t('initiative.form.countriesLabel', 'Countries affected')}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {error && <div className={styles.errorMessage}>{error}</div>}
+
+        <Button
+          size="lg"
+          fullWidth
+          className={styles.submit}
+          loading={isSubmitting}
+          disabled={!title.trim() || !description.trim()}
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? t('initiative.submitting', 'Submitting…') : t('initiative.start', 'Start an initiative')}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default CreateInitiativePage;

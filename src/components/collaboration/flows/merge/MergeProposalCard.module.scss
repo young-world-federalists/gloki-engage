@@ -1,0 +1,176 @@
+@use '../../../../styles/variables' as *;
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  border: 1px solid $gray-200;
+}
+
+.accepted { border-color: rgba($success, 0.4); opacity: 0.8; }
+.rejected { border-color: rgba($error, 0.3); opacity: 0.6; }
+.expired  { border-color: $gray-200; opacity: 0.5; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.sourceLink { opacity: 0.8; }
+
+.statusBadge {
+  font-size: 10px;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: $warning-surface;
+  color: $warning-on-surface;
+
+  &.accepted { color: $success-on-surface; background: $success-surface; }
+  &.rejected { color: $error-on-surface; background: $error-surface; }
+  &.expired  { color: $gray-500; background: $gray-100; }
+}
+
+.proposer {
+  font-size: 11px;
+  color: $gray-500;
+  margin-bottom: 10px;
+}
+
+.rationale {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+  opacity: 0.9;
+}
+
+.voteBar {
+  background: $gray-50;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.voteBarText {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.pct { color: $gray-900; font-weight: $font-semibold; }
+
+.voteBarTrack {
+  height: 6px;
+  background: $gray-200;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.voteBarFill {
+  height: 100%;
+  background: $success;
+  transition: width $transition-base;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.voteButtons, .decideButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: $gray-100;
+  color: $gray-700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+
+  &.voted { background: $primary; color: white; }
+  &:disabled { opacity: 0.5; cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.acceptBtn, .rejectBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 12px;
+
+  &:disabled { opacity: 0.5; cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.acceptBtn { background: $success-surface; color: $success-on-surface; }
+.rejectBtn { background: $error-surface; color: $error-on-surface; }
+
+.deadline {
+  margin-top: 6px;
+  font-size: 10px;
+  color: $gray-500;
+  text-align: right;
+}
+
+@include dark {
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .accepted { border-color: rgba($success, 0.4); }
+  .rejected { border-color: rgba($error, 0.4); }
+  .expired  { border-color: $dark-border; }
+
+  .statusBadge {
+    background: $warning-surface-dark;
+    color: $dark-text;
+
+    &.accepted { color: $dark-text; background: $success-surface-dark; }
+    &.rejected { color: $dark-text; background: $error-surface-dark; }
+    &.expired  { color: $dark-text-secondary; background: rgba($dark-text, 0.06); }
+  }
+
+  .voteBar { background: $dark-surface; }
+  .voteBarTrack { background: $dark-border; }
+
+  .voteBtn {
+    background: $dark-border;
+    color: $dark-text;
+
+    &.voted { background: $primary; color: white; }
+  }
+
+  .acceptBtn { background: $success-surface-dark; color: $dark-text; }
+  .rejectBtn { background: $error-surface-dark; color: $dark-text; }
+
+  .deadline { color: $dark-text-secondary; }
+}

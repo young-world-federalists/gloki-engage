@@ -1,0 +1,80 @@
+@use '../../styles/variables' as *;
+
+.flow {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $gray-50;
+}
+
+// The content column — AppHeader above it stays full-bleed (S18 W1, campaign M1).
+.flowMain {
+  @include page-column;
+  flex: 1;
+  padding-block: $spacing-xl $footer-clearance;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+// S43 (critique P1): the beta renders no StageFooter, so no clearance for one.
+.flowMainBeta {
+  padding-bottom: $spacing-xl;
+}
+
+.stepperWrap {
+  padding: 0 $spacing-xs;
+}
+
+.stepBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.doneCard {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+.doneTitle {
+  margin: 0;
+  font-size: $page-title-size;
+  font-weight: $page-title-weight;
+  color: $gray-900;
+}
+.doneLead {
+  margin: 0;
+  font-size: $text-sm;
+  color: $gray-500;
+}
+.doneActions {
+  margin-top: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+@include dark {
+  .flow {
+    background-color: $dark-surface;
+  }
+  .doneTitle {
+    color: $dark-text;
+  }
+  .doneLead {
+    color: $dark-text-secondary;
+  }
+}

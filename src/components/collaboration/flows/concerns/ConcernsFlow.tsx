@@ -1,44 +1,46 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { AlertTriangle, ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { AlertTriangle, ChevronDown, ChevronRight, Plus, Check } from 'lucide-react';
 
 import type { FlowProps } from '../types';
-import { useEventStream } from '../../../../hooks/useEventStream';
-import { FlowLoading, FlowError } from '../FlowShell';
+import { useFlowContract } from '../shared/useFlowContract';
+import CountryBadge from '../shared/CountryBadge';
 import * as api from './concernsApi';
-import type { Concern, ConcernVote, ConcernStatus } from './concernsApi';
-import styles from './ConcernsFlow.module.scss';
+import type { Concern, Resolution } from './concernsApi';
+import { useAppSelector } from '../../../../store/hooks';
+import { useT } from '../../../../i18n';
+import { useLoadWhenReady } from '../../../../hooks/useLoadWhenReady';
+const concernsContractCode = '';import styles from './ConcernsFlow.module.scss';
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-const VOTE_LABELS: Record<ConcernVote, string> = {
-  support:  'Support',
-  reject:   'Reject',
-  resolved: 'Resolved',
-};
-
-/** Red RGBA string whose alpha scales with the support weight (0.12 → 0.85) */
-function redIntensity(weight: number): string {
-  const alpha = 0.12 + weight * 0.73; // 0.12 at 0%, 0.85 at 100%
-  return `rgba(220, 38, 38, ${alpha.toFixed(2)})`;
-}
+// Severity → semantic surface classes (badge fill + readable text) and card
+// border-accent classes. Replaces the old inline rgba ladder: de-hardcoded and
+// AA-legible (tinted surface + on-surface text instead of white-on-pale-red).
+const SEV_BADGE: Record<string, string> = { high: styles.sevHigh, medium: styles.sevMedium, low: styles.sevLow };
+const SEV_BORDER: Record<string, string> = { high: styles.cardSevHigh, medium: styles.cardSevMedium, low: styles.cardSevLow };
 
 // ---------------------------------------------------------------------------
 // Add concern form
 // ---------------------------------------------------------------------------
-const AddConcernForm: React.FC<{ onAdd: (title: string, desc: string) => Promise<void> }> = ({ onAdd }) => {
-  const [open,      setOpen]      = useState(false);
-  const [title,     setTitle]     = useState('');
-  const [desc,      setDesc]      = useState('');
-  const [error,     setError]     = useState('');
+const AddConcernForm: React.FC<{
+  onAdd: (text: string, severity: string) => Promise<void>;
+}> = ({ onAdd }) => {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
+  const [severity, setSeverity] = useState('medium');
+  const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async () => {
-    if (!title.trim()) { setError('Title is required.'); return; }
+    if (!text.trim() || text.trim().length > 1000) {
+      setError(t('concerns.errorLength', 'Concern must be between 1 and 1000 characters.'));
+      return;
+    }
     setSubmitting(true);
     try {
-      await onAdd(title, desc);
-      setTitle(''); setDesc(''); setError(''); setOpen(false);
+      await onAdd(text.trim(), severity);
+      setText(''); setSeverity('medium'); setError(''); setOpen(false);
+    } catch {
+      setError(t('concerns.errorSubmit', 'Failed to submit concern.'));
     } finally {
       setSubmitting(false);
     }
@@ -47,35 +49,41 @@ const AddConcernForm: React.FC<{ onAdd: (title: string, desc: string) => Promise
   if (!open) {
     return (
       <button className={styles.addBtn} onClick={() => setOpen(true)}>
-        <Plus size={15} /> Raise a concern
+        <Plus size={16} /> {t('concerns.raise', 'Raise a concern')}
       </button>
     );
   }
 
   return (
     <div className={styles.addForm}>
-      <input
-        className={styles.addTitleInput}
-        type="text"
-        placeholder="Concern title *"
-        value={title}
-        autoFocus
-        onChange={e => { setTitle(e.target.value); setError(''); }}
-        onKeyDown={e => { if (e.key === 'Enter') void submit(); if (e.key === 'Escape') setOpen(false); }}
-        disabled={submitting}
-      />
       <textarea
         className={styles.addDescInput}
         rows={2}
-        placeholder="Description (optional)"
-        value={desc}
-        onChange={e => setDesc(e.target.value)}
-        disabled={submitting}
+        placeholder={t('concerns.describePlaceholder', 'Describe your concern *')}
+        value={text}
+        autoFocus
+        maxLength={1000}
+        onChange={(e) => { setText(e.target.value); setError(''); }}
       />
+      <div className={styles.severityRow}>
+        {(['low', 'medium', 'high'] as const).map((s) => (
+          <button
+            key={s}
+            className={`${styles.severityBtn} ${severity === s ? styles.severityBtnActive : ''}`}
+            onClick={() => setSeverity(s)}
+          >
+            {t(`concerns.severity.${s}`, s)}
+          </button>
+        ))}
+      </div>
       {error && <p className={styles.errorMsg}>{error}</p>}
       <div className={styles.addFormActions}>
-        <button className={styles.btnConfirm} onClick={() => void submit()} disabled={submitting}>Submit</button>
-        <button className={styles.btnCancel} onClick={() => { setOpen(false); setError(''); }} disabled={submitting}>Cancel</button>
+        <button className={styles.btnConfirm} onClick={submit} disabled={submitting}>
+          {submitting ? t('common.submitting', 'Submitting…') : t('common.submit', 'Submit')}
+        </button>
+        <button className={styles.btnCancel} onClick={() => { setOpen(false); setError(''); }}>
+          {t('common.cancel', 'Cancel')}
+        </button>
       </div>
     </div>
   );
@@ -86,70 +94,98 @@ const AddConcernForm: React.FC<{ onAdd: (title: string, desc: string) => Promise
 // ---------------------------------------------------------------------------
 const ConcernCard: React.FC<{
   concern: Concern;
-  status: ConcernStatus;
-  currentUser: string;
-  onVote: (concernId: string, v: ConcernVote) => Promise<void>;
-  onClearVote: (concernId: string) => Promise<void>;
-}> = ({ concern, status, currentUser, onVote, onClearVote }) => {
-  const counts  = api.voteCounts(concern);
-  const weight  = api.supportWeight(concern);
-  const myVote  = concern.votes[currentUser] as ConcernVote | undefined;
+  resolutions: Resolution[];
+  isAuthor: boolean;
+  profiles: Record<string, { country?: string }>;
+  onResolve: () => Promise<void>;
+  onAddResolution: (text: string) => Promise<void>;
+}> = ({ concern, resolutions, isAuthor, profiles, onResolve, onAddResolution }) => {
+  const t = useT();
+  const [resText, setResText] = useState('');
+  const [showResForm, setShowResForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleVote = async (v: ConcernVote) => {
-    if (myVote === v) await onClearVote(concern.id);
-    else              await onVote(concern.id, v);
+  const sevLabel = t(`concerns.severity.${concern.severity}`, concern.severity);
+  const badgeClass = SEV_BADGE[concern.severity] ?? styles.sevLow;
+  const borderClass = SEV_BORDER[concern.severity] ?? styles.cardSevLow;
+
+  const handleSubmitResolution = async () => {
+    if (!resText.trim()) return;
+    setSubmitting(true);
+    try {
+      await onAddResolution(resText.trim());
+      setResText(''); setShowResForm(false);
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  const borderColor = status === 'active' ? redIntensity(weight) : undefined;
 
   return (
     <div
-      className={`${styles.card} ${styles[`card_${status}`]}`}
-      style={status === 'active' ? { borderLeftColor: borderColor } : undefined}
+      className={`${styles.card} ${concern.resolved ? styles.card_resolved : `${styles.card_active} ${borderClass}`}`}
     >
-      {/* Weight badge (active only) */}
-      {status === 'active' && (
-        <div
-          className={styles.weightBadge}
-          style={{ background: redIntensity(weight) }}
-          title={`${Math.round(weight * 100)}% support`}
-        >
-          {counts.support}
+      {/* Severity badge */}
+      {!concern.resolved && (
+        <div className={`${styles.weightBadge} ${badgeClass}`} title={sevLabel}>
+          {(sevLabel[0] || '?').toUpperCase()}
         </div>
       )}
 
       <div className={styles.cardBody}>
         <div className={styles.cardHeader}>
-          <span className={styles.cardTitle}>{concern.title}</span>
+          <span className={styles.cardTitle}>{concern.text}</span>
           <span className={styles.cardCreator}>
-            by {concern.createdBy === currentUser ? 'you' : concern.createdBy}
+            {concern.author.slice(0, 8)}...
+            <CountryBadge countryCode={profiles[concern.author]?.country} />
           </span>
         </div>
 
-        {concern.description && (
-          <p className={styles.cardDesc}>{concern.description}</p>
+        {/* Resolutions */}
+        {resolutions.length > 0 && (
+          <div className={styles.resolutionList}>
+            {resolutions.map((r, i) => (
+              <div key={i} className={styles.resolution}>
+                <span className={styles.resolutionText}>{r.text}</span>
+                <span className={styles.resolutionAuthor}>
+                  — {r.author.slice(0, 8)}...
+                  <CountryBadge countryCode={profiles[r.author]?.country} />
+                </span>
+              </div>
+            ))}
+          </div>
         )}
 
-        {/* Vote counts */}
-        <div className={styles.voteCounts}>
-          <span className={styles.countSupport}>{counts.support} support</span>
-          <span className={styles.countReject}>{counts.reject} reject</span>
-          <span className={styles.countResolved}>{counts.resolved} resolved</span>
-        </div>
-
-        {/* Vote buttons */}
-        {status === 'active' && (
+        {/* Actions */}
+        {!concern.resolved && (
           <div className={styles.voteButtons}>
-            {(['support', 'reject', 'resolved'] as ConcernVote[]).map(v => (
-              <button
-                key={v}
-                className={`${styles.voteBtn} ${styles[`voteBtn_${v}`]} ${myVote === v ? styles.voteBtnActive : ''}`}
-                onClick={() => void handleVote(v)}
-                title={myVote === v ? 'Click to remove your vote' : VOTE_LABELS[v]}
-              >
-                {VOTE_LABELS[v]}{myVote === v ? ' ✓' : ''}
+            <button className={styles.voteBtn} onClick={() => setShowResForm((v) => !v)}>
+              {t('concerns.propose', 'Propose Resolution')}
+            </button>
+            {isAuthor && (
+              <button className={`${styles.voteBtn} ${styles.voteBtn_resolved}`} onClick={onResolve}>
+                <Check size={16} /> {t('concerns.markResolved', 'Mark Resolved')}
               </button>
-            ))}
+            )}
+          </div>
+        )}
+
+        {showResForm && (
+          <div className={styles.addForm} style={{ marginTop: 8 }}>
+            <input
+              className={styles.addTitleInput}
+              type="text"
+              placeholder={t('concerns.resolutionPlaceholder', 'Propose a resolution...')}
+              value={resText}
+              maxLength={500}
+              onChange={(e) => setResText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSubmitResolution(); }}
+            />
+            <div className={styles.addFormActions}>
+              <button className={styles.btnConfirm} onClick={handleSubmitResolution} disabled={submitting}>
+                {submitting ? t('common.submitting', 'Submitting…') : t('common.submit', 'Submit')}
+              </button>
+              <button className={styles.btnCancel} onClick={() => setShowResForm(false)}>{t('common.cancel', 'Cancel')}</button>
+            </div>
           </div>
         )}
       </div>
@@ -158,7 +194,7 @@ const ConcernCard: React.FC<{
 };
 
 // ---------------------------------------------------------------------------
-// Collapsible section (for Resolved / Rejected)
+// Collapsible section
 // ---------------------------------------------------------------------------
 const CollapsibleSection: React.FC<{
   label: string;
@@ -170,11 +206,8 @@ const CollapsibleSection: React.FC<{
   if (count === 0) return null;
   return (
     <div className={styles.section}>
-      <button
-        className={`${styles.sectionToggle} ${colorClass}`}
-        onClick={() => setOpen(v => !v)}
-      >
-        {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+      <button className={`${styles.sectionToggle} ${colorClass}`} onClick={() => setOpen((v) => !v)}>
+        {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         {label}
         <span className={styles.sectionCount}>{count}</span>
       </button>
@@ -186,122 +219,130 @@ const CollapsibleSection: React.FC<{
 // ---------------------------------------------------------------------------
 // Root
 // ---------------------------------------------------------------------------
-const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, flowServer, flowAgent, currentUser }) => {
-  const [concerns, setConcerns] = useState<Concern[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState<string | null>(null);
+const ConcernsFlow: React.FC<FlowProps> = ({ instanceId, parentContractId, stageKey }) => {
+  const t = useT();
+  const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } = useFlowContract(
+    instanceId, 'concern_resolution', 'concerns_contract.py', concernsContractCode, parentContractId, stageKey,
+  );
+  const serverUrl = useAppSelector((s) => s.user.serverUrl);
+  const publicKey = useAppSelector((s) => s.user.publicKey);
+  const profiles = useAppSelector((s) => s.communities.profiles);
 
-  const load = useCallback(async () => {
+  const [concerns, setConcerns] = useState<Concern[]>([]);
+  const [resolutionsMap, setResolutionsMap] = useState<Record<string, Resolution[]>>({});
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    if (!serverUrl || !publicKey || !contractId) return;
     setLoading(true);
-    setError(null);
     try {
-      const data = await api.loadConcerns(flowServer, flowAgent, instanceId);
-      setConcerns(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load concerns');
+      const raw = await api.getConcerns(serverUrl, publicKey, contractId);
+      const concernsObj = (raw as Record<string, Concern>) || {};
+      const concernList = Object.values(concernsObj);
+      setConcerns(concernList);
+
+      const resMap: Record<string, Resolution[]> = {};
+      await Promise.all(
+        concernList.map(async (c) => {
+          try {
+            const res = await api.getResolutions(serverUrl, publicKey, contractId, c.id);
+            resMap[c.id] = (res as Resolution[]) || [];
+          } catch {
+            resMap[c.id] = [];
+          }
+        }),
+      );
+      setResolutionsMap(resMap);
+    } catch (err) {
+      console.error('Failed to fetch concerns:', err);
     } finally {
       setLoading(false);
     }
-  }, [flowServer, flowAgent, instanceId]);
+  }, [serverUrl, publicKey, contractId]);
 
-  useEffect(() => { void load(); }, [load]);
+  useLoadWhenReady(fetchData, isReady);
 
-  useEventStream('contract_write', useCallback((event) => {
-    if (event.contract === instanceId) void load();
-  }, [instanceId, load]));
+  const handleAddConcern = async (text: string, severity: string) => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    await api.addConcern(serverUrl, publicKey, contractId, text, severity);
+    await fetchData();
+  };
 
-  const handleAdd = useCallback(async (title: string, desc: string) => {
-    await api.addConcern(flowServer, flowAgent, instanceId, currentUser, title, desc);
-  }, [flowServer, flowAgent, instanceId, currentUser]);
+  const handleResolve = async (concernId: string) => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    await api.resolveConcern(serverUrl, publicKey, contractId, concernId);
+    await fetchData();
+  };
 
-  const handleVote = useCallback(async (concernId: string, v: ConcernVote) => {
-    const concern = concerns.find(c => c.id === concernId);
-    if (!concern) return;
-    await api.voteConcern(flowServer, flowAgent, instanceId, concern, currentUser, v);
-  }, [flowServer, flowAgent, instanceId, concerns, currentUser]);
+  const handleAddResolution = async (concernId: string, text: string) => {
+    if (!serverUrl || !publicKey || !contractId) return;
+    await api.addResolution(serverUrl, publicKey, contractId, concernId, text);
+    await fetchData();
+  };
 
-  const handleClearVote = useCallback(async (concernId: string) => {
-    const concern = concerns.find(c => c.id === concernId);
-    if (!concern) return;
-    await api.clearVoteConcern(flowServer, flowAgent, instanceId, concern, currentUser);
-  }, [flowServer, flowAgent, instanceId, concerns, currentUser]);
+  if (hasError) return (
+    <div className={styles.loading}>
+      <p>{errorMessage || t('concerns.setupError', 'Failed to set up concerns.')}</p>
+      <button onClick={retry} style={{ marginTop: 8, padding: '6px 16px', cursor: 'pointer' }}>{t('common.retry', 'Try again')}</button>
+    </div>
+  );
+  if (isDeploying || !isReady) return (
+    <div className={styles.loading}>{statusMessage || t('concerns.settingUp', 'Setting up concerns…')}</div>
+  );
+  if (loading && concerns.length === 0) return <div className={styles.loading}>{t('common.loading', 'Loading…')}</div>;
 
-  const { active, resolved, rejected } = useMemo(() => {
-    const active:   Concern[] = [];
-    const resolved: Concern[] = [];
-    const rejected: Concern[] = [];
+  const active = concerns.filter((c) => !c.resolved);
+  const resolved = concerns.filter((c) => c.resolved);
 
-    for (const c of concerns) {
-      const s = api.concernStatus(c);
-      if      (s === 'active')   active.push(c);
-      else if (s === 'resolved') resolved.push(c);
-      else                       rejected.push(c);
-    }
-
-    // Sort active by support weight desc, then by createdAt desc
-    active.sort((a, b) => api.supportWeight(b) - api.supportWeight(a) || b.createdAt - a.createdAt);
-
-    return { active, resolved, rejected };
-  }, [concerns]);
-
-  if (loading) return <FlowLoading />;
-  if (error)   return <FlowError message={error} onRetry={() => void load()} />;
+  const severityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+  active.sort(
+    (a, b) =>
+      (severityOrder[a.severity] ?? 1) - (severityOrder[b.severity] ?? 1) ||
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+  );
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <div className={styles.header}>
         <AlertTriangle size={18} className={styles.headerIcon} />
-        <span>{active.length} active concern{active.length !== 1 ? 's' : ''}</span>
+        <span>{t(
+          active.length === 1 ? 'concerns.activeCount.one' : 'concerns.activeCount.many',
+          active.length === 1 ? '1 active concern' : '{n} active concerns',
+          { n: active.length },
+        )}</span>
       </div>
 
-      {/* Add form */}
-      <AddConcernForm onAdd={handleAdd} />
+      <AddConcernForm onAdd={handleAddConcern} />
 
-      {/* Active concerns */}
       {active.length === 0 ? (
-        <p className={styles.noData}>No active concerns. The floor is open — raise one above.</p>
+        <p className={styles.noData}>{t('concerns.emptyActive', 'No active concerns. The floor is open — raise one above.')}</p>
       ) : (
         <div className={styles.concernList}>
-          {active.map(c => (
+          {active.map((c) => (
             <ConcernCard
               key={c.id}
               concern={c}
-              status="active"
-              currentUser={currentUser}
-              onVote={handleVote}
-              onClearVote={handleClearVote}
+              resolutions={resolutionsMap[c.id] || []}
+              isAuthor={publicKey === c.author}
+              profiles={profiles}
+              onResolve={() => handleResolve(c.id)}
+              onAddResolution={(text) => handleAddResolution(c.id, text)}
             />
           ))}
         </div>
       )}
 
-      {/* Resolved + Rejected (collapsible) */}
-      <CollapsibleSection label="Resolved" count={resolved.length} colorClass={styles.toggleResolved}>
+      <CollapsibleSection label={t('concerns.resolved', 'Resolved')} count={resolved.length} colorClass={styles.toggleResolved}>
         <div className={styles.concernList}>
-          {resolved.map(c => (
+          {resolved.map((c) => (
             <ConcernCard
               key={c.id}
               concern={c}
-              status="resolved"
-              currentUser={currentUser}
-              onVote={handleVote}
-              onClearVote={handleClearVote}
-            />
-          ))}
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection label="Rejected" count={rejected.length} colorClass={styles.toggleRejected}>
-        <div className={styles.concernList}>
-          {rejected.map(c => (
-            <ConcernCard
-              key={c.id}
-              concern={c}
-              status="rejected"
-              currentUser={currentUser}
-              onVote={handleVote}
-              onClearVote={handleClearVote}
+              resolutions={resolutionsMap[c.id] || []}
+              isAuthor={publicKey === c.author}
+              profiles={profiles}
+              onResolve={() => handleResolve(c.id)}
+              onAddResolution={(text) => handleAddResolution(c.id, text)}
             />
           ))}
         </div>

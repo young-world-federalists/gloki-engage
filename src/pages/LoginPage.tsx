@@ -1,59 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Key, Server, ArrowRight, RefreshCw } from 'lucide-react';
+import { useAuth } from '../contexts/useAuth';
+import { Key, Server, ArrowRight, RefreshCw, Building2 } from 'lucide-react';
+import { useT } from '../i18n';
+import { Button, InfoDisclosure, LanguageSwitcher, StageStrip } from '../components/shared';
+import OrganizationSignIn, { type OrganizationSignInInput } from '../components/organization/OrganizationSignIn';
+import { saveOrganization, clearOrganization } from '../services/organizationActor';
+import { notifyOrganizationChanged } from '../hooks/useOrganization';
+import { isBeta, SHOW_LANGUAGES } from '../appMode';
+import { getBetaDoor } from '../components/onboarding/betaDoor';
 import styles from './LoginPage.module.scss';
 
-const LoginPage: React.FC = () => {
+const DEFAULT_SERVER_URL = 'https://gdi.gloki.contact';
+
+/** A fresh 64-char identity key — the shape `validatePublicKey` requires. */
+function generateKeyString(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 64; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+interface LoginPageProps {
+  /** S42 — beta only: the doors page renders this as its keys screen and owns "Back". */
+  onBack?: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
   const { login, isLoading } = useAuth();
+  const t = useT();
   const [publicKey, setPublicKey] = useState('');
-  const [serverUrl, setServerUrl] = useState('');
-  const [serverUrlHistory, setServerUrlHistory] = useState<string[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [isValid, setIsValid] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
-  const [serverUrlError, setServerUrlError] = useState<string | null>(null);
-
-  // Check for stored error messages on component mount
-  useEffect(() => {
-    const storedError = localStorage.getItem('loginError');
-    if (storedError) {
-      setLoginError(storedError);
-      localStorage.removeItem('loginError'); // Clear the stored error
-    }
-  }, []);
-
-  useEffect(() => {
-    // Default server URL
-    const defaultServer = 'https://gdi.gloki.contact';
-    
-    // Load server URL history from localStorage
+  const [serverUrl, setServerUrl] = useState(DEFAULT_SERVER_URL);
+  const [serverUrlHistory, setServerUrlHistory] = useState<string[]>(() => {
     const history = localStorage.getItem('serverUrlHistory');
     let historyArray: string[] = [];
-    
+
     if (history) {
       try {
         historyArray = JSON.parse(history);
-      } catch (error) {
+      } catch {
         historyArray = [];
       }
     }
-    
-    // Always ensure default server is in the list
-    if (!historyArray.includes(defaultServer)) {
-      historyArray = [defaultServer, ...historyArray];
-    } else {
-      // Move default server to the top if it's already in the list
-      historyArray = [defaultServer, ...historyArray.filter(url => url !== defaultServer)];
-    }
-    
-    setServerUrlHistory(historyArray);
+
+    return historyArray.includes(DEFAULT_SERVER_URL)
+      ? [DEFAULT_SERVER_URL, ...historyArray.filter(url => url !== DEFAULT_SERVER_URL)]
+      : [DEFAULT_SERVER_URL, ...historyArray];
+  });
+  const [showHistory, setShowHistory] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(() => localStorage.getItem('loginError'));
+  const [publicKeyError, setPublicKeyError] = useState<string | null>(null);
+  const [serverUrlError, setServerUrlError] = useState<string | null>(null);
+  const [orgOpen, setOrgOpen] = useState(false);
+  // S43 (critique P1) — beta newcomer path. A door recorded on the doors page
+  // means "I have no key yet": the primary action creates one and signs in;
+  // pasting a saved key and choosing a server move behind disclosures.
+  const door = isBeta ? getBetaDoor() : null;
+  const newcomer = door !== null;
+  const [showPaste, setShowPaste] = useState(false);
+  const [showServer, setShowServer] = useState(!isBeta);
+
+  // Clear the stored error after its initial value has been loaded into state.
+  useEffect(() => {
+    localStorage.removeItem('loginError');
   }, []);
 
   const validatePublicKey = (value: string): string | null => {
     if (value.length === 0) return null;
     if (!/^[A-Za-z0-9]{64}$/.test(value))
-      return 'Public key must be exactly 64 alphanumeric characters (letters and digits only).';
+      return t('login.key.error', 'Your identity key must be exactly 64 alphanumeric characters (letters and digits only).');
     return null;
   };
 
@@ -62,29 +78,21 @@ const LoginPage: React.FC = () => {
     try {
       const url = new URL(value);
       if (url.protocol !== 'http:' && url.protocol !== 'https:')
-        return 'Server URL must use http or https.';
+        return t('login.server.errorProtocol', 'Server URL must use http or https.');
       return null;
     } catch {
-      return 'Please enter a valid URL (e.g. https://your-server.com).';
+      return t('login.server.errorInvalid', 'Please enter a valid URL (e.g. https://your-server.com).');
     }
   };
 
-  useEffect(() => {
-    const pkErr = validatePublicKey(publicKey);
-    const srvErr = validateServerUrl(serverUrl);
-    setIsValid(
-      publicKey.length > 0 && pkErr === null &&
-      serverUrl.length > 0 && srvErr === null
-    );
-  }, [publicKey, serverUrl]);
+  const isValid = publicKey.length > 0 && validatePublicKey(publicKey) === null &&
+    serverUrl.length > 0 && validateServerUrl(serverUrl) === null;
 
   const generateRandomKey = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 64; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setPublicKey(result);
+    setPublicKey(generateKeyString());
+    // A key made here is valid by construction; a stale error from an earlier
+    // blur must not sit under it while the CTA turns blue.
+    setPublicKeyError(null);
   };
 
   const handleServerUrlSelect = (url: string) => {
@@ -92,36 +100,143 @@ const LoginPage: React.FC = () => {
     setShowHistory(false);
   };
 
-  const handleLogin = async () => {
-    if (isValid) {
-      try {
-        setLoginError(null);
-        
-        // Save server URL to history
-        const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);
-        setServerUrlHistory(newHistory);
-        localStorage.setItem('serverUrlHistory', JSON.stringify(newHistory));
-        
-        await login(publicKey, serverUrl);
-      } catch (error) {
-        setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
-      }
+  /**
+   * S33 — organization sign-in. An organization still needs a key + server to
+   * reach the network (auth is key-based for every actor), so we mint one the
+   * same way the person flow does; what makes it an organization is the local
+   * record saved alongside it, which `useOrganization` gates on.
+   */
+  const handleOrgLogin = async (input: OrganizationSignInInput) => {
+    try {
+      setLoginError(null);
+      const key = generateKeyString();
+      const url = serverUrl || DEFAULT_SERVER_URL;
+      // Save the org record only AFTER login resolves. Writing it first meant a
+      // reload or closed tab mid-init left `gloki.organization` with no `user`,
+      // and the next PERSON to sign in inherited an organization session.
+      await login(key, url);
+      saveOrganization({ name: input.name.trim(), type: input.type, country: input.country });
+      notifyOrganizationChanged();
+    } catch (error) {
+      // Don't strand a half-made organization session on a failed login.
+      clearOrganization();
+      notifyOrganizationChanged();
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
     }
   };
 
+  const signIn = async (key: string) => {
+    try {
+      setLoginError(null);
+      // Signing in as a person clears any organization record left behind by
+      // an abandoned org sign-in — otherwise this person would silently be
+      // treated as an organization and find every stage blocked.
+      clearOrganization();
+      notifyOrganizationChanged();
+
+      // Save server URL to history
+      const newHistory = [serverUrl, ...serverUrlHistory.filter(url => url !== serverUrl)].slice(0, 10);
+      setServerUrlHistory(newHistory);
+      localStorage.setItem('serverUrlHistory', JSON.stringify(newHistory));
+
+      await login(key, serverUrl);
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    }
+  };
+
+  const handleLogin = async () => {
+    if (isValid) await signIn(publicKey);
+  };
+
+  /** Beta newcomer: one tap makes the key and signs in; the next step saves it. */
+  const handleCreateKey = async () => {
+    if (serverUrl.length === 0 || validateServerUrl(serverUrl) !== null) return;
+    const key = generateKeyString();
+    setPublicKey(key);
+    setPublicKeyError(null);
+    await signIn(key);
+  };
+
+  const doorLead: Record<string, string> = {
+    person: t('beta.keys.door.person', 'Joining as a person. Gloki has no passwords: create your key to start.'),
+    organisation: t('beta.keys.door.organisation', 'Joining as an organisation. Gloki has no passwords: create your key to start.'),
+    contributor: t('beta.keys.door.contributor', 'Joining as a node contributor. Gloki has no passwords: create your key to start.'),
+  };
+  const showKeyField = !newcomer || showPaste;
+
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${isBeta ? styles.containerBeta : ''}`}>
       <div className={styles.card}>
+        {/* Pre-auth language switcher (a11y finding #11) — reachable before
+            any English copy, so non-English speakers can switch first. */}
+        {SHOW_LANGUAGES && (
+          <div className={styles.langRow}>
+            <LanguageSwitcher />
+          </div>
+        )}
         <div className={styles.header}>
-          <h1>Decentralized Self-Sovereignty Tool</h1>
-          <p>Connect to your decentralized identity</p>
+          {/* Task-first: the login action is screen one; the warm-up explainer
+              prose lives behind the (i) next to the title. */}
+          <div className={styles.titleRow}>
+            <h1>{isBeta ? t('beta.keys.title', 'Your key') : t('login.title', 'Welcome to Gloki')}</h1>
+            <InfoDisclosure
+              className={styles.infoTrigger}
+              size="md"
+              label={t('login.help.title', 'How Gloki works')}
+            >
+              <div className={styles.helpBody}>
+                <p>{t('login.help.keys', 'Gloki uses a key instead of a password. This key is your identity across every community — generate a fresh one below, or paste an existing key to reconnect.')}</p>
+                <p>{t('login.help.server', 'The server connects you to a Gloki network. The default is already set for you.')}</p>
+              </div>
+            </InfoDisclosure>
+          </div>
+          <p>
+            {newcomer && door
+              ? doorLead[door]
+              : isBeta
+                ? t('beta.keys.lead', 'Gloki has no passwords. Generate a key to start, or paste one you saved before.')
+                : t('login.subtitle', 'Global direct democracy — your voice, alongside people across the world.')}
+          </p>
         </div>
 
+        {/* The five governance stages — pipeline context before the user even
+            logs in (Wave 5c). The login card's mobile padding is trimmed in
+            LoginPage.module.scss so all five labelled stages fit at 360px.
+            S42: hidden in the beta, which has no pipeline. */}
+        {!isBeta && <StageStrip />}
+
         <div className={styles.form}>
-          <div className={styles.inputGroup}>
+          {newcomer && (
+            <Button
+              type="button"
+              variant="primary"
+              size="lg"
+              fullWidth
+              onClick={() => void handleCreateKey()}
+              loading={isLoading}
+              rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
+              className={styles.loginButton}
+            >
+              {isLoading ? t('login.connecting', 'Connecting…') : t('beta.keys.create', 'Create my key')}
+            </Button>
+          )}
+          {newcomer && !showPaste && (
+            <Button type="button" variant="ghost" fullWidth onClick={() => setShowPaste(true)} disabled={isLoading}>
+              {t('beta.keys.pasteToggle', 'I already have a key')}
+            </Button>
+          )}
+          {showKeyField && <div className={styles.inputGroup}>
             <label htmlFor="publicKey">
               <Key size={20} />
-              Gloki Public Key
+              {t('login.key.label', 'Your Identity Key')}
+              <span className={styles.fieldHint}>
+                {newcomer
+                  ? t('beta.keys.pasteHint', 'Paste the 64-character key you saved.')
+                  : isBeta
+                    ? t('beta.keys.hint', "A 64-character code that's yours alone. New here? Tap generate.")
+                    : t('login.key.hint', "A 64-character code that's yours alone — your identity across every community. New here? Tap generate.")}
+              </span>
             </label>
             <div className={styles.inputWithButton}>
               <input
@@ -130,27 +245,41 @@ const LoginPage: React.FC = () => {
                 value={publicKey}
                 onChange={(e) => setPublicKey(e.target.value)}
                 onBlur={() => setPublicKeyError(validatePublicKey(publicKey))}
-                placeholder="Enter your public key"
+                placeholder={t('login.key.placeholder', 'Enter your public key')}
                 className="input-field"
               />
               <button
                 type="button"
                 onClick={generateRandomKey}
                 className={styles.generateButton}
-                title="Generate random public key"
+                title={t('login.generate', 'Generate a new identity key')}
+                aria-label={t('login.generate', 'Generate a new identity key')}
               >
                 <RefreshCw size={16} />
               </button>
             </div>
-            {publicKeyError && <div className={styles.fieldError}>{publicKeyError}</div>}
-          </div>
+            {publicKeyError && <div className={styles.fieldError} role="alert">{publicKeyError}</div>}
+          </div>}
 
-          <div className={styles.inputGroup}>
+          {isBeta && !showServer && (
+            <Button type="button" variant="ghost" fullWidth onClick={() => setShowServer(true)} disabled={isLoading}>
+              {t('beta.keys.serverToggle', 'Choose a different server')}
+            </Button>
+          )}
+          {showServer && <div className={styles.inputGroup}>
             <label htmlFor="serverUrl">
               <Server size={20} />
-              Server URL
+              {t('login.server.label', 'Server URL')}
+              <span className={styles.fieldHint}>{t('login.server.hint', "The default network is already selected. Most people never need to change this.")}</span>
             </label>
-            <div className={styles.inputWithDropdown}>
+            <div
+              className={styles.inputWithDropdown}
+              onBlur={(e) => {
+                // Close only when focus leaves the field + dropdown entirely, so keyboard
+                // users can Tab into the history options without the list vanishing.
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setShowHistory(false);
+              }}
+            >
               <input
                 id="serverUrl"
                 type="url"
@@ -160,64 +289,106 @@ const LoginPage: React.FC = () => {
                   setShowHistory(false);
                 }}
                 onFocus={() => setShowHistory(true)}
-                onBlur={() => {
-                  setShowHistory(false);
-                  setServerUrlError(validateServerUrl(serverUrl));
-                }}
-                placeholder="https://your-server.com"
+                onBlur={() => setServerUrlError(validateServerUrl(serverUrl))}
+                placeholder={t('login.server.placeholder', 'https://your-server.com')}
                 className="input-field"
                 autoComplete="off"
               />
               {showHistory && serverUrlHistory.length > 0 && (
                 <div className={styles.historyDropdown}>
                   {serverUrlHistory.map((url, index) => (
-                    <div
+                    <button
                       key={index}
+                      type="button"
                       className={styles.historyItem}
-                      onMouseDown={() => handleServerUrlSelect(url)} // Use onMouseDown so it fires before blur
+                      // onMouseDown fires before the input's blur (mouse, browser-safe);
+                      // onClick covers keyboard activation (Enter/Space) once focused.
+                      onMouseDown={() => handleServerUrlSelect(url)}
+                      onClick={() => handleServerUrlSelect(url)}
                     >
                       {url}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
-            {serverUrlError && <div className={styles.fieldError}>{serverUrlError}</div>}
-          </div>
+            {serverUrlError && <div className={styles.fieldError} role="alert">{serverUrlError}</div>}
+          </div>}
 
           {loginError && (
-            <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`}>
-              <div className={styles.errorIcon}>⚠️</div>
+            <div className={`${styles.errorMessage} ${loginError.includes('server') ? styles.serverError : styles.generalError}`} role="alert">
+              <div className={styles.errorIcon} aria-hidden="true">⚠️</div>
               <div className={styles.errorContent}>
                 <div className={styles.errorTitle}>
-                  {loginError.includes('connect to the server') || loginError.includes('unreachable') ? 'Connection Error' : 
-                   loginError.includes('recognize the API') || loginError.includes('incorrect') ? 'Invalid Server' : 'Login Error'}
+                  {loginError.includes('connect to the server') || loginError.includes('unreachable') ? t('login.error.connection', 'Connection Error') :
+                   loginError.includes('recognize the API') || loginError.includes('incorrect') ? t('login.error.invalidServer', 'Invalid Server') : t('login.error.generic', 'Login Error')}
                 </div>
                 <div className={styles.errorDescription}>{loginError}</div>
                 {(loginError.includes('unreachable') || loginError.includes('connection')) && (
-                  <button 
+                  <button
                     onClick={() => setLoginError(null)}
                     className={styles.retryButton}
                   >
-                    Try Again
+                    {t('common.retry', 'Try again')}
                   </button>
                 )}
               </div>
             </div>
           )}
-          
-          <button
-            onClick={handleLogin}
-            disabled={!isValid || isLoading}
-            className={`login-button ${styles.loginButton}`}
-          >
-            <span>{isLoading ? 'Connecting...' : 'Connect'}</span>
-            {!isLoading && <ArrowRight size={20} />}
-          </button>
+
+          {showKeyField && (
+            <Button
+              type="button"
+              variant={newcomer ? 'secondary' : 'primary'}
+              size="lg"
+              fullWidth
+              onClick={handleLogin}
+              disabled={!isValid}
+              loading={isLoading && !newcomer}
+              rightIcon={!isLoading ? <ArrowRight size={20} /> : undefined}
+              className={styles.loginButton}
+            >
+              {isLoading && !newcomer ? t('login.connecting', 'Connecting…') : newcomer ? t('beta.keys.signIn', 'Sign in with this key') : t('login.getStarted', 'Get Started')}
+            </Button>
+          )}
+
+          {/* S42 — beta: the doors page owns the way back. */}
+          {onBack && (
+            <Button type="button" variant="ghost" fullWidth onClick={onBack} disabled={isLoading}>
+              {t('common.back', 'Back')}
+            </Button>
+          )}
+
+          {/* S33 — the other kind of actor. Organizations don't deliberate or
+              vote; they respond to mandates communities have already decided.
+              Kept as a quiet secondary path so the person flow stays primary.
+              S42: hidden in the beta — "organisation" is one of its doors. */}
+          {!isBeta && <div className={styles.orgRow}>
+            <span className={styles.orgDivider}>{t('login.or', 'or')}</span>
+            <button
+              type="button"
+              className={styles.orgButton}
+              onClick={() => setOrgOpen(true)}
+              disabled={isLoading}
+            >
+              <Building2 size={18} aria-hidden />
+              {t('login.orgCta', 'Sign in as an organization')}
+            </button>
+            <p className={styles.orgHint}>
+              {t('login.orgHint', 'For bodies that want to endorse or act on finished mandates — not to take part in the vote.')}
+            </p>
+          </div>}
         </div>
       </div>
+
+      <OrganizationSignIn
+        isOpen={orgOpen}
+        onClose={() => setOrgOpen(false)}
+        onSubmit={handleOrgLogin}
+        submitting={isLoading}
+      />
     </div>
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

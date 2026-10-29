@@ -1,72 +1,90 @@
 import React from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { User, Users, QrCode, LogOut } from 'lucide-react';
-import Profile from '../components/identity/Profile';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import AppHeader from '../components/AppHeader';
 import Communities from '../components/identity/Communities';
+import Profile from '../components/identity/Profile';
 import JoinCommunity from '../components/identity/JoinCommunity';
-import PageHeader from '../components/PageHeader';
+import AboutPage from '../components/identity/AboutPage';
+import ContactPage from '../components/identity/ContactPage';
+import { RealOnlyPage, DemoOnlyPage } from '../components/shared';
+import VerificationHub from '../components/identity/verification/VerificationHub';
+import RequestPage from '../components/identity/verification/RequestPage';
+import ApprovePage from '../components/identity/verification/ApprovePage';
+import InvitePage from '../components/identity/verification/InvitePage';
+import CallFlow from '../components/identity/verification/CallFlow';
+import DailySession from '../components/identity/verification/DailySession';
+import NotificationCenter from '../components/identity/notifications/NotificationCenter';
+import { useT } from '../i18n';
+import { isBeta } from '../appMode';
 import styles from './Container.module.scss';
 
 const IdentityView: React.FC = () => {
-  const { logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const t = useT();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  // D3 page-title standard: the sub-route's title renders in the AppHeader's
+  // title block (the page's single <h1>), not as an in-content heading.
+  const accountEyebrow = t('identity.eyebrow', 'Account');
+  const verificationEyebrow = t('verification.eyebrow', 'Verification');
+  const titles: Record<string, { title: string; eyebrow?: string }> = {
+    communities: { title: t('communities.title', 'Your Communities'), eyebrow: accountEyebrow },
+    hidden: { title: t('communities.hiddenTitle', 'Hidden Communities'), eyebrow: accountEyebrow },
+    profile: { title: t('profile.title', 'Profile'), eyebrow: accountEyebrow },
+    join: { title: t('join.title', 'Join a community'), eyebrow: accountEyebrow },
+    about: { title: t('about.title', 'About Gloki') },
+    contact: { title: t('contact.title', 'Contact Gloki') },
+    // S43 (critique): "Verification" over "Get verified" says it twice; beta drops the eyebrow.
+    verification: { title: t('verification.title', 'Get verified'), eyebrow: isBeta ? undefined : verificationEyebrow },
+    notifications: { title: t('notifications.title', 'Notifications'), eyebrow: accountEyebrow },
   };
-
-  const navItems = [
-    { path: 'profile', label: 'Profile', icon: User },
-    { path: 'communities', label: 'Communities', icon: Users },
-    { path: 'join', label: 'Join Community', icon: QrCode },
-  ];
-
-  const actionButtons = [
-    {
-      icon: LogOut,
-      label: 'Logout',
-      onClick: handleLogout,
-      variant: 'logout' as const
-    }
-  ];
+  // S36 — verification sub-pages (D9: nested here, no new top-level route).
+  const verificationTitles: Record<string, { title: string; eyebrow?: string }> = {
+    request: { title: t('verification.request.title', 'Ask a member to vouch'), eyebrow: verificationEyebrow },
+    approve: { title: t('verification.approve.title', 'Requests to vouch'), eyebrow: verificationEyebrow },
+    invite: { title: t('verification.invite.title', 'Invitations'), eyebrow: verificationEyebrow },
+    call: { title: t('verification.call.title', 'Verification call'), eyebrow: verificationEyebrow },
+    daily: { title: t('verification.daily.title', 'Daily verification'), eyebrow: verificationEyebrow },
+  };
+  const [, , sub = 'communities', leaf] = pathname.split('/');
+  const isVerification = sub === 'verification';
+  const isNotifications = sub === 'notifications';
+  const head = (isVerification && leaf && verificationTitles[leaf]) || titles[sub] || titles.communities;
 
   return (
     <div className={styles.container}>
-      <PageHeader
-        title="My Identity"
-        actionButtons={actionButtons}
-        layout="single-row"
+      <AppHeader
+        title={head.title}
+        eyebrow={head.eyebrow}
+        showBack={isVerification || isNotifications}
+        onBack={isVerification && leaf ? () => navigate('/identity/verification') : undefined}
       />
 
-      <div className={styles.content}>
-        <nav className={styles.nav}>
-          {navItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => navigate(`/identity/${item.path}`)}
-              className={`${styles.navItem} ${location.pathname.includes(`/identity/${item.path}`) ? styles.active : ''}`}
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-
+      <main id="main" tabIndex={-1} className={styles.content}>
         <div className={styles.main}>
           <Routes>
-            <Route path="profile" element={<Profile />} />
-            <Route path="communities" element={<Communities />} />
-            <Route path="join" element={<JoinCommunity />} />
-            <Route path="*" element={<Profile />} />
+            {/* S42 — the beta has no communities: those pages go back to `/`
+                and the account's index is the profile. */}
+            <Route index element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
+            <Route path="communities" element={isBeta ? <Navigate to="/" replace /> : <Communities />} />
+            <Route path="profile" element={<RealOnlyPage><Profile /></RealOnlyPage>} />
+            <Route path="join" element={isBeta ? <Navigate to="/" replace /> : <RealOnlyPage><JoinCommunity /></RealOnlyPage>} />
+            <Route path="about" element={<AboutPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
+            <Route path="contact" element={<ContactPage onBack={() => navigate(isBeta ? '/' : '/stage/problem')} />} />
+            <Route path="verification" element={<RealOnlyPage><VerificationHub /></RealOnlyPage>} />
+            <Route path="verification/request" element={<RealOnlyPage><RequestPage /></RealOnlyPage>} />
+            <Route path="verification/approve" element={<RealOnlyPage><ApprovePage /></RealOnlyPage>} />
+            <Route path="verification/invite" element={<DemoOnlyPage><InvitePage /></DemoOnlyPage>} />
+            <Route path="verification/call" element={<DemoOnlyPage><CallFlow /></DemoOnlyPage>} />
+            <Route path="verification/daily" element={<DemoOnlyPage><DailySession /></DemoOnlyPage>} />
+            <Route path="notifications" element={<DemoOnlyPage><NotificationCenter /></DemoOnlyPage>} />
+            <Route path="hidden" element={isBeta ? <Navigate to="/" replace /> : <Communities showHidden />} />
+            <Route path="*" element={<Navigate to={isBeta ? '/identity/profile' : '/identity/communities'} replace />} />
           </Routes>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
 export default IdentityView;
-

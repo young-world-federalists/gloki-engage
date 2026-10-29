@@ -1,0 +1,91 @@
+@use '../../styles/variables' as *;
+
+// Full-height flex column: main grows, the composer anchors at the bottom
+// above the fixed StageFooter (S18 W1, campaign finding M4).
+.dm { display: flex; flex-direction: column; min-height: 100dvh; }
+// Top air under the header now that the ContextCard has moved down to the composer
+// (local fix — $heading-gap is app-wide, don't touch it).
+.dmMain { flex: 1; padding-top: $spacing-lg; padding-bottom: 0; }
+
+// The relocated "you're responding to" bar. The wrapper carries the centred column
+// (matching .inputBar); the ContextCard inside keeps its own inset border box.
+.contextBar {
+  @include page-column;
+  padding-block: $spacing-md;
+}
+
+.thread { display: flex; flex-direction: column; gap: $spacing-md; padding: $spacing-md 0; }
+
+.message { display: flex; flex-direction: column; gap: $spacing-xs; max-width: 85%; }
+.mine { align-self: flex-end; align-items: flex-end; }
+
+.meta { display: flex; align-items: center; gap: $spacing-sm; }
+.time {
+  font-size: $text-xs;
+  color: $gray-500;
+  @include dark { color: $dark-text-secondary; }
+}
+.text {
+  padding: $spacing-sm $spacing-md;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-800;
+  background: $gray-50;
+  border-radius: $radius-md;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  @include dark { color: $dark-text; background: $dark-surface; }
+}
+.mine .text { color: white; background: $primary; }
+
+.inputBar {
+  // The composer is a SIBLING of <main.dmMain> (a centred page-column), so it must
+  // @include the same column — otherwise it spans full-width and its left edge sits
+  // ~192px left of the centred thread on desktop.
+  @include page-column;
+  display: flex;
+  gap: $spacing-sm;
+  align-items: flex-end;
+  // bottom padding clears the fixed StageFooter; a top rule separates it from the thread.
+  padding-block: $spacing-md calc(#{$footer-height} + #{$spacing-md});
+  border-top: 1.5px solid $gray-200;
+
+  @include dark { border-top-color: $dark-border; }
+}
+.textarea {
+  flex: 1;
+  box-sizing: border-box;
+  min-height: 88px; // ~3 lines — the composer is this page's primary act (S18 W1)
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  resize: none;
+
+  &::placeholder { color: $gray-500; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
+  @include dark { color: $dark-text; background: $dark-bg; border-color: $dark-border; &::placeholder { color: $dark-text-secondary; } }
+}
+.sendBtn {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: $primary-dark; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}

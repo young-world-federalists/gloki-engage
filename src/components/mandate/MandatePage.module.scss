@@ -1,0 +1,22 @@
+@use '../../styles/variables' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  // Top air so the hero card clears the sticky bar (it tucked -2.5px under it — S32 F1).
+  // Owned here, not in Container.module.scss — five other pages add their own top air there.
+  padding-top: $spacing-lg;
+}
+
+/* "Read the full mandate" scroll target — clears the sticky header.
+   ($spacing-2xl = 32px was shorter than the ~61px bar: titles landed cut off — S23.) */
+.docAnchor {
+  scroll-margin-top: $sticky-scroll-offset;
+}
+
+/* "Back this mandate" scroll target — same sticky-header clearance as .docAnchor
+   so the backing card's heading isn't tucked under the bar (S33). */
+.backingAnchor {
+  scroll-margin-top: $sticky-scroll-offset;
+}

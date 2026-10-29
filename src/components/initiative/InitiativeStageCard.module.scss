@@ -1,0 +1,224 @@
+@use '../../styles/variables' as *;
+
+.card {
+  padding: 0; // the summary + panel own their spacing; engage panel is full-bleed
+  overflow: hidden;
+}
+
+// ─── Read summary (always visible; the whole row toggles expand) ───────────
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+    border-radius: $radius-lg;
+  }
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  color: $gray-500;
+}
+
+.badgeInner {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs; // tokenized off raw 4px; kept compact for this micro-badge (§5 r7)
+}
+
+// The initiative name, when a stage needs identity above the content (vote card).
+.titleLine {
+  font-size: $text-base;
+  font-weight: $font-bold;
+  color: $gray-900;
+  line-height: 1.35;
+}
+
+.headline {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  line-height: 1.4;
+}
+
+// With a title line above it, the content demotes to supporting text.
+.headlineWithTitle {
+  font-size: $text-sm;
+  font-weight: $font-normal;
+  color: $gray-700;
+  margin-top: -#{$spacing-xs}; // tighten the summary's $spacing-sm gap under the title
+}
+
+.byline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.date {
+  margin-left: auto;
+  color: $gray-500;
+}
+
+// ─── Expanded panel ───────────────────────────────────────────────────────
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+// The 4-stage strip alone atop the panel (orientation). The Discussion pill
+// moved to the actions row at the panel's bottom (S23). Insets to the content
+// gutter like every sibling row (.metaLine/.summary) — S30 A-1 (C2): the strip
+// was flush to the card edge while everything around it sat 16px in.
+.stageNavRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: 0 $content-gutter;
+}
+
+.metaLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: 0 $spacing-lg $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs; // tokenized off raw 4px; kept compact for the meta row (§5 r7)
+  min-height: 24px; // WCAG 2.5.8 AA floor for the inline source link (S17 T7)
+  color: $gray-500;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+// The Engage zone — visually distinct (shaded, divider), full-bleed to the card edges.
+.engage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background: $gray-50;
+  border-top: 1px solid $gray-100;
+}
+
+// Card footer chin (S25, campaign §4): the Discussion pill + blue open action
+// on a recessed $footer-surface strip behind a hairline rule — a footer, not
+// another content block. Terminal child of the overflow:hidden card, so the
+// radius clips its bottom corners. Wraps at 360px rather than crushing either
+// control.
+.chin {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; // S30 A-5: pack chin controls left (Discussion +
+  gap: $spacing-sm;            // Suggest on row 1); the openBtn's flex:1 still
+  flex-wrap: wrap;             // right-fills where present, so vote/mandate cards
+  padding: $spacing-md $content-gutter; // are unchanged.
+  background: $footer-surface;
+  border-top: 1px solid $footer-border;
+
+  .openBtn {
+    flex: 1;
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+// The open CTA is the shared <Button variant="primary" size="md"> (W5 T2) —
+// it owns bg/color/44px height/8px gap/radius/focus/hover. Only the chin
+// layout rule (.chin .openBtn: flex:1, min-width:200px) survives above.
+
+.teaser {
+  padding: 0 $spacing-lg $spacing-md;
+  font-size: $text-xs;
+  color: $gray-500;
+  line-height: 1.6;
+}
+
+// CTA teasers ("Cast your vote") read as an affordance, not muted info.
+.teaserAction {
+  color: $primary-dark;
+  font-weight: $font-semibold;
+}
+
+// ─── Dark mode ────────────────────────────────────────────────────────────
+@include dark {
+  .titleLine,
+  .headline {
+    color: $dark-text;
+  }
+
+  .badgeRow,
+  .byline,
+  .date,
+  .metaLine,
+  .metaItem,
+  .teaser,
+  .headlineWithTitle {
+    color: $dark-text-secondary;
+  }
+
+  .teaserAction {
+    color: $primary-on-dark;
+  }
+
+  .engage {
+    background: $dark-surface;
+    border-top-color: $dark-border;
+  }
+
+  .chin {
+    background: $footer-surface-dark;
+    border-top-color: $footer-border-dark;
+  }
+}
+
+// ─── Responsive — hold the 360px flagship ─────────────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .summary {
+    padding: $spacing-md;
+  }
+
+  .metaLine {
+    padding: 0 $spacing-md $spacing-sm;
+  }
+
+  .stageNavRow {
+    padding: 0 $spacing-md;
+  }
+
+  .engage {
+    padding: $spacing-md;
+  }
+
+  .chin {
+    padding: $spacing-md;
+  }
+
+  .teaser {
+    padding: 0 $spacing-md $spacing-md;
+  }
+}

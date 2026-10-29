@@ -1,0 +1,330 @@
+@use '../styles/variables' as *;
+
+.page {
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+  padding: $spacing-xl 0; // vertical air; horizontal gutter from the parent column
+  padding-bottom: 100px;
+}
+
+// Form title + the (i) explainer trigger on one row (the page title itself
+// renders in the AppHeader title block — S23).
+.formTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.infoTrigger {
+  flex-shrink: 0;
+}
+
+// Explainer prose shown inside the (i) Modal.
+.explainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.explainerSection {
+  h3 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: $spacing-md;
+  }
+}
+
+.card {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+
+  h2 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: $spacing-md;
+}
+
+.step {
+  display: flex;
+  gap: $spacing-md;
+  position: relative;
+
+  &:not(:last-child) {
+    padding-bottom: $spacing-lg;
+  }
+}
+
+.stepIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+// Per-stage step-circle accents from the canonical $stage-* set (variables.scss),
+// the single source shared with the StageStrip.
+.stepCircle_problem    { background: $stage-problem; }
+.stepCircle_discussion { background: $stage-discussion; }
+.stepCircle_proposals  { background: $stage-solutions; }
+.stepCircle_vote       { background: $stage-vote; }
+.stepCircle_mandate    { background: $stage-mandate; }
+
+.stepLine {
+  width: 2px;
+  flex: 1;
+  background: $gray-200;
+  min-height: 12px;
+}
+
+.stepContent {
+  padding-top: 4px;
+
+  h4 {
+    font-size: $text-sm;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-xs 0;
+  }
+
+  p {
+    font-size: $text-xs;
+    color: $gray-600;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.tips {
+  p {
+    margin-bottom: $spacing-md;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: $gray-800;
+    }
+  }
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  display: block;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  margin-bottom: $spacing-xs;
+}
+
+.hint {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-xs 0 0 0;
+}
+
+.inputField {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  color: $gray-800;
+  background: white;
+  transition: border-color $transition-base;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $gray-500;
+  }
+
+  &:disabled {
+    background: $gray-50;
+    color: $gray-500;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.evidenceRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.removeButton {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  color: $gray-500;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $error;
+    border-color: $error;
+  }
+}
+
+.addEvidenceButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: 1px dashed $gray-300;
+  border-radius: $radius-md;
+  color: $gray-500;
+  font-size: $text-sm;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+// The submit CTA is a kit <Button size="lg" fullWidth>; only the top spacing
+// is page-specific.
+.submit {
+  margin-top: $spacing-lg;
+}
+
+.errorMessage {
+  color: $error;
+  font-size: $text-sm;
+  margin-top: $spacing-sm;
+}
+
+@include dark {
+  .explainerSection {
+    h3 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+  }
+
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    h2 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+  }
+
+  .stepContent {
+    h4 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+  }
+
+  .stepLine {
+    background: $dark-border;
+  }
+
+  .tips p strong {
+    color: $dark-text;
+  }
+
+  .label {
+    color: $dark-text;
+  }
+
+  .hint {
+    color: $dark-text-secondary;
+  }
+
+  .inputField {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &:focus {
+      border-color: $primary;
+    }
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+
+    &:disabled {
+      background: $dark-bg;
+      color: $dark-text-secondary;
+    }
+  }
+
+  .removeButton {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+
+  .addEvidenceButton {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+  }
+}

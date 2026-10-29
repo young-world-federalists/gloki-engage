@@ -1,11 +1,7 @@
 import { contractRead, contractWrite, deployContract } from '../api';
 import type { IMethod } from '../interfaces';
-import communityContractCode from '../../assets/contracts/community_contract.py?raw';
-import issueContractCode from '../../assets/contracts/issue_contract.py?raw';
-import initiativeContractCode from '../../assets/contracts/initiative_contract.py?raw';
-import wishContractCode from '../../assets/contracts/wish_contract.py?raw';
-import agreementContractCode from '../../assets/contracts/agreement_contract.py?raw';
 
+const initiativeContractCode = '';
 /**
  * Community contract interface
  * Handles all community-specific contract calls
@@ -22,78 +18,6 @@ export interface IParameters {
     burn: number;
     commons_mint: number;
   };
-}
-
-export async function createCommunity(
-  serverUrl: string,
-  publicKey: string,
-  communityName: string,
-  communityDescription: string,
-  profile: string | null
-  
-) {
-  // Deploy the community contract
-  const contractId = await deployContract({
-    serverUrl,
-    publicKey,
-    name: communityName,
-    contract: 'community_contract.py',
-    code: communityContractCode,
-    profile: profile || undefined,
-  });
-  
-  // Set properties: name, description, createdAt
-  if (contractId) {
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'name',
-          value: communityName
-        },
-      } as IMethod
-    });
-    
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'description',
-          value: communityDescription
-        },
-      } as IMethod,
-    });
-    
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_property',
-        values: {
-          key: 'createdAt',
-          value: new Date().toISOString()
-        },
-      } as IMethod,
-    });
-
-    // Call request_join to join the community as the creator
-    await contractWrite({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'request_join',
-        values: {},
-      } as IMethod,
-    });
-  }
 }
 
 /**
@@ -153,84 +77,9 @@ export async function getProperties(
   });
 }
 
-export async function createIssue(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  issue: { title: string; description: string },
-) {
-  // 1. Deploy the issue contract with the issue title as the name
-  const fileName = 'issue_contract.py';
-  const response = await deployContract({
-    serverUrl,
-    publicKey,
-    name: issue.title,
-    contract: fileName,
-    code: issueContractCode,
-  });
-  const issueId = response.id || response;
-  
-  // 2. Set the issue properties (name and description)
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId: issueId,
-    method: {
-      name: 'set_name',
-      values: { name: issue.title },
-    } as IMethod,
-  });
-  
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId: issueId,
-    method: {
-      name: 'set_description',
-      values: { text: issue.description },
-    } as IMethod,
-  });
-  
-  // 3. Add the issue to the community contract
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_issue',
-      values: {
-        issue: {
-          server: serverUrl,
-          agent: publicKey,
-          contract: issueId,
-        },
-      },
-    } as IMethod,
-  });
-}
-
-/**
- * Get community issues
- */
-export async function getIssues(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-) {
-  return await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'get_issues',
-      values: {},
-    } as IMethod,
-  });
-}
-
 export interface Collaboration {
   id: string;
-  type: 'initiative' | 'wish' | 'agreement';
+  type: 'initiative' | 'wish' | 'agreement' | 'collab';
   title: string;
   description?: string;
   dreamNeed?: string;
@@ -281,7 +130,7 @@ export async function createInitiative(
   serverUrl: string,
   publicKey: string,
   communityId: string,
-  initiative: { title: string; description?: string },
+  initiative: { title: string; description?: string; evidence?: string[]; countries?: string[] },
 ) {
   const response = await deployContract({
     serverUrl,
@@ -296,6 +145,9 @@ export async function createInitiative(
   const details = {
     title: initiative.title,
     description: initiative.description || '',
+    evidence: initiative.evidence || [],
+    countries: initiative.countries || [],
+    author: publicKey,
     createdAt: Date.now(),
     currencyGoal: 100,
     currencyGathered: 0,
@@ -453,6 +305,39 @@ export async function requestJoin(
   return response;
 }
 
+export async function recordActivity(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+) {
+  return contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'record_activity', values: {} } as IMethod,
+  });
+}
+
+export async function getActiveMembers(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  days: number,
+): Promise<string[]> {
+  const result = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_active_members', values: { days } } as IMethod,
+  });
+  // Old communities without this method return null; throw so callers
+  // can distinguish "no method" from a legitimate empty list.
+  if (!Array.isArray(result)) {
+    throw new Error('get_active_members unavailable');
+  }
+  return result as string[];
+}
+
 /**
  * Approve an agent for community membership
  */
@@ -533,7 +418,7 @@ export async function setParameters(
   contractId: string,
   mint: number,
   burn: number,
-  commons_mint: number
+  commonsMint: number
 ) {
   return await contractWrite({
     serverUrl: serverUrl,
@@ -542,7 +427,7 @@ export async function setParameters(
     method: {
       name: 'transfer',
       values: { to: publicKey, value: 0 },
-      parameters: { mint, burn, commons_mint },
+      parameters: { mint, burn, commons_mint: commonsMint },
     } as IMethod,
   });
 }
@@ -643,11 +528,94 @@ export async function getParameters(
       values: {},
     } as IMethod,
   });
-  
+
   if (!parameters.parameters || Object.keys(parameters.parameters).length === 0) {
-    console.log('No parameters found, setting default values');
     setParameters(serverUrl, publicKey, contractId, 100, 0.0003, 0);
   }
 
   return parameters;
+}
+
+// ---------------------------------------------------------------------------
+// Funding / commons service wrappers
+// ---------------------------------------------------------------------------
+
+export interface IDistributionStatus {
+  days_since_creation: number;
+  payment_count: number;
+  can_distribute: boolean;
+}
+
+export async function getAccountDetails(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, { type: string; balance: number }>> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_account_details', values: {} } as IMethod,
+  });
+  return (res && typeof res === 'object') ? res as Record<string, { type: string; balance: number }> : {};
+}
+
+export async function getAllAllocations(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<Record<string, Record<string, number>>> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_allocations', values: {} } as IMethod,
+  });
+  return (res && typeof res === 'object') ? res as Record<string, Record<string, number>> : {};
+}
+
+export async function setAllocation(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  allocation: Record<string, number>,
+): Promise<void> {
+  await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'set_allocation', values: { allocation } } as IMethod,
+  });
+}
+
+export async function getDistributionStatus(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<IDistributionStatus> {
+  const res = await contractRead({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'get_distribution_status', values: {} } as IMethod,
+  });
+  const r = (res ?? {}) as Partial<IDistributionStatus>;
+  return {
+    days_since_creation: r.days_since_creation ?? 0,
+    payment_count: r.payment_count ?? 0,
+    can_distribute: r.can_distribute ?? false,
+  };
+}
+
+export async function distributeCommons(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+): Promise<void> {
+  await contractWrite({
+    serverUrl,
+    publicKey,
+    contractId,
+    method: { name: 'distribute', values: {} } as IMethod,
+  });
 }

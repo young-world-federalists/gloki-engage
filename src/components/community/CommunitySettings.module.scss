@@ -1,0 +1,31 @@
+@use '../../styles/variables' as *;
+
+.container {
+  padding-block: $spacing-lg; // vertical air; horizontal gutter + width + footer clearance from the parent column
+}
+
+.adminBanner {
+  margin-top: $spacing-lg;
+}
+
+.stageRow {
+  margin-top: $spacing-lg;
+}
+
+.stageLabel {
+  margin-bottom: $spacing-sm;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+}
+
+.saved {
+  margin-top: $spacing-md;
+  color: $success;
+  font-size: $text-xs;
+}
+
+@include dark {
+  .stageLabel {
+    color: $dark-text;
+  }
+}

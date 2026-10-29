@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+
+.container {
+  padding-block: $spacing-xl; // vertical air; horizontal gutter + width from the parent column
+
+  .backButton {
+  padding: 0; // undo the global button reset (index.scss) — it crushes the fixed icon box (S18 W1)
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    border-radius: $radius-full;
+    color: $gray-500;
+    cursor: pointer;
+    transition: all $transition-base;
+    margin-bottom: $spacing-xl;
+
+    &:hover {
+      background-color: $gray-100;
+      color: $gray-800;
+    }
+  }
+
+  .content {
+    .text {
+      color: $gray-600;
+      font-size: $text-base;
+      line-height: 1.7;
+      margin-bottom: $spacing-lg;
+    }
+
+    .afterBlock {
+      margin-top: $spacing-xl;
+    }
+
+    .contactInfo {
+      margin-top: $spacing-2xl;
+      padding: $spacing-xl;
+      background-color: $gray-50;
+      border-radius: $radius-lg;
+
+      p {
+        color: $primary;
+        font-size: $text-lg;
+        font-weight: $font-medium;
+        margin: 0;
+      }
+    }
+  }
+}
+
+@include dark {
+  .container {
+    .backButton {
+      color: $dark-text-secondary;
+
+      &:hover {
+        background-color: $dark-border;
+        color: $dark-text;
+      }
+    }
+
+    .content {
+      .text {
+        color: $dark-text-secondary;
+      }
+
+      .contactInfo {
+        background-color: $dark-surface;
+      }
+    }
+  }
+}

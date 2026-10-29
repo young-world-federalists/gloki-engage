@@ -1,0 +1,447 @@
+@use '../../styles/variables' as *;
+
+/* The published artifact reads as a real document: a clean "paper" surface. */
+.document {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  padding: $spacing-lg; // unified card inset across the four mandate sections (W4 4.5)
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+/* ----- Masthead ----- */
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $primary-dark;
+
+  @include dark {
+    color: $primary-on-dark; // $primary-dark was 2.83:1 on the dark card (S16)
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  line-height: 1.2;
+  color: $gray-900;
+
+  @media (min-width: $breakpoint-sm) {
+    font-size: $text-3xl;
+  }
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+/* Eyebrow + status badge share one row: eyebrow left, badge right (S32 F3). Exactly
+   two children, so space-between beats tagging the shared <Badge> with a margin class. */
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.ratified {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* The provenance line + the participants/countries/conviction stat trio moved
+   out (S23) — they duplicated the hero MandateCard's Reach + Conviction rows. */
+
+/* View toggle (plain / spec) uses the shared SegmentedControl. */
+
+/* ----- Plain-language view ----- */
+.plain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.preamble {
+  margin: 0;
+  padding-left: $spacing-md;
+  border-left: 3px solid $primary;
+  font-size: $text-base;
+  line-height: 1.6;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.articles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: article;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.article {
+  position: relative;
+  counter-increment: article;
+  padding-left: $spacing-2xl;
+
+  &::before {
+    content: counter(article);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: $radius-full;
+    background: rgba($primary, 0.1);
+    color: $primary-dark;
+    font-size: $text-sm;
+    font-weight: $font-bold;
+
+    @include dark {
+      background: rgba($primary, 0.25);
+      color: $dark-text;
+    }
+  }
+}
+
+.articleTitle {
+  margin: 0 0 $spacing-xs;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.35;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.articleBody {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.6;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.indicators {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $spacing-xs $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-100;
+  border-radius: $radius-md;
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.indicatorLabel {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.indicatorTarget {
+  margin: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  text-align: right;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.indicatorMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.indicatorMetaItem {
+  font-size: $text-xs;
+  font-weight: $font-normal;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- Provenance chin (turnout + view toggle) ----- */
+/* S32 F4/F5, D7: the provenance strip is the document card's two-tone chin — the
+   padded-card bleed variant (DESIGN_SYSTEM "Provenance / utility chin"). The card
+   has a uniform $spacing-lg inset, so the chin cancels it on L/R/bottom with negative
+   margins and rounds its own bottom corners to match; the flex gap:$spacing-xl above
+   still supplies the top separation. A provenance chin may carry non-action content
+   (the turnout line, the (i), the view toggle) — unlike an engage chin. */
+.provChin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0 (-$spacing-lg) (-$spacing-lg);
+  padding: $spacing-md $content-gutter;
+  background: $footer-surface;
+  border-top: 1px solid $footer-border;
+  border-bottom-left-radius: $radius-lg;
+  border-bottom-right-radius: $radius-lg;
+
+  @include dark {
+    background: $footer-surface-dark;
+    border-top-color: $footer-border-dark;
+  }
+}
+
+/* The turnout line — the chin is the surface now, so this is a plain flex row
+   (its former $gray-50 pill background/border/radius was retired in S32). The
+   Sybil-resistance prose lives behind the (i) at the row's right end (W4 4.7). */
+.turnout {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.turnoutIcon {
+  flex: none;
+  color: $primary;
+}
+
+.turnoutText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* The (i) explainer sits at the right end of the turnout strip. */
+.verifyInfo {
+  margin-left: auto;
+  flex: none;
+}
+
+/* Inline disclosure toggle used for a heading that collapses its own content
+   (indicators). Inherits the heading's type; chevron rotates on expand. */
+.discloseToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+.chevron {
+  flex: none;
+  color: $gray-500;
+  transition: transform $transition-base;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ----- Machine-readable spec view ----- */
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.specBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.specName {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// Stays bespoke (W5 D3): no kit Button variant matches this AA-safe subtle tint
+// ($primary-dark ~5:1) — secondary is bordered $primary (3.68:1), ghost is gray,
+// both a contrast regression. W5 fixes only its floors: 44px + 8px icon→label gap.
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm; // icon→label floor (W5)
+  min-height: 44px; // touch-target floor (W5, was 36px)
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  background: rgba($primary, 0.08);
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.16);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+  }
+}
+
+/* Code is conventionally dark in both themes — reads as genuine machine output. */
+.specCode {
+  margin: 0;
+  max-height: 380px;
+  overflow: auto;
+  padding: $spacing-md;
+  background: $gray-900;
+  border: 1px solid $gray-800;
+  border-radius: $radius-md;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: $text-xs;
+  line-height: 1.6;
+  color: $gray-100;
+  white-space: pre;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    border-color: $dark-border;
+  }
+}
+
+.specNote {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.srStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

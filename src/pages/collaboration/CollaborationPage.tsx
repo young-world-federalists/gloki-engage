@@ -1,155 +1,155 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Loader } from 'lucide-react';
-import PageHeader from '../../components/PageHeader';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Plus, PackageOpen, AlertTriangle } from 'lucide-react';
+import ErrorBoundary from '../../components/shared/ErrorBoundary';
+import { Button } from '../../components/shared';
 import { FLOW_REGISTRY, FLOW_GROUPS, getFlow } from '../../components/collaboration/flows/registry';
-import { deployFlowContract, addFlow, getFlows } from '../../services/contracts/flows';
-import { getCommunity } from '../../services/contracts/community';
-import { useAppSelector } from '../../store/hooks';
+import type { FlowDefinition } from '../../components/collaboration/flows/types';
+import { removeContract } from '../../components/collaboration/flows/shared/flowContractsSlice';
+import { fetchCommunityMembers } from '../../store/slices/communitiesSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useT } from '../../i18n';
 import cs from '../Container.module.scss';
 import styles from './CollaborationPage.module.scss';
 
-export type CollaborationType = 'initiative' | 'wish' | 'agreement';
+type CollaborationType = 'initiative' | 'wish' | 'agreement' | 'collab';
 
 interface CollaborationTab {
   instanceId: string;
   flowId: string;
-  /** Server where the flow contract lives */
-  flowServer: string;
-  /** Agent (public key) who owns the flow contract */
-  flowAgent: string;
+}
+
+const TABS_STORAGE_KEY = 'collaborationTabs';
+
+/** Add-Tab menu group name (English, from the registry) → i18n key. */
+const GROUP_KEYS: Record<string, string> = {
+  'Decision Making': 'collab.group.decisionMaking',
+  Teamwork: 'collab.group.teamwork',
+  Planning: 'collab.group.planning',
+};
+
+function loadTabs(collaborationId: string): CollaborationTab[] {
+  try {
+    const raw = localStorage.getItem(TABS_STORAGE_KEY);
+    if (!raw) return [];
+    const all = JSON.parse(raw) as Record<string, CollaborationTab[]>;
+    return all[collaborationId] ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTabs(collaborationId: string, tabs: CollaborationTab[]) {
+  try {
+    const raw = localStorage.getItem(TABS_STORAGE_KEY);
+    const all = raw ? (JSON.parse(raw) as Record<string, CollaborationTab[]>) : {};
+    all[collaborationId] = tabs;
+    localStorage.setItem(TABS_STORAGE_KEY, JSON.stringify(all));
+  } catch {
+    // localStorage full or unavailable
+  }
+}
+
+// Drop any persisted tabs whose flowId is no longer registered. Persists the
+// cleaned list back to localStorage so the stale entry doesn't reappear.
+function loadValidTabs(collaborationId: string): CollaborationTab[] {
+  const raw = loadTabs(collaborationId);
+  const valid = raw.filter((t) => getFlow(t.flowId) !== undefined);
+  if (valid.length !== raw.length) {
+    const dropped = raw.length - valid.length;
+    console.warn(`[CollaborationPage] Dropped ${dropped} stale flow tab(s) from localStorage for ${collaborationId}`);
+    saveTabs(collaborationId, valid);
+  }
+  return valid;
 }
 
 interface CollaborationPageProps {
   type: CollaborationType;
-  title: string;
-  subtitle?: string;
   collaborationId: string;
-  /** Community id for back-navigation. If omitted, derived from the first loaded flow contract. */
-  communityId?: string;
-  collaborationServer?: string;
-  collaborationAgent?: string;
+  communityId: string;
 }
 
 const CollaborationPage: React.FC<CollaborationPageProps> = ({
   type,
-  title,
-  subtitle,
   collaborationId,
-  communityId: communityIdProp,
-  collaborationServer,
-  collaborationAgent,
+  communityId,
 }) => {
-  const navigate = useNavigate();
-  const { publicKey, serverUrl } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+  const t = useT();
+  const labelOf = (flow: FlowDefinition) => t(`collab.flow.${flow.id}`, flow.label);
+  const { publicKey, serverUrl } = useAppSelector((s) => s.user);
+  const communityMembers = useAppSelector((s) => s.communities.communityMembers);
 
-  const [tabs,             setTabs]             = useState<CollaborationTab[]>([]);
-  const [activeInstanceId, setActiveInstanceId] = useState<string | null>(null);
-  const [showAddMenu,      setShowAddMenu]       = useState(false);
-  const [isAddingTab,      setIsAddingTab]       = useState(false);
-  const [isLoadingTabs,    setIsLoadingTabs]     = useState(false);
-  const [pendingFlow,      setPendingFlow]       = useState<ReturnType<typeof getFlow> | null>(null);
-  const [communityId,      setCommunityId]       = useState<string | undefined>(communityIdProp);
-
-  const collabServer = collaborationServer ?? serverUrl;
-  const collabAgent  = collaborationAgent  ?? publicKey;
-
-  // Restore tabs from collaboration contract on mount
+  // Ensure community members (and their profiles) are loaded — they may not be
+  // if the user navigated directly to the collaboration URL or refreshed the page.
   useEffect(() => {
-    if (!collabServer || !collabAgent || !collaborationId) return;
+    if (publicKey && serverUrl && communityId && !communityMembers[communityId]) {
+      dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: communityId }));
+    }
+  }, [publicKey, serverUrl, communityId, communityMembers, dispatch]);
 
-    setIsLoadingTabs(true);
-    getFlows(collabServer, collabAgent, collaborationId)
-      .then((flows) => {
-        const restored = flows
-          .filter((f) => f.id && f.type)
-          .map((f) => ({
-            instanceId: f.id,
-            flowId:     f.type,
-            flowServer: f.server,
-            flowAgent:  f.agent,
-          }));
-        setTabs(restored);
-        if (restored.length > 0) setActiveInstanceId(restored[0].instanceId);
-      })
-      .catch((err) => console.error('Failed to load collaboration flows:', err))
-      .finally(() => setIsLoadingTabs(false));
-  }, [collabServer, collabAgent, collaborationId]);
+  const [tabs, setTabs] = useState<CollaborationTab[]>(() => loadValidTabs(collaborationId));
+  const [activeInstanceId, setActiveInstanceId] = useState<string | null>(
+    () => { const saved = loadValidTabs(collaborationId); return saved.length > 0 ? saved[0].instanceId : null; },
+  );
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Derive community from the collaboration contract when not passed as a prop
   useEffect(() => {
-    if (communityIdProp || !collabServer || !collabAgent || !collaborationId || !publicKey) return;
-    getCommunity(collabServer, publicKey, collaborationId)
-      .then((c) => { if (c?.id) setCommunityId(c.id); })
-      .catch(() => {});
-  }, [communityIdProp, collabServer, collabAgent, collaborationId, publicKey]);
-
-  // Deploy flow contract on user's server and register reference in collaboration contract
-  const addTab = useCallback(async (flowId: string, initConfig?: Record<string, unknown>) => {
-    if (!serverUrl || !publicKey || !collabServer || !collabAgent) return;
-
-    setShowAddMenu(false);
-    setIsAddingTab(true);
-    try {
-      const contractId = await deployFlowContract(serverUrl, publicKey, flowId);
-      const flowDef = getFlow(flowId);
-      if (initConfig && flowDef?.onInit) {
-        const community = await getCommunity(collabServer, publicKey, collaborationId).catch(() => null);
-        const enriched = { ...initConfig, _community: community };
-        await flowDef.onInit(serverUrl, publicKey, contractId, enriched, publicKey);
+    if (!showAddMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowAddMenu(false);
       }
-      const flow = { id: contractId, server: serverUrl, agent: publicKey, type: flowId };
-      await addFlow(collabServer, collabAgent, collaborationId, flow);
-      const newTab: CollaborationTab = {
-        instanceId: contractId,
-        flowId,
-        flowServer: serverUrl,
-        flowAgent:  publicKey,
-      };
-      setTabs((prev) => [...prev, newTab]);
-      setActiveInstanceId(contractId);
-    } catch (err) {
-      console.error('Failed to add flow tab:', err);
-    } finally {
-      setIsAddingTab(false);
-    }
-  }, [serverUrl, publicKey, collabServer, collabAgent, collaborationId]);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAddMenu]);
 
-  const handleMenuFlowClick = useCallback((flow: NonNullable<ReturnType<typeof getFlow>>) => {
-    if (flow.setupComponent) {
-      setShowAddMenu(false);
-      setPendingFlow(flow);
-    } else {
-      void addTab(flow.id);
-    }
-  }, [addTab]);
-
-  const removeTab = (instanceId: string) => {
+  const updateTabs = useCallback((updater: (prev: CollaborationTab[]) => CollaborationTab[]) => {
     setTabs((prev) => {
-      const next = prev.filter((t) => t.instanceId !== instanceId);
-      if (activeInstanceId === instanceId)
-        setActiveInstanceId(next.length > 0 ? next[next.length - 1].instanceId : null);
+      const next = updater(prev);
+      saveTabs(collaborationId, next);
       return next;
     });
+  }, [collaborationId]);
+
+  const addTab = (flowId: string) => {
+    const newTab: CollaborationTab = { instanceId: crypto.randomUUID(), flowId };
+    updateTabs((prev) => [...prev, newTab]);
+    setActiveInstanceId(newTab.instanceId);
+    setShowAddMenu(false);
   };
 
-  const activeTab   = tabs.find((t) => t.instanceId === activeInstanceId);
-  const activeFlow  = activeTab ? getFlow(activeTab.flowId) : null;
+  const removeTab = (instanceId: string) => {
+    updateTabs((prev) => {
+      const next = prev.filter((t) => t.instanceId !== instanceId);
+      if (activeInstanceId === instanceId) {
+        setActiveInstanceId(next.length > 0 ? next[next.length - 1].instanceId : null);
+      }
+      return next;
+    });
+    dispatch(removeContract({ instanceId }));
+  };
+
+  const activeTab = tabs.find((t) => t.instanceId === activeInstanceId);
+  const activeFlow = activeTab ? getFlow(activeTab.flowId) : null;
   const ActiveComponent = activeFlow?.component ?? null;
 
-  return (
-    <>
-    <div className={cs.container}>
-      <PageHeader
-        showBackButton={!!communityId}
-        backButtonText="Back to Community"
-        onBackClick={() => communityId && navigate(`/community/${communityId}/collaborations`)}
-        title={title}
-        subtitle={subtitle}
-        layout="two-row"
-      />
+  const unknownFlowId = activeTab && !activeFlow ? activeTab.flowId : null;
+  useEffect(() => {
+    if (unknownFlowId) {
+      console.warn('[CollaborationPage] Unknown flowId on active tab:', unknownFlowId);
+    }
+  }, [unknownFlowId]);
 
-      <div className={cs.content}>
+  return (
+    <div className={cs.container}>
+      {/* CollaborationPage always renders inside CommunityView, whose AppHeader
+          carries the collab title, the back button and the <main> landmark (S23)
+          — so this is a chrome-less sub-route: just the tab bar + active flow.
+          styles.embedded neutralizes Container .content's page-column here, since the
+          parent .body already owns the canonical column (W1b — avoid a double gutter). */}
+      <div className={`${cs.content} ${styles.embedded}`}>
         <nav className={cs.nav}>
           {tabs.map((tab) => {
             const flow = getFlow(tab.flowId);
@@ -162,12 +162,15 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
                 onClick={() => setActiveInstanceId(tab.instanceId)}
               >
                 <flow.icon size={20} />
-                <span>{flow.label}</span>
+                <span>{labelOf(flow)}</span>
                 <span
                   className={styles.removeBtn}
                   role="button"
-                  aria-label={`Remove ${flow.label} tab`}
-                  onClick={(e) => { e.stopPropagation(); removeTab(tab.instanceId); }}
+                  aria-label={t('collab.removeTab', 'Remove {label} tab', { label: labelOf(flow) })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeTab(tab.instanceId);
+                  }}
                 >
                   ×
                 </span>
@@ -175,55 +178,38 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
             );
           })}
 
-          <div className={styles.addTabWrapper}>
+          <div className={styles.addTabWrapper} ref={menuRef}>
             <button
-              className={`${cs.navItem} ${styles.addTabBtn} ${isAddingTab ? styles.addTabBtnLoading : ''}`}
-              onClick={() => !isAddingTab && setShowAddMenu((v) => !v)}
-              title="Add a flow tab"
-              disabled={isAddingTab}
+              className={`${cs.navItem} ${styles.addTabBtn}`}
+              onClick={() => setShowAddMenu((v) => !v)}
+              title={t('collab.addFlowTab', 'Add a flow tab')}
             >
-              {isAddingTab ? <Loader size={20} className={styles.spinner} /> : <Plus size={20} />}
-              <span>{isAddingTab ? 'Adding…' : 'Add'}</span>
+              <Plus size={20} />
+              <span>{t('collab.add', 'Add')}</span>
             </button>
-
             {showAddMenu && (
               <div className={styles.addTabMenu}>
-                {FLOW_REGISTRY.filter((f) => !f.group).map((flow) => {
-                  const available = flow.isAvailable?.(tabs.map((t) => t.flowId)) ?? true;
-                  return (
-                    <button
-                      key={flow.id}
-                      className={`${styles.addTabMenuItem} ${!available ? styles.addTabMenuItemDisabled : ''}`}
-                      onClick={() => { if (available) handleMenuFlowClick(flow); }}
-                      disabled={!available}
-                      title={!available ? 'Not available with current tabs' : undefined}
-                    >
-                      <flow.icon size={16} /> {flow.label}
-                    </button>
-                  );
-                })}
-
-                {FLOW_GROUPS.map((group, groupIndex) => {
-                  const flows = FLOW_REGISTRY.filter((f) => f.group === group);
+                {/* Only show collab-appropriate flows (exclude initiative-only governance flows) */}
+                {FLOW_GROUPS.map((group) => {
+                  const flows = FLOW_REGISTRY.filter(f => f.group === group && f.context !== 'initiative');
                   if (flows.length === 0) return null;
-                  const hasUngrouped = FLOW_REGISTRY.some((f) => !f.group);
-                  const isFirst = groupIndex === 0 && !hasUngrouped;
                   return (
                     <React.Fragment key={group}>
-                      <div className={`${styles.addTabMenuGroupHeader} ${isFirst ? styles.addTabMenuGroupHeaderFirst : ''}`}>
-                        {group}
+                      <div className={styles.addTabMenuGroupHeader}>
+                        {t(GROUP_KEYS[group], group)}
                       </div>
                       {flows.map((flow) => {
-                        const available = flow.isAvailable?.(tabs.map((t) => t.flowId)) ?? true;
+                        const available = flow.isAvailable?.(tabs.map(t => t.flowId)) ?? true;
                         return (
                           <button
                             key={flow.id}
                             className={`${styles.addTabMenuItem} ${!available ? styles.addTabMenuItemDisabled : ''}`}
-                            onClick={() => { if (available) handleMenuFlowClick(flow); }}
+                            onClick={() => { if (available) addTab(flow.id); }}
                             disabled={!available}
-                            title={!available ? 'Not available with current tabs' : undefined}
+                            title={!available ? t('collab.unavailableWithTabs', 'Not available with current tabs') : undefined}
                           >
-                            <flow.icon size={16} /> {flow.label}
+                            <flow.icon size={16} />
+                            {labelOf(flow)}
                           </button>
                         );
                       })}
@@ -236,40 +222,43 @@ const CollaborationPage: React.FC<CollaborationPageProps> = ({
         </nav>
 
         <div className={cs.main}>
-          {isLoadingTabs ? (
-            <div className={styles.emptyState}>
-              <Loader size={24} className={styles.spinner} />
-              <p>Loading tabs…</p>
+          {ActiveComponent && activeTab ? (
+            <ErrorBoundary fallbackMessage={t('collab.flowError', 'This flow hit an error. Your other tabs are unaffected.')}>
+              <ActiveComponent
+                instanceId={activeTab.instanceId}
+                collaborationId={collaborationId}
+                collaborationType={type}
+                parentContractId={communityId}
+                stageKey={`${activeTab.flowId}_${collaborationId}`}
+              />
+            </ErrorBoundary>
+          ) : activeTab && !activeFlow ? (
+            <div className={styles.unknownFlowCard}>
+              <AlertTriangle size={32} className={styles.unknownFlowIcon} />
+              <h3 className={styles.emptyStateTitle}>{t('collab.unknownFlow', 'Unknown flow')}</h3>
+              <p>
+                <code>{activeTab.flowId}</code>{' '}
+                {t('collab.unknownFlowBody', '— your saved view may be stale. Choose another tab, or add a new flow.')}
+              </p>
+              <Button variant="primary" onClick={() => removeTab(activeTab.instanceId)}>
+                {t('collab.removeThisTab', 'Remove this tab')}
+              </Button>
             </div>
-          ) : ActiveComponent && activeTab ? (
-            <ActiveComponent
-              instanceId={activeTab.instanceId}
-              flowServer={activeTab.flowServer}
-              flowAgent={activeTab.flowAgent}
-              currentUser={publicKey ?? ''}
-              collaborationId={collaborationId}
-              collaborationType={type}
-            />
           ) : (
             <div className={styles.emptyState}>
-              <p>No tabs yet. Click <strong>Add</strong> to add your first flow.</p>
+              <PackageOpen size={48} className={styles.emptyStateIcon} />
+              <h3 className={styles.emptyStateTitle}>{t('collab.noToolsTitle', 'No tools added yet')}</h3>
+              <p>
+                {t('collab.noToolsBody', 'Add a flow like Discussion, Task Board, or Shared Document to start collaborating.')}
+              </p>
+              <Button variant="primary" leftIcon={<Plus size={16} />} onClick={() => setShowAddMenu(true)}>
+                {t('collab.addFirstFlow', 'Add your first flow')}
+              </Button>
             </div>
           )}
         </div>
       </div>
     </div>
-
-    {pendingFlow?.setupComponent && (
-      <pendingFlow.setupComponent
-        onDone={(config) => {
-          const flowId = pendingFlow.id;
-          setPendingFlow(null);
-          void addTab(flowId, config);
-        }}
-        onCancel={() => setPendingFlow(null)}
-      />
-    )}
-    </>
   );
 };
 

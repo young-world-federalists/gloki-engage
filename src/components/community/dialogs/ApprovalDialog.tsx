@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { approveAgent, disapproveAgent } from '../../../services/contracts/community';
 import { useAppSelector } from '../../../store/hooks';
+import { useT } from '../../../i18n';
+import { Banner, Button, Modal } from '../../shared';
 import styles from './ApprovalDialog.module.scss';
 
 interface ApprovalDialogProps {
@@ -20,84 +22,71 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
   agentProfileImage,
   communityId
 }) => {
+  const t = useT();
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleApprove = async () => {
-    if (!publicKey || !serverUrl) return;
-    
+  const decide = async (action: typeof approveAgent) => {
+    if (!publicKey || !serverUrl || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setError(null);
     try {
-      await approveAgent(
-        serverUrl,
-        publicKey,
-        communityId,
-        agentPublicKey,
-      );
+      await action(serverUrl, publicKey, communityId, agentPublicKey);
       onClose();
-    } catch (error) {
-      console.error('Failed to approve agent:', error);
+    } catch (err) {
+      console.error('Failed to record the approval decision:', err);
+      setError(t('members.approveFailed', "Couldn't save your decision. Please try again."));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDisapprove = async () => {
-    if (!publicKey || !serverUrl) return;
-    
-    try {
-      await disapproveAgent(
-        serverUrl,
-        publicKey,
-        communityId,
-        agentPublicKey
-      );
-      onClose();
-    } catch (error) {
-      console.error('Failed to disapprove agent:', error);
-    }
-  };
-
-  if (!isOpen) return null;
+  const handleApprove = () => decide(approveAgent);
+  const handleDisapprove = () => decide(disapproveAgent);
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.dialog}>
-        <div className={styles.content}>
-          <div className={styles.profileSection}>
-            <div className={styles.profileImage}>
-              {agentProfileImage ? (
-                <img src={agentProfileImage} alt="Profile" />
-              ) : (
-                <div className={styles.placeholder}>
-                  <span>?</span>
-                </div>
-              )}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={t('members.approveTitle', 'Confirm identity')}
+      closeLabel={t('common.close', 'Close')}
+      footer={
+        <>
+          <Button variant="destructive" onClick={handleDisapprove} loading={isSubmitting}>
+            {t('members.disapprove', 'Disapprove')}
+          </Button>
+          <Button variant="primary" onClick={handleApprove} loading={isSubmitting}>
+            {t('members.approve', 'Approve')}
+          </Button>
+        </>
+      }
+    >
+      <div className={styles.profileSection}>
+        <div className={styles.profileImage}>
+          {agentProfileImage ? (
+            <img src={agentProfileImage} alt={agentName} />
+          ) : (
+            <div className={styles.placeholder} aria-hidden="true">
+              <span>?</span>
             </div>
-          </div>
-          
-          <div className={styles.messageSection}>
-            <p className={styles.message}>
-              Do you confirm that the person with public key{' '}
-              <span className={styles.publicKey}>{agentPublicKey}</span>{' '}
-              is named <span className={styles.name}>{agentName}</span>{' '}
-              and looks like this?
-            </p>
-          </div>
-          
-          <div className={styles.actions}>
-            <button 
-              className={styles.disapproveButton}
-              onClick={handleDisapprove}
-            >
-              Disapprove
-            </button>
-            <button 
-              className={styles.approveButton}
-              onClick={handleApprove}
-            >
-              Approve
-            </button>
-          </div>
+          )}
         </div>
       </div>
-    </div>
+
+      <p className={styles.message}>
+        {t(
+          'members.approveBody',
+          'Do you confirm that the person with the public key below is named {name} and looks like this?',
+          { name: agentName },
+        )}
+      </p>
+      <p className={styles.publicKey}>{agentPublicKey}</p>
+
+      {error && <Banner tone="error">{error}</Banner>}
+    </Modal>
   );
 };
 

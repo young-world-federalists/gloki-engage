@@ -1,4 +1,4 @@
-import { contractRead, contractWrite } from '../api';
+import { contractRead } from '../api';
 import type { IMethod } from '../interfaces';
 
 /**
@@ -22,36 +22,5 @@ export async function getProfile(
       name: 'get_profile',
       values: {},
     } as IMethod,
-  });
-}
-
-export async function setValues(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  firstName: string,
-  lastName: string,
-  imageData: string | null,
-  openaiApiKey?: string | null,
-) {
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'set_values',
-      values: {
-        items: {
-          firstName,
-          lastName,
-          userPhoto: imageData,
-          // Store the API key as a simple key-value on the profile contract.
-          // If no key is provided, we omit the property so existing data is untouched.
-          ...(openaiApiKey != null && openaiApiKey !== ''
-            ? { openaiApiKey }
-            : {}),
-        },
-      },
-    } as IMethod
   });
 }

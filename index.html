@@ -2,9 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" href="/gloki-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Accord - Decentralized Self-Governance</title>
+    <title>Gloki - Decentralized Self-Governance</title>
+    <!-- Apply the persisted theme before first paint (S21, D2). Auto = no
+         attribute: CSS falls through to the prefers-color-scheme media query
+         inside the `dark` mixin. Kept in sync with src/hooks/useTheme.ts. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('gloki.theme');
+          if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { /* storage blocked — stay on Auto */ }
+      })();
+    </script>
+    <!-- GitHub Pages SPA redirect handler -->
+    <script type="text/javascript">
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
   </head>
   <body>
     <div id="root" style="width: 100%"></div>

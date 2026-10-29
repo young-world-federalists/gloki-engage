@@ -1,0 +1,283 @@
+@use '../styles/variables' as *;
+
+.page {
+  @include page-column;
+  padding-block: $spacing-xl;
+  padding-bottom: 100px; // room for the sticky create action (bespoke, not the StageFooter)
+}
+
+// The explainer row under the title block (D3: the title + back live in the
+// AppHeader): a quiet label + the (i) modal trigger, task-first.
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.infoLabel {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.infoTrigger {
+  flex-shrink: 0;
+}
+
+// Explainer prose shown inside the (i) Modal.
+.explainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.explainerSection {
+  h3 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.6;
+    margin: 0 0 $spacing-md 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: $gray-800;
+    }
+  }
+}
+
+.card {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+
+  h2 {
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 $spacing-md 0;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.6;
+    margin: 0 0 $spacing-md 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: $gray-800;
+    }
+  }
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.featureIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  flex-shrink: 0;
+}
+
+.featureContent {
+  h4 {
+    font-size: $text-sm;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin: 0 0 2px 0;
+  }
+
+  p {
+    font-size: $text-xs;
+    color: $gray-600;
+    margin: 0;
+  }
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  display: block;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+  margin-bottom: $spacing-xs;
+}
+
+.hint {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-xs 0 0 0;
+}
+
+.inputField {
+  width: 100%;
+  padding: $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  color: $gray-800;
+  background: white;
+  transition: border-color $transition-base;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $gray-500;
+  }
+
+  &:disabled {
+    background: $gray-50;
+    color: $gray-500;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// The submit CTA is a kit <Button size="lg" fullWidth>; only the top spacing
+// is page-specific.
+.submit {
+  margin-top: $spacing-lg;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  color: $error;
+  font-size: $text-sm;
+  line-height: 1.4;
+  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($error, 0.08);
+  border: 1px solid rgba($error, 0.3);
+  border-radius: $radius-md;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  span {
+    word-break: break-word;
+  }
+}
+
+.submitHint {
+  font-size: $text-xs;
+  color: $gray-500;
+  text-align: center;
+  margin: $spacing-xs 0 0 0;
+}
+
+@include dark {
+  .errorMessage {
+    background: rgba($error, 0.15);
+    border-color: rgba($error, 0.4);
+  }
+
+  .submitHint {
+    color: $dark-text-secondary;
+  }
+
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    h2 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+    p strong { color: $dark-text; }
+  }
+
+  .explainerSection {
+    h3 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+    p strong { color: $dark-text; }
+  }
+
+  .featureIcon {
+    background: rgba($primary, 0.2);
+  }
+
+  .featureContent {
+    h4 { color: $dark-text; }
+    p { color: $dark-text-secondary; }
+  }
+
+  .label {
+    color: $dark-text;
+  }
+
+  .hint {
+    color: $dark-text-secondary;
+  }
+
+  .inputField {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &:focus {
+      border-color: $primary;
+    }
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+
+    &:disabled {
+      background: $dark-bg;
+      color: $dark-text-secondary;
+    }
+  }
+}

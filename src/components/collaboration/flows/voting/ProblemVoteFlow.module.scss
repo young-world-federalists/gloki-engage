@@ -1,0 +1,277 @@
+@use '../../../../styles/variables' as *;
+
+.container {
+  margin-bottom: $spacing-xl;
+}
+
+.loading {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $gray-500;
+
+  .retryBtn {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-lg;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: $radius-md;
+    cursor: pointer;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid $gray-200;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto $spacing-sm;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.description {
+  font-size: $text-base;
+  color: $gray-700;
+  line-height: 1.6;
+  margin-bottom: $spacing-lg;
+}
+
+.evidence {
+  margin-bottom: $spacing-lg;
+
+  h4 {
+    font-size: $text-sm;
+    font-weight: $font-semibold;
+    color: $gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: $spacing-sm;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+  }
+
+  li a {
+    color: $primary;
+    font-size: $text-sm;
+    text-decoration: none;
+    word-break: break-all;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.countries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-xl;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-full;
+  background: $gray-100;
+  color: $gray-700;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  border: 1px solid $gray-200;
+}
+
+.votingSection {
+  h4 {
+    font-size: $text-base;
+    font-weight: $font-semibold;
+    color: $gray-800;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.voteButtons {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.voteBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  border: 1.5px solid $gray-300;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: border-color $transition-base, background-color $transition-base,
+    transform $transition-fast;
+  min-width: 80px;
+  justify-content: center;
+
+  // D5 (S19): text pressure at 360px was squeezing the 18px icons to ~16.3px —
+  // the icon keeps its box and the label wraps instead.
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: normal;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+.upBtn {
+  color: $success-on-surface;
+
+  &:hover:not(:disabled) {
+    border-color: $success;
+    background: rgba($success, 0.05);
+  }
+
+  &.active {
+    border-color: $success;
+    background: rgba($success, 0.1);
+  }
+}
+
+.downBtn {
+  color: $error-dark;
+
+  &:hover:not(:disabled) {
+    border-color: $error;
+    background: rgba($error, 0.05);
+  }
+
+  &.active {
+    border-color: $error;
+    background: rgba($error, 0.1);
+  }
+}
+
+.voteCount {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+}
+
+.thresholdSection {
+  margin-top: $spacing-lg;
+}
+
+// S30 A-3: the bespoke .progressTrack/.progressFill/.thresholdMarker were
+// replaced by the shared <ProgressBar size="md"> (8px track, token colours, the
+// conditional success/primary variant, and role=progressbar ARIA the bespoke bar
+// never had). The gray end-line marker (left:100%) is gone with them.
+
+.thresholdLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.thresholdTarget {
+  font-weight: $font-medium;
+}
+
+// A-4: the relocated "agreed by half…" hint, captioning the bar it explains.
+.thresholdCaption {
+  margin: $spacing-xs 0 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  color: $gray-500;
+}
+
+.yourVote {
+  margin-top: $spacing-sm;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.undoHint {
+  color: $gray-500;
+}
+
+// Dark mode
+@include dark {
+  .description {
+    color: $dark-text;
+  }
+
+  .evidence h4 {
+    color: $dark-text-secondary;
+  }
+
+  .chip {
+    background: $dark-border;
+    color: $dark-text;
+    border-color: transparent;
+  }
+
+  .votingSection h4 {
+    color: $dark-text;
+  }
+
+  .voteBtn {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  // The .voteBtn re-theme above swaps the surface but not the semantic text — so
+  // re-declare it (dark-authoring rule): $success/$error-on-surface are dark-green/
+  // dark-red for light chips (≈1.9:1 / ≈2.3:1 on $dark-bg). The -on-dark tints clear AA.
+  .upBtn,
+  .upBtn.active {
+    color: $success-on-dark;
+  }
+
+  .downBtn,
+  .downBtn.active {
+    color: $error-on-dark;
+  }
+
+  .voteCount {
+    color: inherit; // follow the parent button's on-dark colour
+  }
+
+  // Captions were $gray-500 (≈3.0:1 on the dark surface) with no dark override.
+  .thresholdLabels,
+  .thresholdCaption,
+  .yourVote,
+  .undoHint {
+    color: $dark-text-secondary;
+  }
+}

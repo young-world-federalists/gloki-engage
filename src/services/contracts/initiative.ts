@@ -1,9 +1,17 @@
-import { contractRead, contractWrite } from '../api';
+import { contractRead } from '../api';
+import { isDemoDataMode } from '../dataMode';
 import type { IMethod } from '../interfaces';
 
 /**
  * Initiative contract interface
  * Client builds JSON structures; contract stores and retrieves only
+ *
+ * NOTE (W1/W2 cleanup): the Roadmap/Gaps/Steps + contributions wrapper family
+ * (getRoadmap, addSegment, createEditProposal, voteOnProposal, applyProposal,
+ * getGaps/addGap, getSteps/addStep, add/getContributions) was removed with the
+ * dead Roadmap UI — zero importers remained. The contract methods themselves
+ * still exist on deployed initiative contracts; recover the wrappers from git
+ * history if a future surface needs them.
  */
 
 export async function getInitiative(
@@ -21,302 +29,109 @@ export async function getInitiative(
   return { ...(r?.details ?? {}), contributions: r?.contributions ?? [] };
 }
 
-export async function addContribution(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  contributor: string,
-  amount: number,
-) {
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_contribution',
-      values: { contribution: { contributor, amount } },
-    } as IMethod,
-  });
+export interface InitiativeStageContract {
+  contractId: string;
+  address?: string;
+  agent?: string;
 }
 
-export async function getContributions(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-) {
-  return await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_contributions', values: {} } as IMethod,
-  });
-}
-
-// Roadmap: segments, edit proposals, votes
-export async function getRoadmap(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-) {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_roadmap', values: {} } as IMethod,
-  });
-  const r = result as {
-    segments?: Array<{ id: string; author: string; text: string }>;
-    edit_proposals?: Array<{
-      id: string;
-      author: string;
-      segment_ids?: string[];
-      segmentIds?: string[];
-      new_text?: string;
-      newText?: string;
-      status: string;
-    }>;
-    proposal_votes?: Array<{ proposal_id: string; voter: string; support: boolean }>;
-    members?: string[];
-  };
-  const segments = r?.segments ?? [];
-  const rawProposals = r?.edit_proposals ?? [];
-  const votesList = r?.proposal_votes ?? [];
-  const members = r?.members ?? [];
-
-  // Build proposalVotes map from list
-  const proposalVotes: Record<string, Record<string, boolean>> = {};
-  for (const v of votesList) {
-    const pid = v.proposal_id;
-    if (!proposalVotes[pid]) proposalVotes[pid] = {};
-    proposalVotes[pid][v.voter] = v.support;
+export function normalizeStageContract(
+  value: unknown,
+): InitiativeStageContract | null {
+  if (typeof value === 'string' && value) {
+    return { contractId: value };
   }
 
-  const editProposals = rawProposals.map((p) => ({
-    id: p.id,
-    author: p.author,
-    segmentIds: p.segmentIds ?? p.segment_ids ?? [],
-    newText: p.newText ?? p.new_text ?? '',
-    status: p.status as 'pending' | 'applied',
-  }));
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
 
-  return { segments, editProposals, proposalVotes, members };
-}
-
-export async function addSegment(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  author: string,
-  text: string,
-) {
-  const segment = {
-    id: crypto.randomUUID(),
-    author,
-    text,
-  };
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_segment',
-      values: { segment },
-    } as IMethod,
-  });
-}
-
-export async function createEditProposal(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  proposalId: string,
-  author: string,
-  segmentIds: string[],
-  newText: string,
-) {
-  const proposal = {
-    id: proposalId,
-    author,
-    segment_ids: segmentIds,
-    new_text: newText,
-    status: 'pending',
-  };
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_edit_proposal',
-      values: { proposal },
-    } as IMethod,
-  });
-}
-
-export async function voteOnProposal(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  proposalId: string,
-  voter: string,
-  support: boolean,
-) {
-  const vote = { proposal_id: proposalId, voter, support };
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'add_proposal_vote',
-      values: { vote },
-    } as IMethod,
-  });
-}
-
-export async function applyProposal(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  proposalId: string,
-) {
-  const roadmap = await getRoadmap(serverUrl, publicKey, contractId);
-  const { segments, editProposals } = roadmap;
-
-  const proposal = editProposals.find((p) => p.id === proposalId);
-  if (!proposal || proposal.status !== 'pending') return;
-
-  const segmentIds = proposal.segmentIds;
-  const idsSet = new Set(segmentIds);
-  const newSegment = {
-    id: crypto.randomUUID(),
-    author: proposal.author,
-    text: proposal.newText,
+  const stageContract = value as {
+    contractId?: unknown;
+    address?: unknown;
+    agent?: unknown;
   };
 
-  const newSegments: Array<{ id: string; author: string; text: string }> = [];
-  let replacing = false;
-  for (const seg of segments) {
-    if (idsSet.has(seg.id)) {
-      if (!replacing) {
-        newSegments.push(newSegment);
-        replacing = true;
-      }
-      continue;
+  if (typeof stageContract.contractId !== 'string' || !stageContract.contractId) {
+    return null;
+  }
+
+  return {
+    contractId: stageContract.contractId,
+    address: typeof stageContract.address === 'string' ? stageContract.address : undefined,
+    agent: typeof stageContract.agent === 'string' ? stageContract.agent : undefined,
+  };
+}
+
+// Perf (S35 fix-round): a stage contract, once registered on the initiative,
+// never changes — so a resolved (non-null) result can be cached forever. A
+// `null` result (not yet registered) must NEVER be cached: the stage contract
+// can be deployed later by a completely different code path (first write
+// wins), and a cached null would then be permanently stale. Keyed by
+// `${contractId}:${stageKey}` so distinct initiatives/stages don't collide.
+const stageContractCache = new Map<string, InitiativeStageContract>();
+
+/** Clears the memoised stage-contract cache. Call this from any path that
+ *  wipes/reseeds demo state (e.g. a DEMO_VERSION bump) so a resolved
+ *  reference from a prior demo generation can't leak into the new one. */
+export function clearStageContractCache(): void {
+  stageContractCache.clear();
+}
+
+export async function resolveInitiativeStageContract(
+  serverUrl: string,
+  publicKey: string,
+  contractId: string,
+  stageKey: string,
+): Promise<InitiativeStageContract | null> {
+  // A real (non-demo) initiative contract implements every stage's methods
+  // directly on itself — there's no separate per-stage sub-contract to look
+  // up, unlike demo initiatives which still split into one sub-contract per
+  // stage. Mirrors useFlowContract.ts's isSingleContract short-circuit for
+  // every read-only summary/preview call site that resolves a stage contract
+  // without going through that hook (stageMetrics.ts, useInitiativePost.ts,
+  // useMandateJourney.ts, DiscussionPill.tsx, VotePreview.tsx,
+  // useLiveBackers.ts, InitiativeStagePanel.tsx) — without this, they'd keep
+  // trying get_stage_contract (nonexistent on the real contract) and the
+  // get_details[stageKey] fallback (also nonexistent), always resolving to
+  // null and silently freezing their readiness/summary data at empty.
+  if (!isDemoDataMode()) {
+    return { contractId };
+  }
+
+  const cacheKey = `${contractId}:${stageKey}`;
+  const cached = stageContractCache.get(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const stageContract = await contractRead({
+      serverUrl,
+      publicKey,
+      contractId,
+      method: { name: 'get_stage_contract', values: { stage_key: stageKey } } as IMethod,
+    });
+    const normalized = normalizeStageContract(stageContract);
+    if (normalized) {
+      stageContractCache.set(cacheKey, normalized);
+      return normalized;
     }
-    replacing = false;
-    newSegments.push(seg);
+  } catch {
+    // Older immutable initiative contracts may only expose these references via get_details.
   }
 
-  const newProposals = editProposals.map((p) =>
-    p.id === proposalId ? { ...p, status: 'applied' as const } : p,
-  );
+  try {
+    const details = await contractRead({
+      serverUrl,
+      publicKey,
+      contractId,
+      method: { name: 'get_details', values: {} } as IMethod,
+    });
+    if (!details || typeof details !== 'object') return null;
 
-  // Persist using snake_case for contract
-  const segmentsForContract = newSegments;
-  const proposalsForContract = newProposals.map((p) => ({
-    id: p.id,
-    author: p.author,
-    segment_ids: p.segmentIds,
-    new_text: p.newText,
-    status: p.status,
-  }));
-
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'set_segments',
-      values: { segments: segmentsForContract },
-    } as IMethod,
-  });
-  await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: {
-      name: 'set_edit_proposals',
-      values: { proposals: proposalsForContract },
-    } as IMethod,
-  });
-}
-
-export interface InitiativeGap {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export async function getGaps(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<InitiativeGap[]> {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_gaps', values: {} } as IMethod,
-  });
-  const arr = Array.isArray(result) ? result : [];
-  return arr.map((g: Record<string, unknown>) => ({
-    id: String(g.id ?? ''),
-    title: String(g.title ?? ''),
-    description: String(g.description ?? ''),
-  }));
-}
-
-export async function addGap(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  title: string,
-  description: string,
-) {
-  const gap = { id: crypto.randomUUID(), title, description };
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'add_gap', values: { gap } } as IMethod,
-  });
-}
-
-export interface InitiativeStep {
-  id: string;
-  label: string;
-  completed: boolean;
-}
-
-export async function getSteps(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<InitiativeStep[]> {
-  const result = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_steps', values: {} } as IMethod,
-  });
-  const arr = Array.isArray(result) ? result : [];
-  return arr.map((s: Record<string, unknown>) => ({
-    id: String(s.id ?? ''),
-    label: String(s.label ?? ''),
-    completed: Boolean(s.completed ?? false),
-  }));
-}
-
-export async function addStep(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-  label: string,
-) {
-  const step = { id: crypto.randomUUID(), label, completed: false };
-  return await contractWrite({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'add_step', values: { step } } as IMethod,
-  });
+    const normalized = normalizeStageContract((details as Record<string, unknown>)[stageKey]);
+    if (normalized) stageContractCache.set(cacheKey, normalized);
+    return normalized;
+  } catch {
+    return null;
+  }
 }

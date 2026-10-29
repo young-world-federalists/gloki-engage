@@ -1,0 +1,36 @@
+@use '../../styles/variables' as *;
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.caption {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-500; // the AA caption token (DESIGN_SYSTEM)
+}
+
+// Stretch the reused LanguageSwitcher to the panel width.
+.language {
+  display: flex;
+  width: 100%;
+
+  select {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+@include dark {
+  .caption {
+    color: $dark-text-secondary;
+  }
+}

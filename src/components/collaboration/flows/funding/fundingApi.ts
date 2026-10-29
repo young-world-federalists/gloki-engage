@@ -16,7 +16,7 @@ export interface Contribution {
   timestamp: number;
 }
 
-export interface FundConfig {
+interface FundConfig {
   name: string;
   description: string;
   goal: number | null;
@@ -26,8 +26,6 @@ export interface FundState {
   config: FundConfig | null;
   contributions: Contribution[];
 }
-
-export const CURRENCY_SYMBOL = 'credits';
 
 // ---------------------------------------------------------------------------
 // Budget allocation types
@@ -120,22 +118,6 @@ export async function loadFund(server: string, agent: string, contractId: string
   return { config, contributions };
 }
 
-export async function configureFund(
-  server: string,
-  agent: string,
-  contractId: string,
-  name: string,
-  description: string,
-  goal: number | null,
-): Promise<void> {
-  await contractWrite({
-    serverUrl: server,
-    publicKey: agent,
-    contractId,
-    method: { name: 'set_config', values: { config: { name: name.trim(), description: description.trim(), goal } } } as IMethod,
-  });
-}
-
 export async function loadCommunityInfo(
   server: string,
   agent: string,
@@ -168,7 +150,7 @@ export async function contribute(
   communityInfo?: CommunityInfo,
 ): Promise<void> {
   if (communityInfo) {
-    await contractWrite({
+    const moved = await contractWrite({
       serverUrl: communityInfo.communityServer,
       publicKey: currentUser,
       contractId: communityInfo.communityId,
@@ -177,6 +159,9 @@ export async function contribute(
         values: { to: communityInfo.fundAccountName, value: amount },
       } as IMethod,
     });
+    if (!moved) throw new Error('TRANSFER_FAILED');
+  } else {
+    throw new Error('NO_COMMUNITY');
   }
   await contractWrite({
     serverUrl: server,

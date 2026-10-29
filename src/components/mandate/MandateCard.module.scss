@@ -1,0 +1,246 @@
+@use '../../styles/variables' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-lg; // unified card inset across the four mandate sections (W4 4.5)
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+
+  @include dark {
+    background: $dark-bg; // raised above the page ($dark-surface) like the doc/ratification cards (W4 4.6)
+    border-color: $dark-border;
+  }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: $primary-dark;
+
+  @include dark {
+    color: $primary-on-dark; // the dark-scheme text blue (S16 token)
+  }
+}
+
+.eyebrowIcon { flex: 0 0 auto; }
+
+.pending { margin-left: auto; }
+
+.brand {
+  font-size: $text-xs;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  line-height: 1.25;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  gap: $spacing-md;
+  align-items: baseline;
+  padding: $spacing-sm 0;
+
+  & + & {
+    border-top: 1px solid $gray-100;
+
+    @include dark {
+      border-top-color: $dark-border;
+    }
+  }
+}
+
+.rowLabel {
+  flex: 0 0 84px;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.rowValue {
+  flex: 1;
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.problem {
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.note {
+  display: block;
+  margin-top: 2px;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* Mandate row — boxed hero value + understated "View full" under the label. */
+.mandateRow { align-items: flex-start; }
+
+.mandateRow .rowLabel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.solBox {
+  display: block;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($primary, 0.06);
+  border: 1px solid rgba($primary, 0.2);
+  border-radius: $radius-md;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  line-height: 1.36;
+  color: $gray-900;
+
+  @include dark {
+    background: rgba($primary, 0.16);
+    border-color: rgba($primary, 0.4);
+    color: $dark-text;
+  }
+}
+
+// Cause alignment line (S35 F2, Task 11) — one line under the winning
+// solution's boxed text, via the shared <CauseLine>.
+.causeChip { margin-top: $spacing-xs; }
+
+.linkBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $primary;
+  text-transform: none;
+  letter-spacing: 0;
+
+  // ≥44px touch target without inflating the compact document rows (project
+  // ≥44px bar / WCAG 2.5.5) — invisible ::after hit-area extension. It reaches
+  // ~22px past the visible link into non-interactive row text; accepted
+  // target-enlargement tradeoff (S16 review).
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+
+  @include dark { color: $primary-on-dark; } // the dark-scheme text blue (S16 token)
+}
+
+.countries {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.country {
+  font-size: $text-sm;
+  white-space: nowrap;
+}
+
+.flag { margin-right: $spacing-xs; }
+
+.actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-sm;
+}
+
+// Support fills the row; Share keeps its natural width to the right (W4 4.4).
+.supportBtn { flex: 1; min-width: 0; }
+.shareBtn { flex: 0 0 auto; }
+
+// "Why we expected this to work" (Task 14) — the winning solution's impact
+// assessments, shown only when at least one exists. Sits after the provenance
+// rows, before the primary actions.
+.impactSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-top: $spacing-md;
+  border-top: 1px solid $gray-100;
+
+  @include dark {
+    border-top-color: $dark-border;
+  }
+}
+
+.impactHeading {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.srStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

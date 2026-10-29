@@ -2,11 +2,18 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useAppSelector } from '../../store/hooks';
 import type { IProfile } from '../../services/interfaces';
 import ApprovalDialog from './dialogs/ApprovalDialog';
-import MessageDialog from './dialogs/MessageDialog';
+import { useAlert } from '../shared/useAlert';
 import styles from './Members.module.scss';
 import { requestJoin } from '../../services/contracts/community';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { Users } from 'lucide-react';
+import { UserIdentity, Button, EmptyState } from '../shared';
+import { SmartImage } from '../shared/connectivity';
+import { displayNameFor } from '../../utils/displayName';
+import type { TrustState } from '../../services/trustModel';
 import { eventStreamService } from '../../services/eventStream';
 import type { BlockchainEvent } from '../../services/eventStream';
+import { useT } from '../../i18n';
 
 interface MemberItemProps {
   publicKey: string;
@@ -14,26 +21,33 @@ interface MemberItemProps {
   showApproveButton?: boolean;
   isApproved?: boolean;
   onApprove?: () => void;
+  trustState?: TrustState;
+  vouchCount?: number;
 }
 
-const MemberItem: React.FC<MemberItemProps> = ({ 
-  publicKey, 
-  profile, 
-  showApproveButton = false, 
-  isApproved = false, 
-  onApprove 
+const MemberItem: React.FC<MemberItemProps> = ({
+  publicKey,
+  profile,
+  showApproveButton = false,
+  isApproved = false,
+  onApprove,
+  trustState,
 }) => {
-  const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
-  const displayName = fullName || 'Unknown Member';
+  const t = useT();
+  const fullName = displayNameFor(profile);
+  const displayName = fullName || t('members.unknown', 'Unknown Member');
   const profileImage = profile?.userPhoto;
 
   return (
     <div className={styles.memberCard}>
       <div className={styles.memberAvatar}>
         {profileImage ? (
-          <img 
-            src={profileImage} 
+          <SmartImage
+            src={profileImage}
             alt={displayName}
+            fallbackLabel={displayName}
+            size={56}
+            rounded
             className={styles.avatarImage}
           />
         ) : (
@@ -46,15 +60,22 @@ const MemberItem: React.FC<MemberItemProps> = ({
       </div>
       <div className={styles.memberInfo}>
         <div className={styles.nameRow}>
-          <div className={styles.memberName}>{displayName}</div>
+          <UserIdentity
+            name={displayName}
+            countryCode={profile?.country}
+            trustState={trustState}
+            size="sm"
+          />
           {showApproveButton && (
-            <button 
-              className={isApproved ? styles.approvedButton : styles.pendingButton}
-              disabled={isApproved}
-              onClick={onApprove}
-            >
-              {isApproved ? 'Approved' : 'Approve'}
-            </button>
+            isApproved ? (
+              <Button variant="primary" size="sm" disabled>
+                {t('members.approved', 'Approved')}
+              </Button>
+            ) : (
+              <Button variant="primary" size="sm" onClick={onApprove}>
+                {t('members.approve', 'Approve')}
+              </Button>
+            )
           )}
         </div>
         <div className={styles.publicKey}>{publicKey}</div>
@@ -68,25 +89,19 @@ interface MembersProps {
 }
 
 const Members: React.FC<MembersProps> = ({ communityId }) => {
+  const t = useT();
   const { communityMembers, communityTasks, communityNominates, profiles } = useAppSelector((state) => state.communities);
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
+  const trust = useCommunityTrust(communityId);
   const allMembers: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const tasks: Record<string, boolean> = communityTasks[communityId] || {};
   const taskAgents: string[] = Object.keys(tasks);
   const nominates: string[] = Array.isArray(communityNominates[communityId]) ? communityNominates[communityId] : [];
   const [isJoining, setIsJoining] = useState(false);
-  const [messageDialog, setMessageDialog] = useState<{
-    isOpen: boolean;
-    message: string;
-  }>({
-    isOpen: false,
-    message: ''
-  });
-  
-  // Filter out task agents who are already members to avoid duplicates in display
+  const { showAlert, alertElement } = useAlert();
+
   const members: string[] = allMembers.filter(member => !taskAgents.includes(member));
 
-  // State for approval dialog
   const [approvalDialog, setApprovalDialog] = useState<{
     isOpen: boolean;
     agentPublicKey: string;
@@ -101,8 +116,8 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
 
   const handleApproveClick = (agentId: string) => {
     const profile = profiles[agentId];
-    const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
-    const displayName = fullName || 'Unknown Member';
+    const fullName = displayNameFor(profile);
+    const displayName = fullName || t('members.unknown', 'Unknown Member');
     const profileImage = profile?.userPhoto;
 
     setApprovalDialog({
@@ -122,31 +137,33 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
     });
   };
 
-  // Combine task agents and members into a single list
   const allPeople = [
     ...taskAgents.map(agentId => ({
       publicKey: agentId,
       profile: profiles[agentId],
       showApproveButton: true,
       isApproved: tasks[agentId],
-      onApprove: () => handleApproveClick(agentId)
+      onApprove: () => handleApproveClick(agentId),
+      trustState: trust.trustOf(agentId),
+      vouchCount: trust.vouchCountOf(agentId)
     })),
-    ...members.map(publicKey => ({
-      publicKey,
-      profile: profiles[publicKey],
+    ...members.map(pk => ({
+      publicKey: pk,
+      profile: profiles[pk],
       showApproveButton: false,
       isApproved: false,
-      onApprove: undefined
+      onApprove: undefined,
+      trustState: trust.trustOf(pk),
+      vouchCount: trust.vouchCountOf(pk)
     }))
   ];
 
-  // Check if current user is already a member or has requested to join (in nominates)
   const currentUserInList = publicKey && (
-    allMembers.includes(publicKey) || 
+    allMembers.includes(publicKey) ||
     nominates.includes(publicKey)
   );
 
-  const joinRequestResponseRef = useRef<any>(null);
+  const joinRequestResponseRef = useRef<unknown>(null);
   const contractWriteListenerRef = useRef<((event: BlockchainEvent) => void) | null>(null);
 
   const cleanupJoinListener = useCallback(() => {
@@ -156,9 +173,8 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
     }
     joinRequestResponseRef.current = null;
     setIsJoining(false);
-  }, []);
+  }, [setIsJoining]);
 
-  // Cleanup on unmount (user navigated away)
   useEffect(() => {
     return () => {
       cleanupJoinListener();
@@ -167,45 +183,35 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
 
   const handleJoinCommunity = async () => {
     if (!serverUrl || !publicKey || !communityId) return;
-    
+
     setIsJoining(true);
-    
-    // Register event listener before making the request
+
     const handleContractWrite = (event: BlockchainEvent) => {
-      // Check if this event is for our community and matches our request
       if (event.contract === communityId && joinRequestResponseRef.current) {
-        // Check if the 'request' field matches our response
         if (event.request === joinRequestResponseRef.current) {
-          // Check the 'reply' field
           if (event.reply === false) {
-            setMessageDialog({
-              isOpen: true,
-              message: 'There are currently too many nominates in the community. Please try again later.'
-            });
+            void showAlert(
+              t('members.tooManyNominates', 'There are currently too many nominates in the community. Please try again later.'),
+              { title: t('members.joinErrorTitle', "Couldn't join") },
+            );
           }
-          
-          // Clean up listener and state once we found the matching event
           cleanupJoinListener();
         }
       }
     };
-    
-    // Store the listener reference for cleanup
+
     contractWriteListenerRef.current = handleContractWrite;
-    
-    // Register the event listener BEFORE making the request
     eventStreamService.addEventListener('contract_write', handleContractWrite);
-    
+
     try {
       const response = await requestJoin(serverUrl, publicKey, communityId);
-      // Store the response to match against the event
-      // The listener will handle cleanup when the event arrives
       joinRequestResponseRef.current = response;
-      // Don't set isJoining to false here - wait for the event
     } catch (error) {
       console.error('Failed to join community:', error);
-      alert('Failed to join community. Please try again.');
-      // Clean up listener on error - the request failed so no event will come
+      void showAlert(
+        t('members.joinFailed', 'Failed to join community. Please try again.'),
+        { title: t('members.joinErrorTitle', "Couldn't join") },
+      );
       cleanupJoinListener();
     }
   };
@@ -213,28 +219,23 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>Members</h2>
-          <p>{allMembers.length} community members</p>
-        </div>
-        
+        {/* Title + intro render in the AppHeader title block (S23); only the live
+            member count stays in content. */}
+        <p className={styles.memberCount}>{allMembers.length === 1
+          ? t('members.count.one', '1 community member')
+          : t('members.count.many', '{n} community members', { n: allMembers.length })}</p>
+
         {!currentUserInList && publicKey && (
           <div className={styles.joinSection}>
-            <button
-              onClick={handleJoinCommunity}
-              disabled={isJoining}
-              className={styles.joinButton}
-            >
-              {isJoining ? 'Joining...' : 'Join Community'}
-            </button>
+            <Button variant="primary" loading={isJoining} onClick={handleJoinCommunity}>
+              {t('members.join', 'Join Community')}
+            </Button>
           </div>
         )}
-        
+
         <div className={styles.list}>
           {allPeople.length === 0 ? (
-            <div className="empty-state">
-              <p>No members found.</p>
-            </div>
+            <EmptyState icon={<Users size={48} aria-hidden />} title={t('members.empty', 'No members found.')} />
           ) : (
             allPeople.map((person) => (
               <MemberItem
@@ -244,6 +245,8 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
                 showApproveButton={person.showApproveButton}
                 isApproved={person.isApproved}
                 onApprove={person.onApprove}
+                trustState={person.trustState}
+                vouchCount={person.vouchCount}
               />
             ))
           )}
@@ -259,13 +262,9 @@ const Members: React.FC<MembersProps> = ({ communityId }) => {
         communityId={communityId}
       />
 
-      <MessageDialog
-        isOpen={messageDialog.isOpen}
-        message={messageDialog.message}
-        onClose={() => setMessageDialog({ isOpen: false, message: '' })}
-      />
+      {alertElement}
     </>
   );
 };
 
-export default Members; 
+export default Members;

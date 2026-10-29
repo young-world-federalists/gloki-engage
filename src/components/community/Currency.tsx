@@ -1,149 +1,179 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Coins, Send, TrendingUp, TrendingDown, Star } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Coins, Send, TrendingUp, TrendingDown, Star, Plus } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchUserBalance } from '../../store/slices/currencySlice';
 import { useEventStream } from '../../hooks/useEventStream';
+import { useT } from '../../i18n';
 import styles from './Currency.module.scss';
 import {
-  transfer, setParameters,
-  getAccountDetails, getAllAllocations, setAllocation,
-  getDistributionStatus, distributeCommons,
+  transfer,
+  setParameters,
+  getAccountDetails,
+  getAllAllocations,
+  setAllocation,
+  getDistributionStatus,
+  distributeCommons,
 } from '../../services/contracts/community';
 import type { IDistributionStatus } from '../../services/contracts/community';
+import { useAlert } from '../shared/useAlert';
+import { Button, InfoDisclosure } from '../shared';
+import { contractRead, contractWrite, deployContract } from '../../services/api';
+import fundingContractSrc from '../../assets/contracts/funding_flow_contract.py?raw';
+import FundingFlow, {
+  FundingSetupDialog,
+  type FundingSetupConfig,
+} from '../collaboration/flows/funding/FundingFlow';
+import { useLoadWhenReady } from '../../hooks/useLoadWhenReady';
 
 interface CurrencyProps {
   communityId: string;
 }
 
+// Funds are allocated against a fixed 1000-point budget per member.
+const ALLOCATION_BUDGET = 1000;
+// The commons treasury is a reserved account key in the contract.
+const COMMONS_ACCOUNT = 'centralAccount';
+
 const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
+  const t = useT();
+  const { showAlert, alertElement } = useAlert();
   const dispatch = useAppDispatch();
   const { publicKey, serverUrl } = useAppSelector((state) => state.user);
   const { communityMembers, membersLoading } = useAppSelector((state) => state.communities);
   const { userBalance, parameters, loading: balanceLoading } = useAppSelector((state) => state.currency);
-  
-  // Currency info
-  const currency = {
-    id: communityId,
-    name: 'Community Credits',
-    symbol: 'credits',
-    totalSupply: 1000000,
-    circulatingSupply: 750000,
-    decimals: 2
-  };
-  
-  // Get median values for display (top card)
+
+  const symbol = t('currency.symbol', 'points');
+
+  // Read-only community-set daily rates (the community takes the median of members' preferences).
   const medianMintRate = parameters?.medians?.mint || 0;
   const medianBurnRate = parameters?.medians?.burn || 0;
-  const medianCommonsMintRate = parameters?.medians?.commons_mint || 0;
 
-  // Get user's stored parameters (bottom card)
+  // This member's own stored monetary-policy preferences (the community medians them).
   const userMintPreference = parameters?.parameters?.mint || 0;
   const userBurnPreference = parameters?.parameters?.burn || 0;
   const userCommonsMintPreference = parameters?.parameters?.commons_mint || 0;
 
-  // Check if user is a member of the community
+  // Membership / loading guards.
   const allMembers: string[] = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId] : [];
   const isMember = publicKey && allMembers.includes(publicKey);
   const isMembersLoading = membersLoading[communityId] || false;
-  
+
   const [selectedMember, setSelectedMember] = useState('');
   const [amount, setAmount] = useState('');
+
+  // Monetary-policy preference inputs (empty = "use stored value").
   const [mintPreference, setMintPreference] = useState('');
   const [burnPreference, setBurnPreference] = useState('');
   const [commonsMintPreference, setCommonsMintPreference] = useState('');
   const [mintFocused, setMintFocused] = useState(false);
   const [burnFocused, setBurnFocused] = useState(false);
   const [commonsMintFocused, setCommonsMintFocused] = useState(false);
+  const [savingPreferences, setSavingPreferences] = useState(false);
 
-  // Budget allocation state
+  // Fund list + allocation state.
   const [accountDetails, setAccountDetails] = useState<Record<string, { type: string; balance: number }>>({});
   const [allAllocations, setAllAllocations] = useState<Record<string, Record<string, number>>>({});
   const [distributionStatus, setDistributionStatus] = useState<IDistributionStatus | null>(null);
-  const [myAllocation, setMyAllocation] = useState<Record<string, number>>({});
-  const [allocationLoading, setAllocationLoading] = useState(true);
+  // My allocation as edited, kept with its community. Seeded from the server
+  // once per community: SSE reloads must NOT overwrite in-progress local edits.
+  const [draft, setDraft] = useState<{ communityId: string; values: Record<string, number> } | null>(null);
+  const myAllocation = draft?.communityId === communityId ? draft.values : {};
+  const [allocationLoadedFor, setAllocationLoadedFor] = useState<string | null>(null);
+  const allocationLoading = allocationLoadedFor !== communityId;
   const [allocationSaving, setAllocationSaving] = useState(false);
   const [distributing, setDistributing] = useState(false);
-  const myAllocationInitialized = useRef(false);
-  const myAllocationRef = useRef(myAllocation);
-  myAllocationRef.current = myAllocation;
-  
-  // Update local state when parameters change
-  useEffect(() => {
+  // A row click opens the per-fund detail (FundingFlow); back clears it.
+  const [selectedFundId, setSelectedFundId] = useState<string | null>(null);
+  // fund account name -> its funding-flow contract id (persisted on the community
+  // as `fund_<name>` properties when a fund is created).
+  const [fundContractMap, setFundContractMap] = useState<Record<string, string>>({});
+  const [setupOpen, setSetupOpen] = useState(false);
+
+  // Clear the preference inputs whenever fresh parameters arrive (placeholder shows stored value).
+  const [preferencesFor, setPreferencesFor] = useState(parameters);
+  if (parameters !== preferencesFor) {
+    setPreferencesFor(parameters);
     if (parameters) {
       setMintPreference('');
       setBurnPreference('');
       setCommonsMintPreference('');
     }
-  }, [parameters]);
+  }
 
-  // Check if preferences have changed
-  const hasChanges = (mintPreference !== '' && mintPreference !== userMintPreference.toString()) ||
-                     (burnPreference !== '' && burnPreference !== userBurnPreference.toString()) ||
-                     (commonsMintPreference !== '' && commonsMintPreference !== userCommonsMintPreference.toString());
+  // True once any preference input differs from the stored value.
+  const hasPreferenceChanges =
+    (mintPreference !== '' && mintPreference !== userMintPreference.toString()) ||
+    (burnPreference !== '' && burnPreference !== userBurnPreference.toString()) ||
+    (commonsMintPreference !== '' && commonsMintPreference !== userCommonsMintPreference.toString());
 
-  // Fetch user balance on component mount
   useEffect(() => {
     if (publicKey && serverUrl && communityId) {
-      dispatch(fetchUserBalance({
-        serverUrl,
-        publicKey,
-        contractId: communityId,
-      }));
+      dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
     }
   }, [communityId, publicKey, serverUrl, dispatch]);
-
-  // Reset allocation init flag when community changes
-  useEffect(() => {
-    myAllocationInitialized.current = false;
-    setAllocationLoading(true);
-  }, [communityId]);
 
   const loadAllocationData = useCallback(async () => {
     if (!publicKey || !serverUrl || !communityId) return;
     try {
-      const [details, allAllocs, status] = await Promise.all([
+      const [details, allAllocs, status, properties] = await Promise.all([
         getAccountDetails(serverUrl, publicKey, communityId),
         getAllAllocations(serverUrl, publicKey, communityId),
         getDistributionStatus(serverUrl, publicKey, communityId),
+        contractRead({
+          serverUrl,
+          publicKey,
+          contractId: communityId,
+          method: { name: 'get_properties', values: {} },
+        }),
       ]);
       setAccountDetails(details);
       setAllAllocations(allAllocs);
       setDistributionStatus(status);
-      if (!myAllocationInitialized.current) {
-        setMyAllocation(allAllocs[publicKey] ?? {});
-        myAllocationInitialized.current = true;
+      // Build "fund account name -> funding contract id" from `fund_<name>` keys.
+      const props = (properties && typeof properties === 'object' ? properties : {}) as Record<string, unknown>;
+      const map: Record<string, string> = {};
+      for (const [key, value] of Object.entries(props)) {
+        if (key.startsWith('fund_') && typeof value === 'string') {
+          map[key.slice('fund_'.length)] = value;
+        }
       }
+      setFundContractMap(map);
+      setDraft((prev) => (prev?.communityId === communityId ? prev : { communityId, values: allAllocs[publicKey] ?? {} }));
     } catch (e) {
       console.error('Failed to load allocation data:', e);
     } finally {
-      setAllocationLoading(false);
+      setAllocationLoadedFor(communityId);
     }
   }, [publicKey, serverUrl, communityId]);
 
-  useEffect(() => { void loadAllocationData(); }, [loadAllocationData]);
+  useLoadWhenReady(loadAllocationData);
 
-  useEventStream('contract_write', useCallback((event) => {
-    if (event.contract === communityId) void loadAllocationData();
-  }, [communityId, loadAllocationData]));
+  useEventStream(
+    'contract_write',
+    useCallback(
+      (event) => {
+        if (event.contract === communityId) void loadAllocationData();
+      },
+      [communityId, loadAllocationData],
+    ),
+  );
 
   const handlePayment = async () => {
-    console.log('handlePayment', selectedMember, amount);
     if (!selectedMember || !amount || parseFloat(amount) <= 0) return;
-    
+
     const paymentAmount = parseFloat(amount);
     if (userBalance !== null && paymentAmount > userBalance) {
-      alert('Insufficient balance');
+      showAlert(
+        t('currency.insufficientBody', "You don't have enough points to send that amount."),
+        { title: t('currency.insufficient', 'Insufficient balance') },
+      );
       return;
     }
 
-    if(serverUrl && publicKey && communityId) {
-      await transfer(
-        serverUrl,
-        publicKey,
-        communityId,
-        selectedMember,
-        paymentAmount,
-      );
+    if (serverUrl && publicKey && communityId) {
+      await transfer(serverUrl, publicKey, communityId, selectedMember, paymentAmount);
+      dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
+      await loadAllocationData();
     }
 
     setAmount('');
@@ -152,31 +182,33 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
   const handleUpdatePreferences = async () => {
     if (!serverUrl || !publicKey || !communityId) return;
-    
-    // Use current values or fall back to stored values if input is empty
-    const mintValue        = mintPreference        !== '' ? parseFloat(mintPreference)        : userMintPreference;
-    const burnValue        = burnPreference        !== '' ? parseFloat(burnPreference)        : userBurnPreference;
-    const commonsMintValue = commonsMintPreference !== '' ? parseFloat(commonsMintPreference) : userCommonsMintPreference;
 
-    // Validate that the parsed values are valid numbers
+    // Use the edited value where present, otherwise keep the stored one.
+    const mintValue = mintPreference !== '' ? parseFloat(mintPreference) : userMintPreference;
+    const burnValue = burnPreference !== '' ? parseFloat(burnPreference) : userBurnPreference;
+    const commonsMintValue =
+      commonsMintPreference !== '' ? parseFloat(commonsMintPreference) : userCommonsMintPreference;
+
     if (isNaN(mintValue) || isNaN(burnValue) || isNaN(commonsMintValue)) {
-      alert('Please enter valid numbers for mint, burn, and commons mint rates.');
+      showAlert(
+        t('funds.policyInvalidBody', 'Please enter valid numbers for the mint, burn, and commons minting rates.'),
+        { title: t('funds.policyInvalidTitle', 'Invalid rates') },
+      );
       return;
     }
 
+    setSavingPreferences(true);
     try {
-      await setParameters(
-        serverUrl,
-        publicKey,
-        communityId,
-        mintValue,
-        burnValue,
-        commonsMintValue
-      );
-
+      await setParameters(serverUrl, publicKey, communityId, mintValue, burnValue, commonsMintValue);
+      dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
     } catch (error) {
       console.error('Failed to update parameters:', error);
-      alert('Failed to update parameters. Please try again.');
+      showAlert(
+        t('funds.policySaveFailedBody', 'Could not save your preferences. Please try again.'),
+        { title: t('funds.policySaveFailedTitle', 'Save failed') },
+      );
+    } finally {
+      setSavingPreferences(false);
     }
   };
 
@@ -246,13 +278,139 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
     setCommonsMintFocused(false);
   };
 
+  // Share of the commons each account would receive, from the community's pooled allocations.
+  const collectivePercentages = useMemo(() => {
+    const totals: Record<string, number> = {};
+    let grandTotal = 0;
+    for (const memberAlloc of Object.values(allAllocations)) {
+      for (const [account, points] of Object.entries(memberAlloc)) {
+        totals[account] = (totals[account] ?? 0) + points;
+        grandTotal += points;
+      }
+    }
+    if (grandTotal === 0) return {} as Record<string, number>;
+    return Object.fromEntries(Object.entries(totals).map(([acc, pts]) => [acc, (pts / grandTotal) * 100]));
+  }, [allAllocations]);
+
+  const totalAllocated = Object.values(myAllocation).reduce((s, v) => s + v, 0);
+
+  const fundAccounts = useMemo(
+    () =>
+      Object.entries(accountDetails)
+        .filter(([, info]) => info.type === 'fund')
+        .map(([name, info]) => ({ name, ...info })),
+    [accountDetails],
+  );
+
+  const commonsBalance = accountDetails[COMMONS_ACCOUNT]?.balance ?? 0;
+  const isOverBudget = totalAllocated > ALLOCATION_BUDGET;
+  const selectedFundContractId = selectedFundId ? fundContractMap[selectedFundId] : undefined;
+
+  const handleSetAccountPoints = (account: string, raw: string) => {
+    const points = Math.max(0, Math.round(Number(raw) || 0));
+    if (communityId) setDraft({ communityId, values: { ...myAllocation, [account]: points } });
+  };
+
+  const handleSaveAllocation = async () => {
+    if (!publicKey || !serverUrl || !communityId) return;
+    setAllocationSaving(true);
+    try {
+      await setAllocation(serverUrl, publicKey, communityId, myAllocation);
+      await loadAllocationData();
+    } catch (e) {
+      console.error('Failed to save allocation:', e);
+      showAlert(
+        t('funds.allocationSaveFailedBody', 'Could not save your allocation. Please try again.'),
+        { title: t('funds.allocationSaveFailedTitle', 'Save failed') },
+      );
+    } finally {
+      setAllocationSaving(false);
+    }
+  };
+
+  const handleDistribute = async () => {
+    if (!publicKey || !serverUrl || !communityId) return;
+    setDistributing(true);
+    try {
+      await distributeCommons(serverUrl, publicKey, communityId);
+      await loadAllocationData();
+    } catch (e) {
+      console.error('Failed to distribute:', e);
+      showAlert(
+        t('funds.distributeFailedBody', 'Could not pay the commons out to the funds. Please try again.'),
+        { title: t('funds.distributeFailedTitle', 'Payment failed') },
+      );
+    } finally {
+      setDistributing(false);
+    }
+  };
+
+  // Deploy a per-fund funding contract, wire it to the community, register the
+  // fund account, and persist the account-name -> contract-id mapping so the
+  // list can open the detail. Dual write keeps balances in sync.
+  const handleCreateFund = async (config: FundingSetupConfig) => {
+    if (!serverUrl || !publicKey || !communityId) return;
+    try {
+      const { id } = await deployContract({
+        serverUrl,
+        publicKey,
+        name: config.name,
+        contract: 'funding_flow_contract.py',
+        code: fundingContractSrc,
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: id,
+        method: { name: 'set_config', values: { config } },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: id,
+        method: {
+          name: 'set_community_and_fund',
+          values: {
+            community_server: serverUrl,
+            community_agent: publicKey,
+            community_id: communityId,
+            fund_account_name: config.name,
+          },
+        },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: communityId,
+        method: { name: 'create_fund_account', values: { name: config.name, owner: publicKey } },
+      });
+      await contractWrite({
+        serverUrl,
+        publicKey,
+        contractId: communityId,
+        method: { name: 'set_property', values: { key: `fund_${config.name}`, value: id } },
+      });
+      setSetupOpen(false);
+      await loadAllocationData();
+    } catch (e) {
+      console.error('Failed to create fund:', e);
+      showAlert(
+        t('funds.createFailedBody', 'Could not create the fund. Please try again.'),
+        { title: t('funds.createFailedTitle', 'Create failed') },
+      );
+    }
+  };
+
+  // The section title + intro render in the AppHeader title block (S23); only
+  // page states and the (i) explainer remain in content.
   if (isMembersLoading || balanceLoading) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>Community Currency</h2>
-          <p>{isMembersLoading ? 'Loading community members...' : 'Loading balance...'}</p>
-        </div>
+        <p className={styles.stateMessage}>
+          {isMembersLoading
+            ? t('currency.loadingMembers', 'Loading community members...')
+            : t('currency.loadingBalance', 'Loading balance...')}
+        </p>
       </div>
     );
   }
@@ -260,45 +418,51 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
   if (!isMember) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>Community Currency</h2>
-          <p>You are not yet a member of this community.</p>
-        </div>
+        <p className={styles.stateMessage}>{t('currency.notMember', 'You are not yet a member of this community.')}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Community Currency</h2>
-        <p>Manage your community currency and transactions</p>
-      </div>
-
       <div className={styles.content}>
         <div className={styles.balanceSection}>
           <div className={styles.balanceCard}>
             <div className={styles.balanceHeader}>
               <Coins size={24} />
-              <h3>Your Balance</h3>
+              <h2>{t('currency.yourBalance', 'Your Support Points')}</h2>
+              <InfoDisclosure
+                className={styles.balanceInfo}
+                label={t('funds.explainerTitle', 'How Community Funds Work')}
+                title={t('funds.explainerTitle', 'How Community Funds Work')}
+              >
+                <p>
+                  {t(
+                    'funds.explainerBody1',
+                    'Support points are a shared way to signal what matters — back initiatives, support solutions, and send points to fellow members.',
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'funds.explainerBody2',
+                    'The community also pools points into funds. Set your preferred minting rates, choose how much of the commons each fund should receive, and pay the commons out when it builds up.',
+                  )}
+                </p>
+              </InfoDisclosure>
             </div>
             <div className={styles.balanceAmount}>
               <span className={styles.amount}>{userBalance !== null ? userBalance : '-'}</span>
-              <span className={styles.currency}>{currency.symbol}</span>
+              <span className={styles.currency}>{symbol}</span>
             </div>
             <div className={styles.balanceStats}>
               <div className={styles.statRow}>
                 <div className={styles.stat}>
-                  <span className={styles.label}>Median Mint Rate:</span>
-                  <span className={styles.value}>{medianMintRate} credits/day</span>
+                  <span className={styles.label}>{t('currency.addedRate', 'Points added across the community')}</span>
+                  <span className={styles.value}>{t('currency.perDay', '{n}/day', { n: medianMintRate })}</span>
                 </div>
                 <div className={styles.stat}>
-                  <span className={styles.label}>Median Burn Rate:</span>
-                  <span className={styles.value}>{medianBurnRate}% per day</span>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.label}>Median Commons Mint:</span>
-                  <span className={styles.value}>{medianCommonsMintRate} credits/day</span>
+                  <span className={styles.label}>{t('currency.removedRate', 'Points removed across the community')}</span>
+                  <span className={styles.value}>{t('currency.perDay', '{n}/day', { n: medianBurnRate })}</span>
                 </div>
               </div>
             </div>
@@ -307,56 +471,79 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
 
         <div className={styles.actionsSection}>
           <div className={styles.actionCard}>
-            <h3>Send Payment</h3>
+            <h2>{t('currency.sendTitle', 'Send points')}</h2>
             <div className={styles.paymentForm}>
               <div className="form-group">
-                <label htmlFor="memberSelect">Select Member</label>
+                <label htmlFor="memberSelect">{t('currency.selectMember', 'Select Member')}</label>
                 <select
                   id="memberSelect"
                   value={selectedMember}
                   onChange={(e) => setSelectedMember(e.target.value)}
                   className="input-field"
                 >
-                  <option value="">Choose a member...</option>
+                  <option value="">{t('currency.chooseMember', 'Choose a member...')}</option>
                   {allMembers
-                    .filter(member => member !== publicKey) // Exclude current user
+                    .filter((member) => member !== publicKey)
                     .map((member, index) => (
                       <option key={member} value={member}>
-                        Member {index + 1} ({member.slice(0, 8)}...)
+                        {t('currency.memberLabel', 'Member {n}', { n: index + 1 })} ({member.slice(0, 8)}...)
                       </option>
                     ))}
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="paymentAmount">Amount (credits)</label>
+                <label htmlFor="paymentAmount">{t('currency.amountLabel', 'Amount ({symbol})', { symbol })}</label>
                 <input
                   id="paymentAmount"
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
+                  placeholder={t('currency.amountPlaceholder', 'Enter amount')}
                   className="input-field"
                   min="1"
                   max={userBalance || undefined}
                 />
                 <div className={styles.balanceInfo}>
-                  <span>Available: {userBalance !== null ? userBalance : '-'} credits</span>
+                  <span>
+                    {t('currency.available', 'Available: {n} {symbol}', {
+                      n: userBalance !== null ? userBalance : '-',
+                      symbol,
+                    })}
+                  </span>
                 </div>
               </div>
               <div className="form-actions">
-                <button onClick={handlePayment} className={`send-button ${styles.sendButton}`}>
-                  <Send size={16} />
-                  Send Payment
-                </button>
+                <Button
+                  variant="primary"
+                  onClick={handlePayment}
+                  className={styles.fullWidthAction}
+                  leftIcon={<Send size={16} />}
+                >
+                  {t('currency.sendButton', 'Send')}
+                </Button>
               </div>
             </div>
           </div>
 
+          {/* ── Monetary-policy preferences ─────────────────────────────── */}
           <div className={styles.actionCard}>
-            <h3>Your Stored Parameters</h3>
+            <div className={styles.titleRow}>
+              <h2>{t('funds.policyTitle', 'Your Monetary Policy')}</h2>
+              <InfoDisclosure
+                label={t('funds.policyExplainerTitle', 'How monetary policy works')}
+                title={t('funds.policyExplainerTitle', 'How monetary policy works')}
+              >
+                <p>
+                  {t(
+                    'funds.policyExplainerBody',
+                    'Each member sets their preferred rates. The community uses the median across everyone, so no single member controls the money supply.',
+                  )}
+                </p>
+              </InfoDisclosure>
+            </div>
             <div className={styles.preferences}>
               <div className={styles.preferenceItem}>
-                <label htmlFor="mintPreference">Mint Rate (credits/day)</label>
+                <label htmlFor="mintPreference">{t('funds.mintRateLabel', 'Mint rate ({symbol}/day)', { symbol })}</label>
                 <input
                   id="mintPreference"
                   type="number"
@@ -369,10 +556,10 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
                   min="0"
                   step="any"
                 />
-                <TrendingUp size={16} className={styles.mintIcon} />
+                <TrendingUp size={16} className={styles.mintIcon} aria-hidden />
               </div>
               <div className={styles.preferenceItem}>
-                <label htmlFor="burnPreference">Burn Rate (% per day)</label>
+                <label htmlFor="burnPreference">{t('funds.burnRateLabel', 'Burn rate (% per day)')}</label>
                 <input
                   id="burnPreference"
                   type="number"
@@ -386,10 +573,12 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
                   max="100"
                   step="any"
                 />
-                <TrendingDown size={16} className={styles.burnIcon} />
+                <TrendingDown size={16} className={styles.burnIcon} aria-hidden />
               </div>
               <div className={styles.preferenceItem}>
-                <label htmlFor="commonsMintPreference">Commons Minting (credits/day)</label>
+                <label htmlFor="commonsMintPreference">
+                  {t('funds.commonsMintLabel', 'Commons minting ({symbol}/day)', { symbol })}
+                </label>
                 <input
                   id="commonsMintPreference"
                   type="number"
@@ -397,127 +586,262 @@ const Currency: React.FC<CurrencyProps> = ({ communityId }) => {
                   onChange={(e) => setCommonsMintPreference(e.target.value)}
                   onFocus={() => setCommonsMintFocused(true)}
                   onBlur={() => setCommonsMintFocused(false)}
-                  placeholder={!commonsMintFocused && commonsMintPreference === '' ? userCommonsMintPreference.toString() : ''}
+                  placeholder={
+                    !commonsMintFocused && commonsMintPreference === '' ? userCommonsMintPreference.toString() : ''
+                  }
                   className={`input-field ${styles.inputField}`}
                   min="0"
                   step="any"
                 />
-                <TrendingUp size={16} className={styles.mintIcon} />
+                <TrendingUp size={16} className={styles.mintIcon} aria-hidden />
               </div>
             </div>
             <div className={styles.preferenceActions}>
-              <button
+              <Button
+                variant="primary"
                 onClick={handleUpdatePreferences}
-                disabled={!hasChanges}
-                className={`${styles.updateButton} ${!hasChanges ? styles.disabled : ''}`}
+                disabled={!hasPreferenceChanges}
+                loading={savingPreferences}
               >
-                Update Parameters
-              </button>
-              <button
-                onClick={handleRevertPreferences}
-                disabled={!hasChanges}
-                className={`${styles.revertButton} ${!hasChanges ? styles.disabled : ''}`}
-              >
-                Revert Changes
-              </button>
+                {t('funds.policySave', 'Save preferences')}
+              </Button>
+              <Button variant="secondary" onClick={handleRevertPreferences} disabled={!hasPreferenceChanges}>
+                {t('funds.policyRevert', 'Revert changes')}
+              </Button>
             </div>
           </div>
         </div>
-
       </div>
 
-      {/* ── Budget Allocation ─────────────────────────────────────────── */}
+      {/* ── Funds ───────────────────────────────────────────────────────── */}
+      {selectedFundId && selectedFundContractId ? (
+        <div className={styles.fundsCard}>
+          <FundingFlow
+            fundContractId={selectedFundContractId}
+            communityId={communityId}
+            currentUser={publicKey || ''}
+            serverUrl={serverUrl || ''}
+            onBack={() => {
+              setSelectedFundId(null);
+              // The demo seam emits no contract_write events, so a contribution
+              // made in the detail won't have refreshed the list. Re-fetch the
+              // fund balances, commons, allocation %s, and personal balance.
+              void loadAllocationData();
+              if (serverUrl && publicKey && communityId) {
+                dispatch(fetchUserBalance({ serverUrl, publicKey, contractId: communityId }));
+              }
+            }}
+          />
+        </div>
+      ) : (
+      <div className={styles.fundsCard}>
+        <div className={styles.fundsHeader}>
+          <h2>{t('funds.fundsTitle', 'Funds')}</h2>
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => setSetupOpen(true)}
+            leftIcon={<Plus size={16} />}
+          >
+            {t('funds.createFund', 'Create fund')}
+          </Button>
+        </div>
+
+        {allocationLoading ? (
+          <p className={styles.fundsLoading}>{t('funds.loadingAccounts', 'Loading funds…')}</p>
+        ) : (
+          <ul className={styles.fundList}>
+            {/* Commons treasury — the shared pool funds draw from. */}
+            <li className={`${styles.fundRow} ${styles.fundRowCommons}`}>
+              <span className={styles.fundName}>
+                <Star size={14} className={styles.commonsIcon} aria-hidden />
+                {t('funds.commonsTreasury', 'Commons Treasury')}
+              </span>
+              <span className={styles.fundBalance}>
+                {t('funds.balanceWithSymbol', '{n} {symbol}', { n: commonsBalance, symbol })}
+              </span>
+              <span className={styles.fundPct}>
+                {t('funds.communitySharePct', '{n}%', {
+                  n: (collectivePercentages[COMMONS_ACCOUNT] ?? 0).toFixed(1),
+                })}
+              </span>
+            </li>
+
+            {fundAccounts.length === 0 ? (
+              <li className={styles.noFunds}>
+                {t('funds.noFunds', 'No funds yet. Funds let the community pool points toward a shared goal.')}
+              </li>
+            ) : (
+              fundAccounts.map((fund) => (
+                <li key={fund.name}>
+                  <button
+                    type="button"
+                    className={styles.fundRowButton}
+                    onClick={() => {
+                      if (fundContractMap[fund.name]) {
+                        setSelectedFundId(fund.name);
+                      } else {
+                        showAlert(
+                          t('funds.detailUnavailableBody', 'This fund has no detail view yet.'),
+                          { title: t('funds.detailUnavailableTitle', 'Fund detail unavailable') },
+                        );
+                      }
+                    }}
+                  >
+                    <span className={styles.fundName} title={fund.name}>
+                      {fund.name}
+                    </span>
+                    <span className={styles.fundBalance}>
+                      {t('funds.balanceWithSymbol', '{n} {symbol}', { n: fund.balance, symbol })}
+                    </span>
+                    <span className={styles.fundPct}>
+                      {t('funds.communitySharePct', '{n}%', {
+                        n: (collectivePercentages[fund.name] ?? 0).toFixed(1),
+                      })}
+                    </span>
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
+      )}
+
+      {/* ── Community allocation ─────────────────────────────────────────── */}
       <div className={styles.allocationCard}>
         <div className={styles.allocationHeader}>
-          <h3>Budget Allocation</h3>
+          <div className={styles.titleRow}>
+            <h2>{t('funds.allocationTitle', 'Community Allocation')}</h2>
+            <InfoDisclosure
+              label={t('funds.allocationExplainerTitle', 'How allocation works')}
+              title={t('funds.allocationExplainerTitle', 'How allocation works')}
+            >
+              <p>
+                {t(
+                  'funds.allocationExplainerBody',
+                  'Spread up to {budget} points across the funds and the Commons Treasury. Everyone’s points are pooled — the community share of each fund decides what slice of the commons it receives when the commons is paid out.',
+                  { budget: ALLOCATION_BUDGET },
+                )}
+              </p>
+            </InfoDisclosure>
+          </div>
           {distributionStatus && (
             <div className={styles.distributionStatus}>
               <span className={styles.statusText}>
-                Day {distributionStatus.days_since_creation} · {distributionStatus.payment_count} payment{distributionStatus.payment_count !== 1 ? 's' : ''} made
+                {t('funds.distributionStatus', 'Day {day} · {n} payments made', {
+                  day: distributionStatus.days_since_creation,
+                  n: distributionStatus.payment_count,
+                })}
               </span>
-              <button
-                className={`${styles.distributeBtn} ${!distributionStatus.can_distribute || distributing ? styles.distributeBtnDisabled : ''}`}
+              <Button
+                variant="primary"
+                size="md"
                 onClick={handleDistribute}
-                disabled={!distributionStatus.can_distribute || distributing}
-                title={distributionStatus.can_distribute ? 'Distribute commons balance to funds' : 'No new payment available today'}
+                disabled={!distributionStatus.can_distribute}
+                loading={distributing}
+                title={
+                  distributionStatus.can_distribute
+                    ? t('funds.payToFundsHint', 'Pay the commons balance out to the funds')
+                    : t('funds.payToFundsUnavailable', 'No new payment available today')
+                }
               >
-                {distributing ? 'Paying…' : 'Pay to Funds'}
-              </button>
+                {t('funds.payToFunds', 'Pay to Funds')}
+              </Button>
             </div>
           )}
         </div>
 
-        <p className={styles.allocationSubtitle}>
-          Allocate 1000 points among funds. The community's collective allocation determines what share of the commons each fund receives each day.
-        </p>
-
         {allocationLoading ? (
-          <p className={styles.allocationLoading}>Loading accounts…</p>
+          <p className={styles.allocationLoading}>{t('funds.loadingAccounts', 'Loading funds…')}</p>
         ) : (
           <>
             <div className={`${styles.allocationRow} ${styles.allocationHeadings}`}>
-              <span className={styles.colAccount}>Account</span>
-              <span className={styles.colPct}>Community %</span>
-              <span className={styles.colPts}>My points</span>
+              <span className={styles.colAccount}>{t('funds.colAccount', 'Account')}</span>
+              <span className={styles.colPct}>{t('funds.colCommunityShare', 'Community %')}</span>
+              <span className={styles.colPts}>{t('funds.colMyPoints', 'My points')}</span>
             </div>
 
-            {/* Commons (treasury) row — top, marked uniquely */}
+            {/* Commons (treasury) row — pinned to the top, marked uniquely. */}
             <div className={`${styles.allocationRow} ${styles.allocationRowCommons}`}>
               <span className={styles.colAccount}>
-                <Star size={13} className={styles.commonsIcon} />
-                Commons Treasury
+                <Star size={13} className={styles.commonsIcon} aria-hidden />
+                {t('funds.commonsTreasury', 'Commons Treasury')}
               </span>
               <span className={styles.colPct}>
-                {(collectivePercentages['centralAccount'] ?? 0).toFixed(1)}%
+                {t('funds.communitySharePct', '{n}%', {
+                  n: (collectivePercentages[COMMONS_ACCOUNT] ?? 0).toFixed(1),
+                })}
               </span>
               <input
                 type="number"
-                className={styles.colPts}
-                value={myAllocation['centralAccount'] ?? 0}
-                onChange={e => handleSetAccountPoints('centralAccount', e.target.value)}
+                className={`input-field ${styles.colPtsInput}`}
+                aria-label={t('funds.allocationPointsFor', 'Points for {name}', {
+                  name: t('funds.commonsTreasury', 'Commons Treasury'),
+                })}
+                value={myAllocation[COMMONS_ACCOUNT] ?? 0}
+                onChange={(e) => handleSetAccountPoints(COMMONS_ACCOUNT, e.target.value)}
                 min={0}
-                max={1000}
+                max={ALLOCATION_BUDGET}
               />
             </div>
 
-            {/* Fund rows */}
+            {/* Fund rows. */}
             {fundAccounts.length === 0 ? (
-              <p className={styles.noFunds}>No fund accounts yet. Create a funding flow to add funds.</p>
+              <p className={styles.noFunds}>
+                {t('funds.noFundsAllocation', 'No funds to allocate to yet. Create a fund to get started.')}
+              </p>
             ) : (
-              fundAccounts.map(fund => (
+              fundAccounts.map((fund) => (
                 <div key={fund.name} className={styles.allocationRow}>
-                  <span className={styles.colAccount} title={fund.name}>{fund.name}</span>
+                  <span className={styles.colAccount} title={fund.name}>
+                    {fund.name}
+                  </span>
                   <span className={styles.colPct}>
-                    {(collectivePercentages[fund.name] ?? 0).toFixed(1)}%
+                    {t('funds.communitySharePct', '{n}%', {
+                      n: (collectivePercentages[fund.name] ?? 0).toFixed(1),
+                    })}
                   </span>
                   <input
                     type="number"
-                    className={styles.colPts}
+                    className={`input-field ${styles.colPtsInput}`}
+                    aria-label={t('funds.allocationPointsFor', 'Points for {name}', { name: fund.name })}
                     value={myAllocation[fund.name] ?? 0}
-                    onChange={e => handleSetAccountPoints(fund.name, e.target.value)}
+                    onChange={(e) => handleSetAccountPoints(fund.name, e.target.value)}
                     min={0}
-                    max={1000}
+                    max={ALLOCATION_BUDGET}
                   />
                 </div>
               ))
             )}
 
             <div className={styles.allocationFooter}>
-              <span className={`${styles.allocationTotal} ${totalAllocated > 1000 ? styles.allocationTotalOver : ''}`}>
-                {totalAllocated} / 1000 points
+              <span className={`${styles.allocationTotal} ${isOverBudget ? styles.allocationTotalOver : ''}`}>
+                {t('funds.allocationTotal', '{total} / {budget} points', {
+                  total: totalAllocated,
+                  budget: ALLOCATION_BUDGET,
+                })}
               </span>
-              <button
-                className={`${styles.updateButton} ${allocationSaving || totalAllocated > 1000 ? styles.disabled : ''}`}
+              <Button
+                variant="primary"
                 onClick={handleSaveAllocation}
-                disabled={allocationSaving || totalAllocated > 1000}
+                disabled={isOverBudget}
+                loading={allocationSaving}
               >
-                {allocationSaving ? 'Saving…' : 'Save My Allocation'}
-              </button>
+                {t('funds.saveAllocation', 'Save my allocation')}
+              </Button>
             </div>
           </>
         )}
       </div>
 
+      <FundingSetupDialog
+        isOpen={setupOpen}
+        onDone={handleCreateFund}
+        onCancel={() => setSetupOpen(false)}
+      />
+
+      {alertElement}
     </div>
   );
 };

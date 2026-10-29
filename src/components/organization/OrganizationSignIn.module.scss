@@ -1,0 +1,100 @@
+@use '../../styles/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.label {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.optional {
+  font-weight: $font-normal;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.input {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-base;
+  color: $gray-900;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.chip {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-full;
+  background: white;
+  font-size: $text-sm;
+  color: $gray-700;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  &:hover { border-color: $primary; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.chipSelected {
+  border-color: $primary;
+  background: rgba($primary, 0.1);
+  color: $primary-dark;
+  font-weight: $font-semibold;
+
+  @include dark {
+    background: rgba($primary, 0.2);
+    color: $primary-on-dark;
+  }
+}

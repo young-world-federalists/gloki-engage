@@ -1,0 +1,60 @@
+@use '../../styles/variables' as *;
+
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2xl;
+  min-height: 120px;
+}
+
+.errorContent {
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  margin-bottom: $spacing-sm;
+}
+
+.errorMessage {
+  font-size: $text-sm;
+  color: $gray-500;
+  margin-bottom: $spacing-lg;
+  max-width: 400px;
+}
+
+.retryButton {
+  padding: $spacing-sm $spacing-xl;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover {
+    background: $primary-dark;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+// The error fallback can surface anywhere, including on the dark app shell —
+// keep its text readable there.
+@include dark {
+  .errorTitle {
+    color: $dark-text;
+  }
+
+  .errorMessage {
+    color: $dark-text-secondary;
+  }
+}

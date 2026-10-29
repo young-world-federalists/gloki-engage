@@ -1,0 +1,465 @@
+@use '../../../../styles/variables' as *;
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ─── Container ─────────────────────────────────────────────────────────────
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+
+  &.compact {
+    gap: $spacing-lg;
+  }
+}
+
+// ─── Loading / Error state ─────────────────────────────────────────────────
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  padding: $spacing-2xl $spacing-xl;
+  color: $gray-500;
+  font-size: $text-sm;
+  text-align: center;
+
+  p { margin: 0; }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $gray-200;
+  border-top-color: $primary;
+  border-radius: $radius-full;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.retryBtn {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: opacity $transition-base;
+
+  &:hover { opacity: 0.85; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+// ─── Section title ─────────────────────────────────────────────────────────
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  margin: 0 0 $spacing-md 0;
+
+  svg { flex-shrink: 0; color: $primary; }
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+// ─── Back-this form (time-only) ────────────────────────────────────────────
+.stakeForm {
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+.intro {
+  font-size: $text-sm;
+  color: $gray-600;
+  line-height: 1.5;
+  margin: 0 0 $spacing-lg 0;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.legacyNotice {
+  font-size: $text-xs;
+  line-height: 1.5;
+  margin: 0 0 $spacing-lg 0;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  background: $info-surface;
+  color: $info-on-surface;
+
+  @include dark {
+    background: $info-surface-dark;
+    color: $dark-text;
+  }
+}
+
+// ─── Duration picker (the only lever) ──────────────────────────────────────
+.durationPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.durationOption {
+  flex: 1 1 auto;
+  min-width: 72px;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  transition: all $transition-base;
+  text-align: center;
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+.durationActive {
+  border-color: $primary;
+  background: rgba($primary, 0.08);
+  color: $primary;
+  font-weight: $font-semibold;
+
+  @include dark {
+    background: rgba($primary, 0.18);
+    color: $dark-text;
+  }
+}
+
+// ─── Strength meter — felt multiplier, no raw "12x" ────────────────────────
+.strengthMeter {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-lg;
+}
+
+.strengthTrack {
+  height: 10px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.strengthFill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary, $success);
+  border-radius: $radius-full;
+  transition: width $transition-slow ease;
+  min-width: 6px;
+}
+
+.strengthLabel {
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.stakeBtn {
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: opacity $transition-base;
+
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+// ─── Your commitment (post-back summary) ───────────────────────────────────
+.commitment {
+  background: rgba($success, 0.05);
+  border: 1px solid rgba($success, 0.25);
+  border-left: 3px solid $success;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  @include dark {
+    background: rgba($success, 0.08);
+    border-color: rgba($success, 0.3);
+    border-left-color: $success;
+  }
+}
+
+.commitmentLine {
+  font-size: $text-sm;
+  color: $gray-700;
+  margin: 0 0 $spacing-md 0;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.shareLine {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-sm 0 0 0;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// The time dimension made visible — a commitment has a start date, not just a
+// length (S33).
+.sinceLine {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin: $spacing-sm 0 0 0;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// ─── Change / withdraw (a commitment is revisitable, not frozen — S33) ─────
+.commitmentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.changeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  svg { flex-shrink: 0; }
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+// Quieter than "change" — withdrawing is the rarer, heavier act, so it reads as
+// a text control rather than a peer button.
+.withdrawBtn {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  border: none;
+  border-radius: $radius-md;
+  background: none;
+  font-size: $text-sm;
+  color: $gray-600;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover:not(:disabled) { color: $error-dark; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    color: $dark-text-secondary;
+
+    &:hover:not(:disabled) { color: $error-on-dark; }
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: stretch;
+
+  // .stakeBtn is width:100% when it stands alone; beside Cancel it must flex.
+  .stakeBtn {
+    width: auto;
+    flex: 1 1 auto;
+  }
+}
+
+.cancelBtn {
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+}
+
+// ─── Community aggregate ───────────────────────────────────────────────────
+.aggregate {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.aggregateStats {
+  display: flex;
+  gap: $spacing-xl;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  @include tabular-nums;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  color: $primary;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: $text-xs;
+  color: $gray-500;
+  font-weight: $font-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// ─── Country breakdown ─────────────────────────────────────────────────────
+.countryBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.countryRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.countryName {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-600;
+  width: 120px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.countryBar {
+  flex: 1;
+  height: 8px;
+  background: $gray-100;
+  border-radius: $radius-full;
+  overflow: hidden;
+
+  @include dark {
+    background: $dark-border;
+  }
+}
+
+.countryFill {
+  height: 100%;
+  border-radius: $radius-full;
+  transition: width $transition-slow ease;
+  min-width: 4px;
+}
+
+.countryWeight {
+  @include tabular-nums;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+
+  @include dark {
+    color: $dark-text;
+  }
+}

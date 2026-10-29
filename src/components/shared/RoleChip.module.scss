@@ -1,0 +1,63 @@
+@use '../../styles/variables' as *;
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: $radius-sm;
+  font-weight: $font-semibold;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sm {
+  padding: 2px 6px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.md {
+  padding: 3px 8px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+// Theme-aware role tones (were dark-palette-only rgba/hex). Each pairs a
+// semantic tinted surface with its AA on-surface colour; dark variants below.
+.author {
+  background: $info-surface;
+  color: $info-on-surface;
+  border: 1px solid rgba($info-on-surface, 0.25);
+}
+
+.coAuthor {
+  background: $success-surface;
+  color: $success-on-surface;
+  border: 1px solid rgba($success-on-surface, 0.25);
+}
+
+.expert {
+  background: $warning-surface;
+  color: $warning-on-surface;
+  border: 1px solid rgba($warning-on-surface, 0.25);
+}
+
+@include dark {
+  .author {
+    background: $info-surface-dark;
+    color: $dark-text;
+    border-color: rgba($dark-text, 0.2);
+  }
+
+  .coAuthor {
+    background: $success-surface-dark;
+    color: $dark-text;
+    border-color: rgba($dark-text, 0.2);
+  }
+
+  .expert {
+    background: $warning-surface-dark;
+    color: $dark-text;
+    border-color: rgba($dark-text, 0.2);
+  }
+}

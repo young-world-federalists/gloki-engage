@@ -1,0 +1,268 @@
+@use '../../../../styles/variables' as *;
+
+.container { display: flex; flex-direction: column; gap: $spacing-md; }
+
+/* Visually-hidden utility — reused pattern (same as LanguageSwitcher, Profile, etc.) */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Composer */
+.lockedNote {
+  font-size: $text-xs;
+  color: $gray-500;
+  @include dark { color: $dark-text-secondary; }
+}
+.composeBox { display: flex; flex-direction: column; gap: $spacing-sm; }
+.composeTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  resize: vertical;
+
+  &::placeholder { color: $gray-500; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 1px; border-color: $primary; }
+
+  @include dark {
+    color: $dark-text;
+    background: $dark-bg;
+    border-color: $dark-border;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+}
+.addSourcesBtn {
+  align-self: flex-start; min-height: 44px;
+  background: none; border: none; color: $primary; cursor: pointer;
+  font-size: $text-sm; padding: 0 $spacing-xs;
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; border-radius: $radius-sm; }
+}
+.commentSources { margin: 4px 0 $spacing-xs; }
+.composeError {
+  margin: 0;
+  font-size: $text-sm;
+  // Same AA-safe reds as the delete control below — $error fails AA on white.
+  color: $error-dark;
+  @include dark { color: $error-on-dark; }
+}
+.composeActions { display: flex; gap: $spacing-sm; }
+.btnSubmit {
+  min-height: 44px;
+  padding: $spacing-xs $spacing-lg;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: $primary-dark; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.btnCancel {
+  min-height: 44px;
+  padding: $spacing-xs $spacing-md;
+  background: none;
+  color: $gray-600;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  @include dark { color: $dark-text-secondary; }
+}
+
+/* Toolbar: count + sort toggle */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; }
+.count {
+  font-size: $text-xs;
+  color: $gray-500;
+  @include dark { color: $dark-text-secondary; }
+}
+// Sort control → shared <SegmentedControl> (W5 T2); bespoke
+// .sortToggle/.sortBtn/.sortActive deleted — the kit owns the track + states.
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm; // icon→label floor (W5)
+  align-self: flex-start;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  margin-left: -#{$spacing-sm};
+  background: none;
+  border: none;
+  border-radius: $radius-md;
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+/* Thread */
+.commentList { display: flex; flex-direction: column; gap: $spacing-md; }
+.commentItem { position: relative; }
+.nested { margin-left: $spacing-md; padding-left: $spacing-md; }
+.threadLine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: $gray-200;
+  border-radius: $radius-full;
+  @include dark { background: $dark-border; }
+}
+
+.commentBody { display: flex; flex-direction: column; gap: $spacing-xs; }
+.commentHeader { display: flex; align-items: center; gap: $spacing-sm; flex-wrap: wrap; }
+.timestamp {
+  font-size: $text-xs;
+  color: $gray-500;
+  @include dark { color: $dark-text-secondary; }
+}
+.collapseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm; // icon→label floor (W5)
+  min-height: 44px;
+  min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 22 wide)
+  padding: 0 $spacing-xs;
+  background: none;
+  border: none;
+  color: $gray-500;
+  font-size: $text-xs;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @include dark { color: $dark-text-secondary; }
+}
+.commentText {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.6;
+  color: $gray-800;
+  white-space: pre-wrap;
+  word-break: break-word;
+  @include dark { color: $dark-text; }
+}
+
+.commentActions { display: flex; align-items: center; gap: $spacing-md; flex-wrap: wrap; row-gap: $spacing-xs; }
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm; // icon→label floor (W5)
+  min-height: 44px;
+  min-width: 44px; // WCAG 2.5.5 needs BOTH dimensions ≥44 (S16 audit: was 34 wide)
+  padding: $spacing-xs;
+  background: none;
+  border: none;
+  // $gray-500 is AA-safe here: 4.83:1 on the white card (S9 measured), and
+  // $dark-text-secondary below is 5.71:1+ on $dark-bg — leave as-is (the
+  // documented caption token, DESIGN_SYSTEM "Typography → Caption").
+  color: $gray-500;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  cursor: pointer;
+
+  &:hover { color: $primary; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  @include dark { color: $dark-text-secondary; }
+}
+.liked {
+  // $error (#dc2626) is only ~4.83:1 on white and fails AA on the dark surfaces
+  // (3.03:1 on $dark-bg). Use the documented AA-safe reds: $error-dark in light
+  // (6.47:1), $error-on-dark in dark (5.29:1+).
+  color: $error-dark;
+  &:hover { color: $error; }
+  @include dark {
+    color: $error-on-dark;
+    &:hover { color: $error-on-dark; }
+  }
+}
+.actionBtnDelete {
+  &:hover { color: $error; }
+}
+
+.continueBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm; // icon→label floor (W5)
+  margin-left: $spacing-md;
+  min-height: 44px;
+  padding: $spacing-xs $spacing-sm;
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.children { display: flex; flex-direction: column; gap: $spacing-md; margin-top: $spacing-md; }
+
+/* Causes voting (S35 D4) — up/down on ROOT comments only; replies keep .actionBtn/.liked above. */
+.voteGroup { display: inline-flex; align-items: center; gap: $spacing-xs; }
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: $radius-full;
+  border: 1px solid $gray-300;
+  background: transparent;
+  color: $gray-600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+
+  &.voteOn { border-color: $primary; color: $primary; background: rgba($primary, 0.1); }
+
+  @include dark {
+    border-color: $dark-border;
+    color: $dark-text-secondary;
+    &.voteOn { border-color: $primary-on-dark; color: $primary-on-dark; background: rgba($primary-on-dark, 0.15); }
+  }
+}
+.voteScore {
+  font-variant-numeric: tabular-nums;
+  font-size: $text-sm;
+  min-width: 2ch;
+  text-align: center;
+  color: $gray-600;
+  @include dark { color: $dark-text-secondary; }
+}
+.rankChip {
+  font-size: $text-xs;
+  color: $gray-500;
+  margin-left: $spacing-xs;
+  @include dark { color: $dark-text-secondary; }
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Gloki - Decentralized Self-Governance</title>
+    <script type="text/javascript">
+      // GitHub Pages SPA redirect
+      // Converts the path after /gloki-engage/ into a query parameter
+      // so that index.html can restore the correct route on load
+      var l = window.location;
+      var segments = l.pathname.slice(1).split('/');
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        '/' + segments[0] + '/?/' +
+        segments.slice(1).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

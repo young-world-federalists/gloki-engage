@@ -1,0 +1,70 @@
+@use '../../styles/variables' as *;
+
+// The where-is-this-initiative marker: four compact stage pills, current one
+// tinted — a pure progress indicator, nothing navigates (S19 W2). Stage colour
+// rides an 8px dot; the label carries the name. Flush in the card flow (no
+// container box) so the strip stops out-shouting the content around it.
+.strip {
+  display: flex;
+  flex-wrap: wrap; // the four pills fit 360px in en; longer fr/sw labels wrap
+  align-items: center;
+  gap: $spacing-xs;
+  margin: 0 0 $spacing-md;
+  padding: 0;
+  list-style: none;
+}
+
+.stage {
+  min-width: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid transparent;
+  border-radius: $radius-full;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  line-height: 1.3;
+  color: $gray-700;
+  white-space: nowrap;
+}
+
+.dot {
+  width: $spacing-sm;
+  height: $spacing-sm;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+// Four distinct stage colours from the canonical $stage-* set (variables.scss).
+.stage_problem .dot   { background: $stage-problem; }
+.stage_proposals .dot { background: $stage-solutions; }
+.stage_vote .dot      { background: $stage-vote; }
+.stage_mandate .dot   { background: $stage-mandate; }
+
+// Progress states: done keeps a full-colour dot; upcoming reads as "not yet";
+// the current stage carries "you are here" with its full-colour dot + a darker,
+// semibold label — NO pill fill or border (S30 A-2, D2): the tinted+bordered
+// current pill read as an interactive button (Eston, 2026-07-13), borrowing the
+// grammar of the genuinely-interactive DiscussionPill beside it. Stage colour
+// now rides the dot alone; nothing here navigates (S19 W2 still holds).
+.upcoming {
+  .dot { opacity: 0.35; }
+  .pill { color: $gray-500; }
+}
+
+.current .pill {
+  color: $gray-900;
+  font-weight: $font-semibold;
+}
+
+@include dark {
+  // De-emphasis rides the dot alone — an opacity'd 12px label fails AA (3.56:1
+  // measured), and order relative to the current pill already says done/upcoming.
+  .pill,
+  .upcoming .pill { color: $dark-text-secondary; }
+  .current .pill { color: $dark-text; }
+}

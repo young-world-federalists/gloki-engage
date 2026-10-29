@@ -1,32 +1,14 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { eventStreamService, type EventType, type EventListener } from '../services/eventStream';
 
 export const useEventStream = (eventType: EventType, listener: EventListener) => {
-  const memoizedListener = useCallback(listener, [listener]);
+  const onEvent = useEffectEvent(listener);
 
   useEffect(() => {
-    eventStreamService.addEventListener(eventType, memoizedListener);
-    
+    const handler: EventListener = (event) => onEvent(event);
+    eventStreamService.addEventListener(eventType, handler);
     return () => {
-      eventStreamService.removeEventListener(eventType, memoizedListener);
+      eventStreamService.removeEventListener(eventType, handler);
     };
-  }, [eventType, memoizedListener]);
-};
-
-export const useEventStreamConnection = () => {
-  const [isConnected, setIsConnected] = useState(eventStreamService.isConnectedToStream());
-
-  useEffect(() => {
-    const listener = (connected: boolean) => setIsConnected(connected);
-    eventStreamService.addConnectionListener(listener);
-    return () => {
-      eventStreamService.removeConnectionListener(listener);
-    };
-  }, []);
-
-  return {
-    isConnected,
-    connect: eventStreamService.connect.bind(eventStreamService),
-    disconnect: eventStreamService.disconnect.bind(eventStreamService),
-  };
+  }, [eventType]);
 }; 

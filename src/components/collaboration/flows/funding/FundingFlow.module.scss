@@ -1,61 +1,16 @@
+// FundingFlow.module.scss
+// Per-fund detail (contribute + budget) rendered by the Community Funds page.
+// Re-skinned from main: the red fund-accent (#ef4444) and indigo budget-accent
+// (#6366f1) are both interactive brand accents → mapped to $primary. Success /
+// error keep their semantic tokens. No raw hex / rgba — tinted variants derive
+// from a token via Sass colour functions.
 @use '../../../../styles/variables' as *;
 @use 'sass:color';
 
-// ─── Setup dialog ─────────────────────────────────────────────────────────────
-.overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: $spacing-lg;
-}
-
-.dialog {
-  background: white;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-lg;
-  width: 90%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.dialogHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: $spacing-xl;
-  border-bottom: 1px solid $gray-200;
-}
-
-.dialogTitle {
-  font-size: $text-lg;
-  font-weight: $font-semibold;
-  color: $gray-800;
-  margin: 0;
-}
-
-.closeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: $gray-500;
-  cursor: pointer;
-  padding: $spacing-xs;
-  border-radius: $radius-sm;
-  transition: all $transition-base;
-  &:hover { background: $gray-100; color: $gray-800; }
-}
-
+// ─── Setup-dialog body ─────────────────────────────────────────────────────────
+// The overlay / header / footer / close button live in the shared <Modal>; only
+// the dialog's form body is styled here.
 .dialogContent {
-  padding: $spacing-xl;
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
@@ -65,23 +20,6 @@
   display: flex;
   gap: $spacing-md;
   justify-content: flex-end;
-  padding: $spacing-lg $spacing-xl;
-  border-top: 1px solid $gray-200;
-  background: $gray-50;
-  border-radius: 0 0 $radius-lg $radius-lg;
-}
-
-.btnSecondary {
-  padding: $spacing-md $spacing-xl;
-  background: none;
-  border: 1.5px solid $gray-300;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  color: $gray-600;
-  cursor: pointer;
-  transition: all $transition-base;
-  &:hover { border-color: $gray-400; color: $gray-800; }
 }
 
 // ─── Shared form elements ──────────────────────────────────────────────────────
@@ -100,13 +38,14 @@
 
 .optional {
   font-weight: $font-normal;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .textarea {
   width: 100%;
+  min-height: 44px;
   padding: $spacing-md $spacing-lg;
-  border: 1.5px solid $gray-300;
+  border: 1px solid $gray-200;
   border-radius: $radius-md;
   font-size: $text-base;
   font-family: inherit;
@@ -123,8 +62,9 @@
 
 .input {
   width: 100%;
+  min-height: 44px;
   padding: $spacing-md $spacing-lg;
-  border: 1.5px solid $gray-300;
+  border: 1px solid $gray-200;
   border-radius: $radius-md;
   font-size: $text-base;
   color: $gray-800;
@@ -138,25 +78,6 @@
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   appearance: textfield;
-}
-
-.btnPrimary {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-md $spacing-xl;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-base;
-  font-weight: $font-semibold;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background $transition-base;
-
-  &:hover:not(:disabled) { background: color.adjust(#ef4444, $lightness: -8%); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .errorMsg {
@@ -173,26 +94,28 @@
 }
 
 // ─── Active fund ──────────────────────────────────────────────────────────────
-.fundName {
-  font-size: $text-lg;
-  font-weight: $font-bold;
-  color: #ef4444;
-  margin: 0 0 $spacing-xs;
-}
-
 .activeFund {
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
+  width: 100%; // fills the canonical page column (parent owns width + gutter)
+}
+
+.backRow {
+  display: flex;
+}
+
+.fundName {
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  color: $primary;
+  margin: 0 0 $spacing-xs;
 }
 
 .descriptionCard {
   padding: $spacing-lg $spacing-xl;
-  background: rgba(239, 68, 68, 0.05);
-  border-left: 4px solid #ef4444;
+  background: rgba($primary, 0.05);
+  border-left: 4px solid $primary;
   border-radius: $radius-md;
 }
 
@@ -219,19 +142,19 @@
   gap: $spacing-xs;
   padding: $spacing-lg $spacing-md;
   background: white;
-  border: 1.5px solid $gray-200;
+  border: 1px solid $gray-200;
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
   text-align: center;
 }
 
 .statCardMe {
-  border-color: rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.04);
+  border-color: rgba($primary, 0.35);
+  background: rgba($primary, 0.04);
 }
 
 .statIcon {
-  color: #ef4444;
+  color: $primary;
 }
 
 .statValue {
@@ -279,7 +202,7 @@
 
 .track {
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: $gray-100;
   border-radius: $radius-full;
   overflow: hidden;
@@ -287,10 +210,14 @@
 
 .fill {
   height: 100%;
-  background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+  background: $primary;
   border-radius: $radius-full;
-  transition: width 0.5s ease;
+  transition: width $transition-base;
   min-width: 4px;
+}
+
+.fillComplete {
+  background: $success;
 }
 
 .pct {
@@ -306,7 +233,7 @@
   gap: $spacing-md;
   padding: $spacing-xl;
   background: white;
-  border: 1.5px solid $gray-200;
+  border: 1px solid $gray-200;
   border-radius: $radius-lg;
   box-shadow: $shadow-sm;
 }
@@ -322,10 +249,12 @@
   display: flex;
   gap: $spacing-sm;
   align-items: stretch;
+  flex-wrap: wrap;
 
   .input {
     flex: 1;
     width: auto;
+    min-width: 0;
   }
 }
 
@@ -356,7 +285,7 @@
   justify-content: space-between;
   padding: $spacing-md $spacing-lg;
   background: white;
-  border: 1.5px solid $gray-100;
+  border: 1px solid $gray-100;
   border-radius: $radius-md;
   box-shadow: $shadow-sm;
 }
@@ -382,8 +311,8 @@
 }
 
 .avatarMe {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: rgba($primary, 0.15);
+  color: $primary;
 }
 
 .contributorName {
@@ -396,7 +325,7 @@
 .contributionTime {
   display: block;
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
 }
 
 .contributionAmount {
@@ -411,8 +340,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-lg;
-  max-width: 600px;
-  margin: $spacing-lg auto 0;
+  margin-top: $spacing-lg; // fills the canonical page column (parent owns width + gutter)
   width: 100%;
 }
 
@@ -425,7 +353,7 @@
 .sectionDividerLabel {
   font-size: $text-sm;
   font-weight: $font-semibold;
-  color: $gray-400;
+  color: $gray-500;
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -436,9 +364,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
+  width: 100%; // fills the canonical page column (parent owns width + gutter)
 }
 
 .tabBar {
@@ -451,6 +377,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-xs;
+  min-height: 44px;
   padding: $spacing-md $spacing-xl;
   background: none;
   border: none;
@@ -458,16 +385,17 @@
   margin-bottom: -2px;
   font-size: $text-sm;
   font-weight: $font-medium;
-  color: $gray-500;
+  color: $gray-600;
   cursor: pointer;
   transition: color $transition-base, border-color $transition-base;
 
-  &:hover { color: #6366f1; }
+  &:hover { color: $primary; }
 }
 
 .activeTab {
-  color: #6366f1;
-  border-bottom-color: #6366f1;
+  color: $primary;
+  border-bottom-color: $primary;
+  font-weight: $font-semibold;
 }
 
 // ─── Points counter ────────────────────────────────────────────────────────────
@@ -478,19 +406,19 @@
   padding: $spacing-md $spacing-lg;
   background: $gray-50;
   border-radius: $radius-md;
-  border: 1.5px solid $gray-200;
+  border: 1px solid $gray-200;
   font-size: $text-sm;
   flex-wrap: wrap;
 }
 
 .overBudget {
   border-color: $error;
-  background: rgba(220, 38, 38, 0.04);
+  background: rgba($error, 0.04);
 }
 
 .exact {
   border-color: $success;
-  background: rgba(16, 185, 129, 0.04);
+  background: rgba($success, 0.04);
 }
 
 .pointsUsed {
@@ -528,39 +456,23 @@
 .addForm {
   display: flex;
   gap: $spacing-sm;
+  flex-wrap: wrap;
 }
 
 .addInput {
   flex: 1;
+  min-width: 0;
+  min-height: 44px;
   padding: $spacing-md $spacing-lg;
-  border: 1.5px solid $gray-300;
+  border: 1px solid $gray-200;
   border-radius: $radius-md;
   font-size: $text-sm;
   color: $gray-800;
   outline: none;
   transition: border-color $transition-base;
 
-  &:focus { border-color: #6366f1; }
+  &:focus { border-color: $primary; }
   &::placeholder { color: $gray-400; }
-}
-
-.addBtn {
-  display: flex;
-  align-items: center;
-  gap: $spacing-xs;
-  padding: $spacing-md $spacing-lg;
-  background: #6366f1;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $text-sm;
-  font-weight: $font-medium;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background $transition-base;
-
-  &:hover { background: color.adjust(#6366f1, $lightness: -8%); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ─── Save allocation row ───────────────────────────────────────────────────────
@@ -582,7 +494,7 @@
   gap: $spacing-lg;
   padding: $spacing-md $spacing-lg;
   background: white;
-  border: 1.5px solid $gray-200;
+  border: 1px solid $gray-200;
   border-radius: $radius-md;
   box-shadow: $shadow-sm;
 }
@@ -613,7 +525,7 @@
 
 .itemBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #818cf8, #6366f1);
+  background: $primary;
   border-radius: $radius-full;
   transition: width $transition-base;
   min-width: 0;
@@ -628,12 +540,13 @@
 
 .ptsField {
   width: 72px;
+  min-height: 44px;
   padding: $spacing-xs $spacing-sm;
-  border: 1.5px solid $gray-300;
+  border: 1px solid $gray-200;
   border-radius: $radius-sm;
   font-size: $text-sm;
   font-weight: $font-semibold;
-  color: #6366f1;
+  color: $primary;
   text-align: right;
   outline: none;
   transition: border-color $transition-base;
@@ -642,12 +555,12 @@
   &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   appearance: textfield;
 
-  &:focus { border-color: #6366f1; }
+  &:focus { border-color: $primary; }
 }
 
 .ptsLabel {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   white-space: nowrap;
 }
 
@@ -670,7 +583,7 @@
   gap: $spacing-md;
   padding: $spacing-md $spacing-lg;
   background: white;
-  border: 1.5px solid $gray-200;
+  border: 1px solid $gray-200;
   border-radius: $radius-md;
   box-shadow: $shadow-sm;
 }
@@ -678,7 +591,7 @@
 .resultRank {
   font-size: $text-xs;
   font-weight: $font-bold;
-  color: $gray-400;
+  color: $gray-500;
   min-width: 24px;
   flex-shrink: 0;
 }
@@ -710,7 +623,7 @@
 .resultPct {
   font-size: $text-sm;
   font-weight: $font-semibold;
-  color: #6366f1;
+  color: $primary;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -724,16 +637,16 @@
 
 .resultBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #818cf8, #6366f1);
+  background: $primary;
   border-radius: $radius-full;
-  transition: width 0.4s ease;
+  transition: width $transition-base;
   min-width: 0;
 }
 
 .resultAmount {
   display: flex;
   align-items: baseline;
-  gap: 3px;
+  gap: $spacing-xs;
   flex-shrink: 0;
 }
 
@@ -750,7 +663,96 @@
 
 .resultsNote {
   font-size: $text-xs;
-  color: $gray-400;
+  color: $gray-500;
   text-align: center;
   margin: 0;
+}
+
+// ─── Loading / error (inline; FlowShell retired on this branch) ─────────────────
+.stateBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  text-align: center;
+}
+
+.stateMessage {
+  font-size: $text-sm;
+  color: $gray-500;
+  margin: 0;
+}
+
+.stateError {
+  color: $error;
+}
+
+// ─── Dark mode ──────────────────────────────────────────────────────────────────
+@include dark {
+  .label { color: $dark-text-secondary; }
+  .optional,
+  .symbol,
+  .goal,
+  .pct,
+  .statLabel,
+  .contributionTime,
+  .ptsLabel,
+  .resultRank,
+  .resultAmountSymbol,
+  .resultsNote,
+  .pointsSep,
+  .pointsRemaining,
+  .noData,
+  .stateMessage {
+    color: $dark-text-secondary;
+  }
+
+  .input,
+  .textarea,
+  .addInput,
+  .ptsField {
+    background: $dark-surface;
+    border-color: $dark-border;
+    color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+
+  .statCard,
+  .contributeCard,
+  .contributionRow,
+  .itemRow,
+  .resultRow {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .cardTitle,
+  .description,
+  .contributorName,
+  .itemName,
+  .resultName { color: $dark-text; }
+
+  .statValue,
+  .raised,
+  .pointsUsed,
+  .resultAmountValue { color: $dark-text; }
+
+  .pointsCounter {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .avatar {
+    background: $dark-border;
+    color: $dark-text;
+  }
+
+  .sectionDividerLine,
+  .tabBar {
+    border-color: $dark-border;
+  }
+  .sectionDividerLine { background: $dark-border; }
+
+  .sectionDividerLabel { color: $dark-text-secondary; }
 }

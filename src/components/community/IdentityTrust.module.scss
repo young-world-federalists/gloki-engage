@@ -1,0 +1,82 @@
+@use '../../styles/variables' as *;
+
+.container {
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+}
+
+// Not-a-member page state (the page header renders in the AppHeader title
+// block — S23).
+.stateMessage {
+  font-size: $text-sm;
+  color: $gray-600;
+  padding: $spacing-xl 0;
+}
+
+.trustSection {
+  padding: $spacing-xl;
+  background: $gray-50;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
+}
+
+.trustActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.shareEmbed {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $gray-200;
+}
+
+.verifyCard {
+  margin-bottom: $spacing-xl;
+}
+
+.verifyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-md;
+}
+
+.verifyTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $gray-800;
+}
+
+// Verify bar → shared <ProgressBar size="md"> (W5 T3); bespoke
+// .verifyBar/.verifyFill/.verifyFillDone deleted — the kit owns the track,
+// fill, primary→success flip, dark track, and reduced-motion transition.
+
+.verifyStatus {
+  margin-top: $spacing-sm;
+  font-size: $text-sm;
+  color: $gray-600;
+  line-height: 1.5;
+}
+
+.verifyActions {
+  margin-top: $spacing-md;
+}
+
+@include dark {
+  .verifyTitle { color: $dark-text; }
+  .verifyStatus { color: $dark-text-secondary; }
+
+  .stateMessage { color: $dark-text-secondary; }
+
+  .trustSection {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+
+  .shareEmbed {
+    border-color: $dark-border;
+  }
+}

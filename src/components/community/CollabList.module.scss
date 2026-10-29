@@ -1,0 +1,121 @@
+@use '../../styles/variables' as *;
+@use '../../styles/animations';
+
+.container {
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-3xl;
+
+  p {
+    color: $gray-500;
+    margin-top: $spacing-lg;
+  }
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $gray-200;
+  border-top: 3px solid $primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Empty / not-member states → shared <EmptyState> (W5 T4); bespoke .empty deleted.
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xl;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: $spacing-lg;
+  background: white;
+  animation: slideUpFadeIn 0.3s ease-out both;
+  min-height: 48px;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  text-align: left;
+  gap: $spacing-sm;
+
+  &:hover {
+    background: $gray-50;
+    box-shadow: $shadow-sm;
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.itemTitle {
+  flex: 1;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  color: $gray-800;
+}
+
+.itemChevron {
+  color: $gray-500;
+  flex-shrink: 0;
+}
+
+// Section-themed action — stays bespoke (DS §237-258); W5 fixes only its AA
+// contrast ($primary→$primary-dark on the tint, §5 r15) and the 44px floor.
+.createBtn {
+  display: block;
+  width: 100%;
+  min-height: 44px; // touch-target floor (W5)
+  padding: $spacing-md;
+  background: rgba($primary, 0.1);
+  color: $primary-dark; // was $primary (3.68:1 on the tint, AA fail) → $primary-dark
+  border: none;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: rgba($primary, 0.18);
+  }
+}
+
+// Dark mode
+@include dark {
+  // Dark-authoring rule (DS §241): $primary-dark (~3.4:1 on the dark tint) fails
+  // AA in dark → re-declare with $primary-on-dark (#60a5fa, ~6:1).
+  .createBtn {
+    color: $primary-on-dark;
+  }
+
+  .item {
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    &:hover {
+      background: $dark-surface;
+    }
+  }
+
+  .itemTitle {
+    color: $dark-text;
+  }
+}

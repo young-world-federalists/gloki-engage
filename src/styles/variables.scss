@@ -4,10 +4,44 @@
 // Colors
 $primary: #3b82f6;
 $primary-dark: #2563eb;
-$secondary: #64748b;
+// Blue for TEXT in dark mode. $primary-dark is a light-mode hover/darker tone —
+// as dark-scheme text it fails AA (2.8–3.5:1 on $dark-bg/$dark-surface, S16
+// audit); this blue-400 is ≥4.5:1 on both dark surfaces.
+$primary-on-dark: #60a5fa;
 $success: #10b981;
+$success-dark: #059669; // success hover/active, pairs with $success like $primary-dark
 $warning: #f59e0b;
 $error: #dc2626;
+$error-dark: #b91c1c; // destructive hover, pairs with $error like $primary-dark; AA on white + error-surface
+$warning-dark: #d97706; // warning hover/darker; completes the -dark set ($primary/$success/$error-dark)
+
+// Brand gradient (login / decorative surfaces — no text sits directly on it)
+$brand-gradient-start: #667eea;
+$brand-gradient-end: #764ba2;
+
+// ---------------------------------------------------------------------------
+// Stage identity — the SINGLE source of truth for the 5 governance-stage
+// colours (Problem → Discussion → Solutions → Vote → Mandate). Used by the
+// StageStrip circles and the create-initiative stepper. A harmonised sibling
+// set (consistent weight) so the pipeline reads as one calm rainbow, not a
+// clash. Stage colour ALWAYS pairs with the stage icon + label, so it never
+// reads as a status (e.g. red Problem ≠ error). Tunable at review.
+// ---------------------------------------------------------------------------
+$stage-problem:    #ef4444;
+$stage-discussion: #f59e0b;
+$stage-solutions:  #8b5cf6;
+$stage-vote:       #3b82f6;
+$stage-mandate:    #10b981;
+
+// Region palette — vote-results colours (6 regions + neutral fallback).
+// Chosen distinct + AA as bar fills against card backgrounds in light & dark.
+$region-africa:        #d98a2b;
+$region-asia-pacific:  #1f9e94;
+$region-europe:        #4f63d2;
+$region-latam:         #d94f6a;
+$region-north-america: #9b5de0;
+$region-mena:          #2f9e57;
+$region-other:         #8a909c;
 
 // Grays (Light mode)
 $gray-50: #f8fafc;
@@ -37,6 +71,10 @@ $spacing-xl: 1.5rem;
 $spacing-2xl: 2rem;
 $spacing-3xl: 3rem;
 
+// Minimum interactive-control dimension. Shared controls use this instead of
+// repeating the 44px mobile touch floor from DESIGN_SYSTEM.md.
+$touch-target-min: 44px;
+
 // Border radius
 $radius-sm: 0.375rem;
 $radius-md: 0.5rem;
@@ -54,6 +92,12 @@ $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 $shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Use one system sans stack for body text, headings, and the wordmark.
+$font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+$font-display: $font-body;
 
 // Font sizes
 $text-xs: 0.75rem;
@@ -70,9 +114,153 @@ $font-medium: 500;
 $font-semibold: 600;
 $font-bold: 700;
 
+// Page-title standard (S16 heading normalisation, D3/S19): every page <h1> —
+// including the AppHeader title block — uses this pair, with $heading-gap
+// below it. Sanctioned exceptions (DESIGN_SYSTEM § Typography): full-bleed
+// guided flows (onboarding steps, the MandateCard document title).
+// S33: raised $text-xl (20px) → $text-2xl (24px). At 20px against 16px body the
+// ratio was 1.25 — the page's most important text barely outranked its ordinary
+// text, which is why screens read flat. 24px gives a 1.5 ratio and lets the
+// $text-xl step do real work as the section heading below it.
+$page-title-size: $text-2xl; // 24px
+$page-title-weight: $font-bold; // 700 — keeps h1 distinct from 600-weight section h2s
+$heading-gap: $spacing-sm; // 8px minimum air under a page title
+
 // Breakpoints
 $breakpoint-sm: 640px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
+// ---------------------------------------------------------------------------
+// Semantic surfaces — tinted backgrounds + readable text for badges, banners,
+// and inline messages. Always use these instead of hardcoding tinted hex.
+// Each pair is a tinted surface (background) and an on-surface (text) colour.
+// ---------------------------------------------------------------------------
+$success-surface: #d1fae5;
+$success-on-surface: #065f46;
+$warning-surface: #fef3c7;
+$warning-on-surface: #92400e;
+$error-surface: #fee2e2;
+$error-on-surface: $error-dark; // $error (#dc2626) was only 3.95:1 on $error-surface; $error-dark is 5.30:1 (AA)
+$info-surface: #dbeafe;
+$info-on-surface: #1e40af;
+
+// Dark-mode tinted surfaces (lower chroma, raised against $dark-bg/$dark-surface).
+$success-surface-dark: #064e3b;
+$warning-surface-dark: #78350f;
+$error-surface-dark: #7f1d1d;
+$info-surface-dark: #1e3a8a;
+
+// Destructive / danger TEXT on dark surfaces — a lighter red than $error so it
+// keeps AA contrast against $dark-bg / $dark-surface (e.g. Leave/Logout items).
+$error-on-dark: #f87171;
+// Success / warning TEXT on dark surfaces — completes the on-dark family beside
+// $primary-on-dark / $error-on-dark. Semantic TEXT on a plain dark surface uses
+// a *-on-dark token, never a *-on-surface (light tinted-chip colours) or the raw
+// brand/semantic colour. Values are the -400 tints (bright enough for AA on $dark-bg).
+$success-on-dark: #34d399; // green-400 — ≈7.6:1 on $dark-bg
+$warning-on-dark: #fbbf24; // amber-400
+
+// Overlays / scrims (modal backdrops, sheet dimmers).
+$overlay-bg: rgba(15, 23, 42, 0.55);
+$scrim-light: rgba(15, 23, 42, 0.3); // lighter dimmer behind bottom sheets / popovers
+
+// Dark-mode white-alpha tints — hover/raised surfaces on dark backgrounds
+// (S22 canonicalization of the literal rgba(255,255,255,…) values).
+$dark-tint-subtle: rgba(255, 255, 255, 0.06); // hover on dark ghost/segment controls
+$dark-tint-raised: rgba(255, 255, 255, 0.08); // raised chips/close buttons on dark
+$dark-tint-strong: rgba(255, 255, 255, 0.1); // stronger tracks/wells on dark
+
+// Card chin / footer — the recessed bottom action strip on stage cards
+// (DiscussionPill + open action; campaign §4 pattern). NOT the global
+// StageFooter ($footer-height / $footer-clearance in Layout below). Values
+// reuse existing tokens: this is naming/one-home, not new raw colour.
+$footer-surface: $gray-100; // #f1f5f9 — recessed card-footer well (light)
+$footer-surface-dark: $dark-tint-subtle; // raised footer strip on the dark card bg
+$footer-border: $gray-200; // #e2e8f0 — footer hairline top rule (light)
+$footer-border-dark: $dark-border; // #475569 — footer hairline top rule (dark)
+
+// Layout
+$footer-height: 64px; // global StageFooter; pad bottom of scroll regions by this
+$content-max-width: 640px; // single-column mobile-first content column
+// THE app-wide horizontal content edge: the AppHeader title block, the brand bar,
+// and every page content column share this one gutter. No ad-hoc per-file /
+// per-breakpoint horizontal padding; mobile media queries may tighten vertical only.
+$content-gutter: $spacing-lg; // 16px
+// Unified bottom pad for any scroll region so content clears the fixed StageFooter.
+// One value app-wide (was a 64/72/80/… drift across pages).
+$footer-clearance: calc(#{$footer-height} + #{$spacing-lg}); // 80px
+// Scroll anchoring: any scrollIntoView / deep-link target needs this much
+// scroll-margin-top or its title lands hidden under the sticky AppHeader bar
+// (~61px: 44px controls + 2×8px padding + 1px rule) (S23).
+$sticky-scroll-offset: 76px;
+
+// Canonical page column: ONE max-width, centred, with the app-wide horizontal
+// gutter. The AppHeader brand row + title block AND every page content column
+// @include this, so header and content share one edge AND one centred column on
+// desktop (>640px). Horizontal only — vertical padding (top air, $footer-clearance
+// bottom) stays per-context. `max-width` is a cap, so 360px is unaffected. (S24/W1b)
+@mixin page-column {
+  width: 100%;
+  max-width: $content-max-width;
+  margin-inline: auto;
+  padding-inline: $content-gutter;
+  box-sizing: border-box;
+}
+
+// Figures that sit in a column, update in place, or get compared to each other
+// (tallies, counts, percentages, strengths) render with fixed-width digits, so a
+// number doesn't jitter sideways when it changes and columns of numbers line up.
+// Prose keeps the default proportional figures — only apply this to DATA. (S33)
+@mixin tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+// ---------------------------------------------------------------------------
+// Theme (S21, D2) — the ONLY way to write dark-mode styles.
+// `<html>` carries data-theme="light" | "dark" | (absent = Auto, the default).
+// The attribute is set before first paint by the index.html head snippet and
+// managed by src/hooks/useTheme.ts (localStorage key `gloki.theme`).
+//
+// `@include dark { … }` replaces the raw prefers-color-scheme media block
+// app-wide: in Auto it applies exactly when the OS scheme is dark; a forced
+// theme overrides the OS. `:where()` carries zero specificity, so in Auto the
+// cascade is identical to the old raw media query. Never write a raw
+// `prefers-color-scheme` block — the S21 codemod swept them all.
+// ---------------------------------------------------------------------------
+@mixin dark {
+  @if & {
+    @media (prefers-color-scheme: dark) {
+      :where(html:not([data-theme='light'])) & {
+        @content;
+      }
+    }
+    :where(html[data-theme='dark']) & {
+      @content;
+    }
+  } @else {
+    @media (prefers-color-scheme: dark) {
+      :where(html:not([data-theme='light'])) {
+        @content;
+      }
+    }
+    :where(html[data-theme='dark']) {
+      @content;
+    }
+  }
+}
+
+// For blocks whose subject IS the root element (e.g. :root custom-property
+// overrides) — the descendant form in `dark` can never match `:root` itself.
+@mixin dark-self {
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme='light'])) {
+      @content;
+    }
+  }
+  &:where([data-theme='dark']) {
+    @content;
+  }
+}

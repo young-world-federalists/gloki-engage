@@ -1,0 +1,225 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Send, AlertTriangle, MessageSquare } from 'lucide-react';
+import { useAppSelector } from '../../../store/hooks';
+import CountryBadge from '../../collaboration/flows/shared/CountryBadge';
+import { useFlowContract } from '../../collaboration/flows/shared/useFlowContract';
+const chatContractCode = '';import { getMessages, addMessage, getTopics } from './chatApi';
+import type { ChatMessage, ChatTopic as ChatTopicType } from './chatApi';
+import { useI18n } from '../../../i18n';
+import { Button, EmptyState } from '../../shared';
+import { displayNameFor } from '../../../utils/displayName';
+import { formatDateTime } from '../../../utils/formatDateTime';
+import styles from './ChatTopic.module.scss';
+import { useLoadWhenReady } from '../../../hooks/useLoadWhenReady';
+
+const POLL_INTERVAL_MS = 5_000;
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+const ChatTopic: React.FC = () => {
+  const { t, locale } = useI18n();
+  const { communityId, topicId } = useParams<{ communityId: string; topicId: string }>();
+  const navigate = useNavigate();
+
+  const serverUrl = useAppSelector((state) => state.user.serverUrl);
+  const publicKey = useAppSelector((state) => state.user.publicKey);
+  const profiles = useAppSelector((state) => state.communities.profiles);
+
+  const instanceId = communityId ? `chat_${communityId}` : 'chat_unknown';
+  const { contractId, isReady, isDeploying, hasError, errorMessage, statusMessage, retry } =
+    useFlowContract(
+      instanceId,
+      'chat',
+      'chat_contract.py',
+      chatContractCode,
+      communityId,
+      'chatContractId',
+    );
+
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [topic, setTopic] = useState<ChatTopicType | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const refreshMessages = useCallback(async () => {
+    if (!serverUrl || !publicKey || !contractId || !topicId) return;
+    try {
+      const list = await getMessages(serverUrl, publicKey, contractId, topicId);
+      setMessages(list);
+    } catch (err) {
+      console.error('[ChatTopic] Failed to fetch messages:', err);
+    }
+  }, [serverUrl, publicKey, contractId, topicId]);
+
+  const refreshTopic = useCallback(async () => {
+    if (!serverUrl || !publicKey || !contractId || !topicId) return;
+    try {
+      const topics = await getTopics(serverUrl, publicKey, contractId);
+      const found = topics.find(t => t.id === topicId) ?? null;
+      setTopic(found);
+    } catch (err) {
+      console.error('[ChatTopic] Failed to fetch topic:', err);
+    }
+  }, [serverUrl, publicKey, contractId, topicId]);
+
+  useLoadWhenReady(refreshTopic, isReady);
+  useLoadWhenReady(refreshMessages, isReady, POLL_INTERVAL_MS);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  if (!communityId || !topicId) {
+    return <EmptyState icon={<MessageSquare size={48} aria-hidden />} title={t('chat.topicNotFound', 'Topic not found.')} />;
+  }
+
+  if (hasError) {
+    return (
+      <EmptyState
+        icon={<AlertTriangle size={48} aria-hidden />}
+        title={errorMessage || t('common.errorTitle', 'Something went wrong')}
+        message={t('chat.onChainCaveat', "Chat is hosted on-chain and only available on communities created after 2026-04-22. Older communities can't host sub-contracts yet.")}
+        action={<Button variant="secondary" size="md" onClick={retry}>{t('common.retry', 'Try again')}</Button>}
+      />
+    );
+  }
+
+  if (!isReady) {
+    // Loading stays bespoke — EmptyState requires a title and reads as "no data".
+    return (
+      <div className={styles.loadingState}>
+        <MessageSquare size={36} aria-hidden />
+        <p>{statusMessage || (isDeploying ? t('chat.settingUp', 'Setting up chat…') : t('common.loading', 'Loading…'))}</p>
+      </div>
+    );
+  }
+
+  if (!topic) {
+    return (
+      <EmptyState
+        icon={<MessageSquare size={48} aria-hidden />}
+        title={t('chat.topicNotFound', 'Topic not found.')}
+        action={
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<ArrowLeft size={16} aria-hidden />}
+            onClick={() => navigate(`/community/${communityId}/chat`)}
+          >
+            {t('chat.backTitle', 'Back to Chat')}
+          </Button>
+        }
+      />
+    );
+  }
+
+  const handleSend = async () => {
+    const trimmed = inputText.trim();
+    if (!trimmed || !publicKey || !serverUrl || !contractId || sending) return;
+
+    // Optimistic append
+    const optimistic: ChatMessage = {
+      id: `optimistic_${Date.now()}`,
+      topicId,
+      author: publicKey,
+      text: trimmed,
+      timestamp: Date.now(),
+    };
+    const snapshot = messages;
+    setMessages([...snapshot, optimistic]);
+    setInputText('');
+    setSending(true);
+
+    try {
+      await addMessage(serverUrl, publicKey, contractId, topicId, trimmed);
+      await refreshMessages();
+    } catch (err) {
+      console.error('[ChatTopic] Failed to send message:', err);
+      // Rollback
+      setMessages(snapshot);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      {/* Topic title bar — the back button lives in the AppHeader (S23). */}
+      <div className={styles.topBar}>
+        <span className={styles.topicTitle}>{topic.title}</span>
+      </div>
+
+      {/* Message stream */}
+      <div className={styles.messageStream}>
+        {messages.length === 0 && (
+          <EmptyState compact title={t('chat.noMessages', 'No messages yet. Say something!')} />
+        )}
+
+        {messages.map(msg => {
+          const isOwn = msg.author === publicKey;
+          const profile = profiles?.[msg.author];
+          const displayName = isOwn
+            ? t('deliberation.you', 'You')
+            : displayNameFor(profile, msg.author);
+          const countryCode = profile?.country;
+
+          return (
+            <div
+              key={msg.id}
+              className={`${styles.message} ${isOwn ? styles.mine : ''}`}
+            >
+              <div className={styles.messageMeta}>
+                <span className={styles.authorName}>
+                  {displayName}
+                  <CountryBadge countryCode={countryCode} />
+                </span>
+                <span className={styles.timestamp}>{formatDateTime(msg.timestamp, locale)}</span>
+              </div>
+              <div className={styles.messageText}>{msg.text}</div>
+            </div>
+          );
+        })}
+
+        {/* Scroll anchor */}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input bar */}
+      <div className={styles.inputBar}>
+        <textarea
+          className={styles.textarea}
+          rows={1}
+          placeholder={t('chat.messagePlaceholder', 'Write a message…')}
+          value={inputText}
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={sending}
+        />
+        <button
+          className={styles.sendBtn}
+          onClick={handleSend}
+          disabled={!inputText.trim() || !publicKey || sending}
+          title={t('chat.send', 'Send')}
+          aria-label={t('chat.sendAria', 'Send message')}
+        >
+          <Send size={18} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ChatTopic;

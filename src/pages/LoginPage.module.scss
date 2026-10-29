@@ -7,26 +7,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $brand-gradient-start 0%, $brand-gradient-end 100%);
   padding: $spacing-lg;
 
   .card {
     background: white;
     border-radius: $radius-xl;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: $shadow-xl;
     padding: $spacing-3xl;
     width: 100%;
     max-width: 450px;
+
+    .langRow {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: $spacing-md;
+    }
 
     .header {
       text-align: center;
       margin-bottom: $spacing-2xl;
 
+      .titleRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+      }
+
       h1 {
         font-size: $text-3xl;
         font-weight: $font-bold;
         color: $gray-800;
-        margin-bottom: $spacing-sm;
+        margin: 0;
       }
 
       p {
@@ -52,6 +66,15 @@
           font-weight: $font-medium;
           color: $gray-700;
           font-size: $text-sm;
+          flex-wrap: wrap;
+        }
+
+        .fieldHint {
+          display: block;
+          font-size: $text-xs;
+          color: $gray-500;
+          font-weight: $font-normal;
+          margin-top: 2px;
         }
 
         .inputWithButton {
@@ -66,7 +89,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: $spacing-md;
+            width: $touch-target-min;
+            min-width: $touch-target-min;
+            height: $touch-target-min;
+            padding: 0;
+            flex-shrink: 0;
             background-color: $gray-100;
             color: $gray-700;
             border: 1px solid $gray-300;
@@ -92,16 +119,23 @@
             background: white;
             border: 1px solid $gray-300;
             border-radius: $radius-md;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: $shadow-lg;
             z-index: 10;
             max-height: 200px;
             overflow-y: auto;
 
             .historyItem {
+              display: block;
+              width: 100%;
+              text-align: left;
               padding: $spacing-md;
-              cursor: pointer;
+              background: none;
+              border: none;
               border-bottom: 1px solid $gray-100;
+              color: $gray-800;
+              font-family: inherit;
               font-size: $text-sm;
+              cursor: pointer;
               transition: background-color $transition-base;
 
               &:last-child {
@@ -111,6 +145,11 @@
               &:hover {
                 background-color: $gray-50;
               }
+
+              &:focus-visible {
+                outline: 2px solid $primary;
+                outline-offset: -2px;
+              }
             }
           }
         }
@@ -118,7 +157,7 @@
 
       .fieldError {
         font-size: $text-sm;
-        color: #e53e3e;
+        color: $error-dark;
         margin-top: -$spacing-xs;
       }
 
@@ -133,15 +172,15 @@
         border: 1px solid;
 
         &.generalError {
-          background-color: #fef2f2;
-          border-color: #fecaca;
-          color: $error;
+          background-color: $error-surface;
+          border-color: rgba($error, 0.4);
+          color: $error-dark;
         }
 
         &.serverError {
-          background-color: #fffbeb;
-          border-color: #fcd34d;
-          color: $warning;
+          background-color: $warning-surface;
+          border-color: rgba($warning, 0.5);
+          color: $warning-on-surface;
         }
 
         .errorIcon {
@@ -165,17 +204,17 @@
           .retryButton {
             margin-top: $spacing-md;
             padding: $spacing-sm $spacing-lg;
-            background-color: $warning;
+            background-color: $warning-on-surface;
             color: white;
             border: none;
             border-radius: $radius-sm;
             font-size: $text-sm;
             font-weight: $font-medium;
             cursor: pointer;
-            transition: background-color $transition-base;
+            transition: filter $transition-base;
 
             &:hover {
-              background-color: #d97706;
+              filter: brightness(1.12);
             }
           }
         }
@@ -192,8 +231,51 @@
   }
 }
 
+// At phone widths the card sits inside the page gutter *and* its own padding —
+// two levels that, at the default $spacing-3xl, leave the 5-stage StageStrip
+// (5c) too narrow at 360px. Trim both horizontal levels (page gutter → sm,
+// card → lg) so the strip gets the same room it has on the create screens
+// (one $spacing-xl level). Below ~466px the card is full-width, so this only
+// bites on small phones; at ≥466px the card is centred and these are moot.
+@media (max-width: $breakpoint-sm) {
+  .container {
+    padding: $spacing-lg $spacing-sm;
+  }
+
+  .container .card {
+    padding: $spacing-2xl $spacing-lg;
+  }
+}
+
+// The (i) trigger sits inline after the title; its Modal content (.helpBody)
+// portals to <body>, so these classes live at the top level — not nested under
+// .card — to apply outside the card's DOM subtree.
+.infoTrigger {
+  flex-shrink: 0;
+}
+
+.helpBody {
+  text-align: left;
+
+  p {
+    font-size: $text-sm;
+    color: $gray-700;
+    line-height: 1.5;
+    margin-bottom: $spacing-sm;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
+  // Portaled Modal content — top-level, sibling to .container.
+  .helpBody p {
+    color: $dark-text-secondary;
+  }
+
   .container {
     .card {
       background-color: $dark-bg;
@@ -212,6 +294,24 @@
         .inputGroup {
           label {
             color: $dark-text;
+          }
+
+          .fieldHint {
+            color: $dark-text-secondary;
+          }
+
+          .inputWithButton {
+            .generateButton {
+              // Critique (S43): was $dark-surface on a $dark-surface card, near-invisible.
+              background-color: $dark-bg;
+              border-color: $dark-text-secondary;
+              color: $dark-text;
+
+              &:hover {
+                background-color: $dark-border;
+                color: $dark-text;
+              }
+            }
           }
 
           .inputWithDropdown {
@@ -235,3 +335,62 @@
   }
 }
 
+
+/* S33 — the organization path. Quiet and secondary: the person flow is the
+   product; organizations are a narrow, mandate-only actor. */
+.orgRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+}
+
+.orgDivider {
+  font-size: $text-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $gray-500;
+}
+
+.orgButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-lg;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-md;
+  background: white;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-700;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  svg { flex-shrink: 0; }
+
+  &:hover:not(:disabled) { border-color: $primary; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+.orgHint {
+  margin: 0;
+  font-size: $text-xs;
+  line-height: 1.5;
+  text-align: center;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// S43 (critique, detector ai-color-palette): the beta's ground is brand blue only;
+// the blue→violet brand gradient stays on the demo login.
+.containerBeta {
+  background: linear-gradient(135deg, $primary-dark 0%, $primary 100%);
+}

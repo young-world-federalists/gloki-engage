@@ -10,10 +10,11 @@
   background-color: $gray-50;
 
   .content {
+    @include page-column;
     display: flex;
     flex-direction: column;
     gap: $spacing-lg;
-    padding: 0 $spacing-xl $spacing-xl;
+    padding-block: 0 $footer-clearance; // top 0, bottom clears the fixed StageFooter
 
     .nav {
       display: flex;
@@ -74,6 +75,11 @@
           }
         }
 
+        &:focus-visible {
+          outline: 2px solid $primary;
+          outline-offset: 2px;
+        }
+
         &.active {
           background-color: $primary;
           color: white;
@@ -99,10 +105,6 @@
 
     .main {
       flex: 1;
-      background: white;
-      border-radius: $radius-lg;
-      box-shadow: $shadow-sm;
-      padding: $spacing-xl;
       min-height: 400px;
     }
   }
@@ -153,8 +155,8 @@
   .container {
 
     .content {
-      padding: 0 $spacing-lg $spacing-lg;
-
+      // horizontal gutter + footer clearance inherited from base ($content-gutter,
+      // 72px bottom) — no per-breakpoint horizontal override (header-gutter law).
       .nav {
         padding: $spacing-sm;
         
@@ -173,19 +175,18 @@
       }
 
       .main {
-        padding: $spacing-lg;
+        // no padding — inner components handle their own
       }
     }
   }
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
   .container {
     background-color: $dark-surface;
 
-    .content .nav,
-    .content .main {
+    .content .nav {
       background-color: $dark-bg;
       border-color: $dark-border;
     }

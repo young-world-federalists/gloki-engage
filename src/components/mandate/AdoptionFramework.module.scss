@@ -1,0 +1,482 @@
+@use '../../styles/variables' as *;
+
+/* Sibling card chrome (S32 F6, D8): "From mandate to action" now reads as a card
+   like its three mandate siblings, which all hand-roll chrome (kit convergence of
+   all four is a separate refactor lane). */
+.adoption {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include dark {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+}
+
+/* ----- Header ----- */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.headingRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.headingIcon {
+  color: $primary;
+  flex-shrink: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.intro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- Aggregate summary + CTA ----- */
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  background: $info-surface;
+  border-radius: $radius-lg;
+
+  @include dark {
+    background: $info-surface-dark;
+  }
+}
+
+.summaryHeadline {
+  margin: 0;
+  font-size: $text-base;
+  font-weight: $font-semibold;
+  color: $info-on-surface;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.summaryBreakdown {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $info-on-surface;
+
+  @include dark {
+    // $dark-text-secondary on $info-surface-dark was 4.04:1 (S16 C5)
+    color: $dark-text;
+  }
+}
+
+.thanks {
+  margin: 0;
+}
+
+/* ----- Adopters list ----- */
+/* Quiet inline toggle: the summary already gives the count, so the full list
+   is opt-in (W4 4.7). Full-width row, label left + chevron right. */
+.discloseToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $primary-dark;
+  text-align: left;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+
+  @include dark {
+    color: $primary-on-dark;
+  }
+}
+
+.chevron {
+  flex: none;
+  transition: transform $transition-base;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // The `hidden` attribute's display:none is otherwise overridden by display:flex.
+  &[hidden] {
+    display: none;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  // Nested item inside the white .adoption card (S32 F6): $gray-50 reads as a
+  // recessed row, not white-on-white; dark drops to $dark-surface below the card.
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.orgMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.orgName {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.orgSub {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.orgType {
+  font-weight: $font-medium;
+}
+
+.dot {
+  color: $gray-300;
+}
+
+.orgLoc {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+}
+
+/* ----- Reported progress ----- */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+// Bar visuals live in the shared <ProgressBar> kit (S22 m6 extraction);
+// this class only sizes it within the row.
+.progressTrack {
+  flex: 1;
+}
+
+.progressPct {
+  @include tabular-nums;
+  flex-shrink: 0;
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.note {
+  margin: 0;
+  font-size: $text-sm;
+  font-style: italic;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.since {
+  margin: 0;
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+/* ----- Endorse modal form ----- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.formIntro {
+  margin: 0;
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: $gray-600;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.formLabel {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-800;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.optional {
+  font-weight: $font-normal;
+  font-size: $text-xs;
+  color: $gray-500;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $text-sm;
+  color: $gray-900;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $gray-500;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 1px;
+    border-color: $primary;
+  }
+
+  @include dark {
+    color: $dark-text;
+    background: $dark-bg;
+    border-color: $dark-border;
+
+    &::placeholder {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+.formInput {
+  height: 40px;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 56px;
+  line-height: 1.5;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: $spacing-xs $spacing-md;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $gray-700;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-full;
+  cursor: pointer;
+  transition: background $transition-base, border-color $transition-base, color $transition-base;
+
+  &:hover {
+    border-color: $gray-300;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    color: $dark-text;
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.chipSelected {
+  color: $primary-dark;
+  background: rgba($primary, 0.1);
+  border-color: $primary;
+
+  &:hover {
+    border-color: $primary;
+  }
+
+  @include dark {
+    color: $dark-text;
+    background: rgba($primary, 0.25);
+    border-color: $primary;
+  }
+}
+
+/* Engagement-level picker — two stacked option cards */
+.levelRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.level {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: $spacing-sm $spacing-md;
+  text-align: left;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background $transition-base, border-color $transition-base;
+
+  &:hover {
+    border-color: $gray-300;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+  }
+}
+
+.levelSelected {
+  background: rgba($primary, 0.1);
+  border-color: $primary;
+
+  &:hover {
+    border-color: $primary;
+  }
+
+  @include dark {
+    background: rgba($primary, 0.25);
+    border-color: $primary;
+  }
+}
+
+.levelTitle {
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $gray-900;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+.levelDesc {
+  font-size: $text-xs;
+  line-height: 1.3;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

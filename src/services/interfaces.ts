@@ -20,14 +20,26 @@ export interface IContract {
     parameters?: Record<string, unknown>;
   }
   
+  /**
+   * S42 — what kind of account a Digital Agent is. Declared by the user at
+   * sign-up (the beta's three doors); the organisation kind is declared, not
+   * verified. `contributor` records interest in hosting a node — there is no
+   * node runtime to point at yet.
+   */
+  export type AccountKind = 'person' | 'organisation' | 'contributor';
+
   export interface IProfile {
     firstName: string;
     lastName: string;
     userPhoto: string;
     userBio: string;
-    // Optional field for storing per-user AI configuration (e.g. OpenAI API key)
-    // This is read from the gloki/profile contract as a simple key-value.
-    openaiApiKey?: string;
+    // ISO 3166-1 alpha-2 country code (e.g. 'KE', 'NG', 'MW', 'CD') or 'OTHER'
+    country?: string;
+    // Optional public display name / pseudonym; when set, bylines show this
+    // instead of first+last (see src/utils/displayName.ts).
+    displayName?: string;
+    // S42 — see AccountKind above. Absent on profiles created before S42.
+    accountKind?: AccountKind;
   }
 
   export interface IPartner {

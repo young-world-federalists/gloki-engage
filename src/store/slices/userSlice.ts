@@ -1,18 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { isExistAgent, registerAgent, getContracts, deployContract } from '../../services/api';
-import type { IContract, IProfile } from '../../services/interfaces';
+import { isExistAgent, registerAgent, getContracts } from '../../services/api';
+import type { IContract } from '../../services/interfaces';
 import type { RootState } from '../index';
-import profileContractCode from '../../assets/contracts/gloki_contract.py?raw';
-import { getProfile } from '../../services/contracts/gloki';
+import {
+  findDigitalAgentContract,
+  readDigitalAgentProfile,
+  type DigitalAgentProfileFields,
+} from '../../components/identity/agent/digitalAgentContract';
 
 // Interfaces from contractsSlice
-
-// Profile contract unique name
-export const PROFILE_CONTRACT_NAME = "unique-gloki-communities-profile-contract";
-
-// Community contract unique name
-export const COMMUNITY_CONTRACT_NAME = "unique-gloki-communities-community-contract";
 
 // Complete user state
 interface UserState {
@@ -21,12 +18,21 @@ interface UserState {
   serverUrl: string | null;
   
   // User data
-  profile: IProfile | null;
-  profileContractId: string | null;
-  
+  // The gloki-engage Digital Agent's own profile — read fresh from its real
+  // contract on every login (see fetchContracts). null contract id or
+  // profile means the agent hasn't onboarded (deployed one) yet; nothing
+  // about this is cached in localStorage.
+  digitalAgentProfile: DigitalAgentProfileFields | null;
+  digitalAgentContractId: string | null;
+  // False until fetchContracts has heard back from the server (found or not
+  // found) at least once for the CURRENT identity. App.tsx's RootRoute
+  // shows a spinner while this is false, rather than guessing — onboarding
+  // vs. skip is a server-driven decision, never shown before it's known.
+  digitalAgentProfileChecked: boolean;
+
   // Contracts
   contracts: IContract[];
-  
+
   // UI state
   loading: boolean;
   error: string | null;
@@ -36,14 +42,15 @@ const initialState: UserState = {
   // Authentication
   publicKey: null,
   serverUrl: null,
-  
+
   // User data
-  profile: null,
-  profileContractId: null,
-  
+  digitalAgentProfile: null,
+  digitalAgentContractId: null,
+  digitalAgentProfileChecked: false,
+
   // Contracts
   contracts: [],
-  
+
   // UI state
   loading: false,
   error: null,
@@ -68,9 +75,11 @@ export const initializeUser = createAsyncThunk(
         await registerAgent({serverUrl, publicKey });
       }
       
-      // 2. Get contracts
-      dispatch(fetchContracts());
-      
+      // 2. Get contracts (awaited — the digital-agent-profile check inside
+      // fetchContracts needs to finish before the app decides whether to
+      // show onboarding or skip straight to the home page)
+      await dispatch(fetchContracts());
+
       return null;
     } catch (error) {
       return rejectWithValue(String(error));
@@ -90,70 +99,42 @@ export const fetchContracts = createAsyncThunk(
     
           try {
         const contracts = await getContracts({serverUrl, publicKey });
-        
+
         // Store contracts in Redux state first
-        await dispatch(setContracts(contracts || []));
-        
-        // Then call readProfile which can access contracts from state
-        dispatch(readProfile());
-        
+        await dispatch(userSlice.actions.setContracts(contracts || []));
+
+        // Check the real server, every login, for this agent's own
+        // gloki-engage Digital Agent profile contract — no local cache or
+        // "already onboarded" flag short-circuits this. App.tsx's
+        // RootRoute reads state.user.digitalAgentProfile directly to decide
+        // whether to show onboarding or skip to the home page, so this is
+        // the single source of truth for that decision, sourced fresh from
+        // the server on both the fresh-login and stored-credentials paths
+        // (both dispatch through here via initializeUser).
+        const profileContract = findDigitalAgentContract(contracts || []);
+        if (profileContract) {
+          try {
+            const profile = await readDigitalAgentProfile({
+              serverUrl,
+              publicKey,
+              contractId: profileContract.id,
+            });
+            dispatch(setDigitalAgentProfile({ profile, contractId: profile ? profileContract.id : null }));
+          } catch (error) {
+            console.error('[fetchContracts] Failed to read digital agent profile contract:', error);
+            dispatch(setDigitalAgentProfile({ profile: null, contractId: null }));
+          }
+        } else {
+          dispatch(setDigitalAgentProfile({ profile: null, contractId: null }));
+        }
+
         return contracts || [];
     } catch (error) {
-      return rejectWithValue(String(error));
-    }
-  }
-);
-
-// Fetch contracts (for refreshing)
-export const readProfile = createAsyncThunk(
-  'user/readProfile',
-  async (_, { rejectWithValue, getState }) => {
-    const { publicKey, serverUrl, contracts } = (getState() as RootState).user;
-
-    if (!publicKey || !serverUrl) {
-      return rejectWithValue('Missing publicKey or serverUrl');
-    }
-    
-    try {
-      // 3. Handle profile contract
-      const profileContract = contracts?.find((c: IContract) => {
-        return c.name === PROFILE_CONTRACT_NAME;
-      });
-      let profileData = null;
-      
-      let profileContractId = null;
-      
-      if (profileContract) {
-        // Read profile data from existing contract
-        const profileResult = await getProfile(
-          serverUrl,
-          publicKey,
-          profileContract.id,
-        );
-        profileData = profileResult;
-        profileContractId = profileContract.id;
-      } else {
-        // Deploy profile contract - SSE listener will handle updating contracts list
-        await deployContract({
-          serverUrl,
-          publicKey,
-          name: PROFILE_CONTRACT_NAME,
-          contract: 'gloki_contract.py',
-          code: profileContractCode
-        });
-        
-        // Set default profile data
-        profileData = {
-          firstName: '',
-          lastName: '',
-          userPhoto: '',
-          userBio: ''
-        };
-        // Note: profileContractId will be null here, but will be updated when contracts are refreshed
-      }
-      
-      return { profile: profileData, profileContractId };
-    } catch (error) {
+      // Even on failure (e.g. getContracts itself couldn't reach the
+      // server), mark the check as done with "no profile found" rather
+      // than leaving digitalAgentProfileChecked false forever — otherwise
+      // RootRoute would spin indefinitely instead of falling back to onboarding.
+      dispatch(setDigitalAgentProfile({ profile: null, contractId: null }));
       return rejectWithValue(String(error));
     }
   }
@@ -171,18 +152,30 @@ const userSlice = createSlice({
         state.publicKey = null;
         state.serverUrl = null;
       }
-    },
-    clearError: (state) => {
-      state.error = null;
+      // A (re)set identity means whatever we knew about the PREVIOUS
+      // identity's profile no longer applies — don't let RootRoute act on
+      // stale data from a different agent while the new check is pending.
+      state.digitalAgentProfile = null;
+      state.digitalAgentContractId = null;
+      state.digitalAgentProfileChecked = false;
     },
     setContracts: (state, action: PayloadAction<IContract[]>) => {
       state.contracts = action.payload;
     },
+    setDigitalAgentProfile: (
+      state,
+      action: PayloadAction<{ profile: DigitalAgentProfileFields | null; contractId: string | null }>,
+    ) => {
+      state.digitalAgentProfile = action.payload.profile;
+      state.digitalAgentContractId = action.payload.contractId;
+      state.digitalAgentProfileChecked = true;
+    },
     clearUser: (state) => {
       state.publicKey = null;
       state.serverUrl = null;
-      state.profile = null;
-      state.profileContractId = null;
+      state.digitalAgentProfile = null;
+      state.digitalAgentContractId = null;
+      state.digitalAgentProfileChecked = false;
       state.contracts = [];
       state.error = null;
     },
@@ -216,23 +209,8 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      
-      // Read profile
-      .addCase(readProfile.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(readProfile.fulfilled, (state, action) => {
-        state.loading = false;
-        state.profile = action.payload.profile;
-        state.profileContractId = action.payload.profileContractId;
-      })
-      .addCase(readProfile.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
   },
 });
 
-export const { setCurrentUser, clearError, setContracts, clearUser } = userSlice.actions;
-export default userSlice.reducer; 
+export const { setCurrentUser, setDigitalAgentProfile, clearUser } = userSlice.actions;
+export default userSlice.reducer;

@@ -1,136 +1,256 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus } from 'lucide-react';
+import { Star, EyeOff, Eye, ArrowLeft, Users, ScrollText, PlusCircle, Calendar } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchContracts } from '../../store/slices/userSlice';
+import { fetchGlokiEngageCommunityDetails } from '../../store/slices/communitiesSlice';
+import { communitiesForMode } from '../../services/dataMode';
+import { TwoStatePage } from '../shared';
+import { toggleStar, toggleHide, unhide } from '../../store/slices/preferencesSlice';
 import { useEventStream } from '../../hooks/useEventStream';
-import CreateCommunityDialog from './communities/CreateCommunityDialog';
+import { useI18n } from '../../i18n';
+import CommunitiesDemo from './Communities.demo';
 import styles from './Communities.module.scss';
 
-const Communities: React.FC = () => {
+interface CommunitiesProps {
+  showHidden?: boolean;
+}
+
+const formatCreatedDate = (value: unknown, locale: string): string | null => {
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return null;
+  return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+/** The real page: the gloki-engage communities this identity holds, read from the network. */
+const CommunitiesReal: React.FC<CommunitiesProps> = ({ showHidden = false }) => {
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const { contracts, loading } = useAppSelector((state) => state.user);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-
-
-  // Filter contracts for community contracts
-  const communityContracts = contracts.filter(
-    (contract) => contract.contract === 'community_contract.py'
+  const { starred, hidden } = useAppSelector((state) => state.preferences);
+  const { communityProperties, communityMembers, communityCollaborations, initiativeStages } = useAppSelector(
+    (state) => state.communities,
   );
 
-  // Memoize the event handler to prevent unnecessary re-registrations
+  const communityContracts = useMemo(
+    () => communitiesForMode(contracts, false),
+    [contracts],
+  );
+
   const handleDeployContract = useCallback(() => {
     if (user.publicKey && user.serverUrl) {
       dispatch(fetchContracts());
     }
   }, [user.publicKey, user.serverUrl, dispatch]);
 
-  // Listen for contract deployment events
   useEventStream('deploy_contract', handleDeployContract);
 
-  // Memoize the close handler to prevent dialog re-renders
-  const handleCloseDialog = useCallback(() => {
-    setShowCreateForm(false);
-  }, []);
-
-  // Note: Community details will be fetched when navigating to specific community pages
+  // Fetch each real community's details (name/description/createdAt) from
+  // its actual contract. Membership and initiative counts stay at their
+  // graceful zero/empty defaults below — real communities don't have that
+  // data yet (member management and initiative creation aren't migrated to
+  // the real seam), so there's nothing to fetch for them here.
+  // dispatchedRef prevents duplicate in-flight dispatches: a data-only guard
+  // would redispatch while the first fetch is still pending.
+  const dispatchedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user.serverUrl || !user.publicKey) return;
+    communityContracts.forEach((c) => {
+      if (dispatchedRef.current.has(c.id)) return;
+      if (communityProperties[c.id]) return;
+      dispatchedRef.current.add(c.id);
+      dispatch(fetchGlokiEngageCommunityDetails({ serverUrl: user.serverUrl!, publicKey: user.publicKey!, contractId: c.id }));
+    });
+  }, [user.serverUrl, user.publicKey, communityContracts, communityProperties, dispatch]);
 
   const handleCommunityClick = (contractId: string) => {
     navigate(`/community/${contractId}`);
   };
 
+  const sortedContracts = useMemo(() => {
+    const list = showHidden
+      ? communityContracts.filter((c) => hidden.includes(c.id))
+      : communityContracts.filter((c) => !hidden.includes(c.id));
 
+    return list.sort((a, b) => {
+      const aStarred = starred.includes(a.id);
+      const bStarred = starred.includes(b.id);
+      if (aStarred && !bStarred) return -1;
+      if (!aStarred && bStarred) return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+  }, [communityContracts, starred, hidden, showHidden]);
+
+  const hiddenCount = communityContracts.filter((c) => hidden.includes(c.id)).length;
 
   if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loadingState}>
           <div className={styles.spinner}></div>
-          <p className={styles.text}>Loading communities...</p>
+          <p className={styles.text}>{t('communities.loading', 'Loading communities…')}</p>
         </div>
+      </div>
+    );
+  }
+
+  if (showHidden) {
+    return (
+      <div className={styles.container}>
+        {/* The title renders in the AppHeader block (D3) — only the back affordance lives here. */}
+        <div className={styles.hiddenHeader}>
+          <button
+            className={styles.hiddenBackBtn}
+            onClick={() => navigate('/identity/communities')}
+            aria-label={t('common.back', 'Back')}
+          >
+            <ArrowLeft size={18} />
+          </button>
+        </div>
+        {sortedContracts.length === 0 ? (
+          <p className={styles.emptyNote}>{t('communities.hiddenEmpty', 'No hidden communities.')}</p>
+        ) : (
+          <div className={styles.grid}>
+            {sortedContracts.map((contract) => (
+              <div key={contract.id} className={`${styles.card} ${styles.hiddenCard}`}>
+                <span className={styles.cardName}>{contract.name || t('communities.communityFallback', 'Community')}</span>
+                <button
+                  className={styles.unhideBtn}
+                  onClick={() => dispatch(unhide(contract.id))}
+                  title={t('communities.show', 'Show {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                  aria-label={t('communities.show', 'Show {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                >
+                  <Eye size={18} strokeWidth={2.25} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.titleSection}>
-          <h1 className={styles.title}>Communities</h1>
-          <p className={styles.subtitle}>Manage your communities and collaborations</p>
-        </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className={styles.createButton}
-        >
-          <Plus size={20} />
-          Create Community
-        </button>
+      {/* The title renders in the AppHeader block (D3); the description leads the content. */}
+      <div className={styles.pageHeader}>
+        <p className={styles.pageDescription}>
+          {t('communities.description', "Communities you've joined on Gloki. Star your favourites to keep them at the top, or hide ones you don't need right now.")}
+        </p>
       </div>
-
-      <CreateCommunityDialog 
-        isVisible={showCreateForm} 
-        onClose={handleCloseDialog} 
-      />
 
       <div className={styles.grid}>
-              {communityContracts.map((contract) => {
-        return (
-          <div
-            key={contract.id}
-            className={styles.card}
-            onClick={() => handleCommunityClick(contract.id)}
-          >
-            <div className={styles.cardHeader}>
-              <div className={styles.icon}>
-                <Users size={24} />
+        {sortedContracts.map((contract) => {
+          const isStarred = starred.includes(contract.id);
+          const props = communityProperties[contract.id] || {};
+          const description = props.description || '';
+          const memberCount = Array.isArray(communityMembers[contract.id]) ? communityMembers[contract.id].length : 0;
+          const collaborations = communityCollaborations[contract.id] || [];
+          // Separate truly-in-mandate from initiatives whose stage lookup
+          // failed (`_unknown`, e.g. old contracts or transient errors).
+          // Treating `_unknown` as "not mandate" silently undercounts — show
+          // it as an explicit "unresolved" hint instead.
+          const initiatives = collaborations.filter((c) => c.type === 'initiative');
+          const mandateCount = initiatives.filter(
+            (c) => initiativeStages[c.id] === 'mandate',
+          ).length;
+          const unresolvedCount = initiatives.filter(
+            (c) => initiativeStages[c.id] === '_unknown',
+          ).length;
+          const createdDate = props.createdAt ? formatCreatedDate(props.createdAt, locale) : null;
+          return (
+            <div
+              key={contract.id}
+              className={styles.card}
+              role="button"
+              tabIndex={0}
+              aria-label={t('communities.openAria', 'Open {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+              onClick={() => handleCommunityClick(contract.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleCommunityClick(contract.id);
+                }
+              }}
+            >
+              <div className={styles.cardTop}>
+                <span className={styles.cardName}>{contract.name || t('communities.communityFallback', 'Community')}</span>
+                <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={`${styles.starBtn} ${isStarred ? styles.starBtnActive : ''}`}
+                    onClick={() => dispatch(toggleStar(contract.id))}
+                    aria-pressed={isStarred}
+                    title={isStarred ? t('communities.unstar', 'Unstar') : t('communities.star', 'Star')}
+                    aria-label={isStarred ? t('communities.unstarAria', 'Unstar community') : t('communities.starAria', 'Star community')}
+                  >
+                    <Star size={18} strokeWidth={2.25} fill={isStarred ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    className={styles.hideBtn}
+                    onClick={() => dispatch(toggleHide(contract.id))}
+                    title={t('communities.hide', 'Hide {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                    aria-label={t('communities.hide', 'Hide {name}', { name: contract.name || t('communities.communityFallback', 'Community') })}
+                  >
+                    <EyeOff size={18} strokeWidth={2.25} />
+                  </button>
+                </div>
               </div>
-              <div className={styles.info}>
-                <h3 className={styles.name}>{contract.name || 'Community'}</h3>
-                <p className={styles.description}>Community details will load when you enter</p>
+              {description && <p className={styles.cardDescription}>{description}</p>}
+              <div className={styles.cardMeta}>
+                <span className={styles.metaItem}><Users size={12} /> {memberCount === 1 ? t('community.members.one', '1 member') : t('community.members.many', '{n} members', { n: memberCount })}</span>
+                <span
+                  className={styles.metaItem}
+                  title={unresolvedCount > 0 ? (unresolvedCount === 1 ? t('communities.unresolvedTitle.one', "1 initiative couldn't be resolved and isn't counted") : t('communities.unresolvedTitle.many', "{n} initiatives couldn't be resolved and aren't counted", { n: unresolvedCount })) : undefined}
+                >
+                  <ScrollText size={12} /> {mandateCount === 1 ? t('communities.mandates.one', '1 mandate') : t('communities.mandates.many', '{n} mandates', { n: mandateCount })}
+                  {unresolvedCount > 0 && <span className={styles.metaItemHint}> · {t('communities.unresolved', '{n} unresolved', { n: unresolvedCount })}</span>}
+                </span>
+                {createdDate && (
+                  <span className={styles.metaItem}><Calendar size={12} /> {createdDate}</span>
+                )}
               </div>
             </div>
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <span className={styles.label}>Contract ID:</span>
-                <span className={styles.value}>{contract.id.slice(0, 8)}...</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.label}>Type:</span>
-                <span className={styles.value}>Community</span>
-              </div>
-            </div>
-            <div className={styles.actions}>
-              <button className={styles.viewButton}>
-                <span>View Community</span>
-                {/* <ArrowRight size={16} /> */}
-              </button>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
       </div>
 
-      {communityContracts.length === 0 && !loading && (
+      {/* Create a community card */}
+      <button
+        className={styles.createCard}
+        onClick={() => navigate('/create-community')}
+      >
+        <PlusCircle size={20} />
+        <span>{t('communities.createCommunity', 'Create a community')}</span>
+      </button>
+
+      {sortedContracts.length === 0 && !loading && (
         <div className={styles.emptyState}>
-          <Users size={48} className={styles.icon} />
-          <h3 className={styles.title}>No Communities Yet</h3>
-          <p className={styles.description}>Create your first community to start collaborating</p>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className={styles.createButton}
-          >
-            <Plus size={20} />
-            Create Community
-          </button>
+          <h3 className={styles.title}>{t('communities.emptyTitle', 'No Communities Yet')}</h3>
+          <p className={styles.description}>{t('communities.emptyDescription', 'Create or join a community to get started')}</p>
         </div>
       )}
 
-
+      {!showHidden && hiddenCount > 0 && (
+        <button
+          className={styles.hiddenToggle}
+          onClick={() => navigate('/identity/hidden')}
+        >
+          {hiddenCount === 1 ? t('communities.hiddenCount.one', '1 hidden community') : t('communities.hiddenCount.many', '{n} hidden communities', { n: hiddenCount })}
+        </button>
+      )}
     </div>
   );
 };
 
-export default Communities; 
+/**
+ * /identity/communities and /identity/hidden. Two states per URL
+ * (docs/DEMO_MODE.md): the real page, or with ?demo=true the demo variant.
+ */
+const Communities: React.FC<CommunitiesProps> = (props) => (
+  <TwoStatePage real={<CommunitiesReal {...props} />} demo={<CommunitiesDemo {...props} />} />
+);
+
+export default Communities;

@@ -1,0 +1,122 @@
+@use '../../styles/variables' as *;
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-md;
+  font-size: $text-sm;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-weight: $font-semibold;
+}
+
+.body {
+  margin: 0;
+
+  .title + & {
+    margin-top: $spacing-xs;
+  }
+}
+
+.action {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.dismiss {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+
+  // ≥44px touch target without enlarging the visual icon (project ≥44px bar /
+  // WCAG 2.5.5) — invisible ::after hit-area extension.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+}
+
+/* Tones — semantic surfaces */
+.info {
+  background-color: $info-surface;
+  color: $info-on-surface;
+}
+
+.success {
+  background-color: $success-surface;
+  color: $success-on-surface;
+}
+
+.warning {
+  background-color: $warning-surface;
+  color: $warning-on-surface;
+}
+
+.error {
+  background-color: $error-surface;
+  color: $error-on-surface;
+}
+
+@include dark {
+  .info {
+    background-color: $info-surface-dark;
+    color: $dark-text;
+  }
+
+  .success {
+    background-color: $success-surface-dark;
+    color: $dark-text;
+  }
+
+  .warning {
+    background-color: $warning-surface-dark;
+    color: $dark-text;
+  }
+
+  .error {
+    background-color: $error-surface-dark;
+    color: $dark-text;
+  }
+}

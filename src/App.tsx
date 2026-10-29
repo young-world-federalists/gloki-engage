@@ -1,7 +1,40 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/useAuth';
+import ErrorBoundary from './components/shared/ErrorBoundary';
+import { OfflineBanner } from './components/shared/connectivity';
+import NotFound from './pages/NotFound';
+import { TwoStatePage, RealOnlyPage, DemoOnlyPage, StageFooter, ToastProvider } from './components/shared';
+import { setDemoDataMode } from './services/dataMode';
+import { DemoFlagUrlSync } from './hooks/useDemoMode';
+import { useI18n } from './i18n';
+import { tryHydrateFromHash } from './services/demo/demoUrlShare';
+import { useAppSelector } from './store/hooks';
+import { useT } from './i18n';
+import { isOrganizationSession } from './services/organizationActor';
+import { isBeta } from './appMode';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FROZEN ROUTE MAP — the Voices-for-the-Climate journey.
+//
+// Phase 0 pre-registers every top-level route a lane needs, each pointing at a
+// lane-owned component. Every area uses a `/*` wildcard so a lane adds its own
+// sub-routes INSIDE its owned component. THEREFORE: lanes must NOT edit App.tsx.
+// Need a new top-level route? Record it in MASTER_TODO §10 for the next
+// Foundation pass — do not add it here from a lane branch.
+//
+//   /                                         → first-run → /welcome, else cross-community Home
+//   /welcome/*                                → Lane A   onboarding journey
+//   /stage/:stageId                           → (shell)  stage feed mini-apps
+//   /identity/*                               → Lane A   identity / profile / about
+//   /create-community                         → (shell)  create-community onboarding
+//   /community/:communityId/*                 → Lane G   community home + currency
+//   /initiative/:host/:agent/:cid/:iid/*      → Lanes B/C/D/E via stage components
+//   /mandate/:communityId/:mandateId/*        → Lane E   published mandate + adoption
+//   /lab/presence                             → dev verification page for presence primitives
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Get the base path from Vite's import.meta.env.BASE_URL
 const getBasename = () => {
@@ -11,47 +44,133 @@ const getBasename = () => {
 };
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+// S42 — the beta's signed-out entry: two sentences and three doors, then the keys screen.
+const BetaDoorsPage = lazy(() => import('./pages/beta/BetaDoorsPage'));
+const HomeView = lazy(() => import('./pages/HomeView'));
+const StageFeedView = lazy(() => import('./pages/StageFeedView'));
 const IdentityView = lazy(() => import('./pages/IdentityView'));
 const CommunityView = lazy(() => import('./pages/CommunityView'));
-const IssueView = lazy(() => import('./pages/IssueView'));
 const InitiativeView = lazy(() => import('./pages/collaboration/InitiativeView'));
-const WishView = lazy(() => import('./pages/collaboration/WishView'));
-const AgreementView = lazy(() => import('./pages/collaboration/AgreementView'));
+const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
+// S42 — the beta's one shared forum.
+const ForumPage = lazy(() => import('./pages/ForumPage'));
+// Lane placeholder areas — owning lane replaces the stub component (not this file).
+const OnboardingFlow = lazy(() => import('./components/onboarding/OnboardingFlow'));
+const MandatePage = lazy(() => import('./components/mandate/MandatePage'));
+// S33 — the organization actor's whole app: finished mandates, nothing else.
+const OrganizationHome = lazy(() => import('./pages/OrganizationHome'));
+// Dev/lab route — durable verification page for the cross-cutting presence primitives (§10 [F→Foundation]).
+const PresenceLabRoute = lazy(() => import('./components/shared/presence/PresenceLabRoute'));
 
-function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
+// Entry point for `/`: an organization session goes to its own home (it has no
+// member journey to onboard into — S33); a newcomer who hasn't deployed their
+// gloki-engage Digital Agent profile contract yet is guided to the /welcome
+// journey; everyone else lands on the cross-community Home overview. Sourced
+// live from state.user.digitalAgentProfile (checked against the real server
+// on every login, see userSlice.ts's fetchContracts) — nothing local/cached
+// decides this.
+// S42 beta: signed out, `/` is the doors page (rendered below in place of the
+// login); signed in, first-run goes to /welcome and everyone else to the forum.
+// The organization actor is one of the beta's doors, not a separate session.
+function RootRoute() {
+  const t = useT();
+  const { digitalAgentProfile, digitalAgentProfileChecked } = useAppSelector((s) => s.user);
+  if (!isBeta && isOrganizationSession()) return <Navigate to="/organization" replace />;
+  // Don't guess: wait for the real server's answer before deciding
+  // onboarding vs. skip, rather than flashing one and then the other.
+  if (!digitalAgentProfileChecked) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Validating session...</p>
+        <p>{t('app.validatingSession', 'Validating session…')}</p>
+      </div>
+    );
+  }
+  if (!digitalAgentProfile) return <Navigate to="/welcome" replace />;
+  if (isBeta) return <Navigate to="/forum" replace />;
+  return <TwoStatePage><HomeView /></TwoStatePage>;
+}
+
+// Every navigation starts on the real data layer; the page's wrapper
+// (TwoStatePage / RealOnlyPage / DemoOnlyPage) then sets it for that page.
+// Rendered before <Routes>, so it runs before the page's own render.
+function DataModeReset() {
+  useLocation();
+  setDemoDataMode(false);
+  return null;
+}
+
+// S42 — in the beta every pipeline route (communities, initiatives, stage
+// feeds, mandates, the organization home) sends the visitor back to `/`.
+// The routes and their components stay in the bundle; the flag hides them.
+function BetaGate({ children }: { children: React.ReactElement }) {
+  return isBeta ? <Navigate to="/" replace /> : children;
+}
+
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const { t, locale } = useI18n();
+  const [hydratingDemo, setHydratingDemo] = useState(true);
+
+  // Keep <title> in sync with the active locale (WCAG 2.4.2 / a11y).
+  useEffect(() => {
+    document.title = t('app.title', 'Gloki — Decentralized Self-Governance');
+  }, [t, locale]);
+
+  // Hydrate demo state from URL hash before rendering routes so a shared demo
+  // link lands straight on populated content.
+  useEffect(() => {
+    tryHydrateFromHash().finally(() => setHydratingDemo(false));
+  }, []);
+
+  if (isLoading || hydratingDemo) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>{t('app.validatingSession', 'Validating session…')}</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
-        <LoginPage />
+      <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
+        {isBeta ? <BetaDoorsPage /> : <LoginPage />}
       </Suspense>
     );
   }
 
   return (
-    <Router basename={getBasename()}>
-      <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>Loading...</p></div>}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/identity" replace />} />
-          <Route path="/identity/*" element={<IdentityView />} />
-          <Route path="/community/:communityId/*" element={<CommunityView />} />
-          <Route path="/issue/:issueHostServer/:issueHostAgent/:communityId/:issueId/*" element={<IssueView />} />
-          <Route path="/initiative/:initiativeHostServer/:initiativeHostAgent/:initiativeId/*" element={<InitiativeView />} />
-          <Route path="/wish/:wishId/*" element={<WishView />} />
-          <Route path="/agreement/:agreementId" element={<AgreementView />} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <ErrorBoundary locale={locale} fallbackMessage={t('errorBoundary.appMessage', 'Gloki encountered an unexpected error. Please refresh the page.')}>
+      <Router basename={getBasename()}>
+        <ToastProvider>
+          <OfflineBanner />
+          <Suspense fallback={<div className="loading-container"><div className="loading-spinner"></div><p>{t('common.loading', 'Loading…')}</p></div>}>
+            <DataModeReset />
+            <DemoFlagUrlSync />
+            <Routes>
+              <Route path="/" element={<RootRoute />} />
+              <Route path="/welcome/*" element={<RealOnlyPage><OnboardingFlow /></RealOnlyPage>} />
+              <Route path="/stage/:stageId" element={<BetaGate><TwoStatePage><StageFeedView /></TwoStatePage></BetaGate>} />
+              <Route path="/identity/*" element={<IdentityView />} />
+              <Route path="/create-community" element={<BetaGate><RealOnlyPage><CreateCommunityPage /></RealOnlyPage></BetaGate>} />
+              <Route path="/community/:communityId/*" element={<BetaGate><CommunityView /></BetaGate>} />
+              <Route
+                path="/initiative/:initiativeHostServer/:initiativeHostAgent/:communityId/:initiativeId/*"
+                element={<BetaGate><InitiativeView /></BetaGate>}
+              />
+              <Route path="/mandate/:communityId/:mandateId/*" element={<BetaGate><TwoStatePage><MandatePage /></TwoStatePage></BetaGate>} />
+              <Route path="/organization" element={<BetaGate><TwoStatePage><OrganizationHome /></TwoStatePage></BetaGate>} />
+              {isBeta && <Route path="/forum" element={<DemoOnlyPage><ForumPage /></DemoOnlyPage>} />}
+              <Route path="/lab/presence" element={<PresenceLabRoute />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            {/* S42 — the beta has no stages to browse. */}
+            {!isBeta && <StageFooter />}
+          </Suspense>
+        </ToastProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

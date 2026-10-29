@@ -3,22 +3,12 @@
 @use '../../styles/variables' as *;
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
 
-  .header {
-    margin-bottom: $spacing-2xl;
-
-    h2 {
-      font-size: $text-2xl;
-      font-weight: $font-bold;
-      color: $gray-800;
-      margin-bottom: $spacing-sm;
-    }
-
-    p {
-      color: $gray-600;
-    }
+  .memberCount {
+    font-size: $text-xs;
+    color: $gray-500;
+    margin-bottom: $spacing-lg;
   }
 
   .joinSection {
@@ -27,41 +17,6 @@
     justify-content: flex-start;
   }
 
-  .joinButton {
-    padding: $spacing-md $spacing-xl;
-    border-radius: $radius-lg;
-    font-size: $text-lg;
-    font-weight: $font-medium;
-    background-color: $primary;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background-color: $primary-dark;
-    }
-
-    &:active:not(:disabled) {
-      background-color: $primary-dark;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  .section {
-    margin-bottom: $spacing-2xl;
-
-    h3 {
-      font-size: $text-xl;
-      font-weight: $font-semibold;
-      color: $gray-700;
-      margin-bottom: $spacing-lg;
-    }
-  }
 
   .list {
     display: flex;
@@ -74,7 +29,7 @@
       gap: $spacing-lg;
       background: white;
       border-radius: $radius-lg;
-      padding: $spacing-lg;
+      padding: $spacing-xl $spacing-lg;
       box-shadow: $shadow-base;
       border: 1px solid $gray-200;
       transition: box-shadow 0.2s ease;
@@ -93,7 +48,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: $gray-400;
+        color: $gray-500;
         flex-shrink: 0;
         overflow: hidden;
 
@@ -111,7 +66,7 @@
           align-items: center;
           justify-content: center;
           background-color: $gray-100;
-          color: $gray-400;
+          color: $gray-500;
         }
       }
 
@@ -130,20 +85,6 @@
           min-height: 40px; // Reduced height to match smaller card
         }
 
-        .memberName {
-          font-size: $text-2xl; // Even bigger font for name
-          font-weight: $font-semibold;
-          color: $gray-800;
-          line-height: 1.2;
-          margin: 0;
-          flex: 1;
-          min-width: 0; // Allow text to truncate properly
-          // Truncate long names
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
         .publicKey {
           font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
           font-size: $text-sm;
@@ -154,39 +95,8 @@
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          opacity: 0.8;
         }
 
-        button {
-          padding: $spacing-md $spacing-xl; // Slightly reduced height, same width
-          border-radius: $radius-lg;
-          font-size: $text-lg; // Much bigger font
-          font-weight: $font-medium;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          white-space: nowrap; // Prevent button text from wrapping
-          flex-shrink: 0; // Prevent button from shrinking
-
-          &.pendingButton {
-            background-color: $primary;
-            color: white;
-
-            &:hover {
-              background-color: $primary-dark;
-            }
-
-            &:active {
-              background-color: $primary-dark;
-            }
-          }
-
-          &.approvedButton {
-            background-color: $success;
-            color: white;
-            cursor: not-allowed;
-          }
-        }
       }
     }
   }
@@ -197,7 +107,7 @@
   .container {
     .list {
       .memberCard {
-        padding: $spacing-md;
+        padding: $spacing-lg $spacing-md;
         gap: $spacing-md;
         min-height: 75px; // Reduced mobile height
 
@@ -207,18 +117,10 @@
         }
 
         .memberInfo {
-          .memberName {
-            font-size: $text-xl; // Still bigger than before
-          }
-
           .publicKey {
             font-size: $text-xs;
           }
 
-          button {
-            padding: $spacing-sm $spacing-md; // Smaller but still bigger than before
-            font-size: $text-base;
-          }
         }
       }
     }
@@ -226,22 +128,10 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+@include dark {
   .container {
-    .header {
-      h2 {
-        color: $dark-text;
-      }
-
-      p {
-        color: $dark-text-secondary;
-      }
-    }
-
-    .section {
-      h3 {
-        color: $dark-text;
-      }
+    .memberCount {
+      color: $dark-text-secondary;
     }
 
     .list {
@@ -259,29 +149,10 @@
         }
 
         .memberInfo {
-          .memberName {
-            color: $dark-text;
-          }
-
           .publicKey {
             color: $dark-text-secondary;
           }
 
-          button {
-            &.pendingButton {
-              background-color: $primary;
-              color: white;
-
-              &:hover {
-                background-color: $primary-dark;
-              }
-            }
-
-            &.approvedButton {
-              background-color: $success;
-              color: white;
-            }
-          }
         }
       }
     }

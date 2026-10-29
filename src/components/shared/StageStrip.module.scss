@@ -1,0 +1,63 @@
+@use '../../styles/variables' as *;
+
+// Compact, read-only pipeline strip — five evenly-spaced stage markers that
+// stay visible after the per-stage explainer collapses behind the page `(i)`.
+.strip {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin: 0 0 $spacing-lg;
+  padding: $spacing-md $spacing-xs;
+  list-style: none;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+}
+
+.stage {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  text-align: center;
+}
+
+.circle {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: $text-xs;
+  font-weight: $font-medium;
+  line-height: 1.3;
+  color: $gray-700;
+  white-space: normal;
+  word-break: break-word;
+}
+
+// Four distinct stage colours from the canonical $stage-* set (variables.scss),
+// the single source shared with the create-initiative stepper.
+.stage_problem .circle    { background: $stage-problem; }
+.stage_proposals .circle  { background: $stage-solutions; }
+.stage_vote .circle       { background: $stage-vote; }
+.stage_mandate .circle    { background: $stage-mandate; }
+
+@include dark {
+  .strip {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .label {
+    color: $dark-text-secondary;
+  }
+}

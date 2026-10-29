@@ -1,4 +1,20 @@
-import React, { useState, useEffect } from 'react';
+/*
+ * IdentityCardSVG — the downloadable identity *credential*.
+ *
+ * Deliberately rendered in canonical English (the labels below) regardless of the
+ * active UI locale, the way a passport or official credential stays canonical. This
+ * is a product decision (Batch 14), not an oversight: the on-screen UI is fully
+ * localized, but the exported credential card is not.
+ *
+ * It is also not a clean string-swap to change: the labels are a single sentence
+ * fragmented around fixed-position, canvas-rendered PNGs (member name / community
+ * name) at hardcoded x/y, so longer fr/sw strings would clip. If this decision is
+ * ever revisited, it needs a layout reflow — let the labels auto-size like the
+ * name/community images already do — then t() the labels (add `identityCardSvg.*`
+ * keys to fr/sw) and localize the dialog's "Unknown Member"/"Unknown" fallbacks too
+ * (kept English here so they stay coherent with this English card).
+ */
+import React, { useState, useEffect, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { createRoot } from 'react-dom/client';
 
@@ -12,6 +28,51 @@ interface IdentityCardSVGProps {
   width?: number;
   height?: number;
   onRenderComplete?: () => void;
+}
+
+interface TextImage { imageData: string; width: number; height: number; offsetX: number; offsetY: number }
+
+const EMPTY_IMAGE: TextImage = { imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0 };
+
+// Renders text as PNG with precise positioning
+function renderTextAsPNG(
+  text: string, 
+  fontSize: number, 
+  fontFamily: string, 
+  fontWeight: string, 
+  color: string,
+): TextImage {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return EMPTY_IMAGE;
+
+  // Set font first to measure text
+  ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
+  
+  // Measure the text to get accurate dimensions
+  const textMetrics = ctx.measureText(text);
+  const textWidth = textMetrics.width;
+  const textHeight = fontSize * 3; // Approximate height
+  
+  // Create a larger canvas to render the text
+  const padding = fontSize; // Add some padding - fontsize/3*3
+  canvas.width = textWidth + padding * 2;
+  canvas.height = textHeight + padding * 2;
+
+  // Set font and render text at known coordinates (with padding offset)
+  ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic'; // Use 'top' for more predictable positioning
+  ctx.fillText(text, padding, canvas.height - padding);
+
+  return {
+    imageData: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+    offsetX: - padding, // Adjust for the clipping offset
+    offsetY: - canvas.height + padding,
+  };
 }
 
 const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
@@ -35,52 +96,15 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
   // State for QR code paths
   const [qrPaths, setQrPaths] = useState<Array<{key: number, d: string, fill: string}>>([]);
   
-  // State for text images with positioning data
-  const [memberNameImage, setMemberNameImage] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [memberNameImageSmall, setMemberNameImageSmall] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [communityNameImageWhite, setCommunityNameImageWhite] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  const [communityNameImageBlack, setCommunityNameImageBlack] = useState<{imageData: string, width: number, height: number, offsetX: number, offsetY: number}>({imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0});
-  
-  // Function to render text as PNG with precise positioning
-  const renderTextAsPNG = (
-    text: string, 
-    fontSize: number, 
-    fontFamily: string, 
-    fontWeight: string, 
-    color: string,
-  ): {imageData: string, width: number, height: number, offsetX: number, offsetY: number} => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return {imageData: '', width: 0, height: 0, offsetX: 0, offsetY: 0};
-
-    // Set font first to measure text
-    ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
-    
-    // Measure the text to get accurate dimensions
-    const textMetrics = ctx.measureText(text);
-    const textWidth = textMetrics.width;
-    const textHeight = fontSize * 3; // Approximate height
-    
-    // Create a larger canvas to render the text
-    const padding = fontSize; // Add some padding - fontsize/3*3
-    canvas.width = textWidth + padding * 2;
-    canvas.height = textHeight + padding * 2;
-
-    // Set font and render text at known coordinates (with padding offset)
-    ctx.font = `${fontWeight} ${fontSize * 3}px ${fontFamily}`;
-    ctx.fillStyle = color;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic'; // Use 'top' for more predictable positioning
-    ctx.fillText(text, padding, canvas.height - padding);
-
-    return {
-      imageData: canvas.toDataURL('image/png'),
-      width: canvas.width,
-      height: canvas.height,
-      offsetX: - padding, // Adjust for the clipping offset
-      offsetY: - canvas.height + padding,
-    };
-  };
+  // Text images with positioning data
+  // Member name positioned at (115, headerHeight + 5) in SVG coordinates
+  const memberNameImage = useMemo(() => renderTextAsPNG(memberName, 20, 'Arial, sans-serif', 'bold', '#1f2937'), [memberName]);
+  // Member name small positioned at (115, headerHeight + 105) in SVG coordinates
+  const memberNameImageSmall = useMemo(() => renderTextAsPNG(memberName, 12, 'Arial, sans-serif', 'bold', '#6b7280'), [memberName]);
+  // Community name white positioned at (76, 24) in SVG coordinates
+  const communityNameImageWhite = useMemo(() => renderTextAsPNG(communityName, 16, 'Arial, sans-serif', 'normal', '#ffffff'), [communityName]);
+  // Community name black positioned at (20, headerHeight + 140) in SVG coordinates
+  const communityNameImageBlack = useMemo(() => renderTextAsPNG(communityName + '.', 12, 'Arial, sans-serif', 'normal', '#6b7280'), [communityName]);
   
   // Function to generate QR code as SVG paths
   const generateQRCodePaths = async (value: string): Promise<Array<{key: number, d: string, fill: string}>> => {
@@ -141,28 +165,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
     }
   };
 
-  // Generate QR code paths and text images on component mount
+  // Generate QR code paths on component mount
   useEffect(() => {
     generateQRCodePaths(qrData).then(setQrPaths);
-    
-    // Generate text images with precise positioning
-    // Member name positioned at (115, headerHeight + 5) in SVG coordinates
-    const memberImg = renderTextAsPNG(memberName, 20, 'Arial, sans-serif', 'bold', '#1f2937');
-
-    // Member name small positioned at (115, headerHeight + 105) in SVG coordinates
-    const memberImgSmall = renderTextAsPNG(memberName, 12, 'Arial, sans-serif', 'bold', '#6b7280');
-    
-    // Community name white positioned at (76, 24) in SVG coordinates  
-    const communityImgWhite = renderTextAsPNG(communityName, 16, 'Arial, sans-serif', 'normal', '#ffffff');
-
-    // Community name black positioned at (20, headerHeight + 140) in SVG coordinates
-    const communityImgBlack = renderTextAsPNG(communityName + '.', 12, 'Arial, sans-serif', 'normal', '#6b7280');
-    
-    setMemberNameImage(memberImg);
-    setMemberNameImageSmall(memberImgSmall);
-    setCommunityNameImageWhite(communityImgWhite);
-    setCommunityNameImageBlack(communityImgBlack);
-  }, [qrData, memberName, communityName, headerHeight]);
+  }, [qrData]);
 
   // Call onRenderComplete when qrPaths and text images are set
   useEffect(() => {
@@ -171,6 +177,9 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
     }
   }, [qrPaths, memberNameImage, memberNameImageSmall, communityNameImageWhite, communityNameImageBlack, onRenderComplete]);
   
+  // Canvas/SVG literals — cannot reference SCSS tokens at draw time. Keep in sync
+  // with variables.scss: #3b82f6=$primary, #1d4ed8≈$primary-dark, #f8fafc=$gray-50,
+  // #1f2937=$gray-800, #6b7280=$gray-600, #e5e7eb=$gray-200.
   // Colors
   const primaryColor = '#3b82f6';
   const primaryDarkColor = '#1d4ed8';
@@ -178,6 +187,35 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
   const textColor = '#1f2937';
   const textSecondaryColor = '#6b7280';
   const borderColor = '#e5e7eb';
+
+  // QR layout (Batch 17): shrink the code and pin it to the top-right corner so
+  // the member name owns a wide lane on the left and can never run under it.
+  const qrScale = 0.78;
+  const qrBox = 140 * qrScale;
+  const qrX = cardWidth - 14 - qrBox; // left edge of the QR tile
+  const qrY = headerHeight + 16;
+  const nameLaneRight = qrX - 10; // member-name images must stop here
+
+  // Scale a canvas-rendered text image down — about its left/baseline anchor — if
+  // it would otherwise extend past `maxRight`, so long names shrink instead of
+  // clipping behind the QR. Returns the SVG <image> placement (x/y/width/height).
+  const fitText = (
+    img: { width: number; height: number; offsetX: number; offsetY: number },
+    anchorX: number,
+    baselineY: number,
+    maxRight: number,
+  ) => {
+    const x0 = anchorX + img.offsetX / 3;
+    const y0 = baselineY + img.offsetY / 3;
+    const w = img.width / 3;
+    const h = img.height / 3;
+    const right = x0 + w;
+    const s = right > maxRight ? (maxRight - anchorX) / (right - anchorX) : 1;
+    return { x: anchorX + (x0 - anchorX) * s, y: baselineY + (y0 - baselineY) * s, width: w * s, height: h * s };
+  };
+
+  const memberNamePos = fitText(memberNameImage, 120, headerHeight + 36, nameLaneRight);
+  const memberNameSmallPos = fitText(memberNameImageSmall, 114, headerHeight + 124, nameLaneRight);
 
   return (
     <svg
@@ -339,10 +377,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
       {memberNameImage.imageData && (
         <image
           href={memberNameImage.imageData}
-          x={120 + memberNameImage.offsetX / 3}
-          y={headerHeight + 36 + memberNameImage.offsetY / 3}
-          width={memberNameImage.width / 3}
-          height={memberNameImage.height / 3}
+          x={memberNamePos.x}
+          y={memberNamePos.y}
+          width={memberNamePos.width}
+          height={memberNamePos.height}
         />
       )}
       
@@ -373,10 +411,10 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
         {memberNameImageSmall.imageData && (
           <image
             href={memberNameImageSmall.imageData}
-            x={114 + memberNameImageSmall.offsetX / 3}
-            y={headerHeight + 124 + memberNameImageSmall.offsetY / 3}
-            width={memberNameImageSmall.width / 3}
-            height={memberNameImageSmall.height / 3}
+            x={memberNameSmallPos.x}
+            y={memberNameSmallPos.y}
+            width={memberNameSmallPos.width}
+            height={memberNameSmallPos.height}
           />
         )}
         <text
@@ -399,8 +437,8 @@ const IdentityCardSVG: React.FC<IdentityCardSVGProps> = ({
         )}
       </g>
       
-      {/* QR Code */}
-      <g transform={`translate(${cardWidth - 160}, ${headerHeight + 18})`}>
+      {/* QR Code — shrunk + corner-pinned so it never overlaps the member name */}
+      <g transform={`translate(${qrX}, ${qrY}) scale(${qrScale})`}>
         <rect
           x="0"
           y="0"

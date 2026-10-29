@@ -1,0 +1,150 @@
+import React, { useEffect } from 'react';
+import { useT } from '../../i18n';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { fetchCommunityMembers, fetchCommunityActiveMembers } from '../../store/slices/communitiesSlice';
+import type { Collaboration } from '../../services/contracts/community';
+import type { UserIdentityProps } from '../shared';
+import InitiativeStageCard, { type StagePost } from '../initiative/InitiativeStageCard';
+import { useInitiativePost } from '../initiative/useInitiativePost';
+import ProblemEngage from '../initiative/stages/ProblemEngage';
+import ProblemChinExtras from '../initiative/ProblemChinExtras';
+import StageAdvanceBar from '../collaboration/StageAdvanceBar';
+
+interface ProblemActivityCardProps {
+  item: Collaboration;
+  communityId: string;
+  authorName: string;
+  authorKey?: string;
+  trustState: UserIdentityProps['trustState'];
+  vouchCount: number;
+  hostServer: string;
+  hostAgent: string;
+  expanded: boolean;
+  onToggle: () => void;
+  /** Community display name, threaded through to the discussion status pill's
+   *  scoped Consensus sentence (S35 fix-round F4). */
+  communityName?: string;
+}
+
+/**
+ * The Problem-stage community-page card: the shared two-part
+ * {@link InitiativeStageCard} (Read summary over an Engage panel) wired to a
+ * Problem post. The content (problem statement merged with who-it-affects) is
+ * the headline; the byline shows the author once; the Engage slot carries the
+ * quick "second" vote ({@link ProblemEngage}) plus the author-only advance
+ * control ({@link StageAdvanceBar}), preserving the governance that used to live
+ * in InitiativeStagePanel. The blue "Open the full problem" routes to the
+ * discussion page (Unit 5 makes that the per-post thread).
+ */
+const ProblemActivityCard: React.FC<ProblemActivityCardProps> = ({
+  item,
+  communityId,
+  authorName,
+  authorKey,
+  trustState,
+  vouchCount,
+  hostServer,
+  hostAgent,
+  expanded,
+  onToggle,
+  communityName,
+}) => {
+  const t = useT();
+  const dispatch = useAppDispatch();
+  const serverUrl = useAppSelector((s) => s.user.serverUrl);
+  const publicKey = useAppSelector((s) => s.user.publicKey);
+  const communityMembers = useAppSelector((s) => s.communities.communityMembers);
+  const communityActiveMembers = useAppSelector((s) => s.communities.communityActiveMembers);
+  const profiles = useAppSelector((s) => s.communities.profiles);
+
+  // Active-member count drives the threshold math (mirrors InitiativeStagePanel).
+  useEffect(() => {
+    if (!serverUrl || !publicKey || !communityId) return;
+    if (!communityMembers[communityId]) {
+      dispatch(fetchCommunityMembers({ serverUrl, publicKey, contractId: communityId }));
+    }
+    if (communityActiveMembers[communityId] === undefined) {
+      dispatch(fetchCommunityActiveMembers({ serverUrl, publicKey, contractId: communityId }));
+    }
+  }, [serverUrl, publicKey, communityId, communityMembers, communityActiveMembers, dispatch]);
+
+  const membersLoaded =
+    Array.isArray(communityMembers[communityId]) && communityActiveMembers[communityId] !== undefined;
+  const memberCount = Array.isArray(communityMembers[communityId]) ? communityMembers[communityId].length : 0;
+  const activeMemberCount = communityActiveMembers[communityId] ?? memberCount;
+
+  const { post, thresholdMet, up } = useInitiativePost(item.id, activeMemberCount, item.title);
+
+  const fullPost: StagePost = {
+    stage: 'problem',
+    headline: post.headline || item.title || t('community.untitled', 'Untitled Initiative'),
+    byline: authorName ? t('community.startedBy', 'Started by {name}', { name: authorName }) : undefined,
+    authorKey,
+    authorCountry: authorKey ? profiles[authorKey]?.country : undefined,
+    createdAt: item.createdAt,
+    sdg: post.sdg,
+    countryCount: post.countryCount,
+    source: post.source,
+  };
+
+  // Readiness is judged only once the member reads land — against a zero
+  // denominator `needed` collapses to 1 and the advance would enable early.
+  const needed = Math.max(Math.ceil(activeMemberCount * 0.5), 1);
+  const remaining = Math.max(needed - up, 0);
+  const notReadyReason = !membersLoaded
+    ? t('common.loading', 'Loading…')
+    : remaining === 1
+      ? t('dashboard.readiness.upvotes.one', '1 more upvote needed ({up}/{threshold})', { up, threshold: needed })
+      : t('dashboard.readiness.upvotes.many', '{remaining} more upvotes needed ({up}/{threshold})', {
+          remaining,
+          up,
+          threshold: needed,
+        });
+
+  // Card-only stage (no dedicated "full problem" page — Eston, 2026-06-23): the
+  // shell renders no Open button; deep engagement (Discuss this / Propose a
+  // framing) lives in the Engage panel below.
+  return (
+    <InitiativeStageCard
+      post={fullPost}
+      trustState={trustState}
+      vouchCount={vouchCount}
+      expanded={expanded}
+      onToggle={onToggle}
+      stageNav={{ communityId, initiativeId: item.id, hostServer, hostAgent }}
+      communityName={communityName}
+      chinExtras={
+        <ProblemChinExtras
+          initiativeId={item.id}
+          communityId={communityId}
+          hostServer={hostServer}
+          hostAgent={hostAgent}
+          authorKey={authorKey}
+          authorName={authorName}
+        />
+      }
+      collapsedTeaser={
+        membersLoaded && thresholdMet
+          ? t('card.teaserAgreed', 'Agreed by your community')
+          : t('card.teaserWeighIn', '{n} agree · weigh in', { n: up })
+      }
+    >
+      <ProblemEngage
+        initiativeId={item.id}
+        communityId={communityId}
+        communityMemberCount={activeMemberCount}
+      />
+      <StageAdvanceBar
+        initiativeId={item.id}
+        communityId={communityId}
+        stage="problem"
+        hostServer={hostServer}
+        hostAgent={hostAgent}
+        ready={membersLoaded && thresholdMet}
+        notReadyReason={notReadyReason}
+      />
+    </InitiativeStageCard>
+  );
+};
+
+export default ProblemActivityCard;

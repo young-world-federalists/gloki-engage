@@ -1,0 +1,161 @@
+@use '../../styles/variables' as *;
+
+// Same stage as the login card (LoginPage.module.scss): brand gradient behind
+// one white card, so the doors and the keys screen feel like one place.
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // S43 (critique, detector ai-color-palette): brand blue only, no violet end stop.
+  background: linear-gradient(135deg, $primary-dark 0%, $primary 100%);
+  padding: $spacing-lg;
+}
+
+.card {
+  background: white;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-xl;
+  padding: $spacing-xl;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.langRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero {
+  display: flex;
+  justify-content: center;
+  color: $primary;
+}
+
+.title {
+  margin: 0;
+  font-size: $text-2xl;
+  font-weight: $font-bold;
+  color: $gray-900;
+  text-align: center;
+}
+
+.lead {
+  margin: 0;
+  font-size: $text-base;
+  line-height: 1.5;
+  color: $gray-600;
+  text-align: center;
+}
+
+.doors {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
+.door {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-height: $touch-target-min;
+  width: 100%;
+  padding: $spacing-md;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  text-align: left;
+  color: $gray-900;
+  cursor: pointer;
+  transition: border-color $transition-fast, background-color $transition-fast;
+
+  &:hover {
+    border-color: $primary;
+    background: $gray-50;
+  }
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.doorIcon {
+  flex-shrink: 0;
+  color: $primary;
+}
+
+.doorText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.doorTitle {
+  font-size: $text-base;
+  font-weight: $font-semibold;
+}
+
+.doorHint {
+  font-size: $text-sm;
+  line-height: 1.4;
+  color: $gray-600;
+}
+
+.signIn {
+  align-self: center;
+  min-height: $touch-target-min;
+  padding: $spacing-sm $spacing-md;
+  background: none;
+  border: none;
+  color: $primary;
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@include dark {
+  .card {
+    background: $dark-surface;
+  }
+  .title {
+    color: $dark-text;
+  }
+  .lead,
+  .doorHint {
+    color: $dark-text-secondary;
+  }
+  .door {
+    background: $dark-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+
+    &:hover {
+      background: $dark-surface;
+      border-color: $primary;
+    }
+  }
+}

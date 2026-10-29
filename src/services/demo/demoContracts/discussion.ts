@@ -1,0 +1,298 @@
+// Mock discussion_contract.py — the Stage 2 co-authoring space.
+//
+// Legacy threaded comments (add/get/delete_comment) back the collab
+// DiscussionFlow and stay UNTOUCHED. The co-authoring group — a co-owned
+// statement and track-changes edits — backs the redesigned Stage 2 surface
+// and self-seeds from the deliberation fixture so any discussion sub-contract
+// opens with the rich demo (today's contract-backed flow starts empty; the
+// redesigned surface needs the seed to feel alive). Documented as mock seeding.
+//
+// ONE PERSON, ONE VOTE: every support action appends the caller's pk with
+// dedup — never a weight. Eligibility is gated in the UI by StageGate.
+import type { IMethod } from '../../interfaces';
+import { normalizeSources, type SourceLink } from '../../../utils/sources';
+import { readState, writeState, updateState } from '../demoState';
+import type { DiscussionSeed } from '../fixtures/deliberation';
+
+interface DiscussionComment {
+  id: string;
+  author: string;
+  text: string;
+  parentId: string | null;
+  timestamp: number;
+  category?: 'evidence' | 'impact' | 'solutions' | 'concerns';
+  deleted?: boolean;
+  likes: string[]; // 1p1v pubkeys — surfaces "top" replies; no advancement effect
+  sources?: SourceLink[]; // S12: citations attached to the comment
+}
+
+interface Statement {
+  title: string;
+  body: string;
+  coAuthors: string[];
+}
+interface StoredEdit {
+  id: string;
+  field: 'title' | 'body';
+  author: string;
+  baseText: string;
+  text: string;
+  rationale: string;
+  supporters: string[];
+  status: 'open' | 'accepted' | 'stale';
+  createdAgo: number;
+}
+interface DiscussionState {
+  comments: DiscussionComment[];
+  statement: Statement;
+  edits: Record<string, StoredEdit>;
+  commentVotes?: Record<string, { voter: string; commentId: string; direction: 'up' | 'down' }>; // key `${voter}:${commentId}` (F1)
+}
+
+function byId<T extends { id: string }>(items: readonly T[]): Record<string, T> {
+  const out: Record<string, T> = {};
+  for (const it of items) out[it.id] = { ...it };
+  return out;
+}
+
+// A fresh discussion sub-contract opens EMPTY. Only the showcase initiative is
+// pre-seeded with the rich co-authoring demo — at seed time, via initDiscussion
+// (see seedDemoCommunity.ts). Every other initiative's discussion deploys its
+// own contract whose default is this blank state, so each initiative shows its
+// OWN discussion rather than a shared misinformation seed (Unit 5 fix).
+function defaultState(): DiscussionState {
+  return {
+    comments: [],
+    statement: { title: '', body: '', coAuthors: [] },
+    edits: {},
+  };
+}
+
+/**
+ * Write the rich co-authoring seed into a specific discussion sub-contract.
+ * Called once at seed time for the showcase initiative; `useFlowContract` then
+ * JOINs that stored contract and reads the seeded state back. Demo-only (mock
+ * write through `writeState` — no real server call).
+ */
+export function initDiscussion(contractId: string, seed: DiscussionSeed): void {
+  const now = Date.now();
+  // S35 (F3): seeded 1p1v up/down votes on ROOT comments, keyed `${voter}:${commentId}`
+  // to match the live `vote_comment` write path above — so the causes-status pill
+  // reads a real band on first load. Optional: a seed with no `votes` leaves this empty.
+  const commentVotes: NonNullable<DiscussionState['commentVotes']> = {};
+  for (const v of seed.votes ?? []) {
+    commentVotes[`${v.voter}:${v.commentId}`] = { voter: v.voter, commentId: v.commentId, direction: v.direction };
+  }
+  writeState<DiscussionState>(contractId, {
+    // Threaded-chat seed (S2): convert relative minutesAgo → absolute timestamps
+    // at seed time; likes ride along (1p1v). The co-authoring group below stays
+    // seeded too but is dormant (no longer rendered) — kept for Session 3.
+    comments: seed.comments.map((c) => ({
+      id: c.id,
+      author: c.author,
+      text: c.text,
+      parentId: c.parentId,
+      timestamp: now - c.minutesAgo * 60_000,
+      likes: [...c.likes],
+    })),
+    statement: { ...seed.statement, coAuthors: [...seed.statement.coAuthors] },
+    edits: byId(seed.edits),
+    commentVotes,
+  });
+}
+
+function load(contractId: string): DiscussionState {
+  return { ...defaultState(), ...readState<Partial<DiscussionState>>(contractId) };
+}
+
+function newId(): string {
+  return Date.now().toString() + Math.random().toString(36).slice(2, 8);
+}
+
+function str(v: unknown): string {
+  return typeof v === 'string' ? v : '';
+}
+
+function dedupPush(list: string[], pk: string): string[] {
+  return list.includes(pk) ? list : [...list, pk];
+}
+
+export function discussionRead(contractId: string, method: IMethod, _caller: string): unknown {
+  void _caller;
+  const s = load(contractId);
+  switch (method.name) {
+    case 'get_comments':
+      return s.comments;
+    case 'get_participant_count':
+      return new Set(s.comments.filter((c) => !c.deleted).map((c) => c.author)).size;
+    case 'get_summary':
+      return {
+        participants: new Set(s.comments.filter((c) => !c.deleted).map((c) => c.author)).size,
+        commentCount: s.comments.filter((c) => !c.deleted).length,
+      };
+
+    // --- co-authoring group ---
+    case 'get_statement':
+      return s.statement;
+    case 'get_edits':
+      return Object.values(s.edits);
+    case 'get_comment_votes':
+      return s.commentVotes ?? {};
+    default:
+      return null;
+  }
+}
+
+export function discussionWrite(contractId: string, method: IMethod, caller: string): unknown {
+  switch (method.name) {
+    // --- legacy threaded comments (untouched) ---
+    case 'add_comment': {
+      const text = method.values?.text as string | undefined;
+      if (!text) return null;
+      const sources = normalizeSources(method.values?.sources);
+      const comment: DiscussionComment = {
+        id: newId(),
+        author: caller,
+        text,
+        // discussionApi sends `parent_id` (wire name); accept the legacy camelCase too.
+        parentId: ((method.values?.parent_id ?? method.values?.parentId) as string | null | undefined) || null,
+        timestamp: Date.now(),
+        category: method.values?.category as DiscussionComment['category'],
+        likes: [],
+        ...(sources.length > 0 ? { sources } : {}),
+      };
+      updateState<DiscussionState>(contractId, (s) => ({
+        ...defaultState(),
+        ...s,
+        comments: [...(s.comments ?? []), comment],
+      }));
+      return comment;
+    }
+    case 'delete_comment': {
+      const id = method.values?.comment_id as string | undefined; // API sends comment_id (matches edit_id/position_id convention)
+      if (!id) return null;
+      updateState<DiscussionState>(contractId, (s) => ({
+        ...defaultState(),
+        ...s,
+        comments: (s.comments ?? []).map((c) =>
+          // Scrub the body AND its citations on delete — a deleted comment must not
+          // retain its source URLs at rest (FOR OURI: mirror in the real contract).
+          c.id === id && c.author === caller ? { ...c, deleted: true, text: '', sources: undefined } : c,
+        ),
+      }));
+      return null;
+    }
+    // 1p1v like toggle on a threaded comment — surfaces "top" replies in the UI;
+    // it does NOT gate advancement. NEW METHOD FOR OURI: `like_comment(comment_id)`
+    // appends/removes the caller's pk on the comment's `likes` list (dedup).
+    case 'like_comment': {
+      const id = method.values?.comment_id as string | undefined;
+      if (!id) return null;
+      updateState<DiscussionState>(contractId, (s) => ({
+        ...defaultState(),
+        ...s,
+        comments: (s.comments ?? []).map((c) => {
+          if (c.id !== id || c.deleted) return c;
+          const likes = c.likes ?? [];
+          return {
+            ...c,
+            likes: likes.includes(caller) ? likes.filter((pk) => pk !== caller) : [...likes, caller],
+          };
+        }),
+      }));
+      return null;
+    }
+    // S35 (D4/F1): 1p1v up/down on ROOT comments only — replies return without writing.
+    case 'vote_comment': {
+      const id = method.values?.comment_id as string | undefined;
+      const direction = method.values?.direction as 'up' | 'down' | 'none' | undefined;
+      if (!id || !direction) return null;
+      if (direction !== 'up' && direction !== 'down' && direction !== 'none') return null; // mirrors the Python guard
+      const target = (load(contractId).comments ?? []).find((c) => c.id === id);
+      if (!target || target.deleted || target.parentId) return null;
+      const key = `${caller}:${id}`;
+      updateState<DiscussionState>(contractId, (s) => {
+        const votes = { ...(s.commentVotes ?? {}) };
+        if (direction === 'none') delete votes[key];
+        else votes[key] = { voter: caller, commentId: id, direction };
+        return { ...defaultState(), ...s, commentVotes: votes };
+      });
+      return null;
+    }
+
+    // --- co-authoring: shared statement ---
+    case 'suggest_edit': {
+      const field: 'title' | 'body' = method.values?.field === 'title' ? 'title' : 'body';
+      const text = str(method.values?.text);
+      if (!text) return null;
+      const s = load(contractId);
+      const edit: StoredEdit = {
+        id: newId(),
+        field,
+        author: caller,
+        baseText: field === 'title' ? s.statement.title : s.statement.body,
+        text,
+        rationale: str(method.values?.rationale),
+        supporters: [caller],
+        status: 'open',
+        createdAgo: 0,
+      };
+      writeState<DiscussionState>(contractId, { ...s, edits: { ...s.edits, [edit.id]: edit } });
+      return edit;
+    }
+    case 'support_edit': {
+      // 1p1v + fold-in. `target` is passed by the UI (a majority of those who've
+      // taken part, floor 3) so the rule is server-portable.
+      const editId = str(method.values?.edit_id);
+      const target = Math.max(3, Number(method.values?.target) || 3);
+      const s = load(contractId);
+      const e = s.edits[editId];
+      if (!e || e.status !== 'open') return s.statement;
+      const supporters = dedupPush(e.supporters, caller);
+      let statement = s.statement;
+      const edits: Record<string, StoredEdit> = { ...s.edits, [editId]: { ...e, supporters } };
+      if (supporters.length >= target) {
+        statement = {
+          ...s.statement,
+          [e.field]: e.text,
+          coAuthors: dedupPush(s.statement.coAuthors, e.author),
+        };
+        edits[editId] = { ...e, supporters, status: 'accepted' };
+        // Most-supported wins; sibling open edits to the same field go stale
+        // (they need reworking against the new text). Documented simplification.
+        for (const o of Object.values(edits)) {
+          if (o.id !== editId && o.field === e.field && o.status === 'open') {
+            edits[o.id] = { ...o, status: 'stale' };
+          }
+        }
+      }
+      writeState<DiscussionState>(contractId, { ...s, statement, edits });
+      return statement;
+    }
+    case 'withdraw_edit_support': {
+      const editId = str(method.values?.edit_id);
+      const s = load(contractId);
+      const e = s.edits[editId];
+      if (!e || e.status !== 'open') return null;
+      const supporters = e.supporters.filter((pk) => pk !== caller);
+      writeState<DiscussionState>(contractId, { ...s, edits: { ...s.edits, [editId]: { ...e, supporters } } });
+      return null;
+    }
+
+    // Start a co-owned draft (Write Together, S3). NEW METHOD FOR OURI:
+    // `set_statement(title, body)` initialises the co-owned statement with the
+    // caller as sole co-author. Used once when a draft is created; fold-ins via
+    // `support_edit` extend `coAuthors` thereafter.
+    case 'set_statement': {
+      const title = str(method.values?.title);
+      const body = str(method.values?.body);
+      const s = load(contractId);
+      const statement: Statement = { title, body, coAuthors: [caller] };
+      writeState<DiscussionState>(contractId, { ...s, statement });
+      return statement;
+    }
+
+    default:
+      return null;
+  }
+}

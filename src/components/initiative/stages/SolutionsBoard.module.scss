@@ -1,0 +1,206 @@
+@use '../../../styles/variables' as *;
+
+.container { display: flex; flex-direction: column; gap: $spacing-lg; }
+.loading { display: flex; flex-direction: column; align-items: center; gap: $spacing-md; padding: $spacing-xl; color: $gray-600; font-size: $text-sm; }
+.noData { font-size: $text-sm; color: $gray-600; font-style: italic; padding: $spacing-lg 0; }
+
+// ─── Combined "progress to vote" line (S15: was two stacked bars) ───────
+// Two metrics side-by-side instead of stacked — same numbers, half the height.
+.progress { display: flex; gap: $spacing-md; }
+.progressStat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.progressTop { display: flex; align-items: baseline; gap: $spacing-xs; }
+.progressCount { font-weight: $font-bold; color: $gray-800; font-size: $text-sm; }
+.progressLabel { font-size: $text-xs; color: $gray-600; }
+// The two threshold bars render through the shared <ProgressBar size="sm"> (W5 T3,
+// S22 law) — bespoke .track/.fill/.fillSuccess deleted; the kit owns the 6px track,
+// primary/success fill, dark track, and reduced-motion transition. The .progress
+// flex row + .progressStat flex:1 keep the S15 side-by-side "half the height" layout.
+
+// ─── Add solution (Task 6) ─────────────────────────────────────────────
+// Add button + its (i) explainer on one row (S23).
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  .addBtn { flex: 1; }
+}
+
+.addBtn {
+  width: 100%; min-height: 44px; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  border: 1px dashed $gray-200; border-radius: $radius-md;
+  background: none; color: $gray-600; cursor: pointer;
+  padding: 0 $spacing-md; font-size: $text-base;
+  &:hover { background: rgba($primary, 0.05); color: $gray-800; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.addForm { display: flex; flex-direction: column; gap: $spacing-sm; }
+.addTextarea, .commitInput {
+  width: 100%; box-sizing: border-box; padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-200; border-radius: $radius-md; font-size: $text-sm; color: $gray-800;
+  &:focus { border-color: $primary; outline: none; }
+  &::placeholder { color: $gray-500; }
+}
+.addTextarea { resize: vertical; }
+.commitPrompt { margin: $spacing-xs 0 0; font-size: $text-sm; font-weight: $font-medium; color: $gray-800; }
+.commitHint { margin: 0 0 $spacing-xs; font-size: $text-xs; color: $gray-600; }
+
+.causeSelect {
+  margin-bottom: $spacing-sm;
+  // The trigger shows a full sentence; keep it to two lines (F2/D5 label, 360px).
+  button {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-align: left;
+  }
+}
+
+// ─── Solution list — flush items, hairline divider (S15: no card-in-a-card) ─
+.list { display: flex; flex-direction: column; gap: $spacing-lg; }
+.solution { display: flex; flex-direction: column; }
+.solution + .solution { border-top: 1px solid $gray-100; padding-top: $spacing-lg; }
+.text { margin: 0 0 $spacing-sm; font-size: $text-base; line-height: 1.5; color: $gray-800; font-weight: $font-medium; }
+.commitments {
+  margin: 0 0 $spacing-sm; padding-left: $spacing-md;
+  font-size: $text-xs; color: $gray-600; line-height: 1.6;
+  li { margin: 0; }
+}
+.metrics { margin: 0; font-size: $text-xs; color: $gray-600;
+  ul { margin: 2px 0 0; padding-left: $spacing-md; line-height: 1.6; }
+}
+.metricsLabel { margin: 0; font-weight: $font-medium; color: $gray-800; font-size: $text-xs; }
+.sourceBlock { margin: 0; }
+
+.byline { display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm; flex-wrap: wrap; }
+.reviewedTag { font-size: $text-xs; color: $success-on-surface; } // AA on white (S16: $success was 2.54:1)
+.reviewStatus { margin: $spacing-xs 0 0; font-size: $text-xs; color: $gray-600; }
+
+// ─── Cause alignment chip (S35 F2) — always the first line, above the
+// folded "Details" toggle; every solution has one of the three cause states.
+// Rendered via the shared <CauseLine> (Task 11); .causeChip only threads
+// this block's margin-top into CauseLine's own flex row via className.
+.causeChip { margin-top: $spacing-xs; }
+
+// ─── Evidence & expert review — inline expand (S15: was nested green box) ─
+.evidence { margin-top: $spacing-xs; }
+.evidenceToggle {
+  display: inline-flex; align-items: center; gap: $spacing-sm; // icon→label floor (W5)
+  min-height: 44px; padding: 0;
+  background: none; border: none; cursor: pointer;
+  font-size: $text-sm; font-weight: $font-medium; color: $primary;
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.evidencePanel { display: flex; flex-direction: column; gap: $spacing-sm; padding-bottom: $spacing-xs; }
+
+// Expert reviews now render flush inside the panel (no filled panel / no green box).
+.reviews { display: flex; flex-direction: column; gap: $spacing-sm; margin: 0; }
+.reviewsLabel { margin: 0; font-size: $text-xs; font-weight: $font-semibold; color: $gray-700; }
+.review { display: flex; flex-direction: column; gap: 4px; }
+.review + .review { border-top: 1px solid $gray-100; padding-top: $spacing-sm; }
+.reviewByline { display: flex; align-items: baseline; gap: $spacing-xs; flex-wrap: wrap; }
+.credentials { font-size: $text-xs; color: $gray-600; font-style: italic; }
+.assessment { margin: 0; font-size: $text-sm; line-height: 1.5; color: $gray-800; }
+
+.actionRow { display: flex; gap: $spacing-xs; margin-top: $spacing-sm; border-top: 1px solid $gray-200; padding-top: $spacing-sm; }
+.actionBtn {
+  flex: 1; min-height: 44px; // floor — the button grows for the caption beneath (S31)
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: $spacing-xs; padding-block: $spacing-xs;
+  border: 1.5px solid $gray-200; border-radius: $radius-sm;
+  background: none; color: $gray-600; cursor: pointer;
+  transition: all $transition-base;
+  &:hover:not(:disabled) { border-color: $primary; color: $primary; background: rgba($primary, 0.05); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.actionTop { display: inline-flex; align-items: center; gap: $spacing-xs; font-size: $text-sm; @include tabular-nums; } // icon + count
+.actionCaption { font-size: $text-xs; font-weight: $font-medium; line-height: 1.15; } // colour inherits from .actionBtn (themed)
+.actionBtnActive { border-color: $primary; color: $primary; background: rgba($primary, 0.1); }
+.expertAddBtn {
+  margin-top: $spacing-xs; min-height: 44px; width: 100%;
+  background: none; border: 1.5px solid $primary; color: $primary;
+  border-radius: $radius-sm; cursor: pointer; font-size: $text-sm;
+  &:hover { background: rgba($primary, 0.08); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+
+// ─── Merge "pick a target" mode (Task 9) ───────────────────────────────
+// Merge is a transient interaction; boxing the tap targets here aids the
+// affordance and does not violate the default-state "no card-in-a-card" rule.
+.mergeBanner {
+  display: flex; align-items: center; gap: 8px;
+  padding: $spacing-sm $spacing-md; border-radius: $radius-sm;
+  background: rgba($primary, 0.1); color: $primary; font-size: $text-sm;
+}
+.mergeCancel {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  color: $primary; text-decoration: underline; font-size: $text-sm;
+  min-height: 44px; padding: 0 $spacing-xs;
+}
+.mergeSourceCard { opacity: 0.5; }
+.mergeTargetCard {
+  border: 2px solid $primary; border-radius: $radius-md; padding: $spacing-md; cursor: pointer;
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+  animation: mergeRingPulse 1.6s ease-in-out infinite;
+}
+.mergeHint { margin: 0 0 $spacing-xs; font-size: $text-sm; color: $primary; }
+@keyframes mergeRingPulse { 0%, 100% { border-color: $primary; } 50% { border-color: $gray-200; } }
+@media (prefers-reduced-motion: reduce) { .mergeTargetCard { animation: none; } }
+
+// ─── Impact assessments fold (Task 14) — inside SolutionEvidence, right after
+// the cause chip. Native <details>, same flush-row vocabulary QVFlow's
+// commitments/metrics folds use (.dcard/.dsummary/.chev/.dinner) — one fold
+// pattern shared across the board and the three voter surfaces.
+.dcard { margin-top: $spacing-xs; }
+.dsummary {
+  list-style: none; cursor: pointer; min-height: 44px;
+  display: flex; align-items: center; justify-content: space-between; gap: $spacing-sm;
+  font-size: $text-sm; font-weight: $font-medium; color: $gray-700;
+  &::-webkit-details-marker { display: none; }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: -2px; }
+}
+.chev { flex: 0 0 auto; transition: transform $transition-base; }
+.dcard[open] > .dsummary .chev { transform: rotate(180deg); }
+.dinner { padding: 0 0 $spacing-sm; display: flex; flex-direction: column; }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+
+// ─── Impact assessments chin (Task 14, D12) — count + eligibility-gated CTA
+// pill, below the evidence fold and above the approve/review/merge row. The
+// pill follows the chin-pill law: outlined, fully rounded, ≥44px target.
+.impactChin { display: flex; align-items: center; flex-wrap: wrap; gap: $spacing-sm; margin-top: $spacing-sm; }
+.impactCount { font-size: $text-xs; color: $gray-600; }
+.impactCta {
+  margin-left: auto; min-height: 44px; padding: 0 $spacing-md;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1.5px solid $primary; border-radius: $radius-full;
+  color: $primary; font-size: $text-xs; font-weight: $font-semibold; cursor: pointer;
+  &:hover { background: rgba($primary, 0.08); }
+  &:focus-visible { outline: 2px solid $primary; outline-offset: 2px; }
+}
+.impactRungNote { flex-basis: 100%; margin: 0; font-size: $text-xs; color: $gray-600; font-style: italic; }
+
+// ─── Dark mode ─────────────────────────────────────────────────────────
+@include dark {
+  .loading, .noData, .progressLabel, .commitHint, .commitments, .metrics, .reviewStatus { color: $dark-text-secondary; }
+  .progressCount, .text, .commitPrompt, .metricsLabel, .assessment { color: $dark-text; }
+  .reviewedTag { color: $success; } // the light green IS the AA choice on dark cards
+  .solution + .solution { border-top-color: $dark-border; }
+  .review + .review { border-top-color: $dark-border; }
+  .reviewsLabel { color: $dark-text-secondary; }
+  .credentials { color: $dark-text-secondary; }
+  .addBtn { border-color: $dark-border; color: $dark-text-secondary; &:hover { color: $dark-text; } }
+  .addTextarea, .commitInput {
+    background: $dark-bg; border-color: $dark-border; color: $dark-text;
+    &::placeholder { color: $dark-text-secondary; }
+  }
+  .actionRow { border-top-color: $dark-border; }
+  .actionBtn { border-color: $dark-border; color: $dark-text-secondary; }
+  .mergeSourceCard { opacity: 0.5; }
+  .dsummary { color: $dark-text; }
+  .impactCount, .impactRungNote { color: $dark-text-secondary; }
+  .impactCta { color: $primary-on-dark; border-color: $primary-on-dark; &:hover { background: rgba($primary-on-dark, 0.12); } }
+}

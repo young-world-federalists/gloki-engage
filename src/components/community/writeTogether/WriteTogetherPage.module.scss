@@ -1,0 +1,124 @@
+@use '../../../styles/variables' as *;
+
+// WriteTogetherPage — list/start/edit container for co-authored drafts.
+// Token-only: no hardcoded hex. Draft list rows ≥44px touch targets.
+// Caption text uses AA-safe $gray-500 (≈4.8:1 on white), NOT $gray-400.
+
+// -------------------------------------------------------------------------
+// Page container: flex column, constrained, scrollable
+// -------------------------------------------------------------------------
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  width: 100%;
+  // fills the canonical page column (the parent under the AppHeader owns width + gutter)
+  padding: $spacing-xl 0 $spacing-2xl;
+  box-sizing: border-box;
+}
+
+// -------------------------------------------------------------------------
+// Action row — "Start a draft" + its (i) explainer (the page header renders
+// in the AppHeader title block — S23)
+// -------------------------------------------------------------------------
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+// -------------------------------------------------------------------------
+// Draft list — unstyled <ul>
+// -------------------------------------------------------------------------
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+// -------------------------------------------------------------------------
+// Draft row — full-width left-aligned card button, ≥44px touch target.
+// Surface: $gray-50 bg, $gray-200 border, $radius-lg, hover lift.
+// -------------------------------------------------------------------------
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  width: 100%;
+  min-height: 44px;
+  padding: $spacing-md $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color $transition-base, border-color $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    background: $gray-100;
+    border-color: $gray-300;
+    box-shadow: $shadow-sm;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  @include dark {
+    background: $dark-surface;
+    border-color: $dark-border;
+
+    &:hover {
+      background: $dark-bg;
+      border-color: $gray-600;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------
+// Row sub-elements
+// -------------------------------------------------------------------------
+
+// Top row: mode badge + status pill
+.rowTop {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+// Status text — AA caption ($gray-500 ≈4.8:1 on white)
+.status {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}
+
+// Draft title — slightly bolder, readable at 15px
+.rowTitle {
+  font-size: 0.9375rem; // 15px
+  font-weight: $font-medium;
+  color: $gray-800;
+  line-height: 1.3;
+
+  @include dark {
+    color: $dark-text;
+  }
+}
+
+// "for {community} · tag" meta line — caption
+.rowMeta {
+  font-size: $text-xs;
+  color: $gray-500;
+
+  @include dark {
+    color: $dark-text-secondary;
+  }
+}

@@ -1,0 +1,608 @@
+// Deliberation fixtures.
+//
+// UI-only sample data for the deliberation heart of the demo: the threaded
+// discussion + live co-presence (C1), the track-changes co-authoring of a
+// problem statement (C2), and the merge-similar-proposals + expert-review
+// surface (C3).
+//
+// Pure data + pure helpers only — no React, no i18n, no backend. The flow
+// components import these and hold local optimistic state. Personas come from
+// the identity fixture (read-only import). Display copy is themed to the
+// "Algorithmic Misinformation & Election Integrity" hero (discussion stage) and
+// the "Youth Employment & the Skills Gap" initiative (proposals stage).
+
+import { PERSONAS } from './identity';
+import type { SourceLink } from '../../../utils/sources';
+
+// ---------------------------------------------------------------------------
+// Proposals per initiative (consumed by the seed orchestrator).
+// Keyed by initiative `key` (see problems.ts).
+// ---------------------------------------------------------------------------
+export const PROPOSALS_BY_KEY: Record<string, string[]> = {
+  databroker: [
+    'Require data brokers to register publicly, disclose the categories of data they hold, and give any person a free right to see, correct, and delete their profile.',
+    'Ban the sale of sensitive categories — health history, location trails, financial stress scores — without explicit, informed consent renewed annually.',
+    'Fund a cross-border enforcement body with audit powers and fines proportional to broker revenue, so the penalty outweighs the profit from non-compliance.',
+  ],
+  water: [
+    'Fund community-managed water points with local committees accountable for upkeep.',
+    'Low-cost household filtration distributed through schools and clinics.',
+    'Open, community-reported water-quality monitoring so problems surface fast.',
+  ],
+  amr: [
+    'Make antibiotics prescription-only everywhere, with trained pharmacist gatekeeping.',
+    'Fund rapid point-of-care tests so clinicians stop prescribing antibiotics "just in case".',
+    'A public stewardship dashboard tracking prescribing rates by region.',
+    'Invest in clean water and vaccination — the cheapest way to cut infections that drive resistance.',
+  ],
+  misinfo: [
+    'Require platforms to label disputed content within minutes, with an independent appeals path.',
+    'Mandate "why am I seeing this?" transparency on every recommended post.',
+    'Fund media-literacy "pre-bunking" in schools and over messaging apps.',
+  ],
+  privacy: [
+    'An independent data-protection authority with binding audit powers over both public agencies and large platforms, funded by a levy on data processors so it can never be starved of the budget it needs to police them.',
+    'End-to-end encryption by default for all citizen–government messaging, built on open, independently audited protocols with no exceptional-access backdoors, so a leak or a change of government can\'t retroactively expose people.',
+    'A free, portable digital identity that every resident fully controls, with an offline fallback so access to services never depends on connectivity, a smartphone, or a single vendor.',
+    'Independent audits of high-risk algorithms, with public summaries.',
+  ],
+  ocean: [
+    'Hold producers responsible for packaging through fees that fund cleanup.',
+    'Fund youth-run collection points paid per kilo of recovered coastal plastic.',
+    'Phase out the worst single-use items where refillable alternatives exist.',
+  ],
+  adaptation: [
+    'Prioritise low-cost, locally-maintainable resilience: drainage, mangroves, early warning.',
+    'Open, community-reported tracking of every funded project.',
+    'A community-governed adaptation fund frontline towns can apply to directly.',
+  ],
+  jobs: [
+    'Paid apprenticeships placing young people with local employers, with a stipend so the poorest can take part.',
+    'Rebuild vocational training around the skills employers in each region actually list as missing.',
+    'A public, real-time dashboard matching training to the jobs being posted locally.',
+    'Wage subsidies for small businesses that hire and mentor a first-time worker.',
+  ],
+  housing: [
+    'Protect renters with transparent rent caps tied to local incomes.',
+    'Unlock idle public land for non-profit, permanently-affordable housing.',
+    'Fund community land trusts that keep homes affordable for good.',
+  ],
+};
+
+/** A track-changes edit suggestion on the problem statement (C2). */
+interface EditSuggestion {
+  id: string;
+  field: 'title' | 'description';
+  author: string; // persona publicKey
+  /** The text this suggestion was drafted against (for the inline diff). */
+  baseText: string;
+  /** The proposed replacement text. */
+  suggestedText: string;
+  rationale: string;
+  hearts: number;
+  status: 'open' | 'accepted' | 'rejected';
+  minutesAgo: number;
+}
+
+/** A domain expert who can review proposals (C3). */
+export interface ExpertProfile {
+  key: string;
+  name: string;
+  field: string;
+  country: string; // ISO 3166-1 alpha-2
+}
+
+// ---------------------------------------------------------------------------
+// C2 — Track-changes co-authoring of the problem statement
+// ---------------------------------------------------------------------------
+const PROBLEM_STATEMENT: { title: string; description: string } = {
+  title: 'Algorithmic Misinformation & Election Integrity',
+  description:
+    'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts. How should communities and platforms respond?',
+};
+
+const EDIT_SUGGESTIONS: EditSuggestion[] = [
+  {
+    id: 's1',
+    field: 'description',
+    author: 'demo-user-it-sofia',
+    baseText: PROBLEM_STATEMENT.description,
+    suggestedText:
+      'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts. How should communities and platforms respond — without harming free expression?',
+    rationale: 'Any response has to name the free-expression safeguard up front, or we invite censorship.',
+    hearts: 11,
+    status: 'open',
+    minutesAgo: 110,
+  },
+  {
+    id: 's2',
+    field: 'title',
+    author: 'demo-user-de-anika',
+    baseText: PROBLEM_STATEMENT.title,
+    suggestedText: 'Algorithmic Misinformation & Democratic Integrity',
+    rationale: 'This goes beyond elections — it is about trust in shared facts year-round.',
+    hearts: 8,
+    status: 'open',
+    minutesAgo: 65,
+  },
+  {
+    id: 's3',
+    field: 'description',
+    author: 'demo-user-ng-amina',
+    baseText: PROBLEM_STATEMENT.description,
+    suggestedText:
+      'AI-generated misinformation spreads faster than fact-checkers can respond, eroding trust in shared facts — especially over messaging apps on basic phones. How should communities and platforms respond?',
+    rationale: 'If the answer ignores WhatsApp on a basic phone, it ignores where most people actually are.',
+    hearts: 6,
+    status: 'open',
+    minutesAgo: 30,
+  },
+];
+
+/** Co-authors already credited on the statement (a prior accepted edit). */
+const CO_AUTHORS: string[] = ['demo-user-kr-jiwoo'];
+
+// ---------------------------------------------------------------------------
+// Co-authoring seed (Redesign A — Batch 5)
+//
+// The discussion contract self-seeds from this so any discussion sub-contract
+// opens with the rich demo. RECAST — no new copy — from the data above:
+//   • statement ← PROBLEM_STATEMENT (description→body) + CO_AUTHORS
+//   • edits     ← EDIT_SUGGESTIONS (field description→body, suggestedText→text)
+//
+// 1p1v supporters are drawn ONLY from the eight people who took part in the
+// thread, so the participation snapshot stays a stable 8 and the hero edit (s1)
+// sits exactly one supporter short of the fold-in target (max(3, ceil(8/2))=4)
+// — a single live "Support" click folds it into the statement. See the Batch 5
+// plan (docs/superpowers/plans/2026-06-04-batch5-stage-ux-redesigns.md).
+
+interface SeedStatement {
+  title: string;
+  body: string;
+  coAuthors: string[]; // persona publicKeys
+}
+interface SeedEdit {
+  id: string;
+  field: 'title' | 'body';
+  author: string;
+  baseText: string;
+  text: string;
+  rationale: string;
+  supporters: string[]; // pks — 1p1v
+  status: 'open' | 'accepted' | 'stale';
+  createdAgo: number; // minutes (feeds utils/formatTimeAgo relativeTimeKey); 0 = just now
+}
+interface SeedComment {
+  id: string;
+  author: string;
+  text: string;
+  parentId: string | null;
+  likes: string[]; // 1p1v pks
+  minutesAgo: number;
+}
+export interface DiscussionSeed {
+  statement: SeedStatement;
+  edits: SeedEdit[];
+  comments: SeedComment[]; // threaded-chat seed (S2 discussion-as-chat)
+  /** S35 (F3): seeded 1p1v up/down votes on ROOT comments, so the causes-status
+   * pill reads a real band on first load without anyone voting. Optional — a
+   * discussion seed with no `votes` simply opens in the 'open' (New) band. */
+  votes?: Array<{ voter: string; commentId: string; direction: 'up' | 'down' }>;
+}
+
+const EDIT_SUPPORTERS: Record<string, string[]> = {
+  s1: ['demo-user-it-sofia', 'demo-user-pl-marta', 'demo-user-ph-maria'], // 3 = target(4) - 1 → one click folds in
+  s2: ['demo-user-de-anika', 'demo-user-kr-jiwoo'],
+  s3: ['demo-user-ng-amina', 'demo-user-br-lucas'],
+};
+// Threaded-chat seed (S2 discussion-as-chat). A realistic conversation on the
+// misinformation showcase so the redesigned Discussion stage opens alive rather
+// than empty. One branch (d1 → d1a → d1b → d1c → d1d) runs 5 deep so the
+// "Continue this thread →" affordance (depth cap 3) is demoable; like counts
+// vary so the Top sort is meaningful. Eight distinct authors → "10 comments · 8 people".
+// d4 (S35, F3): a fourth ROOT comment so this discussion clears the causes-status
+// floor (MIN_VOTED_COMMENTS = 3) with real margin — see DISCUSSION_VOTES_BY_KEY below.
+const DISCUSSION_THREAD: SeedComment[] = [
+  { id: 'd1', author: 'demo-user-kr-jiwoo', parentId: null, minutesAgo: 420,
+    text: "Where I am, deepfake audio of a candidate went viral on messaging apps 48 hours before polls — too late for any fact-check to catch up.",
+    likes: ['demo-user-ng-amina', 'demo-user-cn-mei', 'demo-user-it-sofia', 'demo-user-br-lucas', 'demo-user-ph-maria'] },
+  { id: 'd2', author: 'demo-user-ng-amina', parentId: null, minutesAgo: 400,
+    text: "It isn't only fakes — real clips get stripped of context and reframed. Detection tools alone won't fix that.",
+    likes: ['demo-user-cn-mei', 'demo-user-de-anika'] },
+  { id: 'd3', author: 'demo-user-cn-mei', parentId: null, minutesAgo: 380,
+    text: "Platforms could add friction near elections: a 'forwarded many times' label and a short slowdown on mass-forwarding.",
+    likes: ['demo-user-kr-jiwoo', 'demo-user-ph-maria', 'demo-user-br-lucas'] },
+  { id: 'd1a', author: 'demo-user-it-sofia', parentId: 'd1', minutesAgo: 360,
+    text: "Did the platform act once it was flagged?", likes: ['demo-user-kr-jiwoo'] },
+  { id: 'd1b', author: 'demo-user-kr-jiwoo', parentId: 'd1a', minutesAgo: 340,
+    text: "Only after the vote. The takedown came three days late.", likes: ['demo-user-br-lucas', 'demo-user-pl-marta'] },
+  { id: 'd1c', author: 'demo-user-br-lucas', parentId: 'd1b', minutesAgo: 320,
+    text: "That lag is the whole problem. Response time near an election needs a legal deadline.", likes: ['demo-user-pl-marta', 'demo-user-ph-maria'] },
+  { id: 'd1d', author: 'demo-user-pl-marta', parentId: 'd1c', minutesAgo: 300,
+    text: "Agreed — plus an audit log so we can see when they actually knew.", likes: [] },
+  { id: 'd2a', author: 'demo-user-ph-maria', parentId: 'd2', minutesAgo: 350,
+    text: "Media-literacy programs help, but they work slowly. We need both the slow and the fast fixes.", likes: ['demo-user-ng-amina'] },
+  { id: 'd3a', author: 'demo-user-de-anika', parentId: 'd3', minutesAgo: 370,
+    text: "Friction near elections is smart — but who defines the 'election window'? That power can be abused too.", likes: ['demo-user-cn-mei', 'demo-user-it-sofia'] },
+  { id: 'd4', author: 'demo-user-it-sofia', parentId: null, minutesAgo: 150,
+    text: "Stepping back from all of this: the real driver is the business model. Engagement-based ranking rewards outrage and speed over accuracy, so no moderation policy fixes this without changing what the algorithm is paid to optimise for.",
+    likes: ['demo-user-kr-jiwoo', 'demo-user-de-anika'] },
+];
+
+function buildDiscussionSeed(): DiscussionSeed {
+  const edits: SeedEdit[] = EDIT_SUGGESTIONS.map((e) => ({
+    id: e.id,
+    field: e.field === 'description' ? 'body' : 'title',
+    author: e.author,
+    baseText: e.baseText,
+    text: e.suggestedText,
+    rationale: e.rationale,
+    supporters: EDIT_SUPPORTERS[e.id] ?? [e.author],
+    status: 'open',
+    createdAgo: e.minutesAgo,
+  }));
+  return {
+    statement: {
+      title: PROBLEM_STATEMENT.title,
+      body: PROBLEM_STATEMENT.description,
+      coAuthors: [...CO_AUTHORS],
+    },
+    edits,
+    comments: DISCUSSION_THREAD,
+  };
+}
+
+/** The co-authoring seed — consumed by `demoContracts/discussion.ts`. */
+const DISCUSSION_SEED: DiscussionSeed = buildDiscussionSeed();
+
+/**
+ * Discussion seeds keyed by initiative `key`. The seeder pre-seeds a discussion
+ * sub-contract ONLY for keys present here; every other initiative's discussion
+ * deploys fresh and opens empty. Today the misinformation showcase carries
+ * the rich co-authoring demo; databroker has a starter thread so the
+ * Digital Rights Coalition's proposals-stage opens with visible conversation.
+ */
+const DATABROKER_DISCUSSION: DiscussionSeed = {
+  statement: {
+    title: 'Reining In Data Brokers',
+    body: 'A handful of data brokers quietly buy and resell detailed profiles of billions of people, with almost no oversight. Propose how communities and regulators should rein this in.',
+    coAuthors: [],
+  },
+  edits: [],
+  comments: [
+    {
+      id: 'db-c1',
+      author: 'demo-user-de-anika',
+      parentId: null,
+      minutesAgo: 380,
+      text: "I looked up my own profile on one of the big brokers last year. It had my home address, employer history, family connections, and an inferred income bracket — all without my knowledge. The idea that I 'consented' by clicking a cookie banner on some unrelated site is fiction.",
+      likes: ['demo-user-it-sofia', 'demo-user-kr-jiwoo', 'demo-user-br-lucas', 'demo-user-pl-marta'],
+    },
+    {
+      id: 'db-c2',
+      author: 'demo-user-in-priya',
+      parentId: null,
+      minutesAgo: 340,
+      text: "In markets where credit scoring is thin, data-broker profiles get used as proxies for creditworthiness. An error in your profile — or a profile built from someone with a similar name — can quietly close off housing and jobs.",
+      likes: ['demo-user-ng-amina', 'demo-user-eg-fatima'],
+    },
+    {
+      id: 'db-c1a',
+      author: 'demo-user-it-sofia',
+      parentId: 'db-c1',
+      minutesAgo: 310,
+      text: "The registry idea is the right starting point — you can't regulate what you can't see. But the registry needs to be machine-readable and updated in real time, not a PDF filed once a year.",
+      likes: ['demo-user-de-anika', 'demo-user-kr-jiwoo'],
+    },
+    {
+      id: 'db-c3',
+      author: 'demo-user-br-lucas',
+      parentId: null,
+      minutesAgo: 260,
+      text: "Enforcement is the weak link everywhere. GDPR has been on the books for years and the largest brokers still operate with near-impunity because fines are a rounding error on their revenue. The third proposal fixes that — make the penalty scale with profit.",
+      likes: ['demo-user-de-anika', 'demo-user-pl-marta', 'demo-user-in-priya'],
+    },
+    {
+      id: 'db-c1b',
+      author: 'demo-user-kr-jiwoo',
+      parentId: 'db-c1a',
+      minutesAgo: 200,
+      text: "Agreed on machine-readable. And the right to deletion has to come with a short deadline — 14 days maximum — or brokers just wait out complaints.",
+      likes: ['demo-user-it-sofia'],
+    },
+    // db-c4 (S35, F3): a fourth ROOT comment — only db-c1/db-c2/db-c3 were roots
+    // before this, which clears MIN_VOTED_COMMENTS = 3 with no margin at all.
+    // A cause statement (who bears the harm), not a reply to an existing thread.
+    {
+      id: 'db-c4',
+      author: 'demo-user-ng-amina',
+      parentId: null,
+      minutesAgo: 150,
+      text: "The deeper issue is who these profiles hurt most: recent immigrants, people already in debt, gig workers with unstable addresses. They have the least power to notice a bad profile, let alone correct one. Any fix has to protect those groups first, not just the median user who has time to file a request.",
+      likes: ['demo-user-de-anika', 'demo-user-br-lucas'],
+    },
+  ],
+};
+
+export const DISCUSSION_SEED_BY_KEY: Record<string, DiscussionSeed> = {
+  misinfo: DISCUSSION_SEED,
+  databroker: DATABROKER_DISCUSSION,
+};
+
+// ---------------------------------------------------------------------------
+// S35 (F3) — seeded comment votes, keyed by discussion `key`, so the causes-
+// status pill (src/utils/discussionStatus.ts) reads a real band on first load
+// without anyone voting. Voters are persona keys (never the viewer's own key —
+// the viewer should be free to cast the "first" vote in a walkthrough).
+// agreement = Σ|up−down| / Σ(up+down) over the ≤10 most-voted ROOT comments;
+// bands: <0.25 contested, <0.5 divided, <0.75 converging, else consensus
+// (open unless total votes ≥ 10 AND ≥ 3 voted roots).
+// ---------------------------------------------------------------------------
+type SeedVote = { voter: string; commentId: string; direction: 'up' | 'down' };
+
+const VOTER_POOL: string[] = PERSONAS.map((p) => p.publicKey);
+
+/** Deterministically assigns voters from `pool` to each [commentId, up, down] triple. */
+function buildVotes(triples: Array<[string, number, number]>, pool: string[]): SeedVote[] {
+  const votes: SeedVote[] = [];
+  let cursor = 0;
+  for (const [commentId, up, down] of triples) {
+    for (let i = 0; i < up; i += 1) { votes.push({ voter: pool[cursor % pool.length], commentId, direction: 'up' }); cursor += 1; }
+    for (let i = 0; i < down; i += 1) { votes.push({ voter: pool[cursor % pool.length], commentId, direction: 'down' }); cursor += 1; }
+  }
+  return votes;
+}
+
+export const DISCUSSION_VOTES_BY_KEY: Record<string, SeedVote[]> = {
+  // misinfo → converging: votes (up/down) d1=6/1, d2=5/2, d3=4/1, d4=2/1.
+  // Σ|up−down| = 5+3+3+1 = 12; Σ(up+down) = 7+7+5+3 = 22; agreement ≈ 0.545 ∈ [0.5, 0.75) → converging.
+  misinfo: buildVotes([
+    ['d1', 6, 1],
+    ['d2', 5, 2],
+    ['d3', 4, 1],
+    ['d4', 2, 1],
+  ], VOTER_POOL),
+  // databroker → divided: votes (up/down) db-c1=5/1, db-c2=3/3, db-c3=2/2, db-c4=2/1.
+  // Σ|up−down| = 4+0+0+1 = 5; Σ(up+down) = 6+6+4+3 = 19; agreement ≈ 0.263 ∈ [0.25, 0.5) → divided.
+  databroker: buildVotes([
+    ['db-c1', 5, 1],
+    ['db-c2', 3, 3],
+    ['db-c3', 2, 2],
+    ['db-c4', 2, 1],
+  ], VOTER_POOL),
+};
+
+export const EXPERTS: ExpertProfile[] = [
+  { key: 'demo-expert-renata', name: 'Renata Costa', field: 'Labour economics · ILO', country: 'BR' },
+  { key: 'demo-expert-lena', name: 'Dr. Lena Fischer', field: 'Vocational education & skills', country: 'DE' },
+];
+
+// ---------------------------------------------------------------------------
+// S4 — commitments + expert-metric seeds (keyed by initiative `key`, then by
+// the proposal's index in PROPOSALS_BY_KEY). The proposals-stage initiatives
+// (amr, jobs, databroker) open with real commitments + two distinct expert reviews so the
+// redesigned card's threshold bars read mid-progress (Experts reviewed: 2/3).
+// ---------------------------------------------------------------------------
+export const PROPOSAL_COMMITMENTS_BY_KEY: Record<string, Record<number, string[]>> = {
+  databroker: {
+    0: ['A public broker registry is live and searchable', 'Every person can access their profile within 30 days', 'Correction and deletion requests are fulfilled within 14 days'],
+    1: ['Sensitive categories are defined in law and updated annually', 'Consent records are auditable by regulators on request'],
+    2: ['An enforcement body is funded at ≥0.1 % of the largest broker\'s annual revenue', 'Cross-border enforcement agreements are in place for the top 10 broker markets'],
+  },
+  amr: {
+    0: ['Health ministries make antibiotics prescription-only', 'Pharmacists are trained and funded as gatekeepers', 'Clinics adopt shared prescribing guidelines'],
+    1: ['Donors fund rapid point-of-care test kits', 'Clinics are reimbursed for testing before prescribing'],
+    2: ['Labs report prescribing data to a shared registry', 'Communities see local resistance trends each month'],
+    3: ['Governments invest in clean water and sanitation', 'Vaccination coverage is widened to cut infections'],
+  },
+  jobs: {
+    0: ['Employers offer placements with a public stipend', 'Local governments co-fund the stipend for low-income youth'],
+    1: ['Training boards rebuild curricula around employer-listed gaps', 'Colleges refresh courses each year, not each decade'],
+    2: ['A public dashboard matches training to posted jobs', 'Regions publish quarterly skills-gap data'],
+    3: ['Small businesses receive a wage subsidy for first hires', 'Mentors are funded for each first-time worker'],
+  },
+  privacy: {
+    0: ['An independent authority audits the largest platforms every year', 'Every ruling is published within 30 days'],
+    1: ['The reference client is open-sourced', 'An independent security audit passes before launch'],
+    2: ['An offline fallback works in every region', 'People can export their data in one tap — no vendor lock-in'],
+  },
+  // adaptation: the rich spine sits on the FUND proposal at the LAST index (the
+  // qv winner — qvAllocationPattern elects the last proposal). If you reorder the
+  // adaptation proposals above, move this 4-commitment block to the new last index.
+  adaptation: {
+    0: [
+      'Spending favours resilience communities can maintain themselves over large external contracts.',
+    ],
+    1: [
+      'Every funded project is tracked openly, with community-reported updates.',
+    ],
+    2: [
+      'A standing adaptation fund accepts applications directly from frontline towns, islands and neighbourhoods — not only national governments.',
+      'A community-majority board decides how the money is allocated.',
+      'Priority goes to low-cost, locally-maintainable resilience: drainage, mangroves, water storage and early warning.',
+      'Every funded project publishes progress on a simple public dashboard, updated by the community.',
+    ],
+  },
+};
+
+export const PROPOSAL_EXPERT_REVIEWS_BY_KEY: Record<string, Array<{
+  proposalIndex: number;
+  expert: string;
+  metrics: string[];
+  note?: string;
+  assessment?: string;   // S12: structured expert judgement
+  credentials?: string;  // S12: self-described affiliation shown on the badge
+  sources?: SourceLink[]; // S12: citations backing the review
+}>> = {
+  databroker: [
+    {
+      proposalIndex: 0,
+      expert: 'demo-expert-lena',
+      credentials: 'Data-protection researcher, Max Planck Institute',
+      assessment: 'A public registry is the right foundation and is technically feasible today — several jurisdictions already run one. The binding constraint is upkeep, not creation: an out-of-date list is worse than none because it lends false assurance.',
+      metrics: ['Brokers registered on the public list', 'Subject-access requests fulfilled on time'],
+      sources: [{ url: 'https://www.ohchr.org/en/topic/digital-space-and-human-rights', label: 'OHCHR — data protection & privacy' }],
+      note: 'Registration only works if the list is machine-readable and updated in real time — static PDFs become stale immediately.',
+    },
+    {
+      proposalIndex: 2,
+      expert: 'demo-expert-renata',
+      credentials: 'Competition economist, OECD',
+      assessment: 'Enforcement funded as a share of broker revenue is credible and self-scaling. The weak point is cross-border reach: without mutual-assistance agreements, the largest brokers simply relocate their processing.',
+      metrics: ['Fines issued as a share of broker revenue', 'Cross-border enforcement actions completed'],
+      sources: [{ url: 'https://www.oecd.org/digital/', label: 'OECD — digital economy policy' }],
+    },
+  ],
+  amr: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of antibiotics sold without prescription', 'Districts with a trained stewardship lead'], note: 'Gatekeeping works only if the rapid tests (idea 2) are funded alongside — pair them.' },
+    { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Clinics reporting prescribing data monthly', 'Regions with a published resistance trend'] },
+  ],
+  jobs: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Young people placed per quarter', 'Share of placements taken by low-income youth'] },
+    { proposalIndex: 2, expert: 'demo-expert-lena', metrics: ['Courses realigned to live job postings', 'Time from skills-gap signal to curriculum update'] },
+  ],
+  privacy: [
+    { proposalIndex: 0, expert: 'demo-expert-renata', metrics: ['Share of audits completed on schedule', 'Median days to resolve a complaint'] },
+    { proposalIndex: 1, expert: 'demo-expert-lena', metrics: ['Independent audits passed', 'Share of public services encrypted by default'] },
+    { proposalIndex: 2, expert: 'demo-expert-renata', metrics: ['Share of the population with an active ID', 'Service uptime including offline mode'] },
+  ],
+  // adaptation: expert metrics attached to the FUND proposal (last index = qv winner).
+  adaptation: [
+    {
+      proposalIndex: 2,
+      expert: 'demo-expert-renata',
+      credentials: 'Climate-adaptation economist, Adaptation Fund',
+      assessment: 'Direct-access funding demonstrably reaches frontline communities faster than intermediated grants, but only where disbursement timelines and local-control shares are measured openly. Fund this with the reporting dashboard, not without it.',
+      metrics: [
+        'Frontline communities funded each year',
+        'Share of each grant reaching local control',
+        'Funded projects with open progress reporting',
+        'Days from application to first disbursement',
+      ],
+      sources: [{ url: 'https://www.adaptation-fund.org/', label: 'Adaptation Fund — direct access' }],
+      note: 'Direct-access funding works only if disbursement stays fast and local control is measured — track both.',
+    },
+  ],
+};
+
+// S12: author-PROPOSED indicators + author-attached citations, keyed like the
+// review seed. Distinct from expert-validated metrics: these render under
+// "Indicators proposed by the author" and are NOT fed to useMandate (expert
+// metrics remain the mandate's source of truth). Seeded on a solution WITHOUT an
+// expert review so the author-first path is visible on its own.
+// `requests` seeds expertReviewRequests (1p1v member signals) so the reader-facing
+// loop is legible: a request that HAS a review renders as "requested by N · reviewed
+// by {names}" (resolved); one WITHOUT renders "requested by N — awaiting an expert".
+// `causeId` (S35, D5/F2): links a seeded solution back to the ROOT comment
+// (cause) it addresses. p2 is deliberately left WITHOUT one so the "Proposed
+// before any cause was ranked" fallback copy is also demoable.
+export const PROPOSAL_AUTHOR_EXTRAS_BY_KEY: Record<string, Record<number, { metrics?: string[]; sources?: SourceLink[]; requests?: string[]; causeId?: string }>> = {
+  databroker: {
+    // p0 HAS an expert review → the request resolves to the reviewer's name.
+    // causeId → db-c1 (the "I looked up my own profile" cause: no visibility/consent).
+    0: { requests: ['demo-user-de-anika', 'demo-user-kr-jiwoo'], causeId: 'db-c1' },
+    // p1 has author-proposed indicators + a source, and an OPEN request (no review yet).
+    // causeId → db-c2 (the credit-scoring-proxy cause: sensitive-category harms).
+    1: {
+      metrics: ['Sensitive data categories reviewed each year', 'Share of consent records passing audit'],
+      sources: [{ url: 'https://www.ohchr.org/en/topic/digital-space-and-human-rights', label: 'OHCHR — data & human rights' }],
+      requests: ['demo-user-br-lucas'],
+      causeId: 'db-c2',
+    },
+    // p2 (index 2) intentionally has no causeId.
+  },
+};
+
+// S35 (W4) — seeded impact assessments, keyed like the other proposal fixtures.
+// TWO assessments on databroker's p0 (the registry/access proposal): one by a
+// seeded persona who did NOT author or co-author any databroker solution
+// (verified against the proposal authors computed in seedDemoCommunity.ts —
+// p0/p1/p2 there are authored by demo-user-za-thabo, demo-user-gh-kwame and
+// demo-user-de-anika respectively; demo-user-it-sofia, a digital-rights lawyer,
+// is neither), and one by the VIEWER (the seeder substitutes its own publicKey
+// for the literal string 'VIEWER'). This puts p0 at "Assessment 2 of 3" with
+// one slot still open, so both that copy and the remaining-CTA are demoable.
+export const PROPOSAL_IMPACT_ASSESSMENTS_BY_KEY: Record<string, Array<{
+  proposalIndex: number;
+  author: string | 'VIEWER';
+  target: string;
+  targetsCause: 'cause' | 'symptom' | 'both';
+  mechanism: string;
+  broaderEffects: string;
+  risks: string;
+  opportunityCosts: string;
+  timeHorizon: string;
+}>> = {
+  databroker: [
+    {
+      proposalIndex: 0,
+      author: 'demo-user-it-sofia',
+      target: 'Whether a public registry actually changes what the largest data brokers do with people\'s data, not just what they disclose about it.',
+      targetsCause: 'cause',
+      mechanism: 'Public registration plus a free access right forces brokers to keep accurate, current records, because members and regulators can now check them directly — replacing a system where profiles exist but no one outside the broker can see them.',
+      broaderEffects: 'Journalists and researchers gain a map of the industry for the first time. Smaller brokers may consolidate or exit rather than absorb the compliance cost, which could concentrate the market further.',
+      risks: 'A registry that lists brokers without real audit power becomes a checkbox — brokers could register on paper while their underlying practices stay exactly as sloppy as before.',
+      opportunityCosts: 'Money and staff time spent standing up the registry delay the enforcement body in proposal 3, which is the piece that actually penalises bad behaviour.',
+      timeHorizon: 'A basic public registry could launch within a year; real data quality and broad public uptake more likely take two to three years.',
+    },
+    {
+      proposalIndex: 0,
+      author: 'VIEWER',
+      target: 'Whether ordinary people, not just experts and journalists, will actually use the free access-and-correction right once it exists.',
+      targetsCause: 'both',
+      mechanism: 'A legal right only changes outcomes if the request process is simple enough for a non-expert to use — one form and a guaranteed response window turns a right on paper into something people actually exercise.',
+      broaderEffects: 'High uptake would surface, in public, which brokers hold the most inaccurate or unwanted profiles — informally naming the worst actors well before any enforcement fine lands.',
+      risks: 'If the process is slow or bureaucratic, most people give up after one try and the right stays theoretical, the same fate that has met similar "request your data" laws elsewhere.',
+      opportunityCosts: 'Every hour a broker spends answering individual requests is an hour not spent fixing the upstream data practices that created the bad profile in the first place.',
+      timeHorizon: 'Early usage patterns should be visible within 6 months of the registry going live; a measurable change in broker behaviour likely takes 1–2 years.',
+    },
+  ],
+};
+const EXPERT_BY_KEY: Record<string, ExpertProfile> = Object.fromEntries(
+  EXPERTS.map((e) => [e.key, e]),
+);
+
+export function expertProfile(key: string): ExpertProfile | undefined {
+  return EXPERT_BY_KEY[key];
+}
+
+// relativeTimeKey moved to `src/utils/formatTimeAgo.ts` (the canonical
+// relative-time module) — a pure helper, so it doesn't belong under
+// demo/fixtures (review §8.4: keep the demo boundary honest).
+
+export type DiffToken = { value: string; type: 'same' | 'add' | 'del' };
+
+/**
+ * A minimal whitespace-token diff (LCS) for the track-changes view. Good enough
+ * for a UI mockup: deletions and additions are highlighted inline.
+ */
+export function diffWords(before: string, after: string): DiffToken[] {
+  const a = before.split(/(\s+)/);
+  const b = after.split(/(\s+)/);
+  const n = a.length;
+  const m = b.length;
+  // LCS length table.
+  const lcs: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i -= 1) {
+    for (let j = m - 1; j >= 0; j -= 1) {
+      lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+    }
+  }
+  const out: DiffToken[] = [];
+  const push = (type: DiffToken['type'], value: string) => {
+    if (!value) return;
+    const prev = out[out.length - 1];
+    if (prev && prev.type === type) prev.value += value;
+    else out.push({ type, value });
+  };
+  let i = 0;
+  let j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { push('same', a[i]); i += 1; j += 1; }
+    else if (lcs[i + 1][j] >= lcs[i][j + 1]) { push('del', a[i]); i += 1; }
+    else { push('add', b[j]); j += 1; }
+  }
+  while (i < n) { push('del', a[i]); i += 1; }
+  while (j < m) { push('add', b[j]); j += 1; }
+  return out;
+}

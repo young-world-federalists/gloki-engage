@@ -1,0 +1,231 @@
+@use '../styles/variables' as *;
+
+.feedContainer {
+  @include page-column;
+  padding-block: $content-gutter $footer-clearance;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+// ─── Cards ────────────────────────────────────
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;        // S30 A-5.2: sections own their padding so the chin can bleed
+  overflow: hidden;  // clips the full-width tinted chin to the card radius
+  background: white;
+  border: 1px solid $gray-100;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+// The card's inset summary zone (community badge · byline · title · description).
+// Static (unpositioned) so the title button's stretched ::after still resolves to
+// .card — the S20 whole-card hit area survives the restructure.
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+}
+
+.cardMeta {
+  position: relative;
+  z-index: 1; // keep badges/byline clickable above the title's stretched-link overlay
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.communityBadge {
+  position: relative;
+  z-index: 1; // stay clickable above the title's stretched-link overlay
+  background: rgba($primary, 0.1);
+  color: $info-on-surface; // $primary on the tint measured 3.28:1 (S18 campaign M5)
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  padding: 2px $spacing-sm;
+  border-radius: $radius-full;
+  border: none;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover {
+    background: rgba($primary, 0.2);
+  }
+}
+
+.author,
+.time {
+  font-size: $text-xs;
+  color: $gray-500; // $gray-400 (#9ca3af) was 2.54:1 on white — below AA
+}
+
+.time {
+  margin-left: auto;
+}
+
+.cardTitle {
+  font-size: $text-base; // match the compact Home card
+  font-weight: $font-semibold;
+  color: $gray-800;
+  margin: 0;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  // Expand/collapse chevron (decorative — the title button is the control).
+  > svg {
+    flex-shrink: 0;
+    color: $gray-500;
+    margin-top: 1px;
+  }
+}
+
+// The title is a keyboard-accessible tap-through: it's the real control, and a
+// stretched ::after makes the whole card its hit area. Other interactive
+// elements (community badge, byline) sit above it via z-index.
+.cardTitleButton {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    &::after {
+      outline: 2px solid $primary;
+      outline-offset: -2px;
+      border-radius: $radius-lg;
+    }
+  }
+}
+
+.cardDescription {
+  font-size: $text-sm;
+  color: $gray-600;
+  margin: 0;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // match the compact Home card
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// The expanded engage panel sits ABOVE the title's stretched-link overlay (same
+// z-index trick as .cardMeta) so its controls stay interactive; clicking the
+// summary zone still toggles the card.
+.panelWrap {
+  position: relative;
+  z-index: 1;
+  cursor: default;
+}
+
+// ─── Loading ──────────────────────────────────
+.feedLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-xl 0;
+  color: $gray-500;
+  font-size: $text-sm;
+}
+
+// ─── Empty state ──────────────────────────────
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl $spacing-xl;
+  text-align: center;
+  color: $gray-300;
+
+  h3 {
+    margin: $spacing-lg 0 $spacing-sm;
+    font-size: $text-lg;
+    font-weight: $font-semibold;
+    color: $gray-500;
+  }
+
+  p {
+    font-size: $text-sm;
+    color: $gray-500;
+    max-width: 300px;
+  }
+}
+
+// ─── Dark mode ────────────────────────────────
+@include dark {
+  .card {
+    background: $dark-bg;
+    border-color: $dark-border;
+  }
+
+  .cardTitle {
+    color: $dark-text;
+
+    > svg {
+      color: $dark-text-secondary;
+    }
+  }
+
+  .cardDescription {
+    color: $dark-text-secondary;
+  }
+
+  .communityBadge {
+    // 0.2 tint left $primary-on-dark at 4.43:1 for the 12px label; 0.12 clears AA (S18 campaign M5)
+    background: rgba($primary, 0.12);
+    color: $primary-on-dark;
+  }
+
+  .author,
+  .time,
+  .feedLoading {
+    color: $dark-text-secondary;
+  }
+
+  .empty {
+    color: $dark-border;
+
+    h3,
+    p {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+// ─── Responsive ───────────────────────────────
+@media (max-width: $breakpoint-sm) {
+  .feedContainer {
+    padding-top: $spacing-md; // tighten vertical only; horizontal gutter stays $content-gutter (law)
+    padding-bottom: 80px;
+  }
+
+  .summary {
+    padding: $spacing-md;
+  }
+}

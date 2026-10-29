@@ -1,0 +1,91 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Banner, Button } from '../shared';
+import { useT } from '../../i18n';
+import { useCommunityTrust } from '../../hooks/useCommunityTrust';
+import { useOrganization } from '../../hooks/useOrganization';
+import type { PipelineStage } from '../../services/trust';
+
+interface Props {
+  communityId: string;
+  stage: PipelineStage;
+  /** The participation flow to gate. Always-visible read-only content stays OUTSIDE this. */
+  children: React.ReactNode;
+}
+
+/**
+ * Renders the stage flow when the current user may act; otherwise a friendly,
+ * non-dead-end blocked state explaining the rule and offering a path forward.
+ * Read-only content (titles, tallies) lives outside this wrapper and stays visible.
+ * The hook's canCurrentUserParticipate already encodes membership + trust, so the
+ * gate only needs the rule + the user's vouch count to word the message.
+ */
+const StageGate: React.FC<Props> = ({ communityId, stage, children }) => {
+  const t = useT();
+  const navigate = useNavigate();
+  const { canCurrentUserParticipate, ruleFor, currentUserVouchCount, isReady } = useCommunityTrust(communityId);
+  const { isOrganization } = useOrganization();
+
+  // S33 — organizations never participate, at any stage, on any rule. This has
+  // to come BEFORE the trust checks: pilot communities open their stages to
+  // 'anyone', which would otherwise let an institution deliberate and vote
+  // alongside people. Reading stays open; only acting is blocked.
+  if (isOrganization) {
+    return (
+      <Banner
+        tone="info"
+        title={t('gate.org.title', 'Organizations don’t take part here')}
+        action={
+          <Button size="sm" onClick={() => navigate('/organization')}>
+            {t('gate.org.action', 'See mandates to endorse')}
+          </Button>
+        }
+      >
+        {t(
+          'gate.org.body',
+          'Deliberation and voting stay one person, one vote. You can read everything here — organizations act on finished mandates by endorsing or subscribing to them.',
+        )}
+      </Banner>
+    );
+  }
+
+  // While loading, don't flash a block — show the flow (reads are harmless in the mock).
+  if (!isReady || canCurrentUserParticipate(stage)) return <>{children}</>;
+
+  if (ruleFor(stage) === 'verified') {
+    return (
+      <Banner
+        tone="warning"
+        title={t('gate.verified.title', 'Verified members only')}
+        action={
+          <Button size="sm" onClick={() => navigate('/identity/verification')}>
+            {t('gate.getVerified', 'Get verified')}
+          </Button>
+        }
+      >
+        {t(
+          'gate.verified.body',
+          'This community asks Verified members to take part here. You’re vouched by {count} — meet a few more members to verify.',
+          { count: currentUserVouchCount },
+        )}
+      </Banner>
+    );
+  }
+
+  // rule === 'members' and the user isn't a member ('anyone' never blocks)
+  return (
+    <Banner
+      tone="info"
+      title={t('gate.members.title', 'Members only')}
+      action={
+        <Button size="sm" onClick={() => navigate('/welcome')}>
+          {t('gate.join', 'Join in')}
+        </Button>
+      }
+    >
+      {t('gate.members.body', 'Join this community to take part here. You can keep reading either way.')}
+    </Banner>
+  );
+};
+
+export default StageGate;

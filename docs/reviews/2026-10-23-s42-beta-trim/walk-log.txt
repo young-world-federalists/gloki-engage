@@ -1,0 +1,91 @@
+[light] h1 @ doors: OK ["Gloki"]
+[light] shot 01-doors (+bottom)  url=/
+[light] shot 02a-keys-returning  url=/
+[light] generated key length 64
+[light] h1 @ keys: OK ["Your key"]
+[light] shot 02-keys  url=/
+[light] backup shows the signed-in key: OK
+[light] h1 @ backup: OK ["Save your key"]
+[light] copy status: ""
+[light] continue disabled before confirm: OK
+[light] shot 03-backup (+bottom)  url=/welcome
+[light] kind preselected from door: OK (PersonOne account for one pers)
+[light] h1 @ kind: OK ["Who is this account for?"]
+[light] shot 04-kind (+bottom)  url=/welcome
+[light] shot 04b-kind-contributor (+bottom)  url=/welcome
+[light] h1 @ profile: OK ["Create your profile"]
+[light] shot 05-profile (+bottom)  url=/welcome
+[light] ready recap shows kind badge: OK
+[light] h1 @ ready: OK ["You're ready to participate"]
+[light] shot 06-ready  url=/welcome
+[light] h1 @ verification: OK ["Get verified"]
+[light] shot 07-verification (+bottom)  url=/identity/verification
+[light] h1 @ forum-empty: OK ["Forum"]
+[light] shot 08-forum-empty  url=/forum
+[light] forum post has no cause-vote buttons: OK
+[light] shot 08-forum-post  url=/forum
+[light] StageFooter hidden: OK
+[light] /stage/problem → /forum OK
+[light] /community/demo-x → /forum OK
+[light] /create-community → /forum OK
+[light] /identity/communities → /forum OK
+[light] /identity/join → /forum OK
+[light] /organization → /forum OK
+[light] /mandate/a/b → /forum OK
+[light] /initiative/h/a/c/i → /forum OK
+[light] /identity → /identity/profile
+[light] shot 09-profile-page (+bottom)  url=/identity/profile
+[light] returning "/" → /forum
+[light] shot 10-welcome-done  url=/welcome
+[light] console errors: 4
+[light]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[light]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[light]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[light]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[light] console warnings: 0
+[dark] h1 @ doors: OK ["Gloki"]
+[dark] shot 01-doors (+bottom)  url=/
+[dark] shot 02a-keys-returning  url=/
+[dark] generated key length 64
+[dark] h1 @ keys: OK ["Your key"]
+[dark] shot 02-keys  url=/
+[dark] backup shows the signed-in key: OK
+[dark] h1 @ backup: OK ["Save your key"]
+[dark] copy status: ""
+[dark] continue disabled before confirm: OK
+[dark] shot 03-backup (+bottom)  url=/welcome
+[dark] kind preselected from door: OK (PersonOne account for one pers)
+[dark] h1 @ kind: OK ["Who is this account for?"]
+[dark] shot 04-kind (+bottom)  url=/welcome
+[dark] shot 04b-kind-contributor (+bottom)  url=/welcome
+[dark] h1 @ profile: OK ["Create your profile"]
+[dark] shot 05-profile (+bottom)  url=/welcome
+[dark] ready recap shows kind badge: OK
+[dark] h1 @ ready: OK ["You're ready to participate"]
+[dark] shot 06-ready  url=/welcome
+[dark] h1 @ verification: OK ["Get verified"]
+[dark] shot 07-verification (+bottom)  url=/identity/verification
+[dark] h1 @ forum-empty: OK ["Forum"]
+[dark] shot 08-forum-empty  url=/forum
+[dark] forum post has no cause-vote buttons: OK
+[dark] shot 08-forum-post  url=/forum
+[dark] StageFooter hidden: OK
+[dark] /stage/problem → /forum OK
+[dark] /community/demo-x → /forum OK
+[dark] /create-community → /forum OK
+[dark] /identity/communities → /forum OK
+[dark] /identity/join → /forum OK
+[dark] /organization → /forum OK
+[dark] /mandate/a/b → /forum OK
+[dark] /initiative/h/a/c/i → /forum OK
+[dark] /identity → /identity/profile
+[dark] shot 09-profile-page (+bottom)  url=/identity/profile
+[dark] returning "/" → /forum
+[dark] shot 10-welcome-done  url=/welcome
+[dark] console errors: 5
+[dark]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[dark]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[dark]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[dark]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[dark]   ERROR Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED
+[dark] console warnings: 0

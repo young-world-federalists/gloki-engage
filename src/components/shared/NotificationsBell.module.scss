@@ -1,0 +1,51 @@
+@use '../../styles/variables' as *;
+
+.bellBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm;
+  min-width: $touch-target-min; // S43: the box itself is the target, not only the ::after
+  min-height: $touch-target-min;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+
+  // Expand the hit area without changing the visual rhythm beside the menu.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: $spacing-lg;
+  height: $spacing-lg;
+  padding: 0 $spacing-xs;
+  background: $error;
+  border-radius: $radius-full;
+  color: white;
+  font-size: $text-xs;
+  font-weight: $font-bold;
+  line-height: 1;
+}
