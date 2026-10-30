@@ -1,0 +1,69 @@
+# Public Gloki node (node1.globaldemocracyinitiative.org).
+# Ouri's compose.yml from ouripoupko/ibc, plus Caddy in front for HTTPS.
+# The ibc port is not published: only Caddy (80/443) is reachable from outside.
+#
+#   docker compose up -d
+#   docker compose logs -f ibc
+
+name: ibc
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:8
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Web app, consensus service and execution service in one container.
+  ibc:
+    image: ghcr.io/ouripoupko/ibc:latest
+    restart: unless-stopped
+    init: true
+    environment:
+      REDIS_GATEWAY: redis
+      MONGODB_GATEWAY: mongo
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Gets and renews the Let's Encrypt certificate for NODE_HOST (set in .env).
+  # reverse_proxy flushes text/event-stream at once, so /stream works as is.
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      NODE_HOST: ${NODE_HOST}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - ibc
+
+volumes:
+  mongo-data:
+  redis-data:
+  caddy-data:
+  caddy-config:

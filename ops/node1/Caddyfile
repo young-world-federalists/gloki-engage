@@ -1,0 +1,3 @@
+{$NODE_HOST} {
+	reverse_proxy ibc:2611
+}
