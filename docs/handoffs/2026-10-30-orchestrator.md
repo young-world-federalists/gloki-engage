@@ -56,7 +56,10 @@ Eston's reply is drafted but not sent. The drafted plan is that Ouri builds the 
 - Nothing is in flight. Its only branch is `claude/verification-note-and-git-plan`: the git plan in it is superseded, but the verification note is still accurate.
 - It can take the two fixes once Eston says go.
 - It's waiting only on Eston's node1 steps.
-- Gap: `Gloki Build/node1/` and the 29 Oct reports are only on the 2TB drive, with no copy in a repo. An old local test node is still running on the Mac, and Gloki Build will stop it when that session closes.
+- Gloki Build Restart then closed. Its handoff is `docs/handoffs/2026-10-30-node1-session.md` on `main` (0c75edb). A new session, started from that handoff, runs node1 setup and the two fixes.
+- Backup: `node1/`, the 29 Oct reports, the signing docs, the Ouri draft and a STATUS snapshot are on branch `claude/node1-and-29oct-reports` (af9767f). There's no PR, and it isn't merged.
+- Leave the node on 127.0.0.1:2611 running. It's Eston's own dev node (compose project `ibc`, from `~/ibc-node`), not a test node.
+- Eston also wants to update the GDI site (gloki-site). Ask him what to change, then start a session for it.
 
 ### Next steps
 1. Get Eston's answers: is the forum the priority, and when is the demo? Then finalise the WhatsApp reply.
