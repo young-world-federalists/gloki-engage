@@ -26,6 +26,12 @@ class GlokiEngageApplicationSettings:
         current = self.verification['contract'] or ''
         if current and current != contract:
             return {'error': 'Verification has already started'}
+        # A listed host keeps its server: anyone can call this, so letting a
+        # second call overwrite the entry would let them repoint an agent.
+        if agent in self.hosts:
+            if self.hosts[agent]['server'] != server:
+                return {'error': 'This agent is already listed with another server'}
+            return None
         if not current:
             self.verification.update({'contract': contract, 'since': timestamp()})
         self.hosts[agent] = {'server': server, 'agent': agent}

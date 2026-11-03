@@ -104,7 +104,9 @@ export async function getVerificationLocation(): Promise<VerificationLocation | 
 /**
  * Records `host` as holding the verification contract `contract`. The first
  * registration fixes the contract id; a different id afterwards is refused
- * with 'Verification has already started'.
+ * with 'Verification has already started'. A host already listed keeps its
+ * server: registering it again with the same server is a no-op, with another
+ * server it is refused.
  */
 export async function registerVerificationHost(host: ContractHostAddress, contract: string): Promise<void> {
   const settingsId = await ensureSettingsId();
