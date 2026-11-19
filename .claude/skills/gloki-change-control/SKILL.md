@@ -17,6 +17,8 @@ Every rule below carries its reason — none of them is optional style.
 - **Eston** (founder) — product and design. Designs new pages and features as **demo variants**
   (`?demo=true`) on top of the working real app, and owns the product decisions.
 - **Ouri** (backend) — the real network: IBC nodes, the Python contracts, the real side of every page.
+  > **IBC-GO (2026-11-19):** Ouri's network is now ibc-go, with Solidity contracts
+  > (`src/assets/contracts/sol/`).
 - **You** (the AI session) build, verify and recommend for whichever of them you are working with.
   That person approves your pushes and confirms product choices in their session.
 
@@ -60,6 +62,9 @@ Components never call a server, `fetch`, or open an `EventSource` themselves.
 - A **real variant** reads and writes through `src/services/` — `api.ts` (`contractRead` /
   `contractWrite`, routed per contract by `contractHosts.ts`, plus the `*OnChain` primitives used by
   the real service modules), `services/contracts/`, `verificationRegistry.ts`, `applicationSettings.ts`.
+  > **IBC-GO (2026-11-19):** the `*OnChain` primitives are gone. The real service modules call
+  > `src/services/ibc.ts`, the one ibc-go connection, which is part of the seam. `contractHosts.ts` now
+  > holds per-contract adapters.
 - A **demo variant** (`*.demo.tsx`) reads and writes only through `src/services/demo/`, and never
   reaches the network.
 - The flag decides the layer for every call (`src/services/dataMode.ts`) — never pick a layer by
@@ -85,12 +90,20 @@ A deployed contract never gains methods or changes code. A contract change reach
 deployed afterwards — every design must say what happens on older ones (absence-tolerant readers,
 additive optional arguments, or "create a new one"). Dialect traps: **gloki-python-contracts**.
 
+> **IBC-GO (2026-11-19):** still true for the Solidity contracts. There, a call to a function an older
+> contract lacks fails outright. Check a contract change with `tools/ibc-check/` before anyone deploys
+> it.
+
 ### 4. The build gate — `tsc -b` clean is the only CI
 
 `npm run build` = `tsc -b && vite build`. tsconfig is strict with `noUnusedLocals` /
 `noUnusedParameters` — an unused import fails the GitHub Pages build. `vite.config.ts` also refuses to
 build without `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT` (defaults in `.env`). There is
 no lint step in CI.
+
+> **IBC-GO (2026-11-19):** a third required value, `VITE_APPLICATION_SETTINGS_CONTRACT`. In
+> `.env` on the migration branch, the agent and settings contract are empty until the live node is set
+> up, so builds use `.env.local`.
 
 ```bash
 npx tsc -b          # must be clean
@@ -147,6 +160,10 @@ Classify every change before building; a feature often spans several classes —
 | **Demo variant** | A page's demo state, a `*.demo.tsx` variant, demo stub or fixture changes | Follow `docs/DEMO_MODE.md` (route wrapper, demo ids, page table). If fixtures or seeding change, bump `DEMO_VERSION` (**gloki-seam-and-demo-data**) |
 | **Real side** | `src/services/` real modules or a page's real variant change | Real reads and writes only through the services; writes confirmed through their event (no demo-style re-fetch hacks) |
 | **Contract change** | A real `.py` contract changes | Invariant 3: only new deployments get it — design for older contracts. Update `docs/FOR_OURI_seam.md` for the methods and fields involved, in the same change |
+
+> **IBC-GO (2026-11-19):** a "contract change" now means a `.sol` contract under
+> `src/assets/contracts/sol/`, together with its adapter or service module and its check in
+> `tools/ibc-check/`.
 | **Product-behaviour change** | A user would notice different behaviour, copy framing or flow | Recommend-then-confirm (Rule 3) before building. Check it isn't locked or deferred |
 
 When the demo variant of a page is no longer needed, removing it is a manual cleanup: delete the

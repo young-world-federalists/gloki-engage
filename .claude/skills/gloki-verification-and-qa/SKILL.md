@@ -176,6 +176,14 @@ Two consequences:
 - The demo user **authors nothing** in the seed — author-only UI branches are unreachable without
   creating or injecting a self-authored item first.
 
+> **IBC-GO (2026-11-19):** **seeding no longer works.** On load, `AuthContext` asks the node whether this
+> browser's app still acts for the stored agent (`resume` in `services/ibc.ts`). A seeded or stale
+> `user` is dropped and the login page shows. There are no 64-character keys anymore: identities are
+> addresses with passkeys on a node. So every session, demo pages included, signs in for real on a node
+> (local: **gloki-build-env-run**). In headless Chrome, a virtual WebAuthn authenticator (CDP
+> `WebAuthn.addVirtualAuthenticator`) stands in for the passkey, and the node's approval page opens as a
+> popup to click through.
+
 **2. React controlled inputs need the native-setter trick.** Setting `.value` directly
 does nothing (React overrides the property). Use the prototype setter + a bubbling
 `input` event (swap `HTMLTextAreaElement` for textareas):

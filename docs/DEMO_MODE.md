@@ -51,7 +51,7 @@ A separate demo variant lives next to its page in a **`*.demo.tsx`** file (e.g.
 | `useDemoMode()` | `hooks/useDemoMode.ts` | `true` in demo mode: `?demo=true`, or carried over from the previous page (below) |
 | `DemoFlagUrlSync` | same file, mounted in `App.tsx` | writes `?demo=true` back into the URL of a page reached in demo mode |
 | `setDemoDataMode` / `isDemoDataMode` | `services/dataMode.ts` | the data layer for the page being shown; the wrappers set it while the page renders, `App` resets it to real on every navigation |
-| `contractRead` / `contractWrite` / `joinContract` | `services/api.ts` | follow the data layer, for any id |
+| `contractRead` / `contractWrite` / `joinContract` | `services/api.ts` | follow the data layer, for any id; real calls go to the user's ibc-go node through `services/ibc.ts` |
 | `communitiesForMode(contracts)` | `services/dataMode.ts` | the communities a page lists: the seeded demo communities in demo mode, the real ones otherwise |
 | `<DemoNotice />` | `components/shared/DemoNotice.tsx` | the demo banner, with "Show real data" |
 | `useInitiativeFound(id)` | `hooks/useInitiativeFound.ts` | "not found" for issue and mandate pages, in the page's layer |
@@ -99,8 +99,8 @@ previous page and finishing after a navigation can land in the new page's layer.
 
 | Layer | Where | Used in |
 |---|---|---|
-| Real services | `src/services/api.ts` (`*OnChain`, routed `contractRead`/`contractWrite`), `src/services/contracts/`, `verificationRegistry.ts`, `applicationSettings.ts`, `contractHosts.ts` | real pages |
-| Real contracts | `gloki_engage_community_contract.py`, `gloki_engage_initiative_contract.py`, `digital_agent_contract.py`, `gloki_verification_contract.py`, `gloki_engage_application_settings.py` | the real network |
+| Real services | `src/services/ibc.ts` (the user's ibc-go node), `api.ts` (routed `contractRead`/`contractWrite`), `src/services/contracts/`, `verificationRegistry.ts`, `applicationSettings.ts`, `forum.ts`, `contractHosts.ts` | real pages |
+| Real contracts | Solidity, `src/assets/contracts/sol/`: `GlokiEngageCommunity.sol`, `GlokiEngageInitiative.sol`, `DigitalAgent.sol`, `GlokiVerification.sol`, `ApplicationSettings.sol`, `Forum.sol` | the real network (ibc-go) |
 | Demo layer | `src/services/demo/` (mock contracts, fixtures, personas, `DEMO_VERSION`) | demo mode |
 
 `getContracts` still merges the seeded demo communities into the signed-in user's contract list; pages
@@ -116,15 +116,15 @@ list only their own layer through `communitiesForMode`.
 | `/initiative/…/:initiativeId/discussion`, `/mandate/:communityId/:mandateId` | **two states** (with "not found") |
 | `/initiative/…/:initiativeId` | redirects to the community feed |
 | `/welcome/*`, `/identity/profile`, `/identity/join`, `/identity/verification`, `…/request`, `…/approve`, `/create-community`, `/community/:id/create-initiative`, `/community/:id/identity` | **real only** |
-| `/community/:id/collab`, `collab/:collabId`, `chat`, `chat/:topicId`, `currency`, `settings`, `write-together`; `/identity/verification/invite`, `call`, `daily`; `/identity/notifications`; `…/:initiativeId/suggest`, `…/collaboration`; `/forum` (beta) | **demo only** |
+| `/forum` (beta) | **two states** (the network's forum vs the seeded demo thread) |
+| `/community/:id/collab`, `collab/:collabId`, `chat`, `chat/:topicId`, `currency`, `settings`, `write-together`; `/identity/verification/invite`, `call`, `daily`; `/identity/notifications`; `…/:initiativeId/suggest`, `…/collaboration` | **demo only** |
 | `/identity/about`, `/identity/contact`, `/lab/presence`, not-found | no data |
 
 ## Separate from the beta trim
 
 The beta (sign-up, keys, verification, one forum) is a **build** setting, `VITE_APP_MODE=beta`
 (`npm run dev:beta`, `npm run build:beta`), read only in `src/appMode.ts`. It hides parts of the app; it
-doesn't change where data comes from. Demo mode works the same in both builds. (The beta's forum is
-demo-only, so without the flag the beta lands on "not yet implemented".)
+doesn't change where data comes from. Demo mode works the same in both builds.
 
 Unlike the demo flag, the beta has one whole-app override and no URL form: on a beta build,
 localStorage `gloki.fullApp` = `'true'` runs the full app in that browser. The beta writes the key as
@@ -140,6 +140,7 @@ control.
   site root (`.github/workflows/deploy.yml`). The full app is the same deploy with `gloki.fullApp` set (above).
 - **Retired:** `server-side` and `ui`. Their own copies of the workflow still deploy the old two-app
   site if pushed, so don't push them (or update their workflow) while they exist.
-- **Settings:** `.env` holds the required `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT`
-  (the central application account); `.env.local` and the `github-pages` environment variables override
-  them; `vite.config.ts` refuses to build without them.
+- **Settings:** `.env` holds the required `VITE_APPLICATION_SERVER_URL` / `VITE_APPLICATION_AGENT` /
+  `VITE_APPLICATION_SETTINGS_CONTRACT` (the central application account on its ibc-go node, and its
+  settings contract; `.env` says how to make them); `.env.local` and the `github-pages` environment
+  variables override them; `vite.config.ts` refuses to build without them.

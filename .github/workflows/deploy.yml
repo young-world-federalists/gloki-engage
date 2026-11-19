@@ -38,9 +38,11 @@ jobs:
         env:
           APPLICATION_SERVER_URL: ${{ vars.VITE_APPLICATION_SERVER_URL }}
           APPLICATION_AGENT: ${{ vars.VITE_APPLICATION_AGENT }}
+          APPLICATION_SETTINGS_CONTRACT: ${{ vars.VITE_APPLICATION_SETTINGS_CONTRACT }}
         run: |
           if [ -n "$APPLICATION_SERVER_URL" ]; then export VITE_APPLICATION_SERVER_URL="$APPLICATION_SERVER_URL"; fi
           if [ -n "$APPLICATION_AGENT" ]; then export VITE_APPLICATION_AGENT="$APPLICATION_AGENT"; fi
+          if [ -n "$APPLICATION_SETTINGS_CONTRACT" ]; then export VITE_APPLICATION_SETTINGS_CONTRACT="$APPLICATION_SETTINGS_CONTRACT"; fi
           npm ci
           npm run build:beta
 

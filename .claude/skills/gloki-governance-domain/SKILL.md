@@ -17,6 +17,12 @@ Every mechanic exists in two layers (`docs/DEMO_MODE.md`): the **real** issue co
 stage) and the **demo** stubs in `src/services/demo/demoContracts/` (one stub per stage). Where they
 differ, both are stated below.
 
+> **IBC-GO (2026-11-19):** the real issue is now `src/assets/contracts/sol/GlokiEngageInitiative.sol`: one
+> agreement whose root creates `Solutions` (proposals, approvals, reviews, merges) and `Decision` (ballot,
+> results, conviction), because of the EVM's 24 KB code limit. The rules are ported one to one, and the
+> stage gates are now `require` reverts. Conviction strength is computed in thousandths, and the app
+> divides by 1000.
+
 **Core principle: trust gates WHO may act; it never weights a vote.** One person, one
 vote (1p1v) is a LOCKED product decision (see `gloki-change-control`) written into the
 header of `src/services/trustModel.ts`: *"permission rules gate ELIGIBILITY to act, never
@@ -209,6 +215,11 @@ is checked only in the UI. The obligation to gate it on the expert role is recor
 > mandate gets no expert-validated indicators. The demo stubs work. Decide the fix and what users see
 > until then.
 
+> **IBC-GO (2026-11-19):** the Solidity port no longer has this bug. Proposals are keyed by number,
+> and expert reviews (one per expert, replaced on resubmission), review requests and merge suggestions
+> are saved and checked in `tools/ibc-check/initiative.mjs`. The open decision about what users see is
+> moot for new issues.
+
 ## 5. The mandate model
 
 **Derivation** (`src/hooks/useMandate.ts`): winner = highest score in qv `get_results`
@@ -295,6 +306,13 @@ When anyone says "verified", first establish WHICH layer:
 | 2. Community membership | Who belongs to a community | real: the community contract's partners (`get_partners`), joined with an invitation (`join_contract`); the old `community_contract.py` models a nomination graph (below) |
 | 3. Mandate adopter flag | Attestation that an ORGANIZATION's adoption claim is confirmed | `fixtures/mandate.ts` (§7); viewer endorsements always "Claimed" |
 
+> **IBC-GO (2026-11-19):** layer 1 is now `GlokiVerification.sol` (same three phases, same refusal messages,
+> deployed on the founder's agent, used by everyone else as a guest). Each caller is `msg.sender`,
+> signed by their own key, so no one can act in another person's name anymore. Layer 2 is now the
+> community contract's own member list (`enroll`/`get_members`, `GlokiEngageCommunity.sol`). It is
+> separate from the contract's partners, so a guest can be a member too; there's no `get_partners` on
+> ibc-go.
+
 `canParticipate(rule, trust, isMember)` (`trustModel.ts`) is **the single eligibility gate** in the UI —
 layers 1 and 2 feeding the per-stage rules of §1. `'verified'` rule = member AND verified. Do not write
 a second gate.
@@ -314,6 +332,10 @@ a second gate.
 > Community Link") joins and becomes a member (a partner). The nomination graph below — the earlier
 > design for Sybil-resistant membership — exists only in the old `community_contract.py`, which the app
 > no longer deploys. Decide whether real communities get membership approval.
+
+> **IBC-GO (2026-11-19):** still open, and slightly wider: `approve_guest` admits anyone and `enroll`
+> has no gate, so anyone who knows a community's id and host can join its member list. The gating
+> stays in the UI, as before. This is listed under "Open" in `docs/IBC_GO_MIGRATION.md`.
 
 **The nomination-graph design** (`community_contract.py`, `request_join`/`approve`): first member joins
 free; while members < 5, one nominate at a time is approved by all existing members; at ≥ 5,
@@ -394,6 +416,9 @@ Updated 2026-10-29 on branch `unified`. Line numbers drift — trust identifier 
 | Ratification storage | `grep -n "RATIFICATION_KEY\|set_property" src/services/mandateRatification.ts` |
 | Conviction rules | `grep -n "def stake\|def update_stake\|_conviction_strength" src/assets/contracts/gloki_engage_initiative_contract.py` |
 | Sybil statement + turnout sentence | `grep -n "VERIFICATION_STATEMENT\|turnoutLine" src/components/mandate/MandateDocument.tsx` |
+
+> **IBC-GO (2026-11-19):** the rows grepping `gloki_engage_initiative_contract.py` now point at
+> `src/assets/contracts/sol/GlokiEngageInitiative.sol` (`grep -n "function allocate\|function stake"`).
 | Problem threshold 50% | `grep -n "0.5" src/components/initiative/useInitiativePost.ts` |
 
 Open items (not shipped): expert-role gating on `add_expert_review`, real ratification storage, real

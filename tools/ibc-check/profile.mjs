@@ -1,0 +1,15 @@
+import { agent, deploy, ok, refused, eq, finish, Ibc, NODE } from './lib.mjs';
+console.log('DigitalAgent');
+const a = await agent();
+const id = await deploy(a, 'DigitalAgent', { display_name: 'Ada', photo: '', country: 'KE', languages: ['en', 'sw'], account_kind: 'person' });
+await ok('get_profile after deploy', async () => { const p = await a.read(id, 'get_profile'); eq(p.displayName, 'Ada'); eq(p.languages, ['en', 'sw']); eq(p.accountKind, 'person'); return p; });
+await ok('set_profile by owner', async () => { await a.write(id, 'set_profile', { display_name: 'Ada L', photo: 'p', country: 'MW', languages: ['en'] }); eq((await a.read(id, 'get_profile')).displayName, 'Ada L'); });
+await ok('set_profile keeps accountKind', async () => eq((await a.read(id, 'get_profile')).accountKind, 'person'));
+await refused('set_account_kind invalid', 'unknown account kind', () => a.write(id, 'set_account_kind', { kind: 'robot' }));
+await ok('set_account_kind valid', async () => { await a.write(id, 'set_account_kind', { kind: 'contributor' }); eq((await a.read(id, 'get_profile')).accountKind, 'contributor'); });
+await refused('public read before set_public', 'has no public contract', () => Ibc.publicRead(NODE, a.agent, id, 'get_profile'));
+await ok('set_public', () => a.setPublic(id, true));
+await ok('public read by anyone', async () => eq((await Ibc.publicRead(NODE, a.agent, id, 'get_profile')).displayName, 'Ada L'));
+const b = await agent();
+await refused('another agent cannot write (no copy)', 'no contract', () => b.write(id, 'set_profile', { display_name: 'x', photo: '', country: '', languages: [] }));
+finish(a, b);

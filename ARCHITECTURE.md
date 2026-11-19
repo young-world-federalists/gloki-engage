@@ -9,15 +9,19 @@ limitations. (CLAUDE.md holds the stack, branch model, key patterns, routing, an
 
 The app runs on two data layers, chosen **per page** by the URL ([docs/DEMO_MODE.md](docs/DEMO_MODE.md)):
 
-- **Real** (the default): IBC nodes, through `src/services/` — `api.ts` (`*OnChain`, and
-  `contractRead`/`contractWrite` routed by `contractHosts.ts`), `services/contracts/`,
-  `verificationRegistry.ts`, `applicationSettings.ts`. Real contracts: `gloki_engage_community_contract.py`
-  (details + initiative references; membership = the contract's partners),
-  `gloki_engage_initiative_contract.py` (every stage on one contract; members don't join it, calls go
-  through the creator's agent with the member's key as `agent`), `digital_agent_contract.py` (profile),
-  `gloki_verification_contract.py` (app-wide verified list, on the founder's agent) and
-  `gloki_engage_application_settings.py` (on the central application account; says where the
-  verification contract lives).
+- **Real** (the default): the user's own **ibc-go** node, through `src/services/`. `ibc.ts` is the one
+  connection (the `@ouripoupko/ibc` client's `IbcApp`): the app has its own browser key, and the user
+  approves on their node's page, with a passkey, whatever the app may not do silently. `api.ts`'s
+  `contractRead`/`contractWrite` go through it, and through an adapter for initiative and forum
+  contracts (`contractHosts.ts`). Real contracts are Solidity, in `src/assets/contracts/sol/`:
+  `GlokiEngageCommunity.sol` (details, its own member list — members join as partners or guests and
+  enroll — and references to its initiatives), `GlokiEngageInitiative.sol` (every stage; a root plus
+  two parts, `Solutions` and `Decision`, in one agreement; deployed by its creator on their node and
+  made public — members read the public copy and become guests on their first write),
+  `DigitalAgent.sol` (profile, public), `GlokiVerification.sol` (app-wide verified list, on the
+  founder's agent, public; everyone else a guest), `ApplicationSettings.sol` (on the central
+  application account, public; where the verification contract and the forum are) and `Forum.sol`
+  (the beta's forum, on the application account). Every action is the signer's own (`msg.sender`).
 - **Demo** (`?demo=true` — the flag decides, for every call): `src/services/demo/` — mock contracts in browser
   storage, fixtures, personas. The `community_contract.py`, `chat_contract.py`, `discussion_contract.py`,
   `concerns_contract.py` flows and the per-stage sub-contract registry described below run here. Where

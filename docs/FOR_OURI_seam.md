@@ -16,6 +16,39 @@ exactly** — `add_proposal`/`proposal_id`/`get_results`/`get_proposals` etc. Th
 words "solution" and "mandate" are **presentation vocabulary only**; the wire
 names stay `proposal`. (e.g. the add-solution popup calls `add_proposal`.)
 
+## 2026-11-19 — The real network is now ibc-go (branch `ibc-go-migration`)
+
+**Built by Ouri; read this before the older addenda below**, which describe the Python ibc. The plan
+and its decisions: [IBC_GO_MIGRATION.md](IBC_GO_MIGRATION.md).
+
+- **The seam is unchanged for the UI.** Flows still call `contractRead`/`contractWrite` with the same
+  method names, values and result shapes; the demo stubs are untouched. Real initiative and forum
+  calls go through an adapter (`services/contracts/glokiEngageInitiative.ts`) onto Solidity contracts
+  in `src/assets/contracts/sol/`.
+- **Every action is signed by the user** (a passkey on their own node, or their node under the
+  permissions they gave the app). The contracts use `msg.sender`; the `agent` arguments are gone.
+  This settles every impersonation gap listed in the ballot-guards addendum and in the verification
+  addenda, and the signpost overwrite (an agent can only write its own host entry).
+- **Settled by typed storage:** the S35 D1 question (`x in self.proposals`): ids are counters now.
+  The creation race: the author is the deployer.
+- **Gates added while porting:** `add_expert_review` needs an endorsed expert; `decide_merge_suggestion`
+  only the source solution's author; `mark_merged_into` and `set_property` only the author or a
+  co-author; no new solutions or approvals during the vote or the mandate.
+- **Refusals** throw an `Error` whose message is the contract's text (same wording as before), instead
+  of returning `{error}`. `throwIfContractError` still passes; callers that ignored `{error}` now get
+  an exception.
+- **Ids** of comments and proposals are counters, sent to the UI as strings (`'1'`, `'2'`).
+  Timestamps reach the UI in milliseconds.
+- **Still UI-gated, as before:** voter eligibility (members only, verified only) — an initiative is its
+  own agreement and can't read the community's member list or the verification list; D12 assessor
+  eligibility; anyone can still deploy initiative code of their own and reference it.
+- **Membership** is the community contract's own list (`enroll`), not its partners: a member joins (as a
+  partner today) and enrolls. **The forum** (S42/S43) has its real side: `Forum.sol` on the application
+  account; each post records its author's profile, which gives the bylines.
+- **New UI moments (Eston):** sign-in is the node's page (no key to type or save; the beta's "Save
+  your key" step is removed); approvals open the node's page in a popup — deploys, joins, and a
+  member's first action on an issue or on verification (a guest join).
+
 ## Seam methods & fields by stage
 
 ### S2 — Discussion (`demoContracts/discussion.ts`)

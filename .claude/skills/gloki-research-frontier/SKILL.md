@@ -318,6 +318,11 @@ holds an edge-rewiring nomination graph — at ≥5 members, joining needs mutua
 drawn from two random disjoint edges, keeping the graph ~4-regular so every join costs 4 real
 relationships. `gloki-governance-domain` §8 disambiguates the layers that share the word "verified".
 
+> **IBC-GO (2026-11-19):** verification now runs on `GlokiVerification.sol`, with the same three phases.
+> Community membership is the community contract's own `enroll` list, and the nomination graph still
+> exists only in the old `community_contract.py`. Every action is now signed by the person's own passkey
+> on their node, which closes the "anyone can send any key" gap the old network had.
+
 > **REVIEW NEEDED (2026-10-29):** the verification rule and who may join a community both changed in
 > behaviour; see `gloki-governance-domain` §8. Item 5's verification statement and any attestation
 > model inherit their Sybil story from whatever is decided there.

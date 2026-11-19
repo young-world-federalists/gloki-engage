@@ -39,6 +39,11 @@ Jargon used throughout, defined once:
 - **Era 3 (from 2026-10-29)**: **one trunk** (`unified`, becoming `main`) that contains both: the real app is the base, and every page can also show its demo variant at `?demo=true`. Eston designs on demo variants, Ouri builds the real side, both on the same code (`docs/DEMO_MODE.md`). `server-side` and `ui` retire once the trunk replaces them.
 - Don't recreate a separate "UI on stubs" branch: a design that isn't real yet is a page's demo variant on the trunk.
 
+> **IBC-GO (2026-11-19):** `unified` has been merged into `main`, the trunk. The next step, on branch
+> `ibc-go-migration`, replaces the Python network and contracts with ibc-go and Solidity
+> (`docs/IBC_GO_MIGRATION.md`). It's a fresh start with no data carried over, and the trunk and demo
+> model stay as they are.
+
 ## 2. THE QV carry-over revert — never seed shared contract state from per-browser refs
 
 **Status: SETTLED anti-pattern (the only true revert in repo history)**

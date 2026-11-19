@@ -7,10 +7,12 @@ import { buildFlowContractsScope, hydrateContracts } from '../components/collabo
 import { setDigitalAgentScope } from '../components/identity/agent/digitalAgentStore';
 import { buildNotificationsScope, hydrateNotifications } from '../store/slices/notificationsSlice';
 import { eventStreamService } from '../services/eventStream';
+import { resume, signIn, signOut } from '../services/ibc';
 import { clearOrganization } from '../services/organizationActor';
 import { notifyOrganizationChanged } from '../hooks/useOrganization';
 import { startNotificationRuntime } from '../services/notifications';
 import { AuthContext, type AuthContextType } from './useAuth';
+import { getStoredLocale, translate } from '../i18n';
 
 /** The signed-in identity saved by `login`, or null (a broken entry is dropped). */
 function readStoredUser(): { publicKey: string; serverUrl: string } | null {
@@ -22,13 +24,6 @@ function readStoredUser(): { publicKey: string; serverUrl: string } | null {
     localStorage.removeItem('user');
     return null;
   }
-}
-
-/** Connects the event stream, then loads the user's contracts. */
-async function connectAndInitialize(dispatch: AppDispatch, publicKey: string, serverUrl: string) {
-  // Connect to the SSE stream BEFORE initialization so we can catch deploy_contract events
-  eventStreamService.connect(serverUrl, publicKey);
-  await dispatch(initializeUser()).unwrap();
 }
 
 interface AuthProviderProps {
@@ -62,47 +57,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return startNotificationRuntime({ serverUrl: user.serverUrl, publicKey: user.publicKey });
   }, [dispatch, user.publicKey, user.serverUrl]);
 
-  // Refresh the contracts list whenever a contract is deployed (one listener
-  // for the app's lifetime; the stream reconnects per sign-in).
+  // Refresh the contracts list whenever the user deploys or joins a contract
+  // (one listener for the app's lifetime).
   useEffect(() => {
     const refreshContracts = () => dispatch(fetchContracts());
     eventStreamService.addEventListener('deploy_contract', refreshContracts);
-    return () => eventStreamService.removeEventListener('deploy_contract', refreshContracts);
+    eventStreamService.addEventListener('join_contract', refreshContracts);
+    return () => {
+      eventStreamService.removeEventListener('deploy_contract', refreshContracts);
+      eventStreamService.removeEventListener('join_contract', refreshContracts);
+    };
   }, [dispatch]);
 
-  // Restore the stored session once, on app load. If the server refuses it,
+  // Restore the stored session once, on app load: silently, if this
+  // browser's app still acts for the stored agent on the stored node. If not,
   // fall back to the login page, which shows why (its `loginError`).
   useEffect(() => {
     if (!storedUser || initializationRef.current) return;
     initializationRef.current = true;
-    dispatch(setCurrentUser(storedUser));
-    connectAndInitialize(dispatch, storedUser.publicKey, storedUser.serverUrl)
+    resume(storedUser.serverUrl, storedUser.publicKey)
+      .then(async (ok) => {
+        if (!ok) throw new Error(translate(getStoredLocale(), 'login.error.signInAgain', 'Please sign in again with your node.'));
+        dispatch(setCurrentUser(storedUser));
+        await dispatch(initializeUser()).unwrap();
+      })
       .catch((err) => {
+        localStorage.removeItem('user');
         localStorage.setItem('loginError', err instanceof Error ? err.message : String(err));
         dispatch(setCurrentUser(null));
-        eventStreamService.disconnect();
       })
       .finally(() => setIsLoading(false));
   }, [dispatch, storedUser]);
 
-  const login = async (publicKey: string, serverUrl: string) => {
+  // From a click: the user signs in on their node's page (a popup), which
+  // creates their identity there if they are new.
+  const login = async (serverUrl: string) => {
     try {
       setIsLoading(true);
-      
-      // Set the current user in Redux state first
+      const publicKey = await signIn(serverUrl);
       dispatch(setCurrentUser({ publicKey, serverUrl }));
-      await connectAndInitialize(dispatch, publicKey, serverUrl);
-
-      // Store in localStorage
+      await dispatch(initializeUser()).unwrap();
       localStorage.setItem('user', JSON.stringify({ publicKey, serverUrl }));
     } catch (err) {
-      // Registration/validation failed against the real server — undo the
-      // optimistic setCurrentUser above so isAuthenticated goes back to
-      // false and the app returns to LoginPage instead of stranding the
-      // user in a signed-in-looking app with no contracts and no error.
       dispatch(setCurrentUser(null));
-      eventStreamService.disconnect();
-      throw new Error(String(err), { cause: err });
+      throw err instanceof Error ? err : new Error(String(err));
     } finally {
       setIsLoading(false);
     }
@@ -117,11 +115,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearOrganization();
     notifyOrganizationChanged();
 
-    // Clear user data from Redux
     dispatch(clearUser());
-
-    // Disconnect from the SSE stream
-    eventStreamService.disconnect();
+    void signOut();
   };
 
   const value: AuthContextType = {

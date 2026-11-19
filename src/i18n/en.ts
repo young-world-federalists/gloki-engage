@@ -69,17 +69,9 @@ const en: Dictionary = {
   'lang.sw': 'Kiswahili',
 
   // Translation affordances (Lane F · AITools)
-  'translate.translate': 'Translate',
   'translate.showInMyLanguage': 'Show in {language}',
   'translate.showOriginal': 'Show original',
   'translate.translatedAuto': 'Translated',
-  'translate.translatingTo': 'Translating to {lang}…',
-  'translate.failed': 'Translation failed. Please try again.',
-  'translate.keyHintTitle': 'Add an API key in your profile to enable translation',
-  'translate.aiSummary': 'AI Summary',
-  'translate.hideSummary': 'Hide Summary',
-  'translate.generatingSummary': 'Generating summary…',
-  'translate.summaryFailed': 'Summary generation failed. Please try again.',
 
   // Profile
   'profile.prefs': 'Preferences',

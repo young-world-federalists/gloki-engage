@@ -87,6 +87,24 @@ that finishes after a navigation can land in the new page's layer.
 Convenience wrappers (`flows/voting/qvApi.ts`, `services/contracts/community.ts`, …) are fine — they
 call the seam internally.
 
+> **IBC-GO (2026-11-19):** **this section describes the old wire layer.**
+> - **`api.ts` exports** only `getContracts`, `deployContract` (demo only), `joinContract` (demo only),
+>   `contractWrite` and `contractRead`. `isExistAgent`, `registerAgent` and every `*OnChain` primitive are
+>   gone.
+> - **The real wire** is `src/services/ibc.ts`, the one `IbcApp` from npm `@ouripoupko/ibc`: `signIn`,
+>   `resume`, `read`, `publicRead`, `write`, `deploy`, `join`, `myContracts`, `onEvent`. The real service
+>   modules (`services/contracts/*`, `digitalAgentContract.ts`, `verificationRegistry.ts`,
+>   `applicationSettings.ts`, `forum.ts`) call it.
+> - **`contractRead`/`contractWrite`** keep their shape. For an issue they go through its adapter
+>   (`initiativeAdapter`, registered in `contractHosts.ts`), which maps method names, values and results
+>   onto `GlokiEngageInitiative.sol`. Members are guests of the creator's node, signing with their own
+>   key; there's no `agent` argument or `INITIATIVE_MEMBER_METHODS`.
+> - **A write** resolves with the function's result. A refusal is a revert, thrown as an error with
+>   its message.
+> - **Other people's writes:** `useContractSync` still re-reads on `contract_write` events
+>   (`eventStream.ts` is built on `ibc.onEvent`). Only contracts the person holds or is a guest of send
+>   them; `eventStreamService.watchContract` is gone.
+
 ## 3. The demo layer
 
 - **Ids** look like `demo-<kind>-<ts36>-<rnd>`; `isDemoContract` (`demo/demoRegistry.ts`) is a prefix check.
@@ -139,6 +157,12 @@ variants; the demo handler's `case` labels for demo variants — and the two mus
 grep -n "    def " src/assets/contracts/gloki_engage_initiative_contract.py
 grep -n "case '" src/services/demo/demoContracts/approval.ts
 ```
+
+> **IBC-GO (2026-11-19):** for real variants the names are now the Solidity functions
+> (`grep -n "function " src/assets/contracts/sol/GlokiEngageInitiative.sol`), keyed by their parameter
+> names. Where the flows' old names or shapes differ, the adapter in
+> `services/contracts/glokiEngageInitiative.ts` translates, so the demo `case` labels stay the reference
+> for the flows. The wire-name rule is unchanged.
 
 ## 6. deployContract return shape (demo)
 
@@ -216,3 +240,6 @@ Rewritten 2026-10-29 on branch `unified`. Re-verify volatile facts before relyin
 | Member-specific issue methods | `grep -n -A10 "INITIATIVE_MEMBER_METHODS" src/services/contracts/glokiEngageInitiative.ts` |
 | No id-based layer choice left | `grep -rn "isDemoContract(" src --include=*.tsx --include=*.ts \| grep -v services/demo` |
 | Route kinds | `grep -rn "TwoStatePage\|RealOnlyPage\|DemoOnlyPage" src/App.tsx src/pages` |
+
+> **IBC-GO (2026-11-19):** the "Real contract methods" and "Member-specific issue methods" rows point at
+> deleted `.py` files and a removed list. Use the `.sol` files and the adapter instead.

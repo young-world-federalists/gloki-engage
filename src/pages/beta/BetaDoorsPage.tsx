@@ -95,7 +95,7 @@ const BetaDoorsPage: React.FC = () => {
         </div>
 
         <button type="button" className={styles.signIn} onClick={() => choose(null)}>
-          {t('beta.doors.haveKey', 'I already have a key')}
+          {t('beta.doors.haveIdentity', 'I already have an identity')}
         </button>
       </main>
     </div>

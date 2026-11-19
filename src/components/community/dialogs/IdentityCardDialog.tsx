@@ -21,7 +21,7 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
   onClose,
   communityName
 }) => {
-  const { contracts, publicKey } = useAppSelector(state => state.user);
+  const { contracts, publicKey, serverUrl } = useAppSelector(state => state.user);
   const { profiles } = useAppSelector(state => state.communities);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const t = useT();
@@ -29,7 +29,8 @@ const IdentityCardDialog: React.FC<IdentityCardDialogProps> = ({
 
   // Get community contract info
   const communityContract = contracts.find((c) => c.name === communityName);
-  const server = communityContract?.address || '';
+  // The joiner joins through the card's owner: their node and agent.
+  const server = serverUrl || '';
   const agent = publicKey || '';
   const contract = communityContract?.id || '';
 

@@ -3,7 +3,8 @@ import { createContext, useContext } from 'react';
 export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (publicKey: string, serverUrl: string) => Promise<void>;
+  /** From a click: signs in on the user's node (a popup there). */
+  login: (serverUrl: string) => Promise<void>;
   logout: () => void;
 }
 

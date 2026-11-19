@@ -14,14 +14,17 @@ npm run dev:beta   # the beta trim (sign-up, verification, forum)
 npm run build      # production build — runs tsc -b; must pass before deploy
 ```
 
-Builds need `VITE_APPLICATION_SERVER_URL` and `VITE_APPLICATION_AGENT` (defaults in `.env`;
-override in `.env.local`, e.g. `VITE_APPLICATION_SERVER_URL=http://localhost:2611` for a local node).
+The real network is [ibc-go](https://github.com/ouripoupko/ibc-go): every user signs in on their own
+node with a passkey. Builds need `VITE_APPLICATION_SERVER_URL`, `VITE_APPLICATION_AGENT` and
+`VITE_APPLICATION_SETTINGS_CONTRACT`: the central application account's node, its agent id and its
+settings contract (`.env` says how to make them; override in `.env.local`, e.g.
+`VITE_APPLICATION_SERVER_URL=http://localhost:2611` for a local node — use `localhost`, not `127.0.0.1`:
+passkeys need it).
 
 ## Branches
 
-`unified` is the trunk (to become `main`): branch off it for a feature and merge back often.
-`server-side` and `ui` are the retiring two-branch model and still feed GitHub Pages until the
-switch (site root: full app; `/demo/`: beta).
+`main` is the trunk: branch off it for a feature and merge back often. GitHub Pages is deployed by
+hand (Actions → Run workflow): the beta at the site root.
 
 ## Start here
 

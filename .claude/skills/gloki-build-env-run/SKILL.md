@@ -59,6 +59,13 @@ VITE_APPLICATION_SERVER_URL=http://localhost:2611
 
 Without it, local testing writes verification and settings data to the shared application server.
 
+> **IBC-GO (2026-11-19):** there are now **three** required values. The third is
+> `VITE_APPLICATION_SETTINGS_CONTRACT`, the id of the public `ApplicationSettings` contract. The agent
+> is an address (`0x…`), not a name. `.env` names `https://ouri.gloki.contact` and leaves the other two
+> empty until the live node is set up after the migration merges. For a local node, put all three in
+> `.env.local`. `node tools/setup-application.mjs http://localhost:2611 <key file>` creates the account
+> and prints them, and it needs only Node and this repo.
+
 ## Command card
 
 | Command | Expands to | Use for |
@@ -140,6 +147,21 @@ GitHub Pages has no rewrites; deep links work through two files that must never 
 - `src/obsolete` is excluded from typechecking — a green build says nothing about code there.
 
 ## Real backend: a local ibc node
+
+> **IBC-GO (2026-11-19):** **this whole section describes the old Python node.** The node is now
+> [ibc-go](https://github.com/ouripoupko/ibc-go): one program, no Docker, mongo or redis.
+> - **Getting it:** Linux takes `ibc-linux-amd64`/`arm64` from the releases. macOS builds it with Go
+>   (`go build -o ibc ./cmd/ibc` in a clone, per its README). The node needs Node.js to compile
+>   Solidity.
+> - **Running it:** `./ibc -addr 127.0.0.1:2611 -data ~/ibc-data`.
+> - **Pointing the app at it:** `.env.local` as above. Open the app at `http://localhost:…`, not
+>   `127.0.0.1`: passkeys need `localhost` or https. Sign in on the login page's "Your node" field with a
+>   passkey; there are no keys to paste.
+> - **Checking it:** the smoke test below is replaced by `tools/ibc-check/` (README there).
+> - **Reading what happened:** a write's result or revert arrives on the event stream, and the app
+>   shows the revert message. There's no `execution.log`, and every request is signed.
+> - **The table at the end:** its lessons don't carry over. Errors are reverts with a message, calling a
+>   missing function fails, and there's no `Storage`.
 
 Ouri publishes the node as `ghcr.io/ouripoupko/ibc:latest` (public, amd64 + arm64,
 github.com/ouripoupko/ibc). Compose runs ibc, mongo:7 and redis:8 and serves the API at
@@ -250,3 +272,6 @@ Rewritten 2026-10-29 on branch `unified`. Volatile facts:
 | 404.html segment rule | `grep -n pathSegmentsToKeep public/404.html` |
 | tsconfig flags | `cat tsconfig.app.json` |
 | Live site | `curl -s -o /dev/null -w '%{http_code}' https://young-world-federalists.github.io/gloki-engage/` |
+
+> **IBC-GO (2026-11-19):** the description's keywords Docker, OrbStack and `execution.log` belong to the old
+> node. For the local node, see `docs/IBC_GO_MIGRATION.md` and ibc-go's README.

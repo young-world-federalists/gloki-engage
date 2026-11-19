@@ -15,6 +15,7 @@
     "preview:prod": "vite preview --mode production"
   },
   "dependencies": {
+    "@ouripoupko/ibc": "^0.1.0",
     "@reduxjs/toolkit": "^2.13.0",
     "@yudiel/react-qr-scanner": "^2.6.0",
     "clsx": "^2.1.1",

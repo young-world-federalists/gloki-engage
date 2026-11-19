@@ -1,34 +1,19 @@
-// Contracts that are used without joining them: every read and write goes to
-// the node and agent that host the contract (its creator), never to the
-// signed-in user's own node. contractRead/contractWrite (api.ts) consult this
-// table; a registered contract also gets its write events followed on the
-// host's node (eventStreamService.watchContract), so live updates still arrive.
-//
-// Because the call runs as the host's agent, the contract's master() is the
-// host for everyone. Methods listed in `memberMethods` take the acting
-// member's key as an explicit `agent` argument, which api.ts adds.
-import { eventStreamService } from './eventStream';
-
-export interface ContractHost {
-  server: string;
-  agent: string;
-}
+// Real contracts the generic flow calls (contractRead / contractWrite in
+// api.ts) reach through an adapter: where the contract lives, and how the
+// flows' method names, values and results map onto its Solidity functions.
+// Registered when the app learns of the contract (an initiative from its
+// community's list or its route).
+import type { IMethod } from './interfaces';
 
 export interface HostedContract {
-  host: ContractHost;
-  memberMethods: ReadonlySet<string>;
+  read(method: IMethod): Promise<unknown>;
+  write(method: IMethod): Promise<unknown>;
 }
 
 const hosted = new Map<string, HostedContract>();
 
-export function registerHostedContract(
-  contractId: string,
-  host: ContractHost,
-  memberMethods: ReadonlySet<string>,
-): void {
-  if (!contractId || !host.server || !host.agent) return;
-  hosted.set(contractId, { host, memberMethods });
-  eventStreamService.watchContract(host.server, host.agent, contractId);
+export function registerHostedContract(contractId: string, contract: HostedContract): void {
+  if (contractId) hosted.set(contractId, contract);
 }
 
 export function hostedContract(contractId: string): HostedContract | undefined {

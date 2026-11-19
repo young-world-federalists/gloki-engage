@@ -256,13 +256,13 @@ const CommunityView: React.FC = () => {
     setShowMenu(false);
   };
 
-  // The JSON JoinCommunity accepts: the community contract's node, the sharer's
-  // agent (the joiner connects through it) and the community contract id —
-  // the same credentials the Share panel shows.
+  // The JSON JoinCommunity accepts: the sharer's node and agent (the joiner
+  // joins through them) and the community contract id — the same credentials
+  // the Share panel shows.
   const handleShareJoinCredentials = async () => {
     setShowMenu(false);
     const credentials = {
-      server: contract?.address || serverUrl || '',
+      server: serverUrl || '',
       agent: publicKey || '',
       contract: communityId,
     };

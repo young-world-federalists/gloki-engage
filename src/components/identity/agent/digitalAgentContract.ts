@@ -1,17 +1,17 @@
-// Server-side counterpart to digitalAgentStore.ts: deploys, writes, and
-// reads the Digital Agent's own profile contract — for real, on the actual
-// IBC node (deployContractOnChain/contractWriteOnChain/contractReadOnChain
-// in src/services/api.ts), unlike deployContract/contractWrite/contractRead
-// which stay mocked for every other flow in this app for now.
-import { deployContractOnChain, contractWriteOnChain, contractReadOnChain } from '../../../services/api';
-import { watchForChainAck } from '../../../services/eventStream';
+// The Digital Agent's own profile contract (DigitalAgent.sol): each person
+// deploys one on their own node, approving it there, and it is proposed
+// public, so that others can show their name and country.
+import { deploy, read, write, type ContractSource } from '../../../services/ibc';
 import type { AccountKind, IContract } from '../../../services/interfaces';
 import { ACCOUNT_KINDS } from '../../onboarding/accountKinds';
-import digitalAgentContractSrc from '../../../assets/contracts/digital_agent_contract.py?raw';
+import digitalAgentSol from '../../../assets/contracts/sol/DigitalAgent.sol?raw';
 
-// Unique across the whole IBC network, not just this app's other contract
-// kinds — this is how "does this agent already have a gloki-engage profile"
-// is distinguished from any other app's contracts the agent might hold.
+const DIGITAL_AGENT: ContractSource = {
+  source: { 'DigitalAgent.sol': digitalAgentSol },
+  contractName: 'DigitalAgent',
+};
+
+// The deploy's label: how this app tells its profile from other apps' contracts of the same source.
 const DIGITAL_AGENT_CONTRACT_NAME = 'unique-gloki-engage-digital-agent-contract';
 
 export interface DigitalAgentProfileFields {
@@ -19,9 +19,8 @@ export interface DigitalAgentProfileFields {
   photo: string;
   country: string;
   languages: string[];
-  // Written by set_account_kind, not set_profile. Omit the key (never set it
-  // to undefined) when unknown, so it can't mask the local cache's value in
-  // useDigitalAgent's merge.
+  // Omit the key (never set it to undefined) when unknown, so it can't mask
+  // the local cache's value in useDigitalAgent's merge.
   accountKind?: AccountKind;
 }
 
@@ -29,137 +28,38 @@ export function findDigitalAgentContract(contracts: IContract[]): IContract | un
   return contracts.find((c) => c.name === DIGITAL_AGENT_CONTRACT_NAME);
 }
 
-/** Deploys a fresh profile contract and writes the given fields to it. */
-async function deployDigitalAgentProfile({
-  serverUrl,
-  publicKey,
-  fields,
-}: {
-  serverUrl: string;
-  publicKey: string;
-  fields: DigitalAgentProfileFields;
-}): Promise<string> {
-  // Start listening BEFORE issuing the deploy call — see watchForChainAck's
-  // docs on why (a fast reply can emit its event before a listener attached
-  // only after the HTTP response would ever see it).
-  const deployWatcher = watchForChainAck('deploy_contract');
-  try {
-    const ackId = await deployContractOnChain({
-      serverUrl,
-      publicKey,
-      name: DIGITAL_AGENT_CONTRACT_NAME,
-      contract: 'digital_agent_contract.py',
-      code: digitalAgentContractSrc,
-      defaultApp: window.location.origin,
-    });
-    // Deploy completes asynchronously; the ack id doubles as the new
-    // contract's id, but it isn't safe to read/write until the matching
-    // deploy_contract event confirms it's live (docs/blockchain-api.md).
-    await deployWatcher.waitFor(ackId);
-    const contractId = ackId;
-    await writeDigitalAgentProfile({ serverUrl, publicKey, contractId, fields });
-    return contractId;
-  } finally {
-    deployWatcher.dispose();
-  }
-}
-
-async function writeDigitalAgentProfile({
-  serverUrl,
-  publicKey,
-  contractId,
-  fields,
-}: {
-  serverUrl: string;
-  publicKey: string;
-  contractId: string;
-  fields: DigitalAgentProfileFields;
-}): Promise<void> {
-  const writeWatcher = watchForChainAck('contract_write');
-  try {
-    const ackId = await contractWriteOnChain({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: {
-        name: 'set_profile',
-        values: {
-          display_name: fields.displayName,
-          photo: fields.photo,
-          country: fields.country,
-          languages: fields.languages,
-        },
-      },
-    });
-    await writeWatcher.waitFor(ackId);
-  } finally {
-    writeWatcher.dispose();
-  }
-  if (fields.accountKind) {
-    await writeDigitalAgentAccountKind({ serverUrl, publicKey, contractId, kind: fields.accountKind });
-  }
-}
-
 /**
- * Profiles deployed before set_account_kind existed don't have the method;
- * the node acks the call with a null reply and stores nothing, so the kind
- * then lives only in the local cache (digitalAgentStore.ts). Never throws:
- * the profile itself is already saved by the time this runs.
- */
-async function writeDigitalAgentAccountKind({
-  serverUrl,
-  publicKey,
-  contractId,
-  kind,
-}: {
-  serverUrl: string;
-  publicKey: string;
-  contractId: string;
-  kind: AccountKind;
-}): Promise<void> {
-  const writeWatcher = watchForChainAck('contract_write');
-  try {
-    const ackId = await contractWriteOnChain({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: { name: 'set_account_kind', values: { kind } },
-    });
-    const reply = await writeWatcher.waitFor(ackId);
-    if (reply && typeof reply === 'object' && 'error' in reply) {
-      console.error('[digitalAgentContract] set_account_kind refused:', reply);
-    }
-  } catch (err) {
-    console.error('[digitalAgentContract] Failed to write account kind:', err);
-  } finally {
-    writeWatcher.dispose();
-  }
-}
-
-/**
- * Deploys the profile contract if this agent doesn't have one yet, or
- * writes to the existing one if it does — so re-running onboarding, or
- * editing your profile later (Profile.tsx), never creates a duplicate
- * contract for the same agent. Returns the contract id either way.
+ * Deploys the profile contract if this agent doesn't have one yet, or writes
+ * to the existing one, so editing a profile never makes a second contract.
+ * Returns the contract id either way.
  */
 export async function saveDigitalAgentProfile({
-  serverUrl,
-  publicKey,
   existingContractId,
   fields,
 }: {
-  serverUrl: string;
-  publicKey: string;
   existingContractId: string | null;
   fields: DigitalAgentProfileFields;
 }): Promise<string> {
-  if (existingContractId) {
-    await writeDigitalAgentProfile({ serverUrl, publicKey, contractId: existingContractId, fields });
-    return existingContractId;
+  const profile = {
+    display_name: fields.displayName,
+    photo: fields.photo,
+    country: fields.country,
+    languages: fields.languages,
+  };
+  if (!existingContractId) {
+    return deploy({
+      ...DIGITAL_AGENT,
+      name: DIGITAL_AGENT_CONTRACT_NAME,
+      args: { ...profile, account_kind: fields.accountKind ?? '' },
+      isPublic: true,
+    });
   }
-  return await deployDigitalAgentProfile({ serverUrl, publicKey, fields });
+  await write(existingContractId, 'set_profile', profile);
+  if (fields.accountKind) await write(existingContractId, 'set_account_kind', { kind: fields.accountKind });
+  return existingContractId;
 }
 
+/** A profile: the signed-in person's own copy, or another person's public copy on their node. */
 export async function readDigitalAgentProfile({
   serverUrl,
   publicKey,
@@ -169,19 +69,16 @@ export async function readDigitalAgentProfile({
   publicKey: string;
   contractId: string;
 }): Promise<DigitalAgentProfileFields | null> {
-  const result = await contractReadOnChain({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_profile', values: {} },
-  });
+  const result = (await read(contractId, 'get_profile', {}, { host: { server: serverUrl, agent: publicKey } })) as
+    | Record<string, unknown>
+    | null;
   if (!result) return null;
+  const kind = result.accountKind as AccountKind;
   return {
-    displayName: result.displayName ?? '',
-    photo: result.photo ?? '',
-    country: result.country ?? '',
-    languages: result.languages ?? [],
-    // Absent on profiles saved before set_account_kind; absent means "not stated".
-    ...(ACCOUNT_KINDS.includes(result.accountKind) ? { accountKind: result.accountKind as AccountKind } : {}),
+    displayName: String(result.displayName ?? ''),
+    photo: String(result.photo ?? ''),
+    country: String(result.country ?? ''),
+    languages: Array.isArray(result.languages) ? (result.languages as string[]) : [],
+    ...(ACCOUNT_KINDS.includes(kind) ? { accountKind: kind } : {}),
   };
 }

@@ -299,6 +299,8 @@ Eston, Ouri, or another human reviewer:
 - [ ] Cited routes match `src/App.tsx`.
 - [ ] Cited contract methods match the real contracts (`src/assets/contracts/*.py`) and the demo
       handlers (`src/services/demo/demoContracts/*`); wire names never follow UI renames.
+      > **IBC-GO (2026-11-19):** the real contracts are now `src/assets/contracts/sol/*.sol`, plus the
+      > method mapping in `services/contracts/glokiEngageInitiative.ts`.
 - [ ] Status claims ("next", "pending", "greenfield") checked against
       MASTER_TODO §7 and `git log` — these rot fastest.
 - [ ] If you found drift: fix factual drift in place (strike-through + label in

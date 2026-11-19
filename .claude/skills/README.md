@@ -43,3 +43,8 @@ purpose; find them all with `grep -rn "REVIEW NEEDED" .claude/skills`.
 - Every skill says **when NOT to use it** and which sibling to use instead.
 - Nothing here overrides `CLAUDE.md`, `DESIGN_SYSTEM.md`, or `docs/FOR_OURI_seam.md`, and no
   skill routes around change control.
+
+> **IBC-GO (2026-11-19):** notes marked `IBC-GO (2026-11-19)` sit beside passages that the move to ibc-go
+> (Solidity contracts, passkey sign-in, branch `ibc-go-migration`) made out of date. The original text
+> is left as it was. Find them all with `grep -rn "IBC-GO (2026-11-19)" CLAUDE.md .claude/skills`;
+> **gloki-python-contracts** is mostly history now.

@@ -71,7 +71,6 @@ const CreateCommunityPage: React.FC = () => {
     try {
       await createCommunityOnChain({
         serverUrl,
-        publicKey,
         name: name.trim(),
         description: description.trim(),
         profile: digitalAgentContractId ?? undefined,

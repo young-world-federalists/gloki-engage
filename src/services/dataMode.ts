@@ -8,6 +8,7 @@
 // navigation. contractRead / contractWrite / joinContract read it per call.
 import type { IContract } from './interfaces';
 import { isDemoContract } from './demo/demoRegistry';
+import { isGlokiEngageCommunityContract } from './contracts/glokiEngageCommunity';
 
 let demoDataMode = false;
 
@@ -27,5 +28,5 @@ export function isDemoDataMode(): boolean {
 export function communitiesForMode(contracts: IContract[], demo = demoDataMode): IContract[] {
   return demo
     ? contracts.filter((c) => isDemoContract(c.id) && c.contract === 'community_contract.py')
-    : contracts.filter((c) => !isDemoContract(c.id) && c.contract === 'gloki_engage_community_contract.py');
+    : contracts.filter((c) => !isDemoContract(c.id) && isGlokiEngageCommunityContract(c));
 }

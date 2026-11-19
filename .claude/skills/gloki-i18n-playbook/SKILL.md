@@ -50,6 +50,11 @@ Hand-rolled provider — **no i18next, no JSON catalogs, no typed key union.** A
 | `src/i18n/fr.ts` | **Full overlay** — ~1,530 keys | ~1,690 lines |
 | `src/i18n/sw.ts` | **Full overlay** — ~1,530 keys | ~1,690 lines |
 
+> **IBC-GO (2026-11-19):** on 2026-11-19 the keys no code used anymore were removed (116 from fr/sw, 8
+> from en, including the old key login, key and backup screens), and the new node sign-in strings got
+> fr/sw. Now: en = 68 keys, fr = sw = 1433 keys, at parity. The new strings aren't in the native-review
+> packet yet, and the packet may still cite some of the removed keys.
+
 Facts you will otherwise guess wrong:
 
 - **English feature copy lives INLINE in components**, as

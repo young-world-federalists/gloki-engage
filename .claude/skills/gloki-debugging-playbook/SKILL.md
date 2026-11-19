@@ -20,6 +20,9 @@ Vocabulary:
 - **Hosted contract** — an issue (or the verification/settings contract) is used without joining it:
   calls go to its creator's node through the creator's agent, with the caller's key as `agent`
   (`src/services/contractHosts.ts`).
+  > **IBC-GO (2026-11-19):** on ibc-go a hosted contract is used **as a guest** of its host's node. Calls
+  > are signed by the caller's own key, and there's no `agent` argument. Reads use the public copy
+  > until the person joins. `contractHosts.ts` is now a registry of adapters (`initiativeAdapter`).
 - **DEMO_VERSION** — constant in `src/services/demo/mockApi.ts`; a mismatch with a visitor's stored
   `gloki_demo_version` wipes and re-seeds all `gloki_demo*` localStorage.
 - **Wire names** — contract method/field names; they byte-match the real contracts.
@@ -51,6 +54,16 @@ Vocabulary:
 | 21 | `rg a && rg b` says a key doesn't exist | `&&` short-circuit | a missing key |
 | 22 | Flow stuck "deploying" / odd provisioning | read the `[FlowContract]` console logs first | guesswork |
 
+> **IBC-GO (2026-11-19):** entries 2, 4, 5, 6, 12, 13 and 16 describe the old Python node; each has a note
+> below. Three new symptoms come with ibc-go:
+> - **"Your browser blocked the approval window of your node. Click again to continue."** The node's
+>   approval page was opened too long after the click; clicking again works. This is open question 1 in
+>   `docs/IBC_GO_MIGRATION.md`.
+> - **"Too many public reads"** (the node's limit per client address). Identical reads are shared and
+>   retried in `services/ibc.ts`.
+> - **A revert message shown to the user** (for example "Voting is closed"). That is the contract
+>   refusing, not a bug.
+
 ---
 
 ## 1. Demo variant doesn't update after a write
@@ -74,6 +87,11 @@ confirmation. Also: the user's main stream isn't connected (`eventStreamService.
 **Fix:** route writes through `contractWrite` (it picks the right stream) or the service module that
 owns the contract; never call `contractWriteOnChain` + `watchForChainAck` for another agent's contract.
 If `execution.log` shows an error string, that's the real cause — the write ran and refused.
+
+> **IBC-GO (2026-11-19):** there's no `execution.log`, `openScopedAckStream`, `contractWriteOnChain` or
+> `watchForChainAck` anymore. `IbcApp` (`services/ibc.ts`) waits for each write's own result, which
+> carries the revert message if the contract refused. A write that needs approval opens the node's page
+> instead.
 
 ## 3. Stale or weird demo data — clear vs bump
 
@@ -103,6 +121,10 @@ own node and gets `{"message":"no such contract"}` (often rendered as stage "pro
 **Fix:** make the path register the host first (load the issue list, or pass the host in the route),
 rather than special-casing the read.
 
+> **IBC-GO (2026-11-19):** the rule still holds (register the host first), but the call shape has changed.
+> `read()` in `services/ibc.ts` uses the person's own copy if they hold the contract, and otherwise an
+> unsigned public read on the host (`?action=public_read`). Writes join as a guest on first use.
+
 ## 5. Every member action fails on an issue
 
 **Root cause:** contracts are immutable. Issues created before a contract change keep the old code:
@@ -111,6 +133,9 @@ added `agent` argument. The node returns an error (see `execution.log`).
 
 **Fix:** none for that issue — create a new one. For new code: optional trailing arguments and
 absence-tolerant readers (**gloki-python-contracts** §5).
+
+> **IBC-GO (2026-11-19):** the network started fresh with the Solidity contracts, so no issue predates them
+> yet. On ibc-go, calling a function an old contract lacks fails, so the rule still holds.
 
 ## 6. Join Community spins, then errors
 
@@ -123,6 +148,13 @@ the invitation names an agent that doesn't hold the community. `reply: false` = 
 
 **Fix:** check the invitation JSON (`{server, agent, contract}`, from "Share Community Link" on a
 member's community page) and that the two nodes can reach each other.
+
+> **IBC-GO (2026-11-19):** joining is now `joinCommunity` (`services/contracts/glokiEngageCommunity.ts`):
+> - a passkey-approved `join` on the joiner's own node, which waits for the `join_contract` event;
+> - then `enroll` on the contract, which adds the person to its member list.
+>
+> The invitation still carries `{server, agent, contract}`, and now uses the sharer's own node.
+> `a2a_connect` no longer exists.
 
 ## 7. Verification list shows a short key instead of a name
 
@@ -173,11 +205,18 @@ base `/`.
 `VITE_APPLICATION_AGENT`. Defaults live only in `.env`; `.env.local` and environment variables override
 them. **Fix:** restore `.env`, or set the values (**gloki-build-env-run**, "Required build settings").
 
+> **IBC-GO (2026-11-19):** there's a third value, `VITE_APPLICATION_SETTINGS_CONTRACT`. In this branch's
+> `.env` the agent and settings contract are deliberately empty until the live node is set up, so a
+> build needs `.env.local` (`node tools/setup-application.mjs` prints all three).
+
 ## 13. Contract 500s on its very first read
 
 **Root cause (dialect trap):** `__init__` re-runs on every invocation and reads forbid writes, so a write
 in `__init__` blows up the first read. **Fix:** `__init__` only binds `Storage()` handles; initialise in a
 write method that refuses to run twice; no counters. **gloki-python-contracts** §4.
+
+> **IBC-GO (2026-11-19):** this doesn't apply to the Solidity contracts: a constructor runs once. It still
+> applies to the demo layer's `.py` models.
 
 ## 14. "This feature isn't available on this community"
 
@@ -208,6 +247,11 @@ Typical cause: the node was reset or the user signed in on a different node, so 
 
 **Fix:** that's correct behaviour — onboarding creates a new profile. If the profile exists but isn't
 read, check `fetchContracts` / `readDigitalAgentProfile` in `userSlice.ts`.
+
+> **IBC-GO (2026-11-19):** the contract list now comes from `myContracts()` in `services/ibc.ts`, a signed
+> query, so a plain `GET …?action=get_contracts` won't work. The profile contract is `DigitalAgent.sol`,
+> still found by the name `unique-gloki-engage-digital-agent-contract`. Also typical: the user signed in
+> with a passkey on a different node.
 
 ## 17. Phantom git states / I/O stalls (Eston's USB drive)
 

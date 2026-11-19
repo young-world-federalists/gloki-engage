@@ -73,6 +73,12 @@ src/
 └── utils/             # countries.ts (197), regions.ts, displayName, formatTimeAgo, …
 ```
 
+> **IBC-GO (2026-11-19):** in this tree, `assets/contracts/` now holds the real Solidity contracts in `sol/`;
+> the two `.py` files left there serve the demo layer only. `services/` gains `ibc.ts`, the one connection
+> to the user's ibc-go node. `contractHosts.ts` is a registry of adapters. `AuthContext` still stores
+> `{publicKey, serverUrl}`: the agent's address and the user's node. Sign-in is a passkey on that node.
+
+
 ## A page with two states
 
 Every route element is wrapped as `TwoStatePage`, `RealOnlyPage` or `DemoOnlyPage`
@@ -129,6 +135,11 @@ returns `{ contractId, isReady, isDeploying, hasError, errorMessage, statusMessa
 | **Single-contract** | shared mode with a **real** parent (`isSingleContract`) | Resolves straight to the parent: a real issue contract holds every stage, so stage components read and write the issue contract itself. No deploy, no join |
 | **Shared** | `parentContractId` + `stageKey` with a demo parent | Probe `get_stage_contract` on the parent → join the stored sub-contract, or deploy one and `register_stage_contract` it (first write wins; a lost race joins the winner) |
 | **Per-user** | no parent | Each user deploys their own (collab flows) |
+
+> **IBC-GO (2026-11-19):** single-contract mode still resolves to the parent. The real issue is one agreement
+> whose root (`GlokiEngageInitiative.sol`) creates `Solutions` and `Decision`. Its adapter
+> (`initiativeAdapter`) sends each method to the right part. Members use it as guests of the creator's
+> node.
 
 Shared-mode safeguards: if the parent lacks `get_stage_contract` (an older community), **fail fast with
 "This feature isn't available on this community…" without deploying** (contracts can't be deleted);
@@ -190,6 +201,8 @@ product decision (**gloki-change-control**). Demo variants need no routes — sa
 - The issue route carries the creator's node and agent: `InitiativeView` registers them with
   `contractHosts` before any child reads. Routes without them (`/mandate/…`) wait for
   `useInitiativeHostReady`, which loads the community's issue list first.
+  > **IBC-GO (2026-11-19):** still true: `InitiativeView` registers the issue's adapter
+  > (`registerInitiativeHost`), and the route's host agent is now an address (`0x…`).
 - `BrowserRouter` basename comes from the Vite base; pages lazy-load in `Suspense` inside
   `ErrorBoundary`; `<StageFooter/>` renders after `Routes` (not in the beta).
 - **First run** is decided by the real profile contract: `RootRoute` waits for
@@ -238,6 +251,11 @@ shared kit. DESIGN_SYSTEM.md is the authority.
 2. Real side: the methods go on the real issue contract (single-contract mode), member-specific ones take
    `agent` and join `INITIATIVE_MEMBER_METHODS` — **gloki-python-contracts**. Demo side: a handler in
    `src/services/demo/demoContracts/` registered in `demoRouter.ts`. Both in `docs/FOR_OURI_seam.md`.
+   > **IBC-GO (2026-11-19):** the real side is now a function in `GlokiEngageInitiative.sol`, or in its
+   > `Solutions`/`Decision` part. Mind the 24 KB code limit. It also needs a mapping in
+   > `initiativeAdapter` (`services/contracts/glokiEngageInitiative.ts`) and a check in
+   > `tools/ibc-check/initiative.mjs`. Nothing takes `agent` anymore: the contract sees the caller as
+   > `msg.sender`.
 3. Register in `registry.ts` with `context: 'initiative'` and a `group`.
 4. Refresh after writes per layer (demo: re-fetch; real: the write's event + `useContractSync`).
 5. Strings through `t()` + fr/sw; styles token-only; `npx tsc -b` and `npm run build` clean; walk it in

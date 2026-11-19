@@ -5,6 +5,14 @@ description: Use when reading, writing, or modifying Gloki Python blockchain con
 
 # Gloki Python Contracts
 
+> **IBC-GO (2026-11-19):** **most of this skill now describes the past.** The real network is ibc-go, with
+> Solidity contracts on an EVM in `src/assets/contracts/sol/`; the five real `.py` contracts and
+> `storage_interface.py` are deleted. What still applies: the demo layer's two `.py` files
+> (`community_contract.py`, `funding_flow_contract.py`), immutability (§5), the wire-name rule and
+> the demo handler side (§6), and the QV lesson (§7). The sandbox, Storage, `agent` and `__init__` rules
+> (§1–§4) don't apply to the real contracts. The current design is in `docs/IBC_GO_MIGRATION.md`
+> (§3 topology, §4 porting notes); the contracts' checks are in `tools/ibc-check/`.
+
 ## Overview
 
 Gloki contracts are Python classes executed by the IBC node's sandbox. They are **not normal Python**:
@@ -31,6 +39,12 @@ contracts never gain it. Design for absence-tolerance and additive growth.
 Every other contract type the UI talks to (approval, qv, conviction, chat, discussion, concerns, merge,
 modification, problemVote, profile) exists only as a demo handler in `src/services/demo/demoContracts/`,
 used by demo variants and demo communities.
+
+> **IBC-GO (2026-11-19):** the real contracts are now `DigitalAgent.sol` (profile), `ApplicationSettings.sol`
+> (verification location and forum, public, on the application account), `GlokiVerification.sol`,
+> `GlokiEngageCommunity.sol` (members = partners plus its own `enroll` list), `GlokiEngageInitiative.sol`
+> (a root that creates `Solutions` and `Decision` in the same agreement, because of the 24 KB code limit)
+> and `Forum.sol`. The same modules deploy them.
 
 ## When NOT to use this skill
 
@@ -92,6 +106,12 @@ def upvote(self, agent):
 
 The community contract *is* joined (membership = partnership), so it may use `master()` for the caller.
 
+> **IBC-GO (2026-11-19):** there's no `agent` argument anymore. Members still don't join issue, verification or
+> settings contracts as partners: they join as **guests** of the host's node (ibc-go's
+> `approve_guest`), and every call is signed by their own key, so the contract sees them as
+> `msg.sender`. `INITIATIVE_MEMBER_METHODS` is gone; reads of "my" data take the address explicitly
+> (`get_my_*(address agent)`). Unsigned public reads (`public_read`) serve anyone who hasn't joined.
+
 ## 3. Storage semantics — the `.get()` trap and the `in` trap
 
 `Storage('name')[key]` returns a **Document**. Missing keys return `None`, and a Document has **no
@@ -150,6 +170,9 @@ happens on a contract that predates it?*
   parallel).
 - Old contracts silently answer `null` to a method they don't define (reads) or ack it (writes).
 
+> **IBC-GO (2026-11-19):** on ibc-go, calls are encoded from the contract's ABI, so calling a function an
+> older contract doesn't have fails instead of answering `null`. The rest of §5 still holds.
+
 The demo-layer escape hatches `set_property` / `get_properties` and `register_stage_contract` /
 `get_stage_contract` (sub-contracts per stage) exist only on demo handlers and on the old
 `community_contract.py` model — **not** on the real community or issue contracts, which keep every stage
@@ -194,6 +217,13 @@ Finding names: `grep -n "    def " src/assets/contracts/<file>.py` (real);
 - [ ] Checked on a local node (**gloki-build-env-run**): the write's `execution.log` line and SSE reply
 - [ ] `npx tsc -b` clean
 
+> **IBC-GO (2026-11-19):** for the Solidity contracts, the chain is now `.sol` function ⟷ its adapter or
+> service module (`services/contracts/*.ts` maps the flows' method names, values and results) ⟷
+> `docs/FOR_OURI_seam.md`. `values` are keyed by the Solidity parameter names. Refusals are
+> `require(..., "message")` reverts, which arrive as errors (`contractError` in `services/ibc.ts`), not as
+> `{error}` replies. Check a change with `node tools/ibc-check/<contract>.mjs` against a local node
+> (no `execution.log`, no Docker). Watch the 24 KB code limit.
+
 ## 7. The QV carry-over revert — a settled anti-pattern
 
 The only true revert in the repo's history (`963170d` on `archive/blockchain-main`, "revert(qv): drop
@@ -218,3 +248,6 @@ Rewritten 2026-10-29 on branch `unified`. Re-verify before relying on these:
 | Sandbox builtins | the node's `common/state.py` (`docker compose exec ibc cat common/state.py`) |
 | `in`-check no-ops still present | `grep -n "not in self.comments\|not in self.proposals" src/assets/contracts/gloki_engage_initiative_contract.py` |
 | Wire-name rule wording | `sed -n '/one rule that must not break/,+6p' docs/FOR_OURI_seam.md` |
+
+> **IBC-GO (2026-11-19):** the rows naming the real `.py` files, `INITIATIVE_MEMBER_METHODS`, and the node's
+> `common/state.py` via Docker no longer apply: those things no longer exist.

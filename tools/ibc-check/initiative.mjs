@@ -1,0 +1,88 @@
+import { agent, deploy, guestJoin, ok, refused, eq, finish, Ibc, NODE } from './lib.mjs';
+const I = 'GlokiEngageInitiative';
+console.log('GlokiEngageInitiative');
+const a = await agent();
+const id = await deploy(a, I, { description: 'Clean water', explanation: 'why', links: ['http://x'], countries: ['KE'] });
+await a.setPublic(id, true);
+const [S, D] = await a.read(id, 'get_parts');
+const sol = { at: S }, dec = { at: D };
+const b = await agent(), c = await agent(), x = await agent();
+for (const p of [b, c, x]) await guestJoin(p, a, id, I);
+const pub = (m, v = {}, opt = {}) => Ibc.publicRead(NODE, a.agent, id, m, v, opt);
+
+console.log('-- details, roles, stage');
+await ok('author is the deployer', async () => eq((await pub('get_details')).author, a.agent));
+await refused('member cannot edit', 'Only the author or a co-author can edit', () => b.write(id, 'set_details', { description: 'x', explanation: '', links: [], countries: [] }));
+await refused('member cannot advance', 'Only the author or a co-author can advance', () => b.write(id, 'set_stage', { next: 'discussion' }));
+await refused('member cannot add a co-author', 'can add a co-author', () => b.write(id, 'add_co_author', { public_key: b.agent }));
+await ok('author adds c as co-author', () => a.write(id, 'add_co_author', { public_key: c.agent }));
+await ok('co-author edits in problem', () => c.write(id, 'set_details', { description: 'Clean water now', explanation: 'why', links: [], countries: ['KE', 'MW'] }));
+await refused('skipping a stage', 'one step at a time', () => a.write(id, 'set_stage', { next: 'proposals' }));
+await refused('unknown stage', 'Invalid stage', () => a.write(id, 'set_stage', { next: 'party' }));
+await refused('merge mark by a member', 'mark this initiative merged', () => b.write(id, 'mark_merged_into', { target_initiative_id: 'z' }));
+await ok('endorse x as expert', async () => { await b.write(id, 'endorse_expert', { public_key: x.agent }); const r = await pub('get_roles'); eq(r.experts, [x.agent]); eq(r.endorsements[0].keys, [x.agent]); });
+
+console.log('-- problem vote and discussion');
+await ok('b upvotes, c downvotes, a upvotes', async () => { await b.write(id, 'upvote'); await c.write(id, 'downvote'); await a.write(id, 'upvote'); return pub('get_tally'); });
+await ok('b removes; my vote reads', async () => { await b.write(id, 'remove_vote'); eq(await pub('get_my_vote', { agent: b.agent }), ''); eq(await pub('get_my_vote', { agent: a.agent }), 'up'); return pub('get_votes'); });
+const root = await ok('add_comment returns its id', () => b.write(id, 'add_comment', { text: 'root', parent_id: 0, category: 'evidence', sources: '[]' }));
+await ok('reply', () => c.write(id, 'add_comment', { text: 'reply', parent_id: root, category: '', sources: '[{"url":"http://s"}]' }));
+await refused('reply to an unknown comment', 'Unknown comment', () => c.write(id, 'add_comment', { text: 'x', parent_id: 99, category: '', sources: '' }));
+await ok('like toggles', async () => { await a.write(id, 'like_comment', { comment_id: root }); await c.write(id, 'like_comment', { comment_id: root }); await a.write(id, 'like_comment', { comment_id: root }); eq((await pub('get_comments'))[0].likes, [c.agent]); });
+await ok('cause votes on roots', async () => { await a.write(id, 'vote_comment', { comment_id: root, direction: 'up' }); await b.write(id, 'vote_comment', { comment_id: root, direction: 'down' }); await b.write(id, 'vote_comment', { comment_id: root, direction: 'none' }); eq((await pub('get_comment_votes')).length, 1); });
+await refused('cause vote on a reply', 'Only a root comment', () => a.write(id, 'vote_comment', { comment_id: 2, direction: 'up' }));
+await refused('delete someone else\'s comment', 'Only the author can delete', () => a.write(id, 'delete_comment', { comment_id: root }));
+await ok('delete own comment', async () => { await c.write(id, 'delete_comment', { comment_id: 2 }); const cm = (await pub('get_comments'))[1]; eq(cm.deleted, true); eq(cm.text, ''); });
+await refused('problem vote closes after problem', 'Problem voting is closed', async () => { await a.write(id, 'set_stage', { next: 'discussion' }); await b.write(id, 'upvote'); });
+await refused('text frozen after problem', 'frozen after the Problem stage', () => a.write(id, 'set_details', { description: 'x', explanation: '', links: [], countries: [] }));
+
+console.log('-- solutions');
+const p1 = await ok('b proposes', () => b.write(id, 'add_proposal', { text: 'Wells', co_authors: [], commitments: ['dig'], sources: '[]', metrics: [], cause_id: '1' }, sol));
+const p2 = await ok('c proposes', () => c.write(id, 'add_proposal', { text: 'Filters', co_authors: [], commitments: [], sources: '[]', metrics: [], cause_id: '' }, sol));
+await ok('approvals, withdraw', async () => { await a.write(id, 'approve', { proposal_id: p1 }, sol); await b.write(id, 'approve', { proposal_id: p1 }, sol); await b.write(id, 'approve', { proposal_id: p1 }, sol); await a.write(id, 'withdraw_approval', { proposal_id: p1 }, sol); return pub('get_approvals', {}, sol); });
+await refused('approve unknown', 'Unknown proposal', () => a.write(id, 'approve', { proposal_id: 9 }, sol));
+await refused('non-expert review', 'Only an endorsed expert', () => b.write(id, 'add_expert_review', { proposal_id: p1, metrics: ['m'], note: '', assessment: '', sources: '[]', credentials: '' }, sol));
+await ok('expert reviews twice: one review kept', async () => { await x.write(id, 'add_expert_review', { proposal_id: p1, metrics: ['m1'], note: 'n', assessment: '', sources: '[]', credentials: '' }, sol); await x.write(id, 'add_expert_review', { proposal_id: p1, metrics: ['m2'], note: 'n2', assessment: '', sources: '[]', credentials: '' }, sol); const p = (await pub('get_proposals', {}, sol))[0]; eq(p.expertReviews.length, 1); eq(p.expertReviews[0].metrics, ['m2']); });
+await ok('request review is idempotent', async () => { await a.write(id, 'request_expert_review', { proposal_id: p2 }, sol); await a.write(id, 'request_expert_review', { proposal_id: p2 }, sol); eq((await pub('get_proposals', {}, sol))[1].expertReviewRequests, [a.agent]); });
+await ok('merge suggestion idempotent', async () => { await a.write(id, 'suggest_proposal_merge', { source_id: p2, target_id: p1 }, sol); await a.write(id, 'suggest_proposal_merge', { source_id: p2, target_id: p1 }, sol); eq((await pub('get_proposals', {}, sol))[1].mergeSuggestions.length, 1); });
+await refused('only the source author decides', 'Only the solution\'s author', () => b.write(id, 'decide_merge_suggestion', { source_id: p2, target_id: p1, decision: 'accepted' }, sol));
+await ok('author accepts', async () => { await c.write(id, 'decide_merge_suggestion', { source_id: p2, target_id: p1, decision: 'accepted' }, sol); eq((await pub('get_proposals', {}, sol))[1].mergedInto, Number(p1)); });
+const assess = (who, field = 'x') => who.write(id, 'add_impact_assessment', { proposal_id: p1, target: field, targets_cause: 'cause', mechanism: 'm', broader_effects: 'b', risks: 'r', opportunity_costs: 'o', time_horizon: 't' }, sol);
+await refused('assessment with an empty field', 'Every field is required', () => assess(a, ''));
+await ok('three assessments', async () => { await assess(a); await assess(b); await assess(c); return (await pub('get_impact_assessments', {}, sol)).length; });
+await refused('a fourth', 'already has three', () => assess(x));
+await refused('twice by one author', 'already assessed', () => assess(a));
+
+console.log('-- vote');
+await refused('allocate before the vote', 'Voting is not open', () => b.write(id, 'allocate', { proposal_ids: [p1], credits: [9] }, dec));
+await a.write(id, 'set_stage', { next: 'proposals' }); await a.write(id, 'set_stage', { next: 'vote' });
+await refused('solutions close at the vote', 'Solutions are closed', () => b.write(id, 'add_proposal', { text: 'late', co_authors: [], commitments: [], sources: '', metrics: [], cause_id: '' }, sol));
+await ok('config is open', async () => eq(await pub('get_config', {}, dec), [100, 'open']));
+await refused('over budget', 'Exceeds credit budget', () => b.write(id, 'allocate', { proposal_ids: [p1, p2], credits: [64, 49] }, dec));
+await refused('unknown proposal', 'Unknown proposal', () => b.write(id, 'allocate', { proposal_ids: [5], credits: [4] }, dec));
+await refused('empty ballot', 'Ballot is empty', () => b.write(id, 'allocate', { proposal_ids: [p1], credits: [0] }, dec));
+await refused('duplicate', 'listed once', () => b.write(id, 'allocate', { proposal_ids: [p1, p1], credits: [1, 1] }, dec));
+await ok('b votes 64 + 36', () => b.write(id, 'allocate', { proposal_ids: [p1, p2], credits: [64, 36] }, dec));
+await refused('second ballot', 'already voted', () => b.write(id, 'allocate', { proposal_ids: [p1], credits: [1] }, dec));
+await ok('c votes 100 on p2 (zeros dropped)', async () => { await c.write(id, 'allocate', { proposal_ids: [p1, p2], credits: [0, 100] }, dec); const mine = await pub('get_my_allocation', { agent: c.agent }, dec); eq(mine.proposalIds, [Number(p2)]); });
+await ok('allocations', () => pub('get_allocations', {}, dec));
+
+console.log('-- mandate');
+await a.write(id, 'set_stage', { next: 'mandate' });
+await refused('amount must be 1', 'exactly 1', () => b.write(id, 'stake', { amount: 2, duration: '1m', country: 'KE' }, dec));
+await refused('invalid duration', 'Invalid duration', () => b.write(id, 'stake', { amount: 1, duration: '2y', country: 'KE' }, dec));
+await ok('b stakes', () => b.write(id, 'stake', { amount: 1, duration: '1y', country: 'KE' }, dec));
+await refused('second stake', 'Already backing', () => b.write(id, 'stake', { amount: 1, duration: '1m', country: 'KE' }, dec));
+await ok('update keeps one stake', async () => { await b.write(id, 'update_stake', { duration: '1m', country: '' }, dec); const [found, s] = await pub('get_my_stake', { agent: b.agent }, dec); eq(found, true); eq(s.duration, '1m'); eq(s.country, 'KE'); eq(s.weight, 1000); });
+await ok('c stakes; stakes list', async () => { await c.write(id, 'stake', { amount: 1, duration: '1w', country: '' }, dec); return (await pub('get_stakes', {}, dec)).map((s) => [s.country, s.weight]); });
+await ok('withdraw', async () => { await c.write(id, 'withdraw_stake', {}, dec); eq((await pub('get_stakes', {}, dec)).length, 1); eq((await pub('get_my_stake', { agent: c.agent }, dec))[0], false); });
+await refused('withdraw twice', 'No commitment to withdraw', () => c.write(id, 'withdraw_stake', {}, dec));
+
+console.log('-- properties');
+await refused('member sets a property', 'can change this initiative', () => b.write(id, 'set_property', { key: 'k', value: 'v' }));
+await ok('author sets a property', async () => { await a.write(id, 'set_property', { key: 'mandate_ratification', value: '{"x":1}' }); await a.write(id, 'set_property', { key: 'mandate_ratification', value: '{"x":2}' }); eq(await pub('get_properties'), [{ key: 'mandate_ratification', value: '{"x":2}' }]); });
+
+console.log('-- a stranger');
+const s = await agent();
+await refused('a stranger cannot write', 'no contract', () => s.write(id, 'upvote'));
+finish(a, b, c, x, s);

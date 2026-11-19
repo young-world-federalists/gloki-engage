@@ -186,13 +186,7 @@ export function useFlowContract(
             setStatusMessage('Joining shared contract...');
             // Sub-contract exists → join it
             try {
-              await joinContract({
-                serverUrl,
-                publicKey,
-                address: existing.address,
-                agent: existing.agent,
-                contract: existing.contractId,
-              });
+              await joinContract();
             } catch {
               // May fail if already joined — that's OK
             }
@@ -271,13 +265,7 @@ export function useFlowContract(
           if (registered?.contractId && registered.contractId !== newId && registered.address && registered.agent) {
             setStatusMessage('Joining shared contract...');
             try {
-              await joinContract({
-                serverUrl,
-                publicKey,
-                address: registered.address,
-                agent: registered.agent,
-                contract: registered.contractId,
-              });
+              await joinContract();
             } catch {
               // Another client may have won the registration race; join their contract.
             }

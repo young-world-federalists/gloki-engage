@@ -59,12 +59,7 @@ const Profile: React.FC = () => {
     // (docs/FOR_OURI_seam.md, S46).
     if (kind) saveAgent({ accountKind: kind });
     if (user.serverUrl && user.publicKey) {
-      saveDigitalAgentProfile({
-        serverUrl: user.serverUrl,
-        publicKey: user.publicKey,
-        existingContractId: user.digitalAgentContractId,
-        fields,
-      })
+      saveDigitalAgentProfile({ existingContractId: user.digitalAgentContractId, fields })
         .then((contractId) => {
           dispatch(setDigitalAgentProfile({ profile: fields, contractId }));
         })

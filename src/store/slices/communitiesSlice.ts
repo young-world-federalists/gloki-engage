@@ -12,8 +12,15 @@ import { contractRead, type ContractResult } from '../../services/api';
 import type { IMethod, IContract } from '../../services/interfaces';
 import type { IProfile, IPartner } from '../../services/interfaces';
 import { getProfile } from '../../services/contracts/gloki';
-import { getCommunityDetails, isGlokiEngageCommunityContract } from '../../services/contracts/glokiEngageCommunity';
-import { registerInitiativeHost, type InitiativeRef } from '../../services/contracts/glokiEngageInitiative';
+import {
+  getCommunityDetails,
+  getCommunityMembers,
+  getInitiativeRefs,
+  isGlokiEngageCommunityContract,
+} from '../../services/contracts/glokiEngageCommunity';
+import { registerInitiativeHost } from '../../services/contracts/glokiEngageInitiative';
+import { readDigitalAgentProfile } from '../../components/identity/agent/digitalAgentContract';
+import { isDemoDataMode } from '../../services/dataMode';
 import type { RootState } from '../index';
 
 // Gloki's `timestamp()` returns a packed digit string: YYYYMMDDHHMMSS +
@@ -91,13 +98,26 @@ export const fetchMemberProfile = createAsyncThunk(
   'communities/fetchMemberProfile',
   async (args: { memberServerUrl: string; memberPublicKey: string; memberContractId: string; memberAgent: string }) => {
     const { memberServerUrl, memberPublicKey, memberContractId, memberAgent } = args;
-    
+
+    if (!isDemoDataMode()) {
+      // A member's Digital Agent profile: their public copy, on their own node.
+      const real = await readDigitalAgentProfile({
+        serverUrl: memberServerUrl,
+        publicKey: memberPublicKey,
+        contractId: memberContractId,
+      });
+      const profile: IProfile = real
+        ? { ...NO_PROFILE, displayName: real.displayName, userPhoto: real.photo, country: real.country, ...(real.accountKind ? { accountKind: real.accountKind } : {}) }
+        : NO_PROFILE;
+      return { memberAgent, profile };
+    }
+
     const profile = await getProfile(
       memberServerUrl,
       memberPublicKey,
       memberContractId,
     );
-    
+
     return { memberAgent, profile: (profile ?? NO_PROFILE) as IProfile };
   }
 );
@@ -108,20 +128,10 @@ export const fetchMemberProfile = createAsyncThunk(
 // every ref is read in parallel rather than one at a time. Mapped into the
 // same Collaboration shape the demo path already produces, so ActivityCard
 // and everything downstream of it need no changes at all.
-async function fetchGlokiEngageCollaborations(
-  serverUrl: string,
-  publicKey: string,
-  contractId: string,
-): Promise<Collaboration[]> {
-  const refsResult = await contractRead({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_initiatives', values: {} } as IMethod,
-  });
-  const refs: InitiativeRef[] = Array.isArray(refsResult) ? refsResult : [];
-  // Members don't join initiative contracts: every later call to one goes to
-  // its creator's node and agent (contractHosts.ts).
+async function fetchGlokiEngageCollaborations(contractId: string): Promise<Collaboration[]> {
+  const refs = await getInitiativeRefs(contractId);
+  // An initiative lives on its creator's node: reads go to the creator's
+  // public copy, and a member's first write joins it as a guest.
   refs.forEach((ref) => registerInitiativeHost(ref.contract, ref.address, ref.agent));
 
   const items = await Promise.all(
@@ -173,7 +183,7 @@ export const fetchCollaborations = createAsyncThunk(
 
     let collaborations: Collaboration[];
     if (community && isGlokiEngageCommunityContract(community)) {
-      collaborations = await fetchGlokiEngageCollaborations(serverUrl, publicKey, contractId);
+      collaborations = await fetchGlokiEngageCollaborations(contractId);
     } else {
       const result = await getCollaborations(serverUrl, publicKey, contractId);
       collaborations = Array.isArray(result) ? result : [];
@@ -213,28 +223,15 @@ export const fetchCommunityActiveMembers = createAsyncThunk(
 );
 
 // Real counterpart to fetchCommunityMembers's get_partners+get_all_people call,
-// for communities deployed through glokiEngageCommunity.ts. `get_partners` is
-// a *contract-independent* method every deployed contract answers by default
-// (it reflects the replication/consensus group actually running the
-// contract) — the gloki-engage contract defines no membership methods of its
-// own, but this one works regardless. Verified shape (2026-08-31, against a
-// real community): `[{ address, agent, profile }]`, i.e. exactly IPartner[].
-//
-// Simplification, deliberate for now: a contract's partners are not
-// necessarily its community's members in general — a contract's replication
-// group and "who belongs to this community" are logically separate, and real
-// membership needs its own governance (join requests, approvals) layered on
-// top, independent of who happens to host the contract. That governance
-// isn't implemented yet, so for now partnership stands in for membership:
-// whoever co-hosts the contract counts as a member.
+// for communities deployed through glokiEngageCommunity.ts: the community's own
+// member list (each member enrolls after joining, as a partner or a guest),
+// with the node and profile contract that show each member's name.
 async function fetchGlokiEngageCommunityMembers(
-  serverUrl: string,
-  publicKey: string,
   contractId: string,
   existingProfiles: Record<string, IProfile>,
   dispatch: (action: ReturnType<typeof fetchMemberProfile>) => unknown,
 ): Promise<{ members: string[]; tasks: Record<string, boolean>; nominates: string[] }> {
-  const partners = (await getPartners(serverUrl, publicKey, contractId)) as IPartner[];
+  const partners = await getCommunityMembers(contractId);
   const members = partners.map((partner) => partner.agent);
 
   for (const partner of partners) {
@@ -267,8 +264,6 @@ export const fetchCommunityMembers = createAsyncThunk(
     const community = state.user.contracts.find((c: IContract) => c.id === contractId);
     if (community && isGlokiEngageCommunityContract(community)) {
       const { members, tasks, nominates } = await fetchGlokiEngageCommunityMembers(
-        serverUrl,
-        publicKey,
         contractId,
         existingProfiles,
         dispatch,

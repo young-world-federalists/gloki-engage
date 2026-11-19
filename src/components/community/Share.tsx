@@ -15,9 +15,10 @@ const Share: React.FC<ShareProps> = ({ communityId }) => {
   
   // Get community contract info from Redux
   const { contracts } = useAppSelector(state => state.user);
-  const { publicKey } = useAppSelector(state => state.user);
+  const { publicKey, serverUrl } = useAppSelector(state => state.user);
   const communityContract = contracts.find((c) => c.id === communityId);
-  const server = communityContract?.address || '';
+  // The joiner joins through the sharer: their node and agent.
+  const server = serverUrl || '';
   const agent = publicKey || '';
   const contract = communityContract?.id || '';
 

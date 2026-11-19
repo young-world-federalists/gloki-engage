@@ -1,99 +1,96 @@
-// Real (non-mocked) community contract for gloki-engage: deploy/write/read
-// against the actual IBC node, mirroring the Digital Agent profile pattern
-// in src/components/identity/agent/digitalAgentContract.ts. Distinct from
-// the rich `community_contract.py` (members/accounts/funding/etc.), which
-// stays on the mock layer for the demo-seeded communities and their
-// initiative/collaboration features — not migrated by this module.
-import { deployContractOnChain, contractWriteOnChain, contractReadOnChain } from '../api';
-import { watchForChainAck } from '../eventStream';
-import type { IContract } from '../interfaces';
-import glokiEngageCommunityContractSrc from '../../assets/contracts/gloki_engage_community_contract.py?raw';
+// A gloki-engage community: GlokiEngageCommunity.sol, deployed by its founder
+// and made public. Members join it (as partners) and enroll in its member
+// list; the list, not the contract's partners, is the community's membership.
+// It also keeps a reference to each initiative, which lives on its creator's
+// node (glokiEngageInitiative.ts).
+import { deploy, join, myContracts, read, write, type ContractHost, type ContractSource } from '../ibc';
+import type { IContract, IPartner } from '../interfaces';
+import communitySol from '../../assets/contracts/sol/GlokiEngageCommunity.sol?raw';
 
-// The `contract` field tags every contract deployed through this module —
-// this is what distinguishes "a gloki-engage app community" from any other
-// app's contracts on the same IBC network, and from the demo-only
-// `community_contract.py`.
-const GLOKI_ENGAGE_COMMUNITY_CONTRACT = 'gloki_engage_community_contract.py';
+const COMMUNITY: ContractSource = {
+  source: { 'GlokiEngageCommunity.sol': communitySol },
+  contractName: 'GlokiEngageCommunity',
+};
+
+// How a node lists a contract of this source (its root contract, "path:Name").
+const COMMUNITY_CONTRACT = 'GlokiEngageCommunity.sol:GlokiEngageCommunity';
 
 export interface CommunityDetails {
   name: string;
   description: string;
-  createdAt?: string;
+  createdAt?: number;
 }
 
-export function isGlokiEngageCommunityContract(contract: IContract): boolean {
-  return contract.contract === GLOKI_ENGAGE_COMMUNITY_CONTRACT;
+export function isGlokiEngageCommunityContract(contract: Pick<IContract, 'contract'>): boolean {
+  return contract.contract === COMMUNITY_CONTRACT;
 }
 
-/** Deploys a fresh community contract (named after the community) and writes its details. */
+/** Deploys a community (the founder approves on their node) with the founder as its first member. */
 export async function createCommunityOnChain({
   serverUrl,
-  publicKey,
   name,
   description,
   profile,
 }: {
   serverUrl: string;
-  publicKey: string;
   name: string;
   description: string;
   profile?: string;
 }): Promise<string> {
-  // Start listening BEFORE issuing the deploy/write calls — see
-  // watchForChainAck's docs on why (a fast write can emit its event before
-  // a listener attached only after the HTTP response would ever see it).
-  const deployWatcher = watchForChainAck('deploy_contract');
-  const writeWatcher = watchForChainAck('contract_write');
-  try {
-    const ackId = await deployContractOnChain({
-      serverUrl,
-      publicKey,
-      name,
-      contract: GLOKI_ENGAGE_COMMUNITY_CONTRACT,
-      code: glokiEngageCommunityContractSrc,
-      defaultApp: window.location.origin,
-      profile: profile ?? '',
-    });
-    // Deploy completes asynchronously; the ack id doubles as the new
-    // contract's id, but it isn't safe to write to it until the matching
-    // deploy_contract event confirms it's live (docs/blockchain-api.md).
-    await deployWatcher.waitFor(ackId);
-    const contractId = ackId;
-
-    const writeAckId = await contractWriteOnChain({
-      serverUrl,
-      publicKey,
-      contractId,
-      method: { name: 'set_details', values: { name, description } },
-    });
-    await writeWatcher.waitFor(writeAckId);
-
-    return contractId;
-  } finally {
-    deployWatcher.dispose();
-    writeWatcher.dispose();
-  }
+  return deploy({
+    ...COMMUNITY,
+    name,
+    args: { name, description, node: serverUrl, profile: profile ?? '' },
+    isPublic: true,
+  });
 }
 
+/** The community's details: from the user's copy, or from `host`'s public copy for a community the user hasn't joined. */
 export async function getCommunityDetails({
-  serverUrl,
-  publicKey,
   contractId,
+  host,
 }: {
-  serverUrl: string;
-  publicKey: string;
   contractId: string;
+  host?: ContractHost;
 }): Promise<CommunityDetails | null> {
-  const result = await contractReadOnChain({
-    serverUrl,
-    publicKey,
-    contractId,
-    method: { name: 'get_details', values: {} },
-  });
+  const result = (await read(contractId, 'get_details', {}, { host })) as Record<string, unknown> | null;
   if (!result) return null;
   return {
-    name: result.name ?? '',
-    description: result.description ?? '',
-    createdAt: result.createdAt,
+    name: String(result.name ?? ''),
+    description: String(result.description ?? ''),
+    createdAt: Number(result.createdAt ?? 0) * 1000,
   };
+}
+
+/** The community's members, each with the node and profile contract that show their name. */
+export async function getCommunityMembers(contractId: string): Promise<IPartner[]> {
+  const members = (await read(contractId, 'get_members')) as { agent: string; node: string; profile: string }[];
+  return (members ?? []).map((m) => ({ address: m.node, agent: m.agent, profile: m.profile }));
+}
+
+/** Joins a community through a member's node (unless already holding it), then enrolls in its member list. */
+export async function joinCommunity({
+  contractId,
+  host,
+  serverUrl,
+  profile,
+}: {
+  contractId: string;
+  host: ContractHost;
+  serverUrl: string;
+  profile: string;
+}): Promise<void> {
+  if (!(await myContracts()).some((c) => c.id === contractId)) await join(contractId, host, COMMUNITY);
+  await write(contractId, 'enroll', { node: serverUrl, profile });
+}
+
+/** The community's references to its initiatives. */
+export async function getInitiativeRefs(contractId: string): Promise<{ address: string; agent: string; contract: string }[]> {
+  const refs = (await read(contractId, 'get_initiatives')) as { node: string; agent: string; contract_id: string }[];
+  return (refs ?? []).map((r) => ({ address: r.node, agent: r.agent, contract: r.contract_id }));
+}
+
+/** Records an initiative the signed-in member created, on their own node. */
+export async function addInitiative(communityId: string, node: string, initiativeId: string): Promise<void> {
+  await write(communityId, 'add_initiative', { node, contract_id: initiativeId });
 }

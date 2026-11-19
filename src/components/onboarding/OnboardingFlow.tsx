@@ -17,7 +17,6 @@ import HowItWorksStep from './steps/HowItWorksStep';
 import AgentStep from './steps/AgentStep';
 import RulesStep from './steps/RulesStep';
 import ReadyStep from './steps/ReadyStep';
-import BackupStep from './steps/BackupStep';
 import KindStep from './steps/KindStep';
 import styles from './OnboardingFlow.module.scss';
 
@@ -26,10 +25,10 @@ import styles from './OnboardingFlow.module.scss';
 // building the profile, since there's no inviter or vouch relationship to explain.
 // S42 beta: save your key → account kind → profile → ready. Invite, trust and
 // the pipeline explainer are demo framing; hidden, not deleted.
-type OnboardingStepKey = 'invite' | 'vouch' | 'how' | 'agent' | 'rules' | 'ready' | 'backup' | 'kind';
+type OnboardingStepKey = 'invite' | 'vouch' | 'how' | 'agent' | 'rules' | 'ready' | 'kind';
 const INVITATION_STEPS: OnboardingStepKey[] = ['invite', 'vouch', 'how', 'agent', 'rules', 'ready'];
 const DIRECT_STEPS: OnboardingStepKey[] = ['agent', 'rules', 'ready'];
-const BETA_STEPS: OnboardingStepKey[] = ['backup', 'kind', 'agent', 'ready'];
+const BETA_STEPS: OnboardingStepKey[] = ['kind', 'agent', 'ready'];
 
 const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
   invite: ['onboarding.step.invite', 'Invite'],
@@ -38,7 +37,6 @@ const STEP_LABELS: Record<OnboardingStepKey, [string, string]> = {
   agent: ['onboarding.step.agent', 'You'],
   rules: ['onboarding.step.rules', 'Rules'],
   ready: ['onboarding.step.ready', 'Ready'],
-  backup: ['beta.step.backup', 'Key'],
   kind: ['beta.step.kind', 'Account'],
 };
 
@@ -100,7 +98,7 @@ const OnboardingFlow: React.FC = () => {
     if (!serverUrl || !publicKey) return;
     // The Kind step comes first and saves to the local cache; carry it onto the contract.
     const fields = agent?.accountKind ? { ...stepFields, accountKind: agent.accountKind } : stepFields;
-    saveDigitalAgentProfile({ serverUrl, publicKey, existingContractId: digitalAgentContractId, fields })
+    saveDigitalAgentProfile({ existingContractId: digitalAgentContractId, fields })
       .then((contractId) => {
         dispatch(setDigitalAgentProfile({ profile: fields, contractId }));
       })
@@ -178,7 +176,6 @@ const OnboardingFlow: React.FC = () => {
               onContinue={() => go(index + 1)}
             />
           )}
-          {currentKey === 'backup' && <BackupStep headingRef={headingRef} publicKey={publicKey ?? ''} onContinue={next} />}
           {currentKey === 'kind' && (
             <KindStep
               headingRef={headingRef}

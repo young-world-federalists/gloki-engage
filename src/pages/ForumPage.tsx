@@ -10,7 +10,7 @@ import styles from './Container.module.scss';
 /**
  * S42 — `/forum`, the beta's second screen: one shared threaded conversation
  * for everyone in the test, mounted once on the contract the forum seam
- * returns. No communities, no stages, no vote on posts — post, reply, like.
+ * returns (the network's forum, or the demo's at `?demo=true`). No communities, no stages, no vote on posts — post, reply, like.
  * Anyone signed in can post; verification gates nothing here yet.
  */
 const ForumPage: React.FC = () => {
@@ -19,12 +19,17 @@ const ForumPage: React.FC = () => {
   const serverUrl = useAppSelector((s) => s.user.serverUrl);
   const publicKey = useAppSelector((s) => s.user.publicKey);
   const [contractId, setContractId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void getForumContractId().then((id) => {
-      if (!cancelled) setContractId(id);
-    });
+    getForumContractId()
+      .then((id) => {
+        if (!cancelled) setContractId(id);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : String(err));
+      });
     return () => {
       cancelled = true;
     };
@@ -73,6 +78,8 @@ const ForumPage: React.FC = () => {
               variant="forum"
               emptyHint={t('beta.forum.empty', 'Be the first to post.')}
             />
+          ) : error ? (
+            <p role="alert">{error}</p>
           ) : (
             <div className="loading-container">
               <div className="loading-spinner" />

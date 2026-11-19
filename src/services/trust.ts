@@ -18,13 +18,14 @@ interface Ctx {
   communityId: string;
 }
 
+/** A community's stage rules; the defaults where it has none (a real community keeps none yet). */
 export async function getStagePermissions({ serverUrl, publicKey, communityId }: Ctx): Promise<Record<PipelineStage, StageRule>> {
   const res = await contractRead({
     serverUrl,
     publicKey,
     contractId: communityId,
     method: { name: 'get_stage_permissions', values: {} } as IMethod,
-  });
+  }).catch(() => null);
   return { ...DEFAULT_STAGE_PERMISSIONS, ...(res && typeof res === 'object' ? (res as Record<string, StageRule>) : {}) };
 }
 

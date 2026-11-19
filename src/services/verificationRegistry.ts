@@ -1,37 +1,30 @@
-// The app-wide verification contract (gloki_verification_contract.py): the
-// single source of truth for who is verified. THE ONLY module that talks to it.
+// The app-wide verification contract (GlokiVerification.sol): the single
+// source of truth for who is verified. THE ONLY module that talks to it.
 //
 // Deployed by the first person to get verified (the founder and steward) on
-// their OWN agent and node. Where it lives is published in the application
-// settings contract on the central account (applicationSettings.ts): every
-// client reads that first, then reads and writes the verification contract
-// on one of its hosts. Users never join it, so every method carries the acting
-// person's key as an argument, and writes are confirmed on the host agent's
-// event stream (openScopedAckStream), not the signed-in user's.
+// their own agent and node, and made public. Where it lives is published in
+// the application settings contract (applicationSettings.ts): every client
+// reads that first, then reads the verification contract's public copy on one
+// of its hosts. Everyone else uses it as a guest, joining on their first
+// action; every action is the signer's own.
 //
 // Phases, by how many people are verified (V):
 //   not started  founder     the first person deploys it and becomes steward
 //   V 1..3       sequential  one candidate at a time, vouched by everyone verified
 //   V >= 4       open        four vouches from verified people
-import {
-  contractReadOnChain,
-  contractWriteOnChain,
-  deployContractOnChain,
-  getContractsOnChain,
-} from './api';
-import { openScopedAckStream } from './eventStream';
-import {
-  getVerificationLocation,
-  registerVerificationHost,
-  type ContractHostAddress,
-} from './applicationSettings';
-import { findDigitalAgentContract, readDigitalAgentProfile } from '../components/identity/agent/digitalAgentContract';
-import verificationContractSrc from '../assets/contracts/gloki_verification_contract.py?raw';
+import { deploy, myContracts, read, write, type ContractHost } from './ibc';
+import { getVerificationLocation, registerVerificationHost } from './applicationSettings';
+import { readDigitalAgentProfile } from '../components/identity/agent/digitalAgentContract';
+import verificationSol from '../assets/contracts/sol/GlokiVerification.sol?raw';
 
-const VERIFICATION_CONTRACT = 'gloki_verification_contract.py';
+const VERIFICATION = {
+  source: { 'GlokiVerification.sol': verificationSol },
+  contractName: 'GlokiVerification',
+};
 const VERIFICATION_CONTRACT_NAME = 'gloki-verification';
 /** V at which the open phase starts (and the vouches it needs). Mirrors the contract. */
 const OPEN_THRESHOLD = 4;
+const NOBODY = '0x0000000000000000000000000000000000000000';
 
 export type VerificationPhase = 'founder' | 'sequential' | 'open';
 
@@ -108,7 +101,7 @@ export function requiredVouches(status: RegistryStatus): number {
   return phaseOf(status) === 'sequential' ? status.verified.length : OPEN_THRESHOLD;
 }
 
-/** Mirrors the contract's register() rules, so the app only calls it when it will pass. */
+/** Mirrors the contract's register() rules, so the app only offers it when it will pass. */
 export function canRegister(status: RegistryStatus, publicKey: string): boolean {
   if (!status.contractId || status.verified.some((v) => v.key === publicKey)) return false;
   const vouchers = new Set(vouchersFor(status, publicKey));
@@ -122,12 +115,12 @@ export function canRegister(status: RegistryStatus, publicKey: string): boolean 
 
 interface VerificationTarget {
   contractId: string;
-  host: ContractHostAddress;
+  host: ContractHost;
 }
 
 let known: VerificationTarget | null = null;
 
-/** The verification contract and the host to call it on, or null if verification hasn't started. */
+/** The verification contract and the host whose copy is read, or null if verification hasn't started. */
 async function findVerification(): Promise<VerificationTarget | null> {
   if (known) return known;
   const location = await getVerificationLocation();
@@ -136,142 +129,117 @@ async function findVerification(): Promise<VerificationTarget | null> {
   return known;
 }
 
-export async function getRegistryStatus(): Promise<RegistryStatus> {
+const iso = (seconds: unknown): string => new Date(Number(seconds ?? 0) * 1000).toISOString();
+
+type Row = Record<string, unknown>;
+
+let statusInFlight: Promise<RegistryStatus> | null = null;
+
+/** The contract's state. Concurrent callers share one read. */
+export function getRegistryStatus(): Promise<RegistryStatus> {
+  statusInFlight ??= readStatus().finally(() => {
+    statusInFlight = null;
+  });
+  return statusInFlight;
+}
+
+async function readStatus(): Promise<RegistryStatus> {
   const target = await findVerification();
   if (!target) return EMPTY_STATUS;
-  const raw = await contractReadOnChain({
-    serverUrl: target.host.server,
-    publicKey: target.host.agent,
-    contractId: target.contractId,
-    method: { name: 'get_status', values: {} },
-  });
-  const obj = (raw && typeof raw === 'object' ? raw : {}) as Partial<RegistryStatus>;
+  // The user's own copy (or, as a guest, their host's) once they hold it; the public copy before.
+  const s = (await read(target.contractId, 'get_status', {}, { host: target.host })) as Row;
+  const rows = (value: unknown): Row[] => (Array.isArray(value) ? (value as Row[]) : []);
   return {
     contractId: target.contractId,
-    steward: obj.steward ?? '',
-    verified: Array.isArray(obj.verified) ? obj.verified : [],
-    candidate: obj.candidate ?? '',
-    requests: Array.isArray(obj.requests) ? obj.requests : [],
-    vouches: Array.isArray(obj.vouches) ? obj.vouches : [],
+    steward: String(s.steward ?? ''),
+    verified: rows(s.verified).map((v) => ({
+      key: String(v.key),
+      at: iso(v.at),
+      method: v.method as VerifiedRecord['method'],
+      vouchers: (v.vouchers as string[]) ?? [],
+      address: String(v.node ?? ''),
+      profile: String(v.profile ?? ''),
+    })),
+    candidate: s.candidate === NOBODY ? '' : String(s.candidate ?? ''),
+    requests: rows(s.requests).map((r) => ({
+      requester: String(r.requester),
+      approver: String(r.approver),
+      address: String(r.node ?? ''),
+      profile: String(r.profile ?? ''),
+      at: iso(r.at),
+      status: r.status as RegistryRequest['status'],
+    })),
+    vouches: rows(s.vouches).map((v) => ({ voucher: String(v.voucher), requester: String(v.requester), at: iso(v.at) })),
   };
 }
 
 // ── Writes ──────────────────────────────────────────────────────────────────
 
-function throwIfRefused(reply: unknown): void {
-  if (reply && typeof reply === 'object' && 'error' in reply && typeof (reply as { error: unknown }).error === 'string') {
-    throw new Error((reply as { error: string }).error);
-  }
-}
-
-async function writeOn(target: VerificationTarget, name: string, values: Record<string, unknown>): Promise<void> {
-  const watcher = await openScopedAckStream(target.host.server, target.host.agent, target.contractId);
-  try {
-    const ackId = await contractWriteOnChain({
-      serverUrl: target.host.server,
-      publicKey: target.host.agent,
-      contractId: target.contractId,
-      method: { name, values },
-    });
-    throwIfRefused(await watcher.waitFor(ackId));
-  } finally {
-    watcher.dispose();
-  }
-}
-
-async function write(name: string, values: Record<string, unknown>): Promise<void> {
+async function act(method: string, values: Record<string, unknown>): Promise<void> {
   const target = await findVerification();
   if (!target) throw new Error('Verification has not started');
-  await writeOn(target, name, values);
+  await write(target.contractId, method, values, { guest: { host: target.host, ...VERIFICATION } });
 }
 
 /**
  * Founder phase: deploys the verification contract on `me`'s own agent and
- * node, makes `me` its steward and first verified person, then publishes
- * where it lives in the application settings. Throws 'Verification has
- * already started' if someone got there first (their contract wins; ours is
- * left unused).
+ * node (they approve it there), which makes `me` its steward and first
+ * verified person, then publishes where it lives in the application
+ * settings. Throws 'Verification has already started' if someone got there
+ * first (their contract wins; ours is left unused).
  */
 export async function becomeFounder(me: RegistryIdentity): Promise<void> {
   known = null;
   if (await getVerificationLocation()) throw new Error('Verification has already started');
-
-  const host: ContractHostAddress = { server: me.address, agent: me.publicKey };
-  const watcher = await openScopedAckStream(host.server, host.agent, '');
-  let contractId: string;
-  try {
-    const ackId = await deployContractOnChain({
-      serverUrl: host.server,
-      publicKey: host.agent,
-      name: VERIFICATION_CONTRACT_NAME,
-      contract: VERIFICATION_CONTRACT,
-      code: verificationContractSrc,
-      defaultApp: window.location.origin,
-    });
-    // The ack id doubles as the contract id; it's safe to write once the
-    // deploy event confirms it (as in digitalAgentContract.ts).
-    await watcher.waitFor(ackId);
-    contractId = ackId;
-  } finally {
-    watcher.dispose();
-  }
-
-  // Initialize before publishing, so nobody ever finds an empty contract.
-  const target: VerificationTarget = { contractId, host };
-  await writeOn(target, 'initialize', { steward: me.publicKey, address: me.address, profile: me.profile });
-  await registerVerificationHost(host, contractId);
-  known = target;
+  // Two approvals: if the browser blocked the second, the next click resumes
+  // with the contract already deployed.
+  const deployed = (await myContracts(true)).find((c) => c.name === VERIFICATION_CONTRACT_NAME && c.role === 'partner');
+  const contractId = deployed?.id ?? (await deploy({
+    ...VERIFICATION,
+    name: VERIFICATION_CONTRACT_NAME,
+    args: { node: me.address, profile: me.profile },
+    isPublic: true,
+  }));
+  await registerVerificationHost(me.address, contractId);
+  known = { contractId, host: { server: me.address, agent: me.publicKey } };
 }
 
 export function requestVouch(me: RegistryIdentity, approver: string): Promise<void> {
-  return write('request_vouch', { requester: me.publicKey, approver, address: me.address, profile: me.profile });
+  return act('request_vouch', { approver, node: me.address, profile: me.profile });
 }
 
-export function vouch(voucher: string, requester: string): Promise<void> {
-  return write('vouch', { voucher, requester });
+/** The signed-in person vouches for `requester`. */
+export function vouch(requester: string): Promise<void> {
+  return act('vouch', { requester });
 }
 
-export function declineVouch(approver: string, requester: string): Promise<void> {
-  return write('decline_vouch', { approver, requester });
+/** The signed-in person declines `requester`'s request. */
+export function declineVouch(requester: string): Promise<void> {
+  return act('decline_vouch', { requester });
 }
 
-/** Adds `me` to the verified list with the vouches collected; the contract re-checks every one. */
+/** Adds the signed-in person to the verified list with the vouches collected; the contract re-checks every one. */
 export function register(me: RegistryIdentity, vouchers: string[]): Promise<void> {
-  return write('register', { newcomer: me.publicKey, vouchers, address: me.address, profile: me.profile });
+  return act('register', { vouchers, node: me.address, profile: me.profile });
 }
 
-export function resetCandidate(steward: string): Promise<void> {
-  return write('reset_candidate', { steward });
+/** The steward frees the sequential phase's candidate slot. */
+export function resetCandidate(): Promise<void> {
+  return act('reset_candidate', {});
 }
 
 // ── Names ───────────────────────────────────────────────────────────────────
 
 const summaryCache = new Map<string, Promise<PersonSummary>>();
 
-/**
- * The person's CURRENT Digital Agent profile id, found by name on their own
- * node (as login does). The id stored in the contract is only a fallback: it
- * goes stale when the person re-onboards (e.g. after a node reset).
- */
-async function currentProfileId(address: string, key: string, stored: string): Promise<string> {
-  try {
-    const contracts = await getContractsOnChain({ serverUrl: address, publicKey: key });
-    return findDigitalAgentContract(contracts)?.id ?? stored;
-  } catch {
-    return stored;
-  }
-}
-
-/** Name + country from the person's own profile contract; falls back to a short key. */
+/** Name + country from the person's public profile contract; falls back to a short key. */
 export function personSummary(person: { key: string; address: string; profile: string }): Promise<PersonSummary> {
   const cached = summaryCache.get(person.key);
   if (cached) return cached;
   const fallback: PersonSummary = { publicKey: person.key, name: person.key.slice(0, 8), country: '' };
-  if (!person.address) return Promise.resolve(fallback);
+  if (!person.address || !person.profile) return Promise.resolve(fallback);
   const promise = (async (): Promise<PersonSummary> => {
-    const profileId = await currentProfileId(person.address, person.key, person.profile);
-    if (!profileId) return fallback;
-    const profile = await readDigitalAgentProfile({ serverUrl: person.address, publicKey: person.key, contractId: profileId });
+    const profile = await readDigitalAgentProfile({ serverUrl: person.address, publicKey: person.key, contractId: person.profile });
     if (!profile?.displayName) return fallback;
     return { publicKey: person.key, name: profile.displayName, country: profile.country };
   })().catch(() => fallback);

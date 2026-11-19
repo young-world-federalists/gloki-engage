@@ -113,10 +113,10 @@ export async function requestVouch(ctx: VerificationCtx, approverKey: string): P
   return { id: requestId(ctx.publicKey, approverKey), requester: ctx.publicKey, approver: approverKey, at: Date.now(), status: 'pending' };
 }
 
-export async function respondToRequest(ctx: VerificationCtx, id: string, approve: boolean): Promise<void> {
+export async function respondToRequest(_ctx: VerificationCtx, id: string, approve: boolean): Promise<void> {
   const requester = id.split(':')[0];
-  if (approve) await vouch(ctx.publicKey, requester);
-  else await declineVouch(ctx.publicKey, requester);
+  if (approve) await vouch(requester);
+  else await declineVouch(requester);
 }
 
 /** Off-platform (email) — the demo records it locally and sends nothing. */

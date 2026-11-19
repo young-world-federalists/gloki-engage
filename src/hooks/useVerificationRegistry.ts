@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useAppSelector } from '../store/hooks';
+import { eventStreamService } from '../services/eventStream';
 import {
   canRegister,
   getRegistryStatus,
@@ -16,8 +17,9 @@ import {
 
 // One shared snapshot of the verification contract for the whole app, so the
 // hub, the identity page and every trust check agree. Any mounted reader can
-// refresh it; `live` readers also poll while mounted (other people's vouches
-// arrive on the application agent's stream, which the app doesn't follow).
+// refresh it, and it refreshes on the contract's events, which reach everyone
+// who holds it (the steward, and every guest). `live` readers also poll while
+// mounted, for people who don't hold it yet.
 
 interface Snapshot {
   status: RegistryStatus | null;
@@ -63,6 +65,11 @@ async function registerIfEligible(status: RegistryStatus): Promise<boolean> {
     registering = false;
   }
 }
+
+// Anyone's request, vouch or registration: read the contract again.
+eventStreamService.addEventListener('contract_write', (event) => {
+  if (event.contract && event.contract === snapshot.status?.contractId) void refreshVerificationRegistry();
+});
 
 function refreshVerificationRegistry(): Promise<void> {
   if (inFlight) return inFlight;

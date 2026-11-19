@@ -153,7 +153,7 @@ const VerificationHub: React.FC = () => {
               name: candidateName,
             })}
           </p>
-          <Button variant="secondary" disabled={busy} onClick={() => void run(() => resetCandidate(registry.me!.publicKey))}>
+          <Button variant="secondary" disabled={busy} onClick={() => void run(() => resetCandidate())}>
             {t('verification.steward.reset', 'Reset current candidate')}
           </Button>
         </Card>

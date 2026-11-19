@@ -6,7 +6,7 @@ import { useAuth } from './contexts/useAuth';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { OfflineBanner } from './components/shared/connectivity';
 import NotFound from './pages/NotFound';
-import { TwoStatePage, RealOnlyPage, DemoOnlyPage, StageFooter, ToastProvider } from './components/shared';
+import { TwoStatePage, RealOnlyPage, StageFooter, ToastProvider } from './components/shared';
 import { setDemoDataMode } from './services/dataMode';
 import { DemoFlagUrlSync } from './hooks/useDemoMode';
 import { useI18n } from './i18n';
@@ -161,7 +161,7 @@ function AppContent() {
               />
               <Route path="/mandate/:communityId/:mandateId/*" element={<BetaGate><TwoStatePage><MandatePage /></TwoStatePage></BetaGate>} />
               <Route path="/organization" element={<BetaGate><TwoStatePage><OrganizationHome /></TwoStatePage></BetaGate>} />
-              {isBeta && <Route path="/forum" element={<DemoOnlyPage><ForumPage /></DemoOnlyPage>} />}
+              {isBeta && <Route path="/forum" element={<TwoStatePage><ForumPage /></TwoStatePage>} />}
               <Route path="/lab/presence" element={<PresenceLabRoute />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { isExistAgent, registerAgent, getContracts } from '../../services/api';
+import { getContracts } from '../../services/api';
 import type { IContract } from '../../services/interfaces';
 import type { RootState } from '../index';
 import {
@@ -56,34 +56,14 @@ const initialState: UserState = {
   error: null,
 };
 
-// Main initialization thunk - handles everything
+// Loads the signed-in agent's contracts and profile. The node already knows
+// the agent: it registered on the node's own page when it signed in.
 export const initializeUser = createAsyncThunk(
   'user/initializeUser',
-  async (_, { dispatch, getState, rejectWithValue }) => {
-    const { publicKey, serverUrl } = (getState() as RootState).user;
-    
-    if (!publicKey || !serverUrl) {
-      return rejectWithValue('Missing publicKey or serverUrl');
-    }
-    
-    try {
-      // 1. Check if agent exists
-      const agentExists = await isExistAgent({serverUrl, publicKey });
-      
-      if (!agentExists) {
-        // Register agent if it doesn't exist
-        await registerAgent({serverUrl, publicKey });
-      }
-      
-      // 2. Get contracts (awaited — the digital-agent-profile check inside
-      // fetchContracts needs to finish before the app decides whether to
-      // show onboarding or skip straight to the home page)
-      await dispatch(fetchContracts());
-
-      return null;
-    } catch (error) {
-      return rejectWithValue(String(error));
-    }
+  async (_, { dispatch, rejectWithValue }) => {
+    const result = await dispatch(fetchContracts());
+    if (fetchContracts.rejected.match(result)) return rejectWithValue(result.payload);
+    return null;
   }
 );
 
@@ -98,7 +78,7 @@ export const fetchContracts = createAsyncThunk(
     }
     
           try {
-        const contracts = await getContracts({serverUrl, publicKey });
+        const contracts = await getContracts({ publicKey });
 
         // Store contracts in Redux state first
         await dispatch(userSlice.actions.setContracts(contracts || []));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useEffectEvent, useRef } from 'react';
+import React, { useState } from 'react';
 import { QrCode, Camera, CheckCircle } from 'lucide-react';
 import styles from './JoinCommunity.module.scss';
 import { Scanner } from '@yudiel/react-qr-scanner';
@@ -6,23 +6,18 @@ import { decodeCommunityInvitation } from '../../services/encodeDecode';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchContracts } from '../../store/slices/userSlice';
-import { eventStreamService } from '../../services/eventStream';
-import type { BlockchainEvent } from '../../services/eventStream';
 import { useNavigate } from 'react-router-dom';
-import { joinContract } from '../../services/api';
+import { joinCommunity } from '../../services/contracts/glokiEngageCommunity';
 import { useT } from '../../i18n';
 import { useAlert } from '../shared/useAlert';
 import { Banner, Button } from '../shared';
-
-// How long to wait for the community's node to confirm a join.
-const JOIN_TIMEOUT_MS = 30000;
 
 // No longer using CommunityInvite type; use plain object with server, agent, contract
 const JoinCommunity: React.FC = () => {
   const t = useT();
   const { showAlert, alertElement } = useAlert();
-  // The Digital Agent profile — the same id a community's creator registers
-  // (CreateCommunityPage), so get_partners can resolve every member's name.
+  // The Digital Agent profile, which the member list records so that other
+  // members can show this member's name.
   const { publicKey, serverUrl, digitalAgentContractId } = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -34,19 +29,8 @@ const JoinCommunity: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   // Store decoded data for display and editing
   const [decodedData, setDecodedData] = useState('');
-  const joinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearJoinTimeout = () => {
-    if (joinTimeoutRef.current) {
-      clearTimeout(joinTimeoutRef.current);
-      joinTimeoutRef.current = null;
-    }
-  };
-
-  useEffect(() => clearJoinTimeout, []);
 
   const failJoin = (message: string) => {
-    clearJoinTimeout();
     setIsJoining(false);
     setJoinSuccess(false);
     showAlert(
@@ -58,7 +42,6 @@ const JoinCommunity: React.FC = () => {
   // Joined (or already a member): refresh the contract list, which now holds
   // the community, and go to the communities page.
   const finishJoin = async () => {
-    clearJoinTimeout();
     setIsResetting(true);
     setIsJoining(false);
     try {
@@ -76,22 +59,6 @@ const JoinCommunity: React.FC = () => {
     setIsResetting(false);
     navigate('/identity/communities', { replace: true });
   };
-
-  // The joiner's node confirms the join with `a2a_connect`; `reply: false`
-  // means the community's node refused it.
-  const onA2AConnect = useEffectEvent((event: BlockchainEvent) => {
-    if (!isJoining || !parsedInvite) return;
-    if (event.reply === false) {
-      failJoin(t('join.refused', 'The community refused the request.'));
-      return;
-    }
-    void finishJoin();
-  });
-  useEffect(() => {
-    const handler = (event: BlockchainEvent) => onA2AConnect(event);
-    eventStreamService.addEventListener('a2a_connect', handler);
-    return () => eventStreamService.removeEventListener('a2a_connect', handler);
-  }, []);
 
   const handleScanQR = () => {
     setShowScanner(true);
@@ -126,25 +93,15 @@ const JoinCommunity: React.FC = () => {
     setIsJoining(true);
     setJoinSuccess(false);
     try {
-      const ack = await joinContract({
-        serverUrl: serverUrl,
-        publicKey: publicKey,
-        address: server,
-        agent,
-        contract,
-        profile: digitalAgentContractId || ''
+      // The user approves the join on their node; once their node holds the
+      // community, they enroll in its member list.
+      await joinCommunity({
+        contractId: contract,
+        host: { server, agent },
+        serverUrl,
+        profile: digitalAgentContractId || '',
       });
-      // Only a real join returns an ack id and confirms later. null means this
-      // agent already holds the contract; a demo join resolves at once.
-      if (typeof ack !== 'string') {
-        await finishJoin();
-        return;
-      }
-      // Otherwise the button stays busy until a2a_connect arrives.
-      clearJoinTimeout();
-      joinTimeoutRef.current = setTimeout(() => {
-        failJoin(t('join.timeout', "The community's server didn't answer. Check the join details and try again."));
-      }, JOIN_TIMEOUT_MS);
+      await finishJoin();
     } catch (error) {
       failJoin(error instanceof Error ? error.message : String(error));
     }
