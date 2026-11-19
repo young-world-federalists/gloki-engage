@@ -9,6 +9,11 @@ import type { Dictionary } from './types';
 const fr: Dictionary = {
   // ── Common actions / status ────────────────────────────────────────────
   'common.close': 'Fermer',
+  'approval.prompt.title': 'Votre approbation est nécessaire',
+  'approval.prompt.body': 'Il nous faut votre approbation avant de continuer.',
+  'approval.prompt.againTitle': 'Encore une approbation',
+  'approval.prompt.againBody': 'Merci de votre patience. Il nous faut votre approbation une fois de plus.',
+  'approval.prompt.go': 'Allons-y',
   'common.cancel': 'Annuler',
   'common.save': 'Enregistrer',
   'common.confirm': 'Confirmer',

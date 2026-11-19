@@ -190,10 +190,11 @@ async function act(method: string, values: Record<string, unknown>): Promise<voi
  */
 export async function becomeFounder(me: RegistryIdentity): Promise<void> {
   known = null;
-  if (await getVerificationLocation()) throw new Error('Verification has already started');
-  // Two approvals: if the browser blocked the second, the next click resumes
-  // with the contract already deployed.
-  const deployed = (await myContracts(true)).find((c) => c.name === VERIFICATION_CONTRACT_NAME && c.role === 'partner');
+  // Nothing is asked of a node before the deploy, so the click opens its
+  // approval (the page showed the founder phase, and the settings refuse a
+  // second contract). The contracts the user holds are known already; a
+  // contract deployed by an earlier try, stopped before registering, is reused.
+  const deployed = (await myContracts()).find((c) => c.name === VERIFICATION_CONTRACT_NAME && c.role === 'partner');
   const contractId = deployed?.id ?? (await deploy({
     ...VERIFICATION,
     name: VERIFICATION_CONTRACT_NAME,

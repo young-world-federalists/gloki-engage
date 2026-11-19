@@ -8,6 +8,11 @@ import type { Dictionary } from './types';
 const sw: Dictionary = {
   // ── Common actions / status ────────────────────────────────────────────
   'common.close': 'Funga',
+  'approval.prompt.title': 'Idhini yako inahitajika',
+  'approval.prompt.body': 'Tunahitaji idhini yako kabla ya kuendelea.',
+  'approval.prompt.againTitle': 'Idhini moja zaidi',
+  'approval.prompt.againBody': 'Asante kwa uvumilivu wako. Tunahitaji uidhinishe mara moja zaidi.',
+  'approval.prompt.go': 'Endelea',
   'common.cancel': 'Ghairi',
   'common.save': 'Hifadhi',
   'common.confirm': 'Thibitisha',

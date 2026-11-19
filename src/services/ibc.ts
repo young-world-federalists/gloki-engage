@@ -9,7 +9,10 @@
 import {
   Ibc,
   IbcApp,
+  approve,
   checksum,
+  needsApproval,
+  toHex,
   type CallOptions,
   type ContractSummary,
   type IbcEvent,
@@ -40,9 +43,8 @@ const sameAgent = (a: string | null | undefined, b: string | null | undefined): 
 
 /**
  * The client's error, as the app shows it: a revert reads as the contract
- * wrote it. A browser opens the node's approval window only right after a
- * click, so an approval that comes later (a second one in a row, or after a
- * slow step) is blocked: the user clicks again to continue.
+ * wrote it. Approvals open straight from clicks (see Approvals), but a popup
+ * blocker can still refuse the window: the user clicks again to continue.
  */
 function contractError(err: unknown): Error {
   const message = err instanceof Error ? err.message : String(err);
@@ -50,6 +52,61 @@ function contractError(err: unknown): Error {
     return new Error('Your browser blocked the approval window of your node. Click again to continue.', { cause: err });
   }
   return new Error(message.replace(/^execution reverted: /, ''), { cause: err });
+}
+
+// ─── Approvals ──────────────────────────────────────────────────────────────
+//
+// The node's approval page opens only straight from a click: browsers block a
+// window opened later. So an approval opens at once only within the click's
+// own task. One that comes after anything was waited for (a reply from a
+// node, an approval before it) first asks the user for one more click, in a
+// short dialog (ApprovalPrompt) whose button opens the page.
+
+let clickTask = false;
+let approvedSinceClick = false;
+
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (!e.isTrusted) return;
+      clickTask = true;
+      setTimeout(() => {
+        clickTask = false;
+      });
+      if (!(e.target instanceof Element && e.target.closest('[data-approval-prompt]'))) approvedSinceClick = false;
+    },
+    true,
+  );
+}
+
+/**
+ * Shows the dialog asking for one more click; `again` when the user approved
+ * something since their own click. Its button calls `proceed` from its click;
+ * closing it calls `dismiss`.
+ */
+type ApprovalPrompter = (again: boolean, proceed: () => void, dismiss: () => void) => void;
+let prompter: ApprovalPrompter | null = null;
+
+/** The dialog that asks for one more click (one at a time; ApprovalPrompt mounts it). */
+export function setApprovalPrompter(p: ApprovalPrompter | null): void {
+  prompter = p;
+}
+
+/** Runs `open` (which opens the node's approval page) straight from a click: this one, or the dialog's. */
+function approval<T>(open: () => Promise<T>): Promise<T> {
+  const run = () => open().finally(() => {
+    approvedSinceClick = true;
+  });
+  if (clickTask || !prompter) return run();
+  const ask = prompter;
+  return new Promise<T>((resolve, reject) => {
+    ask(
+      approvedSinceClick,
+      () => run().then(resolve, reject),
+      () => reject(new Error('the approval window was closed')),
+    );
+  });
 }
 
 function connected(): IbcApp {
@@ -85,7 +142,7 @@ export async function openNode(node: string): Promise<void> {
 /** From a click: the user signs in (or creates an identity) on their node. Resolves with their agent id. */
 export async function signIn(node: string): Promise<string> {
   await openNode(node);
-  const agent = checksum(await app!.connect().catch((err) => {
+  const agent = checksum(await approval(() => app!.connect()).catch((err) => {
     throw contractError(err);
   }));
   attachStream(app!);
@@ -154,13 +211,30 @@ export async function read(
   { at, host }: CallOptions & { host?: ContractHost } = {},
 ): Promise<unknown> {
   try {
-    if (await holds(contract)) return await connected().read(contract, method, values, { at });
+    if (await holds(contract)) return await ownRead(contract, method, values, { at });
     if (host) return await politePublicRead(host, contract, method, values, { at });
   } catch (err) {
     throw contractError(err);
   }
   throw new Error('no such contract');
 }
+
+/** A read of the user's copy: silent if they allowed it, otherwise approved on their node's page. */
+async function ownRead(contract: string, method: string, values: Record<string, unknown>, { at }: CallOptions): Promise<unknown> {
+  const a = connected();
+  try {
+    return await a.ibc!.read(contract, method, values, { at });
+  } catch (err) {
+    if (!needsApproval(err)) throw err;
+  }
+  const { value } = await approval(() => approve(a.node, { type: 'read', contract, method, values, ...(at ? { at } : {}), appKey: appKeyOf(a) }));
+  if (value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 1 && 'error' in value) {
+    throw new Error(String(value.error));
+  }
+  return value;
+}
+
+const appKeyOf = (a: IbcApp): string => toHex(a.ibc!.appKey!.publicKey);
 
 // A node limits public reads per client (a burst of 20, then 10 a second).
 // Pages read the same things from several components at once, so identical
@@ -232,7 +306,14 @@ export async function write(
   const a = connected();
   if (guest && !(await holds(contract))) await join(contract, guest.host, guest, { guest: true });
   try {
-    return await a.write(contract, method, values, { at });
+    try {
+      return await a.ibc!.writeSilently(contract, method, values, { at });
+    } catch (err) {
+      if (!needsApproval(err)) throw err;
+    }
+    const { reply, error } = await approval(() => approve(a.node, { type: 'call', contract, method, values, ...(at ? { at } : {}), appKey: appKeyOf(a) }));
+    if (typeof error === 'string' && error) throw new Error(error);
+    return reply;
   } catch (err) {
     throw contractError(err);
   } finally {
@@ -253,7 +334,8 @@ export async function deploy({
   isPublic = false,
 }: ContractSource & { name: string; args: Record<string, unknown>; isPublic?: boolean }): Promise<string> {
   try {
-    return await connected().deploy({ source, contract: contractName, name, constructor: args, public: isPublic });
+    const a = connected();
+    return await approval(() => a.deploy({ source, contract: contractName, name, constructor: args, public: isPublic }));
   } catch (err) {
     throw contractError(err);
   } finally {
@@ -280,7 +362,7 @@ export async function join(
     else outcomes.set(event.request, event);
   });
   try {
-    const id = await a.join(contract, host.server, host.agent, { source, contractName, guest }).catch((err) => {
+    const id = await approval(() => a.join(contract, host.server, host.agent, { source, contractName, guest })).catch((err) => {
       throw contractError(err);
     });
     const outcome = outcomes.get(id) ?? (await new Promise<IbcEvent>((resolve, reject) => {

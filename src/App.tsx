@@ -4,6 +4,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/useAuth';
 import ErrorBoundary from './components/shared/ErrorBoundary';
+import ApprovalPrompt from './components/shared/ApprovalPrompt';
 import { OfflineBanner } from './components/shared/connectivity';
 import NotFound from './pages/NotFound';
 import { TwoStatePage, RealOnlyPage, StageFooter, ToastProvider } from './components/shared';
@@ -178,6 +179,7 @@ function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <ApprovalPrompt />
     </AuthProvider>
   );
 }

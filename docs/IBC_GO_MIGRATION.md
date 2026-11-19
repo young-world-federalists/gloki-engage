@@ -41,6 +41,7 @@ Most of Eston's security asks in `docs/FOR_OURI_seam.md` dissolve with this:
   effects; for example, `useVerificationRegistry` calls `register` automatically. They become a
   button, or a granted silent call. Check whether `IbcApp` opens the window before its first `await`.
   If not, any `await` in our click handlers before it will get the popup blocked.
+  (Settled by open question 1's dialog: an approval without a fresh click asks for one.)
 - **Grants.** For each contract source, list which functions the app asks to call silently, and which
   stay passkey-signed on purpose:
   - Silent: comments, likes, problem votes, approvals, enrolling as a member.
@@ -168,23 +169,23 @@ until the cutover. The demo layer (`?demo=true`) is untouched throughout.
 
 ## Open questions
 
-1. **Approval popups can be blocked (to discuss; possibly an ibc-go issue).** Browsers let a page
-   open a window only within a short time of the user's click: a few seconds in Chrome and Firefox,
-   about one second in Safari. After that, `window.open` returns nothing.
-   - In ibc-go's `js/src/ibc.ts`, `IbcApp.write` (and `read`) first awaits a round trip to the node
-     (`writeSilently`). Only if the node answers "needs approval" does it call `window.open` for the
-     approval page. A slow node, or our own awaits between the click and the call, can use up that
-     time.
-   - The user then gets `the approval window was blocked` instead of the approval page.
-     `deploy`/`join`/`connect` open the window at once and are not affected.
-   - Options:
-     - (i) The app keeps its consent locally, so it knows without a round trip whether a call needs
-       approval.
-     - (ii) Open the window first, within the click, then close it if the silent call succeeds
-       (a flash).
-     - (iii) Report "needs approval" to the app, which shows a button whose click opens the page.
-   - Until decided, our side keeps the work between a click and a write short, and offers a
-     "Continue" button on that error.
+1. **Approval popups: decided (Ouri, 2026-11-20).** Browsers open a window only right after a click,
+   so the node's approval page always opens straight from a click.
+   - An approval opens at once only within the click's own task. One that comes after anything was
+     waited for opens a short generic dialog first ("Your approval is needed", or "One more approval"
+     after an earlier one), with one button, **Go ahead**, whose click opens the node's page. Waiting
+     for anything counts: a reply from a node (a write the node says needs approval), or an earlier
+     approval (a deploy, then a guest join). The dialog says nothing about what is approved, and has
+     no cancel button: the node's page shows what it is and is where the user declines.
+   - One gate does it for every approval (connect, deploy, join, and reads and writes that need
+     approval): `approval()` in `src/services/ibc.ts`, with the dialog in
+     `components/shared/ApprovalPrompt.tsx`. For reads and writes the app makes the silent call itself
+     and, on "needs approval", calls the client's exported `approve()`, so the page opens without a
+     second round trip (`IbcApp.write` would retry silently first).
+   - Flows that know they need an approval do it first, from the click: "Get verified" checks the
+     contracts it holds (already known), deploys from the click, and gets "One more approval" for the
+     guest join of the settings contract.
+   - A popup blocker can still refuse the window; that error says to click again.
 
 2. **Anyone can claim verification in the settings contract (to discuss; left as is).**
    `ApplicationSettings.register_verification` is open to every signed-in agent, who joins as a guest.
@@ -245,8 +246,9 @@ have model-made fr/sw translations (native review still to do; not yet in
 `Storage()`, `contractHosts.ts`/`agent`, `useFlowContract` single-contract mode notes).
 
 **Open:**
-- Approval popups after a slow step (open question 1). Founding verification needs two approvals in a
-  row; if the browser blocks the second, clicking again resumes.
+- The approval dialog (open question 1, decided 2026-11-20) is built but not yet tried in a browser.
+  A write started by an effect, not a click (`useVerificationRegistry`'s automatic `register`), now
+  shows the dialog when it needs approval.
 - Public reads are rate-limited per client address (a burst of 20, then 10 a second): a feed of many
   issues the user hasn't joined reads them all publicly. Shared requests and retries cover it in the
   tests; a busier page may need a lighter read pattern (for example one summary read per issue).
