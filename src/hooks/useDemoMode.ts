@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 // Per-page demo switch (docs/DEMO_MODE.md). Every URL has two states:
 //   /identity/communities            → the real page, on real data
@@ -9,16 +9,19 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // next pages stay in demo mode (DemoFlagUrlSync writes `?demo=true` back into
 // their URL) until the visitor leaves on purpose — `?demo=false`, or a
 // navigation carrying `{ leaveDemo: true }` state ("Show real data"). A fresh
-// page load starts from the URL alone.
+// page load, Back and Forward (all POP) start from the URL alone: every demo
+// page already has `?demo=true` in its history entry, so a URL without it is
+// a real page.
 
 const DEMO_PARAM = 'demo';
 
 let stickyDemo = false;
 
 /** Updates the carried-over flag from a location and returns it. */
-function resolveDemoFlag(search: string, state: unknown): boolean {
+function resolveDemoFlag(search: string, state: unknown, navigationType: NavigationType): boolean {
   const param = new URLSearchParams(search).get(DEMO_PARAM);
-  if (param === 'true') stickyDemo = true;
+  if (navigationType === NavigationType.Pop) stickyDemo = param === 'true';
+  else if (param === 'true') stickyDemo = true;
   else if (param === 'false' || (state as { leaveDemo?: boolean } | null)?.leaveDemo) stickyDemo = false;
   return stickyDemo;
 }
@@ -26,7 +29,8 @@ function resolveDemoFlag(search: string, state: unknown): boolean {
 /** True when the current page is in demo mode (`?demo=true`, or carried over from the previous page). */
 export function useDemoMode(): boolean {
   const { search, state } = useLocation();
-  return resolveDemoFlag(search, state);
+  const navigationType = useNavigationType();
+  return resolveDemoFlag(search, state, navigationType);
 }
 
 /** Navigation state that leaves demo mode (for links back to real data). */
