@@ -4,9 +4,9 @@
 page can also have a demo variant at `?demo=true`. Read **[docs/DEMO_MODE.md](./docs/DEMO_MODE.md)**
 first. (`server-side` and `ui` are the retired two-branch model; GitHub Pages is deployed by hand.)
 
-> **IBC-GO (2026-11-19):** `unified` has been merged into `main`, which is now the trunk and the default branch. The
-> move to ibc-go is on the branch `ibc-go-migration`; its plan and current state are in
-> [docs/IBC_GO_MIGRATION.md](./docs/IBC_GO_MIGRATION.md).
+> **IBC-GO (2026-11-20):** `unified` has been merged into `main`, which is now the trunk and the default branch.
+> The move to ibc-go is merged into `main` too (from `ibc-go-migration`); its plan, decisions and what is
+> still open are in [docs/IBC_GO_MIGRATION.md](./docs/IBC_GO_MIGRATION.md).
 
 > Architecture, the 8 flows, learnings, and known limitations live in
 > **[ARCHITECTURE.md](./ARCHITECTURE.md)**. UI standards live in
@@ -98,8 +98,8 @@ docs/DEMO_MODE.md).
   > **IBC-GO (2026-11-19):** a third required setting, `VITE_APPLICATION_SETTINGS_CONTRACT` (the public
   > `ApplicationSettings` contract). `node tools/setup-application.mjs <node url> <key file>` creates the
   > account and prints all three settings, once per network. `.env` leaves the agent and settings
-  > contract empty until the live node is set up after the migration merges; use `.env.local` for a local
-  > node at `http://localhost:2611`.
+  > contract empty until the live node (ouri.gloki.contact) is set up, the next step now that the
+  > migration is merged; use `.env.local` for a local node at `http://localhost:2611`.
 - The beta trim is a build mode (`VITE_APP_MODE=beta`, `npm run dev:beta` / `build:beta`), separate
   from `?demo=true`. On a beta build, localStorage `gloki.fullApp` = `'true'` turns the whole app into the
   full app in that browser (the beta writes the key as `'false'` on first load; reload after changing
